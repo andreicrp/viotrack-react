@@ -808,19 +808,21 @@ export const ScanQRPage = () => {
           </div>
 
           {/* Video Viewport Container */}
-          <div className="scanner-viewport-wrapper">
+          <div className={`scanner-viewport-wrapper ${cameraError ? 'camera-error-active' : ''}`}>
             <div id="reader-stream-container" />
 
-            {/* Custom Glowing Reticle HUD */}
-            <div className="scanner-overlay-reticle">
-              <div className="reticle-box">
-                <div className="corner-bracket top-left" />
-                <div className="corner-bracket top-right" />
-                <div className="corner-bracket bottom-left" />
-                <div className="corner-bracket bottom-right" />
-                {!isScanningPaused && isScannerRunning && <div className="laser-scan-line" />}
+            {/* Custom Glowing Reticle HUD (Only when camera is active) */}
+            {!cameraError && (
+              <div className="scanner-overlay-reticle">
+                <div className="reticle-box">
+                  <div className="corner-bracket top-left" />
+                  <div className="corner-bracket top-right" />
+                  <div className="corner-bracket bottom-left" />
+                  <div className="corner-bracket bottom-right" />
+                  {!isScanningPaused && isScannerRunning && <div className="laser-scan-line" />}
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Camera Error / Permission Fallback Overlay */}
             {cameraError && (
