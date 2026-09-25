@@ -1635,10 +1635,45 @@
    Mobile Camera Viewport & Reticle Adaptations
    ========================================================================== */
 @media (max-width: 768px) {
+  .scan-qr-page {
+    padding-left: 0;
+    padding-right: 0;
+    gap: 14px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .scanner-grid-container {
+    width: 100%;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  .scanner-card {
+    padding: 14px;
+    border-radius: 14px;
+    gap: 12px;
+    width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+
+  .scanner-card-header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+  }
+
   .scanner-viewport-wrapper {
-    aspect-ratio: 1 / 1;
-    max-height: 320px;
+    width: 100%;
+    aspect-ratio: auto;
+    min-height: 310px;
     border-radius: 12px;
+    overflow: hidden !important;
+    box-sizing: border-box;
   }
 
   .reticle-box {
@@ -1653,26 +1688,127 @@
     border-width: 3px;
   }
 
-  .custom-camera-dropdown-container {
+  .camera-notice-overlay {
+    padding: 10px;
+    position: absolute;
+    inset: 0;
+    box-sizing: border-box;
+    overflow-y: auto;
+  }
+
+  .camera-notice-card {
+    padding: 14px 12px 12px 12px;
+    gap: 10px;
+    border-radius: 14px;
     max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  .camera-notice-icon-wrap {
+    width: 42px;
+    height: 42px;
+  }
+
+  .camera-notice-icon-wrap svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .camera-notice-title {
+    font-size: 14.5px;
+  }
+
+  .camera-notice-text {
+    font-size: 11px;
+    line-height: 1.4;
+    max-width: 100%;
+  }
+
+  .camera-detected-device-pill {
+    padding: 3px 8px;
+  }
+
+  .camera-device-pill-text {
+    font-size: 10.5px;
+  }
+
+  .camera-notice-actions {
+    gap: 6px;
     width: 100%;
   }
 
-  .custom-camera-trigger {
-    max-width: 100%;
+  .camera-notice-btn {
+    padding: 8px 8px;
+    font-size: 11.5px;
+    min-width: 0;
+  }
+
+  .camera-notice-hint-btn {
+    font-size: 10.5px;
+    padding: 5px 8px;
+    white-space: normal;
+    word-break: break-word;
+    line-height: 1.3;
+  }
+
+  .scanner-controls-bar {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .scan-ctrl-btn {
+    width: 100%;
+    padding: 8px 4px;
+    font-size: 11.5px;
+    gap: 4px;
+    justify-content: center;
+    min-width: 0;
+    box-sizing: border-box;
+  }
+
+  .scan-ctrl-btn span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 }
 
 @media (max-width: 480px) {
+  .scanner-card {
+    padding: 12px;
+  }
+
   .scanner-viewport-wrapper {
-    aspect-ratio: 1 / 1;
-    max-height: 280px;
+    min-height: 295px;
+  }
+
+  .scanner-controls-bar {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 5px;
+  }
+
+  .scan-ctrl-btn {
+    padding: 7px 3px;
+    font-size: 11px;
+    gap: 3px;
   }
 
   .reticle-box {
-    width: 165px;
-    height: 165px;
+    width: 160px;
+    height: 160px;
     border-radius: 12px;
+  }
+}
+
+@media (max-width: 360px) {
+  .scanner-controls-bar {
+    grid-template-columns: 1fr 1fr;
+  }
+  .scan-ctrl-btn:last-child {
+    grid-column: span 2;
   }
 }
 
