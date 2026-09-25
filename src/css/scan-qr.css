@@ -1378,6 +1378,124 @@
   color: #b91c1c;
 }
 
+/* ==========================================================================
+   Loading.io Inspired "Swing" Loader Animation
+   Two swinging balls crossing orbital paths with smooth ease-in-out physics
+   ========================================================================== */
+.ldio-swing-wrapper {
+  position: relative;
+  width: 96px;
+  height: 96px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ldio-swing-orbit {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  animation: ldio-swing-rotate 2.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+.ldio-swing-ball {
+  position: absolute;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  top: 50%;
+  left: 50%;
+  margin-top: -13px;
+  margin-left: -13px;
+}
+
+.ldio-swing-ball.ball-1 {
+  background: linear-gradient(135deg, #1e293b 0%, #27367f 100%);
+  box-shadow: 0 4px 14px rgba(39, 54, 127, 0.45);
+  animation: ldio-swing-path-1 1.4s ease-in-out infinite alternate;
+}
+
+.ldio-swing-ball.ball-2 {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.45);
+  animation: ldio-swing-path-2 1.4s ease-in-out infinite alternate;
+}
+
+@keyframes ldio-swing-rotate {
+  0% { transform: rotate(0deg); }
+  50% { transform: rotate(180deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes ldio-swing-path-1 {
+  0% {
+    transform: translate(-30px, 0) scale(0.75);
+    opacity: 0.8;
+  }
+  50% {
+    transform: translate(0, 0) scale(1.25);
+    opacity: 1;
+    z-index: 2;
+  }
+  100% {
+    transform: translate(30px, 0) scale(0.75);
+    opacity: 0.8;
+    z-index: 1;
+  }
+}
+
+@keyframes ldio-swing-path-2 {
+  0% {
+    transform: translate(30px, 0) scale(1.25);
+    opacity: 1;
+    z-index: 2;
+  }
+  50% {
+    transform: translate(0, 0) scale(0.75);
+    opacity: 0.8;
+    z-index: 1;
+  }
+  100% {
+    transform: translate(-30px, 0) scale(1.25);
+    opacity: 1;
+    z-index: 2;
+  }
+}
+
+/* Modern Progress Bar in Loading Modal */
+.scan-progress-bar-container {
+  width: 100%;
+  height: 6px;
+  background: #e2e8f0;
+  border-radius: 999px;
+  overflow: hidden;
+  margin-top: 6px;
+  position: relative;
+}
+
+.scan-progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #27367f 0%, #3b82f6 50%, #60a5fa 100%);
+  border-radius: 999px;
+  transition: width 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+}
+
+.scan-timer-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #64748b;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  padding: 3px 10px;
+  border-radius: 12px;
+  margin-top: 4px;
+}
+
 /* Image Scan Loading & Decoding State */
 .scan-processing-state {
   flex: 1;

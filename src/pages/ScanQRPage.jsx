@@ -56,6 +56,8 @@ export const ScanQRPage = () => {
   const [isViolationModalOpen, setIsViolationModalOpen] = useState(false);
   const [isProcessingScan, setIsProcessingScan] = useState(false);
   const [scanProcessingStep, setScanProcessingStep] = useState('');
+  const [scanProcessingSubstep, setScanProcessingSubstep] = useState('');
+  const [scanProgressPercent, setScanProgressPercent] = useState(0);
 
   const html5QrCodeRef = useRef(null);
   const fileInputRef = useRef(null);
@@ -319,13 +321,12 @@ export const ScanQRPage = () => {
                   lastScannedCodeRef.current = cleanText;
                   lastScannedTimeRef.current = now;
 
-                  playScanBeep();
-                  handleProcessDecodedText(cleanText);
+                  processScanWithAnimation(cleanText);
 
                   // Release lock after cooldown
                   setTimeout(() => {
                     isScanningLockedRef.current = false;
-                  }, 2500);
+                  }, 6000);
                 },
                 () => {} // Quiet frame noise
               );
@@ -509,13 +510,96 @@ export const ScanQRPage = () => {
     });
   };
 
-  // Upload QR Image File with Multi-Engine Fallback & 3-Second Staged Sequence
+  // 5-Second Staged Swing Loading & Verification Sequence
+  const processScanWithAnimation = async (rawInput) => {
+    setIsProcessingScan(true);
+    setScanProgressPercent(15);
+    setScanProcessingStep('Scanning visual QR matrix...');
+    setScanProcessingSubstep('Optical code captured from device');
+    const startTime = Date.now();
+
+    try {
+      const students = allStudents.length > 0 ? allStudents : await dataService.getStudents();
+      let clean = (rawInput || '').trim();
+      let matched = null;
+
+      if (clean.includes('id=')) {
+        const urlParams = new URLSearchParams(clean.split('?')[1]);
+        const sid = urlParams.get('id');
+        if (sid) matched = students.find(s => s.id === Number(sid));
+      } else if (clean.includes('student-violation/')) {
+        const parts = clean.split('student-violation/')[1];
+        const sid = parts.split('?')[0];
+        if (sid) matched = students.find(s => s.id === Number(sid) || s.lrn.trim() === sid.trim());
+      } else if (clean.includes('VIOTRACK-STUDENT:')) {
+        clean = clean.split(':')[1] || clean;
+        matched = students.find(s => s.lrn.trim() === clean.trim() || s.lrn.includes(clean));
+      } else {
+        matched = students.find(
+          s =>
+            s.lrn.trim() === clean.trim() ||
+            s.lrn.includes(clean) ||
+            `${s.fname} ${s.lname}`.toLowerCase().includes(clean.toLowerCase())
+        );
+      }
+
+      // Stage 1 (0 -> 1800ms): Scanning visual matrix
+      const elapsed1 = Date.now() - startTime;
+      if (elapsed1 < 1800) {
+        await new Promise(r => setTimeout(r, 1800 - elapsed1));
+      }
+
+      // Stage 2 (1800ms -> 3600ms): Database matching
+      setScanProgressPercent(65);
+      setScanProcessingStep('QR Matrix Verified! Locating student record...');
+      setScanProcessingSubstep('Querying conduct database & disciplinary files');
+
+      const elapsed2 = Date.now() - startTime;
+      if (elapsed2 < 3600) {
+        await new Promise(r => setTimeout(r, 3600 - elapsed2));
+      }
+
+      // Stage 3 (3600ms -> 5000ms): Profile preparation
+      setScanProgressPercent(100);
+      setScanProcessingStep('Student Profile Found! Finalizing summary...');
+      setScanProcessingSubstep('Preparing verified conduct report');
+
+      const finalElapsed = Date.now() - startTime;
+      if (finalElapsed < 5000) {
+        await new Promise(r => setTimeout(r, 5000 - finalElapsed));
+      }
+
+      setIsProcessingScan(false);
+      setScanProcessingStep('');
+      setScanProcessingSubstep('');
+      setScanProgressPercent(0);
+
+      if (matched) {
+        playScanBeep();
+        setScannedStudent(matched);
+        loadStudentRecords(matched.id);
+        success(`Student Identified: ${matched.fname} ${matched.lname} (${matched.lrn})`);
+      } else {
+        error(`No student record found matching: "${rawInput}"`);
+      }
+    } catch (err) {
+      setIsProcessingScan(false);
+      setScanProcessingStep('');
+      setScanProcessingSubstep('');
+      setScanProgressPercent(0);
+      error('Search error: ' + err.message);
+    }
+  };
+
+  // Upload QR Image File with Multi-Engine Fallback
   const handleFileUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     setIsProcessingScan(true);
+    setScanProgressPercent(15);
     setScanProcessingStep('Scanning visual QR matrix from image...');
+    setScanProcessingSubstep('Optical code captured from image file');
     const startTime = Date.now();
 
     try {
@@ -561,81 +645,32 @@ export const ScanQRPage = () => {
       }
 
       if (decodedText) {
-        // Stage 1 -> 2: Progress to Database Match
-        const elapsed1 = Date.now() - startTime;
-        if (elapsed1 < 1300) {
-          await new Promise(r => setTimeout(r, 1300 - elapsed1));
-        }
-        setScanProcessingStep('QR Matrix Verified! Locating student conduct profile...');
-
-        // Stage 2 -> 3: Progress to Profile Preparation
-        const elapsed2 = Date.now() - startTime;
-        if (elapsed2 < 2300) {
-          await new Promise(r => setTimeout(r, 2300 - elapsed2));
-        }
-        setScanProcessingStep('Student Record Found! Preparing conduct summary...');
-
-        // Fulfill full 3.0s total duration
-        const finalElapsed = Date.now() - startTime;
-        if (finalElapsed < 3000) {
-          await new Promise(r => setTimeout(r, 3000 - finalElapsed));
-        }
-
-        playScanBeep();
-        await handleProcessDecodedText(decodedText);
+        await processScanWithAnimation(decodedText);
       } else {
         const elapsed = Date.now() - startTime;
         if (elapsed < 1200) {
           await new Promise(r => setTimeout(r, 1200 - elapsed));
         }
+        setIsProcessingScan(false);
+        setScanProcessingStep('');
+        setScanProcessingSubstep('');
+        setScanProgressPercent(0);
         error('Could not detect QR code in this image. Please ensure the QR code is clearly visible.');
       }
     } catch (err) {
-      error('Failed to read image file: ' + err.message);
-    } finally {
       setIsProcessingScan(false);
       setScanProcessingStep('');
+      setScanProcessingSubstep('');
+      setScanProgressPercent(0);
+      error('Failed to read image file: ' + err.message);
+    } finally {
       if (fileInputRef.current) fileInputRef.current.value = '';
     }
   };
 
-  // Decode and find student
+  // Decode and find student (immediate)
   const handleProcessDecodedText = async (rawInput) => {
-    try {
-      const students = allStudents.length > 0 ? allStudents : await dataService.getStudents();
-      let clean = (rawInput || '').trim();
-      let matched = null;
-
-      if (clean.includes('id=')) {
-        const urlParams = new URLSearchParams(clean.split('?')[1]);
-        const sid = urlParams.get('id');
-        if (sid) matched = students.find(s => s.id === Number(sid));
-      } else if (clean.includes('student-violation/')) {
-        const parts = clean.split('student-violation/')[1];
-        const sid = parts.split('?')[0];
-        if (sid) matched = students.find(s => s.id === Number(sid) || s.lrn.trim() === sid.trim());
-      } else if (clean.includes('VIOTRACK-STUDENT:')) {
-        clean = clean.split(':')[1] || clean;
-        matched = students.find(s => s.lrn.trim() === clean.trim() || s.lrn.includes(clean));
-      } else {
-        matched = students.find(
-          s =>
-            s.lrn.trim() === clean.trim() ||
-            s.lrn.includes(clean) ||
-            `${s.fname} ${s.lname}`.toLowerCase().includes(clean.toLowerCase())
-        );
-      }
-
-      if (matched) {
-        setScannedStudent(matched);
-        loadStudentRecords(matched.id);
-        success(`Student Identified: ${matched.fname} ${matched.lname} (${matched.lrn})`);
-      } else {
-        error(`No student record found matching: "${rawInput}"`);
-      }
-    } catch (err) {
-      error('Search error: ' + err.message);
-    }
+    processScanWithAnimation(rawInput);
   };
 
   const loadStudentRecords = async (studentId) => {
@@ -995,30 +1030,43 @@ export const ScanQRPage = () => {
         </div>
       </div>
 
-      {/* Image File Scanning Progress Modal Overlay */}
+      {/* 5-Second Swing Loading Modal Overlay */}
       {isProcessingScan && (
         <div className="student-scan-modal-overlay">
-          <div className="student-scan-modal-dialog" style={{ maxWidth: '440px', textAlign: 'center', padding: '32px 24px' }}>
+          <div className="student-scan-modal-dialog" style={{ maxWidth: '420px', textAlign: 'center', padding: '34px 24px' }}>
             <div className="scan-processing-state" style={{ margin: 0, padding: 0 }}>
-              <div className="processing-pulse-wrapper">
-                <div className="processing-pulse-ring" />
-                <div className="processing-pulse-ring delay" />
-                <div className="processing-icon-box">
-                  <Loader2 size={28} className="spinner" style={{ animation: 'spin 1s linear infinite', color: '#27367f' }} />
+              {/* Swing Animation */}
+              <div className="ldio-swing-wrapper">
+                <div className="ldio-swing-orbit">
+                  <div className="ldio-swing-ball ball-1" />
+                  <div className="ldio-swing-ball ball-2" />
                 </div>
               </div>
-              <h3 className="processing-title" style={{ marginTop: '16px' }}>Scanning QR Code</h3>
-              <p className="processing-step-text">
-                {scanProcessingStep || 'Analyzing visual QR matrix & locating student records...'}
-              </p>
 
-              {/* Shimmer Placeholder Skeleton */}
-              <div className="processing-skeleton-card" style={{ marginTop: '16px' }}>
-                <div className="skeleton-avatar skeleton-shimmer" />
-                <div className="skeleton-lines">
-                  <div className="skeleton-line lg skeleton-shimmer" />
-                  <div className="skeleton-line sm skeleton-shimmer" />
-                  <div className="skeleton-line md skeleton-shimmer" />
+              <div style={{ marginTop: '14px' }}>
+                <h3 className="processing-title" style={{ fontSize: '18px', fontWeight: 800, color: '#0f172a' }}>
+                  Scanning & Verifying
+                </h3>
+                <p style={{ fontSize: '12px', color: '#64748b', marginTop: '3px' }}>
+                  {scanProcessingSubstep || 'Optical code captured from device'}
+                </p>
+              </div>
+
+              <div className="processing-step-text" style={{ marginTop: '8px' }}>
+                {scanProcessingStep || 'Scanning visual QR matrix...'}
+              </div>
+
+              {/* Dynamic 5s Progress Bar */}
+              <div style={{ width: '100%', maxWidth: '300px', margin: '14px auto 0 auto' }}>
+                <div className="scan-progress-bar-container">
+                  <div
+                    className="scan-progress-bar-fill"
+                    style={{ width: `${scanProgressPercent}%` }}
+                  />
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '6px' }}>
+                  <span className="scan-timer-pill">5s Security Verification</span>
+                  <span style={{ fontSize: '11.5px', fontWeight: 700, color: '#2563eb' }}>{scanProgressPercent}%</span>
                 </div>
               </div>
             </div>
