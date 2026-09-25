@@ -75,7 +75,7 @@ export const Header = ({ onToggleSidebar }) => {
           <div className="logo-icon" draggable={false}>
             <img src="/images/phcm-logo.png" alt="VioTrack Logo" draggable={false} />
           </div>
-          <span className="logo-text" draggable={false}>VIOTRACK: By Perpetual Help College of Manila</span>
+          <span className="logo-text" draggable={false}>VIOTRACK</span>
         </a>
         <a
           href="/"

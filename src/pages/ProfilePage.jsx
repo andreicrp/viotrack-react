@@ -714,7 +714,7 @@ export const ProfilePage = () => {
 
       {/* Footer copyright */}
       <div style={{ textAlign: 'center', color: '#94a3b8', fontSize: '12px', marginTop: '6px', paddingBottom: '16px' }}>
-        © 2026 VioTrack • Perpetual Help College of Manila. All rights reserved.
+        © 2026 VioTrack. All rights reserved.
       </div>
     </div>
   );

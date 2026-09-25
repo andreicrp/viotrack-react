@@ -67,8 +67,8 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
       </head>
       <body>
         <div class="header">
-          <div class="title">Perpetual Help College of Manila</div>
-          <div class="subtitle">Disciplinary Board & Guidance Counseling Department</div>
+          <div class="title">VioTrack</div>
+          <div class="subtitle">Disciplinary Board & Student Conduct Management</div>
           <div style="font-size: 16px; font-weight: bold; margin-top: 10px; color: #0f172a;">Official Case Resolution Certificate</div>
         </div>
 

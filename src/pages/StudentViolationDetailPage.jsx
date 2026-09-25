@@ -1522,7 +1522,7 @@ export const StudentViolationDetailPage = () => {
                 </label>
                 <textarea
                   rows={3}
-                  placeholder={`[VioTrack Notice] Dear ${student.parent_name || 'Guardian'}, please be informed that student ${student.fname} ${student.lname} has a recorded notice under category: ${smsReportType}. Please contact Perpetual Help College Guidance Office.`}
+                  placeholder={`[VioTrack Notice] Dear ${student.parent_name || 'Guardian'}, please be informed that student ${student.fname} ${student.lname} has a recorded notice under category: ${smsReportType}. Please contact the Guidance Office.`}
                   value={smsCustomMessage}
                   onChange={(e) => setSmsCustomMessage(e.target.value)}
                   style={{

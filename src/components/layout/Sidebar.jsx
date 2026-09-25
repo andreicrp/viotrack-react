@@ -280,9 +280,9 @@ export const Sidebar = ({ isCollapsed, isMobileOpen, onCloseMobile }) => {
           </div>
           <div className="mobile-drawer-footer">
             <div className="mobile-drawer-brand">
-              <span className="brand-dot"></span> VIOTRACK System v2.4
+              <span className="brand-dot"></span> VIOTRACK
             </div>
-            <div className="mobile-drawer-sub">Perpetual Help College of Manila</div>
+            <div className="mobile-drawer-sub">Student Conduct Tracking System</div>
           </div>
         </nav>
       </aside>
