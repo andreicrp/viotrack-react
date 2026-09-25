@@ -1,0 +1,264 @@
+/* Mobile optimizations for violation-record.php */
+
+/* Mobile Card View for Tables */
+@media (max-width: 992px) {
+    .violation-record-card {
+        padding: 14px;
+    }
+    
+    .violation-card-header {
+        flex-direction: column;
+    }
+    
+    .violation-header-actions {
+        width: 100%;
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .export-group {
+        width: 100%;
+        flex-direction: column;
+        gap: 6px;
+    }
+    
+    .date-input,
+    .btn-export,
+    .btn-add-record,
+    .btn-resolve-selected,
+    .btn-delete-selected {
+        width: 100%;
+        padding: 8px 12px;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 768px) {
+    .violation-table th:nth-child(4),
+    .violation-table td:nth-child(4),
+    .violation-table th:nth-child(5),
+    .violation-table td:nth-child(5) {
+        display: none;
+    }
+    
+    .violation-table td[data-label]::before {
+        content: attr(data-label);
+        font-weight: 600;
+        color: #6b7280;
+        display: block;
+        font-size: 10px;
+        text-transform: uppercase;
+        margin-bottom: 4px;
+    }
+    
+    .violation-table th,
+    .violation-table td {
+        padding: 8px 6px;
+        font-size: 11px;
+    }
+    
+    .checkbox-col {
+        width: 32px;
+    }
+    
+    .checkbox-col input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+    }
+    
+    .student-cell {
+        gap: 8px;
+    }
+    
+    .student-cell-avatar {
+        width: 32px;
+        height: 32px;
+    }
+    
+    .student-cell-name {
+        font-size: 12px;
+    }
+    
+    .student-cell-id {
+        font-size: 10px;
+    }
+    
+    .btn-status,
+    .btn-doc-proof {
+        padding: 6px 8px;
+        font-size: 10px;
+    }
+    
+    .btn-status span,
+    .btn-doc-proof span {
+        display: none;
+    }
+    
+    .btn-delete {
+        width: 28px;
+        height: 28px;
+    }
+}
+
+@media (max-width: 640px) {
+    .violation-record-card {
+        padding: 10px;
+    }
+    
+    .violation-table {
+        font-size: 10px;
+    }
+    
+    .violation-table th {
+        padding: 6px 4px;
+        font-size: 9px;
+    }
+    
+    .violation-table td {
+        padding: 8px 4px;
+        font-size: 10px;
+    }
+    
+    .checkbox-col {
+        width: 28px;
+    }
+    
+    .checkbox-col input[type="checkbox"] {
+        width: 14px;
+        height: 14px;
+    }
+    
+    .student-cell-avatar {
+        width: 28px;
+        height: 28px;
+    }
+    
+    .student-cell-name {
+        font-size: 11px;
+    }
+    
+    .student-cell-id {
+        font-size: 9px;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+        gap: 2px;
+    }
+    
+    .btn-status,
+    .btn-doc-proof {
+        padding: 4px 6px;
+        font-size: 9px;
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .btn-status i,
+    .btn-doc-proof i {
+        margin-right: 2px;
+    }
+    
+    .btn-delete {
+        width: 24px;
+        height: 24px;
+        font-size: 9px;
+    }
+}
+
+@media (max-width: 480px) {
+    .violation-record-card {
+        padding: 8px;
+    }
+    
+    .violation-card-header {
+        gap: 10px;
+    }
+    
+    .violation-title-section h3 {
+        font-size: 16px;
+    }
+    
+    .violation-header-actions {
+        gap: 4px;
+    }
+    
+    .btn-add-record,
+    .btn-resolve-selected,
+    .btn-delete-selected,
+    .btn-export,
+    .date-input {
+        padding: 6px 8px;
+        font-size: 10px;
+    }
+    
+    .btn-add-record i,
+    .btn-resolve-selected i,
+    .btn-delete-selected i,
+    .btn-export i {
+        display: none;
+    }
+    
+    .table-controls {
+        gap: 6px;
+    }
+    
+    .entries-control,
+    .search-control {
+        width: 100%;
+        gap: 4px;
+    }
+    
+    .entries-select,
+    .search-input {
+        width: 100%;
+        font-size: 11px;
+        padding: 6px 8px;
+    }
+    
+    .violation-table {
+        font-size: 9px;
+    }
+    
+    .violation-table th {
+        padding: 5px 3px;
+        font-size: 8px;
+    }
+    
+    .violation-table td {
+        padding: 6px 3px;
+    }
+    
+    .student-cell {
+        gap: 4px;
+    }
+    
+    .student-cell-avatar {
+        width: 24px;
+        height: 24px;
+    }
+    
+    .action-buttons {
+        gap: 1px;
+    }
+    
+    .btn-status,
+    .btn-doc-proof {
+        padding: 3px 4px;
+        font-size: 8px;
+        width: 100%;
+    }
+    
+    .btn-delete {
+        width: 20px;
+        height: 20px;
+        font-size: 8px;
+        padding: 0;
+    }
+    
+    .type-badge,
+    .status-badge {
+        font-size: 9px;
+        padding: 2px 6px;
+    }
+}

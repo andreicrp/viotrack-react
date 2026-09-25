@@ -1,0 +1,393 @@
+/* status-modal.css */
+
+/* Status Modal Overlay */
+.status-modal-overlay {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    background: rgba(0, 0, 0, 0.5) !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    z-index: 2000 !important;
+    opacity: 0 !important;
+    visibility: hidden !important;
+    transition: all 0.3s ease !important;
+    padding: 20px !important;
+}
+
+.status-modal-overlay.show {
+    opacity: 1 !important;
+    visibility: visible !important;
+}
+
+/* Status Modal Container */
+.status-modal {
+    background: #fff;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 500px;
+    max-height: 90vh;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+    transform: translateY(-20px) scale(0.95);
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.status-modal-overlay.show .status-modal {
+    transform: translateY(0) scale(1);
+}
+
+/* Modal Header */
+.status-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    border-bottom: 1px solid #e5e7eb;
+    background: #fff;
+    flex-shrink: 0;
+}
+
+.status-modal-header h2 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #1f2937;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.status-modal-header h2 i {
+    color: #6366f1;
+}
+
+.status-modal-close {
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: transparent;
+    color: #9ca3af;
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    border-radius: 6px;
+}
+
+.status-modal-close:hover {
+    background: #f3f4f6;
+    color: #1f2937;
+}
+
+/* Modal Body */
+.status-modal-body {
+    padding: 24px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+/* Current Status Display */
+.current-status-display {
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 24px;
+}
+
+.current-status-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: #6b7280;
+    margin-bottom: 8px;
+}
+
+.current-status-value {
+    display: inline-block;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.current-status-value.pending {
+    background: #fef3c7;
+    color: #b45309;
+}
+
+.current-status-value.resolved {
+    background: #d1fae5;
+    color: #047857;
+}
+
+.current-status-value.escalated {
+    background: #fee2e2;
+    color: #dc2626;
+}
+
+/* Status Selection Section */
+.status-selection-section {
+    margin-bottom: 24px;
+}
+
+.status-selection-label {
+    font-size: 14px;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.status-required {
+    color: #ef4444;
+}
+
+/* Status Options */
+.status-options {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.status-option {
+    position: relative;
+    cursor: pointer;
+}
+
+.status-option-input {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.status-option-label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    border: 2px solid #e5e7eb;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: #fff;
+}
+
+.status-option-input:checked + .status-option-label {
+    border-color: #6366f1;
+    background: #eef2ff;
+}
+
+.status-option-label:hover {
+    border-color: #d1d5db;
+    background: #f9fafb;
+}
+
+.status-option-input:checked + .status-option-label:hover {
+    border-color: #6366f1;
+    background: #eef2ff;
+}
+
+/* Status Icon */
+.status-option-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+    transition: all 0.2s;
+}
+
+.status-option-icon.pending {
+    background: #fef3c7;
+    color: #f59e0b;
+}
+
+.status-option-icon.resolved {
+    background: #d1fae5;
+    color: #10b981;
+}
+
+.status-option-icon.escalated {
+    background: #fee2e2;
+    color: #ef4444;
+}
+
+.status-option-input:checked + .status-option-label .status-option-icon.pending {
+    background: #f59e0b;
+    color: #fff;
+}
+
+.status-option-input:checked + .status-option-label .status-option-icon.resolved {
+    background: #10b981;
+    color: #fff;
+}
+
+.status-option-input:checked + .status-option-label .status-option-icon.escalated {
+    background: #ef4444;
+    color: #fff;
+}
+
+/* Status Info */
+.status-option-info {
+    flex: 1;
+}
+
+.status-option-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 4px;
+}
+
+.status-option-desc {
+    font-size: 13px;
+    color: #6b7280;
+    line-height: 1.4;
+}
+
+/* Radio Checkmark */
+.status-option-radio {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #d1d5db;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.2s;
+}
+
+.status-option-input:checked + .status-option-label .status-option-radio {
+    border-color: #6366f1;
+    background: #6366f1;
+}
+
+.status-option-radio::after {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #fff;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.status-option-input:checked + .status-option-label .status-option-radio::after {
+    opacity: 1;
+}
+
+/* Modal Footer */
+.status-modal-footer {
+    display: flex;
+    gap: 12px;
+    padding: 20px 24px;
+    border-top: 1px solid #e5e7eb;
+    background: #f9fafb;
+    flex-shrink: 0;
+}
+
+.status-modal-btn {
+    flex: 1;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-update-status {
+    background: #6366f1;
+    color: #fff;
+}
+
+.btn-update-status:hover {
+    background: #4f46e5;
+}
+
+.btn-update-status:disabled {
+    background: #d1d5db;
+    cursor: not-allowed;
+}
+
+.btn-cancel-status {
+    background: #fff;
+    color: #374151;
+    border: 1px solid #e5e7eb;
+}
+
+.btn-cancel-status:hover {
+    background: #f9fafb;
+    border-color: #d1d5db;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .status-modal-overlay {
+        padding: 10px;
+    }
+    
+    .status-modal {
+        max-height: 95vh;
+    }
+    
+    .status-modal-header {
+        padding: 16px;
+    }
+    
+    .status-modal-body {
+        padding: 16px;
+    }
+    
+    .status-option-label {
+        padding: 12px;
+    }
+    
+    .status-option-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 18px;
+    }
+    
+    .status-modal-footer {
+        padding: 16px;
+        flex-direction: column;
+    }
+    
+    .status-modal-btn {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .status-modal-header h2 {
+        font-size: 16px;
+    }
+    
+    .status-option-name {
+        font-size: 14px;
+    }
+    
+    .status-option-desc {
+        font-size: 12px;
+    }
+}

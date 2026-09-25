@@ -1,0 +1,454 @@
+/* studentimport-modal.css */
+
+/* Import Modal Overlay */
+.import-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    padding: 20px;
+}
+
+.import-modal-overlay.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Import Modal Container */
+.import-student-modal {
+    background: #fff;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+    transform: translateY(-20px) scale(0.95);
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.import-modal-overlay.show .import-student-modal {
+    transform: translateY(0) scale(1);
+}
+
+/* Import Modal Header */
+.import-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    border-bottom: 1px solid #e5e7eb;
+    background: #fff;
+    flex-shrink: 0;
+}
+
+.import-modal-header h2 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #1f2937;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.import-modal-header h2 i {
+    color: #f59e0b;
+}
+
+.import-modal-close {
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: transparent;
+    color: #9ca3af;
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    border-radius: 6px;
+}
+
+.import-modal-close:hover {
+    background: #f3f4f6;
+    color: #1f2937;
+}
+
+/* Import Modal Body */
+.import-modal-body {
+    padding: 24px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+/* Import Instructions */
+.import-instructions {
+    background: #eff6ff;
+    border: 1px solid #bfdbfe;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 24px;
+}
+
+.import-instructions h4 {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1e40af;
+    margin: 0 0 12px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.import-instructions h4 i {
+    font-size: 16px;
+}
+
+.import-instructions ol {
+    margin: 0;
+    padding-left: 20px;
+    color: #1e40af;
+}
+
+.import-instructions li {
+    font-size: 13px;
+    line-height: 1.6;
+    margin-bottom: 6px;
+}
+
+.import-instructions li:last-child {
+    margin-bottom: 0;
+}
+
+/* Download Template Section */
+.download-template-section {
+    background: #f9fafb;
+    border: 1px dashed #d1d5db;
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+.download-template-section p {
+    font-size: 14px;
+    color: #6b7280;
+    margin: 0 0 12px 0;
+}
+
+.btn-download-template {
+    background: #10b981;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s;
+}
+
+.btn-download-template:hover {
+    background: #059669;
+}
+
+/* File Upload Section */
+.file-upload-section {
+    margin-bottom: 24px;
+}
+
+.file-upload-label {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 8px;
+}
+
+.file-upload-label .required {
+    color: #ef4444;
+}
+
+.file-upload-area {
+    border: 2px dashed #d1d5db;
+    border-radius: 8px;
+    padding: 40px 20px;
+    text-align: center;
+    background: #f9fafb;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+}
+
+.file-upload-area:hover {
+    border-color: #f59e0b;
+    background: #fffbeb;
+}
+
+.file-upload-area.dragover {
+    border-color: #f59e0b;
+    background: #fffbeb;
+}
+
+.file-upload-icon {
+    font-size: 48px;
+    color: #d1d5db;
+    margin-bottom: 12px;
+}
+
+.file-upload-area:hover .file-upload-icon {
+    color: #f59e0b;
+}
+
+.file-upload-text {
+    font-size: 14px;
+    color: #6b7280;
+    margin-bottom: 8px;
+}
+
+.file-upload-text strong {
+    color: #f59e0b;
+    font-weight: 600;
+}
+
+.file-upload-hint {
+    font-size: 12px;
+    color: #9ca3af;
+}
+
+.file-input-hidden {
+    display: none;
+}
+
+/* Selected File Display */
+.selected-file {
+    display: none;
+    margin-top: 12px;
+    padding: 12px 16px;
+    background: #f0fdf4;
+    border: 1px solid #86efac;
+    border-radius: 8px;
+    align-items: center;
+    gap: 12px;
+}
+
+.selected-file.show {
+    display: flex;
+}
+
+.file-icon {
+    width: 40px;
+    height: 40px;
+    background: #dcfce7;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #16a34a;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.file-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.file-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: #166534;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.file-size {
+    font-size: 12px;
+    color: #16a34a;
+    margin-top: 2px;
+}
+
+.remove-file-btn {
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: #fee2e2;
+    color: #dc2626;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    flex-shrink: 0;
+}
+
+.remove-file-btn:hover {
+    background: #fecaca;
+}
+
+/* Import Progress */
+.import-progress {
+    display: none;
+    margin-top: 20px;
+    padding: 16px;
+    background: #f9fafb;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+}
+
+.import-progress.show {
+    display: block;
+}
+
+.progress-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.progress-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: #374151;
+}
+
+.progress-percentage {
+    font-size: 13px;
+    font-weight: 600;
+    color: #f59e0b;
+}
+
+.progress-bar-container {
+    width: 100%;
+    height: 8px;
+    background: #e5e7eb;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #f59e0b, #f97316);
+    border-radius: 4px;
+    transition: width 0.3s ease;
+    width: 0%;
+}
+
+/* Import Modal Footer */
+.import-modal-footer {
+    display: flex;
+    gap: 12px;
+    padding: 20px 24px;
+    border-top: 1px solid #e5e7eb;
+    background: #f9fafb;
+    flex-shrink: 0;
+}
+
+.import-modal-btn {
+    flex: 1;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-import-students {
+    background: #f59e0b;
+    color: #fff;
+}
+
+.btn-import-students:hover {
+    background: #d97706;
+}
+
+.btn-import-students:disabled {
+    background: #d1d5db;
+    cursor: not-allowed;
+}
+
+.btn-cancel-import {
+    background: #fff;
+    color: #374151;
+    border: 1px solid #e5e7eb;
+}
+
+.btn-cancel-import:hover {
+    background: #f9fafb;
+    border-color: #d1d5db;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .import-modal-overlay {
+        padding: 10px;
+    }
+    
+    .import-student-modal {
+        max-height: 95vh;
+    }
+    
+    .import-modal-header {
+        padding: 16px;
+    }
+    
+    .import-modal-body {
+        padding: 16px;
+    }
+    
+    .file-upload-area {
+        padding: 30px 16px;
+    }
+    
+    .import-modal-footer {
+        padding: 16px;
+        flex-direction: column;
+    }
+    
+    .import-modal-btn {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .import-modal-header h2 {
+        font-size: 16px;
+    }
+    
+    .file-upload-icon {
+        font-size: 36px;
+    }
+    
+    .file-upload-text {
+        font-size: 13px;
+    }
+    
+    .import-instructions li {
+        font-size: 12px;
+    }
+}

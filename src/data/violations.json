@@ -1,0 +1,506 @@
+[
+    {
+        "id": 1,
+        "title": "Uniform not worn or worn improperly",
+        "description": "Student did not follow the proper uniform guidelines.",
+        "type": "Minor",
+        "default_sanction": "1st Offense: Written Reprimand"
+    },
+    {
+        "id": 2,
+        "title": "School ID not worn properly",
+        "description": "Student failed to wear or display their ID as required.",
+        "type": "Minor",
+        "default_sanction": "1st Offense: Written Reprimand"
+    },
+    {
+        "id": 3,
+        "title": "Playing non-educational games",
+        "description": "Student used devices to play games unrelated to schoolwork.",
+        "type": "Minor",
+        "default_sanction": "1st Offense: Written Reprimand"
+    },
+    {
+        "id": 4,
+        "title": "Sleeping during class or activities",
+        "description": "Student was caught sleeping during lessons or activities.",
+        "type": "Minor",
+        "default_sanction": "1st Offense: Written Reprimand"
+    },
+    {
+        "id": 5,
+        "title": "Borrowing or lending money",
+        "description": "Student engaged in borrowing or lending money on campus.",
+        "type": "Minor",
+        "default_sanction": "1st Offense: Written Reprimand"
+    },
+    {
+        "id": 6,
+        "title": "Loitering or shouting in hallways",
+        "description": "Student caused disturbance by roaming or shouting in hallways.",
+        "type": "Minor",
+        "default_sanction": "1st Offense: Written Reprimand"
+    },
+    {
+        "id": 7,
+        "title": "Leaving classroom messy",
+        "description": "Student did not clean up their area or left trash behind.",
+        "type": "Minor",
+        "default_sanction": "1st Offense: Written Reprimand"
+    },
+    {
+        "id": 8,
+        "title": "Use of mobile gadgets without permission",
+        "description": "Student used a mobile device without teacher authorization.",
+        "type": "Minor",
+        "default_sanction": "1st Offense: Written Reprimand"
+    },
+    {
+        "id": 9,
+        "title": "Excessive jewelry or inappropriate appearance",
+        "description": "Student wore accessories not allowed by the dress code.",
+        "type": "Minor",
+        "default_sanction": "1st Offense: Written Reprimand"
+    },
+    {
+        "id": 10,
+        "title": "Wearing inappropriate clothing",
+        "description": "Student wore attire that is not allowed in school.",
+        "type": "Minor",
+        "default_sanction": "1st Offense: Written Reprimand"
+    },
+    {
+        "id": 11,
+        "title": "Using vulgar language",
+        "description": "Student used inappropriate or offensive language.",
+        "type": "Minor",
+        "default_sanction": "1st Offense: Written Reprimand"
+    },
+    {
+        "id": 12,
+        "title": "Minor bullying or teasing",
+        "description": "Student engaged in light bullying, teasing, or mockery.",
+        "type": "Minor",
+        "default_sanction": "1st Offense: Written Reprimand"
+    },
+    {
+        "id": 13,
+        "title": "Fighting or causing disturbances",
+        "description": "Student caused minor physical or verbal disturbances.",
+        "type": "Minor",
+        "default_sanction": "1st Offense: Written Reprimand"
+    },
+    {
+        "id": 14,
+        "title": "Horseplay inside classroom",
+        "description": "Student participated in rough or playful actions inside class.",
+        "type": "Minor",
+        "default_sanction": "1st Offense: Written Reprimand"
+    },
+    {
+        "id": 15,
+        "title": "Making inappropriate jokes",
+        "description": "Student shared jokes that were inappropriate or offensive.",
+        "type": "Minor",
+        "default_sanction": "1st Offense: Written Reprimand"
+    },
+    {
+        "id": 16,
+        "title": "Not completing clearance requirements",
+        "description": "Student failed to accomplish clearance tasks on time.",
+        "type": "Minor",
+        "default_sanction": "1st Offense: Written Reprimand"
+    },
+    {
+        "id": 17,
+        "title": "Taking food without consent",
+        "description": "Student took food items without permission from the owner.",
+        "type": "Minor",
+        "default_sanction": "1st Offense: Written Reprimand"
+    },
+    {
+        "id": 18,
+        "title": "Not joining required school activities",
+        "description": "Student refused to join mandatory school events.",
+        "type": "Minor",
+        "default_sanction": "1st Offense: Written Reprimand"
+    },
+    {
+        "id": 19,
+        "title": "Chewing gum or spitting in public",
+        "description": "Student chewed gum or spat in prohibited areas.",
+        "type": "Minor",
+        "default_sanction": "1st Offense: Written Reprimand"
+    },
+    {
+        "id": 20,
+        "title": "Buying food during class hours",
+        "description": "Student left class or bought food when not allowed.",
+        "type": "Minor",
+        "default_sanction": "1st Offense: Written Reprimand"
+    },
+    {
+        "id": 21,
+        "title": "Using school properties without permission",
+        "description": "Student used school equipment without approval.",
+        "type": "Minor",
+        "default_sanction": "1st Offense: Written Reprimand"
+    },
+    {
+        "id": 22,
+        "title": "Forging parent's signature",
+        "description": "Student wrote a fake parent or guardian signature.",
+        "type": "Minor",
+        "default_sanction": "1st Offense: Written Reprimand"
+    },
+    {
+        "id": 23,
+        "title": "Misbehavior in the canteen",
+        "description": "Student acted disruptively in the school canteen.",
+        "type": "Minor",
+        "default_sanction": "1st Offense: Written Reprimand"
+    },
+    {
+        "id": 24,
+        "title": "Disturbing class sessions",
+        "description": "Student interrupted or distracted ongoing classes.",
+        "type": "Minor",
+        "default_sanction": "1st Offense: Written Reprimand"
+    },
+    {
+        "id": 25,
+        "title": "Unauthorized playing in the gym",
+        "description": "Student used the gym facilities without permission.",
+        "type": "Minor",
+        "default_sanction": "1st Offense: Written Reprimand"
+    },
+    {
+        "id": 26,
+        "title": "Cheating or academic dishonesty",
+        "description": "Student engaged in cheating or dishonest academic practices.",
+        "type": "Serious",
+        "default_sanction": "Parent Summons & Guidance Counseling"
+    },
+    {
+        "id": 27,
+        "title": "Plagiarism",
+        "description": "Student submitted work copied from others without credit.",
+        "type": "Serious",
+        "default_sanction": "Parent Summons & Guidance Counseling"
+    },
+    {
+        "id": 28,
+        "title": "Rough or dangerous play",
+        "description": "Student engaged in actions that could harm others.",
+        "type": "Serious",
+        "default_sanction": "Parent Summons & Guidance Counseling"
+    },
+    {
+        "id": 29,
+        "title": "Lying or misleading statements",
+        "description": "Student intentionally gave false or misleading information.",
+        "type": "Serious",
+        "default_sanction": "Parent Summons & Guidance Counseling"
+    },
+    {
+        "id": 30,
+        "title": "Possession of smoking items",
+        "description": "Student possessed cigarettes, vapes, or related items.",
+        "type": "Serious",
+        "default_sanction": "Parent Summons & Guidance Counseling"
+    },
+    {
+        "id": 31,
+        "title": "Vulgar or malicious acts",
+        "description": "Student committed vulgar or offensive acts towards others.",
+        "type": "Serious",
+        "default_sanction": "Parent Summons & Guidance Counseling"
+    },
+    {
+        "id": 32,
+        "title": "Bribery or dishonest acts",
+        "description": "Student attempted to bribe or engage in dishonest conduct.",
+        "type": "Serious",
+        "default_sanction": "Parent Summons & Guidance Counseling"
+    },
+    {
+        "id": 33,
+        "title": "Theft or aiding theft",
+        "description": "Student stole or helped others steal property.",
+        "type": "Serious",
+        "default_sanction": "Parent Summons & Guidance Counseling"
+    },
+    {
+        "id": 34,
+        "title": "Gambling or unauthorized collection",
+        "description": "Student participated in gambling or unapproved fundraising.",
+        "type": "Serious",
+        "default_sanction": "Parent Summons & Guidance Counseling"
+    },
+    {
+        "id": 35,
+        "title": "Not delivering official communications",
+        "description": "Student failed to deliver important school notices.",
+        "type": "Serious",
+        "default_sanction": "Parent Summons & Guidance Counseling"
+    },
+    {
+        "id": 36,
+        "title": "Rude behavior to visitors or parents",
+        "description": "Student acted disrespectfully toward guests or parents.",
+        "type": "Serious",
+        "default_sanction": "Parent Summons & Guidance Counseling"
+    },
+    {
+        "id": 37,
+        "title": "Disrespect to school authorities",
+        "description": "Student disobeyed or disrespected teachers or staff.",
+        "type": "Serious",
+        "default_sanction": "Parent Summons & Guidance Counseling"
+    },
+    {
+        "id": 38,
+        "title": "Use of vulgar language repeatedly",
+        "description": "Student repeatedly used offensive or vulgar language.",
+        "type": "Serious",
+        "default_sanction": "Parent Summons & Guidance Counseling"
+    },
+    {
+        "id": 39,
+        "title": "Causing chaos during events",
+        "description": "Student created disorder during school programs.",
+        "type": "Serious",
+        "default_sanction": "Parent Summons & Guidance Counseling"
+    },
+    {
+        "id": 40,
+        "title": "Disrespect during flag ceremonies",
+        "description": "Student behaved improperly during the flag ceremony.",
+        "type": "Serious",
+        "default_sanction": "Parent Summons & Guidance Counseling"
+    },
+    {
+        "id": 41,
+        "title": "Property damage from mischief",
+        "description": "Student caused damage to school property due to misbehavior.",
+        "type": "Serious",
+        "default_sanction": "Parent Summons & Guidance Counseling"
+    },
+    {
+        "id": 42,
+        "title": "Skipping class / truancy",
+        "description": "Student was absent from class without valid reason.",
+        "type": "Serious",
+        "default_sanction": "Parent Summons & Guidance Counseling"
+    },
+    {
+        "id": 43,
+        "title": "Entering/exiting without permission",
+        "description": "Student entered or left the campus without authorization.",
+        "type": "Serious",
+        "default_sanction": "Parent Summons & Guidance Counseling"
+    },
+    {
+        "id": 44,
+        "title": "Public display of affection",
+        "description": "Student engaged in PDA on school grounds.",
+        "type": "Serious",
+        "default_sanction": "Parent Summons & Guidance Counseling"
+    },
+    {
+        "id": 45,
+        "title": "Minor vandalism",
+        "description": "Student committed small-scale vandalism.",
+        "type": "Serious",
+        "default_sanction": "Parent Summons & Guidance Counseling"
+    },
+    {
+        "id": 46,
+        "title": "Posting unauthorized notices",
+        "description": "Student posted materials on bulletin boards without approval.",
+        "type": "Serious",
+        "default_sanction": "Parent Summons & Guidance Counseling"
+    },
+    {
+        "id": 47,
+        "title": "Posting offensive content online",
+        "description": "Student posted inappropriate or harmful content online.",
+        "type": "Serious",
+        "default_sanction": "Parent Summons & Guidance Counseling"
+    },
+    {
+        "id": 48,
+        "title": "Removing school announcements",
+        "description": "Student removed or tampered with posted school announcements.",
+        "type": "Serious",
+        "default_sanction": "Parent Summons & Guidance Counseling"
+    },
+    {
+        "id": 49,
+        "title": "Gang-like behavior",
+        "description": "Student displayed behavior associated with gangs.",
+        "type": "Serious",
+        "default_sanction": "Parent Summons & Guidance Counseling"
+    },
+    {
+        "id": 50,
+        "title": "Cyberbullying",
+        "description": "Student bullied or harassed others online.",
+        "type": "Serious",
+        "default_sanction": "Parent Summons & Guidance Counseling"
+    },
+    {
+        "id": 51,
+        "title": "Gross misconduct",
+        "description": "Student engaged in unacceptable or highly improper behavior.",
+        "type": "Serious",
+        "default_sanction": "Parent Summons & Guidance Counseling"
+    },
+    {
+        "id": 52,
+        "title": "Forgery or document tampering",
+        "description": "Student altered or falsified official documents.",
+        "type": "Major",
+        "default_sanction": "Disciplinary Board Hearing & Suspension"
+    },
+    {
+        "id": 53,
+        "title": "Using fake receipts or forms",
+        "description": "Student used forged receipts or falsified school forms.",
+        "type": "Major",
+        "default_sanction": "Disciplinary Board Hearing & Suspension"
+    },
+    {
+        "id": 54,
+        "title": "Major vandalism",
+        "description": "Student caused significant damage to school property.",
+        "type": "Major",
+        "default_sanction": "Disciplinary Board Hearing & Suspension"
+    },
+    {
+        "id": 55,
+        "title": "Physical assault",
+        "description": "Student physically harmed another student or staff.",
+        "type": "Major",
+        "default_sanction": "Disciplinary Board Hearing & Suspension"
+    },
+    {
+        "id": 56,
+        "title": "Stealing school or class funds",
+        "description": "Student stole money belonging to the school or class.",
+        "type": "Major",
+        "default_sanction": "Disciplinary Board Hearing & Suspension"
+    },
+    {
+        "id": 57,
+        "title": "Extortion or blackmail",
+        "description": "Student attempted to extort or blackmail another individual.",
+        "type": "Major",
+        "default_sanction": "Disciplinary Board Hearing & Suspension"
+    },
+    {
+        "id": 58,
+        "title": "Immoral or scandalous behavior",
+        "description": "Student engaged in highly inappropriate behavior.",
+        "type": "Major",
+        "default_sanction": "Disciplinary Board Hearing & Suspension"
+    },
+    {
+        "id": 59,
+        "title": "Possessing pornography",
+        "description": "Student possessed explicit or pornographic material.",
+        "type": "Major",
+        "default_sanction": "Disciplinary Board Hearing & Suspension"
+    },
+    {
+        "id": 60,
+        "title": "Criminal charges or conviction",
+        "description": "Student is involved in criminal activity.",
+        "type": "Major",
+        "default_sanction": "Disciplinary Board Hearing & Suspension"
+    },
+    {
+        "id": 61,
+        "title": "Harassment of students/staff",
+        "description": "Student harassed or intimidated others on campus.",
+        "type": "Major",
+        "default_sanction": "Disciplinary Board Hearing & Suspension"
+    },
+    {
+        "id": 62,
+        "title": "Causing injury requiring hospitalization",
+        "description": "Student caused injuries that required medical treatment.",
+        "type": "Major",
+        "default_sanction": "Disciplinary Board Hearing & Suspension"
+    },
+    {
+        "id": 63,
+        "title": "Sexual harassment",
+        "description": "Student committed acts of sexual harassment or misconduct.",
+        "type": "Major",
+        "default_sanction": "Disciplinary Board Hearing & Suspension"
+    },
+    {
+        "id": 64,
+        "title": "Lewd or immoral acts",
+        "description": "Student participated in obscene or indecent behavior.",
+        "type": "Major",
+        "default_sanction": "Disciplinary Board Hearing & Suspension"
+    },
+    {
+        "id": 65,
+        "title": "Inappropriate social media use",
+        "description": "Student posted harmful or inappropriate content online.",
+        "type": "Major",
+        "default_sanction": "Disciplinary Board Hearing & Suspension"
+    },
+    {
+        "id": 66,
+        "title": "Leaking confidential school info",
+        "description": "Student disclosed confidential school information.",
+        "type": "Major",
+        "default_sanction": "Disciplinary Board Hearing & Suspension"
+    },
+    {
+        "id": 67,
+        "title": "Misusing school logo or name",
+        "description": "Student used the school logo/name without authorization.",
+        "type": "Major",
+        "default_sanction": "Disciplinary Board Hearing & Suspension"
+    },
+    {
+        "id": 68,
+        "title": "Bribing school officials",
+        "description": "Student attempted to bribe school staff or personnel.",
+        "type": "Major",
+        "default_sanction": "Disciplinary Board Hearing & Suspension"
+    },
+    {
+        "id": 69,
+        "title": "Drinking alcohol in school",
+        "description": "Student consumed or possessed alcohol on school grounds.",
+        "type": "Major",
+        "default_sanction": "Disciplinary Board Hearing & Suspension"
+    },
+    {
+        "id": 70,
+        "title": "Drug-related activities",
+        "description": "Student possessed or used illegal drugs.",
+        "type": "Major",
+        "default_sanction": "Disciplinary Board Hearing & Suspension"
+    },
+    {
+        "id": 71,
+        "title": "Bringing deadly weapons",
+        "description": "Student brought dangerous weapons into school.",
+        "type": "Major",
+        "default_sanction": "Disciplinary Board Hearing & Suspension"
+    },
+    {
+        "id": 73,
+        "title": "Joining fraternities/sororities",
+        "description": "Student participated in prohibited fraternity or sorority groups.",
+        "type": "Major",
+        "default_sanction": "Disciplinary Board Hearing & Suspension"
+    }
+]

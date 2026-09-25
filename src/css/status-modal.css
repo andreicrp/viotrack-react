@@ -1,0 +1,330 @@
+/* status-modal.css - Exact Status Modal styles from PHP Viotrack */
+
+.status-modal-overlay {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  background: rgba(0, 0, 0, 0.5) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  z-index: 9999 !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  transition: all 0.3s ease !important;
+  padding: 20px !important;
+}
+
+.status-modal-overlay.show {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+.status-modal {
+  background: #fff !important;
+  border-radius: 12px !important;
+  width: 100% !important;
+  max-width: 500px !important;
+  max-height: 90vh !important;
+  overflow: hidden !important;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2) !important;
+  transform: translateY(-20px) scale(0.95) !important;
+  transition: all 0.3s ease !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.status-modal-overlay.show .status-modal {
+  transform: translateY(0) scale(1) !important;
+}
+
+.status-modal-header {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  padding: 20px 24px !important;
+  border-bottom: 1px solid #e5e7eb !important;
+  background: #fff !important;
+  flex-shrink: 0 !important;
+}
+
+.status-modal-header h2 {
+  font-size: 18px !important;
+  font-weight: 600 !important;
+  color: #1f2937 !important;
+  margin: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+}
+
+.status-modal-header h2 i {
+  color: #6366f1 !important;
+}
+
+.status-modal-close {
+  width: 32px !important;
+  height: 32px !important;
+  border: none !important;
+  background: transparent !important;
+  color: #9ca3af !important;
+  font-size: 20px !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: all 0.2s !important;
+  border-radius: 6px !important;
+}
+
+.status-modal-close:hover {
+  background: #f3f4f6 !important;
+  color: #1f2937 !important;
+}
+
+.status-modal-body {
+  padding: 24px !important;
+  overflow-y: auto !important;
+  flex: 1 !important;
+}
+
+.current-status-display {
+  background: #f9fafb !important;
+  border: 1px solid #e5e7eb !important;
+  border-radius: 8px !important;
+  padding: 16px !important;
+  margin-bottom: 24px !important;
+}
+
+.current-status-label {
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  color: #6b7280 !important;
+  margin-bottom: 8px !important;
+}
+
+.current-status-value {
+  display: inline-block !important;
+  padding: 6px 14px !important;
+  border-radius: 20px !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+}
+
+.current-status-value.pending {
+  background: #fef3c7 !important;
+  color: #b45309 !important;
+}
+
+.current-status-value.resolved {
+  background: #d1fae5 !important;
+  color: #047857 !important;
+}
+
+.current-status-value.escalated {
+  background: #fee2e2 !important;
+  color: #dc2626 !important;
+}
+
+.status-selection-section {
+  margin-bottom: 24px !important;
+}
+
+.status-selection-label {
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  color: #374151 !important;
+  margin-bottom: 12px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+}
+
+.status-required {
+  color: #ef4444 !important;
+}
+
+.status-options {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 12px !important;
+}
+
+.status-option {
+  position: relative !important;
+  cursor: pointer !important;
+}
+
+.status-option-input {
+  position: absolute !important;
+  opacity: 0 !important;
+  cursor: pointer !important;
+}
+
+.status-option-label {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  padding: 16px !important;
+  border: 2px solid #e5e7eb !important;
+  border-radius: 10px !important;
+  cursor: pointer !important;
+  transition: all 0.2s !important;
+  background: #fff !important;
+}
+
+.status-option-input:checked + .status-option-label {
+  border-color: #6366f1 !important;
+  background: #eef2ff !important;
+}
+
+.status-option-label:hover {
+  border-color: #d1d5db !important;
+  background: #f9fafb !important;
+}
+
+.status-option-input:checked + .status-option-label:hover {
+  border-color: #6366f1 !important;
+  background: #eef2ff !important;
+}
+
+.status-option-icon {
+  width: 44px !important;
+  height: 44px !important;
+  border-radius: 10px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 20px !important;
+  flex-shrink: 0 !important;
+  transition: all 0.2s !important;
+}
+
+.status-option-icon.pending {
+  background: #fef3c7 !important;
+  color: #f59e0b !important;
+}
+
+.status-option-icon.resolved {
+  background: #d1fae5 !important;
+  color: #10b981 !important;
+}
+
+.status-option-icon.escalated {
+  background: #fee2e2 !important;
+  color: #ef4444 !important;
+}
+
+.status-option-input:checked + .status-option-label .status-option-icon.pending {
+  background: #f59e0b !important;
+  color: #fff !important;
+}
+
+.status-option-input:checked + .status-option-label .status-option-icon.resolved {
+  background: #10b981 !important;
+  color: #fff !important;
+}
+
+.status-option-input:checked + .status-option-label .status-option-icon.escalated {
+  background: #ef4444 !important;
+  color: #fff !important;
+}
+
+.status-option-info {
+  flex: 1 !important;
+}
+
+.status-option-name {
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  color: #1f2937 !important;
+  margin-bottom: 4px !important;
+}
+
+.status-option-desc {
+  font-size: 13px !important;
+  color: #6b7280 !important;
+  line-height: 1.4 !important;
+}
+
+.status-option-radio {
+  width: 20px !important;
+  height: 20px !important;
+  border: 2px solid #d1d5db !important;
+  border-radius: 50% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-shrink: 0 !important;
+  transition: all 0.2s !important;
+}
+
+.status-option-input:checked + .status-option-label .status-option-radio {
+  border-color: #6366f1 !important;
+  background: #6366f1 !important;
+}
+
+.status-option-radio::after {
+  content: '' !important;
+  width: 8px !important;
+  height: 8px !important;
+  border-radius: 50% !important;
+  background: #fff !important;
+  opacity: 0 !important;
+  transition: opacity 0.2s !important;
+}
+
+.status-option-input:checked + .status-option-label .status-option-radio::after {
+  opacity: 1 !important;
+}
+
+.status-modal-footer {
+  display: flex !important;
+  gap: 12px !important;
+  padding: 20px 24px !important;
+  border-top: 1px solid #e5e7eb !important;
+  background: #f9fafb !important;
+  flex-shrink: 0 !important;
+}
+
+.status-modal-btn {
+  flex: 1 !important;
+  padding: 12px 20px !important;
+  border-radius: 8px !important;
+  font-size: 14px !important;
+  font-weight: 500 !important;
+  cursor: pointer !important;
+  transition: all 0.2s !important;
+  border: none !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 8px !important;
+}
+
+.btn-update-status {
+  background: #6366f1 !important;
+  color: #fff !important;
+}
+
+.btn-update-status:hover {
+  background: #4f46e5 !important;
+}
+
+.btn-update-status:disabled {
+  background: #d1d5db !important;
+  cursor: not-allowed !important;
+}
+
+.btn-cancel-status {
+  background: #fff !important;
+  color: #374151 !important;
+  border: 1px solid #e5e7eb !important;
+}
+
+.btn-cancel-status:hover {
+  background: #f9fafb !important;
+  border-color: #d1d5db !important;
+}

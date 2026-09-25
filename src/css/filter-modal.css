@@ -1,0 +1,501 @@
+/* filter-modal.css */
+
+/* Filter Modal Overlay */
+.filter-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.filter-modal-overlay.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Filter Modal Container */
+.filter-modal {
+    background: #fff;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    transform: translateY(-30px) scale(0.95);
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.filter-modal-overlay.show .filter-modal {
+    transform: translateY(0) scale(1);
+}
+
+/* Filter Modal Header */
+.filter-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    border-bottom: 1px solid #f0f0f0;
+    background: #fafafa;
+}
+
+.filter-modal-header h2 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+    margin: 0;
+}
+
+.filter-modal-close {
+    width: 36px;
+    height: 36px;
+    border: none;
+    background: transparent;
+    color: #999;
+    font-size: 24px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    padding: 0;
+}
+
+.filter-modal-close:hover {
+    color: #333;
+    background: #f0f0f0;
+    border-radius: 4px;
+}
+
+/* Filter Modal Body */
+.filter-modal-body {
+    padding: 24px;
+    background: #fff;
+}
+
+/* Filter Group */
+.filter-group {
+    margin-bottom: 18px;
+}
+
+.filter-group:last-child {
+    margin-bottom: 0;
+}
+
+/* Filter Label */
+.filter-label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.filter-label .required {
+    color: #ef4444;
+}
+
+/* Filter Select */
+.filter-select {
+    width: 100%;
+    padding: 11px 14px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    color: #333;
+    background: #fff;
+    cursor: pointer;
+    transition: all 0.2s;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 12px;
+    padding-right: 36px;
+}
+
+.filter-select option {
+    color: #333;
+    background: #fff;
+    padding: 8px;
+}
+
+.filter-select:hover {
+    border-color: #bbb;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+.filter-select:focus {
+    outline: none;
+    border-color: #14b8a6;
+    box-shadow: 0 0 0 2px rgba(20, 184, 166, 0.1);
+}
+
+.filter-select:disabled {
+    background-color: #f5f5f5;
+    color: #999;
+    cursor: not-allowed;
+}
+
+/* Filter Modal Footer */
+.filter-modal-footer {
+    display: flex;
+    gap: 10px;
+    padding: 16px 24px;
+    border-top: 1px solid #f0f0f0;
+    justify-content: flex-end;
+    background: #fafafa;
+}
+
+/* Filter Button */
+.btn-filter {
+    background: #14b8a6;
+    color: #fff;
+    border: none;
+    padding: 11px 24px;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-filter:hover {
+    background: #0d9488;
+    box-shadow: 0 2px 8px rgba(20, 184, 166, 0.2);
+}
+
+.btn-filter:active {
+    transform: scale(0.98);
+}
+
+/* Close Filter Button */
+.btn-close-filter {
+    background: #ef4444;
+    color: #fff;
+    border: none;
+    padding: 11px 24px;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-close-filter:hover {
+    background: #dc2626;
+    box-shadow: 0 2px 8px rgba(239, 68, 68, 0.2);
+}
+
+.btn-close-filter:active {
+    transform: scale(0.98);
+}
+
+/* Main Filter Button (in header) */
+.filter-btn-main {
+    background: #14b8a6;
+    border: none;
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s;
+}
+
+.filter-btn-main:hover {
+    background: #0d9488;
+    box-shadow: 0 2px 8px rgba(20, 184, 166, 0.2);
+}
+
+.filter-btn-main.has-filter {
+    background: #6366f1;
+}
+
+.filter-btn-main.has-filter:hover {
+    background: #4f46e5;
+    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.2);
+}
+
+/* Responsive */
+@media (max-width: 576px) {
+    .filter-modal {
+        width: 95%;
+        max-width: none;
+        margin: 10px;
+    }
+    
+    .filter-modal-header {
+        padding: 16px 20px;
+    }
+    
+    .filter-modal-body {
+        padding: 20px;
+    }
+    
+    .filter-modal-footer {
+        padding: 14px 20px;
+        flex-direction: column-reverse;
+        gap: 8px;
+    }
+    
+    .btn-filter,
+    .btn-close-filter {
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* Filter Modal Container */
+.filter-modal {
+    background: #fff;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+    transform: translateY(-20px) scale(0.95);
+    transition: all 0.3s ease;
+}
+
+.filter-modal-overlay.show .filter-modal {
+    transform: translateY(0) scale(1);
+}
+
+/* Filter Modal Header */
+.filter-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.filter-modal-header h2 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #1f2937;
+    margin: 0;
+}
+
+.filter-modal-close {
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: transparent;
+    color: #6b7280;
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.filter-modal-close:hover {
+    color: #1f2937;
+}
+
+/* Filter Modal Body */
+.filter-modal-body {
+    padding: 24px;
+}
+
+/* Filter Group */
+.filter-group {
+    margin-bottom: 20px;
+}
+
+.filter-group:last-child {
+    margin-bottom: 0;
+}
+
+/* Filter Label */
+.filter-label {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 8px;
+}
+
+.filter-label .required {
+    color: #ef4444;
+}
+
+/* Filter Select */
+.filter-select {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #374151;
+    background: #fff;
+    cursor: pointer;
+    transition: all 0.2s;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    padding-right: 40px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%236b7280'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 20px;
+}
+
+.filter-select option {
+    color: #374151;
+    background: #fff;
+    padding: 8px;
+}
+
+.filter-select:hover {
+    border-color: #6366f1;
+}
+
+.filter-select:focus {
+    outline: none;
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.filter-select:disabled {
+    background-color: #f3f4f6;
+    color: #9ca3af;
+    cursor: not-allowed;
+}
+
+/* Filter Modal Footer */
+.filter-modal-footer {
+    display: flex;
+    gap: 12px;
+    padding: 20px 24px;
+    border-top: 1px solid #e5e7eb;
+    justify-content: flex-end;
+}
+
+/* Filter Button */
+.btn-filter {
+    background: #14b8a6;
+    color: #fff;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-filter:hover {
+    background: #0d9488;
+}
+
+.btn-filter:active {
+    transform: scale(0.98);
+}
+
+/* Close Filter Button */
+.btn-close-filter {
+    background: #ef4444;
+    color: #fff;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-close-filter:hover {
+    background: #dc2626;
+}
+
+.btn-close-filter:active {
+    transform: scale(0.98);
+}
+
+/* Main Filter Button (in header) */
+.filter-btn-main {
+    background: #14b8a6;
+    border: none;
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s;
+}
+
+.filter-btn-main:hover {
+    background: #0d9488;
+}
+
+.filter-btn-main.has-filter {
+    background: #6366f1;
+}
+
+.filter-btn-main.has-filter:hover {
+    background: #4f46e5;
+}
+
+/* Responsive */
+@media (max-width: 576px) {
+    .filter-modal {
+        width: 95%;
+        margin: 10px;
+    }
+    
+    .filter-modal-header {
+        padding: 16px 20px;
+    }
+    
+    .filter-modal-body {
+        padding: 20px;
+    }
+    
+    .filter-modal-footer {
+        padding: 16px 20px;
+        flex-direction: column;
+    }
+    
+    .btn-filter,
+    .btn-close-filter {
+        width: 100%;
+        justify-content: center;
+    }
+}

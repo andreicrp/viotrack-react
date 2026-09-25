@@ -1,0 +1,338 @@
+/* addteacher-modal.css */
+
+/* Add Teacher Modal Overlay */
+.add-teacher-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    padding: 20px;
+}
+
+.add-teacher-modal-overlay.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Add Teacher Modal Container */
+.add-teacher-modal {
+    background: #fff;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+    transform: translateY(-20px) scale(0.95);
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.add-teacher-modal-overlay.show .add-teacher-modal {
+    transform: translateY(0) scale(1);
+}
+
+/* Add Teacher Modal Header */
+.add-teacher-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    border-bottom: 1px solid #e5e7eb;
+    background: #fff;
+    flex-shrink: 0;
+}
+
+.add-teacher-modal-header h2 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #1f2937;
+    margin: 0;
+}
+
+.add-teacher-modal-close {
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: transparent;
+    color: #9ca3af;
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    border-radius: 6px;
+}
+
+.add-teacher-modal-close:hover {
+    background: #f3f4f6;
+    color: #1f2937;
+}
+
+/* Add Teacher Modal Body */
+.add-teacher-modal-body {
+    padding: 24px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+/* Profile Image Section */
+.add-teacher-profile-image-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 24px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.add-teacher-profile-image-wrapper {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: #f3f4f6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 12px;
+    border: 3px solid #e5e7eb;
+    position: relative;
+}
+
+.add-teacher-profile-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.add-teacher-profile-placeholder {
+    font-size: 48px;
+    color: #d1d5db;
+}
+
+.add-teacher-file-input-wrapper {
+    width: 100%;
+    max-width: 400px;
+}
+
+.add-teacher-file-input-label {
+    display: flex;
+    align-items: center;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #f9fafb;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.add-teacher-file-input-label:hover {
+    border-color: #d1d5db;
+    background: #f3f4f6;
+}
+
+.add-teacher-file-input {
+    display: none;
+}
+
+.add-teacher-file-btn {
+    background: #fff;
+    padding: 10px 16px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #374151;
+    border-right: 1px solid #e5e7eb;
+    white-space: nowrap;
+}
+
+.add-teacher-file-name {
+    padding: 10px 14px;
+    font-size: 13px;
+    color: #6b7280;
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* Add Teacher Form Fields */
+.add-teacher-form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.add-teacher-form-row {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+}
+
+.add-teacher-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.add-teacher-form-group.full-width {
+    grid-column: 1 / -1;
+}
+
+.add-teacher-form-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: #374151;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.add-teacher-required {
+    color: #ef4444;
+    font-size: 14px;
+}
+
+.add-teacher-form-input,
+.add-teacher-form-select {
+    padding: 10px 14px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #1f2937;
+    background: #fff;
+    transition: all 0.2s;
+    font-family: inherit;
+    width: 100%;
+}
+
+.add-teacher-form-input:focus,
+.add-teacher-form-select:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.add-teacher-form-input::placeholder {
+    color: #9ca3af;
+}
+
+.add-teacher-form-input:disabled,
+.add-teacher-form-select:disabled {
+    background: #f9fafb;
+    color: #9ca3af;
+    cursor: not-allowed;
+}
+
+/* Add Teacher Modal Footer */
+.add-teacher-modal-footer {
+    display: flex;
+    gap: 12px;
+    padding: 20px 24px;
+    border-top: 1px solid #e5e7eb;
+    background: #f9fafb;
+    flex-shrink: 0;
+}
+
+.add-teacher-modal-btn {
+    flex: 1;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-add-teacher {
+    background: #3b82f6;
+    color: #fff;
+}
+
+.btn-add-teacher:hover {
+    background: #2563eb;
+}
+
+.btn-cancel-add-teacher {
+    background: #ef4444;
+    color: #fff;
+}
+
+.btn-cancel-add-teacher:hover {
+    background: #dc2626;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .add-teacher-modal-overlay {
+        padding: 10px;
+    }
+    
+    .add-teacher-modal {
+        max-height: 95vh;
+    }
+    
+    .add-teacher-modal-header {
+        padding: 16px;
+    }
+    
+    .add-teacher-modal-body {
+        padding: 16px;
+    }
+    
+    .add-teacher-form-row {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+    
+    .add-teacher-profile-image-wrapper {
+        width: 120px;
+        height: 120px;
+    }
+    
+    .add-teacher-modal-footer {
+        padding: 16px;
+        flex-direction: column;
+    }
+    
+    .add-teacher-modal-btn {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .add-teacher-modal-header h2 {
+        font-size: 16px;
+    }
+    
+    .add-teacher-profile-image-wrapper {
+        width: 100px;
+        height: 100px;
+    }
+    
+    .add-teacher-profile-placeholder {
+        font-size: 36px;
+    }
+    
+    .add-teacher-form-input,
+    .add-teacher-form-select {
+        padding: 9px 12px;
+        font-size: 13px;
+    }
+}

@@ -1,0 +1,1118 @@
+/* ============ ADD RECORD MODAL STYLES ============ */
+
+/* Modal Overlay */
+.addrecord-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1999;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    padding: 20px;
+}
+
+.addrecord-modal-overlay.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Modal */
+.addrecord-modal {
+    background: #fff;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 700px;
+    max-height: 90vh;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+    transform: translateY(-20px) scale(0.95);
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    z-index: 2000;
+}
+
+.addrecord-modal-overlay.show .addrecord-modal {
+    transform: translateY(0) scale(1);
+}
+
+/* Modal Header */
+.addrecord-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    border-bottom: 1px solid #e5e7eb;
+    background: #fff;
+    flex-shrink: 0;
+}
+
+.addrecord-modal-header h2 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #1f2937;
+    margin: 0;
+}
+
+.addrecord-modal-close {
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: transparent;
+    color: #9ca3af;
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    border-radius: 6px;
+}
+
+.addrecord-modal-close:hover {
+    background: #f3f4f6;
+    color: #1f2937;
+}
+
+/* Form Sections */
+.form-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.form-label {
+    font-size: 14px;
+    font-weight: 500;
+    color: #374151;
+}
+
+.form-label .required {
+    color: #ef4444;
+}
+
+/* Student Dropdown */
+.student-dropdown-wrapper {
+    position: relative;
+}
+
+.student-dropdown-trigger {
+    padding: 12px 16px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    background: #f9fafb;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: all 0.2s;
+    user-select: none;
+    color: #374151;
+    font-size: 14px;
+}
+
+.student-dropdown-trigger:hover {
+    background: #f3f4f6;
+    border-color: #d1d5db;
+}
+
+.student-dropdown-trigger i {
+    transition: transform 0.3s ease;
+    color: #9ca3af;
+}
+
+.student-dropdown-menu.open .student-dropdown-trigger i {
+    transform: rotate(180deg);
+}
+
+/* Student Dropdown Menu */
+.student-dropdown-menu {
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: all 0.3s ease;
+    margin-top: 0;
+    position: relative;
+    z-index: 100;
+    border: none;
+    background: transparent;
+}
+
+.student-dropdown-menu.open {
+    max-height: 500px;
+    opacity: 1;
+    overflow-y: auto;
+    border: 1px solid #e5e7eb;
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    background: #fff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    margin-top: -1px;
+}
+
+/* Student Search */
+.student-search {
+    padding: 12px;
+    border-bottom: 1px solid #f0f0f0;
+    position: sticky;
+    top: 0;
+    background: #fff;
+    z-index: 10;
+}
+
+.student-search input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    font-size: 14px;
+    outline: none;
+}
+
+.student-search input:focus {
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+/* Student List */
+.student-list {
+    display: flex;
+    flex-direction: column;
+    padding: 8px 0;
+}
+
+.student-checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    user-select: none;
+}
+
+.student-checkbox-item:hover {
+    background: #f9fafb;
+}
+
+.student-checkbox {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: #6366f1;
+    flex-shrink: 0;
+}
+
+.student-checkbox-item span {
+    flex: 1;
+    font-size: 14px;
+    color: #374151;
+}
+
+/* Violation Selector */
+.violation-selector {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.violation-dropdown-wrapper {
+    position: relative;
+}
+
+/* Dropdown Trigger */
+.violation-dropdown-trigger {
+    padding: 12px 16px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    background: #f9fafb;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: all 0.2s;
+    user-select: none;
+    color: #374151;
+    font-size: 14px;
+}
+
+.violation-dropdown-trigger:hover {
+    background: #f3f4f6;
+    border-color: #d1d5db;
+}
+
+.violation-dropdown-trigger i {
+    transition: transform 0.3s ease;
+    color: #9ca3af;
+}
+
+.violation-dropdown-menu.open .violation-dropdown-trigger i {
+    transform: rotate(180deg);
+}
+
+/* Dropdown Menu */
+.violation-dropdown-menu {
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: all 0.3s ease;
+    margin-top: 0;
+    position: relative;
+    z-index: 100;
+    border: none;
+    background: transparent;
+}
+
+.violation-dropdown-menu.open {
+    max-height: 500px;
+    opacity: 1;
+    overflow-y: auto;
+    border: 1px solid #e5e7eb;
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    background: #fff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    margin-top: -1px;
+}
+
+/* Search */
+.violation-search {
+    padding: 12px;
+    border-bottom: 1px solid #f0f0f0;
+    position: sticky;
+    top: 0;
+    background: #fff;
+    z-index: 10;
+}
+
+.violation-search input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    font-size: 14px;
+    outline: none;
+}
+
+.violation-search input:focus {
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+/* Categories */
+.violation-categories {
+    padding: 8px 0;
+}
+
+.violation-category {
+    padding: 8px 0;
+}
+
+.category-header {
+    padding: 8px 16px;
+    font-weight: 600;
+    font-size: 13px;
+}
+
+/* Violation List */
+.violation-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.violation-checkbox-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 16px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    user-select: none;
+}
+
+.violation-checkbox-item:hover {
+    background: #f9fafb;
+}
+
+.violation-checkbox {
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    accent-color: #6366f1;
+    flex-shrink: 0;
+}
+
+.violation-checkbox-item span {
+    flex: 1;
+    font-size: 14px;
+    color: #374151;
+}
+
+/* Modal Footer */
+.addrecord-modal-footer {
+    display: flex;
+    gap: 12px;
+    padding: 20px 24px;
+    border-top: 1px solid #e5e7eb;
+    background: #f9fafb;
+    flex-shrink: 0;
+}
+
+.addrecord-modal-btn {
+    flex: 1;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-add-record {
+    background: #14b8a6;
+    color: #fff;
+}
+
+.btn-add-record:hover {
+    background: #0d9488;
+}
+
+.btn-add-record:disabled {
+    background: #d1d5db;
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+.btn-cancel-add-record {
+    background: #ef4444;
+    color: #fff;
+}
+
+.btn-cancel-add-record:hover {
+    background: #dc2626;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .addrecord-modal-overlay {
+        padding: 10px;
+    }
+    
+    .addrecord-modal {
+        max-height: 95vh;
+    }
+    
+    .addrecord-modal-header {
+        padding: 16px;
+    }
+    
+    .addrecord-modal-body {
+        padding: 16px;
+    }
+    
+    .addrecord-modal-footer {
+        padding: 16px;
+        flex-direction: column;
+    }
+    
+    .addrecord-modal-btn {
+        width: 100%;
+    }
+}
+.addrecord-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1999;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    padding: 20px;
+}
+
+.addrecord-modal-overlay.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Add Record Modal Container */
+.addrecord-modal {
+    background: #fff;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 700px;
+    max-height: 90vh;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+    transform: translateY(-20px) scale(0.95);
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    z-index: 2000;
+}
+
+.addrecord-modal-overlay.show .addrecord-modal {
+    transform: translateY(0) scale(1);
+}
+
+/* Add Record Modal Header */
+.addrecord-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    border-bottom: 1px solid #e5e7eb;
+    background: #fff;
+    flex-shrink: 0;
+}
+
+.addrecord-modal-header h2 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #1f2937;
+    margin: 0;
+}
+
+.addrecord-modal-close {
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: transparent;
+    color: #9ca3af;
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    border-radius: 6px;
+}
+
+.addrecord-modal-close:hover {
+    background: #f3f4f6;
+    color: #1f2937;
+}
+
+/* Add Record Modal Body */
+.addrecord-modal-body {
+    padding: 24px;
+    overflow-y: auto;
+    flex: 1;
+    position: relative;
+}
+
+/* Form */
+.addrecord-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.addrecord-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.addrecord-form-label {
+    font-size: 14px;
+    font-weight: 500;
+    color: #374151;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.addrecord-required {
+    color: #ef4444;
+}
+
+/* Multi-Select Student Dropdown */
+.student-multiselect {
+    position: relative;
+    z-index: 1000;
+}
+
+.student-select-display {
+    min-height: 46px;
+    padding: 10px 40px 10px 14px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    background: #fff;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+
+.student-select-display:hover {
+    border-color: #d1d5db;
+}
+
+.student-select-display.active {
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.student-select-display i {
+    transition: transform 0.3s ease;
+    margin-left: 8px;
+    flex-shrink: 0;
+}
+
+.student-select-display.collapsed i {
+    transform: rotate(0deg);
+}
+
+.student-select-display:not(.collapsed) i {
+    transform: rotate(180deg);
+}
+
+.student-placeholder {
+    color: #9ca3af;
+    font-size: 14px;
+}
+
+.student-selected-text {
+    color: #1f2937;
+    font-size: 14px;
+    word-break: break-word;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+/* Student Dropdown */
+/* Student Dropdown */
+.student-dropdown {
+    position: fixed;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+    max-height: 300px;
+    overflow-y: auto;
+    z-index: 10000;
+    display: none;
+    min-width: 300px;
+}
+
+.student-dropdown.show {
+    display: block;
+}
+
+.student-dropdown-search {
+    padding: 12px;
+    border-bottom: 1px solid #e5e7eb;
+    position: sticky;
+    top: 0;
+    background: #fff;
+    z-index: 1;
+}
+
+.student-dropdown-search input {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+.student-dropdown-search input:focus {
+    outline: none;
+    border-color: #6366f1;
+}
+
+.student-options {
+    max-height: 250px;
+    overflow-y: auto;
+    padding: 5px;
+}
+
+.student-options.no-scroll {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.student-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+}
+
+.student-option:hover {
+    background: #f9fafb;
+}
+
+.student-option.selected {
+    background: #eef2ff;
+}
+
+.student-option-checkbox {
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
+    cursor: pointer;
+    accent-color: #6366f1;
+    flex-shrink: 0;
+}
+
+.student-option-label {
+    flex: 1;
+    font-size: 14px;
+    color: #1f2937;
+    cursor: pointer;
+    user-select: none;
+}
+
+.student-check-icon {
+    position: absolute;
+    right: 12px;
+    color: #6366f1;
+    font-size: 16px;
+    display: none;
+}
+
+.student-option.selected .student-check-icon {
+    display: block;
+}
+
+.student-dropdown-footer {
+    padding: 12px;
+    border-top: 1px solid #e5e7eb;
+    background: #f9fafb;
+    position: sticky;
+    bottom: 0;
+}
+
+.selected-count {
+    font-size: 13px;
+    color: #6b7280;
+    font-weight: 500;
+}
+
+/* Form Select */
+.addrecord-form-select {
+    padding: 10px 14px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #1f2937;
+    background: #fff;
+    transition: all 0.2s;
+    font-family: inherit;
+    width: 100%;
+    cursor: pointer;
+}
+
+.addrecord-form-select[multiple] {
+    padding: 8px 0;
+    min-height: 140px;
+}
+
+.addrecord-form-select[multiple] option {
+    padding: 8px 14px;
+}
+
+.addrecord-form-select:focus {
+    outline: none;
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.addrecord-form-select option:first-child {
+    color: #9ca3af;
+}
+
+.addrecord-form-hint {
+    display: block;
+    font-size: 12px;
+    color: #9ca3af;
+    margin-top: 4px;
+}
+
+/* Search Input */
+.addrecord-form-search {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #1f2937;
+    background: #fff;
+    transition: all 0.2s;
+    font-family: inherit;
+    margin-bottom: 8px;
+}
+
+.addrecord-form-search:focus {
+    outline: none;
+    border-color: #6366f1;
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+/* Violation Type Display */
+.violation-type-display {
+    padding: 12px 14px;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    min-height: 38px;
+    display: flex;
+    align-items: center;
+}
+
+.type-badge-inactive {
+    font-size: 14px;
+    color: #9ca3af;
+}
+
+/* Records Preview */
+.addrecord-records-preview {
+    margin-top: 24px;
+    padding: 16px;
+    background: #f0f9ff;
+    border: 1px solid #bfdbfe;
+    border-radius: 8px;
+}
+
+.addrecord-records-preview h3 {
+    margin: 0 0 12px 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #1e40af;
+}
+
+.records-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.record-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    background: #fff;
+    border: 1px solid #bfdbfe;
+    border-radius: 6px;
+    font-size: 13px;
+}
+
+.record-item-student {
+    font-weight: 500;
+    color: #1f2937;
+    flex: 1;
+}
+
+.record-item-violation {
+    color: #6b7280;
+    flex: 2;
+}
+
+.addrecord-form-add-btn {
+    width: 100%;
+    padding: 10px 14px;
+    margin-top: 8px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #6b7280;
+    background: #f9fafb;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.addrecord-form-add-btn:hover {
+    background: #f3f4f6;
+    border-color: #d1d5db;
+    color: #374151;
+}
+
+.addrecord-form-add-btn:active {
+    transform: scale(0.98);
+}
+
+/* Selected Violations List */
+.addrecord-selected-violations {
+    margin-top: 16px;
+    padding: 16px;
+    background: #f0fdf4;
+    border: 1px solid #bbf7d0;
+    border-radius: 8px;
+}
+
+.addrecord-selected-violations h3 {
+    margin: 0 0 12px 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #166534;
+}
+
+.violations-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.violation-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 12px;
+    background: #fff;
+    border: 1px solid #bbf7d0;
+    border-radius: 6px;
+    font-size: 13px;
+}
+
+.violation-item-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+}
+
+.violation-item-title {
+    font-weight: 500;
+    color: #1f2937;
+}
+
+.violation-item-remove {
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: transparent;
+    color: #ef4444;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.violation-item-remove:hover {
+    background: #fee2e2;
+}
+
+/* Add Record Modal Footer */
+.addrecord-modal-footer {
+    display: flex;
+    gap: 12px;
+    padding: 20px 24px;
+    border-top: 1px solid #e5e7eb;
+    background: #f9fafb;
+    flex-shrink: 0;
+}
+
+.addrecord-modal-btn {
+    flex: 1;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-add-record {
+    background: #14b8a6;
+    color: #fff;
+}
+
+.btn-add-record:hover {
+    background: #0d9488;
+}
+
+.btn-add-record:disabled {
+    background: #d1d5db;
+    cursor: not-allowed;
+}
+
+.btn-cancel-add-record {
+    background: #ef4444;
+    color: #fff;
+}
+
+.btn-cancel-add-record:hover {
+    background: #dc2626;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .addrecord-modal-overlay {
+        padding: 10px;
+        align-items: flex-end;
+    }
+    
+    .addrecord-modal {
+        max-height: 95vh;
+        border-radius: 16px 16px 0 0;
+        max-width: 100%;
+    }
+    
+    .addrecord-modal-header {
+        padding: 16px;
+    }
+    
+    .addrecord-modal-header h2 {
+        font-size: 16px;
+        word-break: break-word;
+    }
+    
+    .addrecord-modal-body {
+        padding: 16px;
+        flex: 1;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .addrecord-modal-footer {
+        padding: 16px;
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .addrecord-modal-btn {
+        width: 100%;
+        padding: 14px 20px;
+        font-size: 16px;
+    }
+    
+    .btn-add-record {
+        order: 2;
+    }
+    
+    .btn-cancel-add-record {
+        order: 1;
+    }
+    
+    .violation-dropdown-menu.open {
+        max-height: 400px;
+    }
+    
+    .student-dropdown-menu.open {
+        max-height: 400px;
+    }
+    
+    .violation-checkbox-item,
+    .student-checkbox-item {
+        padding: 12px 16px;
+        font-size: 15px;
+    }
+    
+    .category-header {
+        padding: 10px 16px;
+        font-size: 14px;
+        font-weight: 600;
+        position: sticky;
+        top: 0;
+        background: #f9fafb;
+        z-index: 5;
+    }
+    
+    .violation-search input,
+    .student-search input {
+        padding: 10px 12px;
+        font-size: 16px;
+    }
+    
+    .violation-dropdown-trigger,
+    .student-dropdown-trigger {
+        padding: 14px 16px;
+        font-size: 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    .addrecord-modal {
+        border-radius: 20px 20px 0 0;
+    }
+    
+    .addrecord-modal-header {
+        padding: 12px;
+    }
+    
+    .addrecord-modal-header h2 {
+        font-size: 14px;
+    }
+    
+    .addrecord-modal-close {
+        width: 28px;
+        height: 28px;
+        font-size: 18px;
+    }
+    
+    .addrecord-modal-body {
+        padding: 12px;
+    }
+    
+    .addrecord-modal-footer {
+        padding: 12px;
+        gap: 6px;
+    }
+    
+    .addrecord-modal-btn {
+        padding: 12px 16px;
+        font-size: 14px;
+    }
+    
+    .violation-dropdown-trigger,
+    .student-dropdown-trigger {
+        padding: 12px 14px;
+        font-size: 13px;
+    }
+    
+    .violation-checkbox-item,
+    .student-checkbox-item {
+        padding: 10px 14px;
+        gap: 8px;
+    }
+    
+    .violation-checkbox,
+    .student-checkbox {
+        width: 16px;
+        height: 16px;
+    }
+}

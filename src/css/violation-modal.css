@@ -1,0 +1,251 @@
+/* violation-modal.css */
+
+/* Add/Edit Violation Modal Overlay */
+.violation-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    padding: 20px;
+}
+
+.violation-modal-overlay.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Violation Modal Container */
+.violation-modal {
+    background: #fff;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 600px;
+    max-height: 90vh;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+    transform: translateY(-20px) scale(0.95);
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.violation-modal-overlay.show .violation-modal {
+    transform: translateY(0) scale(1);
+}
+
+/* Modal Header */
+.violation-modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    border-bottom: 1px solid #e5e7eb;
+    background: #fff;
+    flex-shrink: 0;
+}
+
+.violation-modal-header h2 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #1f2937;
+    margin: 0;
+}
+
+.violation-modal-close {
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: transparent;
+    color: #9ca3af;
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    border-radius: 6px;
+}
+
+.violation-modal-close:hover {
+    background: #f3f4f6;
+    color: #1f2937;
+}
+
+/* Modal Body */
+.violation-modal-body {
+    padding: 24px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+/* Form Fields */
+.violation-form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.violation-form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.violation-form-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: #374151;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.violation-required {
+    color: #ef4444;
+    font-size: 14px;
+}
+
+.violation-form-input,
+.violation-form-select,
+.violation-form-textarea {
+    padding: 10px 14px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #1f2937;
+    background: #fff;
+    transition: all 0.2s;
+    font-family: inherit;
+    width: 100%;
+}
+
+.violation-form-textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+.violation-form-input:focus,
+.violation-form-select:focus,
+.violation-form-textarea:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.violation-form-input::placeholder,
+.violation-form-textarea::placeholder {
+    color: #9ca3af;
+}
+
+/* Error State */
+.violation-form-input.error,
+.violation-form-select.error,
+.violation-form-textarea.error {
+    border-color: #ef4444;
+    background: #fef2f2;
+}
+
+.violation-form-input.error:focus,
+.violation-form-select.error:focus,
+.violation-form-textarea.error:focus {
+    border-color: #dc2626;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+/* Type Badges in Select */
+.type-option-minor { color: #22c55e; }
+.type-option-serious { color: #f59e0b; }
+.type-option-major { color: #ef4444; }
+
+/* Modal Footer */
+.violation-modal-footer {
+    display: flex;
+    gap: 12px;
+    padding: 20px 24px;
+    border-top: 1px solid #e5e7eb;
+    background: #f9fafb;
+    flex-shrink: 0;
+}
+
+.violation-modal-btn {
+    flex: 1;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-save-violation {
+    background: #10b981;
+    color: #fff;
+}
+
+.btn-save-violation:hover {
+    background: #059669;
+}
+
+.btn-cancel-violation {
+    background: #ef4444;
+    color: #fff;
+}
+
+.btn-cancel-violation:hover {
+    background: #dc2626;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .violation-modal-overlay {
+        padding: 10px;
+    }
+    
+    .violation-modal {
+        max-height: 95vh;
+    }
+    
+    .violation-modal-header {
+        padding: 16px;
+    }
+    
+    .violation-modal-body {
+        padding: 16px;
+    }
+    
+    .violation-modal-footer {
+        padding: 16px;
+        flex-direction: column;
+    }
+    
+    .violation-modal-btn {
+        width: 100%;
+    }
+}
+
+@media (max-width: 480px) {
+    .violation-modal-header h2 {
+        font-size: 16px;
+    }
+    
+    .violation-form-input,
+    .violation-form-select,
+    .violation-form-textarea {
+        padding: 9px 12px;
+        font-size: 13px;
+    }
+}

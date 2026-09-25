@@ -1,0 +1,346 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
+    background-image: url('../images/loginbg.png');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.login-container {
+    display: flex;
+    width: 100%;
+    max-width: 1050px;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+    flex-direction: row-reverse;
+}
+
+/* Left Side - Image */
+.login-image-side {
+    flex: 0 0 48%;
+    background: linear-gradient(135deg, #2c3e7a 0%, #3d5a9e 100%);
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    min-height: 580px;
+}
+
+.login-image-side::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 1px, transparent 1px);
+    background-size: 50px 50px;
+}
+
+.image-wrapper {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+}
+
+.school-logo {
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    max-height: none;
+    object-fit: cover;
+    filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.3));
+}
+
+/* Right Side - Form */
+.login-form-side {
+    flex: 0 0 52%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 50px 45px;
+    background: white;
+    min-height: 580px;
+}
+
+.login-box {
+    width: 100%;
+    max-width: 400px;
+}
+
+.login-box h1 {
+    font-size: 24px;
+    font-weight: bold;
+    color: #3f2b96;
+    text-align: left;
+    margin-bottom: 8px;
+}
+
+.subtitle {
+    font-size: 14px;
+    color: #888;
+    text-align: left;
+    margin-bottom: 30px;
+}
+
+.error-message {
+    background-color: #ffebee;
+    color: #c62828;
+    padding: 12px;
+    border-radius: 4px;
+    margin-bottom: 20px;
+    border-left: 4px solid #c62828;
+    font-size: 13px;
+}
+
+.success-message {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+    padding: 12px;
+    border-radius: 4px;
+    margin-bottom: 20px;
+    border-left: 4px solid #2e7d32;
+    font-size: 13px;
+}
+
+.form-group {
+    margin-bottom: 22px;
+}
+
+.form-group label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #555;
+    margin-bottom: 8px;
+}
+
+.user-type-selector {
+    display: flex;
+    border: 1.5px solid #e0e0e0;
+    border-radius: 6px;
+    overflow: hidden;
+    background: #f9f9f9;
+}
+
+.user-type-option {
+    flex: 1;
+    display: flex;
+    align-items: center;
+}
+
+.user-type-option input[type="radio"] {
+    display: none;
+}
+
+.user-type-label {
+    flex: 1;
+    padding: 11px 12px;
+    text-align: center;
+    background: #f9f9f9;
+    border-right: 1.5px solid #e0e0e0;
+    cursor: pointer;
+    font-weight: 500;
+    color: #666;
+    margin: 0;
+    transition: all 0.2s;
+}
+
+.user-type-option:last-child .user-type-label {
+    border-right: none;
+}
+
+.user-type-option input[type="radio"]:checked + .user-type-label {
+    background: #667eea;
+    color: white;
+}
+
+
+
+.form-input {
+    width: 100%;
+    padding: 11px 13px;
+    border: 1px solid #999;
+    border-radius: 4px;
+    font-size: 14px;
+    background: white;
+    color: #333;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: #667eea;
+    background: white;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.form-input::placeholder {
+    color: #999;
+    font-weight: 400;
+}
+
+.password-input-wrapper {
+    position: relative;
+}
+
+.password-input-wrapper .form-input {
+    padding-right: 38px;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 13px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #999;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 5px;
+}
+
+.form-options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    font-size: 13px;
+}
+
+.checkbox-container {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    color: #666;
+    gap: 8px;
+}
+
+.checkbox-container input[type="checkbox"] {
+    cursor: pointer;
+    width: 16px;
+    height: 16px;
+    accent-color: #667eea;
+}
+
+.forgot-link {
+    color: #667eea;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.btn-signin {
+    width: 100%;
+    padding: 13px 16px;
+    background: #667eea;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+    .school-logo {
+        max-width: 300px;
+        max-height: 400px;
+    }
+    
+    .login-box {
+        max-width: 350px;
+    }
+    
+    .login-image-side,
+    .login-form-side {
+        min-height: 480px;
+    }
+}
+
+@media (max-width: 768px) {
+    .login-container {
+        flex-direction: column;
+        max-width: 100%;
+    }
+    
+    .login-image-side {
+        flex: 0 0 auto;
+        min-height: 350px;
+        padding: 40px 30px;
+    }
+    
+    .login-form-side {
+        flex: 1;
+        min-height: auto;
+        padding: 40px 30px;
+    }
+    
+    .school-logo {
+        max-width: 250px;
+        max-height: 320px;
+    }
+    
+    .login-box {
+        max-width: 100%;
+    }
+    
+    .login-box h1 {
+        font-size: 20px;
+    }
+    
+    .form-options {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .login-image-side {
+        min-height: 280px;
+        padding: 30px 20px;
+    }
+    
+    .login-form-side {
+        padding: 30px 20px;
+    }
+    
+    .school-logo {
+        max-width: 180px;
+        max-height: 240px;
+    }
+    
+    .login-box h1 {
+        font-size: 18px;
+    }
+    
+    .subtitle {
+        font-size: 13px;
+    }
+    
+    .form-group {
+        margin-bottom: 15px;
+    }
+    
+    .btn-signin {
+        padding: 10px;
+        font-size: 13px;
+    }
+}

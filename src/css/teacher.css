@@ -1,0 +1,414 @@
+/* teacher.css */
+
+/* Teacher Card */
+.teacher-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+
+.teacher-card .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 24px;
+}
+
+.card-title-section h3 {
+    font-size: 20px;
+    font-weight: 600;
+    color: #1f2937;
+    margin: 0 0 4px 0;
+}
+
+.card-title-section .subtitle {
+    font-size: 14px;
+    color: #6b7280;
+    margin: 0;
+}
+
+.teacher-card .header-actions {
+    display: flex;
+    gap: 12px;
+}
+
+/* Buttons */
+.btn {
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-primary {
+    background: #3b82f6;
+    color: #fff;
+}
+
+.btn-primary:hover {
+    background: #2563eb;
+}
+
+.btn-danger {
+    background: #ef4444;
+    color: #fff;
+}
+
+.btn-danger:hover {
+    background: #dc2626;
+}
+
+.btn-edit {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    color: #374151;
+    padding: 8px 16px;
+}
+
+.btn-edit:hover {
+    background: #f9fafb;
+    border-color: #d1d5db;
+}
+
+.btn-remove {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    color: #374151;
+    padding: 8px 16px;
+}
+
+.btn-remove:hover {
+    background: #fee2e2;
+    border-color: #fecaca;
+    color: #dc2626;
+}
+
+/* Table Controls */
+.table-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    gap: 20px;
+}
+
+.entries-control {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: #374151;
+}
+
+.entries-select {
+    padding: 8px 12px;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    font-size: 14px;
+    color: #374151;
+    background: #fff;
+    cursor: pointer;
+}
+
+.entries-select:focus {
+    outline: none;
+    border-color: #3b82f6;
+}
+
+.search-control {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: #374151;
+}
+
+.search-input {
+    padding: 8px 12px;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    font-size: 14px;
+    color: #374151;
+    width: 200px;
+    transition: all 0.2s;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Table Container */
+.table-container {
+    overflow-x: auto;
+}
+
+/* Teacher Table */
+.teacher-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.teacher-table thead {
+    border-top: 1px solid #e5e7eb;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.teacher-table th {
+    text-align: left;
+    padding: 14px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    background: #fff;
+    white-space: nowrap;
+}
+
+.teacher-table th.sortable {
+    cursor: pointer;
+    user-select: none;
+}
+
+.teacher-table th.sortable:hover {
+    color: #3b82f6;
+}
+
+.teacher-table th i {
+    margin-left: 6px;
+    font-size: 10px;
+    color: #9ca3af;
+}
+
+.teacher-table td {
+    padding: 16px 12px;
+    border-bottom: 1px solid #f3f4f6;
+    vertical-align: middle;
+}
+
+.teacher-table tbody tr:hover {
+    background: #f9fafb;
+}
+
+/* Checkbox Column */
+.checkbox-col {
+    width: 40px !important;
+    text-align: center;
+}
+
+.checkbox-col input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
+    cursor: pointer;
+    accent-color: #3b82f6;
+}
+
+/* Teacher Info Cell */
+.teacher-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.teacher-avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #e5e7eb;
+}
+
+.teacher-details {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.teacher-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.teacher-role {
+    font-size: 13px;
+    color: #6b7280;
+}
+
+/* Account Info Cell */
+.account-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.account-email {
+    font-size: 14px;
+    color: #1f2937;
+}
+
+.account-password {
+    font-size: 13px;
+    color: #9ca3af;
+}
+
+/* Action Buttons */
+.action-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+/* Table Footer */
+.table-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 20px;
+    padding-top: 20px;
+}
+
+.showing-text {
+    font-size: 14px;
+    color: #6b7280;
+}
+
+.showing-text strong {
+    color: #1f2937;
+}
+
+/* Pagination */
+.pagination {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+}
+
+.page-btn {
+    width: 36px;
+    height: 36px;
+    border: 1px solid #e5e7eb;
+    background: #fff;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #374151;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.page-btn:hover:not(:disabled) {
+    background: #f9fafb;
+    border-color: #d1d5db;
+}
+
+.page-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    color: #9ca3af;
+}
+
+.page-btn.active {
+    background: #3b82f6;
+    color: #fff;
+    border-color: #3b82f6;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+    .teacher-card .card-header {
+        flex-direction: column;
+        gap: 16px;
+    }
+    
+    .teacher-card .header-actions {
+        width: 100%;
+        flex-wrap: wrap;
+    }
+    
+    .table-controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .search-control {
+        width: 100%;
+    }
+    
+    .search-input {
+        flex: 1;
+        width: auto;
+    }
+}
+
+@media (max-width: 768px) {
+    .teacher-card {
+        padding: 16px;
+    }
+    
+    .action-buttons {
+        flex-direction: column;
+        gap: 4px;
+    }
+    
+    .btn-edit,
+    .btn-remove {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .table-footer {
+        flex-direction: column !important;
+        gap: 16px !important;
+        align-items: center !important;
+        display: flex !important;
+    }
+    
+    .showing-text {
+        order: 1 !important;
+        width: 100%;
+        text-align: center;
+        flex-basis: 100% !important;
+    }
+    
+    .pagination {
+        order: 2 !important;
+        width: 100% !important;
+        flex-basis: 100% !important;
+        justify-content: center !important;
+    }
+    
+    .teacher-table th,
+    .teacher-table td {
+        padding: 12px 8px;
+    }
+}
+
+@media (max-width: 576px) {
+    .entries-control {
+        flex-wrap: wrap;
+    }
+    
+    .teacher-info {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    
+    .teacher-avatar {
+        width: 36px;
+        height: 36px;
+    }
+}
