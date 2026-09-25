@@ -308,10 +308,15 @@
 .card-header {
     display: flex;
     justify-content: space-between;
-    align-items: center;
+    align-items: flex-start;
     margin-bottom: 20px;
     padding-bottom: 16px;
     border-bottom: 2px solid rgba(99, 102, 241, 0.1);
+    text-align: left;
+}
+
+.card-header > * {
+    text-align: left;
 }
 
 .card-header h3 {

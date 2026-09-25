@@ -742,23 +742,23 @@ export const DashboardPage = () => {
         {/* Repeat Offenders */}
         <div className="card" style={{ padding: '20px 22px', background: '#ffffff', borderRadius: '16px', border: '1px solid #e2e8f0', boxShadow: '0 4px 20px rgba(0, 0, 0, 0.04)', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
           <div>
-            <div className="card-header" style={{ marginBottom: '16px', paddingBottom: '14px', borderBottom: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div className="card-header" style={{ marginBottom: '16px', paddingBottom: '14px', borderBottom: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '8px', textAlign: 'left' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', textAlign: 'left' }}>
                 <div style={{ width: 38, height: 38, borderRadius: '10px', background: '#fee2e2', color: '#dc2626', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                   <ShieldAlert size={20} />
                 </div>
-                <div>
-                  <h3 style={{ margin: 0, fontSize: '16.5px', fontWeight: 800, color: '#0f172a', letterSpacing: '-0.3px' }}>
+                <div style={{ textAlign: 'left' }}>
+                  <h3 style={{ margin: 0, fontSize: '16.5px', fontWeight: 800, color: '#0f172a', letterSpacing: '-0.3px', textAlign: 'left' }}>
                     Repeat & High-Risk Students
                   </h3>
-                  <span style={{ fontSize: '12px', color: '#64748b' }}>
+                  <span style={{ fontSize: '12px', color: '#64748b', display: 'block', textAlign: 'left' }}>
                     Ranked by cumulative disciplinary infractions
                   </span>
                 </div>
               </div>
 
               {repeatOffenders.some(o => o.count >= 2) && (
-                <span style={{ background: '#fef2f2', color: '#dc2626', border: '1px solid #fecaca', fontSize: '11px', fontWeight: 700, padding: '3px 9px', borderRadius: '12px', display: 'inline-flex', alignItems: 'center', gap: 5 }}>
+                <span style={{ background: '#fef2f2', color: '#dc2626', border: '1px solid #fecaca', fontSize: '11px', fontWeight: 700, padding: '3px 9px', borderRadius: '12px', display: 'inline-flex', alignItems: 'center', gap: 5, alignSelf: 'flex-start' }}>
                   <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#dc2626' }} />
                   Action Required
                 </span>
@@ -938,21 +938,21 @@ export const DashboardPage = () => {
         {/* Violations by Grade Level & Sections */}
         <div className="card" style={{ padding: '20px 22px', background: '#ffffff', borderRadius: '16px', border: '1px solid #e2e8f0', boxShadow: '0 4px 20px rgba(0, 0, 0, 0.04)', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
           <div>
-            <div className="card-header" style={{ marginBottom: '16px', paddingBottom: '14px', borderBottom: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <div className="card-header" style={{ marginBottom: '16px', paddingBottom: '14px', borderBottom: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '8px', textAlign: 'left' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', textAlign: 'left' }}>
                 <div style={{ width: 38, height: 38, borderRadius: '10px', background: '#e0e7ff', color: '#4338ca', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                   <GraduationCap size={20} />
                 </div>
-                <div>
-                  <h3 style={{ margin: 0, fontSize: '16.5px', fontWeight: 800, color: '#0f172a', letterSpacing: '-0.3px' }}>
+                <div style={{ textAlign: 'left' }}>
+                  <h3 style={{ margin: 0, fontSize: '16.5px', fontWeight: 800, color: '#0f172a', letterSpacing: '-0.3px', textAlign: 'left' }}>
                     Violations by Grade & Section
                   </h3>
-                  <span style={{ fontSize: '12px', color: '#64748b' }}>
+                  <span style={{ fontSize: '12px', color: '#64748b', display: 'block', textAlign: 'left' }}>
                     Distribution breakdown across active sections
                   </span>
                 </div>
               </div>
-              <span style={{ fontSize: '11px', fontWeight: 700, color: '#4338ca', background: '#e0e7ff', padding: '3px 9px', borderRadius: '12px' }}>
+              <span style={{ fontSize: '11px', fontWeight: 700, color: '#4338ca', background: '#e0e7ff', padding: '3px 9px', borderRadius: '12px', alignSelf: 'flex-start' }}>
                 6 Sections Tracked
               </span>
             </div>
@@ -1045,21 +1045,21 @@ export const DashboardPage = () => {
         {/* Violation Percentage Donut */}
         <div className="card" style={{ padding: '22px 24px', background: '#ffffff', borderRadius: '16px', border: '1px solid #e2e8f0', boxShadow: '0 4px 20px rgba(0, 0, 0, 0.04)', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
           <div>
-            <div className="card-header" style={{ marginBottom: '14px', paddingBottom: '12px', borderBottom: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <div className="card-header" style={{ marginBottom: '14px', paddingBottom: '12px', borderBottom: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '8px', textAlign: 'left' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', textAlign: 'left' }}>
                 <div style={{ width: 38, height: 38, borderRadius: '10px', background: '#eef2ff', color: '#4f46e5', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                   <TrendingUp size={20} strokeWidth={2.4} />
                 </div>
-                <div>
-                  <h3 style={{ margin: 0, fontSize: '16.5px', fontWeight: 800, color: '#0f172a', letterSpacing: '-0.3px' }}>
+                <div style={{ textAlign: 'left' }}>
+                  <h3 style={{ margin: 0, fontSize: '16.5px', fontWeight: 800, color: '#0f172a', letterSpacing: '-0.3px', textAlign: 'left' }}>
                     Violation Distribution
                   </h3>
-                  <span style={{ fontSize: '12px', color: '#64748b' }}>
+                  <span style={{ fontSize: '12px', color: '#64748b', display: 'block', textAlign: 'left' }}>
                     Proportional breakdown by incident severity
                   </span>
                 </div>
               </div>
-              <span style={{ fontSize: '11px', fontWeight: 800, color: '#4f46e5', background: '#eef2ff', padding: '3px 9px', borderRadius: '10px', border: '1px solid #e0e7ff' }}>
+              <span style={{ fontSize: '11px', fontWeight: 800, color: '#4f46e5', background: '#eef2ff', padding: '3px 9px', borderRadius: '10px', border: '1px solid #e0e7ff', alignSelf: 'flex-start' }}>
                 {totalAllCount} Total Cases
               </span>
             </div>
@@ -1191,9 +1191,11 @@ export const DashboardPage = () => {
 
         {/* Violations by Category */}
         <div className="card" style={{ padding: '20px 22px', background: '#ffffff', borderRadius: '16px', border: '1px solid #e2e8f0', boxShadow: '0 4px 20px rgba(0, 0, 0, 0.04)' }}>
-          <div className="card-header" style={{ marginBottom: '14px', paddingBottom: '12px', borderBottom: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <h3 style={{ margin: 0, fontSize: '16.5px', fontWeight: 800, color: '#0f172a' }}>Violations by Category</h3>
-            <span style={{ fontSize: '12px', color: '#6b7280', fontWeight: 600 }}>Sep 01 - Sep 30</span>
+          <div className="card-header" style={{ marginBottom: '14px', paddingBottom: '12px', borderBottom: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '8px', textAlign: 'left' }}>
+            <div style={{ textAlign: 'left' }}>
+              <h3 style={{ margin: 0, fontSize: '16.5px', fontWeight: 800, color: '#0f172a', textAlign: 'left' }}>Violations by Category</h3>
+            </div>
+            <span style={{ fontSize: '12px', color: '#6b7280', fontWeight: 600, alignSelf: 'flex-start', textAlign: 'left' }}>Sep 01 - Sep 30</span>
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
