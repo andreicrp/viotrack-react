@@ -1638,22 +1638,22 @@ export const StudentViolationDetailPage = () => {
               id="printable-qr-card"
               style={{
                 width: '100%',
-                background: 'linear-gradient(135deg, #1e293b 0%, #0f172a 100%)',
+                background: '#ffffff',
                 borderRadius: '16px',
-                padding: '20px',
-                color: '#ffffff',
-                border: '1.5px solid rgba(255,255,255,0.15)',
-                boxShadow: '0 12px 30px rgba(0,0,0,0.25)',
+                padding: '22px 20px',
+                color: '#0f172a',
+                border: '1.5px solid #e2e8f0',
+                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.05)',
                 position: 'relative'
               }}
             >
-              <div style={{ fontSize: '11px', fontWeight: 800, color: '#38bdf8', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
-                VIOTRACK • PERPETUAL HELP COLLEGE OF MANILA
+              <div style={{ fontSize: '11px', fontWeight: 800, color: '#2563eb', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+                VIOTRACK
               </div>
-              <div style={{ fontSize: '16px', fontWeight: 800, color: '#ffffff', marginTop: '4px' }}>
+              <div style={{ fontSize: '17px', fontWeight: 800, color: '#0f172a', marginTop: '4px' }}>
                 {student.fname} {student.lname}
               </div>
-              <div style={{ fontSize: '12px', color: '#94a3b8', marginTop: '2px' }}>
+              <div style={{ fontSize: '12px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
                 {student.grade} - {student.section} • S.Y. {student.academicyear || '2025-2026'}
               </div>
 
@@ -1661,10 +1661,11 @@ export const StudentViolationDetailPage = () => {
                 style={{
                   margin: '16px auto',
                   padding: '12px',
-                  background: '#ffffff',
+                  background: '#f8fafc',
+                  border: '1px solid #e2e8f0',
                   borderRadius: '12px',
                   display: 'inline-block',
-                  boxShadow: '0 4px 14px rgba(0,0,0,0.2)'
+                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.03)'
                 }}
               >
                 <img
@@ -1674,10 +1675,10 @@ export const StudentViolationDetailPage = () => {
                 />
               </div>
 
-              <div style={{ fontSize: '13px', fontWeight: 800, color: '#38bdf8', letterSpacing: '0.05em' }}>
+              <div style={{ fontSize: '14px', fontWeight: 800, color: '#2563eb', letterSpacing: '0.04em' }}>
                 LRN: {student.lrn}
               </div>
-              <div style={{ fontSize: '10.5px', color: '#64748b', marginTop: '4px' }}>
+              <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px' }}>
                 Scan to instantly access disciplinary log & track location
               </div>
             </div>
