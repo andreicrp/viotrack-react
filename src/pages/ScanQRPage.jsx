@@ -66,32 +66,23 @@ export const ScanQRPage = () => {
   const lastScannedCodeRef = useRef('');
   const lastScannedTimeRef = useRef(0);
 
-  // Auto-scroll to student details on successful scan
-  const scrollToStudentInfo = () => {
-    const trigger = () => {
-      if (!studentDetailRef.current) return;
-      const headerOffset = 78;
-      const rect = studentDetailRef.current.getBoundingClientRect();
-      const offsetPosition = rect.top + window.pageYOffset - headerOffset;
-
-      window.scrollTo({
-        top: Math.max(0, offsetPosition),
-        behavior: 'smooth'
-      });
-    };
-
-    requestAnimationFrame(trigger);
-    setTimeout(trigger, 120);
-    setTimeout(trigger, 280);
-    setTimeout(trigger, 480);
+  const handleCloseStudentModal = () => {
+    setScannedStudent(null);
+    setStudentRecords([]);
+    isScanningLockedRef.current = false;
+    lastScannedCodeRef.current = '';
   };
 
-  // Automatically scroll down whenever a new student profile is active
+  // Close modal on Escape key press
   useEffect(() => {
-    if (scannedStudent) {
-      scrollToStudentInfo();
-    }
-  }, [scannedStudent?.id]);
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && scannedStudent && !isViolationModalOpen) {
+        handleCloseStudentModal();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [scannedStudent, isViolationModalOpen]);
 
   // Play a soft high-tech affirmative chime on QR detect
   const playScanBeep = () => {
@@ -639,7 +630,6 @@ export const ScanQRPage = () => {
         setScannedStudent(matched);
         loadStudentRecords(matched.id);
         success(`Student Identified: ${matched.fname} ${matched.lname} (${matched.lrn})`);
-        scrollToStudentInfo();
       } else {
         error(`No student record found matching: "${rawInput}"`);
       }
@@ -990,7 +980,6 @@ export const ScanQRPage = () => {
                         loadStudentRecords(s.id);
                         playScanBeep();
                         success(`Selected: ${s.fname} ${s.lname}`);
-                        scrollToStudentInfo();
                       }}
                       title={`Select ${s.fname} ${s.lname}`}
                     >
@@ -1004,11 +993,13 @@ export const ScanQRPage = () => {
             )}
           </div>
         </div>
+      </div>
 
-        {/* Right Column: Identified Student Profile Details */}
-        <div className="student-detail-panel" ref={studentDetailRef}>
-          {isProcessingScan ? (
-            <div className="scan-processing-state">
+      {/* Image File Scanning Progress Modal Overlay */}
+      {isProcessingScan && (
+        <div className="student-scan-modal-overlay">
+          <div className="student-scan-modal-dialog" style={{ maxWidth: '440px', textAlign: 'center', padding: '32px 24px' }}>
+            <div className="scan-processing-state" style={{ margin: 0, padding: 0 }}>
               <div className="processing-pulse-wrapper">
                 <div className="processing-pulse-ring" />
                 <div className="processing-pulse-ring delay" />
@@ -1016,13 +1007,13 @@ export const ScanQRPage = () => {
                   <Loader2 size={28} className="spinner" style={{ animation: 'spin 1s linear infinite', color: '#27367f' }} />
                 </div>
               </div>
-              <h3 className="processing-title">Scanning Image QR Code</h3>
+              <h3 className="processing-title" style={{ marginTop: '16px' }}>Scanning QR Code</h3>
               <p className="processing-step-text">
                 {scanProcessingStep || 'Analyzing visual QR matrix & locating student records...'}
               </p>
 
               {/* Shimmer Placeholder Skeleton */}
-              <div className="processing-skeleton-card">
+              <div className="processing-skeleton-card" style={{ marginTop: '16px' }}>
                 <div className="skeleton-avatar skeleton-shimmer" />
                 <div className="skeleton-lines">
                   <div className="skeleton-line lg skeleton-shimmer" />
@@ -1031,18 +1022,35 @@ export const ScanQRPage = () => {
                 </div>
               </div>
             </div>
-          ) : !scannedStudent ? (
-            <div className="awaiting-scan-state">
-              <div className="awaiting-icon-wrap">
-                <QrCode size={36} strokeWidth={1.75} />
+          </div>
+        </div>
+      )}
+
+      {/* Verified Student Conduct Modal Popup */}
+      {scannedStudent && (
+        <div className="student-scan-modal-overlay" onClick={handleCloseStudentModal}>
+          <div className="student-scan-modal-dialog" onClick={(e) => e.stopPropagation()}>
+            <div className="student-scan-modal-header">
+              <div className="student-scan-modal-title-group">
+                <div className="scan-verified-icon-badge">
+                  <CheckCircle2 size={18} />
+                </div>
+                <div>
+                  <h3 className="student-scan-modal-title">Student Identified</h3>
+                  <p className="student-scan-modal-subtitle">Official Student Conduct Summary</p>
+                </div>
               </div>
-              <h3 className="awaiting-title">Awaiting Student Scan</h3>
-              <p className="awaiting-desc">
-                Position a printed student ID badge QR code in front of the camera or use the manual LRN search bar to pull up conduct history.
-              </p>
+              <button
+                type="button"
+                className="student-scan-modal-close-btn"
+                onClick={handleCloseStudentModal}
+                aria-label="Close modal"
+              >
+                <X size={18} />
+              </button>
             </div>
-          ) : (
-            <>
+
+            <div className="student-scan-modal-body">
               {/* Verified Student Header Card */}
               <div className="verified-header-card">
                 <img
@@ -1118,41 +1126,6 @@ export const ScanQRPage = () => {
                 </div>
               </div>
 
-              {/* Action Buttons */}
-              <div className="verified-actions-row">
-                <button
-                  type="button"
-                  className="verified-btn primary"
-                  onClick={() => setIsViolationModalOpen(true)}
-                >
-                  <PlusCircle size={15} />
-                  <span>Log New Violation</span>
-                </button>
-
-                <button
-                  type="button"
-                  className="verified-btn secondary"
-                  onClick={() => navigate(`/student-violation/${scannedStudent.id}?scan=true`)}
-                >
-                  <FileSpreadsheet size={15} />
-                  <span>Full Profile</span>
-                </button>
-
-                <button
-                  type="button"
-                  className="verified-btn secondary"
-                  onClick={() => {
-                    setScannedStudent(null);
-                    setStudentRecords([]);
-                    setManualQuery('');
-                  }}
-                  title="Clear selection and scan next badge"
-                >
-                  <RefreshCw size={14} />
-                  <span>Scan Next</span>
-                </button>
-              </div>
-
               {/* Recent Violations Timeline */}
               <div className="recent-violations-wrap">
                 <div className="recent-violations-title">
@@ -1183,10 +1156,41 @@ export const ScanQRPage = () => {
                   </div>
                 )}
               </div>
-            </>
-          )}
+            </div>
+
+            {/* Modal Actions */}
+            <div className="student-scan-modal-footer">
+              <button
+                type="button"
+                className="verified-btn primary"
+                onClick={() => setIsViolationModalOpen(true)}
+              >
+                <PlusCircle size={15} />
+                <span>Log New Violation</span>
+              </button>
+
+              <button
+                type="button"
+                className="verified-btn secondary"
+                onClick={() => navigate(`/student-violation/${scannedStudent.id}?scan=true`)}
+              >
+                <FileSpreadsheet size={15} />
+                <span>Full Profile</span>
+              </button>
+
+              <button
+                type="button"
+                className="verified-btn secondary"
+                onClick={handleCloseStudentModal}
+                title="Scan next badge"
+              >
+                <RefreshCw size={14} />
+                <span>Scan Next</span>
+              </button>
+            </div>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Log Violation Modal for Verified Student */}
       {scannedStudent && (
