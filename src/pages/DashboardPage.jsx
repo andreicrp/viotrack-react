@@ -583,10 +583,8 @@ export const DashboardPage = () => {
       {/* 3. Violation Trends Chart */}
       <div className="card chart-card" style={{ padding: '22px 24px', background: '#ffffff', borderRadius: '16px', border: '1px solid #e2e8f0', boxShadow: '0 4px 20px rgba(0, 0, 0, 0.04)' }}>
         <div className="card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px', marginBottom: '16px', paddingBottom: '14px', borderBottom: '1px solid #f1f5f9' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <div style={{ width: 40, height: 40, borderRadius: '12px', background: 'linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%)', color: '#4f46e5', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 2px 6px rgba(79, 70, 229, 0.12)' }}>
-              <TrendingUp size={22} strokeWidth={2.4} />
-            </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <TrendingUp size={22} color="#4f46e5" strokeWidth={2.4} style={{ flexShrink: 0 }} />
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
                 <h3 style={{ margin: 0, fontSize: '17px', fontWeight: 800, color: '#0f172a', letterSpacing: '-0.3px' }}>
@@ -743,10 +741,8 @@ export const DashboardPage = () => {
         <div className="card" style={{ padding: '20px 22px', background: '#ffffff', borderRadius: '16px', border: '1px solid #e2e8f0', boxShadow: '0 4px 20px rgba(0, 0, 0, 0.04)', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
           <div>
             <div className="card-header" style={{ marginBottom: '16px', paddingBottom: '14px', borderBottom: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '8px', textAlign: 'left' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', textAlign: 'left' }}>
-                <div style={{ width: 38, height: 38, borderRadius: '10px', background: '#fee2e2', color: '#dc2626', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                  <ShieldAlert size={20} />
-                </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', textAlign: 'left' }}>
+                <ShieldAlert size={22} color="#dc2626" style={{ flexShrink: 0 }} />
                 <div style={{ textAlign: 'left' }}>
                   <h3 style={{ margin: 0, fontSize: '16.5px', fontWeight: 800, color: '#0f172a', letterSpacing: '-0.3px', textAlign: 'left' }}>
                     Repeat & High-Risk Students
@@ -939,10 +935,8 @@ export const DashboardPage = () => {
         <div className="card" style={{ padding: '20px 22px', background: '#ffffff', borderRadius: '16px', border: '1px solid #e2e8f0', boxShadow: '0 4px 20px rgba(0, 0, 0, 0.04)', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
           <div>
             <div className="card-header" style={{ marginBottom: '16px', paddingBottom: '14px', borderBottom: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '8px', textAlign: 'left' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', textAlign: 'left' }}>
-                <div style={{ width: 38, height: 38, borderRadius: '10px', background: '#e0e7ff', color: '#4338ca', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                  <GraduationCap size={20} />
-                </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px', textAlign: 'left' }}>
+                <GraduationCap size={22} color="#4338ca" style={{ flexShrink: 0 }} />
                 <div style={{ textAlign: 'left' }}>
                   <h3 style={{ margin: 0, fontSize: '16.5px', fontWeight: 800, color: '#0f172a', letterSpacing: '-0.3px', textAlign: 'left' }}>
                     Violations by Grade & Section
@@ -1047,9 +1041,7 @@ export const DashboardPage = () => {
           <div>
             <div className="card-header" style={{ marginBottom: '14px', paddingBottom: '12px', borderBottom: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '8px', textAlign: 'left' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '10px', textAlign: 'left' }}>
-                <div style={{ width: 38, height: 38, borderRadius: '10px', background: '#eef2ff', color: '#4f46e5', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                  <TrendingUp size={20} strokeWidth={2.4} />
-                </div>
+                <TrendingUp size={22} color="#4f46e5" strokeWidth={2.4} style={{ flexShrink: 0 }} />
                 <div style={{ textAlign: 'left' }}>
                   <h3 style={{ margin: 0, fontSize: '16.5px', fontWeight: 800, color: '#0f172a', letterSpacing: '-0.3px', textAlign: 'left' }}>
                     Violation Distribution
@@ -1192,8 +1184,11 @@ export const DashboardPage = () => {
         {/* Violations by Category */}
         <div className="card" style={{ padding: '20px 22px', background: '#ffffff', borderRadius: '16px', border: '1px solid #e2e8f0', boxShadow: '0 4px 20px rgba(0, 0, 0, 0.04)' }}>
           <div className="card-header" style={{ marginBottom: '14px', paddingBottom: '12px', borderBottom: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '8px', textAlign: 'left' }}>
-            <div style={{ textAlign: 'left' }}>
-              <h3 style={{ margin: 0, fontSize: '16.5px', fontWeight: 800, color: '#0f172a', textAlign: 'left' }}>Violations by Category</h3>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', textAlign: 'left' }}>
+              <FileText size={22} color="#27367f" style={{ flexShrink: 0 }} />
+              <div style={{ textAlign: 'left' }}>
+                <h3 style={{ margin: 0, fontSize: '16.5px', fontWeight: 800, color: '#0f172a', textAlign: 'left' }}>Violations by Category</h3>
+              </div>
             </div>
             <span style={{ fontSize: '12px', color: '#6b7280', fontWeight: 600, alignSelf: 'flex-start', textAlign: 'left' }}>Sep 01 - Sep 30</span>
           </div>
