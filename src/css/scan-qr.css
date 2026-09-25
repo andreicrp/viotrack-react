@@ -503,18 +503,20 @@
 }
 
 .camera-fallback-chips {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
   gap: 6px;
-  max-height: 85px;
-  overflow-y: auto;
+  width: 100%;
+  max-height: none;
+  overflow: visible;
 }
 
 .camera-fallback-chip {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  padding: 5px 9px;
+  justify-content: center;
+  gap: 6px;
+  padding: 6px 10px;
   font-size: 11px;
   font-weight: 600;
   color: #334155;
@@ -523,7 +525,12 @@
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.18s ease;
-  max-width: 100%;
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.camera-fallback-chip span {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
