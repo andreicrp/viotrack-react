@@ -482,6 +482,27 @@ export const dataService = {
     setStored('activity_logs', [newLog, ...current.slice(0, 49)]);
   },
 
+  // --- STORAGE & PHOTO UPLOADS ---
+  async uploadPhoto(file, folder = 'students') {
+    if (isSupabaseConfigured() && file) {
+      try {
+        const ext = file.name ? file.name.split('.').pop() : 'jpg';
+        const fileName = `${folder}/${Date.now()}_${Math.random().toString(36).substring(2, 8)}.${ext}`;
+        const { data, error } = await supabase.storage.from('student-photos').upload(fileName, file, {
+          cacheControl: '3600',
+          upsert: true
+        });
+        if (!error && data) {
+          const { data: publicUrlData } = supabase.storage.from('student-photos').getPublicUrl(fileName);
+          return publicUrlData?.publicUrl || null;
+        }
+      } catch (err) {
+        console.warn('Storage upload error:', err);
+      }
+    }
+    return null;
+  },
+
   // --- SMS TRIGGER ---
   async sendSMS(studentContact, recipientName, studentName, violationTitle) {
     const message = `[VioTrack Alert] Dear ${recipientName || 'Parent/Guardian'}, this is to inform you that ${studentName} has received a record for: ${violationTitle}. Please contact the school guidance office for details.`;

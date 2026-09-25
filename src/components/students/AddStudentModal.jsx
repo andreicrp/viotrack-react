@@ -27,7 +27,10 @@ export const AddStudentModal = ({ isOpen, onClose, studentToEdit = null, onSaved
     image: ''
   });
 
+  const [photoFile, setPhotoFile] = useState(null);
+
   useEffect(() => {
+    setPhotoFile(null);
     if (studentToEdit) {
       setFormData({
         lrn: studentToEdit.lrn || '',
@@ -81,6 +84,7 @@ export const AddStudentModal = ({ isOpen, onClose, studentToEdit = null, onSaved
       return;
     }
 
+    setPhotoFile(file);
     const reader = new FileReader();
     reader.onload = (event) => {
       setFormData(prev => ({ ...prev, image: event.target.result }));
@@ -110,6 +114,7 @@ export const AddStudentModal = ({ isOpen, onClose, studentToEdit = null, onSaved
 
   const handleRemovePhoto = (e) => {
     e.stopPropagation();
+    setPhotoFile(null);
     setFormData(prev => ({ ...prev, image: '' }));
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
@@ -125,14 +130,25 @@ export const AddStudentModal = ({ isOpen, onClose, studentToEdit = null, onSaved
 
     setLoading(true);
     try {
+      let finalImageUrl = formData.image;
+      if (photoFile) {
+        const uploadedUrl = await dataService.uploadPhoto(photoFile, 'students');
+        if (uploadedUrl) {
+          finalImageUrl = uploadedUrl;
+        }
+      }
+
       if (studentToEdit) {
-        const updated = await dataService.updateStudent(studentToEdit.id, formData);
+        const updated = await dataService.updateStudent(studentToEdit.id, {
+          ...formData,
+          image: finalImageUrl
+        });
         success(`Student ${formData.fname} ${formData.lname} updated successfully!`);
         onSaved?.(updated);
       } else {
         const created = await dataService.addStudent({
           ...formData,
-          image: formData.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(`${formData.fname} ${formData.lname}`)}&background=27367f&color=fff&size=100`
+          image: finalImageUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(`${formData.fname} ${formData.lname}`)}&background=27367f&color=fff&size=100`
         });
         success(`Student ${formData.fname} ${formData.lname} registered successfully!`);
         onSaved?.(created);
