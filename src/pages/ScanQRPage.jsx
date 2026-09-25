@@ -1064,8 +1064,7 @@ export const ScanQRPage = () => {
                     style={{ width: `${scanProgressPercent}%` }}
                   />
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '6px' }}>
-                  <span className="scan-timer-pill">5s Security Verification</span>
+                <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginTop: '6px' }}>
                   <span style={{ fontSize: '11.5px', fontWeight: 700, color: '#2563eb' }}>{scanProgressPercent}%</span>
                 </div>
               </div>
