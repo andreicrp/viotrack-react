@@ -74,6 +74,10 @@ body {
     text-decoration: none;
     padding: 0;
     margin: 0;
+    -webkit-user-drag: none !important;
+    user-drag: none !important;
+    user-select: none !important;
+    -webkit-user-select: none !important;
 }
 
 .logo:hover {
@@ -97,6 +101,8 @@ body {
     margin: 0;
     border: none !important;
     box-shadow: none !important;
+    -webkit-user-drag: none !important;
+    user-drag: none !important;
 }
 
 .logo-icon img {
@@ -107,6 +113,9 @@ body {
     background: transparent !important;
     padding: 0;
     margin: 0;
+    -webkit-user-drag: none !important;
+    user-drag: none !important;
+    pointer-events: none;
 }
 
 .logo-text {
@@ -115,6 +124,10 @@ body {
     color: #27367f;
     letter-spacing: -0.5px;
     white-space: nowrap;
+    -webkit-user-drag: none !important;
+    user-drag: none !important;
+    user-select: none !important;
+    -webkit-user-select: none !important;
 }
 
 /* Mobile logo text - hidden on desktop */
@@ -125,6 +138,10 @@ body {
     color: #27367f;
     letter-spacing: -0.5px;
     text-decoration: none;
+    -webkit-user-drag: none !important;
+    user-drag: none !important;
+    user-select: none !important;
+    -webkit-user-select: none !important;
 }
 
 .logo-text-mobile:hover,

@@ -66,19 +66,21 @@ export const Header = ({ onToggleSidebar }) => {
         <a
           href="/"
           className="logo"
+          draggable={false}
           onClick={(e) => {
             e.preventDefault();
             navigate('/');
           }}
         >
-          <div className="logo-icon">
-            <img src="/images/phcm-logo.png" alt="VioTrack Logo" />
+          <div className="logo-icon" draggable={false}>
+            <img src="/images/phcm-logo.png" alt="VioTrack Logo" draggable={false} />
           </div>
-          <span className="logo-text">VIOTRACK: By Perpetual Help College of Manila</span>
+          <span className="logo-text" draggable={false}>VIOTRACK: By Perpetual Help College of Manila</span>
         </a>
         <a
           href="/"
           className="logo-text-mobile"
+          draggable={false}
           onClick={(e) => {
             e.preventDefault();
             navigate('/');
@@ -88,37 +90,40 @@ export const Header = ({ onToggleSidebar }) => {
         </a>
       </div>
 
-      <div className="header-right">
+      <div className="header-right" draggable={false}>
         {/* Modern User Profile Menu */}
-        <div className="header-user-menu-wrap" ref={dropdownRef}>
+        <div className="header-user-menu-wrap" ref={dropdownRef} draggable={false}>
           <button
             type="button"
             className="header-user-avatar-btn"
             onClick={() => setShowDropdown(prev => !prev)}
             aria-label="Open User Menu"
             aria-expanded={showDropdown}
+            draggable={false}
           >
-            <div className="header-avatar-ring">
+            <div className="header-avatar-ring" draggable={false}>
               <img
                 src={user?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80'}
                 alt={user?.name || 'User'}
                 className="header-avatar-img"
+                draggable={false}
               />
               <span className="header-online-dot" />
             </div>
           </button>
 
           {showDropdown && (
-            <div className="header-user-dropdown" role="menu">
-              <div className="user-dropdown-header">
+            <div className="header-user-dropdown" role="menu" draggable={false}>
+              <div className="user-dropdown-header" draggable={false}>
                 <img
                   src={user?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80'}
                   alt={user?.name || 'User'}
                   className="user-dropdown-avatar"
+                  draggable={false}
                 />
-                <div className="user-dropdown-meta">
-                  <div className="user-dropdown-name">{user?.name || 'Sheryl Gamboa'}</div>
-                  <span className="user-dropdown-role-chip">
+                <div className="user-dropdown-meta" draggable={false}>
+                  <div className="user-dropdown-name" draggable={false}>{user?.name || 'Sheryl Gamboa'}</div>
+                  <span className="user-dropdown-role-chip" draggable={false}>
                     {isAdmin ? <Shield size={11} /> : <GraduationCap size={11} />}
                     {isAdmin ? 'Administrator' : 'Teacher'}
                   </span>

@@ -23,7 +23,20 @@
   -moz-user-select: none !important;
   -ms-user-select: none !important;
   user-select: none !important;
+  -webkit-user-drag: none !important;
+  -khtml-user-drag: none !important;
+  -moz-user-drag: none !important;
+  -o-user-drag: none !important;
+  user-drag: none !important;
   box-sizing: border-box;
+}
+
+img, a, svg, span, p, h1, h2, h3, h4, h5, h6, div, header, nav, aside {
+  -webkit-user-drag: none !important;
+  -khtml-user-drag: none !important;
+  -moz-user-drag: none !important;
+  -o-user-drag: none !important;
+  user-drag: none !important;
 }
 
 /* Allow text typing, selection, and copy-pasting EXCLUSIVELY in textboxes and textareas */
