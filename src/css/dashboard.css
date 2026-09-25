@@ -210,18 +210,20 @@
 }
 
 .stat-icon {
-    width: 44px;
-    height: 44px;
-    border-radius: 12px;
+    width: auto;
+    height: auto;
+    border-radius: 0;
     display: flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
+    background: transparent !important;
+    box-shadow: none !important;
     transition: all 0.2s ease;
 }
 
 .stat-card:hover .stat-icon {
-    transform: scale(1.06);
+    transform: scale(1.08);
 }
 
 /* Category Color Matching Borders & Icons */
@@ -275,11 +277,11 @@
     box-shadow: 0 8px 24px rgba(99, 102, 241, 0.18);
 }
 
-.stat-icon.minor { background: #ecfdf5; color: #10b981; }
-.stat-icon.serious { background: #fffbeb; color: #f59e0b; }
-.stat-icon.major { background: #fef2f2; color: #ef4444; }
-.stat-icon.students { background: #eff6ff; color: #2563eb; }
-.stat-icon.weekly { background: #eef2ff; color: #6366f1; }
+.stat-icon.minor { background: transparent !important; color: #10b981; }
+.stat-icon.serious { background: transparent !important; color: #f59e0b; }
+.stat-icon.major { background: transparent !important; color: #ef4444; }
+.stat-icon.students { background: transparent !important; color: #2563eb; }
+.stat-icon.weekly { background: transparent !important; color: #6366f1; }
 
 /* Cards */
 .card {

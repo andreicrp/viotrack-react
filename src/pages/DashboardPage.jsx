@@ -526,8 +526,8 @@ export const DashboardPage = () => {
             <span className="stat-value">{minorCount}</span>
             <span className="stat-subtext">Active warning logs</span>
           </div>
-          <div className="stat-icon minor">
-            <CheckCircle2 size={22} strokeWidth={2.3} color="#10b981" />
+          <div className="stat-icon minor" style={{ background: 'transparent', boxShadow: 'none' }}>
+            <CheckCircle2 size={26} strokeWidth={2.3} color="#10b981" />
           </div>
         </div>
 
@@ -538,8 +538,8 @@ export const DashboardPage = () => {
             <span className="stat-value">{seriousCount}</span>
             <span className="stat-subtext">Faculty interventions</span>
           </div>
-          <div className="stat-icon serious">
-            <Clock size={22} strokeWidth={2.3} color="#f59e0b" />
+          <div className="stat-icon serious" style={{ background: 'transparent', boxShadow: 'none' }}>
+            <Clock size={26} strokeWidth={2.3} color="#f59e0b" />
           </div>
         </div>
 
@@ -550,8 +550,8 @@ export const DashboardPage = () => {
             <span className="stat-value">{majorCount}</span>
             <span className="stat-subtext">Guidance hearing cases</span>
           </div>
-          <div className="stat-icon major">
-            <AlertCircle size={22} strokeWidth={2.3} color="#ef4444" />
+          <div className="stat-icon major" style={{ background: 'transparent', boxShadow: 'none' }}>
+            <AlertCircle size={26} strokeWidth={2.3} color="#ef4444" />
           </div>
         </div>
 
@@ -562,8 +562,8 @@ export const DashboardPage = () => {
             <span className="stat-value">{totalStudentsCount}</span>
             <span className="stat-subtext">Across all levels & strands</span>
           </div>
-          <div className="stat-icon students">
-            <Users size={22} strokeWidth={2.3} color="#2563eb" />
+          <div className="stat-icon students" style={{ background: 'transparent', boxShadow: 'none' }}>
+            <Users size={26} strokeWidth={2.3} color="#2563eb" />
           </div>
         </div>
 
@@ -574,8 +574,8 @@ export const DashboardPage = () => {
             <span className="stat-value">{totalViolationsCount}</span>
             <span className="stat-subtext">Recorded incidents to date</span>
           </div>
-          <div className="stat-icon weekly">
-            <CalendarIcon size={22} strokeWidth={2.3} color="#6366f1" />
+          <div className="stat-icon weekly" style={{ background: 'transparent', boxShadow: 'none' }}>
+            <CalendarIcon size={26} strokeWidth={2.3} color="#6366f1" />
           </div>
         </div>
       </div>

@@ -143,14 +143,14 @@
 }
 
 .stat-icon {
-    width: 56px;
-    height: 56px;
-    border-radius: 14px;
+    width: auto;
+    height: auto;
+    border-radius: 0;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 24px;
-    overflow: hidden;
+    background: transparent !important;
+    box-shadow: none !important;
 }
 
 .stat-icon img {
@@ -160,11 +160,11 @@
     border-radius: 14px;
 }
 
-.stat-icon.minor { background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%); color: #059669; }
-.stat-icon.serious { background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); color: #d97706; }
-.stat-icon.major { background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); color: #dc2626; }
-.stat-icon.students { background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%); color: #2563eb; }
-.stat-icon.weekly { background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%); color: #7c3aed; }
+.stat-icon.minor { background: transparent !important; color: #059669; }
+.stat-icon.serious { background: transparent !important; color: #d97706; }
+.stat-icon.major { background: transparent !important; color: #dc2626; }
+.stat-icon.students { background: transparent !important; color: #2563eb; }
+.stat-icon.weekly { background: transparent !important; color: #7c3aed; }
 
 /* Cards */
 .card {
