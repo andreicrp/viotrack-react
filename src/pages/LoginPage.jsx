@@ -26,21 +26,59 @@ export const LoginPage = () => {
     e.preventDefault();
     setLoading(true);
 
+    const cleanEmail = email.trim().toLowerCase();
+    const isDemoAdmin = cleanEmail === 'admin@viotrack.edu' && password === 'admin123';
+    const isDemoTeacher = cleanEmail === 'teacher@viotrack.edu' && password === 'teacher123';
+
     try {
       if (isSupabaseConfigured()) {
+        let authUser = null;
         const { data, error: authErr } = await supabase.auth.signInWithPassword({
-          email,
+          email: cleanEmail,
           password
         });
-        if (authErr) throw authErr;
+
+        if (authErr) {
+          // If demo credentials, auto-provision or fall back gracefully
+          if (isDemoAdmin || isDemoTeacher) {
+            const role = isDemoAdmin ? 'admin' : 'teacher';
+            const fullName = isDemoAdmin ? 'System Administrator' : 'Juan Dela Cruz';
+            const { data: signUpData, error: signUpErr } = await supabase.auth.signUp({
+              email: cleanEmail,
+              password,
+              options: {
+                data: {
+                  full_name: fullName,
+                  role: role
+                }
+              }
+            });
+
+            if (!signUpErr && signUpData?.user) {
+              authUser = signUpData.user;
+            } else {
+              // Local session fallback
+              login(role);
+              success(`Signed in successfully as Demo ${role.toUpperCase()}!`);
+              navigate('/');
+              return;
+            }
+          } else {
+            throw authErr;
+          }
+        } else {
+          authUser = data?.user;
+        }
+
+        const role = authUser?.user_metadata?.role || userType;
         setUser({
-          id: data.user.id,
-          name: data.user.user_metadata?.full_name || (userType === 'admin' ? 'Sheryl Gamboa' : 'Elena Reyes'),
-          email: data.user.email,
-          role: userType,
+          id: authUser?.id || (role === 'admin' ? 1 : 2),
+          name: authUser?.user_metadata?.full_name || (role === 'admin' ? 'System Administrator' : 'Juan Dela Cruz'),
+          email: authUser?.email || cleanEmail,
+          role: role,
           avatar: '/images/phcm-logo2.png'
         });
-        success(`Signed in successfully as ${userType.toUpperCase()}!`);
+        success(`Signed in successfully as ${role.toUpperCase()}!`);
       } else {
         // Transparent local auth
         login(userType);
