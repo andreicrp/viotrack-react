@@ -681,7 +681,12 @@
   border: none !important;
 }
 
-#reader-stream-container video {
+#reader-stream-container video,
+#reader-stream-container__scan_region video,
+.scanner-viewport-wrapper video,
+#reader-stream-container video[style],
+video#html5-qrcode-video,
+div[id*="reader"] video {
   width: 100% !important;
   height: 100% !important;
   object-fit: cover !important;

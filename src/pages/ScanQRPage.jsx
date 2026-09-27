@@ -227,6 +227,25 @@ export const ScanQRPage = () => {
         localScanner = new Html5Qrcode('reader-stream-container', { verbose: false });
         html5QrCodeRef.current = localScanner;
 
+        // Ensure video is permanently mirrored horizontally across all camera modes (front & rear/back)
+        const enforceInversion = () => {
+          const streamContainer = document.getElementById('reader-stream-container');
+          if (!streamContainer) return;
+          const videoEls = streamContainer.querySelectorAll('video');
+          videoEls.forEach((v) => {
+            v.style.setProperty('transform', 'scaleX(-1)', 'important');
+            v.style.setProperty('-webkit-transform', 'scaleX(-1)', 'important');
+          });
+        };
+
+        const mutationObserver = new MutationObserver(enforceInversion);
+        mutationObserver.observe(container, {
+          childList: true,
+          subtree: true,
+          attributes: true,
+          attributeFilter: ['style', 'class']
+        });
+
         const config = {
           fps: 20,
           qrbox: (viewfinderWidth, viewfinderHeight) => {
