@@ -193,8 +193,8 @@ const ToastItem = ({ toast, onRemove }) => {
     >
       <div className="custom-toast-glow" style={{ background: config.bgTint }} />
 
-      <div className="custom-toast-icon-wrap" style={{ color: config.accentColor, background: config.iconBg }}>
-        <IconComponent size={20} strokeWidth={2.4} />
+      <div className="custom-toast-icon-wrap" style={{ color: config.accentColor }}>
+        <IconComponent size={22} strokeWidth={2.4} />
       </div>
 
       <div className="custom-toast-body">
