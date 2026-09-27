@@ -66,27 +66,28 @@
 }
 
 .stat-icon {
-    width: 48px;
-    height: 48px;
-    border-radius: 12px;
+    width: auto;
+    height: auto;
+    border-radius: 0;
+    background: transparent !important;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 20px;
+    font-size: 26px;
 }
 
 .stat-icon.students-icon {
-    background: #eff6ff;
+    background: transparent !important;
     color: #3b82f6;
 }
 
 .stat-icon.active-icon {
-    background: #d1fae5;
+    background: transparent !important;
     color: #10b981;
 }
 
 .stat-icon.pending-icon {
-    background: #fee2e2;
+    background: transparent !important;
     color: #ef4444;
 }
 

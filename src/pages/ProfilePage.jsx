@@ -383,9 +383,7 @@ export const ProfilePage = () => {
                 className="profile-upload-dropzone"
                 onClick={() => document.getElementById('profileImageUploadMain')?.click()}
               >
-                <div style={{ width: 44, height: 44, borderRadius: '50%', background: '#e0e7ff', color: '#27367f', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 8px' }}>
-                  <Upload size={20} />
-                </div>
+                <Upload size={28} color="#07345f" strokeWidth={1.8} style={{ margin: '0 auto 8px', display: 'block' }} />
                 <div style={{ fontSize: '13.5px', fontWeight: 700, color: '#0f172a' }}>
                   Click to browse and upload image
                 </div>
@@ -393,7 +391,7 @@ export const ProfilePage = () => {
                   PNG, JPG, WEBP up to 5MB
                 </div>
                 {selectedFileName && (
-                  <span style={{ display: 'inline-block', marginTop: '8px', fontSize: '11.5px', fontWeight: 600, color: '#27367f', background: '#eff6ff', padding: '3px 10px', borderRadius: '12px' }}>
+                  <span style={{ display: 'inline-block', marginTop: '8px', fontSize: '11.5px', fontWeight: 600, color: '#07345f', background: '#f0f4f8', padding: '3px 10px', borderRadius: '12px' }}>
                     ✓ {selectedFileName}
                   </span>
                 )}
@@ -599,7 +597,7 @@ export const ProfilePage = () => {
 
                 <div style={{ display: 'flex', justifyContent: 'space-between', padding: '9px 12px', background: '#f8fafc', borderRadius: '10px', border: '1px solid #e2e8f0', fontSize: '12px' }}>
                   <span style={{ color: '#64748b' }}>Token Status:</span>
-                  <strong style={{ color: '#27367f' }}>Valid (8 Hours)</strong>
+                  <strong style={{ color: '#07345f' }}>Valid (8 Hours)</strong>
                 </div>
               </div>
 

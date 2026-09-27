@@ -228,15 +228,16 @@ export const ScanQRPage = () => {
         html5QrCodeRef.current = localScanner;
 
         const config = {
-          fps: 15,
+          fps: 20,
           qrbox: (viewfinderWidth, viewfinderHeight) => {
             const minEdge = Math.min(viewfinderWidth, viewfinderHeight);
-            const edge = Math.floor(minEdge * 0.72);
+            const edge = Math.floor(minEdge * 0.75);
             return {
-              width: Math.max(160, Math.min(260, edge)),
-              height: Math.max(160, Math.min(260, edge))
+              width: Math.max(180, Math.min(300, edge)),
+              height: Math.max(180, Math.min(300, edge))
             };
-          }
+          },
+          aspectRatio: 1.7777777778
         };
 
         // Query available cameras to gracefully support all webcams and mobile cameras
@@ -686,12 +687,12 @@ export const ScanQRPage = () => {
   if (isCapturingLocation) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '65vh', padding: '20px' }}>
-        <div style={{ background: '#ffffff', borderRadius: '24px', padding: '48px 36px', boxShadow: '0 25px 60px -15px rgba(39, 54, 127, 0.2)', border: '1px solid #e2e8f0', textAlign: 'center', maxWidth: '440px', width: '100%' }}>
-          <div style={{ width: '76px', height: '76px', margin: '0 auto 24px', background: 'linear-gradient(135deg, #27367f 0%, #1e2b66 100%)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 10px 25px rgba(39, 54, 127, 0.3)', color: '#ffffff' }}>
+        <div style={{ background: '#ffffff', borderRadius: '24px', padding: '48px 36px', boxShadow: '0 25px 60px -15px rgba(7, 52, 95, 0.2)', border: '1px solid #e2e8f0', textAlign: 'center', maxWidth: '440px', width: '100%' }}>
+          <div style={{ width: '76px', height: '76px', margin: '0 auto 24px', background: 'linear-gradient(135deg, #07345f 0%, #0b192c 100%)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 10px 25px rgba(7, 52, 95, 0.3)', color: '#ffffff' }}>
             <Loader2 size={36} className="spinner" style={{ animation: 'spin 1.2s linear infinite' }} />
           </div>
 
-          <h2 style={{ color: '#27367f', margin: '0 0 10px 0', fontSize: '22px', fontWeight: 800 }}>
+          <h2 style={{ color: '#07345f', margin: '0 0 10px 0', fontSize: '22px', fontWeight: 800 }}>
             Capturing GPS Location...
           </h2>
           <p style={{ color: '#64748b', margin: '0 0 20px 0', fontSize: '14px', lineHeight: 1.5 }}>
@@ -708,16 +709,18 @@ export const ScanQRPage = () => {
 
   return (
     <div className="scan-qr-page">
-      {/* Header Section */}
-      <div className="scan-header-section">
-        <div className="scan-title-wrap">
-          <h1>Student QR Scanner & Tracker</h1>
-          <p>Scan printed student ID badges using device camera or search via 12-digit LRN.</p>
-        </div>
-
-        <div className={`scan-status-pill ${isScannerRunning && !isScanningPaused ? 'active' : ''}`}>
-          <div className="scan-status-dot" />
-          <span>{isScanningPaused ? 'Scanner Paused' : isScannerRunning ? 'Scanner Active & Ready' : 'Camera Ready / Standby'}</span>
+      {/* 1. Standard App Page Banner Header */}
+      <div className="page-banner-header">
+        <div className="page-banner-info">
+          <QrCode size={30} color="#ffffff" strokeWidth={2.2} style={{ flexShrink: 0 }} />
+          <div>
+            <h2 style={{ fontSize: '22px', fontWeight: 800, margin: 0, color: '#ffffff', letterSpacing: '-0.02em' }}>
+              Student QR Scanner & Tracker
+            </h2>
+            <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: 'rgba(255, 255, 255, 0.85)' }}>
+              Scan printed student ID badges using device camera or search via 12-digit LRN.
+            </p>
+          </div>
         </div>
       </div>
 
@@ -727,7 +730,7 @@ export const ScanQRPage = () => {
         <div className="scanner-card">
           <div className="scanner-card-header">
             <h3 className="scanner-card-title">
-              <Camera size={18} color="#27367f" />
+              <Camera size={18} color="#07345f" />
               Live Camera Feed
             </h3>
 

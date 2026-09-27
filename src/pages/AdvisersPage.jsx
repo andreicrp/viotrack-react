@@ -269,22 +269,7 @@ export const AdvisersPage = () => {
       {/* Top Banner & Action Header */}
       <div className="page-banner-header">
         <div className="page-banner-info">
-          <div
-            style={{
-              width: 50,
-              height: 50,
-              borderRadius: '14px',
-              background: 'rgba(255, 255, 255, 0.15)',
-              backdropFilter: 'blur(8px)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              border: '1px solid rgba(255, 255, 255, 0.2)',
-              flexShrink: 0
-            }}
-          >
-            <Award size={26} color="#ffffff" />
-          </div>
+          <Award size={30} strokeWidth={2.2} color="#ffffff" style={{ flexShrink: 0 }} />
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
               <h2 style={{ fontSize: '22px', fontWeight: 800, margin: 0, color: '#ffffff', letterSpacing: '-0.02em' }}>
@@ -359,11 +344,11 @@ export const AdvisersPage = () => {
         <div
           onClick={() => { setLevelFilter('all'); setGradeFilter('all'); }}
           style={{
-            background: levelFilter === 'all' && gradeFilter === 'all' ? 'linear-gradient(180deg, #ffffff 0%, #f8faff 100%)' : '#ffffff',
+            background: levelFilter === 'all' && gradeFilter === 'all' ? '#f0f4f8' : '#ffffff',
             borderRadius: '14px',
             padding: '18px 20px',
-            border: levelFilter === 'all' && gradeFilter === 'all' ? '2px solid #27367f' : '1px solid #e2e8f0',
-            boxShadow: levelFilter === 'all' && gradeFilter === 'all' ? '0 6px 20px rgba(39, 54, 127, 0.12)' : '0 2px 8px rgba(0,0,0,0.03)',
+            border: levelFilter === 'all' && gradeFilter === 'all' ? '2px solid #07345f' : '1px solid #e2e8f0',
+            boxShadow: levelFilter === 'all' && gradeFilter === 'all' ? '0 6px 20px rgba(7, 52, 95, 0.12)' : '0 2px 8px rgba(0,0,0,0.03)',
             cursor: 'pointer',
             transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
             position: 'relative',
@@ -394,12 +379,10 @@ export const AdvisersPage = () => {
                 <span>All Grade Levels</span>
               </div>
             </div>
-            <div style={{ width: 44, height: 44, borderRadius: '12px', background: '#eff6ff', color: '#2563eb', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-              <UserCheck size={22} />
-            </div>
+            <UserCheck size={28} color="#07345f" strokeWidth={2.2} style={{ flexShrink: 0 }} />
           </div>
           {levelFilter === 'all' && gradeFilter === 'all' && (
-            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 3.5, background: 'linear-gradient(90deg, #27367f, #3b82f6)' }}></div>
+            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 3.5, background: '#07345f' }}></div>
           )}
         </div>
 
@@ -442,9 +425,7 @@ export const AdvisersPage = () => {
                 JHS Advisory Sections
               </div>
             </div>
-            <div style={{ width: 44, height: 44, borderRadius: '12px', background: '#ecfdf5', color: '#059669', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-              <BookOpen size={22} />
-            </div>
+            <BookOpen size={28} color="#059669" strokeWidth={2.2} style={{ flexShrink: 0 }} />
           </div>
           {levelFilter === 'jhs' && (
             <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 3.5, background: 'linear-gradient(90deg, #059669, #10b981)' }}></div>
@@ -490,9 +471,7 @@ export const AdvisersPage = () => {
                 SHS Tracks & Strands
               </div>
             </div>
-            <div style={{ width: 44, height: 44, borderRadius: '12px', background: '#f5f3ff', color: '#7c3aed', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-              <GraduationCap size={22} />
-            </div>
+            <GraduationCap size={28} color="#7c3aed" strokeWidth={2.2} style={{ flexShrink: 0 }} />
           </div>
           {levelFilter === 'shs' && (
             <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 3.5, background: 'linear-gradient(90deg, #7c3aed, #a855f7)' }}></div>
@@ -532,9 +511,7 @@ export const AdvisersPage = () => {
                 Across {advisers.length} advisory classes
               </div>
             </div>
-            <div style={{ width: 44, height: 44, borderRadius: '12px', background: '#fef3c7', color: '#d97706', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-              <Users size={22} />
-            </div>
+            <Users size={28} color="#d97706" strokeWidth={2.2} style={{ flexShrink: 0 }} />
           </div>
         </div>
       </div>
@@ -586,9 +563,9 @@ export const AdvisersPage = () => {
                 boxSizing: 'border-box'
               }}
               onFocus={(e) => {
-                e.currentTarget.style.borderColor = '#27367f';
+                e.currentTarget.style.borderColor = '#07345f';
                 e.currentTarget.style.background = '#ffffff';
-                e.currentTarget.style.boxShadow = '0 0 0 3px rgba(39, 54, 127, 0.1)';
+                e.currentTarget.style.boxShadow = '0 0 0 3px rgba(7, 52, 95, 0.1)';
               }}
               onBlur={(e) => {
                 e.currentTarget.style.borderColor = '#cbd5e1';
@@ -637,7 +614,7 @@ export const AdvisersPage = () => {
                 borderRadius: '7px',
                 border: 'none',
                 background: levelFilter === 'all' ? '#ffffff' : 'transparent',
-                color: levelFilter === 'all' ? '#27367f' : '#64748b',
+                color: levelFilter === 'all' ? '#07345f' : '#64748b',
                 fontWeight: levelFilter === 'all' ? 700 : 500,
                 fontSize: '12.5px',
                 cursor: 'pointer',
@@ -777,7 +754,7 @@ export const AdvisersPage = () => {
           <button
             onClick={() => setIsAppointModalOpen(true)}
             style={{
-              background: '#27367f',
+              background: '#07345f',
               color: '#ffffff',
               border: 'none',
               padding: '10px 20px',
@@ -789,7 +766,7 @@ export const AdvisersPage = () => {
               alignItems: 'center',
               gap: '6px',
               marginTop: '8px',
-              boxShadow: '0 4px 14px rgba(39, 54, 127, 0.25)'
+              boxShadow: '0 4px 14px rgba(7, 52, 95, 0.25)'
             }}
           >
             <Plus size={15} /> Appoint Adviser
@@ -866,7 +843,7 @@ export const AdvisersPage = () => {
                       <img
                         src={
                           adv.teacher?.image ||
-                          `https://ui-avatars.com/api/?name=${encodeURIComponent(teacherName)}&background=27367f&color=fff&size=52`
+                          `https://ui-avatars.com/api/?name=${encodeURIComponent(teacherName)}&background=07345f&color=fff&size=52`
                         }
                         alt={teacherName}
                         style={{
@@ -945,9 +922,9 @@ export const AdvisersPage = () => {
                     style={{
                       background: isSeniorHigh
                         ? 'linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%)'
-                        : 'linear-gradient(135deg, #eef2ff 0%, #e0e7ff 100%)',
-                      color: isSeniorHigh ? '#6d28d9' : '#27367f',
-                      border: `1px solid ${isSeniorHigh ? '#ddd6fe' : '#c7d2fe'}`,
+                        : 'linear-gradient(135deg, #f0f4f8 0%, #e2e8f0 100%)',
+                      color: isSeniorHigh ? '#6d28d9' : '#07345f',
+                      border: `1px solid ${isSeniorHigh ? '#ddd6fe' : '#cbd5e1'}`,
                       borderRadius: '10px',
                       padding: '8px 12px',
                       textAlign: 'right',
@@ -986,7 +963,7 @@ export const AdvisersPage = () => {
                       gap: '8px'
                     }}
                   >
-                    <div style={{ color: '#27367f', flexShrink: 0 }}>
+                    <div style={{ color: '#07345f', flexShrink: 0 }}>
                       <Users size={16} />
                     </div>
                     <div style={{ minWidth: 0 }}>
@@ -1189,10 +1166,10 @@ export const AdvisersPage = () => {
                     onClick={() => navigate(`/adviserview-student/${adv.id}`)}
                     style={{
                       flex: 1,
-                      background: 'linear-gradient(135deg, #1e2b66 0%, #27367f 100%)',
+                      background: '#07345f',
                       color: '#ffffff',
                       border: 'none',
-                      padding: '9.5px 14px',
+                      padding: '9.5px 16px',
                       borderRadius: '8px',
                       fontSize: '13px',
                       fontWeight: 600,
@@ -1202,15 +1179,15 @@ export const AdvisersPage = () => {
                       justifyContent: 'center',
                       gap: '6px',
                       transition: 'all 0.15s ease',
-                      boxShadow: '0 2px 6px rgba(39, 54, 127, 0.2)'
+                      boxShadow: '0 2px 6px rgba(7, 52, 95, 0.2)'
                     }}
                     onMouseOver={(e) => {
                       e.currentTarget.style.transform = 'translateY(-1px)';
-                      e.currentTarget.style.boxShadow = '0 4px 10px rgba(39, 54, 127, 0.3)';
+                      e.currentTarget.style.boxShadow = '0 4px 10px rgba(7, 52, 95, 0.3)';
                     }}
                     onMouseOut={(e) => {
                       e.currentTarget.style.transform = 'translateY(0)';
-                      e.currentTarget.style.boxShadow = '0 2px 6px rgba(39, 54, 127, 0.2)';
+                      e.currentTarget.style.boxShadow = '0 2px 6px rgba(7, 52, 95, 0.2)';
                     }}
                   >
                     <Eye size={15} /> View Class Roster
@@ -1299,8 +1276,8 @@ export const AdvisersPage = () => {
                     width: 40,
                     height: 40,
                     borderRadius: '10px',
-                    background: '#eff6ff',
-                    color: '#27367f',
+                    background: '#f0f4f8',
+                    color: '#07345f',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center'
@@ -1373,9 +1350,9 @@ export const AdvisersPage = () => {
                         style={{
                           padding: '8px 10px',
                           borderRadius: '8px',
-                          border: isSelected ? '2px solid #27367f' : '1px solid #e2e8f0',
-                          background: isSelected ? '#eef2ff' : '#f8fafc',
-                          color: isSelected ? '#27367f' : '#475569',
+                          border: isSelected ? '2px solid #07345f' : '1px solid #e2e8f0',
+                          background: isSelected ? '#f0f4f8' : '#f8fafc',
+                          color: isSelected ? '#07345f' : '#475569',
                           fontWeight: isSelected ? 700 : 500,
                           fontSize: '12px',
                           cursor: 'pointer',
@@ -1427,7 +1404,7 @@ export const AdvisersPage = () => {
                         type="button"
                         onClick={() => setAppointSection(preset)}
                         style={{
-                          background: appointSection === preset ? '#27367f' : '#f1f5f9',
+                          background: appointSection === preset ? '#07345f' : '#f1f5f9',
                           color: appointSection === preset ? '#ffffff' : '#475569',
                           border: 'none',
                           padding: '4px 10px',
@@ -1467,7 +1444,7 @@ export const AdvisersPage = () => {
                   type="submit"
                   style={{
                     flex: 1,
-                    background: '#27367f',
+                    background: '#07345f',
                     color: '#ffffff',
                     border: 'none',
                     padding: '10px 16px',
@@ -1475,7 +1452,7 @@ export const AdvisersPage = () => {
                     fontSize: '13px',
                     fontWeight: 700,
                     cursor: 'pointer',
-                    boxShadow: '0 4px 12px rgba(39, 54, 127, 0.25)'
+                    boxShadow: '0 4px 12px rgba(7, 52, 95, 0.25)'
                   }}
                 >
                   Confirm Appointment

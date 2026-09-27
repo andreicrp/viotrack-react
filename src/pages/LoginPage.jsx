@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useNotification } from '../context/NotificationContext';
 import { isSupabaseConfigured, supabase } from '../lib/supabase';
-import { Shield, GraduationCap, Mail, Lock, Eye, EyeOff, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { Eye, EyeOff, ArrowRight, CheckCircle2 } from 'lucide-react';
 import '../css/login.css';
 
 export const LoginPage = () => {
@@ -39,7 +39,6 @@ export const LoginPage = () => {
         });
 
         if (authErr) {
-          // If demo credentials, auto-provision or fall back gracefully
           if (isDemoAdmin || isDemoTeacher) {
             const role = isDemoAdmin ? 'admin' : 'teacher';
             const fullName = isDemoAdmin ? 'System Administrator' : 'Juan Dela Cruz';
@@ -57,7 +56,6 @@ export const LoginPage = () => {
             if (!signUpErr && signUpData?.user) {
               authUser = signUpData.user;
             } else {
-              // Local session fallback
               login(role);
               success(`Signed in successfully as Demo ${role.toUpperCase()}!`);
               navigate('/');
@@ -80,7 +78,6 @@ export const LoginPage = () => {
         });
         success(`Signed in successfully as ${role.toUpperCase()}!`);
       } else {
-        // Transparent local auth
         login(userType);
         success(`Signed in successfully as ${userType.toUpperCase()}!`);
       }
@@ -92,7 +89,7 @@ export const LoginPage = () => {
     }
   };
 
-  const fillDemo = (role) => {
+  const fillRole = (role) => {
     setUserType(role);
     if (role === 'admin') {
       setEmail('admin@viotrack.edu');
@@ -105,16 +102,60 @@ export const LoginPage = () => {
 
   return (
     <div className="login-body-bg">
-      <div className="login-card">
-        {/* Institutional Branding Header */}
-        <div className="login-header-brand">
-          <div className="login-school-logo-wrap">
-            <img src="/images/phcm-logo.png" alt="University Seal" />
-          </div>
-          <h1 className="login-title-main">VIOTRACK</h1>
-          <p className="login-subtitle-text">Discipline & Student Conduct Management</p>
+      {/* Background Graphic Accents */}
+      <div className="login-bg-shape-top-left" />
+      <div className="login-bg-shape-bottom-right" />
+
+      <div className="login-content-wrapper">
+        {/* Brand Header */}
+        <div className="login-brand-header">
+          {/* Exact Brand Vector Logo */}
+          <svg
+            className="login-brand-logo-svg"
+            viewBox="0 0 500 370"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            {/* Left Figure (Deep Navy #07345F) */}
+            <g>
+              <circle cx="195" cy="96" r="30" fill="#07345F" />
+              <path
+                d="M 120 105
+                   Q 108 96 110 110
+                   L 122 206
+                   Q 124 214 132 222
+                   L 235 324
+                   Q 243 332 243 320
+                   L 243 202
+                   Q 243 194 235 188
+                   Z"
+                fill="#07345F"
+              />
+            </g>
+
+            {/* Right Figure (Teal #0EA5A0) */}
+            <g>
+              <circle cx="305" cy="96" r="30" fill="#07345F" />
+              <path
+                d="M 380 105
+                   Q 392 96 390 110
+                   L 378 206
+                   Q 376 214 368 222
+                   L 265 324
+                   Q 257 332 257 320
+                   L 257 202
+                   Q 257 194 265 188
+                   Z"
+                fill="#0EA5A0"
+              />
+            </g>
+          </svg>
+
+          <h1 className="login-brand-title">VIOTRACK</h1>
+          <p className="login-brand-tagline">Track. Manage. Stay Compliant.</p>
         </div>
 
+        {/* Logged out alert */}
         {isLoggedOut && (
           <div
             style={{
@@ -122,13 +163,15 @@ export const LoginPage = () => {
               color: '#16a34a',
               border: '1px solid #bbf7d0',
               padding: '10px 14px',
-              borderRadius: '10px',
+              borderRadius: '12px',
               fontSize: '12.5px',
               fontWeight: 600,
               display: 'flex',
               alignItems: 'center',
               gap: '8px',
-              marginBottom: '18px'
+              marginBottom: '16px',
+              width: '100%',
+              boxSizing: 'border-box'
             }}
           >
             <CheckCircle2 size={16} />
@@ -136,67 +179,30 @@ export const LoginPage = () => {
           </div>
         )}
 
-        {/* Form Container */}
-        <form onSubmit={handleSubmit}>
-          {/* Role Segmented Selector */}
-          <div className="login-field-group">
-            <label className="login-field-label">Account Role</label>
-            <div className="login-role-selector">
-              <button
-                type="button"
-                className={`login-role-btn ${userType === 'admin' ? 'active' : ''}`}
-                onClick={() => setUserType('admin')}
-              >
-                <Shield size={15} />
-                <span>Administrator</span>
-              </button>
-              <button
-                type="button"
-                className={`login-role-btn ${userType === 'teacher' ? 'active' : ''}`}
-                onClick={() => setUserType('teacher')}
-              >
-                <GraduationCap size={16} />
-                <span>Faculty / Teacher</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Email Input */}
-          <div className="login-field-group">
-            <label className="login-field-label" htmlFor="login-email">
-              Institutional Email
-            </label>
-            <div className="login-input-box">
-              <div className="login-input-icon">
-                <Mail size={16} />
-              </div>
+        {/* Clean Login Card */}
+        <div className="login-card-modern">
+          <form onSubmit={handleSubmit}>
+            {/* Email Input */}
+            <div className="login-input-field-wrap">
               <input
                 id="login-email"
                 type="email"
-                className="login-text-input"
-                placeholder={userType === 'admin' ? 'admin@viotrack.edu' : 'teacher@viotrack.edu'}
+                className="login-text-input-clean"
+                placeholder="Email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 autoComplete="email"
               />
             </div>
-          </div>
 
-          {/* Password Input */}
-          <div className="login-field-group">
-            <label className="login-field-label" htmlFor="login-password">
-              Password
-            </label>
-            <div className="login-input-box">
-              <div className="login-input-icon">
-                <Lock size={16} />
-              </div>
+            {/* Password Input */}
+            <div className="login-input-field-wrap">
               <input
                 id="login-password"
                 type={showPassword ? 'text' : 'password'}
-                className="login-text-input"
-                placeholder="••••••••••••"
+                className="login-text-input-clean has-eye"
+                placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
@@ -204,63 +210,79 @@ export const LoginPage = () => {
               />
               <button
                 type="button"
-                className="login-eye-btn"
+                className="login-eye-toggle-btn"
                 onClick={() => setShowPassword(!showPassword)}
                 title={showPassword ? 'Hide password' : 'Show password'}
               >
-                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
               </button>
             </div>
-          </div>
 
-          {/* Auxiliary Options */}
-          <div className="login-aux-row">
-            <label className="login-checkbox-label">
-              <input
-                type="checkbox"
-                checked={rememberMe}
-                onChange={(e) => setRememberMe(e.target.checked)}
-              />
-              <span>Keep me signed in</span>
-            </label>
+            {/* Remember Me & Forgot Password */}
+            <div className="login-options-row">
+              <label className="login-remember-checkbox-label">
+                <input
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                />
+                <span>Remember me</span>
+              </label>
 
-            <a
-              href="https://docs.google.com/forms/d/e/1FAIpQLSd7SN8jra5WfROhysYtjd80zMUSwSnxpcQ-a3d1bu8CiogDng/viewform"
-              className="login-forgot-link"
-              target="_blank"
-              rel="noreferrer"
-            >
-              Forgot password?
-            </a>
-          </div>
+              <a
+                href="https://docs.google.com/forms/d/e/1FAIpQLSd7SN8jra5WfROhysYtjd80zMUSwSnxpcQ-a3d1bu8CiogDng/viewform"
+                className="login-forgot-password-link"
+                target="_blank"
+                rel="noreferrer"
+              >
+                Forgot password?
+              </a>
+            </div>
 
-          {/* Sign In Primary Action */}
-          <button type="submit" className="login-submit-btn" disabled={loading}>
-            <span>{loading ? 'Authenticating...' : 'Sign In to Portal'}</span>
-            {!loading && <ArrowRight size={16} />}
-          </button>
-
-          {/* Quick Demo Credentials Fill */}
-          <div className="login-demo-pills">
-            <span className="login-demo-label">Quick Fill:</span>
+            {/* SIGN IN Action Button */}
             <button
-              type="button"
-              className="login-demo-pill-btn"
-              onClick={() => fillDemo('admin')}
+              type="submit"
+              className="login-submit-btn-primary"
+              disabled={loading}
             >
-              ⚡ Admin Demo
+              <span>{loading ? 'Signing in...' : 'SIGN IN'}</span>
+              {!loading && <ArrowRight size={16} />}
             </button>
-            <button
-              type="button"
-              className="login-demo-pill-btn"
-              onClick={() => fillDemo('teacher')}
-            >
-              ⚡ Teacher Demo
-            </button>
-          </div>
-        </form>
+
+            {/* Role Quick Selector / Demo Fill */}
+            <div className="login-role-chips-wrap">
+              <button
+                type="button"
+                className={`login-role-chip-btn ${userType === 'admin' ? 'active' : ''}`}
+                onClick={() => fillRole('admin')}
+              >
+                Admin Demo
+              </button>
+              <button
+                type="button"
+                className={`login-role-chip-btn ${userType === 'teacher' ? 'active' : ''}`}
+                onClick={() => fillRole('teacher')}
+              >
+                Teacher Demo
+              </button>
+            </div>
+          </form>
+        </div>
+
+        {/* Privacy Policy Footer */}
+        <div className="login-privacy-footer">
+          <span>By signing in you agree to our </span>
+          <a
+            href="https://docs.google.com/forms/d/e/1FAIpQLSd7SN8jra5WfROhysYtjd80zMUSwSnxpcQ-a3d1bu8CiogDng/viewform"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Privacy Policy
+          </a>
+        </div>
       </div>
     </div>
   );
 };
+
 export default LoginPage;

@@ -318,9 +318,9 @@ export const AdminUsersPage = () => {
       return <ArrowUpDown size={13} style={{ color: '#94a3b8', marginLeft: 4 }} />;
     }
     return sortOrder === 'asc' ? (
-      <ArrowUp size={13} style={{ color: '#27367f', marginLeft: 4 }} />
+      <ArrowUp size={13} style={{ color: '#07345f', marginLeft: 4 }} />
     ) : (
-      <ArrowDown size={13} style={{ color: '#27367f', marginLeft: 4 }} />
+      <ArrowDown size={13} style={{ color: '#07345f', marginLeft: 4 }} />
     );
   };
 
@@ -329,22 +329,7 @@ export const AdminUsersPage = () => {
       {/* 1. Top Banner & Primary Actions */}
       <div className="page-banner-header">
         <div className="page-banner-info">
-          <div
-            style={{
-              width: 50,
-              height: 50,
-              borderRadius: '14px',
-              background: 'rgba(255, 255, 255, 0.15)',
-              backdropFilter: 'blur(8px)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              border: '1px solid rgba(255, 255, 255, 0.2)',
-              flexShrink: 0
-            }}
-          >
-            <ShieldCheck size={26} color="#ffffff" />
-          </div>
+          <ShieldCheck size={30} strokeWidth={2.2} color="#ffffff" style={{ flexShrink: 0 }} />
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
               <h2 style={{ fontSize: '22px', fontWeight: 800, margin: 0, color: '#ffffff', letterSpacing: '-0.02em' }}>
@@ -414,8 +399,8 @@ export const AdminUsersPage = () => {
           <div
             onClick={() => setSelectedRoleFilter('all')}
             style={{
-              background: selectedRoleFilter === 'all' ? '#eff6ff' : '#ffffff',
-              border: selectedRoleFilter === 'all' ? '2px solid #2563eb' : '1px solid #e2e8f0',
+              background: selectedRoleFilter === 'all' ? '#f0f4f8' : '#ffffff',
+              border: selectedRoleFilter === 'all' ? '2px solid #07345f' : '1px solid #e2e8f0',
               borderRadius: '14px',
               padding: '16px 20px',
               display: 'flex',
@@ -423,22 +408,20 @@ export const AdminUsersPage = () => {
               justifyContent: 'space-between',
               cursor: 'pointer',
               transition: 'all 0.2s ease',
-              boxShadow: selectedRoleFilter === 'all' ? '0 4px 12px rgba(37, 99, 235, 0.15)' : '0 1px 3px rgba(0,0,0,0.02)'
+              boxShadow: selectedRoleFilter === 'all' ? '0 4px 12px rgba(7, 52, 95, 0.12)' : '0 1px 3px rgba(0,0,0,0.02)'
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-              <div style={{ width: 44, height: 44, borderRadius: '12px', background: '#e0e7ff', color: '#4338ca', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <Users size={22} />
-              </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+              <Users size={28} color="#07345f" strokeWidth={2.2} />
               <div>
-                <span style={{ fontSize: '26px', fontWeight: 800, color: '#1e293b', lineHeight: 1, display: 'block' }}>
+                <span style={{ fontSize: '26px', fontWeight: 800, color: '#0f172a', lineHeight: 1, display: 'block' }}>
                   {stats.total}
                 </span>
                 <span style={{ fontSize: '12.5px', color: '#64748b', fontWeight: 600 }}>Total Admins</span>
               </div>
             </div>
             {selectedRoleFilter === 'all' && (
-              <span style={{ background: '#2563eb', color: '#fff', fontSize: '10px', padding: '2px 7px', borderRadius: '6px', fontWeight: 700 }}>
+              <span style={{ background: '#07345f', color: '#fff', fontSize: '10px', padding: '2px 7px', borderRadius: '6px', fontWeight: 700 }}>
                 Active
               </span>
             )}
@@ -460,10 +443,8 @@ export const AdminUsersPage = () => {
               boxShadow: selectedRoleFilter === 'Super Admin' ? '0 4px 12px rgba(168, 85, 247, 0.15)' : '0 1px 3px rgba(0,0,0,0.02)'
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-              <div style={{ width: 44, height: 44, borderRadius: '12px', background: '#f3e8ff', color: '#9333ea', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <Shield size={22} />
-              </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+              <Shield size={28} color="#9333ea" strokeWidth={2.2} />
               <div>
                 <span style={{ fontSize: '26px', fontWeight: 800, color: '#581c87', lineHeight: 1, display: 'block' }}>
                   {stats.superAdmins}
@@ -494,10 +475,8 @@ export const AdminUsersPage = () => {
               boxShadow: selectedRoleFilter === 'Discipline Officer' ? '0 4px 12px rgba(22, 163, 74, 0.15)' : '0 1px 3px rgba(0,0,0,0.02)'
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-              <div style={{ width: 44, height: 44, borderRadius: '12px', background: '#dcfce7', color: '#16a34a', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <ShieldCheck size={22} />
-              </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+              <ShieldCheck size={28} color="#16a34a" strokeWidth={2.2} />
               <div>
                 <span style={{ fontSize: '26px', fontWeight: 800, color: '#14532d', lineHeight: 1, display: 'block' }}>
                   {stats.disciplineOfficers}
@@ -632,7 +611,7 @@ export const AdminUsersPage = () => {
                     type="checkbox"
                     onChange={handleSelectAll}
                     checked={selectedIds.length > 0 && selectedIds.length === filteredAndSorted.length}
-                    style={{ width: 16, height: 16, cursor: 'pointer', accentColor: '#27367f' }}
+                    style={{ width: 16, height: 16, cursor: 'pointer', accentColor: '#07345f' }}
                   />
                 </th>
 
@@ -703,7 +682,7 @@ export const AdminUsersPage = () => {
                           type="checkbox"
                           checked={isChecked}
                           onChange={() => toggleSelect(admin.id)}
-                          style={{ width: 16, height: 16, cursor: 'pointer', accentColor: '#27367f' }}
+                          style={{ width: 16, height: 16, cursor: 'pointer', accentColor: '#07345f' }}
                         />
                       </td>
 
@@ -722,7 +701,7 @@ export const AdminUsersPage = () => {
                                 width: 40,
                                 height: 40,
                                 borderRadius: '50%',
-                                background: isSuper ? 'linear-gradient(135deg, #7c3aed 0%, #581c87 100%)' : 'linear-gradient(135deg, #27367f 0%, #1e2557 100%)',
+                                background: isSuper ? 'linear-gradient(135deg, #7c3aed 0%, #581c87 100%)' : 'linear-gradient(135deg, #07345f 0%, #0b192c 100%)',
                                 color: '#ffffff',
                                 display: 'flex',
                                 alignItems: 'center',
@@ -757,11 +736,11 @@ export const AdminUsersPage = () => {
                             borderRadius: '20px',
                             fontSize: '11.5px',
                             fontWeight: 700,
-                            background: isSuper ? '#f3e8ff' : '#e0e7ff',
-                            color: isSuper ? '#7e22ce' : '#3730a3'
+                            background: isSuper ? '#f3e8ff' : '#f0f4f8',
+                            color: isSuper ? '#7e22ce' : '#07345f'
                           }}
                         >
-                          <span style={{ width: 6, height: 6, borderRadius: '50%', background: isSuper ? '#a855f7' : '#4f46e5' }} />
+                          <span style={{ width: 6, height: 6, borderRadius: '50%', background: isSuper ? '#a855f7' : '#07345f' }} />
                           {admin.role || 'Admin'}
                         </span>
                       </td>
@@ -780,9 +759,9 @@ export const AdminUsersPage = () => {
                           <button
                             onClick={() => handleOpenEdit(admin)}
                             style={{
-                              background: '#eff6ff',
-                              color: '#2563eb',
-                              border: '1px solid #bfdbfe',
+                              background: '#f8fafc',
+                              color: '#334155',
+                              border: '1px solid #cbd5e1',
                               padding: '6px 12px',
                               borderRadius: '7px',
                               fontSize: '12px',
@@ -793,8 +772,8 @@ export const AdminUsersPage = () => {
                               gap: '5px',
                               transition: 'all 0.15s'
                             }}
-                            onMouseOver={(e) => e.currentTarget.style.background = '#dbeafe'}
-                            onMouseOut={(e) => e.currentTarget.style.background = '#eff6ff'}
+                            onMouseOver={(e) => e.currentTarget.style.background = '#f1f5f9'}
+                            onMouseOut={(e) => e.currentTarget.style.background = '#f8fafc'}
                           >
                             <Edit3 size={13} /> Edit
                           </button>
@@ -851,8 +830,8 @@ export const AdminUsersPage = () => {
                 <div
                   key={admin.id}
                   style={{
-                    background: isChecked ? '#f8faff' : '#ffffff',
-                    border: isChecked ? '1.5px solid #27367f' : '1px solid #e2e8f0',
+                    background: isChecked ? '#f8fafc' : '#ffffff',
+                    border: isChecked ? '1.5px solid #07345f' : '1px solid #e2e8f0',
                     borderRadius: '14px',
                     padding: '14px 16px',
                     display: 'flex',
@@ -868,7 +847,7 @@ export const AdminUsersPage = () => {
                         type="checkbox"
                         checked={isChecked}
                         onChange={() => toggleSelect(admin.id)}
-                        style={{ cursor: 'pointer', width: '16px', height: '16px', accentColor: '#27367f', flexShrink: 0 }}
+                        style={{ cursor: 'pointer', width: '16px', height: '16px', accentColor: '#07345f', flexShrink: 0 }}
                       />
                       {admin.image ? (
                         <img
@@ -882,7 +861,7 @@ export const AdminUsersPage = () => {
                             width: 38,
                             height: 38,
                             borderRadius: '50%',
-                            background: isSuper ? 'linear-gradient(135deg, #7c3aed 0%, #581c87 100%)' : 'linear-gradient(135deg, #27367f 0%, #1e2557 100%)',
+                            background: isSuper ? 'linear-gradient(135deg, #7c3aed 0%, #581c87 100%)' : 'linear-gradient(135deg, #07345f 0%, #0b192c 100%)',
                             color: '#ffffff',
                             display: 'flex',
                             alignItems: 'center',
@@ -911,8 +890,8 @@ export const AdminUsersPage = () => {
                         borderRadius: '20px',
                         fontSize: '11px',
                         fontWeight: 700,
-                        background: isSuper ? '#f3e8ff' : '#e0e7ff',
-                        color: isSuper ? '#7e22ce' : '#3730a3',
+                        background: isSuper ? '#f3e8ff' : '#f0f4f8',
+                        color: isSuper ? '#7e22ce' : '#07345f',
                         whiteSpace: 'nowrap',
                         flexShrink: 0
                       }}
@@ -932,9 +911,9 @@ export const AdminUsersPage = () => {
                     <button
                       onClick={() => handleOpenEdit(admin)}
                       style={{
-                        background: '#eff6ff',
-                        color: '#2563eb',
-                        border: '1px solid #bfdbfe',
+                        background: '#f8fafc',
+                        color: '#334155',
+                        border: '1px solid #cbd5e1',
                         padding: '6px 12px',
                         borderRadius: '7px',
                         fontSize: '12px',
@@ -1005,7 +984,7 @@ export const AdminUsersPage = () => {
                   height: 32,
                   borderRadius: '6px',
                   border: '1px solid #cbd5e1',
-                  background: pageNum === currentPage ? '#27367f' : '#ffffff',
+                  background: pageNum === currentPage ? '#07345f' : '#ffffff',
                   color: pageNum === currentPage ? '#ffffff' : '#334155',
                   fontWeight: 700,
                   fontSize: '12px',
@@ -1232,8 +1211,8 @@ export const AdminUsersPage = () => {
                           padding: '10px 8px',
                           borderRadius: '10px',
                           cursor: 'pointer',
-                          border: formData.role === r.id ? '2px solid #27367f' : '1.5px solid #e2e8f0',
-                          background: formData.role === r.id ? '#e0e7ff' : '#f8fafc',
+                          border: formData.role === r.id ? '2px solid #07345f' : '1.5px solid #e2e8f0',
+                          background: formData.role === r.id ? '#f0f4f8' : '#f8fafc',
                           textAlign: 'center',
                           transition: 'all 0.15s ease'
                         }}
@@ -1326,7 +1305,7 @@ export const AdminUsersPage = () => {
                     style={{
                       padding: '9px 22px',
                       borderRadius: '9px',
-                      background: 'linear-gradient(135deg, #27367f 0%, #1a2557 100%)',
+                      background: 'linear-gradient(135deg, #07345f 0%, #0b192c 100%)',
                       color: '#ffffff',
                       border: 'none',
                       fontWeight: 700,
@@ -1335,7 +1314,7 @@ export const AdminUsersPage = () => {
                       display: 'inline-flex',
                       alignItems: 'center',
                       gap: '8px',
-                      boxShadow: '0 4px 14px rgba(39, 54, 127, 0.35)'
+                      boxShadow: '0 4px 14px rgba(7, 52, 95, 0.35)'
                     }}
                   >
                     <Save size={16} />

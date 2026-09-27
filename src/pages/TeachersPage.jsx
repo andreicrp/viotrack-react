@@ -269,9 +269,9 @@ export const TeachersPage = () => {
       return <ArrowUpDown size={13} style={{ color: '#94a3b8', marginLeft: 4 }} />;
     }
     return sortOrder === 'asc' ? (
-      <ArrowUp size={13} style={{ color: '#27367f', marginLeft: 4 }} />
+      <ArrowUp size={13} style={{ color: '#07345f', marginLeft: 4 }} />
     ) : (
-      <ArrowDown size={13} style={{ color: '#27367f', marginLeft: 4 }} />
+      <ArrowDown size={13} style={{ color: '#07345f', marginLeft: 4 }} />
     );
   };
 
@@ -280,22 +280,7 @@ export const TeachersPage = () => {
       {/* 1. Top Banner & Primary Actions */}
       <div className="page-banner-header">
         <div className="page-banner-info">
-          <div
-            style={{
-              width: 50,
-              height: 50,
-              borderRadius: '14px',
-              background: 'rgba(255, 255, 255, 0.15)',
-              backdropFilter: 'blur(8px)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              border: '1px solid rgba(255, 255, 255, 0.2)',
-              flexShrink: 0
-            }}
-          >
-            <Users size={26} color="#ffffff" />
-          </div>
+          <Users size={30} strokeWidth={2.2} color="#ffffff" style={{ flexShrink: 0 }} />
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
               <h2 style={{ fontSize: '22px', fontWeight: 800, margin: 0, color: '#ffffff', letterSpacing: '-0.02em' }}>
@@ -368,8 +353,8 @@ export const TeachersPage = () => {
           <div
             onClick={() => setSelectedFacultyFilter('all')}
             style={{
-              background: selectedFacultyFilter === 'all' ? '#eff6ff' : '#ffffff',
-              border: selectedFacultyFilter === 'all' ? '2px solid #2563eb' : '1px solid #e2e8f0',
+              background: selectedFacultyFilter === 'all' ? '#f0f4f8' : '#ffffff',
+              border: selectedFacultyFilter === 'all' ? '2px solid #07345f' : '1px solid #e2e8f0',
               borderRadius: '14px',
               padding: '16px 20px',
               display: 'flex',
@@ -377,25 +362,18 @@ export const TeachersPage = () => {
               justifyContent: 'space-between',
               cursor: 'pointer',
               transition: 'all 0.2s ease',
-              boxShadow: selectedFacultyFilter === 'all' ? '0 4px 12px rgba(37, 99, 235, 0.15)' : '0 1px 3px rgba(0,0,0,0.02)'
+              boxShadow: selectedFacultyFilter === 'all' ? '0 4px 12px rgba(7, 52, 95, 0.12)' : '0 1px 3px rgba(0,0,0,0.02)'
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-              <div style={{ width: 44, height: 44, borderRadius: '12px', background: '#e0e7ff', color: '#4338ca', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <Users size={22} />
-              </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+              <Users size={28} color="#07345f" strokeWidth={2.2} />
               <div>
-                <span style={{ fontSize: '26px', fontWeight: 800, color: '#1e293b', lineHeight: 1, display: 'block' }}>
+                <span style={{ fontSize: '26px', fontWeight: 800, color: '#0f172a', lineHeight: 1, display: 'block' }}>
                   {stats.total}
                 </span>
                 <span style={{ fontSize: '12.5px', color: '#64748b', fontWeight: 600 }}>Total Teachers</span>
               </div>
             </div>
-            {selectedFacultyFilter === 'all' && (
-              <span style={{ background: '#2563eb', color: '#fff', fontSize: '10px', padding: '2px 7px', borderRadius: '6px', fontWeight: 700 }}>
-                All
-              </span>
-            )}
           </div>
 
           {/* Appointed Advisers */}
@@ -414,10 +392,8 @@ export const TeachersPage = () => {
               boxShadow: selectedFacultyFilter === 'adviser' ? '0 4px 12px rgba(22, 163, 74, 0.15)' : '0 1px 3px rgba(0,0,0,0.02)'
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-              <div style={{ width: 44, height: 44, borderRadius: '12px', background: '#dcfce7', color: '#16a34a', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <UserCheck size={22} />
-              </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+              <UserCheck size={28} color="#16a34a" strokeWidth={2.2} />
               <div>
                 <span style={{ fontSize: '26px', fontWeight: 800, color: '#14532d', lineHeight: 1, display: 'block' }}>
                   {stats.advisersCount}
@@ -427,7 +403,7 @@ export const TeachersPage = () => {
             </div>
             {selectedFacultyFilter === 'adviser' && (
               <span style={{ background: '#16a34a', color: '#fff', fontSize: '10px', padding: '2px 7px', borderRadius: '6px', fontWeight: 700 }}>
-                Active Filter
+                Active
               </span>
             )}
           </div>
@@ -448,10 +424,8 @@ export const TeachersPage = () => {
               boxShadow: selectedFacultyFilter === 'subject' ? '0 4px 12px rgba(217, 119, 6, 0.15)' : '0 1px 3px rgba(0,0,0,0.02)'
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-              <div style={{ width: 44, height: 44, borderRadius: '12px', background: '#fef3c7', color: '#d97706', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <GraduationCap size={22} />
-              </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+              <GraduationCap size={28} color="#d97706" strokeWidth={2.2} />
               <div>
                 <span style={{ fontSize: '26px', fontWeight: 800, color: '#78350f', lineHeight: 1, display: 'block' }}>
                   {stats.subjectTeachers}
@@ -461,7 +435,7 @@ export const TeachersPage = () => {
             </div>
             {selectedFacultyFilter === 'subject' && (
               <span style={{ background: '#d97706', color: '#fff', fontSize: '10px', padding: '2px 7px', borderRadius: '6px', fontWeight: 700 }}>
-                Active Filter
+                Active
               </span>
             )}
           </div>
@@ -478,10 +452,8 @@ export const TeachersPage = () => {
               justifyContent: 'space-between'
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-              <div style={{ width: 44, height: 44, borderRadius: '12px', background: '#f1f5f9', color: '#475569', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <Building size={22} />
-              </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+              <Building size={28} color="#64748b" strokeWidth={2.2} />
               <div>
                 <span style={{ fontSize: '26px', fontWeight: 800, color: '#1e293b', lineHeight: 1, display: 'block' }}>
                   {stats.departmentsCount}
@@ -611,7 +583,7 @@ export const TeachersPage = () => {
                     type="checkbox"
                     onChange={handleSelectAll}
                     checked={selectedIds.length > 0 && selectedIds.length === filteredAndSorted.length}
-                    style={{ width: 16, height: 16, cursor: 'pointer', accentColor: '#27367f' }}
+                    style={{ width: 16, height: 16, cursor: 'pointer', accentColor: '#07345f' }}
                   />
                 </th>
 
@@ -686,7 +658,7 @@ export const TeachersPage = () => {
                           type="checkbox"
                           checked={isChecked}
                           onChange={() => toggleSelect(teacher.id)}
-                          style={{ width: 16, height: 16, cursor: 'pointer', accentColor: '#27367f' }}
+                          style={{ width: 16, height: 16, cursor: 'pointer', accentColor: '#07345f' }}
                         />
                       </td>
 
@@ -705,7 +677,7 @@ export const TeachersPage = () => {
                                 width: 40,
                                 height: 40,
                                 borderRadius: '50%',
-                                background: adv ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)' : 'linear-gradient(135deg, #27367f 0%, #4338ca 100%)',
+                                background: adv ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)' : 'linear-gradient(135deg, #07345f 0%, #0b192c 100%)',
                                 color: '#ffffff',
                                 display: 'flex',
                                 alignItems: 'center',
@@ -789,9 +761,9 @@ export const TeachersPage = () => {
                           <button
                             onClick={() => setTeacherForAdviser(teacher)}
                             style={{
-                              background: adv ? '#f0fdf4' : '#eff6ff',
-                              color: adv ? '#16a34a' : '#2563eb',
-                              border: adv ? '1px solid #bbf7d0' : '1px solid #bfdbfe',
+                              background: adv ? '#f0fdf4' : '#f0f4f8',
+                              color: adv ? '#16a34a' : '#07345f',
+                              border: adv ? '1px solid #bbf7d0' : '1px solid #cbd5e1',
                               padding: '6px 10px',
                               borderRadius: '7px',
                               fontSize: '12px',
@@ -880,8 +852,8 @@ export const TeachersPage = () => {
                 <div
                   key={teacher.id}
                   style={{
-                    background: isChecked ? '#f8faff' : '#ffffff',
-                    border: isChecked ? '1.5px solid #27367f' : '1px solid #e2e8f0',
+                    background: isChecked ? '#f8fafc' : '#ffffff',
+                    border: isChecked ? '1.5px solid #07345f' : '1px solid #e2e8f0',
                     borderRadius: '14px',
                     padding: '14px 16px',
                     display: 'flex',
@@ -897,7 +869,7 @@ export const TeachersPage = () => {
                         type="checkbox"
                         checked={isChecked}
                         onChange={() => toggleSelect(teacher.id)}
-                        style={{ cursor: 'pointer', width: '16px', height: '16px', accentColor: '#27367f', flexShrink: 0 }}
+                        style={{ cursor: 'pointer', width: '16px', height: '16px', accentColor: '#07345f', flexShrink: 0 }}
                       />
                       {teacher.image ? (
                         <img
@@ -911,7 +883,7 @@ export const TeachersPage = () => {
                             width: 38,
                             height: 38,
                             borderRadius: '50%',
-                            background: adv ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)' : 'linear-gradient(135deg, #27367f 0%, #4338ca 100%)',
+                            background: adv ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)' : 'linear-gradient(135deg, #07345f 0%, #0b192c 100%)',
                             color: '#ffffff',
                             display: 'flex',
                             alignItems: 'center',
@@ -983,9 +955,9 @@ export const TeachersPage = () => {
                     <button
                       onClick={() => setTeacherForAdviser(teacher)}
                       style={{
-                        background: adv ? '#f0fdf4' : '#eff6ff',
-                        color: adv ? '#16a34a' : '#2563eb',
-                        border: adv ? '1px solid #bbf7d0' : '1px solid #bfdbfe',
+                        background: adv ? '#f0fdf4' : '#f0f4f8',
+                        color: adv ? '#16a34a' : '#07345f',
+                        border: adv ? '1px solid #bbf7d0' : '1px solid #cbd5e1',
                         padding: '5px 10px',
                         borderRadius: '6px',
                         fontSize: '11.5px',
@@ -1077,7 +1049,7 @@ export const TeachersPage = () => {
                   height: 32,
                   borderRadius: '6px',
                   border: '1px solid #cbd5e1',
-                  background: pageNum === currentPage ? '#27367f' : '#ffffff',
+                  background: pageNum === currentPage ? '#07345f' : '#ffffff',
                   color: pageNum === currentPage ? '#ffffff' : '#334155',
                   fontWeight: 700,
                   fontSize: '12px',

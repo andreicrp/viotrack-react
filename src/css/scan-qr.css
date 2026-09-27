@@ -66,25 +66,26 @@
   100% { transform: scale(0.95); opacity: 0.8; }
 }
 
-/* Centered Single Scanner Layout */
+/* Centered Responsive Scanner Layout */
 .scanner-grid-container {
   display: flex;
   justify-content: center;
   width: 100%;
-  max-width: 680px;
+  max-width: 780px;
   margin: 0 auto;
 }
 
 /* Scanner Card & Viewport */
 .scanner-card {
+  width: 100%;
   background: #ffffff;
-  border-radius: 16px;
+  border-radius: 18px;
   border: 1px solid #e2e8f0;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
-  padding: 20px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.05);
+  padding: 22px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 18px;
   overflow: hidden;
 }
 
@@ -136,8 +137,8 @@
 .custom-camera-trigger:hover,
 .custom-camera-trigger.active {
   background: #ffffff;
-  border-color: #27367f;
-  box-shadow: 0 0 0 3px rgba(39, 54, 127, 0.12);
+  border-color: #07345f;
+  box-shadow: 0 0 0 3px rgba(7, 52, 95, 0.12);
 }
 
 .custom-camera-trigger-left {
@@ -175,7 +176,7 @@
 
 .custom-camera-trigger-chevron.open {
   transform: rotate(180deg);
-  color: #27367f;
+  color: #07345f;
 }
 
 /* Custom Floating Menu Dropdown */
@@ -282,7 +283,7 @@
 }
 
 .camera-option-icon-wrap.selected {
-  background: #27367f;
+  background: #07345f;
   color: #ffffff;
 }
 
@@ -306,7 +307,7 @@
 
 .custom-camera-menu-option.selected .camera-option-label-text {
   font-weight: 700;
-  color: #1e40af;
+  color: #07345f;
 }
 
 .camera-option-connected-tag {
@@ -319,7 +320,7 @@
 }
 
 .camera-option-check-icon {
-  color: #2563eb;
+  color: #07345f;
   flex-shrink: 0;
 }
 
@@ -332,13 +333,14 @@
 .scanner-viewport-wrapper {
   position: relative;
   width: 100%;
-  aspect-ratio: 4 / 3;
-  max-height: 380px;
-  border-radius: 14px;
-  background: #ffffff;
+  aspect-ratio: 16 / 10;
+  min-height: 320px;
+  max-height: 440px;
+  border-radius: 16px;
+  background: #000000;
   overflow: hidden !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-  border: 1.5px solid #e2e8f0;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  border: 1.5px solid #cbd5e1;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -685,6 +687,8 @@
   object-fit: cover !important;
   border-radius: 12px !important;
   display: block !important;
+  transform: scaleX(-1) !important;
+  -webkit-transform: scaleX(-1) !important;
 }
 
 #reader-stream-container canvas {
@@ -716,9 +720,10 @@
 /* Reticle Corner HUD Brackets */
 .corner-bracket {
   position: absolute;
-  width: 22px;
-  height: 22px;
-  border: 3.5px solid #38bdf8;
+  width: 26px;
+  height: 26px;
+  border: 3.5px solid #00f0ff;
+  filter: drop-shadow(0 0 6px rgba(0, 240, 255, 0.6));
 }
 
 .corner-bracket.top-left {
@@ -726,7 +731,7 @@
   left: -2px;
   border-right: none;
   border-bottom: none;
-  border-top-left-radius: 12px;
+  border-top-left-radius: 14px;
 }
 
 .corner-bracket.top-right {
@@ -734,7 +739,7 @@
   right: -2px;
   border-left: none;
   border-bottom: none;
-  border-top-right-radius: 12px;
+  border-top-right-radius: 14px;
 }
 
 .corner-bracket.bottom-left {
@@ -742,7 +747,7 @@
   left: -2px;
   border-right: none;
   border-top: none;
-  border-bottom-left-radius: 12px;
+  border-bottom-left-radius: 14px;
 }
 
 .corner-bracket.bottom-right {
@@ -750,7 +755,7 @@
   right: -2px;
   border-left: none;
   border-top: none;
-  border-bottom-right-radius: 12px;
+  border-bottom-right-radius: 14px;
 }
 
 /* Scanning Laser Line */
@@ -759,9 +764,9 @@
   left: 0;
   right: 0;
   height: 3px;
-  background: linear-gradient(90deg, transparent, #38bdf8 20%, #60a5fa 50%, #38bdf8 80%, transparent);
-  box-shadow: 0 0 14px #38bdf8, 0 0 4px #ffffff;
-  animation: scanLaser 2.2s ease-in-out infinite alternate;
+  background: linear-gradient(90deg, transparent, #00f0ff 20%, #38bdf8 50%, #00f0ff 80%, transparent);
+  box-shadow: 0 0 16px #00f0ff, 0 0 6px #ffffff;
+  animation: scanLaser 2s ease-in-out infinite alternate;
 }
 
 @keyframes scanLaser {
@@ -784,10 +789,10 @@
   align-items: center;
   justify-content: center;
   gap: 6px;
-  padding: 8px 12px;
-  font-size: 12.5px;
-  font-weight: 600;
-  border-radius: 9px;
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  border-radius: 10px;
   cursor: pointer;
   background: #f8fafc;
   color: #334155;
@@ -799,13 +804,13 @@
 .scan-ctrl-btn:hover {
   background: #f1f5f9;
   border-color: #94a3b8;
-  color: #0f172a;
+  color: #07345f;
 }
 
 .scan-ctrl-btn.active {
-  background: #eff6ff;
-  color: #2563eb;
-  border-color: #93c5fd;
+  background: #f0f4f8;
+  color: #07345f;
+  border-color: #07345f;
 }
 
 /* Manual Search Section */
@@ -813,7 +818,7 @@
   background: #f8fafc;
   border: 1px solid #e2e8f0;
   border-radius: 14px;
-  padding: 14px 16px;
+  padding: 16px 18px;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -827,24 +832,24 @@
 }
 
 .manual-search-title {
-  font-size: 12.5px;
-  font-weight: 700;
-  color: #1e293b;
+  font-size: 13px;
+  font-weight: 800;
+  color: #0f172a;
   letter-spacing: -0.01em;
 }
 
 .manual-search-subtag {
   font-size: 11px;
-  font-weight: 600;
-  color: #64748b;
-  background: #e2e8f0;
-  padding: 2px 8px;
+  font-weight: 700;
+  color: #07345f;
+  background: #f0f4f8;
+  padding: 2.5px 8px;
   border-radius: 6px;
 }
 
 .manual-search-input-group {
   display: flex;
-  gap: 8px;
+  gap: 10px;
   align-items: center;
 }
 
@@ -864,8 +869,8 @@
 
 .manual-search-field {
   width: 100%;
-  padding: 9px 34px 9px 36px !important;
-  font-size: 13px !important;
+  padding: 10px 34px 10px 38px !important;
+  font-size: 13.5px !important;
   background: #ffffff !important;
   border: 1.5px solid #cbd5e1 !important;
   border-radius: 10px !important;
@@ -876,8 +881,8 @@
 }
 
 .manual-search-field:focus {
-  border-color: #27367f !important;
-  box-shadow: 0 0 0 3px rgba(39, 54, 127, 0.12) !important;
+  border-color: #07345f !important;
+  box-shadow: 0 0 0 3px rgba(7, 52, 95, 0.12) !important;
 }
 
 .manual-clear-btn {
@@ -907,24 +912,24 @@
   align-items: center;
   justify-content: center;
   gap: 6px;
-  padding: 9px 18px;
+  padding: 10px 20px;
   font-size: 13px;
   font-weight: 700;
   color: #ffffff;
-  background: #27367f;
+  background: #07345f;
   border: none;
   border-radius: 10px;
   cursor: pointer;
-  box-shadow: 0 2px 6px rgba(39, 54, 127, 0.25);
+  box-shadow: 0 4px 12px rgba(7, 52, 95, 0.25);
   transition: all 0.15s ease;
   white-space: nowrap;
-  height: 38px;
+  height: 40px;
 }
 
 .manual-search-submit-btn:hover:not(:disabled) {
-  background: #1e2b66;
+  background: #0b192c;
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(39, 54, 127, 0.35);
+  box-shadow: 0 6px 16px rgba(7, 52, 95, 0.35);
 }
 
 .manual-search-submit-btn:disabled {
@@ -978,7 +983,7 @@
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: #3b82f6;
+  background: #07345f;
 }
 
 .quick-chip-name {
@@ -995,15 +1000,15 @@
 }
 
 .quick-chip:hover {
-  background: #27367f;
-  border-color: #27367f;
+  background: #07345f;
+  border-color: #07345f;
   color: #ffffff;
   transform: translateY(-1px);
-  box-shadow: 0 3px 8px rgba(39, 54, 127, 0.2);
+  box-shadow: 0 3px 8px rgba(7, 52, 95, 0.2);
 }
 
 .quick-chip:hover .quick-chip-dot {
-  background: #60a5fa;
+  background: #38bdf8;
 }
 
 .quick-chip:hover .quick-chip-name {
@@ -1152,8 +1157,8 @@
   height: 72px;
   border-radius: 14px;
   object-fit: cover;
-  border: 2.5px solid #27367f;
-  box-shadow: 0 4px 12px rgba(39, 54, 127, 0.15);
+  border: 2.5px solid #07345f;
+  box-shadow: 0 4px 12px rgba(7, 52, 95, 0.15);
   flex-shrink: 0;
 }
 
@@ -1306,13 +1311,13 @@
 }
 
 .verified-btn.primary {
-  background: #27367f;
+  background: #07345f;
   color: #ffffff;
-  box-shadow: 0 2px 8px rgba(39, 54, 127, 0.25);
+  box-shadow: 0 2px 8px rgba(7, 52, 95, 0.25);
 }
 
 .verified-btn.primary:hover {
-  background: #1e2b66;
+  background: #0b192c;
   transform: translateY(-1px);
 }
 
@@ -1432,8 +1437,8 @@
 }
 
 .ldio-swing-ball.ball-1 {
-  background: linear-gradient(135deg, #1e293b 0%, #27367f 100%);
-  box-shadow: 0 4px 14px rgba(39, 54, 127, 0.45);
+  background: linear-gradient(135deg, #0b192c 0%, #07345f 100%);
+  box-shadow: 0 4px 14px rgba(7, 52, 95, 0.45);
   animation: ldio-swing-path-1 1.4s ease-in-out infinite alternate;
 }
 
@@ -1497,10 +1502,10 @@
 
 .scan-progress-bar-fill {
   height: 100%;
-  background: linear-gradient(90deg, #27367f 0%, #3b82f6 50%, #60a5fa 100%);
+  background: linear-gradient(90deg, #07345f 0%, #0284c7 50%, #38bdf8 100%);
   border-radius: 999px;
   transition: width 0.45s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
 }
 
 .scan-timer-pill {

@@ -1,10 +1,11 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Capacitor } from '@capacitor/core';
 import { StatusBar, Style } from '@capacitor/status-bar';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { NotificationProvider } from './context/NotificationContext';
 import { Layout } from './components/layout/Layout';
+import { SplashScreen } from './components/common/SplashScreen';
 
 // Pages
 import { DashboardPage } from './pages/DashboardPage';
@@ -33,6 +34,8 @@ const ProtectedRoute = ({ children, requireAdmin = false }) => {
 };
 
 export function App() {
+  const [showSplash, setShowSplash] = useState(true);
+
   useEffect(() => {
     if (Capacitor.isNativePlatform()) {
       const configureStatusBar = async () => {
@@ -51,6 +54,13 @@ export function App() {
   return (
     <AuthProvider>
       <NotificationProvider>
+        {showSplash && (
+          <SplashScreen
+            mode="coded"
+            duration={2400}
+            onFinish={() => setShowSplash(false)}
+          />
+        )}
         <BrowserRouter>
           <Routes>
             <Route path="/login" element={<LoginPage />} />

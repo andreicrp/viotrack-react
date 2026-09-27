@@ -241,22 +241,7 @@ export const ActivityLogsPage = () => {
       {/* Top Banner & Quick Actions */}
       <div className="page-banner-header">
         <div className="page-banner-info">
-          <div
-            style={{
-              width: 50,
-              height: 50,
-              borderRadius: '14px',
-              background: 'rgba(255, 255, 255, 0.15)',
-              backdropFilter: 'blur(8px)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              border: '1px solid rgba(255, 255, 255, 0.2)',
-              flexShrink: 0
-            }}
-          >
-            <Activity size={26} color="#ffffff" />
-          </div>
+          <Activity size={30} strokeWidth={2.2} color="#ffffff" style={{ flexShrink: 0 }} />
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
               <h2 style={{ fontSize: '22px', fontWeight: 800, margin: 0, color: '#ffffff', letterSpacing: '-0.02em' }}>
@@ -327,10 +312,10 @@ export const ActivityLogsPage = () => {
         <div
           onClick={() => setActionCategory('all')}
           style={{
-            background: '#ffffff',
+            background: actionCategory === 'all' ? '#f0f4f8' : '#ffffff',
             borderRadius: '14px',
             padding: '18px 20px',
-            border: actionCategory === 'all' ? '2px solid #27367f' : '1px solid #e2e8f0',
+            border: actionCategory === 'all' ? '2px solid #07345f' : '1px solid #e2e8f0',
             boxShadow: '0 2px 10px rgba(0,0,0,0.03)',
             cursor: 'pointer',
             transition: 'all 0.2s',
@@ -350,12 +335,10 @@ export const ActivityLogsPage = () => {
                 Full system activity trail
               </div>
             </div>
-            <div style={{ width: 42, height: 42, borderRadius: '10px', background: '#eff6ff', color: '#2563eb', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Activity size={22} />
-            </div>
+            <Activity size={28} color="#07345f" strokeWidth={2.2} style={{ flexShrink: 0 }} />
           </div>
           {actionCategory === 'all' && (
-            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 3, background: '#27367f' }}></div>
+            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 3, background: '#07345f' }}></div>
           )}
         </div>
 
@@ -381,9 +364,7 @@ export const ActivityLogsPage = () => {
                 Logged in last 24 hours
               </div>
             </div>
-            <div style={{ width: 42, height: 42, borderRadius: '10px', background: '#ecfdf5', color: '#059669', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Clock size={22} />
-            </div>
+            <Clock size={28} color="#059669" strokeWidth={2.2} style={{ flexShrink: 0 }} />
           </div>
         </div>
 
@@ -391,7 +372,7 @@ export const ActivityLogsPage = () => {
         <div
           onClick={() => setActionCategory(actionCategory === 'violations' ? 'all' : 'violations')}
           style={{
-            background: '#ffffff',
+            background: actionCategory === 'violations' ? '#faf5ff' : '#ffffff',
             borderRadius: '14px',
             padding: '18px 20px',
             border: actionCategory === 'violations' ? '2px solid #7c3aed' : '1px solid #e2e8f0',
@@ -414,9 +395,7 @@ export const ActivityLogsPage = () => {
                 Violations & resolutions
               </div>
             </div>
-            <div style={{ width: 42, height: 42, borderRadius: '10px', background: '#f5f3ff', color: '#7c3aed', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <ShieldAlert size={22} />
-            </div>
+            <ShieldAlert size={28} color="#7c3aed" strokeWidth={2.2} style={{ flexShrink: 0 }} />
           </div>
           {actionCategory === 'violations' && (
             <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 3, background: '#7c3aed' }}></div>
@@ -427,7 +406,7 @@ export const ActivityLogsPage = () => {
         <div
           onClick={() => setActionCategory(actionCategory === 'users' ? 'all' : 'users')}
           style={{
-            background: '#ffffff',
+            background: actionCategory === 'users' ? '#fffbeb' : '#ffffff',
             borderRadius: '14px',
             padding: '18px 20px',
             border: actionCategory === 'users' ? '2px solid #d97706' : '1px solid #e2e8f0',
@@ -450,9 +429,7 @@ export const ActivityLogsPage = () => {
                 Faculty & account edits
               </div>
             </div>
-            <div style={{ width: 42, height: 42, borderRadius: '10px', background: '#fef3c7', color: '#d97706', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <ShieldCheck size={22} />
-            </div>
+            <ShieldCheck size={28} color="#d97706" strokeWidth={2.2} style={{ flexShrink: 0 }} />
           </div>
           {actionCategory === 'users' && (
             <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 3, background: '#d97706' }}></div>
@@ -512,7 +489,7 @@ export const ActivityLogsPage = () => {
                   outline: 'none',
                   transition: 'all 0.2s'
                 }}
-                onFocus={(e) => { e.currentTarget.style.borderColor = '#27367f'; e.currentTarget.style.background = '#ffffff'; }}
+                onFocus={(e) => { e.currentTarget.style.borderColor = '#07345f'; e.currentTarget.style.background = '#ffffff'; }}
                 onBlur={(e) => { e.currentTarget.style.borderColor = '#cbd5e1'; e.currentTarget.style.background = '#f8fafc'; }}
               />
               {searchTerm && (
@@ -562,7 +539,7 @@ export const ActivityLogsPage = () => {
                   onClick={() => setViewMode('timeline')}
                   style={{
                     background: viewMode === 'timeline' ? '#ffffff' : 'transparent',
-                    color: viewMode === 'timeline' ? '#27367f' : '#64748b',
+                    color: viewMode === 'timeline' ? '#07345f' : '#64748b',
                     border: 'none',
                     padding: '6px 14px',
                     borderRadius: '6px',
@@ -579,7 +556,7 @@ export const ActivityLogsPage = () => {
                   onClick={() => setViewMode('table')}
                   style={{
                     background: viewMode === 'table' ? '#ffffff' : 'transparent',
-                    color: viewMode === 'table' ? '#27367f' : '#64748b',
+                    color: viewMode === 'table' ? '#07345f' : '#64748b',
                     border: 'none',
                     padding: '6px 14px',
                     borderRadius: '6px',
@@ -787,7 +764,7 @@ export const ActivityLogsPage = () => {
             >
               Prev
             </button>
-            <span style={{ padding: '6px 12px', background: '#27367f', color: '#ffffff', borderRadius: '6px', fontWeight: 700, fontSize: '12px' }}>
+            <span style={{ padding: '6px 12px', background: '#07345f', color: '#ffffff', borderRadius: '6px', fontWeight: 700, fontSize: '12px' }}>
               {currentPage} / {totalPages}
             </span>
             <button

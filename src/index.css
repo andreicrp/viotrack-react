@@ -14,6 +14,31 @@
 @import './css/addrecord-modal.css';
 @import './css/scan-qr.css';
 
+/* Local Sora Font Declarations (Guaranteed 100% Offline & Mobile Support) */
+@font-face {
+  font-family: 'Sora';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('/fonts/sora-600.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Sora';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/sora-700.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'Sora';
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: url('/fonts/sora-800.ttf') format('truetype');
+}
+
 /* Mobile Performance, Touch & Security Restrictions */
 *, *::before, *::after {
   -webkit-tap-highlight-color: transparent !important;
@@ -27,7 +52,6 @@
   -khtml-user-drag: none !important;
   -moz-user-drag: none !important;
   -o-user-drag: none !important;
-  user-drag: none !important;
   box-sizing: border-box;
 }
 
@@ -36,7 +60,6 @@ img, a, svg, span, p, h1, h2, h3, h4, h5, h6, div, header, nav, aside {
   -khtml-user-drag: none !important;
   -moz-user-drag: none !important;
   -o-user-drag: none !important;
-  user-drag: none !important;
 }
 
 /* Allow text typing, selection, and copy-pasting EXCLUSIVELY in textboxes and textareas */
@@ -107,9 +130,53 @@ html, body {
   display: inline-block;
 }
 
+/* Global Typography & Font Family - Sora SemiBold Universally */
+html,
+body,
+#root,
+*,
+*::before,
+*::after {
+  font-family: 'Sora', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+}
+
+body,
+p,
+span,
+a,
+label,
+li,
+td,
+th,
+input,
+select,
+textarea,
+button,
+div,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+small,
+b,
+strong {
+  font-family: 'Sora', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+  font-weight: 600;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Retain FontAwesome icon fonts so icon glyphs display properly */
+.fa, .fas, .far, .fab, .fa-solid, .fa-regular, .fa-brands, [class*=" fa-"], [class^="fa-"] {
+  font-family: "Font Awesome 6 Free", "Font Awesome 6 Brands", sans-serif !important;
+}
+
 /* Global Form Controls & Typography Resets */
 input, select, textarea, button {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+  font-family: 'Sora', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif !important;
+  font-weight: 600 !important;
 }
 
 input[type="text"],
@@ -1136,7 +1203,7 @@ html, body {
    Universal Page Banner Header & Action Buttons (Mobile First)
    ========================================================================== */
 .page-banner-header {
-  background: linear-gradient(135deg, #1e2b66 0%, #27367f 60%, #3b4ea8 100%);
+  background: linear-gradient(135deg, #07345f 0%, #0b192c 100%);
   border-radius: 16px;
   padding: 24px 28px;
   color: #ffffff;
@@ -1145,7 +1212,7 @@ html, body {
   align-items: center;
   flex-wrap: wrap;
   gap: 16px;
-  box-shadow: 0 10px 25px -5px rgba(39, 54, 127, 0.25);
+  box-shadow: 0 10px 25px -5px rgba(7, 52, 95, 0.25);
   box-sizing: border-box;
   width: 100%;
 }
@@ -1196,7 +1263,7 @@ html, body {
 
 .page-banner-primary-btn {
   background: #ffffff;
-  color: #27367f;
+  color: #07345f;
   border: none;
   padding: 10px 20px;
   border-radius: 10px;

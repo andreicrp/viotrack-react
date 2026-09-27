@@ -317,7 +317,7 @@ export const StudentViolationDetailPage = () => {
     return (
       <div style={{ padding: '80px 20px', textAlign: 'center', color: '#64748b' }}>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
-          <div style={{ width: 44, height: 44, borderRadius: '50%', border: '3px solid #e2e8f0', borderTopColor: '#27367f', animation: 'spin 1s linear infinite' }} />
+          <div style={{ width: 44, height: 44, borderRadius: '50%', border: '3px solid #e2e8f0', borderTopColor: '#07345f', animation: 'spin 1s linear infinite' }} />
           <span style={{ fontSize: '15px', fontWeight: 600, color: '#334155' }}>Loading student violation record...</span>
         </div>
       </div>
@@ -331,7 +331,7 @@ export const StudentViolationDetailPage = () => {
         <p style={{ color: '#64748b', fontSize: '14px', marginBottom: '16px' }}>The requested student could not be located in the database.</p>
         <button
           onClick={() => navigate('/students')}
-          style={{ background: '#27367f', color: '#ffffff', border: 'none', padding: '10px 20px', borderRadius: '10px', fontWeight: 600, cursor: 'pointer' }}
+          style={{ background: '#07345f', color: '#ffffff', border: 'none', padding: '10px 20px', borderRadius: '10px', fontWeight: 600, cursor: 'pointer' }}
         >
           Return to Student Directory
         </button>
@@ -345,22 +345,7 @@ export const StudentViolationDetailPage = () => {
       {/* Top Banner Header with Actions */}
       <div className="page-banner-header">
         <div className="page-banner-info">
-          <div
-            style={{
-              width: 48,
-              height: 48,
-              borderRadius: '14px',
-              background: 'rgba(255, 255, 255, 0.15)',
-              backdropFilter: 'blur(8px)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              border: '1px solid rgba(255, 255, 255, 0.2)',
-              flexShrink: 0
-            }}
-          >
-            <User size={24} color="#ffffff" />
-          </div>
+          <User size={30} strokeWidth={2.2} color="#ffffff" style={{ flexShrink: 0 }} />
 
           <div style={{ minWidth: 0 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
@@ -464,10 +449,10 @@ export const StudentViolationDetailPage = () => {
               gap: '8px'
             }}
           >
-            <GraduationCap size={20} color="#27367f" /> Student Information Profile
+            <GraduationCap size={20} color="#07345f" /> Student Information Profile
           </h3>
 
-          <span style={{ fontSize: '12px', fontWeight: 700, color: '#1e293b', background: '#eef2ff', border: '1px solid #c7d2fe', padding: '3.5px 12px', borderRadius: '12px' }}>
+          <span style={{ fontSize: '12px', fontWeight: 700, color: '#1e293b', background: '#f0f4f8', border: '1px solid #cbd5e1', padding: '3.5px 12px', borderRadius: '12px' }}>
             Academic Year {student.academicyear || '2025-2026'}
           </span>
         </div>
@@ -479,7 +464,7 @@ export const StudentViolationDetailPage = () => {
               <img
                 src={
                   student.image ||
-                  `https://ui-avatars.com/api/?name=${encodeURIComponent(student.fname + ' ' + student.lname)}&background=27367f&color=fff&size=120`
+                  `https://ui-avatars.com/api/?name=${encodeURIComponent(student.fname + ' ' + student.lname)}&background=07345f&color=fff&size=120`
                 }
                 alt={student.fname}
                 style={{
@@ -487,8 +472,8 @@ export const StudentViolationDetailPage = () => {
                   height: 82,
                   borderRadius: '50%',
                   objectFit: 'cover',
-                  border: '3.5px solid #27367f',
-                  boxShadow: '0 6px 16px rgba(39, 54, 127, 0.2)'
+                  border: '3.5px solid #07345f',
+                  boxShadow: '0 6px 16px rgba(7, 52, 95, 0.2)'
                 }}
               />
               <span
@@ -540,8 +525,8 @@ export const StudentViolationDetailPage = () => {
               gap: '10px'
             }}
           >
-            <div style={{ fontSize: '11px', fontWeight: 800, color: '#27367f', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '5px' }}>
-              <School size={13} color="#27367f" /> ACADEMIC PLACEMENT
+            <div style={{ fontSize: '11px', fontWeight: 800, color: '#07345f', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '5px' }}>
+              <School size={13} color="#07345f" /> ACADEMIC PLACEMENT
             </div>
             <div>
               <div style={{ fontSize: '11.5px', color: '#475569', fontWeight: 600 }}>Grade & Section</div>
@@ -570,8 +555,8 @@ export const StudentViolationDetailPage = () => {
               gap: '8px'
             }}
           >
-            <div style={{ fontSize: '11px', fontWeight: 800, color: '#27367f', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '5px' }}>
-              <Users size={13} color="#27367f" /> GUARDIAN & CONTACT
+            <div style={{ fontSize: '11px', fontWeight: 800, color: '#07345f', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '5px' }}>
+              <Users size={13} color="#07345f" /> GUARDIAN & CONTACT
             </div>
             <div>
               <div style={{ fontSize: '11.5px', color: '#475569', fontWeight: 600 }}>Parent / Guardian</div>
@@ -650,7 +635,7 @@ export const StudentViolationDetailPage = () => {
               textAlign: 'center'
             }}
             onClick={() => setIsQrModalOpen(true)}
-            onMouseOver={(e) => { e.currentTarget.style.borderColor = '#27367f'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+            onMouseOver={(e) => { e.currentTarget.style.borderColor = '#07345f'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
             onMouseOut={(e) => { e.currentTarget.style.borderColor = '#cbd5e1'; e.currentTarget.style.transform = 'translateY(0)'; }}
             title="Click to view & print full Student QR ID Pass"
           >
@@ -668,7 +653,7 @@ export const StudentViolationDetailPage = () => {
                 }}
               />
             </div>
-            <span style={{ fontSize: '12px', fontWeight: 700, color: '#27367f', marginTop: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <span style={{ fontSize: '12px', fontWeight: 700, color: '#07345f', marginTop: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}>
               <QrCode size={14} /> Scan or Click to Print
             </span>
           </div>
@@ -681,16 +666,16 @@ export const StudentViolationDetailPage = () => {
         <div
           onClick={() => { setStatusFilter('all'); setCurrentPage(1); }}
           style={{
-            background: statusFilter === 'all' ? 'linear-gradient(180deg, #ffffff 0%, #f8faff 100%)' : '#ffffff',
-            border: statusFilter === 'all' ? '2px solid #27367f' : '1px solid #e2e8f0',
+            background: statusFilter === 'all' ? '#f0f4f8' : '#ffffff',
+            border: statusFilter === 'all' ? '2px solid #07345f' : '1px solid #e2e8f0',
             borderRadius: '14px',
             padding: '16px 20px',
-            boxShadow: statusFilter === 'all' ? '0 6px 18px rgba(39, 54, 127, 0.12)' : '0 2px 6px rgba(0,0,0,0.03)',
+            boxShadow: statusFilter === 'all' ? '0 4px 14px rgba(7, 52, 95, 0.12)' : '0 1px 3px rgba(0,0,0,0.03)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
             cursor: 'pointer',
-            transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+            transition: 'all 0.2s ease',
             position: 'relative',
             overflow: 'hidden'
           }}
@@ -709,13 +694,11 @@ export const StudentViolationDetailPage = () => {
         >
           <div>
             <div style={{ fontSize: '11.5px', color: '#475569', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Total Incidents</div>
-            <div style={{ fontSize: '26px', fontWeight: 800, color: '#0f172a', marginTop: '2px' }}>{totalCount}</div>
+            <div style={{ fontSize: '26px', fontWeight: 800, color: '#07345f', marginTop: '2px' }}>{totalCount}</div>
           </div>
-          <div style={{ width: 44, height: 44, borderRadius: '12px', background: '#eff6ff', color: '#27367f', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-            <FileText size={22} />
-          </div>
+          <FileText size={28} color="#07345f" strokeWidth={1.8} />
           {statusFilter === 'all' && (
-            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 3.5, background: 'linear-gradient(90deg, #27367f, #3b82f6)' }} />
+            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 3.5, background: '#07345f' }} />
           )}
         </div>
 
@@ -723,16 +706,16 @@ export const StudentViolationDetailPage = () => {
         <div
           onClick={() => { setStatusFilter('pending'); setCurrentPage(1); }}
           style={{
-            background: statusFilter === 'pending' ? 'linear-gradient(180deg, #ffffff 0%, #fef2f2 100%)' : '#ffffff',
+            background: statusFilter === 'pending' ? '#fef2f2' : '#ffffff',
             border: statusFilter === 'pending' ? '2px solid #dc2626' : '1px solid #e2e8f0',
             borderRadius: '14px',
             padding: '16px 20px',
-            boxShadow: statusFilter === 'pending' ? '0 6px 18px rgba(220, 38, 38, 0.12)' : '0 2px 6px rgba(0,0,0,0.03)',
+            boxShadow: statusFilter === 'pending' ? '0 4px 14px rgba(220, 38, 38, 0.12)' : '0 1px 3px rgba(0,0,0,0.03)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
             cursor: 'pointer',
-            transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+            transition: 'all 0.2s ease',
             position: 'relative',
             overflow: 'hidden'
           }}
@@ -751,13 +734,11 @@ export const StudentViolationDetailPage = () => {
         >
           <div>
             <div style={{ fontSize: '11.5px', color: '#b91c1c', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Pending Review</div>
-            <div style={{ fontSize: '26px', fontWeight: 800, color: '#b91c1c', marginTop: '2px' }}>{pendingCount}</div>
+            <div style={{ fontSize: '26px', fontWeight: 800, color: '#dc2626', marginTop: '2px' }}>{pendingCount}</div>
           </div>
-          <div style={{ width: 44, height: 44, borderRadius: '12px', background: '#fef2f2', color: '#dc2626', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-            <Clock size={22} />
-          </div>
+          <Clock size={28} color="#dc2626" strokeWidth={1.8} />
           {statusFilter === 'pending' && (
-            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 3.5, background: 'linear-gradient(90deg, #dc2626, #f87171)' }} />
+            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 3.5, background: '#dc2626' }} />
           )}
         </div>
 
@@ -765,16 +746,16 @@ export const StudentViolationDetailPage = () => {
         <div
           onClick={() => { setStatusFilter('investigation'); setCurrentPage(1); }}
           style={{
-            background: statusFilter === 'investigation' ? 'linear-gradient(180deg, #ffffff 0%, #fffbeb 100%)' : '#ffffff',
+            background: statusFilter === 'investigation' ? '#fffbeb' : '#ffffff',
             border: statusFilter === 'investigation' ? '2px solid #d97706' : '1px solid #e2e8f0',
             borderRadius: '14px',
             padding: '16px 20px',
-            boxShadow: statusFilter === 'investigation' ? '0 6px 18px rgba(217, 119, 6, 0.12)' : '0 2px 6px rgba(0,0,0,0.03)',
+            boxShadow: statusFilter === 'investigation' ? '0 4px 14px rgba(217, 119, 6, 0.12)' : '0 1px 3px rgba(0,0,0,0.03)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
             cursor: 'pointer',
-            transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+            transition: 'all 0.2s ease',
             position: 'relative',
             overflow: 'hidden'
           }}
@@ -793,13 +774,11 @@ export const StudentViolationDetailPage = () => {
         >
           <div>
             <div style={{ fontSize: '11.5px', color: '#b45309', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}>In Review</div>
-            <div style={{ fontSize: '26px', fontWeight: 800, color: '#b45309', marginTop: '2px' }}>{investigationCount}</div>
+            <div style={{ fontSize: '26px', fontWeight: 800, color: '#d97706', marginTop: '2px' }}>{investigationCount}</div>
           </div>
-          <div style={{ width: 44, height: 44, borderRadius: '12px', background: '#fffbeb', color: '#d97706', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-            <Search size={22} />
-          </div>
+          <Search size={28} color="#d97706" strokeWidth={1.8} />
           {statusFilter === 'investigation' && (
-            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 3.5, background: 'linear-gradient(90deg, #d97706, #fbbf24)' }} />
+            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 3.5, background: '#d97706' }} />
           )}
         </div>
 
@@ -807,16 +786,16 @@ export const StudentViolationDetailPage = () => {
         <div
           onClick={() => { setStatusFilter('resolved'); setCurrentPage(1); }}
           style={{
-            background: statusFilter === 'resolved' ? 'linear-gradient(180deg, #ffffff 0%, #f0fdf4 100%)' : '#ffffff',
+            background: statusFilter === 'resolved' ? '#f0fdf4' : '#ffffff',
             border: statusFilter === 'resolved' ? '2px solid #16a34a' : '1px solid #e2e8f0',
             borderRadius: '14px',
             padding: '16px 20px',
-            boxShadow: statusFilter === 'resolved' ? '0 6px 18px rgba(22, 163, 74, 0.12)' : '0 2px 6px rgba(0,0,0,0.03)',
+            boxShadow: statusFilter === 'resolved' ? '0 4px 14px rgba(22, 163, 74, 0.12)' : '0 1px 3px rgba(0,0,0,0.03)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
             cursor: 'pointer',
-            transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+            transition: 'all 0.2s ease',
             position: 'relative',
             overflow: 'hidden'
           }}
@@ -835,13 +814,11 @@ export const StudentViolationDetailPage = () => {
         >
           <div>
             <div style={{ fontSize: '11.5px', color: '#15803d', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Resolved & Cleared</div>
-            <div style={{ fontSize: '26px', fontWeight: 800, color: '#15803d', marginTop: '2px' }}>{resolvedCount}</div>
+            <div style={{ fontSize: '26px', fontWeight: 800, color: '#16a34a', marginTop: '2px' }}>{resolvedCount}</div>
           </div>
-          <div style={{ width: 44, height: 44, borderRadius: '12px', background: '#f0fdf4', color: '#16a34a', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-            <CheckCircle2 size={22} />
-          </div>
+          <CheckCircle2 size={28} color="#16a34a" strokeWidth={1.8} />
           {statusFilter === 'resolved' && (
-            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 3.5, background: 'linear-gradient(90deg, #16a34a, #34d399)' }} />
+            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 3.5, background: '#16a34a' }} />
           )}
         </div>
       </div>
@@ -948,7 +925,7 @@ export const StudentViolationDetailPage = () => {
                     fontWeight: 700,
                     cursor: 'pointer',
                     background: statusFilter === tab.id ? '#ffffff' : 'transparent',
-                    color: statusFilter === tab.id ? '#27367f' : '#475569',
+                    color: statusFilter === tab.id ? '#07345f' : '#475569',
                     boxShadow: statusFilter === tab.id ? '0 1px 3px rgba(0,0,0,0.08)' : 'none',
                     transition: 'all 0.15s ease'
                   }}
@@ -1003,7 +980,7 @@ export const StudentViolationDetailPage = () => {
                     type="checkbox"
                     checked={paginated.length > 0 && selectedIds.length === paginated.length}
                     onChange={handleSelectAll}
-                    style={{ cursor: 'pointer', accentColor: '#27367f' }}
+                    style={{ cursor: 'pointer', accentColor: '#07345f' }}
                   />
                 </th>
                 <th style={{ padding: '12px 14px' }}>STUDENT</th>
@@ -1070,7 +1047,7 @@ export const StudentViolationDetailPage = () => {
                           type="checkbox"
                           checked={isSelected}
                           onChange={() => handleToggleSelect(r.id)}
-                          style={{ cursor: 'pointer', accentColor: '#27367f' }}
+                          style={{ cursor: 'pointer', accentColor: '#07345f' }}
                         />
                       </td>
 
@@ -1079,7 +1056,7 @@ export const StudentViolationDetailPage = () => {
                           <img
                             src={
                               student.image ||
-                              `https://ui-avatars.com/api/?name=${encodeURIComponent(student.fname + ' ' + student.lname)}&background=27367f&color=fff&size=50`
+                              `https://ui-avatars.com/api/?name=${encodeURIComponent(student.fname + ' ' + student.lname)}&background=07345f&color=fff&size=50`
                             }
                             alt={student.fname}
                             style={{ width: 34, height: 34, borderRadius: '50%', objectFit: 'cover' }}
@@ -1213,8 +1190,8 @@ export const StudentViolationDetailPage = () => {
                 <div
                   key={r.id}
                   style={{
-                    background: isSelected ? '#f8fafc' : '#ffffff',
-                    border: isSelected ? '1.5px solid #27367f' : '1px solid #e2e8f0',
+                    background: isSelected ? '#f0f4f8' : '#ffffff',
+                    border: isSelected ? '1.5px solid #07345f' : '1px solid #e2e8f0',
                     borderRadius: '14px',
                     padding: '14px',
                     display: 'flex',
@@ -1229,7 +1206,7 @@ export const StudentViolationDetailPage = () => {
                         type="checkbox"
                         checked={isSelected}
                         onChange={() => handleToggleSelect(r.id)}
-                        style={{ cursor: 'pointer', accentColor: '#27367f', width: '16px', height: '16px' }}
+                        style={{ cursor: 'pointer', accentColor: '#07345f', width: '16px', height: '16px' }}
                       />
                       <span style={{ fontSize: '13px', fontWeight: 700, color: '#0f172a' }}>
                         {r.violation?.title || 'Infraction'}
@@ -1244,7 +1221,7 @@ export const StudentViolationDetailPage = () => {
                     </div>
                     {r.sanction && (
                       <div style={{ color: '#334155', marginTop: '4px' }}>
-                        ⚖️ Sanction: <strong style={{ color: '#27367f' }}>{r.sanction}</strong>
+                        ⚖️ Sanction: <strong style={{ color: '#07345f' }}>{r.sanction}</strong>
                       </div>
                     )}
                   </div>
@@ -1343,7 +1320,7 @@ export const StudentViolationDetailPage = () => {
                     style={{
                       padding: '4px 10px',
                       border: '1px solid #cbd5e1',
-                      background: currentPage === page ? '#27367f' : '#fff',
+                      background: currentPage === page ? '#07345f' : '#fff',
                       color: currentPage === page ? '#fff' : '#334155',
                       borderRadius: '6px',
                       fontSize: '12px',
@@ -1482,7 +1459,7 @@ export const StudentViolationDetailPage = () => {
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                   <span style={{ color: '#64748b' }}>Student LRN:</span>
-                  <strong style={{ color: '#27367f' }}>{student.lrn} ({student.fname} {student.lname})</strong>
+                  <strong style={{ color: '#07345f' }}>{student.lrn} ({student.fname} {student.lname})</strong>
                 </div>
               </div>
 
@@ -1620,7 +1597,7 @@ export const StudentViolationDetailPage = () => {
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', borderBottom: '1px solid #f1f5f9', paddingBottom: '12px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <QrCode size={18} color="#27367f" />
+                <QrCode size={18} color="#07345f" />
                 <h4 style={{ margin: 0, fontSize: '16px', fontWeight: 800, color: '#0f172a' }}>
                   Official Student QR Pass
                 </h4>
@@ -1647,7 +1624,7 @@ export const StudentViolationDetailPage = () => {
                 position: 'relative'
               }}
             >
-              <div style={{ fontSize: '11px', fontWeight: 800, color: '#2563eb', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+              <div style={{ fontSize: '11px', fontWeight: 800, color: '#07345f', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
                 VIOTRACK
               </div>
               <div style={{ fontSize: '17px', fontWeight: 800, color: '#0f172a', marginTop: '4px' }}>
@@ -1675,7 +1652,7 @@ export const StudentViolationDetailPage = () => {
                 />
               </div>
 
-              <div style={{ fontSize: '14px', fontWeight: 800, color: '#2563eb', letterSpacing: '0.04em' }}>
+              <div style={{ fontSize: '14px', fontWeight: 800, color: '#07345f', letterSpacing: '0.04em' }}>
                 LRN: {student.lrn}
               </div>
               <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px' }}>
@@ -1689,7 +1666,7 @@ export const StudentViolationDetailPage = () => {
                 onClick={() => window.print()}
                 style={{
                   flex: 1,
-                  background: '#27367f',
+                  background: '#07345f',
                   color: '#ffffff',
                   border: 'none',
                   padding: '11px 16px',
@@ -1701,7 +1678,7 @@ export const StudentViolationDetailPage = () => {
                   alignItems: 'center',
                   justifyContent: 'center',
                   gap: '6px',
-                  boxShadow: '0 4px 14px rgba(39, 54, 127, 0.25)'
+                  boxShadow: '0 4px 14px rgba(7, 52, 95, 0.25)'
                 }}
               >
                 <Printer size={15} /> Print QR Pass Badge

@@ -236,7 +236,7 @@ export const MyClassPage = () => {
             <img
               src={
                 teacher.image ||
-                `https://ui-avatars.com/api/?name=${encodeURIComponent(teacherName)}&background=ffffff&color=27367f&size=68`
+                `https://ui-avatars.com/api/?name=${encodeURIComponent(teacherName)}&background=ffffff&color=07345f&size=68`
               }
               alt={teacherName}
               style={{
@@ -257,7 +257,7 @@ export const MyClassPage = () => {
                 height: 15,
                 borderRadius: '50%',
                 background: '#10b981',
-                border: '2.5px solid #1e2b66'
+                border: '2.5px solid #07345f'
               }}
               title="Active Class Adviser"
             />
@@ -357,10 +357,10 @@ export const MyClassPage = () => {
         <div
           onClick={() => setStatusFilter('all')}
           style={{
-            background: statusFilter === 'all' ? '#f8fafc' : '#ffffff',
+            background: statusFilter === 'all' ? '#f0f4f8' : '#ffffff',
             borderRadius: '14px',
             padding: '18px 20px',
-            border: statusFilter === 'all' ? '2px solid #27367f' : '1px solid #e2e8f0',
+            border: statusFilter === 'all' ? '2px solid #07345f' : '1px solid #e2e8f0',
             boxShadow: '0 2px 10px rgba(0,0,0,0.03)',
             cursor: 'pointer',
             transition: 'all 0.2s',
@@ -379,12 +379,10 @@ export const MyClassPage = () => {
                 {analytics.maleCount} Male • {analytics.femaleCount} Female
               </div>
             </div>
-            <div style={{ width: 44, height: 44, borderRadius: '12px', background: '#eff6ff', color: '#2563eb', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Users size={22} />
-            </div>
+            <Users size={28} color="#07345f" strokeWidth={2.2} style={{ flexShrink: 0 }} />
           </div>
           {statusFilter === 'all' && (
-            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 3, background: '#27367f' }}></div>
+            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 3, background: '#07345f' }}></div>
           )}
         </div>
 
@@ -414,9 +412,7 @@ export const MyClassPage = () => {
                 {analytics.goodStandingRate}% Clean Disciplinary Record
               </div>
             </div>
-            <div style={{ width: 44, height: 44, borderRadius: '12px', background: '#dcfce7', color: '#16a34a', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <ShieldCheck size={22} />
-            </div>
+            <ShieldCheck size={28} color="#16a34a" strokeWidth={2.2} style={{ flexShrink: 0 }} />
           </div>
           {statusFilter === 'clean' && (
             <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 3, background: '#16a34a' }}></div>
@@ -449,9 +445,7 @@ export const MyClassPage = () => {
                 {analytics.studentsWithViolations} {analytics.studentsWithViolations === 1 ? 'student' : 'students'} with offenses
               </div>
             </div>
-            <div style={{ width: 44, height: 44, borderRadius: '12px', background: '#fee2e2', color: '#e11d48', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <ShieldAlert size={22} />
-            </div>
+            <ShieldAlert size={28} color="#e11d48" strokeWidth={2.2} style={{ flexShrink: 0 }} />
           </div>
           {statusFilter === 'violations' && (
             <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 3, background: '#e11d48' }}></div>
@@ -476,20 +470,7 @@ export const MyClassPage = () => {
         {/* Card Toolbar */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '14px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <div
-              style={{
-                width: 40,
-                height: 40,
-                borderRadius: '10px',
-                background: '#eef2ff',
-                color: '#27367f',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}
-            >
-              <Users size={20} />
-            </div>
+            <Users size={24} color="#07345f" strokeWidth={2.2} style={{ flexShrink: 0 }} />
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 800, color: '#0f172a' }}>
@@ -497,8 +478,8 @@ export const MyClassPage = () => {
                 </h3>
                 <span
                   style={{
-                    background: '#e0e7ff',
-                    color: '#3730a3',
+                    background: '#f0f4f8',
+                    color: '#07345f',
                     fontSize: '11px',
                     fontWeight: 700,
                     padding: '2px 8px',
@@ -542,7 +523,7 @@ export const MyClassPage = () => {
                   background: '#f8fafc',
                   outline: 'none'
                 }}
-                onFocus={(e) => { e.currentTarget.style.borderColor = '#27367f'; e.currentTarget.style.background = '#ffffff'; }}
+                onFocus={(e) => { e.currentTarget.style.borderColor = '#07345f'; e.currentTarget.style.background = '#ffffff'; }}
                 onBlur={(e) => { e.currentTarget.style.borderColor = '#cbd5e1'; e.currentTarget.style.background = '#f8fafc'; }}
               />
               {searchTerm && (
@@ -572,7 +553,7 @@ export const MyClassPage = () => {
                 onClick={() => setStatusFilter('all')}
                 style={{
                   background: statusFilter === 'all' ? '#ffffff' : 'transparent',
-                  color: statusFilter === 'all' ? '#0f172a' : '#64748b',
+                  color: statusFilter === 'all' ? '#07345f' : '#64748b',
                   border: 'none',
                   padding: '6px 12px',
                   borderRadius: '7px',
@@ -682,7 +663,7 @@ export const MyClassPage = () => {
                     <img
                       src={
                         student.image ||
-                        `https://ui-avatars.com/api/?name=${encodeURIComponent(student.fname + ' ' + student.lname)}&background=27367f&color=fff&size=52`
+                        `https://ui-avatars.com/api/?name=${encodeURIComponent(student.fname + ' ' + student.lname)}&background=07345f&color=fff&size=52`
                       }
                       alt={student.fname}
                       style={{
@@ -759,9 +740,9 @@ export const MyClassPage = () => {
                       type="button"
                       onClick={() => navigate(`/student-violation/${student.id}`)}
                       style={{
-                        background: '#ffffff',
-                        color: '#27367f',
-                        border: '1.5px solid #c7d2fe',
+                        background: '#f0f4f8',
+                        color: '#07345f',
+                        border: '1.5px solid #cbd5e1',
                         padding: '7px 14px',
                         borderRadius: '8px',
                         fontSize: '12.5px',
@@ -772,8 +753,8 @@ export const MyClassPage = () => {
                         gap: '6px',
                         transition: 'all 0.15s'
                       }}
-                      onMouseOver={(e) => { e.currentTarget.style.background = '#eef2ff'; }}
-                      onMouseOut={(e) => { e.currentTarget.style.background = '#ffffff'; }}
+                      onMouseOver={(e) => { e.currentTarget.style.background = '#e2e8f0'; }}
+                      onMouseOut={(e) => { e.currentTarget.style.background = '#f0f4f8'; }}
                     >
                       <Eye size={14} /> View History
                     </button>
@@ -782,7 +763,7 @@ export const MyClassPage = () => {
                       type="button"
                       onClick={() => setSelectedStudentForViolation(student.id)}
                       style={{
-                        background: '#27367f',
+                        background: '#07345f',
                         color: '#ffffff',
                         border: 'none',
                         padding: '7px 16px',
@@ -794,11 +775,11 @@ export const MyClassPage = () => {
                         alignItems: 'center',
                         gap: '6px',
                         whiteSpace: 'nowrap',
-                        boxShadow: '0 2px 8px rgba(39, 54, 127, 0.25)',
+                        boxShadow: '0 2px 8px rgba(7, 52, 95, 0.25)',
                         transition: 'all 0.15s'
                       }}
-                      onMouseOver={(e) => { e.currentTarget.style.background = '#1e2b66'; }}
-                      onMouseOut={(e) => { e.currentTarget.style.background = '#27367f'; }}
+                      onMouseOver={(e) => { e.currentTarget.style.background = '#0b192c'; }}
+                      onMouseOut={(e) => { e.currentTarget.style.background = '#07345f'; }}
                     >
                       <Plus size={14} strokeWidth={2.5} /> Log Violation
                     </button>

@@ -315,9 +315,9 @@ export const StudentsPage = () => {
       return <ArrowUpDown size={13} color="#94a3b8" style={{ marginLeft: 4 }} />;
     }
     return sortOrder === 'asc' ? (
-      <ArrowUp size={13} color="#27367f" style={{ marginLeft: 4 }} />
+      <ArrowUp size={13} color="#07345f" style={{ marginLeft: 4 }} />
     ) : (
-      <ArrowDown size={13} color="#27367f" style={{ marginLeft: 4 }} />
+      <ArrowDown size={13} color="#07345f" style={{ marginLeft: 4 }} />
     );
   };
 
@@ -326,22 +326,7 @@ export const StudentsPage = () => {
       {/* Top Banner & Primary Actions */}
       <div className="page-banner-header">
         <div className="page-banner-info">
-          <div
-            style={{
-              width: 50,
-              height: 50,
-              borderRadius: '14px',
-              background: 'rgba(255, 255, 255, 0.15)',
-              backdropFilter: 'blur(8px)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              border: '1px solid rgba(255, 255, 255, 0.2)',
-              flexShrink: 0
-            }}
-          >
-            <GraduationCap size={26} color="#ffffff" />
-          </div>
+          <GraduationCap size={30} color="#ffffff" strokeWidth={2.2} style={{ flexShrink: 0 }} />
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
               <h2 style={{ fontSize: '22px', fontWeight: 800, margin: 0, color: '#ffffff', letterSpacing: '-0.02em' }}>
@@ -448,7 +433,7 @@ export const StudentsPage = () => {
             background: '#ffffff',
             borderRadius: '14px',
             padding: '18px 20px',
-            border: levelFilter === 'all' && gradeFilter === 'all' && strandFilter === 'all' ? '2px solid #27367f' : '1px solid #e2e8f0',
+            border: levelFilter === 'all' && gradeFilter === 'all' && strandFilter === 'all' ? '2px solid #07345f' : '1px solid #e2e8f0',
             boxShadow: '0 2px 10px rgba(0,0,0,0.03)',
             cursor: 'pointer',
             transition: 'all 0.2s',
@@ -468,12 +453,10 @@ export const StudentsPage = () => {
                 Across all levels & strands
               </div>
             </div>
-            <div style={{ width: 42, height: 42, borderRadius: '10px', background: '#eff6ff', color: '#2563eb', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Users size={22} />
-            </div>
+            <Users size={28} color="#07345f" strokeWidth={1.8} />
           </div>
           {levelFilter === 'all' && gradeFilter === 'all' && strandFilter === 'all' && (
-            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 3, background: '#27367f' }}></div>
+            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 3, background: '#07345f' }}></div>
           )}
         </div>
 
@@ -497,16 +480,14 @@ export const StudentsPage = () => {
               <div style={{ fontSize: '12px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                 Junior High (G7-10)
               </div>
-              <div style={{ fontSize: '26px', fontWeight: 800, color: '#0f172a', marginTop: '4px' }}>
+              <div style={{ fontSize: '26px', fontWeight: 800, color: stats.jhsCount > 0 ? '#059669' : '#0f172a', marginTop: '4px' }}>
                 {stats.jhsCount}
               </div>
               <div style={{ fontSize: '11px', color: '#059669', marginTop: '4px', fontWeight: 600 }}>
                 Basic Education Students
               </div>
             </div>
-            <div style={{ width: 42, height: 42, borderRadius: '10px', background: '#ecfdf5', color: '#059669', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <BookOpen size={22} />
-            </div>
+            <BookOpen size={28} color="#059669" strokeWidth={1.8} />
           </div>
           {levelFilter === 'jhs' && (
             <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 3, background: '#059669' }}></div>
@@ -520,7 +501,7 @@ export const StudentsPage = () => {
             background: '#ffffff',
             borderRadius: '14px',
             padding: '18px 20px',
-            border: levelFilter === 'shs' ? '2px solid #7c3aed' : '1px solid #e2e8f0',
+            border: levelFilter === 'shs' ? '2px solid #07345f' : '1px solid #e2e8f0',
             boxShadow: '0 2px 10px rgba(0,0,0,0.03)',
             cursor: 'pointer',
             transition: 'all 0.2s',
@@ -533,19 +514,17 @@ export const StudentsPage = () => {
               <div style={{ fontSize: '12px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                 Senior High (G11-12)
               </div>
-              <div style={{ fontSize: '26px', fontWeight: 800, color: '#0f172a', marginTop: '4px' }}>
+              <div style={{ fontSize: '26px', fontWeight: 800, color: stats.shsCount > 0 ? '#07345f' : '#0f172a', marginTop: '4px' }}>
                 {stats.shsCount}
               </div>
-              <div style={{ fontSize: '11px', color: '#7c3aed', marginTop: '4px', fontWeight: 600 }}>
+              <div style={{ fontSize: '11px', color: '#07345f', marginTop: '4px', fontWeight: 600 }}>
                 Specialized Strands & Tracks
               </div>
             </div>
-            <div style={{ width: 42, height: 42, borderRadius: '10px', background: '#f5f3ff', color: '#7c3aed', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <GraduationCap size={22} />
-            </div>
+            <GraduationCap size={28} color="#07345f" strokeWidth={1.8} />
           </div>
           {levelFilter === 'shs' && (
-            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 3, background: '#7c3aed' }}></div>
+            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 3, background: '#07345f' }}></div>
           )}
         </div>
 
@@ -571,9 +550,7 @@ export const StudentsPage = () => {
                 STEM, ABM, HUMSS, GAS, JHS
               </div>
             </div>
-            <div style={{ width: 42, height: 42, borderRadius: '10px', background: '#fef3c7', color: '#d97706', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Layers size={22} />
-            </div>
+            <Layers size={28} color="#d97706" strokeWidth={1.8} />
           </div>
         </div>
       </div>
@@ -629,7 +606,7 @@ export const StudentsPage = () => {
                   outline: 'none',
                   transition: 'all 0.2s'
                 }}
-                onFocus={(e) => { e.currentTarget.style.borderColor = '#27367f'; e.currentTarget.style.background = '#ffffff'; }}
+                onFocus={(e) => { e.currentTarget.style.borderColor = '#07345f'; e.currentTarget.style.background = '#ffffff'; }}
                 onBlur={(e) => { e.currentTarget.style.borderColor = '#cbd5e1'; e.currentTarget.style.background = '#f8fafc'; }}
               />
               {searchTerm && (
@@ -743,13 +720,13 @@ export const StudentsPage = () => {
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
               <span style={{ fontSize: '12px', color: '#64748b' }}>Active Filters:</span>
               {levelFilter !== 'all' && (
-                <span style={{ background: '#eef2ff', color: '#27367f', fontSize: '11px', fontWeight: 600, padding: '2px 8px', borderRadius: '6px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <span style={{ background: '#f0f4f8', color: '#07345f', fontSize: '11px', fontWeight: 600, padding: '2px 8px', borderRadius: '6px', display: 'flex', alignItems: 'center', gap: '4px' }}>
                   Level: {levelFilter.toUpperCase()}
                   <X size={12} style={{ cursor: 'pointer' }} onClick={() => setLevelFilter('all')} />
                 </span>
               )}
               {gradeFilter !== 'all' && (
-                <span style={{ background: '#eef2ff', color: '#27367f', fontSize: '11px', fontWeight: 600, padding: '2px 8px', borderRadius: '6px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <span style={{ background: '#f0f4f8', color: '#07345f', fontSize: '11px', fontWeight: 600, padding: '2px 8px', borderRadius: '6px', display: 'flex', alignItems: 'center', gap: '4px' }}>
                   Grade: {gradeFilter}
                   <X size={12} style={{ cursor: 'pointer' }} onClick={() => setGradeFilter('all')} />
                 </span>
@@ -968,7 +945,7 @@ export const StudentsPage = () => {
                           <img
                             src={
                               s.image ||
-                              `https://ui-avatars.com/api/?name=${encodeURIComponent(s.fname + ' ' + s.lname)}&background=27367f&color=fff&size=40`
+                              `https://ui-avatars.com/api/?name=${encodeURIComponent(s.fname + ' ' + s.lname)}&background=07345f&color=fff&size=40`
                             }
                             alt="Student Avatar"
                             style={{
@@ -1051,24 +1028,24 @@ export const StudentsPage = () => {
                             type="button"
                             onClick={() => setStudentForViewModal(s)}
                             style={{
-                              background: '#eff6ff',
-                              border: '1px solid #bfdbfe',
-                              color: '#2563eb',
-                              padding: '6px 10px',
-                              borderRadius: '6px',
+                              background: '#f8fafc',
+                              border: '1px solid #cbd5e1',
+                              color: '#07345f',
+                              padding: '6px 11px',
+                              borderRadius: '7px',
                               fontSize: '12px',
                               fontWeight: 600,
                               cursor: 'pointer',
                               display: 'inline-flex',
                               alignItems: 'center',
                               gap: '4px',
-                              transition: 'background 0.15s'
+                              transition: 'all 0.15s'
                             }}
-                            onMouseOver={(e) => { e.currentTarget.style.background = '#dbeafe'; }}
-                            onMouseOut={(e) => { e.currentTarget.style.background = '#eff6ff'; }}
+                            onMouseOver={(e) => { e.currentTarget.style.background = '#f1f5f9'; }}
+                            onMouseOut={(e) => { e.currentTarget.style.background = '#f8fafc'; }}
                             title="View Student Full Profile"
                           >
-                            <Eye size={13} /> View
+                            <Eye size={13} color="#07345f" strokeWidth={2} /> View
                           </button>
 
                           {/* ID Card */}
@@ -1076,24 +1053,24 @@ export const StudentsPage = () => {
                             type="button"
                             onClick={() => setStudentForIdCard(s)}
                             style={{
-                              background: '#f8fafc',
-                              border: '1px solid #cbd5e1',
-                              color: '#334155',
-                              padding: '6px 10px',
-                              borderRadius: '6px',
+                              background: '#f0fdf4',
+                              border: '1px solid #bbf7d0',
+                              color: '#15803d',
+                              padding: '6px 11px',
+                              borderRadius: '7px',
                               fontSize: '12px',
                               fontWeight: 600,
                               cursor: 'pointer',
                               display: 'inline-flex',
                               alignItems: 'center',
                               gap: '4px',
-                              transition: 'background 0.15s'
+                              transition: 'all 0.15s'
                             }}
-                            onMouseOver={(e) => { e.currentTarget.style.background = '#f1f5f9'; }}
-                            onMouseOut={(e) => { e.currentTarget.style.background = '#f8fafc'; }}
+                            onMouseOver={(e) => { e.currentTarget.style.background = '#dcfce7'; }}
+                            onMouseOut={(e) => { e.currentTarget.style.background = '#f0fdf4'; }}
                             title="Generate Digital Student ID"
                           >
-                            <IdCard size={13} /> ID Card
+                            <IdCard size={13} color="#15803d" strokeWidth={2} /> ID Card
                           </button>
 
                           {/* Edit */}
@@ -1107,22 +1084,22 @@ export const StudentsPage = () => {
                               style={{
                                 background: '#f5f3ff',
                                 border: '1px solid #ddd6fe',
-                                color: '#7c3aed',
-                                padding: '6px 10px',
-                                borderRadius: '6px',
+                                color: '#6b21a8',
+                                padding: '6px 11px',
+                                borderRadius: '7px',
                                 fontSize: '12px',
                                 fontWeight: 600,
                                 cursor: 'pointer',
                                 display: 'inline-flex',
                                 alignItems: 'center',
                                 gap: '4px',
-                                transition: 'background 0.15s'
+                                transition: 'all 0.15s'
                               }}
                               onMouseOver={(e) => { e.currentTarget.style.background = '#ede9fe'; }}
                               onMouseOut={(e) => { e.currentTarget.style.background = '#f5f3ff'; }}
                               title="Edit Student Info"
                             >
-                              <Edit3 size={13} /> Edit
+                              <Edit3 size={13} color="#6b21a8" strokeWidth={2} /> Edit
                             </button>
                           )}
 
@@ -1136,20 +1113,20 @@ export const StudentsPage = () => {
                                 border: '1px solid #fecaca',
                                 color: '#dc2626',
                                 padding: '6px 9px',
-                                borderRadius: '6px',
+                                borderRadius: '7px',
                                 fontSize: '12px',
                                 fontWeight: 600,
                                 cursor: 'pointer',
                                 display: 'inline-flex',
                                 alignItems: 'center',
                                 gap: '4px',
-                                transition: 'background 0.15s'
+                                transition: 'all 0.15s'
                               }}
                               onMouseOver={(e) => { e.currentTarget.style.background = '#fef2f2'; }}
                               onMouseOut={(e) => { e.currentTarget.style.background = '#ffffff'; }}
                               title="Delete Student"
                             >
-                              <Trash2 size={13} />
+                              <Trash2 size={13} color="#dc2626" strokeWidth={2} />
                             </button>
                           )}
                         </div>
@@ -1187,8 +1164,8 @@ export const StudentsPage = () => {
                 <div
                   key={s.id}
                   style={{
-                    background: isChecked ? '#f8faff' : '#ffffff',
-                    border: isChecked ? '1.5px solid #27367f' : '1px solid #e2e8f0',
+                    background: isChecked ? '#f0f4f8' : '#ffffff',
+                    border: isChecked ? '1.5px solid #07345f' : '1px solid #e2e8f0',
                     borderRadius: '14px',
                     padding: '14px 16px',
                     display: 'flex',
@@ -1204,12 +1181,12 @@ export const StudentsPage = () => {
                         type="checkbox"
                         checked={isChecked}
                         onChange={() => toggleSelect(s.id)}
-                        style={{ cursor: 'pointer', width: '16px', height: '16px', accentColor: '#27367f', flexShrink: 0 }}
+                        style={{ cursor: 'pointer', width: '16px', height: '16px', accentColor: '#07345f', flexShrink: 0 }}
                       />
                       <img
                         src={
                           s.image ||
-                          `https://ui-avatars.com/api/?name=${encodeURIComponent(s.fname + ' ' + s.lname)}&background=27367f&color=fff&size=38`
+                          `https://ui-avatars.com/api/?name=${encodeURIComponent(s.fname + ' ' + s.lname)}&background=07345f&color=fff&size=38`
                         }
                         alt="Student Avatar"
                         style={{
@@ -1420,7 +1397,7 @@ export const StudentsPage = () => {
                         padding: '6px 12px',
                         border: p === currentPage ? 'none' : '1px solid #cbd5e1',
                         borderRadius: '6px',
-                        background: p === currentPage ? '#27367f' : '#ffffff',
+                        background: p === currentPage ? '#07345f' : '#ffffff',
                         color: p === currentPage ? '#ffffff' : '#334155',
                         fontWeight: p === currentPage ? 700 : 500,
                         fontSize: '12px',
