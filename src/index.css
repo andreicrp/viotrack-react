@@ -404,18 +404,20 @@ textarea {
 /* ==========================================================================
    Modern Toast Notifications (PC & Mobile Optimized)
    ========================================================================== */
+/* ==========================================================================
+   High-Definition VioTrack Toast Notification System
+   ========================================================================== */
 .toast-container {
   position: fixed;
   bottom: 24px;
   right: 24px;
-  top: auto;
   display: flex;
   flex-direction: column-reverse;
   gap: 10px;
-  z-index: 99999;
+  z-index: 100000;
   pointer-events: none;
-  max-width: 420px;
-  width: 100%;
+  max-width: 440px;
+  width: calc(100% - 48px);
 }
 
 .custom-toast {
@@ -424,16 +426,24 @@ textarea {
   display: flex;
   align-items: flex-start;
   gap: 12px;
-  background: rgba(255, 255, 255, 0.96);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border: 1.5px solid #e2e8f0;
-  border-radius: 14px;
-  padding: 12px 14px 14px 14px;
-  box-shadow: 0 16px 36px -4px rgba(15, 23, 42, 0.14), 0 4px 12px -2px rgba(0, 0, 0, 0.06);
+  border-radius: 16px;
+  padding: 14px 16px 16px 16px;
+  box-shadow: 0 20px 45px -10px rgba(7, 52, 95, 0.18), 0 4px 14px -2px rgba(0, 0, 0, 0.05);
   overflow: hidden;
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.22s ease, box-shadow 0.2s ease;
   box-sizing: border-box;
+  touch-action: pan-y;
+  cursor: grab;
+}
+
+.custom-toast.is-dragging {
+  cursor: grabbing !important;
+  user-select: none !important;
+  box-shadow: 0 25px 50px -10px rgba(7, 52, 95, 0.28) !important;
 }
 
 .custom-toast.is-entering {
@@ -447,7 +457,7 @@ textarea {
 @keyframes toastSlideInRight {
   0% {
     opacity: 0;
-    transform: translateX(40px) scale(0.95);
+    transform: translateX(45px) scale(0.94);
   }
   100% {
     opacity: 1;
@@ -459,12 +469,12 @@ textarea {
   0% {
     opacity: 1;
     transform: translateX(0) scale(1);
-    max-height: 120px;
+    max-height: 140px;
     margin-bottom: 0;
   }
   100% {
     opacity: 0;
-    transform: translateX(60px) scale(0.92);
+    transform: translateX(65px) scale(0.92);
     max-height: 0;
     padding-top: 0;
     padding-bottom: 0;
@@ -477,20 +487,21 @@ textarea {
   top: 0;
   left: 0;
   right: 0;
-  height: 48px;
+  height: 52px;
   pointer-events: none;
-  opacity: 0.6;
+  opacity: 0.7;
 }
 
 .custom-toast-icon-wrap {
-  width: 34px;
-  height: 34px;
+  width: 36px;
+  height: 36px;
   border-radius: 10px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
   margin-top: 1px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
 .custom-toast-body {
@@ -498,7 +509,7 @@ textarea {
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 3px;
 }
 
 .custom-toast-header-row {
@@ -511,16 +522,39 @@ textarea {
   font-size: 11px;
   font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
   line-height: 1.2;
 }
 
 .custom-toast-message {
-  font-size: 13px;
+  font-size: 13.5px;
   font-weight: 600;
   color: #1e293b;
   line-height: 1.45;
   word-break: break-word;
+}
+
+.custom-toast-action-row {
+  margin-top: 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.custom-toast-action-btn {
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid currentColor;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.custom-toast-action-btn:hover {
+  background: #f8fafc;
+  transform: scale(1.04);
 }
 
 .custom-toast-close {
@@ -528,20 +562,20 @@ textarea {
   border: none;
   color: #94a3b8;
   cursor: pointer;
-  padding: 4px;
-  border-radius: 6px;
+  padding: 6px;
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.15s ease;
   flex-shrink: 0;
   margin-top: -2px;
-  margin-right: -2px;
+  margin-right: -4px;
 }
 
 .custom-toast-close:hover {
   background: #f1f5f9;
-  color: #334155;
+  color: #1e293b;
 }
 
 .custom-toast-progress-track {
@@ -549,7 +583,7 @@ textarea {
   bottom: 0;
   left: 0;
   right: 0;
-  height: 3px;
+  height: 3.5px;
   background: rgba(0, 0, 0, 0.05);
   overflow: hidden;
 }
@@ -560,25 +594,29 @@ textarea {
   border-radius: 0 2px 2px 0;
 }
 
-/* Mobile Responsive Toast Rules */
+/* ==========================================================================
+   Mobile Responsive Toast Notification Styles
+   ========================================================================== */
 @media (max-width: 768px) {
   .toast-container {
-    top: calc(74px + env(safe-area-inset-top, 0px));
-    left: 14px;
-    right: 14px;
-    width: calc(100% - 28px);
+    top: calc(72px + env(safe-area-inset-top, 0px));
+    bottom: auto;
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+    width: min(440px, calc(100vw - 24px));
     max-width: 100%;
     margin: 0 auto;
   }
 
   .custom-toast {
-    padding: 10px 12px 12px 12px;
-    border-radius: 12px;
-    box-shadow: 0 12px 28px -4px rgba(15, 23, 42, 0.2);
+    padding: 12px 14px 14px 14px;
+    border-radius: 14px;
+    box-shadow: 0 16px 36px -4px rgba(7, 52, 95, 0.22);
   }
 
   .custom-toast.is-entering {
-    animation: toastSlideInDown 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    animation: toastSlideInDown 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   }
 
   .custom-toast.is-exiting {
@@ -588,7 +626,7 @@ textarea {
   @keyframes toastSlideInDown {
     0% {
       opacity: 0;
-      transform: translateY(-24px) scale(0.96);
+      transform: translateY(-28px) scale(0.95);
     }
     100% {
       opacity: 1;
@@ -600,11 +638,11 @@ textarea {
     0% {
       opacity: 1;
       transform: translateY(0) scale(1);
-      max-height: 100px;
+      max-height: 120px;
     }
     100% {
       opacity: 0;
-      transform: translateY(-28px) scale(0.94);
+      transform: translateY(-30px) scale(0.92);
       max-height: 0;
       padding-top: 0;
       padding-bottom: 0;
@@ -613,7 +651,12 @@ textarea {
   }
 
   .custom-toast-message {
-    font-size: 12.5px;
+    font-size: 13px;
+  }
+
+  .custom-toast-close {
+    width: 32px;
+    height: 32px;
   }
 }
 
