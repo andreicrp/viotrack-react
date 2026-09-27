@@ -692,8 +692,6 @@ div[id*="reader"] video {
   object-fit: cover !important;
   border-radius: 12px !important;
   display: block !important;
-  transform: scaleX(-1) !important;
-  -webkit-transform: scaleX(-1) !important;
 }
 
 #reader-stream-container canvas {
