@@ -168,7 +168,7 @@ export const ScanQRPage = () => {
         navigate(`/student-violation/${targetId}?scan=true`);
       } else {
         setIsCapturingLocation(false);
-        error('Student could not be found from QR scan.');
+        error('Invalid QR Code');
       }
     }, 900);
   };
@@ -535,6 +535,20 @@ export const ScanQRPage = () => {
       } else if (clean.includes('VIOTRACK-STUDENT:')) {
         clean = clean.split(':')[1] || clean;
         matched = students.find(s => s.lrn.trim() === clean.trim() || s.lrn.includes(clean));
+      } else if (clean.startsWith('{') && clean.endsWith('}')) {
+        try {
+          const parsed = JSON.parse(clean);
+          const lrnCandidate = parsed.lrn || parsed.LRN || parsed.uli || parsed.ULI || parsed.student_id || parsed.id;
+          const nameCandidate = parsed.name || parsed.Name || parsed.student_name;
+          if (lrnCandidate) {
+            matched = students.find(s => s.lrn.trim() === String(lrnCandidate).trim());
+          }
+          if (!matched && nameCandidate) {
+            matched = students.find(s => `${s.fname} ${s.lname}`.toLowerCase().includes(String(nameCandidate).toLowerCase()));
+          }
+        } catch (e) {
+          // not valid json
+        }
       } else {
         matched = students.find(
           s =>
@@ -581,14 +595,14 @@ export const ScanQRPage = () => {
         loadStudentRecords(matched.id);
         success(`Student Identified: ${matched.fname} ${matched.lname} (${matched.lrn})`);
       } else {
-        error(`No student record found matching: "${rawInput}"`);
+        error('Invalid QR Code');
       }
     } catch (err) {
       setIsProcessingScan(false);
       setScanProcessingStep('');
       setScanProcessingSubstep('');
       setScanProgressPercent(0);
-      error('Search error: ' + err.message);
+      error('Invalid QR Code');
     }
   };
 
