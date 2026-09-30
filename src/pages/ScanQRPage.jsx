@@ -268,7 +268,7 @@ export const ScanQRPage = () => {
       try {
         setCameraError(null);
         setIsStartingCamera(true);
-        setCameraStartupStep('Detecting video devices...');
+        setCameraStartupStep('Connecting to video sensor...');
         localScanner = new Html5Qrcode('reader-stream-container', { verbose: false });
         html5QrCodeRef.current = localScanner;
 
@@ -285,51 +285,18 @@ export const ScanQRPage = () => {
           aspectRatio: 1.7777777778
         };
 
-        // Query available cameras to gracefully support all webcams and mobile cameras
-        let devices = [];
-        try {
-          devices = await Html5Qrcode.getCameras();
-          if (devices && devices.length > 0 && isMounted) {
-            setAvailableCameras(devices);
-            setCameraStartupStep('Connecting to video sensor...');
-          }
-        } catch {
-          // getCameras failed or not supported, continue with facingMode constraints
-        }
-
-        if (!isMounted) {
-          setIsStartingCamera(false);
-          await stopScannerInstance(localScanner);
-          return;
-        }
-
-        // Build list of camera targets to try in order of priority
+        // Determine target camera: If user picked a specific camera ID, use it.
+        // Otherwise use facingMode constraint directly (single fast permission request without dummy stream)
         const targetsToTry = [];
-        if (selectedCameraId && devices.some(d => d.id === selectedCameraId)) {
-          const selectedDev = devices.find(d => d.id === selectedCameraId);
-          targetsToTry.push({ target: selectedDev.id, label: selectedDev.label, isPrimary: true });
-        } else if (devices.length > 0) {
-          const preferred = devices.find(d =>
-            cameraFacing === 'environment'
-              ? /back|rear|environment/i.test(d.label)
-              : /front|user|facetime|integrated|webcam/i.test(d.label)
-          ) || devices[0];
-          targetsToTry.push({ target: preferred.id, label: preferred.label, isPrimary: true });
+        if (selectedCameraId) {
+          targetsToTry.push({ target: selectedCameraId, label: 'selected camera' });
         }
-
-        // Add remaining devices as graceful fallbacks (in case selected device is locked by Zoom/Teams/another tab)
-        devices.forEach(d => {
-          if (!targetsToTry.some(t => t.target === d.id)) {
-            targetsToTry.push({ target: d.id, label: d.label, isPrimary: false });
-          }
-        });
-
-        // Add generic facingMode constraints as final fallback
-        targetsToTry.push({ target: { facingMode: cameraFacing }, label: `${cameraFacing} camera`, isPrimary: false });
+        // Primary facingMode target
+        targetsToTry.push({ target: { facingMode: cameraFacing }, label: `${cameraFacing === 'environment' ? 'rear' : 'front'} camera` });
+        // Secondary fallback facingMode target
         targetsToTry.push({
           target: { facingMode: cameraFacing === 'environment' ? 'user' : 'environment' },
-          label: 'secondary camera',
-          isPrimary: false
+          label: 'alternate camera'
         });
 
         let startedSuccessfully = false;
@@ -338,9 +305,8 @@ export const ScanQRPage = () => {
         for (const candidate of targetsToTry) {
           if (!isMounted) break;
 
-          setCameraStartupStep(`Starting ${candidate.label || 'camera feed'}...`);
+          setCameraStartupStep(`Starting ${candidate.label}...`);
 
-          // Attempt with standard config first, then low-overhead config
           const configsToTry = [
             config,
             { fps: 10, qrbox: { width: 200, height: 200 } }
@@ -348,9 +314,8 @@ export const ScanQRPage = () => {
 
           for (const conf of configsToTry) {
             try {
-              // Ensure any previous stream track lock is freed
               stopAllMediaTracks();
-              
+
               await localScanner.start(
                 candidate.target,
                 conf,
@@ -388,17 +353,19 @@ export const ScanQRPage = () => {
                 setCameraError(null);
                 setHasCameraPermission(true);
                 localStorage.setItem('viotrack_qr_camera_allowed', 'true');
-                if (typeof candidate.target === 'string' && candidate.target !== selectedCameraId) {
-                  setSelectedCameraId(candidate.target);
-                  if (!candidate.isPrimary) {
-                    info(`Primary camera was in use. Connected to ${candidate.label || 'alternate camera'}.`);
-                  }
-                }
+
+                // Query available camera devices quietly in background once stream is active
+                Html5Qrcode.getCameras()
+                  .then((devices) => {
+                    if (isMounted && devices && devices.length > 0) {
+                      setAvailableCameras(devices);
+                    }
+                  })
+                  .catch(() => {});
               }
               break;
             } catch (err) {
               lastError = err;
-              // Clean up scanner state before trying next target
               try {
                 if (localScanner.isScanning) {
                   await localScanner.stop().catch(() => {});
@@ -413,11 +380,17 @@ export const ScanQRPage = () => {
         if (!startedSuccessfully && isMounted) {
           console.warn('All camera targets failed:', lastError);
           setIsStartingCamera(false);
-          setCameraError(
-            lastError?.message?.includes('Permission') || lastError?.name === 'NotAllowedError'
-              ? 'Camera permission was denied. Please allow camera permissions in your browser address bar.'
-              : 'Camera is currently unavailable or in use by another application. You can retry, switch cameras below, or upload a QR image.'
-          );
+          const isPermDenied = lastError?.name === 'NotAllowedError' ||
+            lastError?.name === 'PermissionDeniedError' ||
+            lastError?.message?.includes('Permission');
+
+          if (isPermDenied) {
+            setCameraError('Camera permission was denied. Please allow camera permissions in your browser address bar.');
+            setHasCameraPermission(false);
+            localStorage.removeItem('viotrack_qr_camera_allowed');
+          } else {
+            setCameraError('Camera is currently unavailable or in use by another application. You can retry, switch cameras below, or upload a QR image.');
+          }
           setIsScannerRunning(false);
           stopAllMediaTracks();
         } else if (!isMounted) {
@@ -428,11 +401,17 @@ export const ScanQRPage = () => {
         console.warn('Camera stream warning:', err);
         if (isMounted) {
           setIsStartingCamera(false);
-          setCameraError(
-            err?.message?.includes('Permission') || err?.name === 'NotAllowedError'
-              ? 'Camera permission was denied. Please allow camera permissions in your browser address bar.'
-              : 'Camera is currently unavailable or in use by another application. You can retry, switch cameras below, or upload a QR image.'
-          );
+          const isPermDenied = err?.name === 'NotAllowedError' ||
+            err?.name === 'PermissionDeniedError' ||
+            err?.message?.includes('Permission');
+
+          if (isPermDenied) {
+            setCameraError('Camera permission was denied. Please allow camera permissions in your browser address bar.');
+            setHasCameraPermission(false);
+            localStorage.removeItem('viotrack_qr_camera_allowed');
+          } else {
+            setCameraError('Camera is currently unavailable or in use by another application. You can retry, switch cameras below, or upload a QR image.');
+          }
           setIsScannerRunning(false);
         }
         stopAllMediaTracks();
@@ -483,6 +462,8 @@ export const ScanQRPage = () => {
       console.warn('Camera permission request failed:', err);
       if (err?.name === 'NotAllowedError' || err?.message?.includes('Permission') || err?.name === 'PermissionDeniedError') {
         setCameraError('Camera permission was denied. Please allow camera permissions in your browser address bar.');
+        setHasCameraPermission(false);
+        localStorage.removeItem('viotrack_qr_camera_allowed');
       } else {
         localStorage.setItem('viotrack_qr_camera_allowed', 'true');
         setHasCameraPermission(true);
@@ -511,15 +492,18 @@ export const ScanQRPage = () => {
     }
     const nextFacing = cameraFacing === 'environment' ? 'user' : 'environment';
     setCameraFacing(nextFacing);
+    setSelectedCameraId(null);
+    setRetryCount(prev => prev + 1);
+  };
 
-    if (availableCameras.length > 0) {
-      const match = availableCameras.find(d =>
-        nextFacing === 'environment'
-          ? /back|rear|environment/i.test(d.label)
-          : /front|user|facetime|integrated|webcam/i.test(d.label)
-      ) || (nextFacing === 'user' ? availableCameras[0] : availableCameras[availableCameras.length - 1]);
-      if (match) setSelectedCameraId(match.id);
+  // Switch specific camera device from dropdown
+  const handleSelectCamera = async (camId) => {
+    if (html5QrCodeRef.current) {
+      await stopScannerInstance(html5QrCodeRef.current);
+      html5QrCodeRef.current = null;
     }
+    setSelectedCameraId(camId);
+    setIsCameraDropdownOpen(false);
   };
 
   // Close custom camera dropdown on outside click
@@ -539,9 +523,24 @@ export const ScanQRPage = () => {
     };
   }, [isCameraDropdownOpen]);
 
-  // Active Camera Label & Front Camera Mirroring Detection
-  const activeCamera = availableCameras.find(c => c.id === selectedCameraId);
-  const activeCameraLabel = activeCamera?.label || (availableCameras[0]?.label || 'Default Camera');
+  // Active Camera Detection
+  const getActiveCamera = () => {
+    if (selectedCameraId) {
+      const found = availableCameras.find(c => c.id === selectedCameraId);
+      if (found) return found;
+    }
+    if (availableCameras.length > 0) {
+      if (cameraFacing === 'environment') {
+        return availableCameras.find(c => /back|rear|environment/i.test(c.label)) || availableCameras[availableCameras.length - 1] || availableCameras[0];
+      } else {
+        return availableCameras.find(c => /front|user|facetime|webcam/i.test(c.label)) || availableCameras[0];
+      }
+    }
+    return null;
+  };
+
+  const activeCamera = getActiveCamera();
+  const activeCameraLabel = activeCamera?.label || (cameraFacing === 'environment' ? 'Rear Camera' : 'Front Camera');
   const isFrontCamera = (() => {
     if (isMirrored !== null) return isMirrored;
     if (cameraFacing === 'user') return true;
@@ -550,7 +549,7 @@ export const ScanQRPage = () => {
       if (/back|rear|environment/i.test(activeCamera.label)) return false;
     }
     // On laptops / PCs with a single camera or default built-in webcam
-    if (availableCameras.length <= 1) return true;
+    if (availableCameras.length === 1 && !/back|rear|environment/i.test(availableCameras[0]?.label || '')) return true;
     return cameraFacing === 'user';
   })();
 
@@ -879,16 +878,13 @@ export const ScanQRPage = () => {
 
                     <div className="custom-camera-options-list">
                       {availableCameras.map((cam, idx) => {
-                        const isSelected = cam.id === (selectedCameraId || availableCameras[0]?.id);
+                        const isSelected = cam.id === (activeCamera?.id || selectedCameraId || availableCameras[0]?.id);
                         return (
                           <button
                             key={cam.id}
                             type="button"
                             className={`custom-camera-menu-option ${isSelected ? 'selected' : ''}`}
-                            onClick={() => {
-                              setSelectedCameraId(cam.id);
-                              setIsCameraDropdownOpen(false);
-                            }}
+                            onClick={() => handleSelectCamera(cam.id)}
                             role="option"
                             aria-selected={isSelected}
                           >
@@ -1046,10 +1042,7 @@ export const ScanQRPage = () => {
                             <button
                               key={cam.id}
                               type="button"
-                              onClick={() => {
-                                setSelectedCameraId(cam.id);
-                                setRetryCount(prev => prev + 1);
-                              }}
+                              onClick={() => handleSelectCamera(cam.id)}
                               className={`camera-fallback-chip ${isCurrent ? 'active' : ''}`}
                               title={`Switch to ${cam.label || 'Camera'}`}
                             >
