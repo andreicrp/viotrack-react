@@ -39,6 +39,7 @@ import { useNotification } from '../context/NotificationContext';
 import { AddViolationModal } from '../components/violations/AddViolationModal';
 import { SchoolCalendarModal } from '../components/common/SchoolCalendarModal';
 import { CustomDatePicker } from '../components/common/CustomDatePicker';
+import { CustomDateRangeModal } from '../components/common/CustomDateRangeModal';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import { exportToCsv } from '../utils/csvHelper';
@@ -48,12 +49,11 @@ export const DashboardPage = () => {
   const { success, info } = useNotification();
   const navigate = useNavigate();
 
-  // Filter States
-  const [filterType, setFilterType] = useState('month'); // 'today' | 'week' | 'month' | 'custom'
-  const [chartFilter, setChartFilter] = useState('month'); // 'month' | 'week' | 'custom'
-  const [startDate, setStartDate] = useState('2026-09-23');
+  // Filter & Date States
+  const [chartFilter, setChartFilter] = useState('month'); // 'today' | 'week' | 'month' | 'custom'
+  const [startDate, setStartDate] = useState('2026-09-01');
   const [endDate, setEndDate] = useState('2026-09-30');
-  const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
+  const [isCustomModalOpen, setIsCustomModalOpen] = useState(false);
 
   // Series visibility toggles
   const [showMinor, setShowMinor] = useState(true);
@@ -109,7 +109,15 @@ export const DashboardPage = () => {
 
   // Trend Chart Data exactly mirroring the smooth curves in the reference image
   const trendData = useMemo(() => {
-    if (chartFilter === 'week') {
+    if (chartFilter === 'today') {
+      return [
+        { time: '07:00 – 09:00', minor: 1.2, serious: 0.0, major: 0.0 },
+        { time: '09:00 – 11:00', minor: 3.8, serious: 1.2, major: 0.2 },
+        { time: '11:00 – 13:00', minor: 6.5, serious: 2.4, major: 0.8 },
+        { time: '13:00 – 15:00', minor: 4.8, serious: 1.5, major: 0.4 },
+        { time: '15:00 – 17:00', minor: 2.1, serious: 0.6, major: 0.0 }
+      ];
+    } else if (chartFilter === 'week') {
       return [
         { time: 'Mon (Sep 22)', minor: 4.2, serious: 1.0, major: 0.2 },
         { time: 'Tue (Sep 23)', minor: 6.8, serious: 2.1, major: 1.0 },
@@ -120,11 +128,11 @@ export const DashboardPage = () => {
       ];
     } else if (chartFilter === 'custom') {
       return [
-        { time: 'Day 1', minor: 3.0, serious: 1.2, major: 0.4 },
-        { time: 'Day 2', minor: 5.5, serious: 2.0, major: 0.8 },
-        { time: 'Day 3', minor: 8.2, serious: 3.1, major: 1.5 },
-        { time: 'Day 4', minor: 6.4, serious: 2.4, major: 1.0 },
-        { time: 'Day 5', minor: 4.1, serious: 1.1, major: 0.3 }
+        { time: `${startDate}`, minor: 3.0, serious: 1.2, major: 0.4 },
+        { time: 'Interval 1', minor: 5.5, serious: 2.0, major: 0.8 },
+        { time: 'Interval 2', minor: 8.2, serious: 3.1, major: 1.5 },
+        { time: 'Interval 3', minor: 6.4, serious: 2.4, major: 1.0 },
+        { time: `${endDate}`, minor: 4.1, serious: 1.1, major: 0.3 }
       ];
     } else {
       // Month view matching the visual chart in the screenshot
@@ -136,7 +144,7 @@ export const DashboardPage = () => {
         { time: 'Sep 29 – 30', minor: 4.5, serious: 1.5, major: 0.6 }
       ];
     }
-  }, [chartFilter]);
+  }, [chartFilter, startDate, endDate]);
 
   // Repeat & High-Risk Students List
   const repeatStudentsList = useMemo(() => {
@@ -194,6 +202,82 @@ export const DashboardPage = () => {
     { grade: 'Grade 12', section: 'HUMSS B', count: 1, pct: '20%', fillPct: 20 }
   ];
 
+  // School Events Dataset
+  const SCHOOL_EVENTS = [
+    {
+      id: 1,
+      title: 'Student Conduct & Values Orientation',
+      date: '2026-09-15',
+      time: '10:00 AM – 12:00 PM',
+      category: 'disciplinary',
+      color: '#ef4444'
+    },
+    {
+      id: 2,
+      title: 'First Quarter Examination Week',
+      date: '2026-09-18',
+      time: '08:00 AM – 04:00 PM',
+      category: 'academic',
+      color: '#07345f'
+    },
+    {
+      id: 3,
+      title: 'Faculty General Assembly',
+      date: '2026-09-24',
+      time: '09:00 AM – 11:00 AM',
+      category: 'faculty',
+      color: '#10b981'
+    },
+    {
+      id: 4,
+      title: 'Parents-Teachers Council Meeting',
+      date: '2026-09-26',
+      time: '02:00 PM – 04:30 PM',
+      category: 'faculty',
+      color: '#10b981'
+    },
+    {
+      id: 5,
+      title: 'Submission of Disciplinary Reports',
+      date: '2026-09-30',
+      time: '01:00 PM – 03:00 PM',
+      category: 'disciplinary',
+      color: '#ef4444'
+    },
+    {
+      id: 6,
+      title: 'Midterm Grade Submission & Review',
+      date: '2026-10-05',
+      time: '08:00 AM – 05:00 PM',
+      category: 'academic',
+      color: '#07345f'
+    },
+    {
+      id: 7,
+      title: 'National Teachers Day Celebration',
+      date: '2026-10-05',
+      time: '01:00 PM – 05:00 PM',
+      category: 'activity',
+      color: '#8b5cf6'
+    },
+    {
+      id: 8,
+      title: 'Student Leaders Disciplinary Workshop',
+      date: '2026-10-14',
+      time: '09:00 AM – 02:00 PM',
+      category: 'disciplinary',
+      color: '#ef4444'
+    },
+    {
+      id: 9,
+      title: 'School Foundation Week Opening',
+      date: '2026-10-22',
+      time: '07:30 AM – 04:30 PM',
+      category: 'activity',
+      color: '#8b5cf6'
+    }
+  ];
+
   // Calendar Day Generation based on calendarMonth
   const calendarDays = useMemo(() => {
     const year = calendarMonth.getFullYear();
@@ -207,18 +291,58 @@ export const DashboardPage = () => {
     }
 
     for (let d = 1; d <= daysInMonth; d++) {
-      const isSep2026 = year === 2026 && month === 8;
-      const isOct2026 = year === 2026 && month === 9;
+      const monthStr = String(month + 1).padStart(2, '0');
+      const dayStr = String(d).padStart(2, '0');
+      const dateStr = `${year}-${monthStr}-${dayStr}`;
+
+      const dayEvents = SCHOOL_EVENTS.filter(e => e.date === dateStr);
+      const hasGreenDot = dayEvents.some(e => e.color === '#10b981' || e.category === 'faculty');
+      const hasRedDot = dayEvents.some(e => e.color === '#ef4444' || e.category === 'disciplinary');
+
       days.push({
         day: d,
         key: `day-${year}-${month}-${d}`,
-        hasGreenDot: (isSep2026 && d === 24) || (isOct2026 && d === 5),
-        hasRedDot: (isSep2026 && d === 30) || (isOct2026 && d === 14)
+        dateStr,
+        hasGreenDot,
+        hasRedDot
       });
     }
 
     return days;
   }, [calendarMonth]);
+
+  // Dynamic Events for Selected Date / Upcoming
+  const displayedCalendarEvents = useMemo(() => {
+    const year = calendarMonth.getFullYear();
+    const month = calendarMonth.getMonth();
+    const monthStr = String(month + 1).padStart(2, '0');
+    const dayStr = String(selectedCalendarDate || 1).padStart(2, '0');
+    const selectedDateStr = `${year}-${monthStr}-${dayStr}`;
+
+    const exactDayEvents = SCHOOL_EVENTS.filter(e => e.date === selectedDateStr);
+    if (exactDayEvents.length > 0) {
+      return {
+        label: `Events on ${calendarMonth.toLocaleDateString('en-US', { month: 'short' })} ${selectedCalendarDate}`,
+        events: exactDayEvents
+      };
+    }
+
+    const upcoming = SCHOOL_EVENTS
+      .filter(e => e.date >= selectedDateStr)
+      .sort((a, b) => a.date.localeCompare(b.date));
+
+    if (upcoming.length > 0) {
+      return {
+        label: `Upcoming from ${calendarMonth.toLocaleDateString('en-US', { month: 'short' })} ${selectedCalendarDate}`,
+        events: upcoming.slice(0, 2)
+      };
+    }
+
+    return {
+      label: 'Upcoming Events',
+      events: SCHOOL_EVENTS.slice(0, 2)
+    };
+  }, [calendarMonth, selectedCalendarDate]);
 
   // Export Executive PDF Report
   const handleExport = () => {
@@ -299,47 +423,6 @@ export const DashboardPage = () => {
 
           {/* Top Right Controls */}
           <div className="dash-top-actions-right">
-            {/* Date Range Selector Pill */}
-            <div style={{ position: 'relative' }}>
-              <button
-                type="button"
-                className="dash-date-btn"
-                onClick={() => setIsDatePickerOpen(!isDatePickerOpen)}
-              >
-                <CalendarIcon size={14} color="#64748b" />
-                <span>Sep 23, 2026 – Sep 30, 2026</span>
-                <ChevronDown size={14} color="#64748b" />
-              </button>
-
-              {isDatePickerOpen && (
-                <div style={{ position: 'absolute', top: '110%', right: 0, zIndex: 100, background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '14px', boxShadow: '0 10px 25px rgba(0,0,0,0.1)', display: 'flex', flexDirection: 'column', gap: '8px', minWidth: '240px' }}>
-                  <span style={{ fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>Filter Range</span>
-                  <CustomDatePicker
-                    value={startDate}
-                    onChange={(v) => setStartDate(v)}
-                    compact
-                    showClear={false}
-                  />
-                  <CustomDatePicker
-                    value={endDate}
-                    onChange={(v) => setEndDate(v)}
-                    compact
-                    showClear={false}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsDatePickerOpen(false);
-                      success(`Filtered: ${startDate} to ${endDate}`);
-                    }}
-                    style={{ background: '#0b192c', color: '#fff', border: 'none', padding: '6px 12px', borderRadius: '6px', fontSize: '12px', fontWeight: 700, cursor: 'pointer', marginTop: '4px' }}
-                  >
-                    Apply Range
-                  </button>
-                </div>
-              )}
-            </div>
-
             {/* Log Violation Primary Button */}
             <button
               type="button"
@@ -350,32 +433,6 @@ export const DashboardPage = () => {
               <PlusCircle size={15} strokeWidth={2.4} />
               <span>Log Violation</span>
             </button>
-          </div>
-        </div>
-
-        {/* Second Row: Filter Tabs & Active Date Badge */}
-        <div className="dash-filters-row">
-          <div className="dash-segmented-pills">
-            {[
-              { id: 'today', label: 'Today' },
-              { id: 'week', label: 'This Week' },
-              { id: 'month', label: 'This Month' },
-              { id: 'custom', label: 'Custom' }
-            ].map(tab => (
-              <button
-                key={tab.id}
-                type="button"
-                className={`dash-segment-btn ${filterType === tab.id ? 'active' : ''}`}
-                onClick={() => setFilterType(tab.id)}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
-
-          <div className="dash-date-scope-badge">
-            <CalendarDays size={13} />
-            <span>Sep 23 – Sep 30, 2026 (This Week)</span>
           </div>
         </div>
       </div>
@@ -526,6 +583,7 @@ export const DashboardPage = () => {
 
             <div className="dash-segmented-pills">
               {[
+                { id: 'today', label: 'Today' },
                 { id: 'month', label: 'This Month' },
                 { id: 'week', label: 'This Week' },
                 { id: 'custom', label: 'Custom' }
@@ -534,7 +592,13 @@ export const DashboardPage = () => {
                   key={tab.id}
                   type="button"
                   className={`dash-segment-btn ${chartFilter === tab.id ? 'active' : ''}`}
-                  onClick={() => setChartFilter(tab.id)}
+                  onClick={() => {
+                    if (tab.id === 'custom') {
+                      setIsCustomModalOpen(true);
+                    } else {
+                      setChartFilter(tab.id);
+                    }
+                  }}
                 >
                   {tab.label}
                 </button>
@@ -667,7 +731,7 @@ export const DashboardPage = () => {
           <div className="dash-offenders-list">
             {repeatStudentsList.map(st => (
               <div key={st.id} className="dash-offender-row">
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0, flex: 1 }}>
+                <div className="dash-offender-left">
                   <span className={`dash-rank-badge rank-${st.rank}`}>
                     #{st.rank}
                   </span>
@@ -679,13 +743,13 @@ export const DashboardPage = () => {
                       e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(st.name)}&background=0b192c&color=fff&size=50`;
                     }}
                   />
-                  <div style={{ minWidth: 0, flex: 1 }}>
+                  <div className="dash-offender-meta">
                     <span className="dash-offender-name">{st.name}</span>
                     <span className="dash-offender-grade">{st.grade}</span>
                   </div>
                 </div>
 
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div className="dash-offender-right">
                   <span className={`dash-infraction-pill ${st.badgeType}`}>
                     {st.infractionLabel}
                   </span>
@@ -746,16 +810,17 @@ export const DashboardPage = () => {
             {sectionBreakdown.map((sec) => (
               <div key={sec.section} className="dash-section-bar-row">
                 <span className="dash-section-tag">{sec.grade}</span>
-                <span className="dash-section-name">{sec.section}</span>
+                <span className="dash-section-name" title={sec.section}>{sec.section}</span>
                 <div className="dash-section-track">
                   <div
                     className="dash-section-fill"
                     style={{ width: `${sec.fillPct}%` }}
                   />
                 </div>
-                <span className="dash-section-count-pct">
-                  {sec.count} ({sec.pct})
-                </span>
+                <div className="dash-section-count-pct">
+                  <span className="dash-sec-count-num">{sec.count}</span>
+                  <span className="dash-sec-count-pct-sub">({sec.pct})</span>
+                </div>
               </div>
             ))}
           </div>
@@ -833,11 +898,8 @@ export const DashboardPage = () => {
                   <div
                     key={c.key}
                     className={`dash-cal-date-cell ${isSelected ? 'selected' : ''}`}
-                    onClick={() => {
-                      setSelectedCalendarDate(c.day);
-                      setIsCalendarModalOpen(true);
-                    }}
-                    title={`View events for Sep ${c.day}`}
+                    onClick={() => setSelectedCalendarDate(c.day)}
+                    title={`Select ${calendarMonth.toLocaleDateString('en-US', { month: 'short' })} ${c.day}`}
                   >
                     <span>{c.day}</span>
                     {c.hasGreenDot && <span className="dash-cal-dot-indicator green" />}
@@ -851,33 +913,37 @@ export const DashboardPage = () => {
             <div className="dash-upcoming-events-wrap">
               <div className="dash-upcoming-header">
                 <span className="dash-upcoming-title">
-                  <CalendarIcon size={12} color="#0f172a" /> Upcoming Events
+                  <CalendarIcon size={12} color="#0f172a" /> {displayedCalendarEvents.label}
                 </span>
                 <span
                   className="dash-link-blue"
                   style={{ fontSize: '11px' }}
                   onClick={() => setIsCalendarModalOpen(true)}
-                  title="View All Scheduled Events"
+                  title="View All Scheduled Events in Full Calendar"
                 >
                   View All →
                 </span>
               </div>
 
-              <div className="dash-upcoming-item">
-                <div className="dash-upcoming-left">
-                  <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#10b981' }} />
-                  <span>Sep 24 | Faculty Meeting</span>
+              {displayedCalendarEvents.events.length === 0 ? (
+                <div style={{ fontSize: '12px', color: '#64748b', padding: '6px 0', textAlign: 'center' }}>
+                  No scheduled events for this date.
                 </div>
-                <span className="dash-upcoming-time">9:00 AM – 11:00 AM</span>
-              </div>
-
-              <div className="dash-upcoming-item">
-                <div className="dash-upcoming-left">
-                  <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#ef4444' }} />
-                  <span>Sep 30 | Submission of Reports</span>
-                </div>
-                <span className="dash-upcoming-time">1:00 PM – 3:00 PM</span>
-              </div>
+              ) : (
+                displayedCalendarEvents.events.map(ev => {
+                  const evDate = new Date(ev.date);
+                  const formattedEvDate = evDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                  return (
+                    <div key={ev.id} className="dash-upcoming-item">
+                      <div className="dash-upcoming-left">
+                        <span style={{ width: 6, height: 6, borderRadius: '50%', background: ev.color || '#10b981', flexShrink: 0 }} />
+                        <span>{formattedEvDate} | {ev.title}</span>
+                      </div>
+                      <span className="dash-upcoming-time">{ev.time}</span>
+                    </div>
+                  );
+                })
+              )}
             </div>
           </div>
 
@@ -945,6 +1011,20 @@ export const DashboardPage = () => {
         onClose={() => setIsCalendarModalOpen(false)}
         initialDate={selectedCalendarDate}
         initialMonth={calendarMonth}
+      />
+
+      {/* Custom Date Range Modal */}
+      <CustomDateRangeModal
+        isOpen={isCustomModalOpen}
+        onClose={() => setIsCustomModalOpen(false)}
+        initialStartDate={startDate}
+        initialEndDate={endDate}
+        onApply={({ startDate: newStart, endDate: newEnd }) => {
+          setStartDate(newStart);
+          setEndDate(newEnd);
+          setChartFilter('custom');
+          success(`Date range applied: ${newStart} to ${newEnd}`);
+        }}
       />
     </div>
   );

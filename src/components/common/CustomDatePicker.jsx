@@ -18,6 +18,7 @@ export const CustomDatePicker = ({
   align = 'auto',
   compact = false,
   showClear = true,
+  showIcon = true,
   className = '',
   style = {}
 }) => {
@@ -155,7 +156,7 @@ export const CustomDatePicker = ({
     <div
       ref={containerRef}
       className={`custom-date-picker-wrapper ${className}`}
-      style={{ position: 'relative', display: 'inline-block', boxSizing: 'border-box', ...style }}
+      style={{ position: 'relative', display: 'block', width: '100%', boxSizing: 'border-box', ...style }}
     >
       {/* Input Trigger */}
       <div
@@ -164,23 +165,25 @@ export const CustomDatePicker = ({
         style={{
           display: 'flex',
           alignItems: 'center',
-          gap: '6px',
-          padding: '6px 10px',
+          gap: '8px',
+          padding: compact ? '7px 10px' : '9px 12px',
           background: disabled ? '#f8fafc' : '#ffffff',
-          border: isOpen ? '1.5px solid #27367f' : '1.5px solid #cbd5e1',
-          borderRadius: '8px',
+          border: isOpen ? '1.5px solid #07345f' : '1.5px solid #cbd5e1',
+          borderRadius: '10px',
           cursor: disabled ? 'not-allowed' : 'pointer',
-          boxShadow: isOpen ? '0 0 0 3px rgba(39, 54, 127, 0.12)' : '0 1px 2px rgba(0,0,0,0.03)',
+          boxShadow: isOpen ? '0 0 0 3px rgba(7, 52, 95, 0.12)' : '0 1px 2px rgba(0,0,0,0.03)',
           transition: 'all 0.15s ease',
           userSelect: 'none',
           boxSizing: 'border-box',
           width: '100%'
         }}
       >
-        <CalendarIcon size={14} color={isOpen ? '#27367f' : '#64748b'} style={{ flexShrink: 0 }} />
+        {showIcon && (
+          <CalendarIcon size={15} color={isOpen ? '#07345f' : '#07345f'} style={{ flexShrink: 0 }} />
+        )}
         <span
           style={{
-            fontSize: '12px',
+            fontSize: compact ? '12px' : '13px',
             fontWeight: value ? 700 : 500,
             color: value ? '#0f172a' : '#94a3b8',
             flex: 1,
@@ -218,7 +221,7 @@ export const CustomDatePicker = ({
             position: 'absolute',
             top: 'calc(100% + 6px)',
             ...(resolvedAlign === 'right' ? { right: 0, left: 'auto' } : { left: 0, right: 'auto' }),
-            zIndex: 1500,
+            zIndex: 5000,
             background: '#ffffff',
             borderRadius: '16px',
             boxShadow: '0 20px 50px -10px rgba(15, 23, 42, 0.25), 0 0 0 1px rgba(226, 232, 240, 0.9)',

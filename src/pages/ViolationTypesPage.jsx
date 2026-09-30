@@ -3,6 +3,7 @@ import { dataService } from '../services/dataService';
 import { useNotification } from '../context/NotificationContext';
 import { Modal } from '../components/common/Modal';
 import CustomSelect from '../components/common/CustomSelect';
+import { ViewModeToggle } from '../components/common/ViewModeToggle';
 import {
   FolderOpen,
   Plus,
@@ -35,6 +36,7 @@ export const ViolationTypesPage = () => {
   const { success, error, info } = useNotification();
   const [violations, setViolations] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [viewMode, setViewMode] = useState('list'); // 'list' | 'grid'
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedIds, setSelectedIds] = useState([]);
   const [selectedSeverityFilter, setSelectedSeverityFilter] = useState('all');
@@ -570,8 +572,8 @@ export const ViolationTypesPage = () => {
           </div>
 
           {/* Controls: Severity Tabs & Sort Menu */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-            <div style={{ display: 'flex', gap: '4px', background: '#f1f5f9', padding: '3px', borderRadius: '8px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', gap: '3px', background: '#f1f5f9', padding: '3px', borderRadius: '8px' }}>
               {[
                 { id: 'all', label: `All (${stats.total})` },
                 { id: 'Major', label: `Major (${stats.major})` },
@@ -590,7 +592,8 @@ export const ViolationTypesPage = () => {
                     padding: '5px 10px',
                     borderRadius: '6px',
                     cursor: 'pointer',
-                    boxShadow: selectedSeverityFilter === tab.id ? '0 1px 3px rgba(0,0,0,0.08)' : 'none'
+                    boxShadow: selectedSeverityFilter === tab.id ? '0 1px 3px rgba(0,0,0,0.08)' : 'none',
+                    transition: 'all 0.15s ease'
                   }}
                 >
                   {tab.label}
@@ -598,19 +601,26 @@ export const ViolationTypesPage = () => {
               ))}
             </div>
 
-            <CustomSelect
-              value={entriesPerPage}
-              onChange={(e) => {
-                setEntriesPerPage(Number(e.target.value));
-                setCurrentPage(1);
-              }}
-              options={[
-                { value: 10, label: '10 per page' },
-                { value: 25, label: '25 per page' },
-                { value: 50, label: '50 per page' },
-              ]}
-              size="sm"
-            />
+            <div style={{ width: '135px', minWidth: '135px' }}>
+              <CustomSelect
+                value={entriesPerPage}
+                onChange={(e) => {
+                  setEntriesPerPage(Number(e.target.value));
+                  setCurrentPage(1);
+                }}
+                options={[
+                  { value: 10, label: '10 per page' },
+                  { value: 25, label: '25 per page' },
+                  { value: 50, label: '50 per page' },
+                ]}
+                size="sm"
+              />
+            </div>
+
+            {/* List / Grid View Toggle */}
+            <div style={{ display: 'inline-flex', alignItems: 'center' }}>
+              <ViewModeToggle viewMode={viewMode} onChange={setViewMode} />
+            </div>
           </div>
         </div>
 
@@ -676,7 +686,7 @@ export const ViolationTypesPage = () => {
         )}
 
         {/* 4. Enhanced Violations Table with Sortable Columns (Desktop View) */}
-        <div className="responsive-table-desktop table-container" style={{ marginTop: '16px', border: '1px solid #e2e8f0', borderRadius: '12px', overflow: 'hidden' }}>
+        <div className={`responsive-table-desktop table-container ${viewMode === 'grid' ? 'force-hidden' : ''}`} style={{ marginTop: '16px', border: '1px solid #e2e8f0', borderRadius: '12px', overflow: 'hidden' }}>
           <table className="violation-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
               <tr style={{ background: '#f8fafc', borderBottom: '1.5px solid #e2e8f0' }}>
@@ -909,12 +919,104 @@ export const ViolationTypesPage = () => {
         </div>
 
         {/* Violations Cards (Mobile View) */}
-        <div className="responsive-cards-mobile" style={{ marginTop: '16px' }}>
+        <div className={`responsive-cards-mobile ${viewMode === 'grid' ? 'grid-view' : 'list-view'}`} style={{ marginTop: '16px' }}>
           {paginated.length === 0 ? (
-            <div style={{ padding: '30px 16px', textAlign: 'center' }}>
+            <div style={{ padding: '30px 16px', textAlign: 'center', gridColumn: '1 / -1' }}>
               <AlertCircle size={28} color="#cbd5e1" style={{ margin: '0 auto 8px auto', display: 'block' }} />
               <div style={{ fontSize: '13.5px', color: '#64748b' }}>No offenses found.</div>
             </div>
+          ) : viewMode === 'grid' ? (
+            paginated.map((v) => {
+              const isChecked = selectedIds.includes(v.id);
+              const isMajor = v.type === 'Major';
+              const isSerious = v.type === 'Serious';
+
+              return (
+                <div
+                  key={v.id}
+                  className={`entity-grid-card ${isChecked ? 'is-selected' : ''}`}
+                >
+                  {/* Top Badges Row */}
+                  <div className="entity-grid-top-badges">
+                    <input
+                      type="checkbox"
+                      checked={isChecked}
+                      onChange={() => toggleSelect(v.id)}
+                      style={{ width: 15, height: 15, cursor: 'pointer', accentColor: '#07345f' }}
+                    />
+                    <span
+                      style={{
+                        padding: '2px 7px',
+                        borderRadius: '8px',
+                        fontSize: '10px',
+                        fontWeight: 700,
+                        background: isMajor ? '#fee2e2' : isSerious ? '#fef3c7' : '#dcfce7',
+                        color: isMajor ? '#dc2626' : isSerious ? '#d97706' : '#15803d'
+                      }}
+                    >
+                      {v.type || 'Minor'}
+                    </span>
+                  </div>
+
+                  {/* Icon */}
+                  <div
+                    style={{
+                      width: 44,
+                      height: 44,
+                      borderRadius: '12px',
+                      background: isMajor ? '#fee2e2' : isSerious ? '#fef3c7' : '#eff6ff',
+                      color: isMajor ? '#dc2626' : isSerious ? '#d97706' : '#07345f',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      margin: '2px auto'
+                    }}
+                  >
+                    {isMajor ? (
+                      <ShieldAlert size={22} strokeWidth={2.2} />
+                    ) : isSerious ? (
+                      <AlertTriangle size={22} strokeWidth={2.2} />
+                    ) : (
+                      <ShieldCheck size={22} strokeWidth={2.2} />
+                    )}
+                  </div>
+
+                  <div className="entity-grid-name" title={v.title}>
+                    {v.title}
+                  </div>
+
+                  <div className="entity-grid-meta">
+                    <div style={{ fontWeight: 700, color: '#07345f', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {v.default_sanction || '1st Warning'}
+                    </div>
+                    <div style={{ color: '#64748b', fontSize: '9px', marginTop: '1px', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                      {v.description || 'Handbook policy infraction.'}
+                    </div>
+                  </div>
+
+                  {/* Actions Row */}
+                  <div className="entity-grid-actions">
+                    <button
+                      type="button"
+                      onClick={() => handleOpenEdit(v)}
+                      className="entity-grid-btn"
+                      title="Edit Violation Type"
+                    >
+                      <Edit3 size={11} strokeWidth={2.4} /> Edit
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteSingle(v.id, v.title)}
+                      className="entity-grid-btn"
+                      title="Delete Violation Type"
+                      style={{ flex: '0 0 28px', color: '#dc2626', borderColor: '#fecaca', background: '#fef2f2' }}
+                    >
+                      <Trash2 size={11} strokeWidth={2.4} />
+                    </button>
+                  </div>
+                </div>
+              );
+            })
           ) : (
             paginated.map((v) => {
               const isChecked = selectedIds.includes(v.id);
@@ -966,7 +1068,7 @@ export const ViolationTypesPage = () => {
                   </p>
 
                   <div style={{ background: '#f8fafc', padding: '8px 10px', borderRadius: '6px', fontSize: '12px', color: '#334155' }}>
-                    ⚖️ Sanction: <strong style={{ color: '#07345f' }}>{v.default_sanction || '1st Warning / Conference'}</strong>
+                    Sanction: <strong style={{ color: '#07345f' }}>{v.default_sanction || '1st Warning / Conference'}</strong>
                   </div>
 
                   <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '6px', paddingTop: '4px', borderTop: '1px dashed #e2e8f0' }}>
@@ -1116,29 +1218,13 @@ export const ViolationTypesPage = () => {
                 background: '#ffffff'
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <div
-                  style={{
-                    width: 40,
-                    height: 40,
-                    borderRadius: '10px',
-                    background: '#e0e7ff',
-                    color: '#4338ca',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                  }}
-                >
-                  <ShieldAlert size={22} />
-                </div>
-                <div>
-                  <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 800, color: '#0f172a', letterSpacing: '-0.3px' }}>
-                    {editingViolation ? 'Edit Violation Offense' : 'Add Violation Offense'}
-                  </h3>
-                  <span style={{ fontSize: '12.5px', color: '#64748b' }}>
-                    Configure handbook policy, severity level & default sanction
-                  </span>
-                </div>
+              <div>
+                <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 800, color: '#0f172a', letterSpacing: '-0.3px' }}>
+                  {editingViolation ? 'Edit Violation Offense' : 'Add Violation Offense'}
+                </h3>
+                <span style={{ fontSize: '12.5px', color: '#64748b' }}>
+                  Configure handbook policy, severity level & default sanction
+                </span>
               </div>
 
               <button

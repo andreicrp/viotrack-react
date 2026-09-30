@@ -4,6 +4,7 @@ import { EditTeacherModal } from '../components/teachers/EditTeacherModal';
 import { AppointAdviserModal } from '../components/teachers/AppointAdviserModal';
 import { BulkImportTeachersModal } from '../components/teachers/BulkImportTeachersModal';
 import { CustomSelect } from '../components/common/CustomSelect';
+import { ViewModeToggle } from '../components/common/ViewModeToggle';
 import { useNotification } from '../context/NotificationContext';
 import { exportToCsv } from '../utils/csvHelper';
 import {
@@ -37,6 +38,7 @@ export const TeachersPage = () => {
   const [teachers, setTeachers] = useState([]);
   const [advisers, setAdvisers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [viewMode, setViewMode] = useState('list'); // 'list' | 'grid'
 
   // Search & Filter
   const [searchTerm, setSearchTerm] = useState('');
@@ -497,19 +499,26 @@ export const TeachersPage = () => {
             )}
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: '130px' }}>
-            <CustomSelect
-              value={entriesPerPage}
-              onChange={(e) => {
-                setEntriesPerPage(Number(e.target.value));
-                setCurrentPage(1);
-              }}
-              options={[
-                { value: 10, label: '10 per page' },
-                { value: 25, label: '25 per page' },
-                { value: 50, label: '50 per page' }
-              ]}
-            />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+            <div style={{ minWidth: '130px' }}>
+              <CustomSelect
+                value={entriesPerPage}
+                onChange={(e) => {
+                  setEntriesPerPage(Number(e.target.value));
+                  setCurrentPage(1);
+                }}
+                options={[
+                  { value: 10, label: '10 per page' },
+                  { value: 25, label: '25 per page' },
+                  { value: 50, label: '50 per page' }
+                ]}
+              />
+            </div>
+
+            {/* List / Grid View Toggle */}
+            <div style={{ display: 'inline-flex', alignItems: 'center' }}>
+              <ViewModeToggle viewMode={viewMode} onChange={setViewMode} />
+            </div>
           </div>
         </div>
 
@@ -574,7 +583,7 @@ export const TeachersPage = () => {
         )}
 
         {/* 4. Table (Desktop View) */}
-        <div className="responsive-table-desktop" style={{ marginTop: '16px', border: '1px solid #e2e8f0', borderRadius: '12px', overflow: 'hidden' }}>
+        <div className={`responsive-table-desktop ${viewMode === 'grid' ? 'force-hidden' : ''}`} style={{ marginTop: '16px', border: '1px solid #e2e8f0', borderRadius: '12px', overflow: 'hidden' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
             <thead>
               <tr style={{ background: '#f8fafc', borderBottom: '1.5px solid #e2e8f0' }}>
@@ -832,15 +841,139 @@ export const TeachersPage = () => {
         </div>
 
         {/* Faculty Cards (Mobile View) */}
-        <div className="responsive-cards-mobile" style={{ marginTop: '16px' }}>
+        <div className={`responsive-cards-mobile ${viewMode === 'grid' ? 'grid-view' : 'list-view'}`} style={{ marginTop: '16px' }}>
           {loading ? (
-            <div style={{ textAlign: 'center', padding: '30px 16px', color: '#94a3b8' }}>
+            <div style={{ textAlign: 'center', padding: '30px 16px', color: '#94a3b8', gridColumn: '1 / -1' }}>
               Loading faculty directory...
             </div>
           ) : filteredAndSorted.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '30px 16px', color: '#94a3b8' }}>
+            <div style={{ textAlign: 'center', padding: '30px 16px', color: '#94a3b8', gridColumn: '1 / -1' }}>
               No faculty teachers found matching your filter criteria.
             </div>
+          ) : viewMode === 'grid' ? (
+            paginatedTeachers.map((teacher) => {
+              const isChecked = selectedIds.includes(teacher.id);
+              const fullName = `${teacher.fname} ${teacher.lname}`.trim();
+              const initials = `${(teacher.fname || 'T')[0]}${(teacher.lname || 'C')[0]}`;
+              const adv = advisers.find(a => a.teacher_id === teacher.id);
+
+              return (
+                <div
+                  key={teacher.id}
+                  className={`entity-grid-card ${isChecked ? 'is-selected' : ''}`}
+                >
+                  {/* Top Badges Row */}
+                  <div className="entity-grid-top-badges">
+                    <input
+                      type="checkbox"
+                      checked={isChecked}
+                      onChange={() => toggleSelect(teacher.id)}
+                      style={{ cursor: 'pointer', width: '15px', height: '15px', accentColor: '#07345f' }}
+                    />
+                    {adv ? (
+                      <span
+                        style={{
+                          padding: '2px 7px',
+                          borderRadius: '8px',
+                          fontSize: '10px',
+                          fontWeight: 700,
+                          background: '#dcfce7',
+                          color: '#15803d',
+                          whiteSpace: 'nowrap'
+                        }}
+                      >
+                        {adv.grade_level}
+                      </span>
+                    ) : (
+                      <span
+                        style={{
+                          padding: '2px 7px',
+                          borderRadius: '8px',
+                          fontSize: '10px',
+                          fontWeight: 600,
+                          background: '#f1f5f9',
+                          color: '#64748b',
+                          whiteSpace: 'nowrap'
+                        }}
+                      >
+                        Subject
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Center Avatar & Info */}
+                  {teacher.image ? (
+                    <img
+                      src={teacher.image}
+                      alt={fullName}
+                      className="entity-grid-avatar"
+                    />
+                  ) : (
+                    <div
+                      className="entity-grid-avatar"
+                      style={{
+                        background: adv ? 'linear-gradient(135deg, #10b981 0%, #059669 100%)' : 'linear-gradient(135deg, #07345f 0%, #0b192c 100%)',
+                        color: '#ffffff',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontWeight: 800,
+                        fontSize: '15px'
+                      }}
+                    >
+                      {initials}
+                    </div>
+                  )}
+
+                  <div className="entity-grid-name" title={fullName}>
+                    {fullName}
+                  </div>
+
+                  <div className="entity-grid-meta">
+                    <div style={{ fontWeight: 700, color: '#1e293b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {teacher.position || 'Teacher I'}
+                    </div>
+                    <div style={{ color: '#64748b', fontSize: '9.5px', marginTop: '1px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {teacher.department || 'Faculty Dept'}
+                    </div>
+                  </div>
+
+                  {/* Actions Row */}
+                  <div className="entity-grid-actions">
+                    <button
+                      type="button"
+                      onClick={() => setTeacherForAdviser(teacher)}
+                      className="entity-grid-btn"
+                      title={adv ? 'Adviser Assigned' : 'Appoint as Class Adviser'}
+                      style={{ color: adv ? '#16a34a' : '#07345f', borderColor: adv ? '#bbf7d0' : '#cbd5e1', background: adv ? '#f0fdf4' : '#ffffff' }}
+                    >
+                      <Award size={11} strokeWidth={2.4} /> {adv ? 'Adv' : 'Appoint'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setTeacherToEdit(teacher);
+                        setIsEditModalOpen(true);
+                      }}
+                      className="entity-grid-btn"
+                      title="Edit Teacher Details"
+                      style={{ flex: '0 0 28px' }}
+                    >
+                      <Edit3 size={11} strokeWidth={2.4} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleRemoveTeacher(teacher.id, fullName)}
+                      className="entity-grid-btn"
+                      title="Delete Teacher Record"
+                      style={{ flex: '0 0 28px', color: '#dc2626', borderColor: '#fecaca', background: '#fef2f2' }}
+                    >
+                      <Trash2 size={11} strokeWidth={2.4} />
+                    </button>
+                  </div>
+                </div>
+              );
+            })
           ) : (
             paginatedTeachers.map((teacher) => {
               const isChecked = selectedIds.includes(teacher.id);

@@ -1217,11 +1217,11 @@ export const StudentViolationDetailPage = () => {
 
                   <div style={{ background: '#f8fafc', padding: '10px 12px', borderRadius: '8px', fontSize: '12px' }}>
                     <div style={{ color: '#64748b' }}>
-                      📅 {new Date(r.date_reported).toLocaleDateString([], { month: 'short', day: '2-digit', year: 'numeric' })} at {new Date(r.date_reported).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      {new Date(r.date_reported).toLocaleDateString([], { month: 'short', day: '2-digit', year: 'numeric' })} at {new Date(r.date_reported).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </div>
                     {r.sanction && (
                       <div style={{ color: '#334155', marginTop: '4px' }}>
-                        ⚖️ Sanction: <strong style={{ color: '#07345f' }}>{r.sanction}</strong>
+                        Sanction: <strong style={{ color: '#07345f' }}>{r.sanction}</strong>
                       </div>
                     )}
                   </div>
@@ -1414,18 +1414,13 @@ export const StudentViolationDetailPage = () => {
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #f1f5f9', paddingBottom: '14px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <div style={{ width: 42, height: 42, borderRadius: '12px', background: '#ecfdf5', color: '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <Send size={20} />
-                </div>
-                <div>
-                  <h4 style={{ margin: 0, fontSize: '17px', fontWeight: 800, color: '#0f172a' }}>
-                    Dispatch SMS Guardian Notice
-                  </h4>
-                  <p style={{ margin: '2px 0 0 0', fontSize: '12px', color: '#64748b' }}>
-                    Instant SMS alert transmission to student's parent / guardian
-                  </p>
-                </div>
+              <div>
+                <h4 style={{ margin: 0, fontSize: '17px', fontWeight: 800, color: '#0f172a' }}>
+                  Dispatch SMS Guardian Notice
+                </h4>
+                <p style={{ margin: '2px 0 0 0', fontSize: '12px', color: '#64748b' }}>
+                  Instant SMS alert transmission to student's parent / guardian
+                </p>
               </div>
               <button
                 onClick={() => setIsSmsModalOpen(false)}
@@ -1596,8 +1591,7 @@ export const StudentViolationDetailPage = () => {
             }}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%', borderBottom: '1px solid #f1f5f9', paddingBottom: '12px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <QrCode size={18} color="#07345f" />
+              <div>
                 <h4 style={{ margin: 0, fontSize: '16px', fontWeight: 800, color: '#0f172a' }}>
                   Official Student QR Pass
                 </h4>

@@ -34,12 +34,14 @@ import {
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import { exportToCsv } from '../utils/csvHelper';
+import { ViewModeToggle } from '../components/common/ViewModeToggle';
 
 export const ViolationsPage = () => {
   const { user } = useAuth();
   const { success, error } = useNotification();
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [viewMode, setViewMode] = useState('list'); // 'list' | 'grid'
 
   // Filters & Search
   const [searchTerm, setSearchTerm] = useState('');
@@ -666,13 +668,11 @@ export const ViolationsPage = () => {
             </div>
 
             {/* Sorting & Filter Controls */}
-            <div className="mobile-filter-grid" style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center' }}>
+            <div className="mobile-filter-grid" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
               {/* Sort By Selector */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', minWidth: '180px' }}>
-                <span style={{ fontSize: '12px', fontWeight: 600, color: '#64748b', whiteSpace: 'nowrap' }}>
-                  Sort:
-                </span>
+              <div className="mobile-filter-item" style={{ minWidth: '135px' }}>
                 <CustomSelect
+                  icon={ArrowUpDown}
                   value={`${sortField}-${sortOrder}`}
                   onChange={(e) => {
                     const [f, o] = e.target.value.split('-');
@@ -680,10 +680,10 @@ export const ViolationsPage = () => {
                     setSortOrder(o);
                   }}
                   options={[
-                    { value: 'date-desc', label: 'Date Reported (Newest)' },
-                    { value: 'date-asc', label: 'Date Reported (Oldest)' },
-                    { value: 'name-asc', label: 'Student Name (A → Z)' },
-                    { value: 'severity-desc', label: 'Severity (Major First)' },
+                    { value: 'date-desc', label: 'Date (Newest)' },
+                    { value: 'date-asc', label: 'Date (Oldest)' },
+                    { value: 'name-asc', label: 'Name (A → Z)' },
+                    { value: 'severity-desc', label: 'Severity (Major)' },
                     { value: 'status-asc', label: 'Status' },
                     { value: 'grade-asc', label: 'Grade Level' }
                   ]}
@@ -691,7 +691,7 @@ export const ViolationsPage = () => {
               </div>
 
               {/* Severity Filter */}
-              <div style={{ minWidth: '140px' }}>
+              <div className="mobile-filter-item" style={{ minWidth: '125px' }}>
                 <CustomSelect
                   value={severityFilter}
                   onChange={(e) => {
@@ -708,7 +708,7 @@ export const ViolationsPage = () => {
               </div>
 
               {/* Status Filter */}
-              <div style={{ minWidth: '130px' }}>
+              <div className="mobile-filter-item" style={{ minWidth: '115px' }}>
                 <CustomSelect
                   value={statusFilter}
                   onChange={(e) => {
@@ -726,7 +726,7 @@ export const ViolationsPage = () => {
               </div>
 
               {/* Entries per page */}
-              <div style={{ minWidth: '110px' }}>
+              <div className="mobile-filter-item" style={{ minWidth: '95px' }}>
                 <CustomSelect
                   value={entriesPerPage}
                   onChange={(e) => {
@@ -740,6 +740,11 @@ export const ViolationsPage = () => {
                     { value: 100, label: '100 / page' }
                   ]}
                 />
+              </div>
+
+              {/* List / Grid View Toggle */}
+              <div style={{ display: 'inline-flex', alignItems: 'center' }}>
+                <ViewModeToggle viewMode={viewMode} onChange={setViewMode} />
               </div>
             </div>
           </div>
@@ -807,7 +812,7 @@ export const ViolationsPage = () => {
         </div>
 
         {/* Incidents Table (Desktop View) */}
-        <div className="responsive-table-desktop">
+        <div className={`responsive-table-desktop ${viewMode === 'grid' ? 'force-hidden' : ''}`}>
           <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
             <thead>
               <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
@@ -1167,20 +1172,105 @@ export const ViolationsPage = () => {
         </div>
 
         {/* Incidents Cards (Mobile View) */}
-        <div className="responsive-cards-mobile">
+        <div className={`responsive-cards-mobile ${viewMode === 'grid' ? 'grid-view' : 'list-view'}`}>
           {loading ? (
-            <div style={{ textAlign: 'center', padding: '40px 20px', color: '#64748b' }}>
+            <div style={{ textAlign: 'center', padding: '40px 20px', color: '#64748b', gridColumn: '1 / -1' }}>
               <ShieldAlert size={28} color="#94a3b8" />
               <div style={{ fontSize: '14px', fontWeight: 500, marginTop: '8px' }}>Loading incident registry...</div>
             </div>
           ) : paginatedRecords.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '40px 20px', color: '#64748b' }}>
+            <div style={{ textAlign: 'center', padding: '40px 20px', color: '#64748b', gridColumn: '1 / -1' }}>
               <ShieldCheck size={32} color="#94a3b8" />
               <div style={{ fontSize: '15px', fontWeight: 600, color: '#1e293b', marginTop: '8px' }}>No violation records found</div>
               <div style={{ fontSize: '13px', color: '#64748b', marginTop: '4px' }}>
                 Try adjusting search terms or status filters.
               </div>
             </div>
+          ) : viewMode === 'grid' ? (
+            paginatedRecords.map((rec) => {
+              const isChecked = selectedIds.includes(rec.id);
+              const isResolved = (rec.status || '').toLowerCase() === 'resolved';
+
+              return (
+                <div
+                  key={rec.id}
+                  className={`entity-grid-card ${isChecked ? 'is-selected' : ''}`}
+                >
+                  {/* Top Badges Row */}
+                  <div className="entity-grid-top-badges">
+                    <input
+                      type="checkbox"
+                      checked={isChecked}
+                      onChange={() => toggleSelect(rec.id)}
+                      style={{ cursor: 'pointer', width: '15px', height: '15px', accentColor: '#07345f' }}
+                    />
+                    {renderSeverityBadge(rec.violation?.type)}
+                  </div>
+
+                  {/* Center Avatar & Info */}
+                  <img
+                    src={
+                      rec.student?.image ||
+                      `https://ui-avatars.com/api/?name=${encodeURIComponent(rec.student?.fname || 'Student')}&background=07345f&color=fff&size=48`
+                    }
+                    alt="Student"
+                    className="entity-grid-avatar"
+                  />
+
+                  <div className="entity-grid-name" title={rec.student ? `${rec.student.fname} ${rec.student.lname}` : 'Student'}>
+                    {rec.student ? `${rec.student.fname} ${rec.student.lname}` : 'Enrolled Student'}
+                  </div>
+
+                  <div className="entity-grid-meta">
+                    <div style={{ fontWeight: 700, color: '#1e293b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {rec.violation?.title || 'Violation Incident'}
+                    </div>
+                    <div style={{ color: '#64748b', fontSize: '9.5px', marginTop: '1px' }}>
+                      {rec.student?.grade || 'Grade 10'} • {rec.student?.section || 'Rizal'}
+                    </div>
+                    <div style={{ marginTop: '3px' }}>
+                      {renderStatusBadge(rec.status)}
+                    </div>
+                  </div>
+
+                  {/* Actions Row */}
+                  <div className="entity-grid-actions">
+                    {isAdmin && (
+                      <button
+                        type="button"
+                        onClick={() => setRecordForStatusChange(rec)}
+                        className="entity-grid-btn"
+                        title="Update Status"
+                      >
+                        <Flag size={11} strokeWidth={2.2} /> Status
+                      </button>
+                    )}
+                    {isResolved && (
+                      <button
+                        type="button"
+                        onClick={() => setSelectedRecordForResolution(rec)}
+                        className="entity-grid-btn"
+                        title="View Resolution Proof"
+                        style={{ color: '#15803d', borderColor: '#bbf7d0', background: '#f0fdf4' }}
+                      >
+                        <FileText size={11} strokeWidth={2.2} /> Proof
+                      </button>
+                    )}
+                    {isAdmin && (
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteSingle(rec.id)}
+                        className="entity-grid-btn"
+                        title="Delete Incident Record"
+                        style={{ flex: '0 0 26px', padding: '6px 3px', color: '#dc2626', borderColor: '#fecaca' }}
+                      >
+                        <Trash2 size={11} strokeWidth={2.2} />
+                      </button>
+                    )}
+                  </div>
+                </div>
+              );
+            })
           ) : (
             paginatedRecords.map((rec) => {
               const isChecked = selectedIds.includes(rec.id);
@@ -1244,11 +1334,11 @@ export const ViolationsPage = () => {
                       {rec.violation?.title || 'Violation Incident'}
                     </div>
                     <div style={{ fontSize: '11.5px', color: '#64748b', marginTop: '4px' }}>
-                      📚 <strong style={{ color: '#334155' }}>{rec.student?.grade || 'Grade 10'} - {rec.student?.section || 'Rizal'}</strong> (SY {rec.student?.academicyear || '2025-2026'})
+                      <strong style={{ color: '#334155' }}>{rec.student?.grade || 'Grade 10'} - {rec.student?.section || 'Rizal'}</strong> (SY {rec.student?.academicyear || '2025-2026'})
                     </div>
                     {rec.sanction && (
                       <div style={{ fontSize: '11.5px', color: '#475569', marginTop: '4px' }}>
-                        ⚖️ Sanction: <strong style={{ color: '#07345f' }}>{rec.sanction}</strong>
+                        Sanction: <strong style={{ color: '#07345f' }}>{rec.sanction}</strong>
                       </div>
                     )}
                   </div>

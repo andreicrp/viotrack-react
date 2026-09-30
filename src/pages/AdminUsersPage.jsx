@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { dataService } from '../services/dataService';
 import { CustomSelect } from '../components/common/CustomSelect';
+import { ViewModeToggle } from '../components/common/ViewModeToggle';
 import { BulkImportAdminsModal } from '../components/admin/BulkImportAdminsModal';
 import { useNotification } from '../context/NotificationContext';
 import { exportToCsv } from '../utils/csvHelper';
@@ -33,6 +34,7 @@ import 'jspdf-autotable';
 
 export const AdminUsersPage = () => {
   const { success, error, info } = useNotification();
+  const [viewMode, setViewMode] = useState('list'); // 'list' | 'grid'
   const [adminUsers, setAdminUsers] = useState([
     {
       id: 1,
@@ -525,19 +527,26 @@ export const AdminUsersPage = () => {
             )}
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: '130px' }}>
-            <CustomSelect
-              value={entriesPerPage}
-              onChange={(e) => {
-                setEntriesPerPage(Number(e.target.value));
-                setCurrentPage(1);
-              }}
-              options={[
-                { value: 10, label: '10 per page' },
-                { value: 25, label: '25 per page' },
-                { value: 50, label: '50 per page' }
-              ]}
-            />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+            <div style={{ minWidth: '130px' }}>
+              <CustomSelect
+                value={entriesPerPage}
+                onChange={(e) => {
+                  setEntriesPerPage(Number(e.target.value));
+                  setCurrentPage(1);
+                }}
+                options={[
+                  { value: 10, label: '10 per page' },
+                  { value: 25, label: '25 per page' },
+                  { value: 50, label: '50 per page' }
+                ]}
+              />
+            </div>
+
+            {/* List / Grid View Toggle */}
+            <div style={{ display: 'inline-flex', alignItems: 'center' }}>
+              <ViewModeToggle viewMode={viewMode} onChange={setViewMode} />
+            </div>
           </div>
         </div>
 
@@ -602,7 +611,7 @@ export const AdminUsersPage = () => {
         )}
 
         {/* 4. Table (Desktop View) */}
-        <div className="responsive-table-desktop" style={{ marginTop: '16px', border: '1px solid #e2e8f0', borderRadius: '12px', overflow: 'hidden' }}>
+        <div className={`responsive-table-desktop ${viewMode === 'grid' ? 'force-hidden' : ''}`} style={{ marginTop: '16px', border: '1px solid #e2e8f0', borderRadius: '12px', overflow: 'hidden' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
             <thead>
               <tr style={{ background: '#f8fafc', borderBottom: '1.5px solid #e2e8f0' }}>
@@ -810,15 +819,110 @@ export const AdminUsersPage = () => {
         </div>
 
         {/* Admin Cards (Mobile View) */}
-        <div className="responsive-cards-mobile" style={{ marginTop: '16px' }}>
+        <div className={`responsive-cards-mobile ${viewMode === 'grid' ? 'grid-view' : 'list-view'}`} style={{ marginTop: '16px' }}>
           {loading ? (
-            <div style={{ textAlign: 'center', padding: '30px 16px', color: '#94a3b8' }}>
+            <div style={{ textAlign: 'center', padding: '30px 16px', color: '#94a3b8', gridColumn: '1 / -1' }}>
               Loading administrators...
             </div>
           ) : filteredAndSorted.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '30px 16px', color: '#94a3b8' }}>
+            <div style={{ textAlign: 'center', padding: '30px 16px', color: '#94a3b8', gridColumn: '1 / -1' }}>
               No administrators found matching your filter criteria.
             </div>
+          ) : viewMode === 'grid' ? (
+            paginatedAdmins.map((admin) => {
+              const isChecked = selectedIds.includes(admin.id);
+              const fullName = `${admin.fname} ${admin.mname ? admin.mname + ' ' : ''}${admin.lname}`.trim();
+              const initials = `${(admin.fname || 'A')[0]}${(admin.lname || 'U')[0]}`;
+              const isSuper = admin.role === 'Super Admin' || admin.role === 'System Admin';
+
+              return (
+                <div
+                  key={admin.id}
+                  className={`entity-grid-card ${isChecked ? 'is-selected' : ''}`}
+                >
+                  {/* Top Badges Row */}
+                  <div className="entity-grid-top-badges">
+                    <input
+                      type="checkbox"
+                      checked={isChecked}
+                      onChange={() => toggleSelect(admin.id)}
+                      style={{ cursor: 'pointer', width: '15px', height: '15px', accentColor: '#07345f' }}
+                    />
+                    <span
+                      style={{
+                        padding: '2px 7px',
+                        borderRadius: '8px',
+                        fontSize: '10px',
+                        fontWeight: 700,
+                        background: isSuper ? '#f3e8ff' : '#eff6ff',
+                        color: isSuper ? '#7e22ce' : '#1d4ed8',
+                        whiteSpace: 'nowrap'
+                      }}
+                    >
+                      {admin.role || 'Admin'}
+                    </span>
+                  </div>
+
+                  {/* Center Avatar & Info */}
+                  {admin.image ? (
+                    <img
+                      src={admin.image}
+                      alt={fullName}
+                      className="entity-grid-avatar"
+                    />
+                  ) : (
+                    <div
+                      className="entity-grid-avatar"
+                      style={{
+                        background: isSuper ? 'linear-gradient(135deg, #7c3aed 0%, #581c87 100%)' : 'linear-gradient(135deg, #07345f 0%, #0b192c 100%)',
+                        color: '#ffffff',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        fontWeight: 800,
+                        fontSize: '15px'
+                      }}
+                    >
+                      {initials}
+                    </div>
+                  )}
+
+                  <div className="entity-grid-name" title={fullName}>
+                    {fullName}
+                  </div>
+
+                  <div className="entity-grid-meta">
+                    <div style={{ fontWeight: 700, color: '#1e293b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {admin.position || 'Admin Staff'}
+                    </div>
+                    <div style={{ color: '#64748b', fontSize: '9.5px', marginTop: '1px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {admin.email}
+                    </div>
+                  </div>
+
+                  {/* Actions Row */}
+                  <div className="entity-grid-actions">
+                    <button
+                      type="button"
+                      onClick={() => handleOpenEdit(admin)}
+                      className="entity-grid-btn"
+                      title="Edit Admin Account"
+                    >
+                      <Edit3 size={11} strokeWidth={2.4} /> Edit
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteSingle(admin.id, fullName)}
+                      className="entity-grid-btn"
+                      title="Remove Admin Account"
+                      style={{ flex: '0 0 28px', color: '#dc2626', borderColor: '#fecaca', background: '#fef2f2' }}
+                    >
+                      <Trash2 size={11} strokeWidth={2.4} />
+                    </button>
+                  </div>
+                </div>
+              );
+            })
           ) : (
             paginatedAdmins.map((admin) => {
               const isChecked = selectedIds.includes(admin.id);
@@ -1054,29 +1158,13 @@ export const AdminUsersPage = () => {
                 background: '#ffffff'
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <div
-                  style={{
-                    width: 40,
-                    height: 40,
-                    borderRadius: '10px',
-                    background: '#e0e7ff',
-                    color: '#4338ca',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                  }}
-                >
-                  <Shield size={22} />
-                </div>
-                <div>
-                  <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 800, color: '#0f172a', letterSpacing: '-0.3px' }}>
-                    {editingAdmin ? 'Edit Administrator Details' : 'Add New Administrator'}
-                  </h3>
-                  <span style={{ fontSize: '12.5px', color: '#64748b' }}>
-                    Configure credentials, system privileges & profile information
-                  </span>
-                </div>
+              <div>
+                <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 800, color: '#0f172a', letterSpacing: '-0.3px' }}>
+                  {editingAdmin ? 'Edit Administrator Details' : 'Add New Administrator'}
+                </h3>
+                <span style={{ fontSize: '12.5px', color: '#64748b' }}>
+                  Configure credentials, system privileges & profile information
+                </span>
               </div>
 
               <button

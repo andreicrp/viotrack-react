@@ -147,16 +147,7 @@ export const ProfilePage = () => {
       {/* 1. Hero Profile Banner Card */}
       <div className="profile-hero-card">
         {/* Cover Banner Image with Gradient */}
-        <div className="profile-hero-banner">
-          <span className="profile-banner-badge">
-            Institutional Account
-          </span>
-
-          <div className="profile-banner-status">
-            <span className="profile-status-dot" />
-            Active Session Verified
-          </div>
-        </div>
+        <div className="profile-hero-banner" />
 
         {/* Profile Info Overlay Row */}
         <div className="profile-hero-content">
@@ -711,7 +702,7 @@ export const ProfilePage = () => {
       </form>
 
       {/* Footer copyright */}
-      <div style={{ textAlign: 'center', color: '#94a3b8', fontSize: '12px', marginTop: '6px', paddingBottom: '16px' }}>
+      <div style={{ textAlign: 'center', color: '#94a3b8', fontSize: '12px', marginTop: '6px', paddingBottom: '4px' }}>
         © 2026 VioTrack. All rights reserved.
       </div>
     </div>

@@ -1,8 +1,40 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import {
+  X,
+  User,
+  IdCard,
+  GraduationCap,
+  Mail,
+  Users,
+  Phone,
+  MapPin,
+  FileText,
+  Calendar,
+  Sparkles,
+  ExternalLink,
+  ShieldCheck,
+  CheckCircle2
+} from 'lucide-react';
+import '../../css/student-modal.css';
 
 export const ViewStudentModal = ({ isOpen, onClose, student }) => {
   const navigate = useNavigate();
+
+  // Close on Escape key press
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && isOpen) onClose();
+    };
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+      window.addEventListener('keydown', handleKeyDown);
+    }
+    return () => {
+      document.body.style.overflow = '';
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isOpen, onClose]);
 
   if (!isOpen || !student) return null;
 
@@ -11,127 +43,222 @@ export const ViewStudentModal = ({ isOpen, onClose, student }) => {
     navigate(`/student-violation/${student.id}`);
   };
 
+  const handleTrackLocation = () => {
+    const query = encodeURIComponent(`${student.fname} ${student.lname} school location`);
+    window.open(`https://www.google.com/maps/search/?api=1&query=${query}`, '_blank');
+  };
+
+  const fullName = `${student.fname} ${student.mname ? student.mname + ' ' : ''}${student.lname}`;
+  const avatarUrl = student.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(fullName)}&background=07345f&color=fff&size=200&bold=true`;
+
   return (
-    <div className={`modal-overlay ${isOpen ? 'show' : ''}`} style={{ display: isOpen ? 'flex' : 'none' }}>
-      <div className="student-modal" style={{ background: '#fff', borderRadius: 12, maxWidth: 680, width: '90%', overflow: 'hidden' }}>
-        <div className="modal-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 24px', borderBottom: '1px solid #e5e7eb' }}>
-          <h2 style={{ fontSize: '18px', fontWeight: 700, color: '#1f2937', margin: 0 }}>Student Profile</h2>
+    <div
+      className={`student-modal-overlay ${isOpen ? 'show' : ''}`}
+      onClick={onClose}
+      aria-modal="true"
+      role="dialog"
+    >
+      <div
+        className="student-modal-card"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Modal Header */}
+        <div className="student-modal-header">
+          <div className="student-modal-title-wrap">
+            <div>
+              <h3 className="student-modal-title">Student Profile</h3>
+              <p className="student-modal-subtitle">Official Student Identification Record</p>
+            </div>
+          </div>
           <button
             type="button"
-            className="modal-close"
+            className="student-modal-close-btn"
             onClick={onClose}
-            style={{ background: '#f3f4f6', border: 'none', width: 32, height: 32, borderRadius: 6, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+            aria-label="Close modal"
           >
-            <i className="fas fa-times" style={{ color: '#6b7280' }}></i>
+            <X size={18} />
           </button>
         </div>
 
-        <div className="modal-body" style={{ padding: '24px' }}>
-          <div className="profile-section" style={{ display: 'flex', gap: '32px', flexWrap: 'wrap' }}>
-            {/* Left Image */}
-            <div className="profile-image-container" style={{ flexShrink: 0, textAlign: 'center' }}>
+        {/* Modal Body */}
+        <div className="student-modal-body">
+          {/* Profile Hero Card */}
+          <div className="student-hero-card">
+            <div className="student-avatar-wrapper">
               <img
-                src={student.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(student.fname + ' ' + student.lname)}&background=7c3aed&color=fff&size=180`}
-                alt="Student Profile"
-                className="profile-image"
-                style={{ width: 180, height: 180, borderRadius: 12, objectFit: 'cover', border: '1px solid #e5e7eb' }}
+                src={avatarUrl}
+                alt={fullName}
+                className="student-hero-avatar"
+                onError={(e) => {
+                  e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(fullName)}&background=07345f&color=fff&size=200&bold=true`;
+                }}
               />
-              <span className="profile-image-label" style={{ display: 'block', marginTop: 8, fontSize: '12px', color: '#6b7280' }}>
-                Student Profile Image
+              <span className="student-avatar-badge" title="Active Student">
+                <CheckCircle2 size={13} />
               </span>
             </div>
 
-            {/* Right Details Grid */}
-            <div className="profile-details" style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '14px', minWidth: 260 }}>
-              <div className="detail-row" style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
-                <i className="fas fa-id-card detail-icon" style={{ width: 18, color: '#6b7280', marginTop: 3 }}></i>
-                <div className="detail-content">
-                  <div className="detail-label" style={{ fontSize: '11px', fontWeight: 700, color: '#9ca3af', textTransform: 'uppercase' }}>STUDENT ID</div>
-                  <div className="detail-value" style={{ fontSize: '14px', fontWeight: 700, color: '#1f2937' }}>{student.lrn}</div>
-                </div>
+            <div className="student-hero-meta">
+              <div className="student-hero-name-row">
+                <h2 className="student-hero-name">{fullName}</h2>
               </div>
 
-              <div className="detail-row" style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
-                <i className="fas fa-user detail-icon" style={{ width: 18, color: '#6b7280', marginTop: 3 }}></i>
-                <div className="detail-content">
-                  <div className="detail-label" style={{ fontSize: '11px', fontWeight: 700, color: '#9ca3af', textTransform: 'uppercase' }}>FULL NAME</div>
-                  <div className="detail-value" style={{ fontSize: '14px', fontWeight: 600, color: '#1f2937' }}>
-                    {student.fname} {student.mname ? student.mname + ' ' : ''}{student.lname}
-                  </div>
-                </div>
-              </div>
+              <div className="student-hero-tags">
+                <span className="student-hero-pill grade-pill">
+                  <GraduationCap size={13} />
+                  {student.grade} - {student.section}
+                </span>
 
-              <div className="detail-row" style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
-                <i className="fas fa-graduation-cap detail-icon" style={{ width: 18, color: '#6b7280', marginTop: 3 }}></i>
-                <div className="detail-content">
-                  <div className="detail-label" style={{ fontSize: '11px', fontWeight: 700, color: '#9ca3af', textTransform: 'uppercase' }}>GRADE LEVEL</div>
-                  <div className="detail-value" style={{ fontSize: '14px', color: '#1f2937' }}>
-                    {student.grade} - {student.section} ({student.academicyear || '2025-2026'})
-                  </div>
-                </div>
-              </div>
+                <span className="student-hero-pill lrn-pill">
+                  <IdCard size={13} />
+                  LRN: <strong>{student.lrn}</strong>
+                </span>
 
-              <div className="detail-row" style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
-                <i className="fas fa-envelope detail-icon" style={{ width: 18, color: '#6b7280', marginTop: 3 }}></i>
-                <div className="detail-content">
-                  <div className="detail-label" style={{ fontSize: '11px', fontWeight: 700, color: '#9ca3af', textTransform: 'uppercase' }}>EMAIL</div>
-                  <div className="detail-value email" style={{ fontSize: '14px', color: '#1f2937' }}>{student.email || `${student.fname.toLowerCase()}@gmail.com`}</div>
-                </div>
+                {student.academicyear && (
+                  <span className="student-hero-pill sy-pill">
+                    <Calendar size={12} />
+                    S.Y. {student.academicyear}
+                  </span>
+                )}
               </div>
+            </div>
+          </div>
 
-              <div className="detail-row" style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
-                <i className="fas fa-user-friends detail-icon" style={{ width: 18, color: '#6b7280', marginTop: 3 }}></i>
-                <div className="detail-content">
-                  <div className="detail-label" style={{ fontSize: '11px', fontWeight: 700, color: '#9ca3af', textTransform: 'uppercase' }}>GUARDIAN</div>
-                  <div className="detail-value" style={{ fontSize: '14px', color: '#1f2937' }}>{student.parent_name || 'Guardian Name'}</div>
-                </div>
+          {/* Detailed Info Cards Grid */}
+          <div className="student-details-grid">
+            {/* Student ID */}
+            <div className="student-info-item">
+              <div className="info-icon-box">
+                <IdCard size={16} />
               </div>
-
-              <div className="detail-row" style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
-                <i className="fas fa-phone detail-icon" style={{ width: 18, color: '#6b7280', marginTop: 3 }}></i>
-                <div className="detail-content">
-                  <div className="detail-label" style={{ fontSize: '11px', fontWeight: 700, color: '#9ca3af', textTransform: 'uppercase' }}>GUARDIAN CONTACT</div>
-                  <div className="detail-value" style={{ fontSize: '14px', color: '#1f2937' }}>{student.parent_contact || '09150000000'}</div>
-                </div>
+              <div className="info-text-group">
+                <span className="info-item-label">Student LRN / ID</span>
+                <span className="info-item-value lrn-font">{student.lrn || 'N/A'}</span>
               </div>
+            </div>
 
-              <div className="detail-row" style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
-                <i className="fas fa-venus-mars detail-icon" style={{ width: 18, color: '#6b7280', marginTop: 3 }}></i>
-                <div className="detail-content">
-                  <div className="detail-label" style={{ fontSize: '11px', fontWeight: 700, color: '#9ca3af', textTransform: 'uppercase' }}>GENDER</div>
-                  <div className="detail-value" style={{ fontSize: '14px', color: '#1f2937' }}>{student.gender || 'Male'}</div>
-                </div>
+            {/* Full Name */}
+            <div className="student-info-item">
+              <div className="info-icon-box">
+                <User size={16} />
+              </div>
+              <div className="info-text-group">
+                <span className="info-item-label">Full Name</span>
+                <span className="info-item-value">{fullName}</span>
+              </div>
+            </div>
+
+            {/* Grade & Section */}
+            <div className="student-info-item">
+              <div className="info-icon-box">
+                <GraduationCap size={16} />
+              </div>
+              <div className="info-text-group">
+                <span className="info-item-label">Grade & Section</span>
+                <span className="info-item-value">{student.grade} - {student.section}</span>
+              </div>
+            </div>
+
+            {/* Email */}
+            <div className="student-info-item">
+              <div className="info-icon-box">
+                <Mail size={16} />
+              </div>
+              <div className="info-text-group">
+                <span className="info-item-label">Email Address</span>
+                {student.email ? (
+                  <a href={`mailto:${student.email}`} className="info-item-link">
+                    {student.email}
+                  </a>
+                ) : (
+                  <span className="info-item-value">{`${student.fname.toLowerCase().replace(/\s+/g, '')}@gmail.com`}</span>
+                )}
+              </div>
+            </div>
+
+            {/* Guardian */}
+            <div className="student-info-item">
+              <div className="info-icon-box">
+                <Users size={16} />
+              </div>
+              <div className="info-text-group">
+                <span className="info-item-label">Parent / Guardian</span>
+                <span className="info-item-value">{student.parent_name || 'N/A'}</span>
+              </div>
+            </div>
+
+            {/* Guardian Contact */}
+            <div className="student-info-item">
+              <div className="info-icon-box">
+                <Phone size={16} />
+              </div>
+              <div className="info-text-group">
+                <span className="info-item-label">Guardian Contact</span>
+                {student.parent_contact ? (
+                  <a href={`tel:${student.parent_contact}`} className="info-item-link phone">
+                    {student.parent_contact}
+                  </a>
+                ) : (
+                  <span className="info-item-value">N/A</span>
+                )}
+              </div>
+            </div>
+
+            {/* Gender */}
+            <div className="student-info-item">
+              <div className="info-icon-box">
+                <ShieldCheck size={16} />
+              </div>
+              <div className="info-text-group">
+                <span className="info-item-label">Gender</span>
+                <span className="info-item-value">{student.gender || 'Not specified'}</span>
+              </div>
+            </div>
+
+            {/* Academic Year */}
+            <div className="student-info-item">
+              <div className="info-icon-box">
+                <Calendar size={16} />
+              </div>
+              <div className="info-text-group">
+                <span className="info-item-label">School Year</span>
+                <span className="info-item-value">{student.academicyear || '2025-2026'}</span>
               </div>
             </div>
           </div>
         </div>
 
-        <div className="modal-footer" style={{ display: 'flex', justifyContent: 'flex-start', gap: 10, padding: '16px 24px', background: '#f9fafb', borderTop: '1px solid #e5e7eb' }}>
-          <button
-            type="button"
-            className="modal-btn btn-track-location"
-            onClick={() => alert(`Tracking GPS Location for Student: ${student.fname} ${student.lname}`)}
-            style={{ background: '#3b82f6', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: 8, fontSize: '13px', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}
-          >
-            <i className="fas fa-map-marker-alt"></i> Track Location
-          </button>
+        {/* Modal Actions Footer */}
+        <div className="student-modal-footer">
+          <div className="student-modal-footer-primary">
+            <button
+              type="button"
+              className="student-modal-btn btn-track"
+              onClick={handleTrackLocation}
+              title="Track Student Location on Map"
+            >
+              <MapPin size={15} />
+              <span>Track Location</span>
+            </button>
+
+            <button
+              type="button"
+              className="student-modal-btn btn-profile"
+              onClick={handleProfileAndRecord}
+              title="View Full Profile & Disciplinary Violations"
+            >
+              <FileText size={15} />
+              <span>Profile & Record</span>
+            </button>
+          </div>
 
           <button
             type="button"
-            className="modal-btn btn-profile-record"
-            onClick={handleProfileAndRecord}
-            style={{ background: '#10b981', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: 8, fontSize: '13px', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}
-          >
-            <i className="fas fa-file-alt"></i> Profile & Record
-          </button>
-
-          <button
-            type="button"
-            className="modal-btn btn-close-modal"
+            className="student-modal-btn btn-close"
             onClick={onClose}
-            style={{ background: '#ef4444', color: '#fff', border: 'none', padding: '8px 16px', borderRadius: 8, fontSize: '13px', fontWeight: 600, cursor: 'pointer', marginLeft: 'auto' }}
           >
-            Close
+            <X size={15} />
+            <span>Close</span>
           </button>
         </div>
       </div>

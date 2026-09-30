@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useCallback, useEffect, useRef } from 'react';
-import { CheckCircle2, AlertTriangle, Info, XCircle, X } from 'lucide-react';
+import { Check, X, AlertTriangle, Info } from 'lucide-react';
 
 const NotificationContext = createContext(null);
 
@@ -42,17 +42,24 @@ const ToastItem = ({ toast, onRemove }) => {
     } catch (e) {}
   }, [toast.type]);
 
+  const startProgressPctRef = useRef(100);
+
   const startDismissTimer = useCallback(() => {
     startTimeRef.current = Date.now();
+    const initialRemaining = remainingTimeRef.current;
+    const initialPct = startProgressPctRef.current;
+
     timerRef.current = setTimeout(() => {
       triggerExit();
-    }, remainingTimeRef.current);
+    }, initialRemaining);
 
     const updateProgress = () => {
       const elapsed = Date.now() - startTimeRef.current;
-      const pct = Math.max(0, 100 - (elapsed / remainingTimeRef.current) * 100);
-      setProgress(pct);
-      if (pct > 0 && !isPaused && !isDragging) {
+      const progressFraction = Math.min(1, elapsed / initialRemaining);
+      const currentPct = Math.max(0, initialPct * (1 - progressFraction));
+      setProgress(currentPct);
+
+      if (currentPct > 0 && !isPaused && !isDragging) {
         animFrameRef.current = requestAnimationFrame(updateProgress);
       }
     };
@@ -64,7 +71,9 @@ const ToastItem = ({ toast, onRemove }) => {
     if (timerRef.current) clearTimeout(timerRef.current);
     if (animFrameRef.current) cancelAnimationFrame(animFrameRef.current);
     const elapsed = Date.now() - startTimeRef.current;
-    remainingTimeRef.current = Math.max(500, remainingTimeRef.current - elapsed);
+    remainingTimeRef.current = Math.max(300, remainingTimeRef.current - elapsed);
+    startProgressPctRef.current = Math.max(0, (remainingTimeRef.current / duration) * 100);
+    setProgress(startProgressPctRef.current);
   };
 
   const resumeTimer = () => {
@@ -123,49 +132,44 @@ const ToastItem = ({ toast, onRemove }) => {
 
   const config = {
     success: {
-      icon: CheckCircle2,
-      badge: 'Success',
-      accentColor: '#10b981',
-      bgTint: 'rgba(16, 185, 129, 0.08)',
-      borderColor: 'rgba(16, 185, 129, 0.28)',
-      iconBg: 'rgba(16, 185, 129, 0.12)',
-      progressGradient: 'linear-gradient(90deg, #10b981, #059669)'
+      icon: Check,
+      title: 'Success',
+      color: '#22c55e',
+      accentBg: '#22c55e',
+      progressGradient: 'linear-gradient(90deg, #16a34a 0%, #22c55e 60%, #4ade80 100%)',
+      glowShadow: '0 0 10px rgba(34, 197, 94, 0.5)'
     },
     error: {
-      icon: XCircle,
-      badge: 'Action Failed',
-      accentColor: '#ef4444',
-      bgTint: 'rgba(239, 68, 68, 0.08)',
-      borderColor: 'rgba(239, 68, 68, 0.28)',
-      iconBg: 'rgba(239, 68, 68, 0.12)',
-      progressGradient: 'linear-gradient(90deg, #ef4444, #dc2626)'
+      icon: X,
+      title: 'Error',
+      color: '#ef4444',
+      accentBg: '#ef4444',
+      progressGradient: 'linear-gradient(90deg, #dc2626 0%, #ef4444 60%, #f87171 100%)',
+      glowShadow: '0 0 10px rgba(239, 68, 68, 0.5)'
     },
     warning: {
       icon: AlertTriangle,
-      badge: 'Attention',
-      accentColor: '#f59e0b',
-      bgTint: 'rgba(245, 158, 11, 0.08)',
-      borderColor: 'rgba(245, 158, 11, 0.28)',
-      iconBg: 'rgba(245, 158, 11, 0.12)',
-      progressGradient: 'linear-gradient(90deg, #f59e0b, #d97706)'
+      title: 'Warning',
+      color: '#f59e0b',
+      accentBg: '#f59e0b',
+      progressGradient: 'linear-gradient(90deg, #d97706 0%, #f59e0b 60%, #fbbf24 100%)',
+      glowShadow: '0 0 10px rgba(245, 158, 11, 0.5)'
     },
     info: {
       icon: Info,
-      badge: 'Notification',
-      accentColor: '#07345f',
-      bgTint: 'rgba(7, 52, 95, 0.08)',
-      borderColor: 'rgba(7, 52, 95, 0.25)',
-      iconBg: 'rgba(7, 52, 95, 0.12)',
-      progressGradient: 'linear-gradient(90deg, #07345f, #0b192c)'
+      title: 'Information',
+      color: '#3b82f6',
+      accentBg: '#3b82f6',
+      progressGradient: 'linear-gradient(90deg, #1d4ed8 0%, #3b82f6 60%, #60a5fa 100%)',
+      glowShadow: '0 0 10px rgba(59, 130, 246, 0.5)'
     }
   }[toast.type] || {
     icon: Info,
-    badge: 'Notice',
-    accentColor: '#07345f',
-    bgTint: 'rgba(7, 52, 95, 0.08)',
-    borderColor: 'rgba(7, 52, 95, 0.25)',
-    iconBg: 'rgba(7, 52, 95, 0.12)',
-    progressGradient: 'linear-gradient(90deg, #07345f, #0b192c)'
+    title: 'Notice',
+    color: '#3b82f6',
+    accentBg: '#3b82f6',
+    progressGradient: 'linear-gradient(90deg, #1d4ed8 0%, #3b82f6 60%, #60a5fa 100%)',
+    glowShadow: '0 0 10px rgba(59, 130, 246, 0.5)'
   };
 
   const IconComponent = config.icon;
@@ -180,7 +184,6 @@ const ToastItem = ({ toast, onRemove }) => {
     <div
       className={`custom-toast custom-toast-${toast.type} ${isExiting ? 'is-exiting' : 'is-entering'} ${isDragging ? 'is-dragging' : ''}`}
       style={{
-        borderColor: config.borderColor,
         ...dragStyles
       }}
       onMouseEnter={pauseTimer}
@@ -191,17 +194,18 @@ const ToastItem = ({ toast, onRemove }) => {
       role="alert"
       aria-live="assertive"
     >
-      <div className="custom-toast-glow" style={{ background: config.bgTint }} />
+      {/* Left vertical accent bar */}
+      <div className="custom-toast-left-bar" style={{ background: config.color }} />
 
-      <div className="custom-toast-icon-wrap" style={{ color: config.accentColor }}>
-        <IconComponent size={22} strokeWidth={2.4} />
+      {/* Solid rounded icon box */}
+      <div className="custom-toast-icon-box" style={{ background: config.accentBg }}>
+        <IconComponent size={20} color="#ffffff" strokeWidth={3} />
       </div>
 
+      {/* Text body */}
       <div className="custom-toast-body">
-        <div className="custom-toast-header-row">
-          <span className="custom-toast-badge" style={{ color: config.accentColor }}>
-            {toast.title || config.badge}
-          </span>
+        <div className="custom-toast-title">
+          {toast.title || config.title}
         </div>
         <div className="custom-toast-message">{toast.message}</div>
 
@@ -215,7 +219,7 @@ const ToastItem = ({ toast, onRemove }) => {
                 toast.action.onClick?.();
                 triggerExit();
               }}
-              style={{ color: config.accentColor, borderColor: config.borderColor }}
+              style={{ color: config.color }}
             >
               {toast.action.label}
             </button>
@@ -223,21 +227,24 @@ const ToastItem = ({ toast, onRemove }) => {
         )}
       </div>
 
+      {/* Top-right close button */}
       <button
         type="button"
         className="custom-toast-close"
         onClick={triggerExit}
         aria-label="Close notification"
       >
-        <X size={16} strokeWidth={2.2} />
+        <X size={15} strokeWidth={2.4} />
       </button>
 
+      {/* High-definition meter progress track */}
       <div className="custom-toast-progress-track">
         <div
           className="custom-toast-progress-fill"
           style={{
             width: `${progress}%`,
-            background: config.progressGradient
+            background: config.progressGradient,
+            boxShadow: config.glowShadow
           }}
         />
       </div>

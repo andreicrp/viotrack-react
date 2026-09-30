@@ -36,6 +36,8 @@ import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import { exportToCsv } from '../utils/csvHelper';
 
+import { ViewModeToggle } from '../components/common/ViewModeToggle';
+
 // Helper to detect Strand / Academic Track
 export const getStudentStrand = (student) => {
   if (student.strand) return student.strand;
@@ -63,6 +65,7 @@ export const StudentsPage = () => {
   const { success, error } = useNotification();
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [viewMode, setViewMode] = useState('list'); // 'list' | 'grid'
 
   // Search & Filters
   const [searchTerm, setSearchTerm] = useState('');
@@ -630,13 +633,11 @@ export const StudentsPage = () => {
             </div>
 
             {/* Sorting & Filter Selectors */}
-            <div className="mobile-filter-grid" style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center' }}>
+            <div className="mobile-filter-grid" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
               {/* Sort By Selector */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', minWidth: '180px' }}>
-                <span style={{ fontSize: '12px', fontWeight: 600, color: '#64748b', whiteSpace: 'nowrap' }}>
-                  Sort:
-                </span>
+              <div className="mobile-filter-item" style={{ minWidth: '135px' }}>
                 <CustomSelect
+                  icon={ArrowUpDown}
                   value={`${sortField}-${sortOrder}`}
                   onChange={(e) => {
                     const [f, o] = e.target.value.split('-');
@@ -648,16 +649,16 @@ export const StudentsPage = () => {
                     { value: 'grade-desc', label: 'Grade (12 → 7)' },
                     { value: 'strand-asc', label: 'Strand (A → Z)' },
                     { value: 'strand-desc', label: 'Strand (Z → A)' },
-                    { value: 'name-asc', label: 'Student Name (A → Z)' },
-                    { value: 'name-desc', label: 'Student Name (Z → A)' },
-                    { value: 'lrn-asc', label: 'Student ID (LRN)' },
-                    { value: 'section-asc', label: 'Section Name' }
+                    { value: 'name-asc', label: 'Name (A → Z)' },
+                    { value: 'name-desc', label: 'Name (Z → A)' },
+                    { value: 'lrn-asc', label: 'Student LRN' },
+                    { value: 'section-asc', label: 'Section' }
                   ]}
                 />
               </div>
 
               {/* Grade Filter */}
-              <div style={{ minWidth: '140px' }}>
+              <div className="mobile-filter-item" style={{ minWidth: '120px' }}>
                 <CustomSelect
                   value={gradeFilter}
                   onChange={(e) => {
@@ -677,7 +678,7 @@ export const StudentsPage = () => {
               </div>
 
               {/* Strand Filter */}
-              <div style={{ minWidth: '140px' }}>
+              <div className="mobile-filter-item" style={{ minWidth: '120px' }}>
                 <CustomSelect
                   value={strandFilter}
                   onChange={(e) => {
@@ -697,7 +698,7 @@ export const StudentsPage = () => {
               </div>
 
               {/* Entries per page */}
-              <div style={{ minWidth: '110px' }}>
+              <div className="mobile-filter-item" style={{ minWidth: '95px' }}>
                 <CustomSelect
                   value={entriesPerPage}
                   onChange={(e) => {
@@ -711,6 +712,11 @@ export const StudentsPage = () => {
                     { value: 100, label: '100 / page' }
                   ]}
                 />
+              </div>
+
+              {/* List / Grid View Toggle */}
+              <div style={{ display: 'inline-flex', alignItems: 'center' }}>
+                <ViewModeToggle viewMode={viewMode} onChange={setViewMode} />
               </div>
             </div>
           </div>
@@ -767,7 +773,7 @@ export const StudentsPage = () => {
         </div>
 
         {/* Student Table (Desktop View) */}
-        <div className="responsive-table-desktop">
+        <div className={`responsive-table-desktop ${viewMode === 'grid' ? 'force-hidden' : ''}`}>
           <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
             <thead>
               <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
@@ -1028,24 +1034,25 @@ export const StudentsPage = () => {
                             type="button"
                             onClick={() => setStudentForViewModal(s)}
                             style={{
-                              background: '#f8fafc',
+                              background: '#ffffff',
                               border: '1px solid #cbd5e1',
                               color: '#07345f',
-                              padding: '6px 11px',
-                              borderRadius: '7px',
-                              fontSize: '12px',
-                              fontWeight: 600,
+                              padding: '7px 13px',
+                              borderRadius: '8px',
+                              fontSize: '12.5px',
+                              fontWeight: 700,
                               cursor: 'pointer',
                               display: 'inline-flex',
                               alignItems: 'center',
-                              gap: '4px',
-                              transition: 'all 0.15s'
+                              gap: '6px',
+                              transition: 'all 0.15s',
+                              boxShadow: '0 1px 2px rgba(0,0,0,0.03)'
                             }}
-                            onMouseOver={(e) => { e.currentTarget.style.background = '#f1f5f9'; }}
-                            onMouseOut={(e) => { e.currentTarget.style.background = '#f8fafc'; }}
+                            onMouseOver={(e) => { e.currentTarget.style.background = '#f8fafc'; e.currentTarget.style.borderColor = '#94a3b8'; }}
+                            onMouseOut={(e) => { e.currentTarget.style.background = '#ffffff'; e.currentTarget.style.borderColor = '#cbd5e1'; }}
                             title="View Student Full Profile"
                           >
-                            <Eye size={13} color="#07345f" strokeWidth={2} /> View
+                            <Eye size={14} color="#07345f" strokeWidth={2.2} /> View
                           </button>
 
                           {/* ID Card */}
@@ -1053,24 +1060,25 @@ export const StudentsPage = () => {
                             type="button"
                             onClick={() => setStudentForIdCard(s)}
                             style={{
-                              background: '#f0fdf4',
-                              border: '1px solid #bbf7d0',
-                              color: '#15803d',
-                              padding: '6px 11px',
-                              borderRadius: '7px',
-                              fontSize: '12px',
-                              fontWeight: 600,
+                              background: '#ffffff',
+                              border: '1px solid #cbd5e1',
+                              color: '#334155',
+                              padding: '7px 13px',
+                              borderRadius: '8px',
+                              fontSize: '12.5px',
+                              fontWeight: 700,
                               cursor: 'pointer',
                               display: 'inline-flex',
                               alignItems: 'center',
-                              gap: '4px',
-                              transition: 'all 0.15s'
+                              gap: '6px',
+                              transition: 'all 0.15s',
+                              boxShadow: '0 1px 2px rgba(0,0,0,0.03)'
                             }}
-                            onMouseOver={(e) => { e.currentTarget.style.background = '#dcfce7'; }}
-                            onMouseOut={(e) => { e.currentTarget.style.background = '#f0fdf4'; }}
+                            onMouseOver={(e) => { e.currentTarget.style.background = '#f8fafc'; e.currentTarget.style.borderColor = '#94a3b8'; }}
+                            onMouseOut={(e) => { e.currentTarget.style.background = '#ffffff'; e.currentTarget.style.borderColor = '#cbd5e1'; }}
                             title="Generate Digital Student ID"
                           >
-                            <IdCard size={13} color="#15803d" strokeWidth={2} /> ID Card
+                            <IdCard size={14} color="#475569" strokeWidth={2.2} /> ID Card
                           </button>
 
                           {/* Edit */}
@@ -1082,24 +1090,25 @@ export const StudentsPage = () => {
                                 setIsAddModalOpen(true);
                               }}
                               style={{
-                                background: '#f5f3ff',
-                                border: '1px solid #ddd6fe',
-                                color: '#6b21a8',
-                                padding: '6px 11px',
-                                borderRadius: '7px',
-                                fontSize: '12px',
-                                fontWeight: 600,
+                                background: '#ffffff',
+                                border: '1px solid #cbd5e1',
+                                color: '#334155',
+                                padding: '7px 13px',
+                                borderRadius: '8px',
+                                fontSize: '12.5px',
+                                fontWeight: 700,
                                 cursor: 'pointer',
                                 display: 'inline-flex',
                                 alignItems: 'center',
-                                gap: '4px',
-                                transition: 'all 0.15s'
+                                gap: '6px',
+                                transition: 'all 0.15s',
+                                boxShadow: '0 1px 2px rgba(0,0,0,0.03)'
                               }}
-                              onMouseOver={(e) => { e.currentTarget.style.background = '#ede9fe'; }}
-                              onMouseOut={(e) => { e.currentTarget.style.background = '#f5f3ff'; }}
+                              onMouseOver={(e) => { e.currentTarget.style.background = '#f8fafc'; e.currentTarget.style.borderColor = '#94a3b8'; }}
+                              onMouseOut={(e) => { e.currentTarget.style.background = '#ffffff'; e.currentTarget.style.borderColor = '#cbd5e1'; }}
                               title="Edit Student Info"
                             >
-                              <Edit3 size={13} color="#6b21a8" strokeWidth={2} /> Edit
+                              <Edit3 size={14} color="#475569" strokeWidth={2.2} /> Edit
                             </button>
                           )}
 
@@ -1110,23 +1119,24 @@ export const StudentsPage = () => {
                               onClick={() => handleDeleteSingle(s.id, `${s.fname} ${s.lname}`)}
                               style={{
                                 background: '#ffffff',
-                                border: '1px solid #fecaca',
-                                color: '#dc2626',
-                                padding: '6px 9px',
-                                borderRadius: '7px',
-                                fontSize: '12px',
-                                fontWeight: 600,
+                                border: '1px solid #cbd5e1',
+                                color: '#64748b',
+                                padding: '7px 11px',
+                                borderRadius: '8px',
+                                fontSize: '12.5px',
+                                fontWeight: 700,
                                 cursor: 'pointer',
                                 display: 'inline-flex',
                                 alignItems: 'center',
                                 gap: '4px',
-                                transition: 'all 0.15s'
+                                transition: 'all 0.15s',
+                                boxShadow: '0 1px 2px rgba(0,0,0,0.03)'
                               }}
-                              onMouseOver={(e) => { e.currentTarget.style.background = '#fef2f2'; }}
-                              onMouseOut={(e) => { e.currentTarget.style.background = '#ffffff'; }}
+                              onMouseOver={(e) => { e.currentTarget.style.background = '#fee2e2'; e.currentTarget.style.borderColor = '#fca5a5'; e.currentTarget.style.color = '#ef4444'; }}
+                              onMouseOut={(e) => { e.currentTarget.style.background = '#ffffff'; e.currentTarget.style.borderColor = '#cbd5e1'; e.currentTarget.style.color = '#64748b'; }}
                               title="Delete Student"
                             >
-                              <Trash2 size={13} color="#dc2626" strokeWidth={2} />
+                              <Trash2 size={14} strokeWidth={2.2} />
                             </button>
                           )}
                         </div>
@@ -1140,20 +1150,116 @@ export const StudentsPage = () => {
         </div>
 
         {/* Student Cards (Mobile View) */}
-        <div className="responsive-cards-mobile">
+        <div className={`responsive-cards-mobile ${viewMode === 'grid' ? 'grid-view' : 'list-view'}`}>
           {loading ? (
-            <div style={{ textAlign: 'center', padding: '40px 20px', color: '#64748b' }}>
+            <div style={{ textAlign: 'center', padding: '40px 20px', color: '#64748b', gridColumn: '1 / -1' }}>
               <Users size={28} color="#94a3b8" />
               <div style={{ fontSize: '14px', fontWeight: 500, marginTop: '8px' }}>Loading student directory...</div>
             </div>
           ) : paginatedStudents.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '40px 20px', color: '#64748b' }}>
+            <div style={{ textAlign: 'center', padding: '40px 20px', color: '#64748b', gridColumn: '1 / -1' }}>
               <Users size={32} color="#94a3b8" />
               <div style={{ fontSize: '15px', fontWeight: 600, color: '#1e293b', marginTop: '8px' }}>No students found</div>
               <div style={{ fontSize: '13px', color: '#64748b', marginTop: '4px' }}>
                 No records match your selected grade, strand, or search criteria.
               </div>
             </div>
+          ) : viewMode === 'grid' ? (
+            paginatedStudents.map((s) => {
+              const isChecked = selectedIds.includes(s.id);
+              const strand = getStudentStrand(s);
+              const isSHS = getGradeNumber(s.grade) >= 11;
+
+              return (
+                <div
+                  key={s.id}
+                  className={`entity-grid-card ${isChecked ? 'is-selected' : ''}`}
+                >
+                  {/* Top Badges Row */}
+                  <div className="entity-grid-top-badges">
+                    <input
+                      type="checkbox"
+                      checked={isChecked}
+                      onChange={() => toggleSelect(s.id)}
+                      style={{ cursor: 'pointer', width: '15px', height: '15px', accentColor: '#07345f' }}
+                    />
+                    <span
+                      style={{
+                        background: isSHS ? '#f5f3ff' : '#eff6ff',
+                        color: isSHS ? '#7c3aed' : '#2563eb',
+                        border: `1px solid ${isSHS ? '#ddd6fe' : '#bfdbfe'}`,
+                        padding: '1.5px 7px',
+                        borderRadius: '8px',
+                        fontSize: '10px',
+                        fontWeight: 700
+                      }}
+                    >
+                      {s.grade}
+                    </span>
+                  </div>
+
+                  {/* Center Avatar & Info */}
+                  <img
+                    src={
+                      s.image ||
+                      `https://ui-avatars.com/api/?name=${encodeURIComponent(s.fname + ' ' + s.lname)}&background=07345f&color=fff&size=48`
+                    }
+                    alt="Student"
+                    className="entity-grid-avatar"
+                  />
+
+                  <div className="entity-grid-name" title={`${s.fname} ${s.lname}`}>
+                    {s.fname} {s.lname}
+                  </div>
+
+                  <div className="entity-grid-meta">
+                    <div style={{ fontWeight: 700, color: '#1e293b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {s.section}
+                    </div>
+                    <div style={{ color: isSHS ? '#047857' : '#64748b', fontSize: '9.5px', marginTop: '1px', fontWeight: 600 }}>
+                      {strand}
+                    </div>
+                    <div style={{ fontSize: '9.5px', color: '#94a3b8', marginTop: '2px' }}>
+                      LRN: {s.lrn}
+                    </div>
+                  </div>
+
+                  {/* Actions Row */}
+                  <div className="entity-grid-actions">
+                    <button
+                      type="button"
+                      onClick={() => setStudentForViewModal(s)}
+                      className="entity-grid-btn"
+                      title="View Student Profile"
+                    >
+                      <Eye size={12} strokeWidth={2.4} /> View
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setStudentForIdCard(s)}
+                      className="entity-grid-btn"
+                      title="Generate ID Card"
+                    >
+                      <IdCard size={12} strokeWidth={2.4} /> ID
+                    </button>
+                    {isAdmin && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setStudentToEdit(s);
+                          setIsAddModalOpen(true);
+                        }}
+                        className="entity-grid-btn"
+                        title="Edit Student"
+                        style={{ padding: '6px 4px', flex: '0 0 28px' }}
+                      >
+                        <Edit3 size={12} strokeWidth={2.4} />
+                      </button>
+                    )}
+                  </div>
+                </div>
+              );
+            })
           ) : (
             paginatedStudents.map((s) => {
               const isChecked = selectedIds.includes(s.id);
@@ -1243,45 +1349,47 @@ export const StudentsPage = () => {
                   </div>
 
                   {/* Footer Action Buttons */}
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '6px', paddingTop: '4px', borderTop: '1px dashed #e2e8f0' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '8px', paddingTop: '6px', borderTop: '1px dashed #e2e8f0', flexWrap: 'wrap' }}>
                     <button
                       type="button"
                       onClick={() => setStudentForViewModal(s)}
                       style={{
-                        background: '#eff6ff',
-                        border: '1px solid #bfdbfe',
-                        color: '#2563eb',
-                        padding: '5px 9px',
-                        borderRadius: '6px',
-                        fontSize: '11.5px',
-                        fontWeight: 600,
+                        background: '#ffffff',
+                        border: '1px solid #cbd5e1',
+                        color: '#07345f',
+                        padding: '7px 13px',
+                        borderRadius: '8px',
+                        fontSize: '12.5px',
+                        fontWeight: 700,
                         cursor: 'pointer',
                         display: 'inline-flex',
                         alignItems: 'center',
-                        gap: '4px'
+                        gap: '6px',
+                        boxShadow: '0 1px 2px rgba(0,0,0,0.03)'
                       }}
                     >
-                      <Eye size={12} /> View
+                      <Eye size={14} color="#07345f" strokeWidth={2.2} /> View
                     </button>
 
                     <button
                       type="button"
                       onClick={() => setStudentForIdCard(s)}
                       style={{
-                        background: '#f8fafc',
+                        background: '#ffffff',
                         border: '1px solid #cbd5e1',
                         color: '#334155',
-                        padding: '5px 9px',
-                        borderRadius: '6px',
-                        fontSize: '11.5px',
-                        fontWeight: 600,
+                        padding: '7px 13px',
+                        borderRadius: '8px',
+                        fontSize: '12.5px',
+                        fontWeight: 700,
                         cursor: 'pointer',
                         display: 'inline-flex',
                         alignItems: 'center',
-                        gap: '4px'
+                        gap: '6px',
+                        boxShadow: '0 1px 2px rgba(0,0,0,0.03)'
                       }}
                     >
-                      <IdCard size={12} /> ID Card
+                      <IdCard size={14} color="#475569" strokeWidth={2.2} /> ID Card
                     </button>
 
                     {isAdmin && (
@@ -1292,20 +1400,21 @@ export const StudentsPage = () => {
                           setIsAddModalOpen(true);
                         }}
                         style={{
-                          background: '#f5f3ff',
-                          border: '1px solid #ddd6fe',
-                          color: '#7c3aed',
-                          padding: '5px 9px',
-                          borderRadius: '6px',
-                          fontSize: '11.5px',
-                          fontWeight: 600,
+                          background: '#ffffff',
+                          border: '1px solid #cbd5e1',
+                          color: '#334155',
+                          padding: '7px 13px',
+                          borderRadius: '8px',
+                          fontSize: '12.5px',
+                          fontWeight: 700,
                           cursor: 'pointer',
                           display: 'inline-flex',
                           alignItems: 'center',
-                          gap: '4px'
+                          gap: '6px',
+                          boxShadow: '0 1px 2px rgba(0,0,0,0.03)'
                         }}
                       >
-                        <Edit3 size={12} /> Edit
+                        <Edit3 size={14} color="#475569" strokeWidth={2.2} /> Edit
                       </button>
                     )}
 
@@ -1315,18 +1424,19 @@ export const StudentsPage = () => {
                         onClick={() => handleDeleteSingle(s.id, `${s.fname} ${s.lname}`)}
                         style={{
                           background: '#ffffff',
-                          border: '1px solid #fecaca',
-                          color: '#dc2626',
-                          padding: '5px 8px',
-                          borderRadius: '6px',
-                          fontSize: '11.5px',
-                          fontWeight: 600,
+                          border: '1px solid #cbd5e1',
+                          color: '#64748b',
+                          padding: '7px 11px',
+                          borderRadius: '8px',
+                          fontSize: '12.5px',
+                          fontWeight: 700,
                           cursor: 'pointer',
                           display: 'inline-flex',
-                          alignItems: 'center'
+                          alignItems: 'center',
+                          boxShadow: '0 1px 2px rgba(0,0,0,0.03)'
                         }}
                       >
-                        <Trash2 size={12} />
+                        <Trash2 size={14} strokeWidth={2.2} />
                       </button>
                     )}
                   </div>

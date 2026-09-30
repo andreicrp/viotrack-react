@@ -225,43 +225,19 @@ export const SchoolCalendarModal = ({ isOpen, onClose, initialDate = 23, initial
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title="School Calendar & Institutional Events"
+      title="School Calendar & Events"
       maxWidth="860px"
-      icon={CalendarDays}
     >
-      <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+      <div className="school-cal-modal-wrap">
         {/* Top Control Bar */}
-        <div
-          style={{
-            padding: '14px 20px',
-            background: 'linear-gradient(135deg, #f8fafc 0%, #f0f4f8 100%)',
-            borderBottom: '1px solid #e2e8f0',
-            display: 'flex',
-            flexWrap: 'wrap',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: '12px'
-          }}
-        >
+        <div className="school-cal-top-bar">
           {/* Month & Year Title + Navigation */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+          <div className="school-cal-nav-group">
+            <div className="school-cal-arrows">
               <button
                 type="button"
                 onClick={handlePrevMonth}
-                style={{
-                  width: '32px',
-                  height: '32px',
-                  borderRadius: '8px',
-                  border: '1px solid #cbd5e1',
-                  background: '#ffffff',
-                  color: '#07345f',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  cursor: 'pointer',
-                  transition: 'all 0.15s'
-                }}
+                className="school-cal-arrow-btn"
                 title="Previous Month"
               >
                 <ChevronLeft size={16} strokeWidth={2.5} />
@@ -269,114 +245,47 @@ export const SchoolCalendarModal = ({ isOpen, onClose, initialDate = 23, initial
               <button
                 type="button"
                 onClick={handleNextMonth}
-                style={{
-                  width: '32px',
-                  height: '32px',
-                  borderRadius: '8px',
-                  border: '1px solid #cbd5e1',
-                  background: '#ffffff',
-                  color: '#07345f',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  cursor: 'pointer',
-                  transition: 'all 0.15s'
-                }}
+                className="school-cal-arrow-btn"
                 title="Next Month"
               >
                 <ChevronRight size={16} strokeWidth={2.5} />
               </button>
             </div>
 
-            <span style={{ fontSize: '16px', fontWeight: 800, color: '#07345f', letterSpacing: '-0.01em' }}>
+            <span className="school-cal-month-title">
               {monthNames[month]} {year}
             </span>
 
             <button
               type="button"
               onClick={handleToday}
-              style={{
-                padding: '4px 10px',
-                fontSize: '11.5px',
-                fontWeight: 700,
-                color: '#07345f',
-                background: '#ffffff',
-                border: '1px solid #cbd5e1',
-                borderRadius: '6px',
-                cursor: 'pointer'
-              }}
+              className="school-cal-today-btn"
             >
               Today
             </button>
           </div>
 
           {/* View Mode Switcher */}
-          <div
-            style={{
-              display: 'flex',
-              background: '#ffffff',
-              padding: '3px',
-              borderRadius: '9px',
-              border: '1px solid #e2e8f0',
-              boxShadow: '0 1px 2px rgba(0,0,0,0.04)'
-            }}
-          >
+          <div className="school-cal-view-tabs">
             <button
               type="button"
               onClick={() => setActiveTab('calendar')}
-              style={{
-                padding: '6px 14px',
-                fontSize: '12.5px',
-                fontWeight: activeTab === 'calendar' ? 700 : 500,
-                color: activeTab === 'calendar' ? '#ffffff' : '#64748b',
-                background: activeTab === 'calendar' ? '#07345f' : 'transparent',
-                border: 'none',
-                borderRadius: '7px',
-                cursor: 'pointer',
-                transition: 'all 0.15s ease',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px'
-              }}
+              className={`school-cal-tab-btn ${activeTab === 'calendar' ? 'active' : ''}`}
             >
               <CalendarIcon size={14} /> Full Grid
             </button>
             <button
               type="button"
               onClick={() => setActiveTab('list')}
-              style={{
-                padding: '6px 14px',
-                fontSize: '12.5px',
-                fontWeight: activeTab === 'list' ? 700 : 500,
-                color: activeTab === 'list' ? '#ffffff' : '#64748b',
-                background: activeTab === 'list' ? '#07345f' : 'transparent',
-                border: 'none',
-                borderRadius: '7px',
-                cursor: 'pointer',
-                transition: 'all 0.15s ease',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px'
-              }}
+              className={`school-cal-tab-btn ${activeTab === 'list' ? 'active' : ''}`}
             >
               <Clock size={14} /> Agenda List
             </button>
           </div>
         </div>
 
-        {/* Category Filters Bar */}
-        <div
-          style={{
-            padding: '10px 20px',
-            borderBottom: '1px solid #f1f5f9',
-            background: '#ffffff',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            overflowX: 'auto',
-            scrollbarWidth: 'none'
-          }}
-        >
+        {/* Category Filters Horizontal Scroll Bar */}
+        <div className="school-cal-categories-bar">
           {categories.map(cat => {
             const isSelected = selectedCategory === cat.key;
             return (
@@ -384,21 +293,7 @@ export const SchoolCalendarModal = ({ isOpen, onClose, initialDate = 23, initial
                 key={cat.key}
                 type="button"
                 onClick={() => setSelectedCategory(cat.key)}
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  padding: '5px 12px',
-                  fontSize: '12px',
-                  fontWeight: isSelected ? 700 : 500,
-                  color: isSelected ? '#07345f' : '#64748b',
-                  background: isSelected ? '#f0f4f8' : '#ffffff',
-                  border: isSelected ? '1px solid #07345f' : '1px solid #e2e8f0',
-                  borderRadius: '20px',
-                  cursor: 'pointer',
-                  whiteSpace: 'nowrap',
-                  transition: 'all 0.15s ease'
-                }}
+                className={`school-cal-cat-chip ${isSelected ? 'active' : ''}`}
               >
                 {cat.color && (
                   <span
@@ -407,21 +302,13 @@ export const SchoolCalendarModal = ({ isOpen, onClose, initialDate = 23, initial
                       height: 7,
                       borderRadius: '50%',
                       background: cat.color,
-                      display: 'inline-block'
+                      display: 'inline-block',
+                      flexShrink: 0
                     }}
                   />
                 )}
                 <span>{cat.label}</span>
-                <span
-                  style={{
-                    fontSize: '10.5px',
-                    fontWeight: 700,
-                    padding: '1px 5px',
-                    borderRadius: '10px',
-                    background: isSelected ? '#07345f' : '#f1f5f9',
-                    color: isSelected ? '#ffffff' : '#64748b'
-                  }}
-                >
+                <span className="school-cal-cat-badge">
                   {cat.count}
                 </span>
               </button>
@@ -430,140 +317,52 @@ export const SchoolCalendarModal = ({ isOpen, onClose, initialDate = 23, initial
         </div>
 
         {/* Modal Body Container */}
-        <div style={{ padding: '20px', overflowY: 'auto', flex: 1 }}>
+        <div className="school-cal-content-body">
           {activeTab === 'calendar' ? (
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-                gap: '20px'
-              }}
-            >
+            <div className="school-cal-main-layout">
               {/* Left Column: Interactive Month Grid */}
-              <div
-                style={{
-                  background: '#ffffff',
-                  borderRadius: '14px',
-                  border: '1px solid #e2e8f0',
-                  padding: '14px',
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.03)'
-                }}
-              >
+              <div className="school-cal-card">
                 {/* Day Names Header */}
-                <div
-                  style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(7, 1fr)',
-                    textAlign: 'center',
-                    marginBottom: '8px'
-                  }}
-                >
+                <div className="school-cal-weekdays">
                   {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(dayName => (
-                    <span
-                      key={dayName}
-                      style={{
-                        fontSize: '11px',
-                        fontWeight: 800,
-                        color: '#94a3b8',
-                        textTransform: 'uppercase',
-                        padding: '4px 0'
-                      }}
-                    >
+                    <span key={dayName} className="school-cal-weekday-label">
                       {dayName}
                     </span>
                   ))}
                 </div>
 
                 {/* Calendar Days Matrix */}
-                <div
-                  style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(7, 1fr)',
-                    gap: '4px'
-                  }}
-                >
+                <div className="school-cal-grid">
                   {calendarGrid.map(cell => {
                     if (cell.empty) {
-                      return <div key={cell.key} style={{ height: '40px' }} />;
+                      return <div key={cell.key} className="school-cal-day-empty" />;
                     }
 
                     const isSelected = cell.day === selectedDay;
+                    const isToday = cell.day === 23 && month === 8 && year === 2026;
 
                     return (
                       <button
                         key={cell.key}
                         type="button"
                         onClick={() => setSelectedDay(cell.day)}
-                        style={{
-                          height: '42px',
-                          display: 'flex',
-                          flexDirection: 'column',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          borderRadius: '10px',
-                          border: isSelected ? '2px solid #07345f' : '1px solid transparent',
-                          background: isSelected ? '#07345f' : cell.hasEvents ? '#f8fafc' : 'transparent',
-                          color: isSelected ? '#ffffff' : '#1e293b',
-                          cursor: 'pointer',
-                          position: 'relative',
-                          transition: 'all 0.15s ease',
-                          fontWeight: isSelected ? 800 : cell.hasEvents ? 700 : 500,
-                          fontSize: '13px'
-                        }}
-                        onMouseOver={(e) => {
-                          if (!isSelected) {
-                            e.currentTarget.style.background = '#f1f5f9';
-                          }
-                        }}
-                        onMouseOut={(e) => {
-                          if (!isSelected) {
-                            e.currentTarget.style.background = cell.hasEvents ? '#f8fafc' : 'transparent';
-                          }
-                        }}
+                        className={`school-cal-day-cell ${isSelected ? 'selected' : ''} ${cell.hasEvents ? 'has-events' : ''} ${isToday ? 'is-today' : ''}`}
                       >
                         <span>{cell.day}</span>
                         {/* Event Dot Indicators */}
                         {cell.hasEvents && (
-                          <div style={{ display: 'flex', gap: '2.5px', marginTop: '2px' }}>
+                          <div className="school-cal-dots-row">
                             {cell.hasDisciplinary && (
-                              <span
-                                style={{
-                                  width: 4.5,
-                                  height: 4.5,
-                                  borderRadius: '50%',
-                                  background: isSelected ? '#ffffff' : '#ef4444'
-                                }}
-                              />
+                              <span className="school-cal-dot" style={{ background: '#ef4444' }} />
                             )}
                             {cell.hasFaculty && (
-                              <span
-                                style={{
-                                  width: 4.5,
-                                  height: 4.5,
-                                  borderRadius: '50%',
-                                  background: isSelected ? '#ffffff' : '#10b981'
-                                }}
-                              />
+                              <span className="school-cal-dot" style={{ background: '#10b981' }} />
                             )}
                             {cell.hasAcademic && (
-                              <span
-                                style={{
-                                  width: 4.5,
-                                  height: 4.5,
-                                  borderRadius: '50%',
-                                  background: isSelected ? '#ffffff' : '#07345f'
-                                }}
-                              />
+                              <span className="school-cal-dot" style={{ background: '#07345f' }} />
                             )}
                             {cell.hasActivity && (
-                              <span
-                                style={{
-                                  width: 4.5,
-                                  height: 4.5,
-                                  borderRadius: '50%',
-                                  background: isSelected ? '#ffffff' : '#8b5cf6'
-                                }}
-                              />
+                              <span className="school-cal-dot" style={{ background: '#8b5cf6' }} />
                             )}
                           </div>
                         )}
@@ -574,49 +373,17 @@ export const SchoolCalendarModal = ({ isOpen, onClose, initialDate = 23, initial
               </div>
 
               {/* Right Column: Events on Selected Date */}
-              <div
-                style={{
-                  background: '#ffffff',
-                  borderRadius: '14px',
-                  border: '1px solid #e2e8f0',
-                  padding: '16px',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '12px',
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.03)'
-                }}
-              >
-                <div
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    paddingBottom: '10px',
-                    borderBottom: '1px solid #f1f5f9'
-                  }}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <div
-                      style={{
-                        width: 32,
-                        height: 32,
-                        borderRadius: 8,
-                        background: '#f0f4f8',
-                        color: '#07345f',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontWeight: 800,
-                        fontSize: '14px'
-                      }}
-                    >
+              <div className="school-cal-event-details-card">
+                <div className="school-cal-date-header">
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <div className="school-cal-date-badge">
                       {selectedDay}
                     </div>
                     <div>
-                      <div style={{ fontSize: '13.5px', fontWeight: 800, color: '#0f172a' }}>
-                        {monthNames[month]} {selectedDay}, {year}
+                      <div className="school-cal-date-title">
+                        {new Date(year, month, selectedDay).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })}
                       </div>
-                      <div style={{ fontSize: '11px', color: '#64748b' }}>
+                      <div className="school-cal-date-subtitle">
                         {selectedDayEvents.length} event{selectedDayEvents.length === 1 ? '' : 's'} scheduled
                       </div>
                     </div>
@@ -624,57 +391,31 @@ export const SchoolCalendarModal = ({ isOpen, onClose, initialDate = 23, initial
                 </div>
 
                 {/* Event Cards for Selected Date */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', flex: 1 }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', flex: 1 }}>
                   {selectedDayEvents.length === 0 ? (
-                    <div
-                      style={{
-                        padding: '30px 16px',
-                        textAlign: 'center',
-                        color: '#94a3b8',
-                        fontSize: '13px',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        gap: '8px'
-                      }}
-                    >
-                      <CalendarIcon size={28} strokeWidth={1.5} color="#cbd5e1" />
+                    <div className="school-cal-empty">
+                      <CalendarIcon size={24} strokeWidth={1.6} color="#94a3b8" />
                       <span>No events or deadlines scheduled for this date.</span>
                     </div>
                   ) : (
                     selectedDayEvents.map(event => (
-                      <div
-                        key={event.id}
-                        style={{
-                          padding: '12px 14px',
-                          borderRadius: '10px',
-                          border: '1px solid #e2e8f0',
-                          background: '#f8fafc',
-                          display: 'flex',
-                          flexDirection: 'column',
-                          gap: '6px'
-                        }}
-                      >
-                        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '8px' }}>
-                          <span style={{ fontSize: '13.5px', fontWeight: 700, color: '#0f172a', lineHeight: 1.3 }}>
+                      <div key={event.id} className="school-cal-item-card">
+                        <div className="school-cal-item-top">
+                          <span className="school-cal-item-title">
                             {event.title}
                           </span>
                           <span
+                            className="school-cal-item-tag"
                             style={{
-                              fontSize: '10px',
-                              fontWeight: 700,
                               color: event.color,
-                              background: `${event.color}15`,
-                              padding: '2px 7px',
-                              borderRadius: '5px',
-                              whiteSpace: 'nowrap'
+                              background: `${event.color}18`
                             }}
                           >
                             {event.categoryLabel}
                           </span>
                         </div>
 
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', fontSize: '11.5px', color: '#64748b' }}>
+                        <div className="school-cal-item-meta">
                           <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                             <Clock size={12} /> {event.time}
                           </span>
@@ -683,12 +424,12 @@ export const SchoolCalendarModal = ({ isOpen, onClose, initialDate = 23, initial
                           </span>
                         </div>
 
-                        <p style={{ fontSize: '12px', color: '#475569', margin: '2px 0 0 0', lineHeight: 1.4 }}>
+                        <p className="school-cal-item-desc">
                           {event.description}
                         </p>
 
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', color: '#64748b', marginTop: '2px' }}>
-                          <Users size={11} />
+                        <div className="school-cal-item-attendees">
+                          <Users size={12} />
                           <span>Attendees: <strong>{event.attendees}</strong></span>
                         </div>
                       </div>
@@ -699,74 +440,37 @@ export const SchoolCalendarModal = ({ isOpen, onClose, initialDate = 23, initial
             </div>
           ) : (
             /* Agenda List View */
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               {/* Search Bar */}
-              <div style={{ position: 'relative' }}>
-                <Search
-                  size={16}
-                  style={{
-                    position: 'absolute',
-                    left: '14px',
-                    top: '50%',
-                    transform: 'translateY(-50%)',
-                    color: '#94a3b8'
-                  }}
-                />
+              <div className="school-cal-search-box">
+                <Search size={15} className="school-cal-search-icon" />
                 <input
                   type="text"
-                  placeholder="Search institutional events, meetings, deadlines..."
+                  placeholder="Search events, meetings, deadlines..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '10px 14px 10px 38px',
-                    borderRadius: '10px',
-                    border: '1px solid #cbd5e1',
-                    fontSize: '13px',
-                    color: '#0f172a',
-                    outline: 'none',
-                    boxSizing: 'border-box'
-                  }}
+                  className="school-cal-search-input"
                 />
               </div>
 
               {/* Events List Cards */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 {filteredEvents.length === 0 ? (
-                  <div
-                    style={{
-                      padding: '40px 20px',
-                      textAlign: 'center',
-                      color: '#94a3b8',
-                      fontSize: '13.5px'
-                    }}
-                  >
-                    No matching school events found.
+                  <div className="school-cal-empty">
+                    <CalendarIcon size={24} strokeWidth={1.6} color="#94a3b8" />
+                    <span>No matching school events found.</span>
                   </div>
                 ) : (
                   filteredEvents.map(event => (
-                    <div
-                      key={event.id}
-                      style={{
-                        padding: '14px 16px',
-                        borderRadius: '12px',
-                        border: '1px solid #e2e8f0',
-                        background: '#ffffff',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: '6px',
-                        boxShadow: '0 1px 3px rgba(0,0,0,0.02)',
-                        transition: 'all 0.15s ease'
-                      }}
-                    >
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <div key={event.id} className="school-cal-agenda-card">
+                      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '8px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
                           <span
                             style={{
                               fontSize: '11px',
                               fontWeight: 800,
                               color: '#07345f',
-                              background: '#f0f4f8',
+                              background: '#eff6ff',
                               padding: '3px 8px',
                               borderRadius: '6px',
                               whiteSpace: 'nowrap'
@@ -774,38 +478,34 @@ export const SchoolCalendarModal = ({ isOpen, onClose, initialDate = 23, initial
                           >
                             {event.date}
                           </span>
-                          <span style={{ fontSize: '14px', fontWeight: 700, color: '#0f172a' }}>
+                          <span style={{ fontSize: '13.5px', fontWeight: 700, color: '#0f172a' }}>
                             {event.title}
                           </span>
                         </div>
                         <span
+                          className="school-cal-item-tag"
                           style={{
-                            fontSize: '10.5px',
-                            fontWeight: 700,
                             color: event.color,
-                            background: `${event.color}15`,
-                            padding: '2.5px 8px',
-                            borderRadius: '6px',
-                            whiteSpace: 'nowrap'
+                            background: `${event.color}18`
                           }}
                         >
                           {event.categoryLabel}
                         </span>
                       </div>
 
-                      <div style={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: '14px', fontSize: '12px', color: '#64748b' }}>
+                      <div className="school-cal-item-meta">
                         <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                          <Clock size={13} /> {event.time}
+                          <Clock size={12} /> {event.time}
                         </span>
                         <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                          <MapPin size={13} /> {event.location}
+                          <MapPin size={12} /> {event.location}
                         </span>
                         <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                          <Users size={13} /> {event.attendees}
+                          <Users size={12} /> {event.attendees}
                         </span>
                       </div>
 
-                      <p style={{ fontSize: '12.5px', color: '#475569', margin: '4px 0 0 0', lineHeight: 1.45 }}>
+                      <p className="school-cal-item-desc">
                         {event.description}
                       </p>
                     </div>
@@ -817,36 +517,14 @@ export const SchoolCalendarModal = ({ isOpen, onClose, initialDate = 23, initial
         </div>
 
         {/* Footer */}
-        <div
-          style={{
-            padding: '14px 20px',
-            borderTop: '1px solid #f1f5f9',
-            background: '#ffffff',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            flexShrink: 0
-          }}
-        >
-          <div style={{ fontSize: '11.5px', color: '#94a3b8' }}>
-            <span style={{ fontWeight: 700, color: '#07345f' }}>VIOTRACK</span> School Conduct & Academic Calendar
+        <div className="school-cal-footer">
+          <div className="school-cal-footer-brand">
+            <strong style={{ color: '#07345f' }}>VIOTRACK</strong> • Academic Calendar
           </div>
           <button
             type="button"
             onClick={onClose}
-            style={{
-              padding: '8px 18px',
-              fontSize: '13px',
-              fontWeight: 700,
-              color: '#ffffff',
-              background: '#07345f',
-              border: 'none',
-              borderRadius: '8px',
-              cursor: 'pointer',
-              transition: 'background 0.15s'
-            }}
-            onMouseOver={(e) => e.currentTarget.style.background = '#0a4b88'}
-            onMouseOut={(e) => e.currentTarget.style.background = '#07345f'}
+            className="school-cal-close-btn"
           >
             Close Calendar
           </button>

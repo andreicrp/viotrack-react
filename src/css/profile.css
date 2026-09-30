@@ -484,7 +484,7 @@
 @media (max-width: 768px) {
   .profile-page-container {
     gap: 16px;
-    padding-bottom: 95px; /* Clear fixed mobile bottom nav */
+    padding-bottom: 0px !important; /* main-content already clears mobile bottom nav */
   }
 
   .profile-hero-card {

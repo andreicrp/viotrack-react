@@ -1270,29 +1270,13 @@ export const AdvisersPage = () => {
                 background: '#ffffff'
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <div
-                  style={{
-                    width: 40,
-                    height: 40,
-                    borderRadius: '10px',
-                    background: '#f0f4f8',
-                    color: '#07345f',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                  }}
-                >
-                  <Award size={22} />
-                </div>
-                <div>
-                  <h3 style={{ margin: 0, fontSize: '17px', fontWeight: 700, color: '#0f172a' }}>
-                    Appoint Section Adviser
-                  </h3>
-                  <p style={{ margin: '2px 0 0 0', fontSize: '12px', color: '#64748b' }}>
-                    Assign a faculty member as class adviser for a grade and section
-                  </p>
-                </div>
+              <div>
+                <h3 style={{ margin: 0, fontSize: '17px', fontWeight: 700, color: '#0f172a' }}>
+                  Appoint Section Adviser
+                </h3>
+                <p style={{ margin: '2px 0 0 0', fontSize: '12px', color: '#64748b' }}>
+                  Assign a faculty member as class adviser for a grade and section
+                </p>
               </div>
               <button
                 onClick={() => setIsAppointModalOpen(false)}

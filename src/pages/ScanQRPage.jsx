@@ -35,6 +35,10 @@ export const ScanQRPage = () => {
   const queryLrn = searchParams.get('lrn');
 
   // Scanner States
+  const [hasCameraPermission, setHasCameraPermission] = useState(() => {
+    return localStorage.getItem('viotrack_qr_camera_allowed') === 'true';
+  });
+  const [isRequestingPermission, setIsRequestingPermission] = useState(false);
   const [isScannerRunning, setIsScannerRunning] = useState(false);
   const [cameraFacing, setCameraFacing] = useState('environment'); // 'environment' or 'user'
   const [availableCameras, setAvailableCameras] = useState([]);
@@ -211,9 +215,44 @@ export const ScanQRPage = () => {
     }
   };
 
+  // Detect if browser camera permission is already granted so we skip any prompt
+  useEffect(() => {
+    let permissionStatusObj = null;
+
+    if (navigator.permissions && navigator.permissions.query) {
+      navigator.permissions.query({ name: 'camera' })
+        .then((status) => {
+          permissionStatusObj = status;
+          if (status.state === 'granted') {
+            setHasCameraPermission(true);
+            localStorage.setItem('viotrack_qr_camera_allowed', 'true');
+          }
+          status.onchange = () => {
+            if (status.state === 'granted') {
+              setHasCameraPermission(true);
+              localStorage.setItem('viotrack_qr_camera_allowed', 'true');
+            } else if (status.state === 'denied') {
+              setHasCameraPermission(false);
+              localStorage.removeItem('viotrack_qr_camera_allowed');
+            }
+          };
+        })
+        .catch(() => {
+          // Permissions API for camera not supported in some browsers
+        });
+    }
+
+    return () => {
+      if (permissionStatusObj) {
+        permissionStatusObj.onchange = null;
+      }
+    };
+  }, []);
+
   // Initialize camera safely with Html5Qrcode & guarantee cleanup on navigation
   useEffect(() => {
     if (queryStudentId || queryLrn || isCapturingLocation) return;
+    if (!hasCameraPermission) return; // Wait until camera permission is allowed
 
     let isMounted = true;
     let localScanner = null;
@@ -336,6 +375,8 @@ export const ScanQRPage = () => {
               if (isMounted) {
                 setIsScannerRunning(true);
                 setCameraError(null);
+                setHasCameraPermission(true);
+                localStorage.setItem('viotrack_qr_camera_allowed', 'true');
                 if (typeof candidate.target === 'string' && candidate.target !== selectedCameraId) {
                   setSelectedCameraId(candidate.target);
                   if (!candidate.isPrimary) {
@@ -403,7 +444,39 @@ export const ScanQRPage = () => {
       html5QrCodeRef.current = null;
       stopScannerInstance(toStop);
     };
-  }, [cameraFacing, selectedCameraId, queryStudentId, queryLrn, isCapturingLocation, retryCount]);
+  }, [cameraFacing, selectedCameraId, queryStudentId, queryLrn, isCapturingLocation, retryCount, hasCameraPermission]);
+
+  // Request Camera Permission Once
+  const handleRequestCameraAccess = async () => {
+    setIsRequestingPermission(true);
+    setCameraError(null);
+    try {
+      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: cameraFacing }
+        });
+        stream.getTracks().forEach((track) => {
+          try {
+            track.stop();
+          } catch (e) {}
+        });
+      }
+      localStorage.setItem('viotrack_qr_camera_allowed', 'true');
+      setHasCameraPermission(true);
+      setRetryCount(prev => prev + 1);
+    } catch (err) {
+      console.warn('Camera permission request failed:', err);
+      if (err?.name === 'NotAllowedError' || err?.message?.includes('Permission') || err?.name === 'PermissionDeniedError') {
+        setCameraError('Camera permission was denied. Please allow camera permissions in your browser address bar.');
+      } else {
+        localStorage.setItem('viotrack_qr_camera_allowed', 'true');
+        setHasCameraPermission(true);
+        setRetryCount(prev => prev + 1);
+      }
+    } finally {
+      setIsRequestingPermission(false);
+    }
+  };
 
   // Retry Camera Initialization
   const handleRetryCamera = async () => {
@@ -825,18 +898,76 @@ export const ScanQRPage = () => {
           </div>
 
           {/* Video Viewport Container */}
-          <div className={`scanner-viewport-wrapper ${cameraError ? 'camera-error-active' : ''}`}>
+          <div className={`scanner-viewport-wrapper ${cameraError || (!hasCameraPermission && !isScannerRunning) ? 'camera-error-active' : ''}`}>
             <div id="reader-stream-container" />
 
-            {/* Custom Glowing Reticle HUD (Only when camera is active) */}
-            {!cameraError && (
+            {/* Custom Glowing Reticle HUD (Only when camera is active and running) */}
+            {!cameraError && hasCameraPermission && isScannerRunning && (
               <div className="scanner-overlay-reticle">
                 <div className="reticle-box">
                   <div className="corner-bracket top-left" />
                   <div className="corner-bracket top-right" />
                   <div className="corner-bracket bottom-left" />
                   <div className="corner-bracket bottom-right" />
-                  {!isScanningPaused && isScannerRunning && <div className="laser-scan-line" />}
+                  {!isScanningPaused && <div className="laser-scan-line" />}
+                </div>
+              </div>
+            )}
+
+            {/* One-Time Camera Permission Request Overlay (Only shown before camera is allowed) */}
+            {!hasCameraPermission && !cameraError && (
+              <div className="camera-notice-overlay">
+                <div className="camera-notice-card">
+                  <div className="camera-notice-icon-wrap" style={{ background: '#eff6ff', borderColor: '#bfdbfe', color: '#2563eb' }}>
+                    <div className="camera-notice-icon-pulse" style={{ borderColor: 'rgba(37, 99, 235, 0.35)' }} />
+                    <Camera size={24} className="camera-notice-icon" />
+                  </div>
+
+                  <div className="camera-notice-content">
+                    <h4 className="camera-notice-title">Camera Access Required</h4>
+                    <p className="camera-notice-text">
+                      Allow camera access to scan student ID QR badges quickly for real-time tracking and logging. Authorization is required only once.
+                    </p>
+                  </div>
+
+                  <div className="camera-notice-actions">
+                    <button
+                      type="button"
+                      onClick={handleRequestCameraAccess}
+                      className="camera-notice-btn primary"
+                      disabled={isRequestingPermission}
+                    >
+                      {isRequestingPermission ? (
+                        <Loader2 size={14} className="spinner" style={{ animation: 'spin 1s linear infinite' }} />
+                      ) : (
+                        <Camera size={14} />
+                      )}
+                      <span>{isRequestingPermission ? 'Requesting Access...' : 'Allow Camera Access'}</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="camera-notice-btn secondary"
+                    >
+                      <Upload size={13} />
+                      <span>Scan Image</span>
+                    </button>
+                  </div>
+
+                  <button
+                    type="button"
+                    className="camera-notice-hint-btn"
+                    onClick={() => {
+                      if (manualInputRef.current) {
+                        manualInputRef.current.focus();
+                        manualInputRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                      }
+                    }}
+                  >
+                    <Search size={12} className="camera-hint-icon" />
+                    <span>Or enter 12-digit LRN / Name in manual search</span>
+                  </button>
                 </div>
               </div>
             )}
@@ -1098,9 +1229,6 @@ export const ScanQRPage = () => {
           <div className="student-scan-modal-dialog" onClick={(e) => e.stopPropagation()}>
             <div className="student-scan-modal-header">
               <div className="student-scan-modal-title-group">
-                <div className="scan-verified-icon-badge">
-                  <CheckCircle2 size={18} />
-                </div>
                 <div>
                   <h3 className="student-scan-modal-title">Student Identified</h3>
                   <p className="student-scan-modal-subtitle">Official Student Conduct Summary</p>
