@@ -121,14 +121,8 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
+  flex-wrap: wrap;
   flex-shrink: 0;
-}
-
-.school-cal-categories-bar::-webkit-scrollbar {
-  display: none;
 }
 
 .school-cal-cat-chip {

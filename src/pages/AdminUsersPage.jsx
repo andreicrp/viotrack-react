@@ -327,7 +327,7 @@ export const AdminUsersPage = () => {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '22px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
       {/* 1. Top Banner & Primary Actions */}
       <div className="page-banner-header">
         <div className="page-banner-info">
@@ -396,34 +396,34 @@ export const AdminUsersPage = () => {
 
       <div className="card" style={{ padding: '24px', background: '#ffffff', borderRadius: '16px', border: '1px solid #e2e8f0', boxShadow: '0 4px 20px rgba(0, 0, 0, 0.04)' }}>
         {/* 2. Stat Filter Cards */}
-        <div className="metric-cards-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '16px' }}>
+        <div className="metric-cards-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' }}>
           {/* Total Admins */}
           <div
             onClick={() => setSelectedRoleFilter('all')}
             style={{
               background: selectedRoleFilter === 'all' ? '#f0f4f8' : '#ffffff',
               border: selectedRoleFilter === 'all' ? '2px solid #07345f' : '1px solid #e2e8f0',
-              borderRadius: '14px',
-              padding: '16px 20px',
+              borderRadius: '10px',
+              padding: '12px 14px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
               cursor: 'pointer',
               transition: 'all 0.2s ease',
-              boxShadow: selectedRoleFilter === 'all' ? '0 4px 12px rgba(7, 52, 95, 0.12)' : '0 1px 3px rgba(0,0,0,0.02)'
+              boxShadow: selectedRoleFilter === 'all' ? '0 2px 8px rgba(7, 52, 95, 0.1)' : '0 1px 3px rgba(0,0,0,0.02)'
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-              <Users size={28} color="#07345f" strokeWidth={2.2} />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <Users size={20} color="#07345f" strokeWidth={2} />
               <div>
-                <span style={{ fontSize: '26px', fontWeight: 800, color: '#0f172a', lineHeight: 1, display: 'block' }}>
+                <span style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a', lineHeight: 1, display: 'block' }}>
                   {stats.total}
                 </span>
-                <span style={{ fontSize: '12.5px', color: '#64748b', fontWeight: 600 }}>Total Admins</span>
+                <span style={{ fontSize: '11px', color: '#64748b', fontWeight: 600 }}>Total Admins</span>
               </div>
             </div>
             {selectedRoleFilter === 'all' && (
-              <span style={{ background: '#07345f', color: '#fff', fontSize: '10px', padding: '2px 7px', borderRadius: '6px', fontWeight: 700 }}>
+              <span style={{ background: '#07345f', color: '#fff', fontSize: '9px', padding: '2px 6px', borderRadius: '4px', fontWeight: 700 }}>
                 Active
               </span>
             )}
@@ -435,27 +435,27 @@ export const AdminUsersPage = () => {
             style={{
               background: selectedRoleFilter === 'Super Admin' ? '#fdf4ff' : '#ffffff',
               border: selectedRoleFilter === 'Super Admin' ? '2px solid #a855f7' : '1px solid #e2e8f0',
-              borderRadius: '14px',
-              padding: '16px 20px',
+              borderRadius: '10px',
+              padding: '12px 14px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
               cursor: 'pointer',
               transition: 'all 0.2s ease',
-              boxShadow: selectedRoleFilter === 'Super Admin' ? '0 4px 12px rgba(168, 85, 247, 0.15)' : '0 1px 3px rgba(0,0,0,0.02)'
+              boxShadow: selectedRoleFilter === 'Super Admin' ? '0 2px 8px rgba(168, 85, 247, 0.12)' : '0 1px 3px rgba(0,0,0,0.02)'
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-              <Shield size={28} color="#9333ea" strokeWidth={2.2} />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <Shield size={20} color="#9333ea" strokeWidth={2} />
               <div>
-                <span style={{ fontSize: '26px', fontWeight: 800, color: '#581c87', lineHeight: 1, display: 'block' }}>
+                <span style={{ fontSize: '20px', fontWeight: 800, color: '#581c87', lineHeight: 1, display: 'block' }}>
                   {stats.superAdmins}
                 </span>
-                <span style={{ fontSize: '12.5px', color: '#7e22ce', fontWeight: 600 }}>Super Admins</span>
+                <span style={{ fontSize: '11px', color: '#7e22ce', fontWeight: 600 }}>Super Admins</span>
               </div>
             </div>
             {selectedRoleFilter === 'Super Admin' && (
-              <span style={{ background: '#9333ea', color: '#fff', fontSize: '10px', padding: '2px 7px', borderRadius: '6px', fontWeight: 700 }}>
+              <span style={{ background: '#9333ea', color: '#fff', fontSize: '9px', padding: '2px 6px', borderRadius: '4px', fontWeight: 700 }}>
                 Filtered
               </span>
             )}
@@ -467,27 +467,27 @@ export const AdminUsersPage = () => {
             style={{
               background: selectedRoleFilter === 'Discipline Officer' ? '#f0fdf4' : '#ffffff',
               border: selectedRoleFilter === 'Discipline Officer' ? '2px solid #16a34a' : '1px solid #e2e8f0',
-              borderRadius: '14px',
-              padding: '16px 20px',
+              borderRadius: '10px',
+              padding: '12px 14px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
               cursor: 'pointer',
               transition: 'all 0.2s ease',
-              boxShadow: selectedRoleFilter === 'Discipline Officer' ? '0 4px 12px rgba(22, 163, 74, 0.15)' : '0 1px 3px rgba(0,0,0,0.02)'
+              boxShadow: selectedRoleFilter === 'Discipline Officer' ? '0 2px 8px rgba(22, 163, 74, 0.12)' : '0 1px 3px rgba(0,0,0,0.02)'
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-              <ShieldCheck size={28} color="#16a34a" strokeWidth={2.2} />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <ShieldCheck size={20} color="#16a34a" strokeWidth={2} />
               <div>
-                <span style={{ fontSize: '26px', fontWeight: 800, color: '#14532d', lineHeight: 1, display: 'block' }}>
+                <span style={{ fontSize: '20px', fontWeight: 800, color: '#14532d', lineHeight: 1, display: 'block' }}>
                   {stats.disciplineOfficers}
                 </span>
-                <span style={{ fontSize: '12.5px', color: '#15803d', fontWeight: 600 }}>Discipline Officers</span>
+                <span style={{ fontSize: '11px', color: '#15803d', fontWeight: 600 }}>Discipline Officers</span>
               </div>
             </div>
             {selectedRoleFilter === 'Discipline Officer' && (
-              <span style={{ background: '#16a34a', color: '#fff', fontSize: '10px', padding: '2px 7px', borderRadius: '6px', fontWeight: 700 }}>
+              <span style={{ background: '#16a34a', color: '#fff', fontSize: '9px', padding: '2px 6px', borderRadius: '4px', fontWeight: 700 }}>
                 Filtered
               </span>
             )}
@@ -495,7 +495,7 @@ export const AdminUsersPage = () => {
         </div>
 
         {/* 3. Search & Control Bar */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '22px', flexWrap: 'wrap', gap: '12px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '12px', flexWrap: 'wrap', gap: '12px' }}>
           <div style={{ position: 'relative', minWidth: '280px', flex: '1', maxWidth: '420px' }}>
             <Search size={16} color="#94a3b8" style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)' }} />
             <input
@@ -527,8 +527,8 @@ export const AdminUsersPage = () => {
             )}
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-            <div style={{ minWidth: '130px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: '0' }}>
+            <div style={{ minWidth: '120px', flex: '1' }}>
               <CustomSelect
                 value={entriesPerPage}
                 onChange={(e) => {
@@ -544,9 +544,7 @@ export const AdminUsersPage = () => {
             </div>
 
             {/* List / Grid View Toggle */}
-            <div style={{ display: 'inline-flex', alignItems: 'center' }}>
-              <ViewModeToggle viewMode={viewMode} onChange={setViewMode} />
-            </div>
+            <ViewModeToggle viewMode={viewMode} onChange={setViewMode} />
           </div>
         </div>
 

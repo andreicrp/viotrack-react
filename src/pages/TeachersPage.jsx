@@ -278,7 +278,7 @@ export const TeachersPage = () => {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '22px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
       {/* 1. Top Banner & Primary Actions */}
       <div className="page-banner-header">
         <div className="page-banner-info">
@@ -350,30 +350,30 @@ export const TeachersPage = () => {
 
       <div className="card" style={{ padding: '24px', background: '#ffffff', borderRadius: '16px', border: '1px solid #e2e8f0', boxShadow: '0 4px 20px rgba(0, 0, 0, 0.04)' }}>
         {/* 2. Stat Filter Cards */}
-        <div className="metric-cards-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
+        <div className="metric-cards-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' }}>
           {/* Total Teachers */}
           <div
             onClick={() => setSelectedFacultyFilter('all')}
             style={{
               background: selectedFacultyFilter === 'all' ? '#f0f4f8' : '#ffffff',
               border: selectedFacultyFilter === 'all' ? '2px solid #07345f' : '1px solid #e2e8f0',
-              borderRadius: '14px',
-              padding: '16px 20px',
+              borderRadius: '10px',
+              padding: '12px 14px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
               cursor: 'pointer',
               transition: 'all 0.2s ease',
-              boxShadow: selectedFacultyFilter === 'all' ? '0 4px 12px rgba(7, 52, 95, 0.12)' : '0 1px 3px rgba(0,0,0,0.02)'
+              boxShadow: selectedFacultyFilter === 'all' ? '0 2px 8px rgba(7, 52, 95, 0.1)' : '0 1px 3px rgba(0,0,0,0.02)'
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-              <Users size={28} color="#07345f" strokeWidth={2.2} />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <Users size={20} color="#07345f" strokeWidth={2} />
               <div>
-                <span style={{ fontSize: '26px', fontWeight: 800, color: '#0f172a', lineHeight: 1, display: 'block' }}>
+                <span style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a', lineHeight: 1, display: 'block' }}>
                   {stats.total}
                 </span>
-                <span style={{ fontSize: '12.5px', color: '#64748b', fontWeight: 600 }}>Total Teachers</span>
+                <span style={{ fontSize: '11px', color: '#64748b', fontWeight: 600 }}>Total Teachers</span>
               </div>
             </div>
           </div>
@@ -384,27 +384,27 @@ export const TeachersPage = () => {
             style={{
               background: selectedFacultyFilter === 'adviser' ? '#f0fdf4' : '#ffffff',
               border: selectedFacultyFilter === 'adviser' ? '2px solid #16a34a' : '1px solid #e2e8f0',
-              borderRadius: '14px',
-              padding: '16px 20px',
+              borderRadius: '10px',
+              padding: '12px 14px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
               cursor: 'pointer',
               transition: 'all 0.2s ease',
-              boxShadow: selectedFacultyFilter === 'adviser' ? '0 4px 12px rgba(22, 163, 74, 0.15)' : '0 1px 3px rgba(0,0,0,0.02)'
+              boxShadow: selectedFacultyFilter === 'adviser' ? '0 2px 8px rgba(22, 163, 74, 0.12)' : '0 1px 3px rgba(0,0,0,0.02)'
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-              <UserCheck size={28} color="#16a34a" strokeWidth={2.2} />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <UserCheck size={20} color="#16a34a" strokeWidth={2} />
               <div>
-                <span style={{ fontSize: '26px', fontWeight: 800, color: '#14532d', lineHeight: 1, display: 'block' }}>
+                <span style={{ fontSize: '20px', fontWeight: 800, color: '#14532d', lineHeight: 1, display: 'block' }}>
                   {stats.advisersCount}
                 </span>
-                <span style={{ fontSize: '12.5px', color: '#15803d', fontWeight: 600 }}>Class Advisers</span>
+                <span style={{ fontSize: '11px', color: '#15803d', fontWeight: 600 }}>Class Advisers</span>
               </div>
             </div>
             {selectedFacultyFilter === 'adviser' && (
-              <span style={{ background: '#16a34a', color: '#fff', fontSize: '10px', padding: '2px 7px', borderRadius: '6px', fontWeight: 700 }}>
+              <span style={{ background: '#16a34a', color: '#fff', fontSize: '9px', padding: '2px 6px', borderRadius: '4px', fontWeight: 700 }}>
                 Active
               </span>
             )}
@@ -416,27 +416,27 @@ export const TeachersPage = () => {
             style={{
               background: selectedFacultyFilter === 'subject' ? '#fffbeb' : '#ffffff',
               border: selectedFacultyFilter === 'subject' ? '2px solid #d97706' : '1px solid #e2e8f0',
-              borderRadius: '14px',
-              padding: '16px 20px',
+              borderRadius: '10px',
+              padding: '12px 14px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
               cursor: 'pointer',
               transition: 'all 0.2s ease',
-              boxShadow: selectedFacultyFilter === 'subject' ? '0 4px 12px rgba(217, 119, 6, 0.15)' : '0 1px 3px rgba(0,0,0,0.02)'
+              boxShadow: selectedFacultyFilter === 'subject' ? '0 2px 8px rgba(217, 119, 6, 0.12)' : '0 1px 3px rgba(0,0,0,0.02)'
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-              <GraduationCap size={28} color="#d97706" strokeWidth={2.2} />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <GraduationCap size={20} color="#d97706" strokeWidth={2} />
               <div>
-                <span style={{ fontSize: '26px', fontWeight: 800, color: '#78350f', lineHeight: 1, display: 'block' }}>
+                <span style={{ fontSize: '20px', fontWeight: 800, color: '#78350f', lineHeight: 1, display: 'block' }}>
                   {stats.subjectTeachers}
                 </span>
-                <span style={{ fontSize: '12.5px', color: '#92400e', fontWeight: 600 }}>Subject Teachers</span>
+                <span style={{ fontSize: '11px', color: '#92400e', fontWeight: 600 }}>Subject Teachers</span>
               </div>
             </div>
             {selectedFacultyFilter === 'subject' && (
-              <span style={{ background: '#d97706', color: '#fff', fontSize: '10px', padding: '2px 7px', borderRadius: '6px', fontWeight: 700 }}>
+              <span style={{ background: '#d97706', color: '#fff', fontSize: '9px', padding: '2px 6px', borderRadius: '4px', fontWeight: 700 }}>
                 Active
               </span>
             )}
@@ -447,27 +447,27 @@ export const TeachersPage = () => {
             style={{
               background: '#ffffff',
               border: '1px solid #e2e8f0',
-              borderRadius: '14px',
-              padding: '16px 20px',
+              borderRadius: '10px',
+              padding: '12px 14px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between'
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-              <Building size={28} color="#64748b" strokeWidth={2.2} />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <Building size={20} color="#64748b" strokeWidth={2} />
               <div>
-                <span style={{ fontSize: '26px', fontWeight: 800, color: '#1e293b', lineHeight: 1, display: 'block' }}>
+                <span style={{ fontSize: '20px', fontWeight: 800, color: '#1e293b', lineHeight: 1, display: 'block' }}>
                   {stats.departmentsCount}
                 </span>
-                <span style={{ fontSize: '12.5px', color: '#64748b', fontWeight: 600 }}>Departments</span>
+                <span style={{ fontSize: '11px', color: '#64748b', fontWeight: 600 }}>Departments</span>
               </div>
             </div>
           </div>
         </div>
 
         {/* 3. Search & Control Bar */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '22px', flexWrap: 'wrap', gap: '12px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '12px', flexWrap: 'wrap', gap: '12px' }}>
           <div style={{ position: 'relative', minWidth: '280px', flex: '1', maxWidth: '420px' }}>
             <Search size={16} color="#94a3b8" style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)' }} />
             <input
@@ -499,8 +499,8 @@ export const TeachersPage = () => {
             )}
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-            <div style={{ minWidth: '130px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: '0' }}>
+            <div style={{ minWidth: '120px', flex: '1' }}>
               <CustomSelect
                 value={entriesPerPage}
                 onChange={(e) => {
@@ -516,9 +516,7 @@ export const TeachersPage = () => {
             </div>
 
             {/* List / Grid View Toggle */}
-            <div style={{ display: 'inline-flex', alignItems: 'center' }}>
-              <ViewModeToggle viewMode={viewMode} onChange={setViewMode} />
-            </div>
+            <ViewModeToggle viewMode={viewMode} onChange={setViewMode} />
           </div>
         </div>
 

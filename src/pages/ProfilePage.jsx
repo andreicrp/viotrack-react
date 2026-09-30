@@ -18,8 +18,10 @@ import {
   Building2,
   Upload,
   Check,
-  Fingerprint
+  Fingerprint,
+  FileText
 } from 'lucide-react';
+import { PrivacyPolicyModal } from '../components/common/PrivacyPolicyModal';
 import '../css/profile.css';
 
 export const ProfilePage = () => {
@@ -33,6 +35,7 @@ export const ProfilePage = () => {
   const initialMiddle = nameParts.length > 2 ? nameParts.slice(1, -1).join(' ') : 'B.';
 
   const [activeTab, setActiveTab] = useState('general'); // 'general' | 'security' | 'permissions'
+  const [isPrivacyModalOpen, setIsPrivacyModalOpen] = useState(false);
 
   const [firstName, setFirstName] = useState(initialFirst);
   const [middleName, setMiddleName] = useState(initialMiddle);
@@ -701,10 +704,30 @@ export const ProfilePage = () => {
         </div>
       </form>
 
-      {/* Footer copyright */}
-      <div style={{ textAlign: 'center', color: '#94a3b8', fontSize: '12px', marginTop: '6px', paddingBottom: '4px' }}>
-        © 2026 VioTrack. All rights reserved.
+      {/* Footer links & copyright */}
+      <div style={{ textAlign: 'center', color: '#94a3b8', fontSize: '12px', marginTop: '8px', paddingBottom: '6px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+        <button
+          type="button"
+          onClick={() => setIsPrivacyModalOpen(true)}
+          style={{
+            background: 'none',
+            border: 'none',
+            color: '#2563eb',
+            fontWeight: 600,
+            fontSize: '11.5px',
+            cursor: 'pointer',
+            textDecoration: 'underline'
+          }}
+        >
+          View Privacy Policy & Data Protection Clauses
+        </button>
+        <span>© 2026 VioTrack. All rights reserved.</span>
       </div>
+
+      <PrivacyPolicyModal
+        isOpen={isPrivacyModalOpen}
+        onClose={() => setIsPrivacyModalOpen(false)}
+      />
     </div>
   );
 };

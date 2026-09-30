@@ -325,7 +325,7 @@ export const StudentsPage = () => {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
       {/* Top Banner & Primary Actions */}
       <div className="page-banner-header">
         <div className="page-banner-info">
@@ -425,8 +425,8 @@ export const StudentsPage = () => {
         className="metric-cards-grid"
         style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-          gap: '16px'
+          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+          gap: '12px'
         }}
       >
         {/* Total Students */}
@@ -434,10 +434,10 @@ export const StudentsPage = () => {
           onClick={() => { setLevelFilter('all'); setGradeFilter('all'); setStrandFilter('all'); }}
           style={{
             background: '#ffffff',
-            borderRadius: '14px',
-            padding: '18px 20px',
+            borderRadius: '10px',
+            padding: '12px 14px',
             border: levelFilter === 'all' && gradeFilter === 'all' && strandFilter === 'all' ? '2px solid #07345f' : '1px solid #e2e8f0',
-            boxShadow: '0 2px 10px rgba(0,0,0,0.03)',
+            boxShadow: '0 1px 4px rgba(0,0,0,0.02)',
             cursor: 'pointer',
             transition: 'all 0.2s',
             position: 'relative',
@@ -446,20 +446,20 @@ export const StudentsPage = () => {
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
-              <div style={{ fontSize: '12px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+              <div style={{ fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.03em' }}>
                 Total Students
               </div>
-              <div style={{ fontSize: '26px', fontWeight: 800, color: '#0f172a', marginTop: '4px' }}>
+              <div style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a', marginTop: '2px' }}>
                 {stats.total}
               </div>
-              <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px' }}>
+              <div style={{ fontSize: '10px', color: '#64748b', marginTop: '2px' }}>
                 Across all levels & strands
               </div>
             </div>
-            <Users size={28} color="#07345f" strokeWidth={1.8} />
+            <Users size={20} color="#07345f" strokeWidth={2} />
           </div>
           {levelFilter === 'all' && gradeFilter === 'all' && strandFilter === 'all' && (
-            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 3, background: '#07345f' }}></div>
+            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 2.5, background: '#07345f' }}></div>
           )}
         </div>
 
@@ -468,10 +468,10 @@ export const StudentsPage = () => {
           onClick={() => { setLevelFilter('jhs'); setGradeFilter('all'); setStrandFilter('all'); }}
           style={{
             background: '#ffffff',
-            borderRadius: '14px',
-            padding: '18px 20px',
+            borderRadius: '10px',
+            padding: '12px 14px',
             border: levelFilter === 'jhs' ? '2px solid #059669' : '1px solid #e2e8f0',
-            boxShadow: '0 2px 10px rgba(0,0,0,0.03)',
+            boxShadow: '0 1px 4px rgba(0,0,0,0.02)',
             cursor: 'pointer',
             transition: 'all 0.2s',
             position: 'relative',
@@ -480,20 +480,20 @@ export const StudentsPage = () => {
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
-              <div style={{ fontSize: '12px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+              <div style={{ fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.03em' }}>
                 Junior High (G7-10)
               </div>
-              <div style={{ fontSize: '26px', fontWeight: 800, color: stats.jhsCount > 0 ? '#059669' : '#0f172a', marginTop: '4px' }}>
+              <div style={{ fontSize: '20px', fontWeight: 800, color: stats.jhsCount > 0 ? '#059669' : '#0f172a', marginTop: '2px' }}>
                 {stats.jhsCount}
               </div>
-              <div style={{ fontSize: '11px', color: '#059669', marginTop: '4px', fontWeight: 600 }}>
+              <div style={{ fontSize: '10px', color: '#059669', marginTop: '2px', fontWeight: 600 }}>
                 Basic Education Students
               </div>
             </div>
-            <BookOpen size={28} color="#059669" strokeWidth={1.8} />
+            <BookOpen size={20} color="#059669" strokeWidth={2} />
           </div>
           {levelFilter === 'jhs' && (
-            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 3, background: '#059669' }}></div>
+            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 2.5, background: '#059669' }}></div>
           )}
         </div>
 
@@ -502,10 +502,10 @@ export const StudentsPage = () => {
           onClick={() => { setLevelFilter('shs'); setGradeFilter('all'); }}
           style={{
             background: '#ffffff',
-            borderRadius: '14px',
-            padding: '18px 20px',
+            borderRadius: '10px',
+            padding: '12px 14px',
             border: levelFilter === 'shs' ? '2px solid #07345f' : '1px solid #e2e8f0',
-            boxShadow: '0 2px 10px rgba(0,0,0,0.03)',
+            boxShadow: '0 1px 4px rgba(0,0,0,0.02)',
             cursor: 'pointer',
             transition: 'all 0.2s',
             position: 'relative',
@@ -514,20 +514,20 @@ export const StudentsPage = () => {
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
-              <div style={{ fontSize: '12px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+              <div style={{ fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.03em' }}>
                 Senior High (G11-12)
               </div>
-              <div style={{ fontSize: '26px', fontWeight: 800, color: stats.shsCount > 0 ? '#07345f' : '#0f172a', marginTop: '4px' }}>
+              <div style={{ fontSize: '20px', fontWeight: 800, color: stats.shsCount > 0 ? '#07345f' : '#0f172a', marginTop: '2px' }}>
                 {stats.shsCount}
               </div>
-              <div style={{ fontSize: '11px', color: '#07345f', marginTop: '4px', fontWeight: 600 }}>
+              <div style={{ fontSize: '10px', color: '#07345f', marginTop: '2px', fontWeight: 600 }}>
                 Specialized Strands & Tracks
               </div>
             </div>
-            <GraduationCap size={28} color="#07345f" strokeWidth={1.8} />
+            <GraduationCap size={20} color="#07345f" strokeWidth={2} />
           </div>
           {levelFilter === 'shs' && (
-            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 3, background: '#07345f' }}></div>
+            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 2.5, background: '#07345f' }}></div>
           )}
         </div>
 
@@ -535,25 +535,25 @@ export const StudentsPage = () => {
         <div
           style={{
             background: '#ffffff',
-            borderRadius: '14px',
-            padding: '18px 20px',
+            borderRadius: '10px',
+            padding: '12px 14px',
             border: '1px solid #e2e8f0',
-            boxShadow: '0 2px 10px rgba(0,0,0,0.03)'
+            boxShadow: '0 1px 4px rgba(0,0,0,0.02)'
           }}
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
-              <div style={{ fontSize: '12px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+              <div style={{ fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.03em' }}>
                 Academic Strands
               </div>
-              <div style={{ fontSize: '26px', fontWeight: 800, color: '#0f172a', marginTop: '4px' }}>
+              <div style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a', marginTop: '2px' }}>
                 {stats.uniqueStrands}
               </div>
-              <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px' }}>
+              <div style={{ fontSize: '10px', color: '#64748b', marginTop: '2px' }}>
                 STEM, ABM, HUMSS, GAS, JHS
               </div>
             </div>
-            <Layers size={28} color="#d97706" strokeWidth={1.8} />
+            <Layers size={20} color="#d97706" strokeWidth={2} />
           </div>
         </div>
       </div>
@@ -570,11 +570,11 @@ export const StudentsPage = () => {
         {/* Toolbar Controls */}
         <div
           style={{
-            padding: '20px 24px',
+            padding: '14px 18px',
             borderBottom: '1px solid #f1f5f9',
             display: 'flex',
             flexDirection: 'column',
-            gap: '16px'
+            gap: '12px'
           }}
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '14px' }}>
@@ -633,9 +633,9 @@ export const StudentsPage = () => {
             </div>
 
             {/* Sorting & Filter Selectors */}
-            <div className="mobile-filter-grid" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'center' }}>
+            <div className="mobile-filter-grid">
               {/* Sort By Selector */}
-              <div className="mobile-filter-item" style={{ minWidth: '135px' }}>
+              <div className="mobile-filter-item">
                 <CustomSelect
                   icon={ArrowUpDown}
                   value={`${sortField}-${sortOrder}`}
@@ -658,7 +658,7 @@ export const StudentsPage = () => {
               </div>
 
               {/* Grade Filter */}
-              <div className="mobile-filter-item" style={{ minWidth: '120px' }}>
+              <div className="mobile-filter-item">
                 <CustomSelect
                   value={gradeFilter}
                   onChange={(e) => {
@@ -678,7 +678,7 @@ export const StudentsPage = () => {
               </div>
 
               {/* Strand Filter */}
-              <div className="mobile-filter-item" style={{ minWidth: '120px' }}>
+              <div className="mobile-filter-item">
                 <CustomSelect
                   value={strandFilter}
                   onChange={(e) => {
@@ -697,25 +697,23 @@ export const StudentsPage = () => {
                 />
               </div>
 
-              {/* Entries per page */}
-              <div className="mobile-filter-item" style={{ minWidth: '95px' }}>
-                <CustomSelect
-                  value={entriesPerPage}
-                  onChange={(e) => {
-                    setEntriesPerPage(Number(e.target.value));
-                    setCurrentPage(1);
-                  }}
-                  options={[
-                    { value: 10, label: '10 / page' },
-                    { value: 25, label: '25 / page' },
-                    { value: 50, label: '50 / page' },
-                    { value: 100, label: '100 / page' }
-                  ]}
-                />
-              </div>
-
-              {/* List / Grid View Toggle */}
-              <div style={{ display: 'inline-flex', alignItems: 'center' }}>
+              {/* Entries per page & List / Grid View Toggle combined */}
+              <div className="mobile-filter-item mobile-filter-item-utility">
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <CustomSelect
+                    value={entriesPerPage}
+                    onChange={(e) => {
+                      setEntriesPerPage(Number(e.target.value));
+                      setCurrentPage(1);
+                    }}
+                    options={[
+                      { value: 10, label: '10 / page' },
+                      { value: 25, label: '25 / page' },
+                      { value: 50, label: '50 / page' },
+                      { value: 100, label: '100 / page' }
+                    ]}
+                  />
+                </div>
                 <ViewModeToggle viewMode={viewMode} onChange={setViewMode} />
               </div>
             </div>

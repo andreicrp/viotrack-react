@@ -237,7 +237,7 @@ export const ActivityLogsPage = () => {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
       {/* Top Banner & Quick Actions */}
       <div className="page-banner-header">
         <div className="page-banner-info">
@@ -304,8 +304,8 @@ export const ActivityLogsPage = () => {
         className="metric-cards-grid"
         style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-          gap: '16px'
+          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+          gap: '12px'
         }}
       >
         {/* Total Activities */}
@@ -313,10 +313,10 @@ export const ActivityLogsPage = () => {
           onClick={() => setActionCategory('all')}
           style={{
             background: actionCategory === 'all' ? '#f0f4f8' : '#ffffff',
-            borderRadius: '14px',
-            padding: '18px 20px',
+            borderRadius: '10px',
+            padding: '12px 14px',
             border: actionCategory === 'all' ? '2px solid #07345f' : '1px solid #e2e8f0',
-            boxShadow: '0 2px 10px rgba(0,0,0,0.03)',
+            boxShadow: '0 1px 4px rgba(0,0,0,0.02)',
             cursor: 'pointer',
             transition: 'all 0.2s',
             position: 'relative',
@@ -325,20 +325,20 @@ export const ActivityLogsPage = () => {
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
-              <div style={{ fontSize: '12px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+              <div style={{ fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.03em' }}>
                 Total Audit Events
               </div>
-              <div style={{ fontSize: '26px', fontWeight: 800, color: '#0f172a', marginTop: '4px' }}>
+              <div style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a', marginTop: '2px' }}>
                 {stats.total}
               </div>
-              <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px' }}>
+              <div style={{ fontSize: '10px', color: '#64748b', marginTop: '2px' }}>
                 Full system activity trail
               </div>
             </div>
-            <Activity size={28} color="#07345f" strokeWidth={2.2} style={{ flexShrink: 0 }} />
+            <Activity size={20} color="#07345f" strokeWidth={2} style={{ flexShrink: 0 }} />
           </div>
           {actionCategory === 'all' && (
-            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 3, background: '#07345f' }}></div>
+            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 2.5, background: '#07345f' }}></div>
           )}
         </div>
 
@@ -346,25 +346,25 @@ export const ActivityLogsPage = () => {
         <div
           style={{
             background: '#ffffff',
-            borderRadius: '14px',
-            padding: '18px 20px',
+            borderRadius: '10px',
+            padding: '12px 14px',
             border: '1px solid #e2e8f0',
-            boxShadow: '0 2px 10px rgba(0,0,0,0.03)'
+            boxShadow: '0 1px 4px rgba(0,0,0,0.02)'
           }}
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
-              <div style={{ fontSize: '12px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+              <div style={{ fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.03em' }}>
                 Today's Actions
               </div>
-              <div style={{ fontSize: '26px', fontWeight: 800, color: '#0f172a', marginTop: '4px' }}>
+              <div style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a', marginTop: '2px' }}>
                 {stats.todayCount}
               </div>
-              <div style={{ fontSize: '11px', color: '#059669', marginTop: '4px', fontWeight: 600 }}>
+              <div style={{ fontSize: '10px', color: '#059669', marginTop: '2px', fontWeight: 600 }}>
                 Logged in last 24 hours
               </div>
             </div>
-            <Clock size={28} color="#059669" strokeWidth={2.2} style={{ flexShrink: 0 }} />
+            <Clock size={20} color="#059669" strokeWidth={2} style={{ flexShrink: 0 }} />
           </div>
         </div>
 
@@ -373,10 +373,10 @@ export const ActivityLogsPage = () => {
           onClick={() => setActionCategory(actionCategory === 'violations' ? 'all' : 'violations')}
           style={{
             background: actionCategory === 'violations' ? '#faf5ff' : '#ffffff',
-            borderRadius: '14px',
-            padding: '18px 20px',
+            borderRadius: '10px',
+            padding: '12px 14px',
             border: actionCategory === 'violations' ? '2px solid #7c3aed' : '1px solid #e2e8f0',
-            boxShadow: '0 2px 10px rgba(0,0,0,0.03)',
+            boxShadow: '0 1px 4px rgba(0,0,0,0.02)',
             cursor: 'pointer',
             transition: 'all 0.2s',
             position: 'relative',
@@ -385,20 +385,20 @@ export const ActivityLogsPage = () => {
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
-              <div style={{ fontSize: '12px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+              <div style={{ fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.03em' }}>
                 Discipline Events
               </div>
-              <div style={{ fontSize: '26px', fontWeight: 800, color: '#0f172a', marginTop: '4px' }}>
+              <div style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a', marginTop: '2px' }}>
                 {stats.violationEvents}
               </div>
-              <div style={{ fontSize: '11px', color: '#7c3aed', marginTop: '4px', fontWeight: 600 }}>
+              <div style={{ fontSize: '10px', color: '#7c3aed', marginTop: '2px', fontWeight: 600 }}>
                 Violations & resolutions
               </div>
             </div>
-            <ShieldAlert size={28} color="#7c3aed" strokeWidth={2.2} style={{ flexShrink: 0 }} />
+            <ShieldAlert size={20} color="#7c3aed" strokeWidth={2} style={{ flexShrink: 0 }} />
           </div>
           {actionCategory === 'violations' && (
-            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 3, background: '#7c3aed' }}></div>
+            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 2.5, background: '#7c3aed' }}></div>
           )}
         </div>
 
@@ -407,10 +407,10 @@ export const ActivityLogsPage = () => {
           onClick={() => setActionCategory(actionCategory === 'users' ? 'all' : 'users')}
           style={{
             background: actionCategory === 'users' ? '#fffbeb' : '#ffffff',
-            borderRadius: '14px',
-            padding: '18px 20px',
+            borderRadius: '10px',
+            padding: '12px 14px',
             border: actionCategory === 'users' ? '2px solid #d97706' : '1px solid #e2e8f0',
-            boxShadow: '0 2px 10px rgba(0,0,0,0.03)',
+            boxShadow: '0 1px 4px rgba(0,0,0,0.02)',
             cursor: 'pointer',
             transition: 'all 0.2s',
             position: 'relative',
@@ -419,20 +419,20 @@ export const ActivityLogsPage = () => {
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
-              <div style={{ fontSize: '12px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+              <div style={{ fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.03em' }}>
                 User Governance
               </div>
-              <div style={{ fontSize: '26px', fontWeight: 800, color: '#0f172a', marginTop: '4px' }}>
+              <div style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a', marginTop: '2px' }}>
                 {stats.adminEvents}
               </div>
-              <div style={{ fontSize: '11px', color: '#d97706', marginTop: '4px', fontWeight: 600 }}>
+              <div style={{ fontSize: '10px', color: '#d97706', marginTop: '2px', fontWeight: 600 }}>
                 Faculty & account edits
               </div>
             </div>
-            <ShieldCheck size={28} color="#d97706" strokeWidth={2.2} style={{ flexShrink: 0 }} />
+            <ShieldCheck size={20} color="#d97706" strokeWidth={2} style={{ flexShrink: 0 }} />
           </div>
           {actionCategory === 'users' && (
-            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 3, background: '#d97706' }}></div>
+            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 2.5, background: '#d97706' }}></div>
           )}
         </div>
       </div>
@@ -450,11 +450,11 @@ export const ActivityLogsPage = () => {
         {/* Toolbar */}
         <div
           style={{
-            padding: '20px 24px',
+            padding: '14px 18px',
             borderBottom: '1px solid #f1f5f9',
             display: 'flex',
             flexDirection: 'column',
-            gap: '16px'
+            gap: '12px'
           }}
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '14px' }}>

@@ -188,6 +188,16 @@ export const DashboardPage = () => {
         infractionLabel: '1 Infraction',
         image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80',
         badgeType: 'amber'
+      },
+      {
+        id: 2,
+        rank: 5,
+        name: 'Sophia Villanueva',
+        grade: 'Grade 10 – Rizal',
+        infractions: 1,
+        infractionLabel: '1 Infraction',
+        image: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&auto=format&fit=crop&q=80',
+        badgeType: 'amber'
       }
     ];
   }, []);
@@ -767,7 +777,7 @@ export const DashboardPage = () => {
 
           {/* Footer Pagination */}
           <div className="dash-card-footer-pagination">
-            <span style={{ fontSize: '11.5px', color: '#64748b' }}>Showing 1 – 4 of 4</span>
+            <span style={{ fontSize: '11.5px', color: '#64748b' }}>Showing 1 – {repeatStudentsList.length} of {repeatStudentsList.length}</span>
             <div style={{ display: 'flex', gap: '4px' }}>
               <button
                 type="button"

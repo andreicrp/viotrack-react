@@ -361,6 +361,72 @@
   background: #ffffff !important;
 }
 
+/* ==========================================================================
+   Camera Initializing / Starting-Up Clean Light Mode Overlay
+   ========================================================================== */
+.camera-starting-overlay {
+  position: absolute;
+  inset: 0;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 25;
+  animation: fadeInStarting 0.2s ease-out;
+  border-radius: 14px;
+}
+
+@keyframes fadeInStarting {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.camera-starting-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 12px;
+  padding: 24px 20px;
+  max-width: 300px;
+  width: 100%;
+}
+
+.camera-starting-icon-wrap {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: #eff6ff;
+  border: 1.5px solid #bfdbfe;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #2563eb;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.12);
+}
+
+.camera-starting-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.camera-starting-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+.camera-starting-step {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: #64748b;
+  margin: 0;
+  line-height: 1.4;
+}
+
 /* Enhanced Light Mode Camera Notice Overlay & Card */
 .camera-notice-overlay {
   position: relative;
@@ -692,13 +758,51 @@ div[id*="reader"] video {
   object-fit: cover !important;
   border-radius: 12px !important;
   display: block !important;
+  animation: cameraStreamFadeIn 0.35s ease-out !important;
+  -webkit-transform: scaleX(1);
+  transform: scaleX(1);
+}
+
+/* Mirror the video feed ONLY when front / selfie camera is active or mirrored */
+.scanner-viewport-wrapper.is-front-camera #reader-stream-container video,
+.scanner-viewport-wrapper.is-front-camera #reader-stream-container__scan_region video,
+.scanner-viewport-wrapper.is-front-camera video,
+.scanner-viewport-wrapper.is-front-camera video#html5-qrcode-video,
+.scanner-viewport-wrapper.is-front-camera div[id*="reader"] video {
+  -webkit-transform: scaleX(-1) !important;
+  transform: scaleX(-1) !important;
+}
+
+/* Ensure back camera video remains non-mirrored */
+.scanner-viewport-wrapper:not(.is-front-camera) #reader-stream-container video,
+.scanner-viewport-wrapper:not(.is-front-camera) #reader-stream-container__scan_region video,
+.scanner-viewport-wrapper:not(.is-front-camera) video {
+  -webkit-transform: scaleX(1) !important;
+  transform: scaleX(1) !important;
+}
+
+/* Ensure HUD overlays, reticle, notice cards remain non-flipped */
+.scanner-viewport-wrapper.is-front-camera .scanner-overlay-reticle,
+.scanner-viewport-wrapper.is-front-camera .camera-starting-overlay,
+.scanner-viewport-wrapper.is-front-camera .camera-notice-overlay {
+  -webkit-transform: none !important;
+  transform: none !important;
+}
+
+@keyframes cameraStreamFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 #reader-stream-container canvas {
   display: none !important;
 }
 
-/* Reticle & Animated HUD */
+/* Reticle & Viewfinder HUD */
 .scanner-overlay-reticle {
   position: absolute;
   inset: 0;
@@ -713,95 +817,96 @@ div[id*="reader"] video {
   position: relative;
   width: 220px;
   height: 220px;
-  border: 1.5px dashed rgba(255, 255, 255, 0.35);
   border-radius: 16px;
-  box-shadow: 0 0 0 4000px rgba(0, 0, 0, 0.38);
+  box-shadow: 0 0 0 4000px rgba(0, 0, 0, 0.4);
   overflow: hidden;
   transition: all 0.2s ease;
 }
 
-/* Reticle Corner HUD Brackets */
+/* Reticle Clean Corner Guides */
 .corner-bracket {
   position: absolute;
-  width: 26px;
-  height: 26px;
-  border: 3.5px solid #00f0ff;
-  filter: drop-shadow(0 0 6px rgba(0, 240, 255, 0.6));
+  width: 22px;
+  height: 22px;
+  border: 3px solid rgba(255, 255, 255, 0.95);
 }
 
 .corner-bracket.top-left {
-  top: -2px;
-  left: -2px;
+  top: 0;
+  left: 0;
   border-right: none;
   border-bottom: none;
-  border-top-left-radius: 14px;
+  border-top-left-radius: 12px;
 }
 
 .corner-bracket.top-right {
-  top: -2px;
-  right: -2px;
+  top: 0;
+  right: 0;
   border-left: none;
   border-bottom: none;
-  border-top-right-radius: 14px;
+  border-top-right-radius: 12px;
 }
 
 .corner-bracket.bottom-left {
-  bottom: -2px;
-  left: -2px;
+  bottom: 0;
+  left: 0;
   border-right: none;
   border-top: none;
-  border-bottom-left-radius: 14px;
+  border-bottom-left-radius: 12px;
 }
 
 .corner-bracket.bottom-right {
-  bottom: -2px;
-  right: -2px;
+  bottom: 0;
+  right: 0;
   border-left: none;
   border-top: none;
-  border-bottom-right-radius: 14px;
+  border-bottom-right-radius: 12px;
 }
 
-/* Scanning Laser Line */
+/* Clean, Subtle Scanning Indicator Line */
 .laser-scan-line {
   position: absolute;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, transparent, #00f0ff 20%, #38bdf8 50%, #00f0ff 80%, transparent);
-  box-shadow: 0 0 16px #00f0ff, 0 0 6px #ffffff;
-  animation: scanLaser 2s ease-in-out infinite alternate;
+  left: 6px;
+  right: 6px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #38bdf8 30%, #ffffff 50%, #38bdf8 70%, transparent);
+  box-shadow: 0 0 6px rgba(56, 189, 248, 0.5);
+  animation: scanLaser 2.4s ease-in-out infinite alternate;
 }
 
 @keyframes scanLaser {
-  0% { top: 6%; opacity: 0.9; }
-  100% { top: 92%; opacity: 0.9; }
+  0% { top: 6%; opacity: 0.8; }
+  100% { top: 92%; opacity: 0.8; }
 }
 
 /* Scanner Control Bar */
 .scanner-controls-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
   gap: 8px;
-  flex-wrap: wrap;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .scan-ctrl-btn {
-  flex: 1 1 auto;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
-  padding: 10px 14px;
-  font-size: 13px;
+  padding: 10px 10px;
+  font-size: 12.5px;
   font-weight: 700;
   border-radius: 10px;
   cursor: pointer;
   background: #f8fafc;
   color: #334155;
-  border: 1px solid #cbd5e1;
+  border: 1.5px solid #cbd5e1;
   transition: all 0.15s ease;
   white-space: nowrap;
+  min-width: 0;
+  min-height: 40px;
+  box-sizing: border-box;
+  font-family: inherit;
 }
 
 .scan-ctrl-btn:hover {
@@ -811,9 +916,14 @@ div[id*="reader"] video {
 }
 
 .scan-ctrl-btn.active {
-  background: #f0f4f8;
-  color: #07345f;
-  border-color: #07345f;
+  background: #eff6ff;
+  color: #1d4ed8;
+  border-color: #3b82f6;
+  box-shadow: 0 1px 3px rgba(37, 99, 235, 0.12);
+}
+
+.scan-ctrl-btn:active {
+  transform: scale(0.98);
 }
 
 /* Manual Search Section */
@@ -1793,18 +1903,20 @@ div[id*="reader"] video {
 
   .scanner-controls-bar {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 6px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
     width: 100%;
     box-sizing: border-box;
   }
 
   .scan-ctrl-btn {
     width: 100%;
-    padding: 8px 4px;
-    font-size: 11.5px;
-    gap: 4px;
+    padding: 10px 8px;
+    font-size: 12px;
+    gap: 6px;
     justify-content: center;
+    min-height: 42px;
+    border-radius: 10px;
     min-width: 0;
     box-sizing: border-box;
   }
@@ -1819,7 +1931,7 @@ div[id*="reader"] video {
 @media (max-width: 480px) {
   .scanner-card {
     padding: 12px;
-    gap: 10px;
+    gap: 12px;
   }
 
   .scanner-viewport-wrapper {
@@ -1827,14 +1939,16 @@ div[id*="reader"] video {
   }
 
   .scanner-controls-bar {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 5px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 7px;
   }
 
   .scan-ctrl-btn {
-    padding: 7px 3px;
-    font-size: 11px;
-    gap: 3px;
+    padding: 9px 6px;
+    font-size: 11.5px;
+    gap: 5px;
+    min-height: 40px;
+    border-radius: 9px;
   }
 
   .reticle-box {
@@ -1846,10 +1960,15 @@ div[id*="reader"] video {
 
 @media (max-width: 360px) {
   .scanner-controls-bar {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px;
   }
-  .scan-ctrl-btn:last-child {
-    grid-column: span 2;
+
+  .scan-ctrl-btn {
+    padding: 8px 4px;
+    font-size: 11px;
+    gap: 4px;
+    min-height: 38px;
   }
 }
 

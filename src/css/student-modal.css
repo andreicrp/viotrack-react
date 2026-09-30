@@ -3,9 +3,9 @@
 .student-modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(15, 23, 42, 0.65);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
@@ -24,12 +24,12 @@
 /* Modal Dialog Card */
 .student-modal-card {
   width: 100%;
-  max-width: 580px;
+  max-width: 520px;
   max-height: 90vh;
   background: #ffffff;
   border-radius: 18px;
   border: 1px solid #e2e8f0;
-  box-shadow: 0 25px 60px -15px rgba(15, 23, 42, 0.35), 0 0 0 1px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 20px 45px -10px rgba(15, 23, 42, 0.25), 0 0 0 1px rgba(0, 0, 0, 0.04);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -59,21 +59,8 @@
   gap: 12px;
 }
 
-.student-modal-header-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  background: #f1f5f9;
-  color: #07345f;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid #e2e8f0;
-  flex-shrink: 0;
-}
-
 .student-modal-title {
-  font-size: 16.5px;
+  font-size: 16px;
   font-weight: 800;
   color: #0f172a;
   margin: 0;
@@ -110,29 +97,29 @@
 
 /* Body */
 .student-modal-body {
-  padding: 18px 20px;
+  padding: 16px 20px;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 12px;
 }
 
 /* Hero Card */
 .student-hero-card {
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 14px 16px;
+  gap: 14px;
+  padding: 12px 14px;
   background: #f8fafc;
   border: 1px solid #e2e8f0;
-  border-radius: 14px;
+  border-radius: 12px;
 }
 
 .student-avatar-wrapper {
   position: relative;
-  width: 68px;
-  height: 68px;
+  width: 60px;
+  height: 60px;
   flex-shrink: 0;
 }
 
@@ -163,7 +150,7 @@
 .student-hero-meta {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 5px;
   min-width: 0;
   flex: 1;
 }
@@ -175,7 +162,7 @@
 }
 
 .student-hero-name {
-  font-size: 16px;
+  font-size: 15.5px;
   font-weight: 800;
   color: #0f172a;
   margin: 0;
@@ -194,10 +181,10 @@
 .student-hero-pill {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: 4px;
   font-size: 11px;
   font-weight: 600;
-  padding: 3px 8px;
+  padding: 2.5px 7px;
   border-radius: 6px;
   white-space: nowrap;
   background: #ffffff;
@@ -209,21 +196,21 @@
   font-family: monospace;
 }
 
-/* Details Grid */
+/* Details Grid - 2 columns */
 .student-details-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
+  gap: 8px;
 }
 
 .student-info-item {
   display: flex;
   align-items: center;
-  gap: 11px;
-  padding: 10px 12px;
+  gap: 9px;
+  padding: 8px 10px;
   background: #ffffff;
   border: 1px solid #e2e8f0;
-  border-radius: 10px;
+  border-radius: 9px;
   transition: all 0.15s ease;
   min-width: 0;
 }
@@ -234,9 +221,9 @@
 }
 
 .info-icon-box {
-  width: 30px;
-  height: 30px;
-  border-radius: 7px;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
   background: #f8fafc;
   border: 1px solid #e2e8f0;
   color: #475569;
@@ -249,24 +236,24 @@
 .info-text-group {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 1px;
   min-width: 0;
   flex: 1;
 }
 
 .info-item-label {
-  font-size: 10px;
+  font-size: 9.5px;
   font-weight: 700;
   color: #64748b;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.03em;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .info-item-value {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
   color: #0f172a;
   white-space: nowrap;
@@ -277,12 +264,12 @@
 
 .info-item-value.lrn-font {
   font-family: monospace;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.02em;
   color: #07345f;
 }
 
 .info-item-link {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
   color: #07345f;
   text-decoration: none;
@@ -298,13 +285,13 @@
 
 /* Footer */
 .student-modal-footer {
-  padding: 14px 20px;
+  padding: 12px 18px;
   background: #f8fafc;
   border-top: 1px solid #f1f5f9;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
+  gap: 8px;
   flex-shrink: 0;
   flex-wrap: wrap;
 }
@@ -313,7 +300,6 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  flex-wrap: wrap;
   flex: 1;
 }
 
@@ -322,8 +308,8 @@
   align-items: center;
   justify-content: center;
   gap: 6px;
-  padding: 8px 14px;
-  font-size: 12.5px;
+  padding: 8px 12px;
+  font-size: 12px;
   font-weight: 700;
   border-radius: 8px;
   cursor: pointer;
@@ -376,97 +362,101 @@
 @media (max-width: 640px) {
   .student-modal-overlay {
     padding: 12px;
-    display: flex !important;
     align-items: center !important;
     justify-content: center !important;
   }
 
   .student-modal-card {
-    max-height: 88vh;
+    max-height: 90vh;
     border-radius: 16px;
     width: 100%;
     margin: auto;
   }
 
   .student-modal-header {
-    padding: 13px 16px;
+    padding: 12px 14px;
   }
 
   .student-modal-body {
-    padding: 14px 16px;
+    padding: 12px 14px;
     gap: 10px;
   }
 
   .student-hero-card {
-    padding: 12px;
-    gap: 12px;
+    padding: 10px 12px;
+    gap: 10px;
   }
 
   .student-avatar-wrapper {
-    width: 54px;
-    height: 54px;
+    width: 50px;
+    height: 50px;
   }
 
   .student-hero-name {
-    font-size: 15px;
+    font-size: 14.5px;
   }
 
   .student-hero-pill {
-    font-size: 10px;
-    padding: 2px 6px;
+    font-size: 9.5px;
+    padding: 2px 5px;
   }
 
   .student-details-grid {
-    grid-template-columns: 1fr;
-    gap: 7px;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 6px !important;
   }
 
   .student-info-item {
-    padding: 8px 10px;
-    gap: 9px;
+    padding: 7px 8px;
+    gap: 7px;
   }
 
   .info-icon-box {
-    width: 26px;
-    height: 26px;
+    width: 25px;
+    height: 25px;
   }
 
   .info-item-label {
-    font-size: 9.5px;
+    font-size: 8.5px;
   }
 
-  .info-item-value {
-    font-size: 12px;
+  .info-item-value,
+  .info-item-link {
+    font-size: 11px;
   }
 
   /* Mobile Footer */
   .student-modal-footer {
-    padding: 12px 16px;
+    padding: 10px 14px;
     flex-direction: column;
-    gap: 8px;
+    gap: 6px;
   }
 
   .student-modal-footer-primary {
     width: 100%;
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 8px;
+    gap: 6px;
   }
 
   .student-modal-btn {
     width: 100%;
-    height: 40px;
-    font-size: 12px;
-    padding: 8px 10px;
+    height: 36px;
+    font-size: 11.5px;
+    padding: 6px 8px;
   }
 
   .student-modal-btn.btn-close {
     width: 100%;
-    height: 38px;
+    height: 34px;
   }
 }
 
-@media (max-width: 380px) {
+@media (max-width: 340px) {
+  .student-details-grid {
+    grid-template-columns: 1fr !important;
+  }
+
   .student-modal-footer-primary {
     grid-template-columns: 1fr;
   }

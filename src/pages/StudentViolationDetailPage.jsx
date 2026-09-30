@@ -340,7 +340,7 @@ export const StudentViolationDetailPage = () => {
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
       
       {/* Top Banner Header with Actions */}
       <div className="page-banner-header">
@@ -668,9 +668,9 @@ export const StudentViolationDetailPage = () => {
           style={{
             background: statusFilter === 'all' ? '#f0f4f8' : '#ffffff',
             border: statusFilter === 'all' ? '2px solid #07345f' : '1px solid #e2e8f0',
-            borderRadius: '14px',
-            padding: '16px 20px',
-            boxShadow: statusFilter === 'all' ? '0 4px 14px rgba(7, 52, 95, 0.12)' : '0 1px 3px rgba(0,0,0,0.03)',
+            borderRadius: '10px',
+            padding: '12px 14px',
+            boxShadow: statusFilter === 'all' ? '0 2px 8px rgba(7, 52, 95, 0.1)' : '0 1px 3px rgba(0,0,0,0.03)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
@@ -693,12 +693,12 @@ export const StudentViolationDetailPage = () => {
           }}
         >
           <div>
-            <div style={{ fontSize: '11.5px', color: '#475569', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Total Incidents</div>
-            <div style={{ fontSize: '26px', fontWeight: 800, color: '#07345f', marginTop: '2px' }}>{totalCount}</div>
+            <div style={{ fontSize: '11px', color: '#475569', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.03em' }}>Total Incidents</div>
+            <div style={{ fontSize: '20px', fontWeight: 800, color: '#07345f', marginTop: '2px' }}>{totalCount}</div>
           </div>
-          <FileText size={28} color="#07345f" strokeWidth={1.8} />
+          <FileText size={20} color="#07345f" strokeWidth={2} />
           {statusFilter === 'all' && (
-            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 3.5, background: '#07345f' }} />
+            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 2.5, background: '#07345f' }} />
           )}
         </div>
 
@@ -708,9 +708,9 @@ export const StudentViolationDetailPage = () => {
           style={{
             background: statusFilter === 'pending' ? '#fef2f2' : '#ffffff',
             border: statusFilter === 'pending' ? '2px solid #dc2626' : '1px solid #e2e8f0',
-            borderRadius: '14px',
-            padding: '16px 20px',
-            boxShadow: statusFilter === 'pending' ? '0 4px 14px rgba(220, 38, 38, 0.12)' : '0 1px 3px rgba(0,0,0,0.03)',
+            borderRadius: '10px',
+            padding: '12px 14px',
+            boxShadow: statusFilter === 'pending' ? '0 2px 8px rgba(220, 38, 38, 0.1)' : '0 1px 3px rgba(0,0,0,0.03)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
@@ -733,12 +733,12 @@ export const StudentViolationDetailPage = () => {
           }}
         >
           <div>
-            <div style={{ fontSize: '11.5px', color: '#b91c1c', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Pending Review</div>
-            <div style={{ fontSize: '26px', fontWeight: 800, color: '#dc2626', marginTop: '2px' }}>{pendingCount}</div>
+            <div style={{ fontSize: '11px', color: '#b91c1c', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.03em' }}>Pending Review</div>
+            <div style={{ fontSize: '20px', fontWeight: 800, color: '#dc2626', marginTop: '2px' }}>{pendingCount}</div>
           </div>
-          <Clock size={28} color="#dc2626" strokeWidth={1.8} />
+          <Clock size={20} color="#dc2626" strokeWidth={2} />
           {statusFilter === 'pending' && (
-            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 3.5, background: '#dc2626' }} />
+            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 2.5, background: '#dc2626' }} />
           )}
         </div>
 
@@ -748,9 +748,9 @@ export const StudentViolationDetailPage = () => {
           style={{
             background: statusFilter === 'investigation' ? '#fffbeb' : '#ffffff',
             border: statusFilter === 'investigation' ? '2px solid #d97706' : '1px solid #e2e8f0',
-            borderRadius: '14px',
-            padding: '16px 20px',
-            boxShadow: statusFilter === 'investigation' ? '0 4px 14px rgba(217, 119, 6, 0.12)' : '0 1px 3px rgba(0,0,0,0.03)',
+            borderRadius: '10px',
+            padding: '12px 14px',
+            boxShadow: statusFilter === 'investigation' ? '0 2px 8px rgba(217, 119, 6, 0.1)' : '0 1px 3px rgba(0,0,0,0.03)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
@@ -773,12 +773,12 @@ export const StudentViolationDetailPage = () => {
           }}
         >
           <div>
-            <div style={{ fontSize: '11.5px', color: '#b45309', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}>In Review</div>
-            <div style={{ fontSize: '26px', fontWeight: 800, color: '#d97706', marginTop: '2px' }}>{investigationCount}</div>
+            <div style={{ fontSize: '11px', color: '#b45309', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.03em' }}>In Review</div>
+            <div style={{ fontSize: '20px', fontWeight: 800, color: '#d97706', marginTop: '2px' }}>{investigationCount}</div>
           </div>
-          <Search size={28} color="#d97706" strokeWidth={1.8} />
+          <Search size={20} color="#d97706" strokeWidth={2} />
           {statusFilter === 'investigation' && (
-            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 3.5, background: '#d97706' }} />
+            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 2.5, background: '#d97706' }} />
           )}
         </div>
 
@@ -788,9 +788,9 @@ export const StudentViolationDetailPage = () => {
           style={{
             background: statusFilter === 'resolved' ? '#f0fdf4' : '#ffffff',
             border: statusFilter === 'resolved' ? '2px solid #16a34a' : '1px solid #e2e8f0',
-            borderRadius: '14px',
-            padding: '16px 20px',
-            boxShadow: statusFilter === 'resolved' ? '0 4px 14px rgba(22, 163, 74, 0.12)' : '0 1px 3px rgba(0,0,0,0.03)',
+            borderRadius: '10px',
+            padding: '12px 14px',
+            boxShadow: statusFilter === 'resolved' ? '0 2px 8px rgba(22, 163, 74, 0.1)' : '0 1px 3px rgba(0,0,0,0.03)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
@@ -813,12 +813,12 @@ export const StudentViolationDetailPage = () => {
           }}
         >
           <div>
-            <div style={{ fontSize: '11.5px', color: '#15803d', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Resolved & Cleared</div>
-            <div style={{ fontSize: '26px', fontWeight: 800, color: '#16a34a', marginTop: '2px' }}>{resolvedCount}</div>
+            <div style={{ fontSize: '11px', color: '#15803d', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.03em' }}>Resolved & Cleared</div>
+            <div style={{ fontSize: '20px', fontWeight: 800, color: '#16a34a', marginTop: '2px' }}>{resolvedCount}</div>
           </div>
-          <CheckCircle2 size={28} color="#16a34a" strokeWidth={1.8} />
+          <CheckCircle2 size={20} color="#16a34a" strokeWidth={2} />
           {statusFilter === 'resolved' && (
-            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 3.5, background: '#16a34a' }} />
+            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 2.5, background: '#16a34a' }} />
           )}
         </div>
       </div>
@@ -829,7 +829,7 @@ export const StudentViolationDetailPage = () => {
           background: '#ffffff',
           borderRadius: '16px',
           border: '1px solid #e2e8f0',
-          padding: '24px 28px',
+          padding: '16px 20px',
           boxShadow: '0 4px 16px rgba(0,0,0,0.04)'
         }}
       >
@@ -840,9 +840,9 @@ export const StudentViolationDetailPage = () => {
             justifyContent: 'space-between',
             alignItems: 'center',
             flexWrap: 'wrap',
-            gap: '16px',
-            marginBottom: '20px',
-            paddingBottom: '16px',
+            gap: '14px',
+            marginBottom: '14px',
+            paddingBottom: '12px',
             borderBottom: '1px solid #f1f5f9'
           }}
         >

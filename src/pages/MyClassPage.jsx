@@ -227,7 +227,7 @@ export const MyClassPage = () => {
   const sectionLabel = adviser?.class_section || 'Rizal';
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '22px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
       {/* 1. Hero Adviser Profile & Advisory Banner */}
       <div className="page-banner-header">
         <div className="page-banner-info" style={{ gap: '18px' }}>
@@ -349,8 +349,8 @@ export const MyClassPage = () => {
         className="metric-cards-grid"
         style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-          gap: '16px'
+          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+          gap: '12px'
         }}
       >
         {/* Total Enrolled Students */}
@@ -358,10 +358,10 @@ export const MyClassPage = () => {
           onClick={() => setStatusFilter('all')}
           style={{
             background: statusFilter === 'all' ? '#f0f4f8' : '#ffffff',
-            borderRadius: '14px',
-            padding: '18px 20px',
+            borderRadius: '10px',
+            padding: '12px 14px',
             border: statusFilter === 'all' ? '2px solid #07345f' : '1px solid #e2e8f0',
-            boxShadow: '0 2px 10px rgba(0,0,0,0.03)',
+            boxShadow: '0 1px 4px rgba(0,0,0,0.02)',
             cursor: 'pointer',
             transition: 'all 0.2s',
             position: 'relative'
@@ -369,20 +369,20 @@ export const MyClassPage = () => {
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
-              <div style={{ fontSize: '12px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+              <div style={{ fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.03em' }}>
                 Enrolled Students
               </div>
-              <div style={{ fontSize: '26px', fontWeight: 800, color: '#0f172a', marginTop: '4px' }}>
+              <div style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a', marginTop: '2px' }}>
                 {analytics.total}
               </div>
-              <div style={{ fontSize: '11.5px', color: '#64748b', marginTop: '4px', fontWeight: 500 }}>
+              <div style={{ fontSize: '10px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
                 {analytics.maleCount} Male • {analytics.femaleCount} Female
               </div>
             </div>
-            <Users size={28} color="#07345f" strokeWidth={2.2} style={{ flexShrink: 0 }} />
+            <Users size={20} color="#07345f" strokeWidth={2} style={{ flexShrink: 0 }} />
           </div>
           {statusFilter === 'all' && (
-            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 3, background: '#07345f' }}></div>
+            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 2.5, background: '#07345f' }}></div>
           )}
         </div>
 
@@ -391,10 +391,10 @@ export const MyClassPage = () => {
           onClick={() => setStatusFilter(statusFilter === 'clean' ? 'all' : 'clean')}
           style={{
             background: statusFilter === 'clean' ? '#f0fdf4' : '#ffffff',
-            borderRadius: '14px',
-            padding: '18px 20px',
+            borderRadius: '10px',
+            padding: '12px 14px',
             border: statusFilter === 'clean' ? '2px solid #16a34a' : '1px solid #e2e8f0',
-            boxShadow: '0 2px 10px rgba(0,0,0,0.03)',
+            boxShadow: '0 1px 4px rgba(0,0,0,0.02)',
             cursor: 'pointer',
             transition: 'all 0.2s',
             position: 'relative'
@@ -402,20 +402,20 @@ export const MyClassPage = () => {
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
-              <div style={{ fontSize: '12px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+              <div style={{ fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.03em' }}>
                 Good Standing
               </div>
-              <div style={{ fontSize: '26px', fontWeight: 800, color: '#16a34a', marginTop: '4px' }}>
+              <div style={{ fontSize: '20px', fontWeight: 800, color: '#16a34a', marginTop: '2px' }}>
                 {analytics.cleanStudents}
               </div>
-              <div style={{ fontSize: '11.5px', color: '#16a34a', marginTop: '4px', fontWeight: 600 }}>
+              <div style={{ fontSize: '10px', color: '#16a34a', marginTop: '2px', fontWeight: 600 }}>
                 {analytics.goodStandingRate}% Clean Disciplinary Record
               </div>
             </div>
-            <ShieldCheck size={28} color="#16a34a" strokeWidth={2.2} style={{ flexShrink: 0 }} />
+            <ShieldCheck size={20} color="#16a34a" strokeWidth={2} style={{ flexShrink: 0 }} />
           </div>
           {statusFilter === 'clean' && (
-            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 3, background: '#16a34a' }}></div>
+            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 2.5, background: '#16a34a' }}></div>
           )}
         </div>
 
@@ -424,10 +424,10 @@ export const MyClassPage = () => {
           onClick={() => setStatusFilter(statusFilter === 'violations' ? 'all' : 'violations')}
           style={{
             background: statusFilter === 'violations' ? '#fff1f2' : '#ffffff',
-            borderRadius: '14px',
-            padding: '18px 20px',
+            borderRadius: '10px',
+            padding: '12px 14px',
             border: statusFilter === 'violations' ? '2px solid #e11d48' : '1px solid #e2e8f0',
-            boxShadow: '0 2px 10px rgba(0,0,0,0.03)',
+            boxShadow: '0 1px 4px rgba(0,0,0,0.02)',
             cursor: 'pointer',
             transition: 'all 0.2s',
             position: 'relative'
@@ -435,20 +435,20 @@ export const MyClassPage = () => {
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
-              <div style={{ fontSize: '12px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+              <div style={{ fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.03em' }}>
                 Recorded Offenses
               </div>
-              <div style={{ fontSize: '26px', fontWeight: 800, color: analytics.totalViolations > 0 ? '#e11d48' : '#0f172a', marginTop: '4px' }}>
+              <div style={{ fontSize: '20px', fontWeight: 800, color: analytics.totalViolations > 0 ? '#e11d48' : '#0f172a', marginTop: '2px' }}>
                 {analytics.totalViolations}
               </div>
-              <div style={{ fontSize: '11.5px', color: analytics.totalViolations > 0 ? '#e11d48' : '#64748b', marginTop: '4px', fontWeight: 600 }}>
+              <div style={{ fontSize: '10px', color: analytics.totalViolations > 0 ? '#e11d48' : '#64748b', marginTop: '2px', fontWeight: 600 }}>
                 {analytics.studentsWithViolations} {analytics.studentsWithViolations === 1 ? 'student' : 'students'} with offenses
               </div>
             </div>
-            <ShieldAlert size={28} color="#e11d48" strokeWidth={2.2} style={{ flexShrink: 0 }} />
+            <ShieldAlert size={20} color="#e11d48" strokeWidth={2} style={{ flexShrink: 0 }} />
           </div>
           {statusFilter === 'violations' && (
-            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 3, background: '#e11d48' }}></div>
+            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 2.5, background: '#e11d48' }}></div>
           )}
         </div>
       </div>
@@ -460,11 +460,11 @@ export const MyClassPage = () => {
           background: '#ffffff',
           borderRadius: '16px',
           border: '1px solid #e2e8f0',
-          padding: '24px',
+          padding: '16px 20px',
           boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
           display: 'flex',
           flexDirection: 'column',
-          gap: '18px'
+          gap: '14px'
         }}
       >
         {/* Card Toolbar */}

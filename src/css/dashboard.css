@@ -151,24 +151,24 @@
 
 .stat-card {
     background: #ffffff;
-    border-radius: 14px;
-    padding: 16px 18px;
+    border-radius: 10px;
+    padding: 12px 14px;
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-    border: 2px solid #27367f;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.02);
+    border: 1.5px solid #27367f;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     box-sizing: border-box;
     width: 100%;
     max-width: none;
-    gap: 12px;
+    gap: 10px;
 }
 
 .stat-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 24px rgba(39, 54, 127, 0.16);
+    box-shadow: 0 6px 18px rgba(39, 54, 127, 0.12);
     border-color: #1e2b66;
 }
 
@@ -182,25 +182,25 @@
 
 .stat-label {
     display: block;
-    font-size: 11.5px;
+    font-size: 11px;
     font-weight: 700;
     color: #475569;
     text-transform: uppercase;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.03em;
     line-height: 1.2;
     margin: 0;
 }
 
 .stat-value {
-    font-size: 28px;
+    font-size: 20px;
     font-weight: 800;
     color: #0f172a;
     line-height: 1.1;
-    margin: 3px 0 2px 0;
+    margin: 2px 0 1px 0;
 }
 
 .stat-subtext {
-    font-size: 11.5px;
+    font-size: 10px;
     font-weight: 500;
     color: #64748b;
     line-height: 1.35;
@@ -2725,7 +2725,6 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    flex-wrap: wrap;
     gap: 16px;
 }
 
@@ -2943,13 +2942,13 @@
 .dash-stat-card-clean {
     background: #ffffff;
     border: 1px solid #e2e8f0;
-    border-radius: 14px;
-    padding: 14px 16px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+    border-radius: 10px;
+    padding: 11px 13px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.02);
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    gap: 8px;
+    gap: 6px;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     cursor: default;
@@ -3000,8 +2999,8 @@
 
 .dash-stat-title-label {
     font-size: 10.5px;
-    font-weight: 700;
-    color: #64748b;
+    font-weight: 750;
+    color: #1f2937;
     text-transform: uppercase;
     letter-spacing: 0.04em;
     margin: 0;
@@ -3020,7 +3019,7 @@
 .dash-stat-big-num {
     font-size: 22px;
     font-weight: 800;
-    color: #0f172a;
+    color: #1f2937;
     line-height: 1.1;
 }
 
@@ -3042,7 +3041,7 @@
 
 .dash-stat-bottom-text {
     font-size: 11.5px;
-    color: #64748b;
+    color: #1f2937;
     font-weight: 500;
     margin: 0;
     white-space: nowrap;
@@ -3768,6 +3767,58 @@
 }
 
 @media (max-width: 768px) {
+    .dash-top-row-main {
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: flex-start !important;
+        gap: 10px !important;
+        flex-wrap: nowrap !important;
+    }
+
+    .dash-greeting-area {
+        flex: 1 !important;
+        min-width: 0 !important;
+    }
+
+    .dash-greeting-title-line {
+        display: flex !important;
+        align-items: center !important;
+        gap: 6px !important;
+        flex-wrap: wrap !important;
+    }
+
+    .dash-greeting-title {
+        font-size: 19px !important;
+        letter-spacing: -0.01em !important;
+    }
+
+    .dash-role-pill {
+        font-size: 10.5px !important;
+        padding: 2px 7px !important;
+    }
+
+    .dash-greeting-subtitle {
+        font-size: 12px !important;
+        line-height: 1.35 !important;
+        color: #64748b !important;
+        margin-top: 2px !important;
+    }
+
+    .dash-top-actions-right {
+        flex-shrink: 0 !important;
+        display: flex !important;
+        align-items: flex-start !important;
+    }
+
+    .dash-log-violation-btn {
+        padding: 7px 11px !important;
+        font-size: 12px !important;
+        border-radius: 9px !important;
+        gap: 5px !important;
+        box-shadow: 0 2px 8px rgba(11, 25, 44, 0.18) !important;
+        white-space: nowrap !important;
+    }
+
     .dash-stats-grid-5 {
         display: grid !important;
         grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
@@ -3825,6 +3876,17 @@
 
     .dash-section-name {
         font-size: 11.5px;
+    }
+}
+
+@media (max-width: 420px) {
+    .dash-greeting-title {
+        font-size: 17px !important;
+    }
+
+    .dash-log-violation-btn {
+        padding: 6px 9px !important;
+        font-size: 11.5px !important;
     }
 }
 

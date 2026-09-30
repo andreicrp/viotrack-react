@@ -19,7 +19,8 @@ import {
   PlusCircle,
   ChevronDown,
   Check,
-  X
+  X,
+  FlipHorizontal
 } from 'lucide-react';
 import { dataService } from '../services/dataService';
 import { AddViolationModal } from '../components/violations/AddViolationModal';
@@ -39,6 +40,8 @@ export const ScanQRPage = () => {
     return localStorage.getItem('viotrack_qr_camera_allowed') === 'true';
   });
   const [isRequestingPermission, setIsRequestingPermission] = useState(false);
+  const [isStartingCamera, setIsStartingCamera] = useState(false);
+  const [cameraStartupStep, setCameraStartupStep] = useState('Initializing camera...');
   const [isScannerRunning, setIsScannerRunning] = useState(false);
   const [cameraFacing, setCameraFacing] = useState('environment'); // 'environment' or 'user'
   const [availableCameras, setAvailableCameras] = useState([]);
@@ -46,6 +49,7 @@ export const ScanQRPage = () => {
   const [isCameraDropdownOpen, setIsCameraDropdownOpen] = useState(false);
   const [cameraError, setCameraError] = useState(null);
   const [isScanningPaused, setIsScanningPaused] = useState(false);
+  const [isMirrored, setIsMirrored] = useState(null);
   const [retryCount, setRetryCount] = useState(0);
 
   // Geolocation States
@@ -263,6 +267,8 @@ export const ScanQRPage = () => {
 
       try {
         setCameraError(null);
+        setIsStartingCamera(true);
+        setCameraStartupStep('Detecting video devices...');
         localScanner = new Html5Qrcode('reader-stream-container', { verbose: false });
         html5QrCodeRef.current = localScanner;
 
@@ -285,12 +291,14 @@ export const ScanQRPage = () => {
           devices = await Html5Qrcode.getCameras();
           if (devices && devices.length > 0 && isMounted) {
             setAvailableCameras(devices);
+            setCameraStartupStep('Connecting to video sensor...');
           }
         } catch {
           // getCameras failed or not supported, continue with facingMode constraints
         }
 
         if (!isMounted) {
+          setIsStartingCamera(false);
           await stopScannerInstance(localScanner);
           return;
         }
@@ -329,6 +337,8 @@ export const ScanQRPage = () => {
 
         for (const candidate of targetsToTry) {
           if (!isMounted) break;
+
+          setCameraStartupStep(`Starting ${candidate.label || 'camera feed'}...`);
 
           // Attempt with standard config first, then low-overhead config
           const configsToTry = [
@@ -373,6 +383,7 @@ export const ScanQRPage = () => {
 
               startedSuccessfully = true;
               if (isMounted) {
+                setIsStartingCamera(false);
                 setIsScannerRunning(true);
                 setCameraError(null);
                 setHasCameraPermission(true);
@@ -401,6 +412,7 @@ export const ScanQRPage = () => {
 
         if (!startedSuccessfully && isMounted) {
           console.warn('All camera targets failed:', lastError);
+          setIsStartingCamera(false);
           setCameraError(
             lastError?.message?.includes('Permission') || lastError?.name === 'NotAllowedError'
               ? 'Camera permission was denied. Please allow camera permissions in your browser address bar.'
@@ -409,11 +421,13 @@ export const ScanQRPage = () => {
           setIsScannerRunning(false);
           stopAllMediaTracks();
         } else if (!isMounted) {
+          setIsStartingCamera(false);
           await stopScannerInstance(localScanner);
         }
       } catch (err) {
         console.warn('Camera stream warning:', err);
         if (isMounted) {
+          setIsStartingCamera(false);
           setCameraError(
             err?.message?.includes('Permission') || err?.name === 'NotAllowedError'
               ? 'Camera permission was denied. Please allow camera permissions in your browser address bar.'
@@ -439,6 +453,7 @@ export const ScanQRPage = () => {
       clearTimeout(initTimer);
       window.removeEventListener('beforeunload', handleBeforeUnload);
       window.removeEventListener('pagehide', handleBeforeUnload);
+      setIsStartingCamera(false);
       setIsScannerRunning(false);
       const toStop = localScanner || html5QrCodeRef.current;
       html5QrCodeRef.current = null;
@@ -524,9 +539,20 @@ export const ScanQRPage = () => {
     };
   }, [isCameraDropdownOpen]);
 
-  // Active Camera Label
+  // Active Camera Label & Front Camera Mirroring Detection
   const activeCamera = availableCameras.find(c => c.id === selectedCameraId);
   const activeCameraLabel = activeCamera?.label || (availableCameras[0]?.label || 'Default Camera');
+  const isFrontCamera = (() => {
+    if (isMirrored !== null) return isMirrored;
+    if (cameraFacing === 'user') return true;
+    if (activeCamera?.label) {
+      if (/front|user|facetime|integrated|selfie|webcam/i.test(activeCamera.label)) return true;
+      if (/back|rear|environment/i.test(activeCamera.label)) return false;
+    }
+    // On laptops / PCs with a single camera or default built-in webcam
+    if (availableCameras.length <= 1) return true;
+    return cameraFacing === 'user';
+  })();
 
   // Pause / Resume Scanning
   const handleTogglePause = () => {
@@ -898,7 +924,7 @@ export const ScanQRPage = () => {
           </div>
 
           {/* Video Viewport Container */}
-          <div className={`scanner-viewport-wrapper ${cameraError || (!hasCameraPermission && !isScannerRunning) ? 'camera-error-active' : ''}`}>
+          <div className={`scanner-viewport-wrapper ${isFrontCamera ? 'is-front-camera' : ''} ${cameraError || (!hasCameraPermission && !isScannerRunning) ? 'camera-error-active' : ''}`}>
             <div id="reader-stream-container" />
 
             {/* Custom Glowing Reticle HUD (Only when camera is active and running) */}
@@ -910,6 +936,21 @@ export const ScanQRPage = () => {
                   <div className="corner-bracket bottom-left" />
                   <div className="corner-bracket bottom-right" />
                   {!isScanningPaused && <div className="laser-scan-line" />}
+                </div>
+              </div>
+            )}
+
+            {/* Clean Modern Camera Starting-Up Overlay */}
+            {hasCameraPermission && isStartingCamera && !cameraError && (
+              <div className="camera-starting-overlay">
+                <div className="camera-starting-card">
+                  <div className="camera-starting-icon-wrap">
+                    <Loader2 size={24} className="spinner" style={{ animation: 'spin 1.1s linear infinite' }} />
+                  </div>
+                  <div className="camera-starting-info">
+                    <h4 className="camera-starting-title">Starting Camera</h4>
+                    <p className="camera-starting-step">{cameraStartupStep}</p>
+                  </div>
                 </div>
               </div>
             )}
@@ -1063,12 +1104,22 @@ export const ScanQRPage = () => {
           <div className="scanner-controls-bar">
             <button
               type="button"
+              className={`scan-ctrl-btn ${isFrontCamera ? 'active' : ''}`}
+              onClick={() => setIsMirrored(prev => (prev !== null ? !prev : !isFrontCamera))}
+              title={isFrontCamera ? 'Mirroring is ON (Selfie Mode) - Click to unmirror' : 'Mirroring is OFF - Click to mirror'}
+            >
+              <FlipHorizontal size={14} />
+              <span>{isFrontCamera ? 'Mirrored' : 'Mirror'}</span>
+            </button>
+
+            <button
+              type="button"
               className="scan-ctrl-btn"
               onClick={handleToggleCameraFacing}
-              title="Flip between front and rear cameras"
+              title="Switch between front and rear cameras"
             >
               <RefreshCw size={14} />
-              <span>Flip Camera</span>
+              <span>Switch Cam</span>
             </button>
 
             <button

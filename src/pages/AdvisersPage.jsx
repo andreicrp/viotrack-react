@@ -265,7 +265,7 @@ export const AdvisersPage = () => {
   ];
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
       {/* Top Banner & Action Header */}
       <div className="page-banner-header">
         <div className="page-banner-info">
@@ -336,8 +336,8 @@ export const AdvisersPage = () => {
         className="metric-cards-grid"
         style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
-          gap: '16px'
+          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+          gap: '12px'
         }}
       >
         {/* Total Advisers */}
@@ -345,10 +345,10 @@ export const AdvisersPage = () => {
           onClick={() => { setLevelFilter('all'); setGradeFilter('all'); }}
           style={{
             background: levelFilter === 'all' && gradeFilter === 'all' ? '#f0f4f8' : '#ffffff',
-            borderRadius: '14px',
-            padding: '18px 20px',
+            borderRadius: '10px',
+            padding: '12px 14px',
             border: levelFilter === 'all' && gradeFilter === 'all' ? '2px solid #07345f' : '1px solid #e2e8f0',
-            boxShadow: levelFilter === 'all' && gradeFilter === 'all' ? '0 6px 20px rgba(7, 52, 95, 0.12)' : '0 2px 8px rgba(0,0,0,0.03)',
+            boxShadow: levelFilter === 'all' && gradeFilter === 'all' ? '0 4px 12px rgba(7, 52, 95, 0.1)' : '0 1px 4px rgba(0,0,0,0.02)',
             cursor: 'pointer',
             transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
             position: 'relative',
@@ -369,20 +369,20 @@ export const AdvisersPage = () => {
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
-              <div style={{ fontSize: '11.5px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              <div style={{ fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.03em' }}>
                 Total Advisers
               </div>
-              <div style={{ fontSize: '28px', fontWeight: 800, color: '#0f172a', marginTop: '4px', letterSpacing: '-0.02em' }}>
+              <div style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a', marginTop: '2px', letterSpacing: '-0.02em' }}>
                 {stats.total}
               </div>
-              <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: 500 }}>
+              <div style={{ fontSize: '10px', color: '#64748b', marginTop: '2px', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: 500 }}>
                 <span>All Grade Levels</span>
               </div>
             </div>
-            <UserCheck size={28} color="#07345f" strokeWidth={2.2} style={{ flexShrink: 0 }} />
+            <UserCheck size={20} color="#07345f" strokeWidth={2} style={{ flexShrink: 0 }} />
           </div>
           {levelFilter === 'all' && gradeFilter === 'all' && (
-            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 3.5, background: '#07345f' }}></div>
+            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 2.5, background: '#07345f' }}></div>
           )}
         </div>
 
@@ -391,10 +391,10 @@ export const AdvisersPage = () => {
           onClick={() => { setLevelFilter('jhs'); setGradeFilter('all'); }}
           style={{
             background: levelFilter === 'jhs' ? 'linear-gradient(180deg, #ffffff 0%, #f0fdf4 100%)' : '#ffffff',
-            borderRadius: '14px',
-            padding: '18px 20px',
+            borderRadius: '10px',
+            padding: '12px 14px',
             border: levelFilter === 'jhs' ? '2px solid #059669' : '1px solid #e2e8f0',
-            boxShadow: levelFilter === 'jhs' ? '0 6px 20px rgba(5, 150, 105, 0.12)' : '0 2px 8px rgba(0,0,0,0.03)',
+            boxShadow: levelFilter === 'jhs' ? '0 4px 12px rgba(5, 150, 105, 0.1)' : '0 1px 4px rgba(0,0,0,0.02)',
             cursor: 'pointer',
             transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
             position: 'relative',
@@ -415,20 +415,20 @@ export const AdvisersPage = () => {
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
-              <div style={{ fontSize: '11.5px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              <div style={{ fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.03em' }}>
                 Junior High (G7-10)
               </div>
-              <div style={{ fontSize: '28px', fontWeight: 800, color: '#0f172a', marginTop: '4px', letterSpacing: '-0.02em' }}>
+              <div style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a', marginTop: '2px', letterSpacing: '-0.02em' }}>
                 {stats.jhsCount}
               </div>
-              <div style={{ fontSize: '11px', color: '#059669', marginTop: '4px', fontWeight: 600 }}>
+              <div style={{ fontSize: '10px', color: '#059669', marginTop: '2px', fontWeight: 600 }}>
                 JHS Advisory Sections
               </div>
             </div>
-            <BookOpen size={28} color="#059669" strokeWidth={2.2} style={{ flexShrink: 0 }} />
+            <BookOpen size={20} color="#059669" strokeWidth={2} style={{ flexShrink: 0 }} />
           </div>
           {levelFilter === 'jhs' && (
-            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 3.5, background: 'linear-gradient(90deg, #059669, #10b981)' }}></div>
+            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 2.5, background: 'linear-gradient(90deg, #059669, #10b981)' }}></div>
           )}
         </div>
 
@@ -437,10 +437,10 @@ export const AdvisersPage = () => {
           onClick={() => { setLevelFilter('shs'); setGradeFilter('all'); }}
           style={{
             background: levelFilter === 'shs' ? 'linear-gradient(180deg, #ffffff 0%, #faf5ff 100%)' : '#ffffff',
-            borderRadius: '14px',
-            padding: '18px 20px',
+            borderRadius: '10px',
+            padding: '12px 14px',
             border: levelFilter === 'shs' ? '2px solid #7c3aed' : '1px solid #e2e8f0',
-            boxShadow: levelFilter === 'shs' ? '0 6px 20px rgba(124, 58, 237, 0.12)' : '0 2px 8px rgba(0,0,0,0.03)',
+            boxShadow: levelFilter === 'shs' ? '0 4px 12px rgba(124, 58, 237, 0.1)' : '0 1px 4px rgba(0,0,0,0.02)',
             cursor: 'pointer',
             transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
             position: 'relative',
@@ -461,20 +461,20 @@ export const AdvisersPage = () => {
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
-              <div style={{ fontSize: '11.5px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              <div style={{ fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.03em' }}>
                 Senior High (G11-12)
               </div>
-              <div style={{ fontSize: '28px', fontWeight: 800, color: '#0f172a', marginTop: '4px', letterSpacing: '-0.02em' }}>
+              <div style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a', marginTop: '2px', letterSpacing: '-0.02em' }}>
                 {stats.shsCount}
               </div>
-              <div style={{ fontSize: '11px', color: '#7c3aed', marginTop: '4px', fontWeight: 600 }}>
+              <div style={{ fontSize: '10px', color: '#7c3aed', marginTop: '2px', fontWeight: 600 }}>
                 SHS Tracks & Strands
               </div>
             </div>
-            <GraduationCap size={28} color="#7c3aed" strokeWidth={2.2} style={{ flexShrink: 0 }} />
+            <GraduationCap size={20} color="#7c3aed" strokeWidth={2} style={{ flexShrink: 0 }} />
           </div>
           {levelFilter === 'shs' && (
-            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 3.5, background: 'linear-gradient(90deg, #7c3aed, #a855f7)' }}></div>
+            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 2.5, background: 'linear-gradient(90deg, #7c3aed, #a855f7)' }}></div>
           )}
         </div>
 
@@ -482,10 +482,10 @@ export const AdvisersPage = () => {
         <div
           style={{
             background: '#ffffff',
-            borderRadius: '14px',
-            padding: '18px 20px',
+            borderRadius: '10px',
+            padding: '12px 14px',
             border: '1px solid #e2e8f0',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
+            boxShadow: '0 1px 4px rgba(0,0,0,0.02)',
             transition: 'all 0.2s ease',
             position: 'relative',
             overflow: 'hidden'
@@ -501,17 +501,17 @@ export const AdvisersPage = () => {
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
-              <div style={{ fontSize: '11.5px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+              <div style={{ fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.03em' }}>
                 Assigned Students
               </div>
-              <div style={{ fontSize: '28px', fontWeight: 800, color: '#0f172a', marginTop: '4px', letterSpacing: '-0.02em' }}>
+              <div style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a', marginTop: '2px', letterSpacing: '-0.02em' }}>
                 {stats.assignedStudentCount}
               </div>
-              <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px', fontWeight: 500 }}>
+              <div style={{ fontSize: '10px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
                 Across {advisers.length} advisory classes
               </div>
             </div>
-            <Users size={28} color="#d97706" strokeWidth={2.2} style={{ flexShrink: 0 }} />
+            <Users size={20} color="#d97706" strokeWidth={2} style={{ flexShrink: 0 }} />
           </div>
         </div>
       </div>

@@ -126,10 +126,10 @@ export const ViewStudentModal = ({ isOpen, onClose, student }) => {
 
           {/* Detailed Info Cards Grid */}
           <div className="student-details-grid">
-            {/* Student ID */}
+            {/* Student LRN */}
             <div className="student-info-item">
               <div className="info-icon-box">
-                <IdCard size={16} />
+                <IdCard size={15} />
               </div>
               <div className="info-text-group">
                 <span className="info-item-label">Student LRN / ID</span>
@@ -137,49 +137,21 @@ export const ViewStudentModal = ({ isOpen, onClose, student }) => {
               </div>
             </div>
 
-            {/* Full Name */}
+            {/* Gender */}
             <div className="student-info-item">
               <div className="info-icon-box">
-                <User size={16} />
+                <ShieldCheck size={15} />
               </div>
               <div className="info-text-group">
-                <span className="info-item-label">Full Name</span>
-                <span className="info-item-value">{fullName}</span>
+                <span className="info-item-label">Gender</span>
+                <span className="info-item-value">{student.gender || 'Not specified'}</span>
               </div>
             </div>
 
-            {/* Grade & Section */}
+            {/* Parent / Guardian */}
             <div className="student-info-item">
               <div className="info-icon-box">
-                <GraduationCap size={16} />
-              </div>
-              <div className="info-text-group">
-                <span className="info-item-label">Grade & Section</span>
-                <span className="info-item-value">{student.grade} - {student.section}</span>
-              </div>
-            </div>
-
-            {/* Email */}
-            <div className="student-info-item">
-              <div className="info-icon-box">
-                <Mail size={16} />
-              </div>
-              <div className="info-text-group">
-                <span className="info-item-label">Email Address</span>
-                {student.email ? (
-                  <a href={`mailto:${student.email}`} className="info-item-link">
-                    {student.email}
-                  </a>
-                ) : (
-                  <span className="info-item-value">{`${student.fname.toLowerCase().replace(/\s+/g, '')}@gmail.com`}</span>
-                )}
-              </div>
-            </div>
-
-            {/* Guardian */}
-            <div className="student-info-item">
-              <div className="info-icon-box">
-                <Users size={16} />
+                <Users size={15} />
               </div>
               <div className="info-text-group">
                 <span className="info-item-label">Parent / Guardian</span>
@@ -190,7 +162,7 @@ export const ViewStudentModal = ({ isOpen, onClose, student }) => {
             {/* Guardian Contact */}
             <div className="student-info-item">
               <div className="info-icon-box">
-                <Phone size={16} />
+                <Phone size={15} />
               </div>
               <div className="info-text-group">
                 <span className="info-item-label">Guardian Contact</span>
@@ -204,25 +176,33 @@ export const ViewStudentModal = ({ isOpen, onClose, student }) => {
               </div>
             </div>
 
-            {/* Gender */}
+            {/* Email Address */}
             <div className="student-info-item">
               <div className="info-icon-box">
-                <ShieldCheck size={16} />
+                <Mail size={15} />
               </div>
               <div className="info-text-group">
-                <span className="info-item-label">Gender</span>
-                <span className="info-item-value">{student.gender || 'Not specified'}</span>
+                <span className="info-item-label">Email Address</span>
+                {student.email ? (
+                  <a href={`mailto:${student.email}`} className="info-item-link">
+                    {student.email}
+                  </a>
+                ) : (
+                  <span className="info-item-value">{`${student.fname.toLowerCase().replace(/\s+/g, '')}@gmail.com`}</span>
+                )}
               </div>
             </div>
 
-            {/* Academic Year */}
+            {/* Address */}
             <div className="student-info-item">
               <div className="info-icon-box">
-                <Calendar size={16} />
+                <MapPin size={15} />
               </div>
               <div className="info-text-group">
-                <span className="info-item-label">School Year</span>
-                <span className="info-item-value">{student.academicyear || '2025-2026'}</span>
+                <span className="info-item-label">Residential Address</span>
+                <span className="info-item-value" title={student.address || 'Metro Manila'}>
+                  {student.address || 'Metro Manila, Philippines'}
+                </span>
               </div>
             </div>
           </div>

@@ -18,6 +18,7 @@ import {
   ShieldAlert,
   AlertTriangle,
   ShieldCheck,
+  Gavel,
   List,
   CheckSquare,
   Square,
@@ -348,7 +349,7 @@ export const ViolationTypesPage = () => {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '22px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
       {/* 1. Top Banner & Primary Actions */}
       <div className="page-banner-header">
         <div className="page-banner-info">
@@ -407,34 +408,34 @@ export const ViolationTypesPage = () => {
 
       <div className="card" style={{ padding: '24px', background: '#ffffff', borderRadius: '16px', border: '1px solid #e2e8f0', boxShadow: '0 4px 20px rgba(0, 0, 0, 0.04)' }}>
         {/* 2. Four Interactive Stat Filter Cards */}
-        <div className="metric-cards-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px' }}>
+        <div className="metric-cards-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' }}>
           {/* Total Filter Card */}
           <div
             onClick={() => setSelectedSeverityFilter('all')}
             style={{
               background: selectedSeverityFilter === 'all' ? '#f0f4f8' : '#ffffff',
               border: selectedSeverityFilter === 'all' ? '2px solid #07345f' : '1px solid #e2e8f0',
-              borderRadius: '14px',
-              padding: '16px 20px',
+              borderRadius: '10px',
+              padding: '12px 14px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
               cursor: 'pointer',
               transition: 'all 0.2s ease',
-              boxShadow: selectedSeverityFilter === 'all' ? '0 4px 12px rgba(7, 52, 95, 0.12)' : '0 1px 3px rgba(0,0,0,0.03)'
+              boxShadow: selectedSeverityFilter === 'all' ? '0 2px 8px rgba(7, 52, 95, 0.1)' : '0 1px 3px rgba(0,0,0,0.03)'
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-              <List size={28} color="#07345f" strokeWidth={1.8} />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <List size={20} color="#07345f" strokeWidth={2} />
               <div>
-                <span style={{ fontSize: '26px', fontWeight: 800, color: '#07345f', lineHeight: 1, display: 'block' }}>
+                <span style={{ fontSize: '20px', fontWeight: 800, color: '#07345f', lineHeight: 1, display: 'block' }}>
                   {stats.total}
                 </span>
-                <span style={{ fontSize: '12.5px', color: '#64748b', fontWeight: 600 }}>Total Offenses</span>
+                <span style={{ fontSize: '11px', color: '#64748b', fontWeight: 600 }}>Total Offenses</span>
               </div>
             </div>
             {selectedSeverityFilter === 'all' && (
-              <span style={{ background: '#07345f', color: '#fff', fontSize: '10px', padding: '2px 7px', borderRadius: '6px', fontWeight: 700 }}>
+              <span style={{ background: '#07345f', color: '#fff', fontSize: '9px', padding: '2px 6px', borderRadius: '4px', fontWeight: 700 }}>
                 Active
               </span>
             )}
@@ -446,28 +447,28 @@ export const ViolationTypesPage = () => {
             style={{
               background: selectedSeverityFilter === 'Major' ? '#fef2f2' : '#ffffff',
               border: selectedSeverityFilter === 'Major' ? '2px solid #dc2626' : '1px solid #e2e8f0',
-              borderRadius: '14px',
-              padding: '16px 20px',
+              borderRadius: '10px',
+              padding: '12px 14px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
               cursor: 'pointer',
               transition: 'all 0.2s ease',
-              boxShadow: selectedSeverityFilter === 'Major' ? '0 4px 12px rgba(220, 38, 38, 0.15)' : '0 1px 3px rgba(0,0,0,0.03)'
+              boxShadow: selectedSeverityFilter === 'Major' ? '0 2px 8px rgba(220, 38, 38, 0.12)' : '0 1px 3px rgba(0,0,0,0.03)'
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-              <ShieldAlert size={28} color="#dc2626" strokeWidth={1.8} />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <ShieldAlert size={20} color="#dc2626" strokeWidth={2} />
               <div>
-                <span style={{ fontSize: '26px', fontWeight: 800, color: stats.major > 0 ? '#dc2626' : '#1e293b', lineHeight: 1, display: 'block' }}>
+                <span style={{ fontSize: '20px', fontWeight: 800, color: stats.major > 0 ? '#dc2626' : '#1e293b', lineHeight: 1, display: 'block' }}>
                   {stats.major}
                 </span>
-                <span style={{ fontSize: '12.5px', color: '#dc2626', fontWeight: 600 }}>Major Offenses</span>
+                <span style={{ fontSize: '11px', color: '#dc2626', fontWeight: 600 }}>Major Offenses</span>
               </div>
             </div>
             {selectedSeverityFilter === 'Major' && (
-              <span style={{ background: '#dc2626', color: '#fff', fontSize: '10px', padding: '2px 7px', borderRadius: '6px', fontWeight: 700 }}>
-                Active Filter
+              <span style={{ background: '#dc2626', color: '#fff', fontSize: '9px', padding: '2px 6px', borderRadius: '4px', fontWeight: 700 }}>
+                Active
               </span>
             )}
           </div>
@@ -478,28 +479,28 @@ export const ViolationTypesPage = () => {
             style={{
               background: selectedSeverityFilter === 'Serious' ? '#fffbeb' : '#ffffff',
               border: selectedSeverityFilter === 'Serious' ? '2px solid #d97706' : '1px solid #e2e8f0',
-              borderRadius: '14px',
-              padding: '16px 20px',
+              borderRadius: '10px',
+              padding: '12px 14px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
               cursor: 'pointer',
               transition: 'all 0.2s ease',
-              boxShadow: selectedSeverityFilter === 'Serious' ? '0 4px 12px rgba(217, 119, 6, 0.15)' : '0 1px 3px rgba(0,0,0,0.03)'
+              boxShadow: selectedSeverityFilter === 'Serious' ? '0 2px 8px rgba(217, 119, 6, 0.12)' : '0 1px 3px rgba(0,0,0,0.03)'
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-              <AlertTriangle size={28} color="#d97706" strokeWidth={1.8} />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <AlertTriangle size={20} color="#d97706" strokeWidth={2} />
               <div>
-                <span style={{ fontSize: '26px', fontWeight: 800, color: stats.serious > 0 ? '#d97706' : '#1e293b', lineHeight: 1, display: 'block' }}>
+                <span style={{ fontSize: '20px', fontWeight: 800, color: stats.serious > 0 ? '#d97706' : '#1e293b', lineHeight: 1, display: 'block' }}>
                   {stats.serious}
                 </span>
-                <span style={{ fontSize: '12.5px', color: '#d97706', fontWeight: 600 }}>Serious Offenses</span>
+                <span style={{ fontSize: '11px', color: '#d97706', fontWeight: 600 }}>Serious Offenses</span>
               </div>
             </div>
             {selectedSeverityFilter === 'Serious' && (
-              <span style={{ background: '#d97706', color: '#fff', fontSize: '10px', padding: '2px 7px', borderRadius: '6px', fontWeight: 700 }}>
-                Active Filter
+              <span style={{ background: '#d97706', color: '#fff', fontSize: '9px', padding: '2px 6px', borderRadius: '4px', fontWeight: 700 }}>
+                Active
               </span>
             )}
           </div>
@@ -510,35 +511,35 @@ export const ViolationTypesPage = () => {
             style={{
               background: selectedSeverityFilter === 'Minor' ? '#f0fdf4' : '#ffffff',
               border: selectedSeverityFilter === 'Minor' ? '2px solid #059669' : '1px solid #e2e8f0',
-              borderRadius: '14px',
-              padding: '16px 20px',
+              borderRadius: '10px',
+              padding: '12px 14px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
               cursor: 'pointer',
               transition: 'all 0.2s ease',
-              boxShadow: selectedSeverityFilter === 'Minor' ? '0 4px 12px rgba(5, 150, 105, 0.15)' : '0 1px 3px rgba(0,0,0,0.03)'
+              boxShadow: selectedSeverityFilter === 'Minor' ? '0 2px 8px rgba(5, 150, 105, 0.12)' : '0 1px 3px rgba(0,0,0,0.03)'
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-              <ShieldCheck size={28} color="#059669" strokeWidth={1.8} />
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <ShieldCheck size={20} color="#059669" strokeWidth={2} />
               <div>
-                <span style={{ fontSize: '26px', fontWeight: 800, color: stats.minor > 0 ? '#059669' : '#1e293b', lineHeight: 1, display: 'block' }}>
+                <span style={{ fontSize: '20px', fontWeight: 800, color: stats.minor > 0 ? '#059669' : '#1e293b', lineHeight: 1, display: 'block' }}>
                   {stats.minor}
                 </span>
-                <span style={{ fontSize: '12.5px', color: '#059669', fontWeight: 600 }}>Minor Offenses</span>
+                <span style={{ fontSize: '11px', color: '#059669', fontWeight: 600 }}>Minor Offenses</span>
               </div>
             </div>
             {selectedSeverityFilter === 'Minor' && (
-              <span style={{ background: '#059669', color: '#fff', fontSize: '10px', padding: '2px 7px', borderRadius: '6px', fontWeight: 700 }}>
-                Active Filter
+              <span style={{ background: '#059669', color: '#fff', fontSize: '9px', padding: '2px 6px', borderRadius: '4px', fontWeight: 700 }}>
+                Active
               </span>
             )}
           </div>
         </div>
 
         {/* 3. Search, Filter Controls & Floating Batch Toolbar */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '22px', flexWrap: 'wrap', gap: '12px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '12px', flexWrap: 'wrap', gap: '12px' }}>
           {/* Search Box */}
           <div style={{ position: 'relative', minWidth: '280px', flex: '1', maxWidth: '420px' }}>
             <Search size={16} color="#94a3b8" style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)' }} />
@@ -601,7 +602,7 @@ export const ViolationTypesPage = () => {
               ))}
             </div>
 
-            <div style={{ width: '135px', minWidth: '135px' }}>
+            <div style={{ width: '130px', minWidth: '120px' }}>
               <CustomSelect
                 value={entriesPerPage}
                 onChange={(e) => {
@@ -618,9 +619,7 @@ export const ViolationTypesPage = () => {
             </div>
 
             {/* List / Grid View Toggle */}
-            <div style={{ display: 'inline-flex', alignItems: 'center' }}>
-              <ViewModeToggle viewMode={viewMode} onChange={setViewMode} />
-            </div>
+            <ViewModeToggle viewMode={viewMode} onChange={setViewMode} />
           </div>
         </div>
 
@@ -935,83 +934,147 @@ export const ViolationTypesPage = () => {
                 <div
                   key={v.id}
                   className={`entity-grid-card ${isChecked ? 'is-selected' : ''}`}
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'space-between',
+                    padding: '16px 18px',
+                    borderRadius: '14px',
+                    gap: '12px'
+                  }}
                 >
-                  {/* Top Badges Row */}
-                  <div className="entity-grid-top-badges">
-                    <input
-                      type="checkbox"
-                      checked={isChecked}
-                      onChange={() => toggleSelect(v.id)}
-                      style={{ width: 15, height: 15, cursor: 'pointer', accentColor: '#07345f' }}
-                    />
-                    <span
+                  <div>
+                    {/* Top Row: Select & Severity */}
+                    <div className="entity-grid-top-badges" style={{ marginBottom: '10px' }}>
+                      <label style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', cursor: 'pointer' }}>
+                        <input
+                          type="checkbox"
+                          checked={isChecked}
+                          onChange={() => toggleSelect(v.id)}
+                          style={{ width: 16, height: 16, cursor: 'pointer', accentColor: '#07345f' }}
+                        />
+                        <span style={{ fontSize: '11px', fontWeight: 600, color: '#94a3b8' }}>
+                          #{v.id}
+                        </span>
+                      </label>
+                      <span
+                        style={{
+                          padding: '3px 10px',
+                          borderRadius: '20px',
+                          fontSize: '11px',
+                          fontWeight: 700,
+                          background: isMajor ? '#fef2f2' : isSerious ? '#fffbeb' : '#f0fdf4',
+                          border: `1px solid ${isMajor ? '#fecaca' : isSerious ? '#fde68a' : '#bbf7d0'}`,
+                          color: isMajor ? '#dc2626' : isSerious ? '#d97706' : '#15803d',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '4px'
+                        }}
+                      >
+                        <span style={{ width: 6, height: 6, borderRadius: '50%', background: isMajor ? '#ef4444' : isSerious ? '#f59e0b' : '#22c55e' }} />
+                        {v.type || 'Minor'}
+                      </span>
+                    </div>
+
+                    {/* Middle Offense Hero Header (Icon + Title) */}
+                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', marginBottom: '12px' }}>
+                      <div
+                        style={{
+                          width: 42,
+                          height: 42,
+                          borderRadius: '12px',
+                          background: isMajor ? 'linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%)' : isSerious ? 'linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)' : 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
+                          border: `1px solid ${isMajor ? '#fecaca' : isSerious ? '#fde68a' : '#bfdbfe'}`,
+                          color: isMajor ? '#dc2626' : isSerious ? '#d97706' : '#07345f',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          flexShrink: 0
+                        }}
+                      >
+                        {isMajor ? (
+                          <ShieldAlert size={20} strokeWidth={2.2} />
+                        ) : isSerious ? (
+                          <AlertTriangle size={20} strokeWidth={2.2} />
+                        ) : (
+                          <ShieldCheck size={20} strokeWidth={2.2} />
+                        )}
+                      </div>
+
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <h4
+                          style={{
+                            margin: 0,
+                            fontSize: '14.5px',
+                            fontWeight: 700,
+                            color: '#0f172a',
+                            lineHeight: 1.35,
+                            display: '-webkit-box',
+                            WebkitLineClamp: 2,
+                            WebkitBoxOrient: 'vertical',
+                            overflow: 'hidden'
+                          }}
+                          title={v.title}
+                        >
+                          {v.title}
+                        </h4>
+                      </div>
+                    </div>
+
+                    {/* Meta Details Box */}
+                    <div
                       style={{
-                        padding: '2px 7px',
-                        borderRadius: '8px',
-                        fontSize: '10px',
-                        fontWeight: 700,
-                        background: isMajor ? '#fee2e2' : isSerious ? '#fef3c7' : '#dcfce7',
-                        color: isMajor ? '#dc2626' : isSerious ? '#d97706' : '#15803d'
+                        background: '#f8fafc',
+                        border: '1px solid #e2e8f0',
+                        borderRadius: '10px',
+                        padding: '10px 12px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '6px',
+                        textAlign: 'left'
                       }}
                     >
-                      {v.type || 'Minor'}
-                    </span>
-                  </div>
-
-                  {/* Icon */}
-                  <div
-                    style={{
-                      width: 44,
-                      height: 44,
-                      borderRadius: '12px',
-                      background: isMajor ? '#fee2e2' : isSerious ? '#fef3c7' : '#eff6ff',
-                      color: isMajor ? '#dc2626' : isSerious ? '#d97706' : '#07345f',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      margin: '2px auto'
-                    }}
-                  >
-                    {isMajor ? (
-                      <ShieldAlert size={22} strokeWidth={2.2} />
-                    ) : isSerious ? (
-                      <AlertTriangle size={22} strokeWidth={2.2} />
-                    ) : (
-                      <ShieldCheck size={22} strokeWidth={2.2} />
-                    )}
-                  </div>
-
-                  <div className="entity-grid-name" title={v.title}>
-                    {v.title}
-                  </div>
-
-                  <div className="entity-grid-meta">
-                    <div style={{ fontWeight: 700, color: '#07345f', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                      {v.default_sanction || '1st Warning'}
-                    </div>
-                    <div style={{ color: '#64748b', fontSize: '9px', marginTop: '1px', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-                      {v.description || 'Handbook policy infraction.'}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11.5px', color: '#475569' }}>
+                        <Gavel size={13} color="#07345f" strokeWidth={2.2} />
+                        <span style={{ fontWeight: 600, color: '#64748b' }}>Sanction:</span>
+                        <strong style={{ color: '#07345f', fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                          {v.default_sanction || '1st Warning'}
+                        </strong>
+                      </div>
+                      <div
+                        style={{
+                          color: '#64748b',
+                          fontSize: '11.5px',
+                          lineHeight: 1.45,
+                          display: '-webkit-box',
+                          WebkitLineClamp: 2,
+                          WebkitBoxOrient: 'vertical',
+                          overflow: 'hidden'
+                        }}
+                      >
+                        {v.description || 'Institutional handbook offense guideline.'}
+                      </div>
                     </div>
                   </div>
 
                   {/* Actions Row */}
-                  <div className="entity-grid-actions">
+                  <div className="entity-grid-actions" style={{ marginTop: '12px' }}>
                     <button
                       type="button"
                       onClick={() => handleOpenEdit(v)}
                       className="entity-grid-btn"
                       title="Edit Violation Type"
                     >
-                      <Edit3 size={11} strokeWidth={2.4} /> Edit
+                      <Edit3 size={13} strokeWidth={2.2} /> Edit Details
                     </button>
                     <button
                       type="button"
                       onClick={() => handleDeleteSingle(v.id, v.title)}
                       className="entity-grid-btn"
                       title="Delete Violation Type"
-                      style={{ flex: '0 0 28px', color: '#dc2626', borderColor: '#fecaca', background: '#fef2f2' }}
+                      style={{ flex: '0 0 34px', color: '#dc2626', borderColor: '#fecaca', background: '#fef2f2' }}
                     >
-                      <Trash2 size={11} strokeWidth={2.4} />
+                      <Trash2 size={13} strokeWidth={2.2} />
                     </button>
                   </div>
                 </div>

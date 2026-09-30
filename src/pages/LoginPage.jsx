@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { useNotification } from '../context/NotificationContext';
 import { isSupabaseConfigured, supabase } from '../lib/supabase';
 import { Eye, EyeOff, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { PrivacyPolicyModal } from '../components/common/PrivacyPolicyModal';
 import '../css/login.css';
 
 export const LoginPage = () => {
@@ -21,6 +22,7 @@ export const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [isPrivacyModalOpen, setIsPrivacyModalOpen] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -272,15 +274,31 @@ export const LoginPage = () => {
         {/* Privacy Policy Footer */}
         <div className="login-privacy-footer">
           <span>By signing in you agree to our </span>
-          <a
-            href="https://docs.google.com/forms/d/e/1FAIpQLSd7SN8jra5WfROhysYtjd80zMUSwSnxpcQ-a3d1bu8CiogDng/viewform"
-            target="_blank"
-            rel="noreferrer"
+          <button
+            type="button"
+            onClick={() => setIsPrivacyModalOpen(true)}
+            style={{
+              background: 'none',
+              border: 'none',
+              padding: 0,
+              color: '#2563eb',
+              fontWeight: 700,
+              cursor: 'pointer',
+              textDecoration: 'underline',
+              fontFamily: 'inherit',
+              fontSize: 'inherit'
+            }}
           >
             Privacy Policy
-          </a>
+          </button>
         </div>
       </div>
+
+      {/* Interactive Privacy Policy Dialog */}
+      <PrivacyPolicyModal
+        isOpen={isPrivacyModalOpen}
+        onClose={() => setIsPrivacyModalOpen(false)}
+      />
     </div>
   );
 };

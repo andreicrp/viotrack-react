@@ -278,13 +278,14 @@ export const Sidebar = ({ isCollapsed, isMobileOpen, onCloseMobile }) => {
               </li>
             </ul>
           </div>
-          <div className="mobile-drawer-footer">
-            <div className="mobile-drawer-brand">
-              <span className="brand-dot"></span> VIOTRACK
-            </div>
-            <div className="mobile-drawer-sub">Student Conduct Tracking System</div>
-          </div>
         </nav>
+
+        <div className="mobile-drawer-footer">
+          <div className="mobile-drawer-brand">
+            <span className="brand-dot"></span> VIOTRACK
+          </div>
+          <div className="mobile-drawer-sub">Student Conduct Tracking System</div>
+        </div>
       </aside>
     </>
   );
