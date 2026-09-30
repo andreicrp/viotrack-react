@@ -260,9 +260,10 @@ export const ScanQRPage = () => {
           aspectRatio: 1.7777777778
         };
 
-        // Determine target camera: Use facingMode or ideal deviceId (avoids exact-device permission prompts)
+        // Determine target camera: If user picked a camera ID (string), use it directly.
+        // Otherwise use facingMode constraint object { facingMode: cameraFacing }
         const primaryTarget = selectedCameraId
-          ? { deviceId: { ideal: selectedCameraId } }
+          ? selectedCameraId
           : { facingMode: cameraFacing };
 
         let startedSuccessfully = false;
@@ -316,7 +317,7 @@ export const ScanQRPage = () => {
                     .filter(d => d.kind === 'videoinput')
                     .map((d, i) => ({
                       id: d.deviceId,
-                      label: d.label || (i === 0 ? 'Primary Camera' : `Secondary Camera #${i + 1}`)
+                      label: d.label || (i === 0 ? 'Camera 1' : `Camera ${i + 1}`)
                     }));
                   if (videoDevices.length > 0) {
                     setAvailableCameras(videoDevices);
@@ -474,28 +475,52 @@ export const ScanQRPage = () => {
 
   // Flip Front/Back Camera smoothly
   const handleToggleCameraFacing = async () => {
+    const nextFacing = cameraFacing === 'environment' ? 'user' : 'environment';
+    setCameraFacing(nextFacing);
+    setSelectedCameraId(null);
+
+    // 1. Try instant in-place track constraint switch (no stream reload, zero permission prompts)
+    if (html5QrCodeRef.current && isScannerRunning) {
+      try {
+        await html5QrCodeRef.current.applyVideoConstraints({ facingMode: nextFacing });
+        return;
+      } catch (e) {
+        // Continue to fallback restart if applyConstraints is not supported
+      }
+    }
+
+    // 2. Fallback: cleanly restart stream with next facingMode
     setIsStartingCamera(true);
     setCameraStartupStep('Switching camera...');
     if (html5QrCodeRef.current) {
       await stopScannerInstance(html5QrCodeRef.current);
       html5QrCodeRef.current = null;
     }
-    const nextFacing = cameraFacing === 'environment' ? 'user' : 'environment';
-    setCameraFacing(nextFacing);
-    setSelectedCameraId(null);
     setRetryCount(prev => prev + 1);
   };
 
   // Switch specific camera device from dropdown smoothly
   const handleSelectCamera = async (camId) => {
+    setIsCameraDropdownOpen(false);
+    setSelectedCameraId(camId);
+
+    // 1. Try instant in-place track constraint switch with deviceId
+    if (html5QrCodeRef.current && isScannerRunning) {
+      try {
+        await html5QrCodeRef.current.applyVideoConstraints({ deviceId: { exact: camId } });
+        return;
+      } catch (e) {
+        // Continue to fallback restart if applyConstraints is not supported
+      }
+    }
+
+    // 2. Fallback: cleanly restart stream with target device
     setIsStartingCamera(true);
     setCameraStartupStep('Switching camera...');
-    setIsCameraDropdownOpen(false);
     if (html5QrCodeRef.current) {
       await stopScannerInstance(html5QrCodeRef.current);
       html5QrCodeRef.current = null;
     }
-    setSelectedCameraId(camId);
     setRetryCount(prev => prev + 1);
   };
 
