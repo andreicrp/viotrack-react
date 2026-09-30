@@ -40,6 +40,12 @@
   src: url('/fonts/sora-800.ttf') format('truetype');
 }
 
+.skip-to-content:focus {
+  top: 16px !important;
+  outline: 2px solid #ffffff !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25) !important;
+}
+
 /* Mobile Performance, Touch & Security Restrictions */
 *, *::before, *::after {
   -webkit-tap-highlight-color: transparent !important;

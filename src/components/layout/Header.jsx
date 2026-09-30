@@ -5,7 +5,8 @@ import {
   User,
   LogOut,
   Shield,
-  GraduationCap
+  GraduationCap,
+  Menu
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
@@ -57,10 +58,10 @@ export const Header = ({ onToggleSidebar }) => {
           className="menu-toggle"
           id="menuToggle"
           type="button"
-          aria-label="Toggle menu"
+          aria-label="Toggle navigation menu"
           onClick={onToggleSidebar}
         >
-          <i className="fas fa-bars"></i>
+          <Menu size={20} />
         </button>
 
         <a

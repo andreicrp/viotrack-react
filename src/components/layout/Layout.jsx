@@ -27,7 +27,7 @@ export const Layout = () => {
         onCloseMobile={() => setIsMobileOpen(false)}
       />
 
-      <main className={`main-content ${isCollapsed ? 'expanded' : ''}`}>
+      <main id="main-content" tabIndex="-1" className={`main-content ${isCollapsed ? 'expanded' : ''}`}>
         <Outlet />
       </main>
 
