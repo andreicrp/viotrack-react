@@ -181,31 +181,8 @@ export const ScanQRPage = () => {
     }, 900);
   };
 
-  // Helper to unconditionally kill all camera tracks across the DOM
-  const stopAllMediaTracks = () => {
-    try {
-      const videos = document.querySelectorAll('video');
-      videos.forEach((video) => {
-        try {
-          if (video.srcObject && typeof video.srcObject.getTracks === 'function') {
-            video.srcObject.getTracks().forEach((track) => {
-              try {
-                track.stop();
-                track.enabled = false;
-              } catch (e) {}
-            });
-            video.srcObject = null;
-          }
-        } catch (e) {}
-      });
-    } catch (e) {}
-  };
-
   const stopScannerInstance = async (scanner) => {
-    if (!scanner) {
-      stopAllMediaTracks();
-      return;
-    }
+    if (!scanner) return;
     try {
       const isScanning = scanner.isScanning || (typeof scanner.getState === 'function' && scanner.getState() === 2);
       if (isScanning) {
@@ -214,8 +191,6 @@ export const ScanQRPage = () => {
       await scanner.clear().catch(() => {});
     } catch (e) {
       // Ignore stop errors
-    } finally {
-      stopAllMediaTracks();
     }
   };
 
@@ -287,98 +262,114 @@ export const ScanQRPage = () => {
 
         // Determine target camera: If user picked a specific camera ID, use it.
         // Otherwise use facingMode constraint directly (single fast permission request without dummy stream)
-        const targetsToTry = [];
-        if (selectedCameraId) {
-          targetsToTry.push({ target: selectedCameraId, label: 'selected camera' });
-        }
-        // Primary facingMode target
-        targetsToTry.push({ target: { facingMode: cameraFacing }, label: `${cameraFacing === 'environment' ? 'rear' : 'front'} camera` });
-        // Secondary fallback facingMode target
-        targetsToTry.push({
-          target: { facingMode: cameraFacing === 'environment' ? 'user' : 'environment' },
-          label: 'alternate camera'
-        });
+        const primaryTarget = selectedCameraId
+          ? selectedCameraId
+          : { facingMode: cameraFacing };
 
         let startedSuccessfully = false;
         let lastError = null;
 
-        for (const candidate of targetsToTry) {
-          if (!isMounted) break;
-
-          setCameraStartupStep(`Starting ${candidate.label}...`);
-
-          const configsToTry = [
+        try {
+          await localScanner.start(
+            primaryTarget,
             config,
-            { fps: 10, qrbox: { width: 200, height: 200 } }
-          ];
+            (decodedText) => {
+              if (!isMounted) return;
+              const now = Date.now();
+              const cleanText = (decodedText || '').trim();
+              if (!cleanText) return;
 
-          for (const conf of configsToTry) {
-            try {
-              stopAllMediaTracks();
-
-              await localScanner.start(
-                candidate.target,
-                conf,
-                (decodedText) => {
-                  if (!isMounted) return;
-                  const now = Date.now();
-                  const cleanText = (decodedText || '').trim();
-                  if (!cleanText) return;
-
-                  // Prevent continuous multi-scanning
-                  if (isScanningLockedRef.current) return;
-                  if (lastScannedCodeRef.current === cleanText && (now - lastScannedTimeRef.current < 3500)) {
-                    return;
-                  }
-
-                  // Acquire scan lock
-                  isScanningLockedRef.current = true;
-                  lastScannedCodeRef.current = cleanText;
-                  lastScannedTimeRef.current = now;
-
-                  processScanWithAnimation(cleanText);
-
-                  // Release lock after cooldown
-                  setTimeout(() => {
-                    isScanningLockedRef.current = false;
-                  }, 6000);
-                },
-                () => {} // Quiet frame noise
-              );
-
-              startedSuccessfully = true;
-              if (isMounted) {
-                setIsStartingCamera(false);
-                setIsScannerRunning(true);
-                setCameraError(null);
-                setHasCameraPermission(true);
-                localStorage.setItem('viotrack_qr_camera_allowed', 'true');
-
-                // Query available camera devices quietly in background once stream is active
-                Html5Qrcode.getCameras()
-                  .then((devices) => {
-                    if (isMounted && devices && devices.length > 0) {
-                      setAvailableCameras(devices);
-                    }
-                  })
-                  .catch(() => {});
+              // Prevent continuous multi-scanning
+              if (isScanningLockedRef.current) return;
+              if (lastScannedCodeRef.current === cleanText && (now - lastScannedTimeRef.current < 3500)) {
+                return;
               }
-              break;
-            } catch (err) {
-              lastError = err;
-              try {
-                if (localScanner.isScanning) {
-                  await localScanner.stop().catch(() => {});
-                }
-              } catch {}
+
+              // Acquire scan lock
+              isScanningLockedRef.current = true;
+              lastScannedCodeRef.current = cleanText;
+              lastScannedTimeRef.current = now;
+
+              processScanWithAnimation(cleanText);
+
+              // Release lock after cooldown
+              setTimeout(() => {
+                isScanningLockedRef.current = false;
+              }, 6000);
+            },
+            () => {} // Quiet frame noise
+          );
+
+          startedSuccessfully = true;
+          if (isMounted) {
+            setIsStartingCamera(false);
+            setIsScannerRunning(true);
+            setCameraError(null);
+            setHasCameraPermission(true);
+            localStorage.setItem('viotrack_qr_camera_allowed', 'true');
+
+            // Enumerate devices quietly via standard Web API (NO dummy streams or permission prompts)
+            if (navigator.mediaDevices && navigator.mediaDevices.enumerateDevices) {
+              navigator.mediaDevices.enumerateDevices()
+                .then((allDevices) => {
+                  if (!isMounted) return;
+                  const videoDevices = allDevices
+                    .filter(d => d.kind === 'videoinput')
+                    .map((d, i) => ({
+                      id: d.deviceId,
+                      label: d.label || (i === 0 ? 'Primary Camera' : `Secondary Camera #${i + 1}`)
+                    }));
+                  if (videoDevices.length > 0) {
+                    setAvailableCameras(videoDevices);
+                  }
+                })
+                .catch(() => {});
             }
           }
+        } catch (err) {
+          lastError = err;
+        }
 
-          if (startedSuccessfully) break;
+        // Secondary fallback if primary facingMode failed (e.g. laptop with only front camera)
+        if (!startedSuccessfully && isMounted) {
+          const fallbackTarget = { facingMode: cameraFacing === 'environment' ? 'user' : 'environment' };
+          try {
+            await localScanner.start(
+              fallbackTarget,
+              { fps: 10, qrbox: { width: 200, height: 200 } },
+              (decodedText) => {
+                if (!isMounted) return;
+                const now = Date.now();
+                const cleanText = (decodedText || '').trim();
+                if (!cleanText) return;
+                if (isScanningLockedRef.current) return;
+                if (lastScannedCodeRef.current === cleanText && (now - lastScannedTimeRef.current < 3500)) return;
+                isScanningLockedRef.current = true;
+                lastScannedCodeRef.current = cleanText;
+                lastScannedTimeRef.current = now;
+                processScanWithAnimation(cleanText);
+                setTimeout(() => {
+                  isScanningLockedRef.current = false;
+                }, 6000);
+              },
+              () => {}
+            );
+
+            startedSuccessfully = true;
+            if (isMounted) {
+              setIsStartingCamera(false);
+              setIsScannerRunning(true);
+              setCameraError(null);
+              setHasCameraPermission(true);
+              localStorage.setItem('viotrack_qr_camera_allowed', 'true');
+            }
+          } catch (fallbackErr) {
+            lastError = fallbackErr;
+          }
         }
 
         if (!startedSuccessfully && isMounted) {
-          console.warn('All camera targets failed:', lastError);
+          console.warn('Camera startup failed:', lastError);
           setIsStartingCamera(false);
           const isPermDenied = lastError?.name === 'NotAllowedError' ||
             lastError?.name === 'PermissionDeniedError' ||
@@ -392,7 +383,6 @@ export const ScanQRPage = () => {
             setCameraError('Camera is currently unavailable or in use by another application. You can retry, switch cameras below, or upload a QR image.');
           }
           setIsScannerRunning(false);
-          stopAllMediaTracks();
         } else if (!isMounted) {
           setIsStartingCamera(false);
           await stopScannerInstance(localScanner);
@@ -414,7 +404,6 @@ export const ScanQRPage = () => {
           }
           setIsScannerRunning(false);
         }
-        stopAllMediaTracks();
       }
     };
 
@@ -484,26 +473,45 @@ export const ScanQRPage = () => {
     setRetryCount(prev => prev + 1);
   };
 
-  // Flip Front/Back Camera
+  // Flip Front/Back Camera smoothly
   const handleToggleCameraFacing = async () => {
+    setIsStartingCamera(true);
+    setCameraStartupStep('Switching camera...');
     if (html5QrCodeRef.current) {
       await stopScannerInstance(html5QrCodeRef.current);
       html5QrCodeRef.current = null;
     }
     const nextFacing = cameraFacing === 'environment' ? 'user' : 'environment';
     setCameraFacing(nextFacing);
+
+    // If availableCameras already contains the target device, switch directly to its deviceId
+    if (availableCameras.length > 0) {
+      const match = availableCameras.find(d =>
+        nextFacing === 'environment'
+          ? /back|rear|environment|0/i.test(d.label)
+          : /front|user|facetime|integrated|webcam|1/i.test(d.label)
+      );
+      if (match && match.id) {
+        setSelectedCameraId(match.id);
+        setRetryCount(prev => prev + 1);
+        return;
+      }
+    }
     setSelectedCameraId(null);
     setRetryCount(prev => prev + 1);
   };
 
-  // Switch specific camera device from dropdown
+  // Switch specific camera device from dropdown smoothly
   const handleSelectCamera = async (camId) => {
+    setIsStartingCamera(true);
+    setCameraStartupStep('Switching camera...');
+    setIsCameraDropdownOpen(false);
     if (html5QrCodeRef.current) {
       await stopScannerInstance(html5QrCodeRef.current);
       html5QrCodeRef.current = null;
     }
     setSelectedCameraId(camId);
-    setIsCameraDropdownOpen(false);
+    setRetryCount(prev => prev + 1);
   };
 
   // Close custom camera dropdown on outside click
