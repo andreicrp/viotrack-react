@@ -260,10 +260,9 @@ export const ScanQRPage = () => {
           aspectRatio: 1.7777777778
         };
 
-        // Determine target camera: If user picked a specific camera ID, use it.
-        // Otherwise use facingMode constraint directly (single fast permission request without dummy stream)
+        // Determine target camera: Use facingMode or ideal deviceId (avoids exact-device permission prompts)
         const primaryTarget = selectedCameraId
-          ? selectedCameraId
+          ? { deviceId: { ideal: selectedCameraId } }
           : { facingMode: cameraFacing };
 
         let startedSuccessfully = false;
@@ -483,20 +482,6 @@ export const ScanQRPage = () => {
     }
     const nextFacing = cameraFacing === 'environment' ? 'user' : 'environment';
     setCameraFacing(nextFacing);
-
-    // If availableCameras already contains the target device, switch directly to its deviceId
-    if (availableCameras.length > 0) {
-      const match = availableCameras.find(d =>
-        nextFacing === 'environment'
-          ? /back|rear|environment|0/i.test(d.label)
-          : /front|user|facetime|integrated|webcam|1/i.test(d.label)
-      );
-      if (match && match.id) {
-        setSelectedCameraId(match.id);
-        setRetryCount(prev => prev + 1);
-        return;
-      }
-    }
     setSelectedCameraId(null);
     setRetryCount(prev => prev + 1);
   };
