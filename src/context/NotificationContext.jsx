@@ -283,7 +283,7 @@ export const NotificationProvider = ({ children }) => {
   return (
     <NotificationContext.Provider value={{ addToast, success, error, warning, info }}>
       {children}
-      <div className="toast-container" aria-label="Notifications">
+      <div className="toast-container" role="region" aria-label="Notifications" aria-live="polite">
         {toasts.map((toast) => (
           <ToastItem key={toast.id} toast={toast} onRemove={removeToast} />
         ))}

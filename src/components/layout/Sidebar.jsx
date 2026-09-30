@@ -132,9 +132,11 @@ export const Sidebar = ({ isCollapsed, isMobileOpen, onCloseMobile }) => {
                 className={`nav-item has-submenu ${isManagementActive ? 'active' : ''} ${managementOpen ? 'open' : ''}`}
                 data-title="Management"
               >
-                <a
-                  href="#management"
+                <button
+                  type="button"
                   className="nav-link submenu-toggle"
+                  aria-expanded={managementOpen}
+                  aria-controls="management-submenu"
                   onClick={(e) => {
                     e.preventDefault();
                     if (isCollapsed) {
@@ -152,8 +154,8 @@ export const Sidebar = ({ isCollapsed, isMobileOpen, onCloseMobile }) => {
                   <span className={`nav-arrow ${managementOpen ? 'rotated' : ''}`}>
                     <ChevronDown size={15} strokeWidth={2.2} />
                   </span>
-                </a>
-                <ul className={`submenu ${managementOpen ? 'show' : ''}`}>
+                </button>
+                <ul id="management-submenu" className={`submenu ${managementOpen ? 'show' : ''}`}>
                   <li className={`submenu-item ${location.pathname === '/violations' ? 'active' : ''}`}>
                     <NavLink to="/violations" className="submenu-link" onClick={handleLinkClick}>
                       <span className="submenu-bullet"></span>

@@ -83,6 +83,13 @@
   transition: all 0.2s ease;
   white-space: nowrap;
   user-select: none;
+  border: none;
+  background: transparent;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  font-family: inherit;
+  outline: none;
 }
 
 .nav-link:hover {

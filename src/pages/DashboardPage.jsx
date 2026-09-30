@@ -479,7 +479,7 @@ export const DashboardPage = () => {
               <span className="dash-stat-title-label">Serious Offense</span>
               <div className="dash-stat-number-trend-row">
                 <span className="dash-stat-big-num">{seriousCount}</span>
-                <span className="dash-stat-trend-tag" style={{ color: '#0d9488' }}>
+                <span className="dash-stat-trend-tag" style={{ color: '#115e59' }}>
                   <ArrowUp size={12} strokeWidth={2.8} /> 0%
                 </span>
               </div>
@@ -499,7 +499,7 @@ export const DashboardPage = () => {
               <span className="dash-stat-title-label">Major Offense</span>
               <div className="dash-stat-number-trend-row">
                 <span className="dash-stat-big-num">{majorCount}</span>
-                <span className="dash-stat-trend-tag" style={{ color: '#0d9488' }}>
+                <span className="dash-stat-trend-tag" style={{ color: '#115e59' }}>
                   <ArrowUp size={12} strokeWidth={2.8} /> 0%
                 </span>
               </div>
@@ -557,7 +557,7 @@ export const DashboardPage = () => {
           <div className="dash-trends-title-left">
             <TrendingUp size={22} color="#0f172a" strokeWidth={2.4} />
             <div>
-              <h3 className="dash-trends-main-title">Violation Trends</h3>
+              <h2 className="dash-trends-main-title">Violation Trends</h2>
               <p className="dash-trends-sub-title">Timeline of student misconduct incidents by severity</p>
             </div>
           </div>
@@ -731,7 +731,7 @@ export const DashboardPage = () => {
             <div className="dash-card-header-left">
               <ShieldAlert size={20} color="#dc2626" />
               <div>
-                <h3 className="dash-card-header-title">Repeat & High-Risk Students</h3>
+                <h2 className="dash-card-header-title">Repeat & High-Risk Students</h2>
                 <p className="dash-card-header-desc">Ranked by cumulative disciplinary infractions</p>
               </div>
             </div>
@@ -809,7 +809,7 @@ export const DashboardPage = () => {
             <div className="dash-card-header-left">
               <GraduationCap size={20} color="#4338ca" />
               <div>
-                <h3 className="dash-card-header-title">Violations by Grade & Section</h3>
+                <h2 className="dash-card-header-title">Violations by Grade & Section</h2>
                 <p className="dash-card-header-desc">Distribution breakdown across active sections</p>
               </div>
             </div>
@@ -854,10 +854,10 @@ export const DashboardPage = () => {
           {/* Card A: School Calendar */}
           <div className="dash-calendar-card">
             <div className="dash-calendar-top-header">
-              <h3 className="dash-calendar-title">
+              <h2 className="dash-calendar-title">
                 <CalendarDays size={16} color="#0f172a" />
                 <span>School Calendar</span>
-              </h3>
+              </h2>
               <span
                 className="dash-link-blue"
                 onClick={() => setIsCalendarModalOpen(true)}
