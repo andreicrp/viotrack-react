@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import { Modal } from '../common/Modal';
 import { dataService } from '../../services/dataService';
 import { useNotification } from '../../context/NotificationContext';
-import { FileSpreadsheet, Upload, Download, CheckCircle2 } from 'lucide-react';
+import { FileSpreadsheet, Upload, Download } from 'lucide-react';
 import { parseCsvString, readFileAsText, downloadSampleCsv } from '../../utils/csvHelper';
 
 const SAMPLE_TEACHERS_CSV = `First Name,Middle Name,Last Name,Email,Contact,Department,Specialization,Gender
@@ -114,13 +114,15 @@ export const BulkImportTeachersModal = ({ isOpen, onClose, onImported }) => {
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Import Faculty Roster via CSV" icon={FileSpreadsheet} maxWidth="680px">
-      <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-        <div style={{ background: '#f8faff', border: '1px solid #dbeafe', borderRadius: '10px', padding: '14px 16px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
-            <div>
-              <strong style={{ fontSize: '13.5px', color: '#1e3a8a', display: 'block' }}>Expected CSV Column Format:</strong>
-              <code style={{ fontSize: '11.5px', color: '#3b82f6', background: '#eff6ff', padding: '2px 6px', borderRadius: '4px' }}>
+    <Modal isOpen={isOpen} onClose={onClose} title="Import Faculty Roster via CSV" icon={FileSpreadsheet} maxWidth="660px">
+      <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '14px', padding: '16px 20px', maxHeight: '74vh', overflowY: 'auto' }}>
+        
+        {/* Format Info & Template Download */}
+        <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '12px 14px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
+            <div style={{ flex: 1, minWidth: '200px' }}>
+              <strong style={{ fontSize: '12.5px', color: '#0f172a', display: 'block' }}>Required Column Headers:</strong>
+              <code style={{ fontSize: '11px', color: '#475569', background: '#f1f5f9', padding: '2px 6px', borderRadius: '4px', display: 'inline-block', marginTop: '2px', wordBreak: 'break-word' }}>
                 First Name, Middle Name, Last Name, Email, Contact, Department, Specialization, Gender
               </code>
             </div>
@@ -129,19 +131,20 @@ export const BulkImportTeachersModal = ({ isOpen, onClose, onImported }) => {
               onClick={handleDownloadTemplate}
               style={{
                 background: '#ffffff',
-                border: '1px solid #bfdbfe',
-                color: '#2563eb',
-                fontSize: '12px',
-                fontWeight: 700,
+                border: '1px solid #cbd5e1',
+                color: '#0f172a',
+                fontSize: '11.5px',
+                fontWeight: 600,
                 padding: '6px 12px',
-                borderRadius: '8px',
+                borderRadius: '6px',
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '6px',
-                cursor: 'pointer'
+                cursor: 'pointer',
+                flexShrink: 0
               }}
             >
-              <Download size={14} /> Download Template
+              <Download size={13} /> Sample CSV
             </button>
           </div>
         </div>
@@ -151,13 +154,13 @@ export const BulkImportTeachersModal = ({ isOpen, onClose, onImported }) => {
           onClick={() => fileInputRef.current?.click()}
           style={{
             border: '2px dashed #cbd5e1',
-            borderRadius: '12px',
-            padding: '20px',
+            borderRadius: '10px',
+            padding: '16px 14px',
             textAlign: 'center',
             cursor: 'pointer',
             background: fileName ? '#f0fdf4' : '#fafafa',
             borderColor: fileName ? '#86efac' : '#cbd5e1',
-            transition: 'all 0.2s ease'
+            transition: 'all 0.15s ease'
           }}
         >
           <input
@@ -167,19 +170,19 @@ export const BulkImportTeachersModal = ({ isOpen, onClose, onImported }) => {
             style={{ display: 'none' }}
             onChange={handleFileUpload}
           />
-          <Upload size={28} color={fileName ? '#16a34a' : '#64748b'} style={{ margin: '0 auto 8px auto' }} />
-          <div style={{ fontSize: '13.5px', fontWeight: 700, color: '#0f172a' }}>
-            {fileName ? `Selected File: ${fileName}` : 'Click or Drag & Drop to Upload Faculty CSV'}
+          <Upload size={24} color={fileName ? '#16a34a' : '#64748b'} style={{ margin: '0 auto 6px auto', display: 'block' }} />
+          <div style={{ fontSize: '13px', fontWeight: 700, color: '#0f172a' }}>
+            {fileName ? `Loaded: ${fileName}` : 'Tap or Drag & Drop to Upload Faculty CSV'}
           </div>
-          <div style={{ fontSize: '12px', color: '#64748b', marginTop: '2px' }}>
+          <div style={{ fontSize: '11.5px', color: '#64748b', marginTop: '2px' }}>
             Supports .csv and UTF-8 comma-separated text files
           </div>
         </div>
 
         {/* Paste Area */}
         <div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-            <label style={{ fontSize: '12.5px', fontWeight: 700, color: '#334155' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+            <label style={{ fontSize: '12px', fontWeight: 700, color: '#334155' }}>
               Or Paste CSV Data Directly:
             </label>
             <button
@@ -191,9 +194,10 @@ export const BulkImportTeachersModal = ({ isOpen, onClose, onImported }) => {
               style={{
                 background: 'transparent',
                 border: 'none',
-                color: '#2563eb',
-                fontSize: '11.5px',
+                color: '#0f172a',
+                fontSize: '11px',
                 fontWeight: 700,
+                textDecoration: 'underline',
                 cursor: 'pointer'
               }}
             >
@@ -202,8 +206,20 @@ export const BulkImportTeachersModal = ({ isOpen, onClose, onImported }) => {
           </div>
           <textarea
             className="form-control"
-            rows={6}
-            style={{ fontFamily: 'monospace', fontSize: '12px', lineHeight: 1.4 }}
+            rows={5}
+            style={{
+              width: '100%',
+              boxSizing: 'border-box',
+              fontFamily: 'monospace',
+              fontSize: '11.5px',
+              lineHeight: 1.4,
+              borderRadius: '8px',
+              border: '1px solid #cbd5e1',
+              padding: '8px 10px',
+              color: '#0f172a',
+              background: '#ffffff',
+              outline: 'none'
+            }}
             placeholder="First Name,Middle Name,Last Name,Email,Contact,Department,Specialization,Gender..."
             value={csvText}
             onChange={(e) => setCsvText(e.target.value)}
@@ -211,18 +227,45 @@ export const BulkImportTeachersModal = ({ isOpen, onClose, onImported }) => {
         </div>
       </div>
 
-      <div className="modal-footer" style={{ borderTop: '1px solid #f1f5f9', padding: '14px 20px', display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
-        <button type="button" className="btn btn-secondary" onClick={onClose} disabled={loading}>
+      <div className="modal-footer" style={{ borderTop: '1px solid #e2e8f0', padding: '12px 20px', display: 'flex', justifyContent: 'flex-end', gap: '8px', background: '#f8fafc' }}>
+        <button
+          type="button"
+          className="btn btn-secondary"
+          onClick={onClose}
+          disabled={loading}
+          style={{
+            borderRadius: '8px',
+            padding: '8px 16px',
+            fontWeight: 600,
+            fontSize: '12.5px',
+            background: '#ffffff',
+            border: '1px solid #cbd5e1',
+            color: '#0f172a',
+            cursor: 'pointer'
+          }}
+        >
           Cancel
         </button>
         <button
           type="button"
-          className="page-banner-primary-btn"
-          style={{ padding: '9px 18px', fontSize: '13px', borderRadius: '8px' }}
+          style={{
+            background: '#0f172a',
+            color: '#ffffff',
+            borderRadius: '8px',
+            padding: '8px 18px',
+            fontSize: '12.5px',
+            fontWeight: 700,
+            border: 'none',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px',
+            cursor: loading ? 'not-allowed' : 'pointer',
+            boxShadow: '0 2px 8px rgba(15, 23, 42, 0.2)'
+          }}
           onClick={handleParseAndUpload}
           disabled={loading}
         >
-          <Upload size={15} />
+          <Upload size={14} />
           {loading ? 'Processing Import...' : 'Import Faculty'}
         </button>
       </div>

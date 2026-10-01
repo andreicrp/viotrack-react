@@ -44,8 +44,8 @@ export const ViewStudentModal = ({ isOpen, onClose, student }) => {
   };
 
   const handleTrackLocation = () => {
-    const query = encodeURIComponent(`${student.fname} ${student.lname} school location`);
-    window.open(`https://www.google.com/maps/search/?api=1&query=${query}`, '_blank');
+    onClose();
+    navigate(`/track-location?student_id=${student.id}`);
   };
 
   const fullName = `${student.fname} ${student.mname ? student.mname + ' ' : ''}${student.lname}`;

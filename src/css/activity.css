@@ -118,19 +118,11 @@
     flex-shrink: 0;
 }
 
-.stat-icon-wrapper.activities {
-    background: transparent !important;
-    color: #3b82f6;
-}
-
-.stat-icon-wrapper.today {
-    background: transparent !important;
-    color: #f59e0b;
-}
-
+.stat-icon-wrapper.activities,
+.stat-icon-wrapper.today,
 .stat-icon-wrapper.week {
     background: transparent !important;
-    color: #a855f7;
+    color: #1f2937 !important;
 }
 
 .stat-content {
@@ -832,6 +824,25 @@
     
     .activity-stats {
         grid-template-columns: 1fr;
+    }
+    
+    .activity-pagination {
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        text-align: center !important;
+        gap: 12px !important;
+    }
+
+    .activity-pagination .showing-text {
+        text-align: center !important;
+        width: 100% !important;
+    }
+
+    .activity-pagination .pagination {
+        justify-content: center !important;
+        width: 100% !important;
+        margin: 0 auto !important;
     }
     
     .activity-item {

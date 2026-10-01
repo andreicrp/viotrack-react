@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { useNotification } from '../context/NotificationContext';
 import { isSupabaseConfigured, supabase } from '../lib/supabase';
 import { Eye, EyeOff, ArrowRight, CheckCircle2 } from 'lucide-react';
-import { PrivacyPolicyModal } from '../components/common/PrivacyPolicyModal';
+import { LegalModal } from '../components/legal/LegalModal';
 import '../css/login.css';
 
 export const LoginPage = () => {
@@ -17,12 +17,13 @@ export const LoginPage = () => {
   const isLoggedOut = queryParams.get('logged_out') === '1';
 
   const [userType, setUserType] = useState('admin');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('admin@viotrack.edu');
+  const [password, setPassword] = useState('admin123');
   const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true);
   const [loading, setLoading] = useState(false);
-  const [isPrivacyModalOpen, setIsPrivacyModalOpen] = useState(false);
+  const [isLegalModalOpen, setIsLegalModalOpen] = useState(false);
+  const [legalModalTab, setLegalModalTab] = useState('privacy');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -276,7 +277,7 @@ export const LoginPage = () => {
           <span>By signing in you agree to our </span>
           <button
             type="button"
-            onClick={() => setIsPrivacyModalOpen(true)}
+            onClick={() => { setLegalModalTab('privacy'); setIsLegalModalOpen(true); }}
             style={{
               background: 'none',
               border: 'none',
@@ -294,10 +295,11 @@ export const LoginPage = () => {
         </div>
       </div>
 
-      {/* Interactive Privacy Policy Dialog */}
-      <PrivacyPolicyModal
-        isOpen={isPrivacyModalOpen}
-        onClose={() => setIsPrivacyModalOpen(false)}
+      {/* Interactive Privacy Policy & Legal Dialog */}
+      <LegalModal
+        isOpen={isLegalModalOpen}
+        onClose={() => setIsLegalModalOpen(false)}
+        initialTab={legalModalTab}
       />
     </div>
   );

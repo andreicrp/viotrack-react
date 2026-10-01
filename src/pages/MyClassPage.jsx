@@ -379,7 +379,7 @@ export const MyClassPage = () => {
                 {analytics.maleCount} Male • {analytics.femaleCount} Female
               </div>
             </div>
-            <Users size={20} color="#07345f" strokeWidth={2} style={{ flexShrink: 0 }} />
+            <Users size={20} color="#1f2937" strokeWidth={2} style={{ flexShrink: 0 }} />
           </div>
           {statusFilter === 'all' && (
             <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 2.5, background: '#07345f' }}></div>
@@ -390,10 +390,10 @@ export const MyClassPage = () => {
         <div
           onClick={() => setStatusFilter(statusFilter === 'clean' ? 'all' : 'clean')}
           style={{
-            background: statusFilter === 'clean' ? '#f0fdf4' : '#ffffff',
+            background: '#ffffff',
             borderRadius: '10px',
             padding: '12px 14px',
-            border: statusFilter === 'clean' ? '2px solid #16a34a' : '1px solid #e2e8f0',
+            border: statusFilter === 'clean' ? '2px solid #07345f' : '1px solid #e2e8f0',
             boxShadow: '0 1px 4px rgba(0,0,0,0.02)',
             cursor: 'pointer',
             transition: 'all 0.2s',
@@ -405,17 +405,17 @@ export const MyClassPage = () => {
               <div style={{ fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.03em' }}>
                 Good Standing
               </div>
-              <div style={{ fontSize: '20px', fontWeight: 800, color: '#16a34a', marginTop: '2px' }}>
+              <div style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a', marginTop: '2px' }}>
                 {analytics.cleanStudents}
               </div>
-              <div style={{ fontSize: '10px', color: '#16a34a', marginTop: '2px', fontWeight: 600 }}>
+              <div style={{ fontSize: '10px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
                 {analytics.goodStandingRate}% Clean Disciplinary Record
               </div>
             </div>
-            <ShieldCheck size={20} color="#16a34a" strokeWidth={2} style={{ flexShrink: 0 }} />
+            <ShieldCheck size={20} color="#1f2937" strokeWidth={2} style={{ flexShrink: 0 }} />
           </div>
           {statusFilter === 'clean' && (
-            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 2.5, background: '#16a34a' }}></div>
+            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 2.5, background: '#07345f' }}></div>
           )}
         </div>
 
@@ -423,10 +423,10 @@ export const MyClassPage = () => {
         <div
           onClick={() => setStatusFilter(statusFilter === 'violations' ? 'all' : 'violations')}
           style={{
-            background: statusFilter === 'violations' ? '#fff1f2' : '#ffffff',
+            background: '#ffffff',
             borderRadius: '10px',
             padding: '12px 14px',
-            border: statusFilter === 'violations' ? '2px solid #e11d48' : '1px solid #e2e8f0',
+            border: statusFilter === 'violations' ? '2px solid #07345f' : '1px solid #e2e8f0',
             boxShadow: '0 1px 4px rgba(0,0,0,0.02)',
             cursor: 'pointer',
             transition: 'all 0.2s',
@@ -438,17 +438,17 @@ export const MyClassPage = () => {
               <div style={{ fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.03em' }}>
                 Recorded Offenses
               </div>
-              <div style={{ fontSize: '20px', fontWeight: 800, color: analytics.totalViolations > 0 ? '#e11d48' : '#0f172a', marginTop: '2px' }}>
+              <div style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a', marginTop: '2px' }}>
                 {analytics.totalViolations}
               </div>
-              <div style={{ fontSize: '10px', color: analytics.totalViolations > 0 ? '#e11d48' : '#64748b', marginTop: '2px', fontWeight: 600 }}>
+              <div style={{ fontSize: '10px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
                 {analytics.studentsWithViolations} {analytics.studentsWithViolations === 1 ? 'student' : 'students'} with offenses
               </div>
             </div>
-            <ShieldAlert size={20} color="#e11d48" strokeWidth={2} style={{ flexShrink: 0 }} />
+            <ShieldAlert size={20} color="#1f2937" strokeWidth={2} style={{ flexShrink: 0 }} />
           </div>
           {statusFilter === 'violations' && (
-            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 2.5, background: '#e11d48' }}></div>
+            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 2.5, background: '#07345f' }}></div>
           )}
         </div>
       </div>
@@ -686,36 +686,36 @@ export const MyClassPage = () => {
                         {isClean ? (
                           <span
                             style={{
-                              background: '#f0fdf4',
-                              color: '#166534',
-                              border: '1px solid #bbf7d0',
+                              background: '#ecfdf5',
+                              color: '#065f46',
+                              border: '1px solid #a7f3d0',
                               fontSize: '11px',
                               fontWeight: 700,
-                              padding: '2px 8px',
+                              padding: '2.5px 8px',
                               borderRadius: '12px',
                               display: 'inline-flex',
                               alignItems: 'center',
                               gap: '4px'
                             }}
                           >
-                            <CheckCircle2 size={11} color="#16a34a" /> Good Standing
+                            <CheckCircle2 size={11} color="#059669" strokeWidth={2.4} /> Good Standing
                           </span>
                         ) : (
                           <span
                             style={{
-                              background: '#fff1f2',
-                              color: '#9f1239',
-                              border: '1px solid #fecdd3',
+                              background: '#fef2f2',
+                              color: '#991b1b',
+                              border: '1px solid #fecaca',
                               fontSize: '11px',
                               fontWeight: 700,
-                              padding: '2px 8px',
+                              padding: '2.5px 8px',
                               borderRadius: '12px',
                               display: 'inline-flex',
                               alignItems: 'center',
                               gap: '4px'
                             }}
                           >
-                            <AlertTriangle size={11} color="#e11d48" /> {studentViolations.length} {studentViolations.length === 1 ? 'Violation' : 'Violations'}
+                            <AlertTriangle size={11} color="#dc2626" strokeWidth={2.4} /> {studentViolations.length} {studentViolations.length === 1 ? 'Violation' : 'Violations'}
                           </span>
                         )}
                       </div>

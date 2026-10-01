@@ -53,6 +53,19 @@ export const ActivityLogsPage = () => {
 
   useEffect(() => {
     loadLogs();
+
+    const handleNewActivity = (e) => {
+      if (e?.detail) {
+        setLogs(prev => [e.detail, ...prev.filter(item => item.id !== e.detail.id)]);
+      } else {
+        loadLogs();
+      }
+    };
+
+    window.addEventListener('viotrack_activity_logged', handleNewActivity);
+    return () => {
+      window.removeEventListener('viotrack_activity_logged', handleNewActivity);
+    };
   }, []);
 
   const loadLogs = async () => {
@@ -335,7 +348,7 @@ export const ActivityLogsPage = () => {
                 Full system activity trail
               </div>
             </div>
-            <Activity size={20} color="#07345f" strokeWidth={2} style={{ flexShrink: 0 }} />
+            <Activity size={20} color="#1f2937" strokeWidth={2} style={{ flexShrink: 0 }} />
           </div>
           {actionCategory === 'all' && (
             <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 2.5, background: '#07345f' }}></div>
@@ -360,11 +373,11 @@ export const ActivityLogsPage = () => {
               <div style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a', marginTop: '2px' }}>
                 {stats.todayCount}
               </div>
-              <div style={{ fontSize: '10px', color: '#059669', marginTop: '2px', fontWeight: 600 }}>
+              <div style={{ fontSize: '10px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
                 Logged in last 24 hours
               </div>
             </div>
-            <Clock size={20} color="#059669" strokeWidth={2} style={{ flexShrink: 0 }} />
+            <Clock size={20} color="#1f2937" strokeWidth={2} style={{ flexShrink: 0 }} />
           </div>
         </div>
 
@@ -372,10 +385,10 @@ export const ActivityLogsPage = () => {
         <div
           onClick={() => setActionCategory(actionCategory === 'violations' ? 'all' : 'violations')}
           style={{
-            background: actionCategory === 'violations' ? '#faf5ff' : '#ffffff',
+            background: '#ffffff',
             borderRadius: '10px',
             padding: '12px 14px',
-            border: actionCategory === 'violations' ? '2px solid #7c3aed' : '1px solid #e2e8f0',
+            border: actionCategory === 'violations' ? '2px solid #07345f' : '1px solid #e2e8f0',
             boxShadow: '0 1px 4px rgba(0,0,0,0.02)',
             cursor: 'pointer',
             transition: 'all 0.2s',
@@ -391,14 +404,14 @@ export const ActivityLogsPage = () => {
               <div style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a', marginTop: '2px' }}>
                 {stats.violationEvents}
               </div>
-              <div style={{ fontSize: '10px', color: '#7c3aed', marginTop: '2px', fontWeight: 600 }}>
+              <div style={{ fontSize: '10px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
                 Violations & resolutions
               </div>
             </div>
-            <ShieldAlert size={20} color="#7c3aed" strokeWidth={2} style={{ flexShrink: 0 }} />
+            <ShieldAlert size={20} color="#1f2937" strokeWidth={2} style={{ flexShrink: 0 }} />
           </div>
           {actionCategory === 'violations' && (
-            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 2.5, background: '#7c3aed' }}></div>
+            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 2.5, background: '#07345f' }}></div>
           )}
         </div>
 
@@ -406,10 +419,10 @@ export const ActivityLogsPage = () => {
         <div
           onClick={() => setActionCategory(actionCategory === 'users' ? 'all' : 'users')}
           style={{
-            background: actionCategory === 'users' ? '#fffbeb' : '#ffffff',
+            background: '#ffffff',
             borderRadius: '10px',
             padding: '12px 14px',
-            border: actionCategory === 'users' ? '2px solid #d97706' : '1px solid #e2e8f0',
+            border: actionCategory === 'users' ? '2px solid #07345f' : '1px solid #e2e8f0',
             boxShadow: '0 1px 4px rgba(0,0,0,0.02)',
             cursor: 'pointer',
             transition: 'all 0.2s',
@@ -425,11 +438,11 @@ export const ActivityLogsPage = () => {
               <div style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a', marginTop: '2px' }}>
                 {stats.adminEvents}
               </div>
-              <div style={{ fontSize: '10px', color: '#d97706', marginTop: '2px', fontWeight: 600 }}>
+              <div style={{ fontSize: '10px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
                 Faculty & account edits
               </div>
             </div>
-            <ShieldCheck size={20} color="#d97706" strokeWidth={2} style={{ flexShrink: 0 }} />
+            <ShieldCheck size={20} color="#1f2937" strokeWidth={2} style={{ flexShrink: 0 }} />
           </div>
           {actionCategory === 'users' && (
             <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 2.5, background: '#d97706' }}></div>
@@ -723,6 +736,7 @@ export const ActivityLogsPage = () => {
 
         {/* Pagination Footer */}
         <div
+          className="pagination-footer-responsive table-footer"
           style={{
             padding: '16px 24px',
             borderTop: '1px solid #f1f5f9',
@@ -747,7 +761,7 @@ export const ActivityLogsPage = () => {
             of <strong style={{ color: '#0f172a' }}>{filteredAndSortedLogs.length}</strong> events
           </div>
 
-          <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+          <div className="pagination-btn-group" style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
             <button
               onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
               disabled={currentPage === 1}

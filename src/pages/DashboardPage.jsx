@@ -72,6 +72,7 @@ export const DashboardPage = () => {
   // Calendar State (defaults to September 2026, day 23 selected)
   const [selectedCalendarDate, setSelectedCalendarDate] = useState(23);
   const [calendarMonth, setCalendarMonth] = useState(new Date(2026, 8, 1));
+  const [schoolEvents, setSchoolEvents] = useState([]);
 
   // Modals
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -80,19 +81,33 @@ export const DashboardPage = () => {
   useEffect(() => {
     loadData();
     const handleUpdate = () => loadData();
+    const handleEventsUpdate = async () => {
+      try {
+        const eData = await dataService.getSchoolEvents();
+        setSchoolEvents(eData || []);
+      } catch (err) {
+        console.error(err);
+      }
+    };
     window.addEventListener('viotrack_data_updated', handleUpdate);
-    return () => window.removeEventListener('viotrack_data_updated', handleUpdate);
+    window.addEventListener('viotrack_events_updated', handleEventsUpdate);
+    return () => {
+      window.removeEventListener('viotrack_data_updated', handleUpdate);
+      window.removeEventListener('viotrack_events_updated', handleEventsUpdate);
+    };
   }, []);
 
   const loadData = async () => {
     setLoading(true);
     try {
-      const [sData, rData] = await Promise.all([
+      const [sData, rData, eData] = await Promise.all([
         dataService.getStudents(),
-        dataService.getRecords()
+        dataService.getRecords(),
+        dataService.getSchoolEvents()
       ]);
       setStudents(sData || []);
       setRecords(rData || []);
+      setSchoolEvents(eData || []);
     } catch (err) {
       console.error(err);
     } finally {
@@ -100,12 +115,27 @@ export const DashboardPage = () => {
     }
   };
 
-  // Metrics from records or high-fidelity defaults from design
-  const minorCount = records.length ? records.filter(r => r.violation?.type === 'Minor' || r.type === 'Minor').length : 3;
-  const seriousCount = records.length ? records.filter(r => r.violation?.type === 'Serious' || r.type === 'Serious').length : 1;
-  const majorCount = records.length ? records.filter(r => r.violation?.type === 'Major' || r.type === 'Major').length : 1;
-  const totalStudentsCount = students.length || 6;
-  const totalViolationsCount = records.length || 5;
+  // Metrics from records or high-fidelity defaults from design - optimized single pass
+  const { minorCount, seriousCount, majorCount, totalStudentsCount, totalViolationsCount } = useMemo(() => {
+    let minor = 0;
+    let serious = 0;
+    let major = 0;
+
+    for (let i = 0; i < records.length; i++) {
+      const type = (records[i].violation?.type || records[i].type || '').toLowerCase();
+      if (type === 'minor') minor++;
+      else if (type === 'serious') serious++;
+      else if (type === 'major') major++;
+    }
+
+    return {
+      minorCount: records.length ? minor : 3,
+      seriousCount: records.length ? serious : 1,
+      majorCount: records.length ? major : 1,
+      totalStudentsCount: students.length || 6,
+      totalViolationsCount: records.length || 5
+    };
+  }, [records, students]);
 
   // Trend Chart Data exactly mirroring the smooth curves in the reference image
   const trendData = useMemo(() => {
@@ -157,7 +187,7 @@ export const DashboardPage = () => {
         infractions: 2,
         infractionLabel: '2 Infractions',
         image: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150&auto=format&fit=crop&q=80',
-        badgeType: 'red'
+        badgeType: 'amber'
       },
       {
         id: 3,
@@ -167,7 +197,7 @@ export const DashboardPage = () => {
         infractions: 1,
         infractionLabel: '1 Infraction',
         image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
-        badgeType: 'amber'
+        badgeType: 'slate'
       },
       {
         id: 4,
@@ -177,7 +207,7 @@ export const DashboardPage = () => {
         infractions: 1,
         infractionLabel: '1 Infraction',
         image: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=150&auto=format&fit=crop&q=80',
-        badgeType: 'amber'
+        badgeType: 'slate'
       },
       {
         id: 5,
@@ -187,7 +217,7 @@ export const DashboardPage = () => {
         infractions: 1,
         infractionLabel: '1 Infraction',
         image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80',
-        badgeType: 'amber'
+        badgeType: 'slate'
       },
       {
         id: 2,
@@ -197,7 +227,7 @@ export const DashboardPage = () => {
         infractions: 1,
         infractionLabel: '1 Infraction',
         image: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&auto=format&fit=crop&q=80',
-        badgeType: 'amber'
+        badgeType: 'slate'
       }
     ];
   }, []);
@@ -212,83 +242,7 @@ export const DashboardPage = () => {
     { grade: 'Grade 12', section: 'HUMSS B', count: 1, pct: '20%', fillPct: 20 }
   ];
 
-  // School Events Dataset
-  const SCHOOL_EVENTS = [
-    {
-      id: 1,
-      title: 'Student Conduct & Values Orientation',
-      date: '2026-09-15',
-      time: '10:00 AM – 12:00 PM',
-      category: 'disciplinary',
-      color: '#ef4444'
-    },
-    {
-      id: 2,
-      title: 'First Quarter Examination Week',
-      date: '2026-09-18',
-      time: '08:00 AM – 04:00 PM',
-      category: 'academic',
-      color: '#07345f'
-    },
-    {
-      id: 3,
-      title: 'Faculty General Assembly',
-      date: '2026-09-24',
-      time: '09:00 AM – 11:00 AM',
-      category: 'faculty',
-      color: '#10b981'
-    },
-    {
-      id: 4,
-      title: 'Parents-Teachers Council Meeting',
-      date: '2026-09-26',
-      time: '02:00 PM – 04:30 PM',
-      category: 'faculty',
-      color: '#10b981'
-    },
-    {
-      id: 5,
-      title: 'Submission of Disciplinary Reports',
-      date: '2026-09-30',
-      time: '01:00 PM – 03:00 PM',
-      category: 'disciplinary',
-      color: '#ef4444'
-    },
-    {
-      id: 6,
-      title: 'Midterm Grade Submission & Review',
-      date: '2026-10-05',
-      time: '08:00 AM – 05:00 PM',
-      category: 'academic',
-      color: '#07345f'
-    },
-    {
-      id: 7,
-      title: 'National Teachers Day Celebration',
-      date: '2026-10-05',
-      time: '01:00 PM – 05:00 PM',
-      category: 'activity',
-      color: '#8b5cf6'
-    },
-    {
-      id: 8,
-      title: 'Student Leaders Disciplinary Workshop',
-      date: '2026-10-14',
-      time: '09:00 AM – 02:00 PM',
-      category: 'disciplinary',
-      color: '#ef4444'
-    },
-    {
-      id: 9,
-      title: 'School Foundation Week Opening',
-      date: '2026-10-22',
-      time: '07:30 AM – 04:30 PM',
-      category: 'activity',
-      color: '#8b5cf6'
-    }
-  ];
-
-  // Calendar Day Generation based on calendarMonth
+  // Calendar Day Generation based on calendarMonth and dynamic schoolEvents
   const calendarDays = useMemo(() => {
     const year = calendarMonth.getFullYear();
     const month = calendarMonth.getMonth();
@@ -305,21 +259,25 @@ export const DashboardPage = () => {
       const dayStr = String(d).padStart(2, '0');
       const dateStr = `${year}-${monthStr}-${dayStr}`;
 
-      const dayEvents = SCHOOL_EVENTS.filter(e => e.date === dateStr);
-      const hasGreenDot = dayEvents.some(e => e.color === '#10b981' || e.category === 'faculty');
-      const hasRedDot = dayEvents.some(e => e.color === '#ef4444' || e.category === 'disciplinary');
+      const dayEvents = schoolEvents.filter(e => e.date === dateStr);
+      const dots = [];
+      if (dayEvents.some(e => e.color === '#10b981' || e.category === 'faculty')) dots.push({ color: '#10b981', type: 'green' });
+      if (dayEvents.some(e => e.color === '#ef4444' || e.category === 'disciplinary')) dots.push({ color: '#ef4444', type: 'red' });
+      if (dayEvents.some(e => e.color === '#07345f' || e.category === 'academic')) dots.push({ color: '#2563eb', type: 'academic' });
+      if (dayEvents.some(e => e.color === '#8b5cf6' || e.category === 'activity')) dots.push({ color: '#8b5cf6', type: 'activity' });
 
       days.push({
         day: d,
         key: `day-${year}-${month}-${d}`,
         dateStr,
-        hasGreenDot,
-        hasRedDot
+        dots,
+        hasEvents: dayEvents.length > 0,
+        dayEvents
       });
     }
 
     return days;
-  }, [calendarMonth]);
+  }, [calendarMonth, schoolEvents]);
 
   // Dynamic Events for Selected Date / Upcoming
   const displayedCalendarEvents = useMemo(() => {
@@ -329,30 +287,33 @@ export const DashboardPage = () => {
     const dayStr = String(selectedCalendarDate || 1).padStart(2, '0');
     const selectedDateStr = `${year}-${monthStr}-${dayStr}`;
 
-    const exactDayEvents = SCHOOL_EVENTS.filter(e => e.date === selectedDateStr);
+    const exactDayEvents = schoolEvents.filter(e => e.date === selectedDateStr);
     if (exactDayEvents.length > 0) {
       return {
         label: `Events on ${calendarMonth.toLocaleDateString('en-US', { month: 'short' })} ${selectedCalendarDate}`,
-        events: exactDayEvents
+        events: exactDayEvents,
+        isExactDay: true
       };
     }
 
-    const upcoming = SCHOOL_EVENTS
+    const upcoming = schoolEvents
       .filter(e => e.date >= selectedDateStr)
       .sort((a, b) => a.date.localeCompare(b.date));
 
     if (upcoming.length > 0) {
       return {
         label: `Upcoming from ${calendarMonth.toLocaleDateString('en-US', { month: 'short' })} ${selectedCalendarDate}`,
-        events: upcoming.slice(0, 2)
+        events: upcoming.slice(0, 3),
+        isExactDay: false
       };
     }
 
     return {
       label: 'Upcoming Events',
-      events: SCHOOL_EVENTS.slice(0, 2)
+      events: schoolEvents.slice(0, 3),
+      isExactDay: false
     };
-  }, [calendarMonth, selectedCalendarDate]);
+  }, [calendarMonth, selectedCalendarDate, schoolEvents]);
 
   // Export Executive PDF Report
   const handleExport = () => {
@@ -479,7 +440,7 @@ export const DashboardPage = () => {
               <span className="dash-stat-title-label">Serious Offense</span>
               <div className="dash-stat-number-trend-row">
                 <span className="dash-stat-big-num">{seriousCount}</span>
-                <span className="dash-stat-trend-tag" style={{ color: '#115e59' }}>
+                <span className="dash-stat-trend-tag">
                   <ArrowUp size={12} strokeWidth={2.8} /> 0%
                 </span>
               </div>
@@ -499,7 +460,7 @@ export const DashboardPage = () => {
               <span className="dash-stat-title-label">Major Offense</span>
               <div className="dash-stat-number-trend-row">
                 <span className="dash-stat-big-num">{majorCount}</span>
-                <span className="dash-stat-trend-tag" style={{ color: '#115e59' }}>
+                <span className="dash-stat-trend-tag">
                   <ArrowUp size={12} strokeWidth={2.8} /> 0%
                 </span>
               </div>
@@ -555,7 +516,7 @@ export const DashboardPage = () => {
         <div className="dash-trends-header">
           {/* Title on Left */}
           <div className="dash-trends-title-left">
-            <TrendingUp size={22} color="#0f172a" strokeWidth={2.4} />
+            <TrendingUp size={22} color="#1f2937" strokeWidth={2.4} />
             <div>
               <h2 className="dash-trends-main-title">Violation Trends</h2>
               <p className="dash-trends-sub-title">Timeline of student misconduct incidents by severity</p>
@@ -729,7 +690,7 @@ export const DashboardPage = () => {
         <div className="dash-bottom-card">
           <div className="dash-card-header-clean">
             <div className="dash-card-header-left">
-              <ShieldAlert size={20} color="#dc2626" />
+              <ShieldAlert size={20} color="#1f2937" />
               <div>
                 <h2 className="dash-card-header-title">Repeat & High-Risk Students</h2>
                 <p className="dash-card-header-desc">Ranked by cumulative disciplinary infractions</p>
@@ -776,7 +737,7 @@ export const DashboardPage = () => {
           </div>
 
           {/* Footer Pagination */}
-          <div className="dash-card-footer-pagination">
+          <div className="dash-card-footer-pagination pagination-footer-responsive">
             <span style={{ fontSize: '11.5px', color: '#64748b' }}>Showing 1 – {repeatStudentsList.length} of {repeatStudentsList.length}</span>
             <div style={{ display: 'flex', gap: '4px' }}>
               <button
@@ -807,7 +768,7 @@ export const DashboardPage = () => {
         <div className="dash-bottom-card">
           <div className="dash-card-header-clean">
             <div className="dash-card-header-left">
-              <GraduationCap size={20} color="#4338ca" />
+              <GraduationCap size={20} color="#1f2937" />
               <div>
                 <h2 className="dash-card-header-title">Violations by Grade & Section</h2>
                 <p className="dash-card-header-desc">Distribution breakdown across active sections</p>
@@ -838,7 +799,7 @@ export const DashboardPage = () => {
           {/* Insight Callout Box */}
           <div className="dash-insight-banner">
             <div className="dash-insight-icon-wrap">
-              <Lightbulb size={20} color="#059669" strokeWidth={2.4} />
+              <Lightbulb size={15} color="#ffffff" strokeWidth={2.2} />
             </div>
             <div>
               <h4 className="dash-insight-title">Disciplinary Intervention Insight</h4>
@@ -855,7 +816,7 @@ export const DashboardPage = () => {
           <div className="dash-calendar-card">
             <div className="dash-calendar-top-header">
               <h2 className="dash-calendar-title">
-                <CalendarDays size={16} color="#0f172a" />
+                <CalendarDays size={16} color="#1f2937" />
                 <span>School Calendar</span>
               </h2>
               <span
@@ -907,13 +868,22 @@ export const DashboardPage = () => {
                 return (
                   <div
                     key={c.key}
-                    className={`dash-cal-date-cell ${isSelected ? 'selected' : ''}`}
+                    className={`dash-cal-date-cell ${isSelected ? 'selected' : ''} ${c.hasEvents ? 'has-events' : ''}`}
                     onClick={() => setSelectedCalendarDate(c.day)}
-                    title={`Select ${calendarMonth.toLocaleDateString('en-US', { month: 'short' })} ${c.day}`}
+                    title={`${calendarMonth.toLocaleDateString('en-US', { month: 'short' })} ${c.day}${c.hasEvents ? ` (${c.eventCount} event${c.eventCount > 1 ? 's' : ''})` : ''}`}
                   >
                     <span>{c.day}</span>
-                    {c.hasGreenDot && <span className="dash-cal-dot-indicator green" />}
-                    {c.hasRedDot && <span className="dash-cal-dot-indicator red" />}
+                    {c.dots && c.dots.length > 0 && (
+                      <div className="dash-cal-dots-container">
+                        {c.dots.slice(0, 3).map((dot, idx) => (
+                          <span
+                            key={idx}
+                            className={`dash-cal-dot-indicator ${dot.type}`}
+                            style={{ backgroundColor: dot.color }}
+                          />
+                        ))}
+                      </div>
+                    )}
                   </div>
                 );
               })}
@@ -925,34 +895,55 @@ export const DashboardPage = () => {
                 <span className="dash-upcoming-title">
                   <CalendarIcon size={12} color="#0f172a" /> {displayedCalendarEvents.label}
                 </span>
-                <span
-                  className="dash-link-blue"
-                  style={{ fontSize: '11px' }}
+                <button
+                  type="button"
+                  className="dash-link-blue-btn"
                   onClick={() => setIsCalendarModalOpen(true)}
                   title="View All Scheduled Events in Full Calendar"
                 >
                   View All →
-                </span>
+                </button>
               </div>
 
               {displayedCalendarEvents.events.length === 0 ? (
-                <div style={{ fontSize: '12px', color: '#64748b', padding: '6px 0', textAlign: 'center' }}>
-                  No scheduled events for this date.
+                <div className="dash-empty-calendar-day">
+                  <span>No events scheduled for this date.</span>
+                  <button
+                    type="button"
+                    className="dash-cal-quick-add-btn"
+                    onClick={() => setIsCalendarModalOpen(true)}
+                  >
+                    <PlusCircle size={12} /> Schedule Event
+                  </button>
                 </div>
               ) : (
-                displayedCalendarEvents.events.map(ev => {
-                  const evDate = new Date(ev.date);
-                  const formattedEvDate = evDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-                  return (
-                    <div key={ev.id} className="dash-upcoming-item">
-                      <div className="dash-upcoming-left">
-                        <span style={{ width: 6, height: 6, borderRadius: '50%', background: ev.color || '#10b981', flexShrink: 0 }} />
-                        <span>{formattedEvDate} | {ev.title}</span>
+                <div className="dash-upcoming-list">
+                  {displayedCalendarEvents.events.map(ev => {
+                    const evDate = new Date(ev.date);
+                    const formattedEvDate = evDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                    return (
+                      <div
+                        key={ev.id}
+                        className="dash-upcoming-item"
+                        onClick={() => {
+                          const evDay = parseInt(ev.date.split('-')[2], 10);
+                          if (!isNaN(evDay)) setSelectedCalendarDate(evDay);
+                          setIsCalendarModalOpen(true);
+                        }}
+                        title={`Click to view details for ${ev.title}`}
+                      >
+                        <div className="dash-upcoming-left">
+                          <span
+                            className="dash-upcoming-dot"
+                            style={{ background: ev.color || '#10b981' }}
+                          />
+                          <span className="dash-upcoming-name">{formattedEvDate} | {ev.title}</span>
+                        </div>
+                        <span className="dash-upcoming-time">{ev.time}</span>
                       </div>
-                      <span className="dash-upcoming-time">{ev.time}</span>
-                    </div>
-                  );
-                })
+                    );
+                  })}
+                </div>
               )}
             </div>
           </div>

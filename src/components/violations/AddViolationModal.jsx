@@ -9,7 +9,9 @@ import {
   AlertTriangle,
   MapPin,
   Check,
-  Phone
+  Users,
+  Layers,
+  ShieldCheck
 } from 'lucide-react';
 
 export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedStudentId = null }) => {
@@ -19,11 +21,12 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
   const [students, setStudents] = useState([]);
   const [violations, setViolations] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [selectedStudent, setSelectedStudent] = useState(null);
+
+  // Multi-select state
+  const [selectedStudentIds, setSelectedStudentIds] = useState([]);
+  const [selectedViolationIds, setSelectedViolationIds] = useState([]);
 
   const [formData, setFormData] = useState({
-    student_id: preselectedStudentId || '',
-    violation_id: '',
     sanction: '',
     remarks: '',
     notify_parent_sms: true,
@@ -37,13 +40,6 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
     captured: false,
     timestamp: null
   });
-
-  const sanctionPresets = [
-    'Written Reprimand & Warning',
-    '1-Hour Campus Community Service',
-    'Guidance Counselor Referral',
-    'Parent-Teacher Disciplinary Conference'
-  ];
 
   useEffect(() => {
     if (isOpen) {
@@ -61,7 +57,6 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
             });
           },
           () => {
-            // No permission or unavailable: do not set fake coordinates
             setLocation({
               lat: null,
               lng: null,
@@ -76,15 +71,6 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
     }
   }, [isOpen, preselectedStudentId]);
 
-  useEffect(() => {
-    if (formData.student_id && students.length > 0) {
-      const found = students.find(s => s.id === Number(formData.student_id));
-      setSelectedStudent(found || null);
-    } else {
-      setSelectedStudent(null);
-    }
-  }, [formData.student_id, students]);
-
   const loadDropdownData = async () => {
     try {
       const [sData, vData] = await Promise.all([
@@ -93,205 +79,178 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
       ]);
       setStudents(sData);
       setViolations(vData);
+
       if (preselectedStudentId) {
-        setFormData(prev => ({ ...prev, student_id: preselectedStudentId }));
-        const matched = sData.find(s => s.id === Number(preselectedStudentId));
-        setSelectedStudent(matched || null);
+        setSelectedStudentIds([Number(preselectedStudentId)]);
+      } else {
+        setSelectedStudentIds([]);
       }
+      setSelectedViolationIds([]);
     } catch (err) {
-      console.error(err);
+      console.error('Error loading dropdown data:', err);
     }
   };
 
-  const handleViolationSelect = (violationItem) => {
-    if (violationItem) {
+  const handleViolationsChange = (newIds, selectedViolationObjects) => {
+    setSelectedViolationIds(newIds);
+
+    // Auto-suggest combined default sanctions
+    const sanctionsList = (selectedViolationObjects || [])
+      .map(v => v.default_sanction || v.sanction)
+      .filter(Boolean);
+
+    if (sanctionsList.length > 0) {
+      const uniqueSanctions = Array.from(new Set(sanctionsList));
       setFormData(prev => ({
         ...prev,
-        violation_id: violationItem.id,
-        sanction: violationItem.default_sanction || violationItem.sanction || prev.sanction
-      }));
-    } else {
-      setFormData(prev => ({
-        ...prev,
-        violation_id: ''
+        sanction: uniqueSanctions.join(', ')
       }));
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.student_id || !formData.violation_id) {
-      error('Please select both a student and a violation offense category.');
+    if (selectedStudentIds.length === 0) {
+      error('Please select at least one student.');
+      return;
+    }
+    if (selectedViolationIds.length === 0) {
+      error('Please select at least one violation offense.');
       return;
     }
 
     setLoading(true);
     try {
-      const currentStudent = selectedStudent || students.find(s => s.id === Number(formData.student_id));
-      const selectedViolation = violations.find(v => v.id === Number(formData.violation_id));
+      const createdRecords = [];
+      const chosenStudents = students.filter(s => selectedStudentIds.includes(Number(s.id)));
+      const chosenViolations = violations.filter(v => selectedViolationIds.includes(Number(v.id)));
 
-      const newRecord = await dataService.addRecord({
-        student_id: Number(formData.student_id),
-        violation_id: Number(formData.violation_id),
-        reported_by_name: user?.name || 'Authorized Faculty / Administrator',
-        reported_by_type: user?.role || 'admin',
-        sanction: formData.sanction || 'Under Review',
-        remarks: formData.remarks || 'Standard disciplinary incident report logged.',
-        status: formData.status,
-        sms_notified: formData.notify_parent_sms,
-        lat: location.lat,
-        lng: location.lng,
-        accuracy: location.accuracy
-      });
+      // Create a record for every student and violation combination
+      for (const student of chosenStudents) {
+        for (const violation of chosenViolations) {
+          const newRecord = await dataService.addRecord({
+            student_id: Number(student.id),
+            violation_id: Number(violation.id),
+            reported_by_name: user?.name || 'Authorized Faculty / Administrator',
+            reported_by_type: user?.role || 'admin',
+            sanction: formData.sanction || violation.default_sanction || 'Under Review',
+            remarks: formData.remarks || 'Disciplinary incident report logged.',
+            status: formData.status,
+            sms_notified: formData.notify_parent_sms,
+            lat: location.lat,
+            lng: location.lng,
+            accuracy: location.accuracy
+          });
+          createdRecords.push(newRecord);
+        }
 
-      if (formData.notify_parent_sms && currentStudent?.parent_contact) {
-        await dataService.sendSMS(
-          currentStudent.parent_contact,
-          currentStudent.parent_name || 'Guardian',
-          `${currentStudent.fname} ${currentStudent.lname}`,
-          selectedViolation?.title || 'Disciplinary Infraction'
-        );
+        // Send consolidated SMS alert to guardian if enabled
+        if (formData.notify_parent_sms && student.parent_contact) {
+          const violationTitles = chosenViolations.map(v => v.title).join(', ');
+          await dataService.sendSMS(
+            student.parent_contact,
+            student.parent_name || 'Guardian',
+            `${student.fname} ${student.lname}`,
+            violationTitles
+          );
+        }
       }
 
-      success(`Incident record for ${currentStudent?.fname || 'student'} added successfully!`);
-      onRecordAdded?.(newRecord);
+      const totalCount = createdRecords.length;
+      const studentCount = chosenStudents.length;
+      const violationCount = chosenViolations.length;
+
+      if (studentCount === 1 && violationCount === 1) {
+        success(`Incident record for ${chosenStudents[0]?.fname || 'student'} added successfully!`);
+      } else {
+        success(`Successfully recorded ${violationCount} violation(s) for ${studentCount} student(s) (${totalCount} total entries)!`);
+      }
+
+      onRecordAdded?.(createdRecords[0] || createdRecords);
       onClose();
+
+      // Reset Form State
+      setSelectedStudentIds([]);
+      setSelectedViolationIds([]);
       setFormData({
-        student_id: preselectedStudentId || '',
-        violation_id: '',
         sanction: '',
         remarks: '',
         notify_parent_sms: true,
         status: 'Pending'
       });
     } catch (err) {
-      error('Failed to save violation: ' + err.message);
+      error('Failed to save violation records: ' + err.message);
     } finally {
       setLoading(false);
     }
   };
 
-  const selectedOffense = violations.find(v => v.id === Number(formData.violation_id));
+  const selectedStudents = students.filter(s => selectedStudentIds.includes(Number(s.id)));
+  const selectedViolations = violations.filter(v => selectedViolationIds.includes(Number(v.id)));
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Add New Violation Record" icon={AlertTriangle} maxWidth="600px">
+    <Modal isOpen={isOpen} onClose={onClose} title="Add New Violation Record" icon={AlertTriangle} maxWidth="640px">
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-        <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '16px', padding: '20px 24px' }}>
+        <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '12px', padding: '16px 18px', maxHeight: '74vh', overflowY: 'auto' }}>
           
-          {/* Real Geolocation Tag Banner (Only shown when device GPS is genuinely captured) */}
+          {/* Real Geolocation Tag Banner */}
           {location.captured && location.lat != null && location.lng != null && (
             <div
               style={{
-                background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)',
-                border: '1px solid #86efac',
-                borderRadius: '12px',
-                padding: '10px 14px',
+                background: '#f0fdf4',
+                border: '1px solid #bbf7d0',
+                borderRadius: '8px',
+                padding: '8px 12px',
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'space-between',
-                boxShadow: '0 1px 3px rgba(22, 101, 52, 0.05)'
+                justifyContent: 'space-between'
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <div style={{ width: 32, height: 32, borderRadius: '8px', background: '#16a34a', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                  <MapPin size={17} />
-                </div>
-                <div>
-                  <div style={{ fontSize: '13px', fontWeight: 700, color: '#14532d' }}>
-                    Incident Geolocation Tagged
-                  </div>
-                  <div style={{ fontSize: '11.5px', color: '#166534', marginTop: '1px' }}>
-                    {location.lat.toFixed(5)}, {location.lng.toFixed(5)}
-                  </div>
-                </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <MapPin size={16} color="#16a34a" />
+                <span style={{ fontSize: '12px', fontWeight: 600, color: '#14532d' }}>
+                  GPS: {location.lat.toFixed(5)}, {location.lng.toFixed(5)}
+                </span>
               </div>
-              <span style={{ fontSize: '11px', fontWeight: 700, background: '#ffffff', color: '#15803d', border: '1px solid #bbf7d0', padding: '3px 10px', borderRadius: '12px' }}>
+              <span style={{ fontSize: '10.5px', fontWeight: 700, color: '#15803d' }}>
                 ±{location.accuracy}m Accuracy
               </span>
             </div>
           )}
 
-          {/* Preselected or Searchable Student Selector */}
-          {selectedStudent && preselectedStudentId ? (
-            <div
-              style={{
-                background: '#f8fafc',
-                border: '1px solid #e2e8f0',
-                borderRadius: '12px',
-                padding: '12px 14px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '12px'
-              }}
-            >
-              <img
-                src={
-                  selectedStudent.image ||
-                  `https://ui-avatars.com/api/?name=${encodeURIComponent(selectedStudent.fname + ' ' + selectedStudent.lname)}&background=27367f&color=fff&size=80`
-                }
-                alt={selectedStudent.fname}
-                style={{ width: 44, height: 44, borderRadius: '50%', objectFit: 'cover', border: '2px solid #27367f', flexShrink: 0 }}
-              />
-              <div style={{ flex: 1 }}>
-                <div style={{ fontSize: '14px', fontWeight: 800, color: '#0f172a' }}>
-                  {selectedStudent.fname} {selectedStudent.lname}
-                </div>
-                <div style={{ fontSize: '12px', color: '#64748b', marginTop: '1px' }}>
-                  LRN: <strong style={{ color: '#27367f' }}>{selectedStudent.lrn}</strong> • {selectedStudent.grade} - {selectedStudent.section}
-                </div>
-              </div>
-              {selectedStudent.parent_contact && (
-                <div style={{ fontSize: '11.5px', color: '#047857', background: '#ecfdf5', padding: '4px 10px', borderRadius: '8px', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px' }}>
-                  <Phone size={12} /> {selectedStudent.parent_contact}
-                </div>
-              )}
-            </div>
-          ) : (
-            <div>
-              <label style={{ fontSize: '13px', fontWeight: 700, color: '#334155', marginBottom: '6px', display: 'block' }}>
-                Select Student <span style={{ color: '#ef4444' }}>*</span>
-              </label>
-              <SearchableStudentSelect
-                students={students}
-                value={formData.student_id}
-                onChange={(sid) => setFormData({ ...formData, student_id: sid })}
-              />
-            </div>
-          )}
-
-          {/* Custom Searchable Violation Offense Category */}
+          {/* 1. Multi-Student Selection Field */}
           <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-              <label style={{ fontSize: '13px', fontWeight: 700, color: '#334155', margin: 0 }}>
-                Violation Offense Category <span style={{ color: '#ef4444' }}>*</span>
-              </label>
-              {selectedOffense && (
-                <span
-                  style={{
-                    fontSize: '11px',
-                    fontWeight: 700,
-                    padding: '2px 8px',
-                    borderRadius: '10px',
-                    background: selectedOffense.type?.toLowerCase() === 'major' ? '#fef2f2' : selectedOffense.type?.toLowerCase() === 'serious' ? '#fffbeb' : '#f0fdf4',
-                    color: selectedOffense.type?.toLowerCase() === 'major' ? '#dc2626' : selectedOffense.type?.toLowerCase() === 'serious' ? '#d97706' : '#16a34a'
-                  }}
-                >
-                  {selectedOffense.type} Severity
-                </span>
-              )}
-            </div>
-
-            {/* Custom Searchable Dropdown */}
-            <SearchableViolationSelect
-              violations={violations}
-              value={formData.violation_id}
-              onChange={handleViolationSelect}
+            <label style={{ fontSize: '12.5px', fontWeight: 700, color: '#334155', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '5px' }}>
+              <Users size={14} color="#0f172a" />
+              Select Student(s) <span style={{ color: '#ef4444' }}>*</span>
+            </label>
+            <SearchableStudentSelect
+              students={students}
+              value={selectedStudentIds}
+              onChange={(newIds) => setSelectedStudentIds(newIds)}
+              isMulti={true}
+              placeholder="-- Choose student(s) from directory --"
             />
           </div>
 
-          {/* Disciplinary Sanction & Quick Presets */}
+          {/* 2. Multi-Violation Selection Field */}
           <div>
-            <label style={{ fontSize: '13px', fontWeight: 700, color: '#334155', marginBottom: '6px', display: 'block' }}>
+            <label style={{ fontSize: '12.5px', fontWeight: 700, color: '#334155', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '5px' }}>
+              <Layers size={14} color="#0f172a" />
+              Violation Offense Category(ies) <span style={{ color: '#ef4444' }}>*</span>
+            </label>
+            <SearchableViolationSelect
+              violations={violations}
+              value={selectedViolationIds}
+              onChange={handleViolationsChange}
+              isMulti={true}
+              placeholder="-- Select infraction(s) --"
+            />
+          </div>
+
+          {/* 3. Disciplinary Sanction / Corrective Measure */}
+          <div>
+            <label style={{ fontSize: '12.5px', fontWeight: 700, color: '#334155', marginBottom: '4px', display: 'block' }}>
               Prescribed Sanction / Corrective Measure
             </label>
             <input
@@ -302,79 +261,52 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
               style={{
                 width: '100%',
                 boxSizing: 'border-box',
-                height: '40px',
-                padding: '8px 12px',
-                borderRadius: '10px',
-                border: '1.5px solid #cbd5e1',
-                fontSize: '13px',
+                height: '38px',
+                padding: '6px 10px',
+                borderRadius: '8px',
+                border: '1px solid #cbd5e1',
+                fontSize: '12.5px',
                 color: '#0f172a',
                 background: '#ffffff',
                 outline: 'none',
-                marginBottom: '8px',
                 fontFamily: 'inherit'
               }}
             />
-            {/* Quick Presets */}
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-              {sanctionPresets.map((p, idx) => (
-                <button
-                  type="button"
-                  key={idx}
-                  onClick={() => setFormData(prev => ({ ...prev, sanction: p }))}
-                  style={{
-                    fontSize: '11px',
-                    fontWeight: 600,
-                    background: '#f1f5f9',
-                    color: '#475569',
-                    border: '1px solid #cbd5e1',
-                    borderRadius: '8px',
-                    padding: '4px 9px',
-                    cursor: 'pointer',
-                    transition: 'all 0.15s',
-                    fontFamily: 'inherit'
-                  }}
-                  onMouseOver={(e) => { e.currentTarget.style.background = '#e2e8f0'; }}
-                  onMouseOut={(e) => { e.currentTarget.style.background = '#f1f5f9'; }}
-                >
-                  + {p}
-                </button>
-              ))}
-            </div>
           </div>
 
-          {/* Incident Remarks */}
+          {/* 4. Incident Remarks */}
           <div>
-            <label style={{ fontSize: '13px', fontWeight: 700, color: '#334155', marginBottom: '6px', display: 'block' }}>
+            <label style={{ fontSize: '12.5px', fontWeight: 700, color: '#334155', marginBottom: '4px', display: 'block' }}>
               Incident Details & Faculty Remarks
             </label>
             <textarea
-              rows={3}
+              rows={2}
               value={formData.remarks}
               onChange={(e) => setFormData({ ...formData, remarks: e.target.value })}
               placeholder="Specify the location, witnesses, circumstances, or confiscated items..."
               style={{
                 width: '100%',
                 boxSizing: 'border-box',
-                borderRadius: '10px',
-                border: '1.5px solid #cbd5e1',
-                fontSize: '13px',
-                padding: '10px 12px',
+                borderRadius: '8px',
+                border: '1px solid #cbd5e1',
+                fontSize: '12.5px',
+                padding: '8px 10px',
                 color: '#0f172a',
                 background: '#ffffff',
                 outline: 'none',
                 resize: 'vertical',
                 fontFamily: 'inherit',
-                lineHeight: '1.5'
+                lineHeight: '1.4'
               }}
             />
           </div>
 
-          {/* Initial Case Status */}
+          {/* 5. Initial Case Status */}
           <div>
-            <label style={{ fontSize: '13px', fontWeight: 700, color: '#334155', marginBottom: '6px', display: 'block' }}>
+            <label style={{ fontSize: '12.5px', fontWeight: 700, color: '#334155', marginBottom: '4px', display: 'block' }}>
               Initial Case Status
             </label>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '6px' }}>
               {[
                 { id: 'Pending', label: 'Pending Action', color: '#ef4444' },
                 { id: 'Investigation', label: 'In Review', color: '#f59e0b' },
@@ -385,11 +317,11 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
                   key={st.id}
                   onClick={() => setFormData(prev => ({ ...prev, status: st.id }))}
                   style={{
-                    padding: '8px 10px',
-                    borderRadius: '10px',
-                    fontSize: '12px',
+                    padding: '6px 8px',
+                    borderRadius: '8px',
+                    fontSize: '11.5px',
                     fontWeight: 700,
-                    border: formData.status === st.id ? `2px solid ${st.color}` : '1px solid #e2e8f0',
+                    border: formData.status === st.id ? `1.5px solid ${st.color}` : '1px solid #e2e8f0',
                     background: formData.status === st.id ? `${st.color}15` : '#ffffff',
                     color: formData.status === st.id ? st.color : '#64748b',
                     cursor: 'pointer',
@@ -404,16 +336,16 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
             </div>
           </div>
 
-          {/* SMS Notification Checkbox */}
+          {/* 6. SMS Notification Alert */}
           <div
             style={{
               background: '#f8fafc',
               border: '1px solid #cbd5e1',
-              borderRadius: '12px',
-              padding: '12px 14px',
+              borderRadius: '8px',
+              padding: '10px 12px',
               display: 'flex',
               alignItems: 'center',
-              gap: '12px'
+              gap: '10px'
             }}
           >
             <input
@@ -421,28 +353,67 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
               id="notify_sms_check"
               checked={formData.notify_parent_sms}
               onChange={(e) => setFormData({ ...formData, notify_parent_sms: e.target.checked })}
-              style={{ width: 18, height: 18, cursor: 'pointer', accentColor: '#27367f', flexShrink: 0 }}
+              style={{ width: 16, height: 16, cursor: 'pointer', accentColor: '#0f172a', flexShrink: 0 }}
             />
-            <label htmlFor="notify_sms_check" style={{ fontSize: '12.5px', color: '#334155', cursor: 'pointer', margin: 0, fontFamily: 'inherit' }}>
-              <strong style={{ color: '#0f172a', display: 'block' }}>Dispatch Immediate SMS Alert to Guardian</strong>
-              <span style={{ fontSize: '11.5px', color: '#64748b' }}>
-                Sends an automated disciplinary notice to {selectedStudent?.parent_contact ? `+63 ${selectedStudent.parent_contact}` : 'the guardian on record'}.
+            <label htmlFor="notify_sms_check" style={{ fontSize: '12px', color: '#334155', cursor: 'pointer', margin: 0, fontFamily: 'inherit' }}>
+              <strong style={{ color: '#0f172a', display: 'block' }}>
+                Dispatch Immediate SMS Alert to Guardian(s)
+              </strong>
+              <span style={{ fontSize: '11px', color: '#64748b' }}>
+                {selectedStudents.length > 0
+                  ? `Sends automated SMS notice to the guardians of ${selectedStudents.length} selected student(s).`
+                  : 'Sends automated SMS notice to guardian(s) on record.'}
               </span>
             </label>
           </div>
 
         </div>
 
+        {/* DepEd Child Protection & Confidentiality Notice */}
+        <div
+          style={{
+            padding: '10px 18px',
+            background: '#f8fafc',
+            borderTop: '1px solid #e2e8f0',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            fontSize: '11.5px',
+            color: '#475569',
+            lineHeight: 1.45
+          }}
+        >
+          <div
+            style={{
+              width: '24px',
+              height: '24px',
+              borderRadius: '6px',
+              background: '#ecfdf5',
+              border: '1px solid #a7f3d0',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0
+            }}
+          >
+            <ShieldCheck size={14} color="#059669" strokeWidth={2.5} />
+          </div>
+          <div style={{ flex: 1 }}>
+            <span style={{ fontWeight: 700, color: '#0f172a' }}>Confidential Incident Log: </span>
+            <span>Disciplinary entries are protected student records pursuant to DepEd Order No. 40, s. 2012. Records are strictly confidential.</span>
+          </div>
+        </div>
+
         {/* Modal Footer */}
         <div
           className="modal-footer"
           style={{
-            padding: '14px 24px',
+            padding: '12px 18px',
             borderTop: '1px solid #e2e8f0',
             background: '#f8fafc',
             display: 'flex',
             justifyContent: 'flex-end',
-            gap: '10px',
+            gap: '8px',
             flexShrink: 0
           }}
         >
@@ -451,13 +422,13 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
             className="btn btn-secondary"
             onClick={onClose}
             style={{
-              borderRadius: '10px',
-              padding: '9px 18px',
+              borderRadius: '8px',
+              padding: '8px 16px',
               fontWeight: 600,
-              fontSize: '13px',
+              fontSize: '12.5px',
               background: '#ffffff',
               border: '1px solid #cbd5e1',
-              color: '#334155',
+              color: '#0f172a',
               cursor: 'pointer',
               fontFamily: 'inherit'
             }}
@@ -466,26 +437,31 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
           </button>
           <button
             type="submit"
-            className="btn btn-primary"
+            className="btn btn-primary btn-save-violation-action"
             disabled={loading}
             style={{
-              background: '#27367f',
-              borderRadius: '10px',
-              padding: '9px 22px',
+              background: '#0f172a',
+              backgroundColor: '#0f172a',
+              borderRadius: '8px',
+              padding: '8px 18px',
               fontWeight: 700,
-              fontSize: '13px',
+              fontSize: '12.5px',
               color: '#ffffff',
               border: 'none',
               cursor: loading ? 'not-allowed' : 'pointer',
               display: 'flex',
               alignItems: 'center',
               gap: '6px',
-              boxShadow: '0 4px 12px rgba(39, 54, 127, 0.25)',
+              boxShadow: '0 4px 12px rgba(15, 23, 42, 0.25)',
               fontFamily: 'inherit'
             }}
           >
-            <Check size={16} />
-            {loading ? 'Submitting...' : 'Save & Record Violation'}
+            <Check size={15} />
+            {loading
+              ? 'Recording...'
+              : selectedStudentIds.length > 1 || selectedViolationIds.length > 1
+              ? `Save & Record (${selectedStudentIds.length * selectedViolationIds.length || selectedStudentIds.length || 1} Entries)`
+              : 'Save & Record Violation'}
           </button>
         </div>
       </form>

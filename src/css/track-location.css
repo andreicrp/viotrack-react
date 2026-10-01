@@ -1,0 +1,196 @@
+/* track-location.css - Full-Width, Seamless Tracked Violations & Map Layout */
+
+.track-location-container {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 100%;
+  margin: 0;
+  padding: 0 0 24px 0;
+  box-sizing: border-box;
+}
+
+/* Map Card */
+.track-map-card {
+  background: #ffffff;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 16px -4px rgba(15, 23, 42, 0.08);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.track-map-wrapper {
+  width: 100%;
+  height: 460px;
+  z-index: 1;
+}
+
+@media (max-width: 768px) {
+  .track-map-wrapper {
+    height: 320px;
+  }
+}
+
+/* Custom Leaflet Marker Avatar Pin */
+.student-avatar-pin {
+  background: transparent;
+  border: none;
+}
+
+.pin-outer {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #07345f;
+  border: 2.5px solid #38bdf8;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.35), 0 0 0 2px rgba(255, 255, 255, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.18s ease;
+}
+
+.pin-outer:hover {
+  transform: scale(1.18);
+  border-color: #f59e0b;
+  z-index: 9999 !important;
+}
+
+.pin-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Popup */
+.track-popup {
+  padding: 4px;
+  min-width: 180px;
+  font-family: inherit;
+}
+
+/* Tracked Violations List Section */
+.track-list-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.track-list-heading {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13.5px;
+  font-weight: 800;
+  color: #1e293b;
+  letter-spacing: -0.01em;
+  padding-left: 2px;
+}
+
+.track-list-icon {
+  font-size: 14px;
+}
+
+.track-list-title-text {
+  font-size: 13px;
+  font-weight: 800;
+  color: #334155;
+  text-transform: none;
+}
+
+/* List Card Stack */
+.track-cards-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.track-card-row {
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.track-card-row:hover {
+  border-color: #94a3b8;
+  background: #f8fafc;
+}
+
+.track-card-row.active {
+  border-color: #0f172a;
+  background: #f1f5f9;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+}
+
+.track-card-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  flex: 1;
+}
+
+.track-card-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1.5px solid #cbd5e1;
+  flex-shrink: 0;
+}
+
+.track-card-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  flex-wrap: wrap;
+}
+
+.track-card-alert-dot {
+  color: #dc2626;
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.track-card-violation {
+  font-size: 13px;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1.2;
+}
+
+.track-card-time {
+  font-size: 11.5px;
+  color: #64748b;
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+}
+
+.track-card-empty {
+  background: #ffffff;
+  border: 1px dashed #cbd5e1;
+  border-radius: 8px;
+  padding: 24px;
+  text-align: center;
+  font-size: 13px;
+  color: #64748b;
+  font-weight: 500;
+}

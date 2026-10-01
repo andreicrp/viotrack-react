@@ -162,17 +162,31 @@ export const ViolationTypesPage = () => {
 
   const handleDeleteSelected = async () => {
     if (window.confirm(`Are you sure you want to delete ${selectedIds.length} selected violation categories?`)) {
-      setViolations(violations.filter(v => !selectedIds.includes(v.id)));
-      setSelectedIds([]);
-      success('Deleted selected violations.');
+      try {
+        for (const id of selectedIds) {
+          await dataService.deleteViolationType(id);
+        }
+        setViolations(violations.filter(v => !selectedIds.includes(v.id)));
+        setSelectedIds([]);
+        success('Deleted selected violations.');
+        loadViolations();
+      } catch (err) {
+        error('Failed to delete violation types: ' + err.message);
+      }
     }
   };
 
-  const handleDeleteSingle = (id, title) => {
+  const handleDeleteSingle = async (id, title) => {
     if (window.confirm(`Are you sure you want to delete violation: "${title}"?`)) {
-      setViolations(violations.filter(v => v.id !== id));
-      setSelectedIds(prev => prev.filter(x => x !== id));
-      success('Violation category removed.');
+      try {
+        await dataService.deleteViolationType(id);
+        setViolations(violations.filter(v => v.id !== id));
+        setSelectedIds(prev => prev.filter(x => x !== id));
+        success('Violation category removed.');
+        loadViolations();
+      } catch (err) {
+        error('Failed to remove violation category: ' + err.message);
+      }
     }
   };
 
@@ -198,7 +212,7 @@ export const ViolationTypesPage = () => {
     setIsModalOpen(true);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.title.trim()) {
       error('Violation title is required');
@@ -209,19 +223,24 @@ export const ViolationTypesPage = () => {
       return;
     }
 
-    if (editingViolation) {
-      setViolations(violations.map(v => v.id === editingViolation.id ? { ...v, ...formData } : v));
-      success(`Updated violation: "${formData.title}"`);
-    } else {
-      const newV = {
-        id: Date.now(),
-        ...formData,
-        default_sanction: formData.default_sanction || (formData.type === 'Major' ? 'Disciplinary Hearing & Suspension' : formData.type === 'Serious' ? 'Parent Summons' : 'Written Warning')
-      };
-      setViolations([newV, ...violations]);
-      success(`Added violation: "${formData.title}"`);
+    try {
+      if (editingViolation) {
+        const saved = await dataService.updateViolationType(editingViolation.id, formData);
+        setViolations(violations.map(v => v.id === editingViolation.id ? (saved || { ...v, ...formData }) : v));
+        success(`Updated violation: "${formData.title}"`);
+      } else {
+        const newV = await dataService.addViolationType({
+          ...formData,
+          default_sanction: formData.default_sanction || (formData.type === 'Major' ? 'Disciplinary Hearing & Suspension' : formData.type === 'Serious' ? 'Parent Summons' : 'Written Warning')
+        });
+        setViolations([newV, ...violations]);
+        success(`Added violation: "${formData.title}"`);
+      }
+      setIsModalOpen(false);
+      loadViolations();
+    } catch (err) {
+      error('Failed to save violation category: ' + err.message);
     }
-    setIsModalOpen(false);
   };
 
   // Import CSV Handler
@@ -1179,14 +1198,14 @@ export const ViolationTypesPage = () => {
         </div>
 
         {/* 5. Pagination Footer */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '18px', flexWrap: 'wrap', gap: '10px' }}>
+        <div className="pagination-footer-responsive table-footer" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '18px', flexWrap: 'wrap', gap: '10px' }}>
           <span style={{ fontSize: '13px', color: '#64748b' }}>
             Showing {filteredAndSorted.length === 0 ? 0 : (currentPage - 1) * entriesPerPage + 1} to{' '}
             {Math.min(currentPage * entriesPerPage, filteredAndSorted.length)} of {filteredAndSorted.length} entries
             {filteredAndSorted.length !== stats.total && ` (filtered from ${stats.total} total offenses)`}
           </span>
 
-          <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+          <div className="pagination-btn-group" style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
             <button
               disabled={currentPage <= 1}
               onClick={() => setCurrentPage(1)}

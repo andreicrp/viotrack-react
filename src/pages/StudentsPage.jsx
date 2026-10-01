@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useDeferredValue } from 'react';
 import { dataService } from '../services/dataService';
 import { AddStudentModal } from '../components/students/AddStudentModal';
 import { StudentIdModal } from '../components/students/StudentIdModal';
@@ -69,6 +69,7 @@ export const StudentsPage = () => {
 
   // Search & Filters
   const [searchTerm, setSearchTerm] = useState('');
+  const deferredSearch = useDeferredValue(searchTerm);
   const [levelFilter, setLevelFilter] = useState('all'); // 'all' | 'jhs' | 'shs'
   const [gradeFilter, setGradeFilter] = useState('all');
   const [strandFilter, setStrandFilter] = useState('all');
@@ -117,55 +118,70 @@ export const StudentsPage = () => {
     }
   };
 
-  // Statistics calculation
+  // Statistics calculation - optimized single pass for 10,000+ students
   const stats = useMemo(() => {
     const total = students.length;
-    const jhsCount = students.filter(s => getGradeNumber(s.grade) >= 7 && getGradeNumber(s.grade) <= 10).length;
-    const shsCount = students.filter(s => getGradeNumber(s.grade) >= 11 && getGradeNumber(s.grade) <= 12).length;
-    const uniqueStrands = new Set(students.map(s => getStudentStrand(s))).size;
+    let jhsCount = 0;
+    let shsCount = 0;
+    const strandSet = new Set();
 
-    return { total, jhsCount, shsCount, uniqueStrands };
+    for (let i = 0; i < total; i++) {
+      const s = students[i];
+      const gNum = getGradeNumber(s.grade);
+      if (gNum >= 7 && gNum <= 10) jhsCount++;
+      else if (gNum >= 11 && gNum <= 12) shsCount++;
+      strandSet.add(getStudentStrand(s));
+    }
+
+    return { total, jhsCount, shsCount, uniqueStrands: strandSet.size };
   }, [students]);
 
-  // Filtered & Sorted Student List
+  // Filtered & Sorted Student List with deferred non-blocking search
   const filteredAndSortedStudents = useMemo(() => {
+    const query = deferredSearch.toLowerCase().trim();
+    const isAllLevel = levelFilter === 'all';
+    const isAllGrade = gradeFilter === 'all';
+    const isAllStrand = strandFilter === 'all';
+    const targetGrade = gradeFilter.toLowerCase();
+    const targetStrand = strandFilter.toLowerCase();
+
     // 1. Filter
     const result = students.filter(s => {
-      const fullName = `${s.fname || ''} ${s.mname || ''} ${s.lname || ''}`.toLowerCase();
-      const lrn = (s.lrn || '').toLowerCase();
-      const grade = (s.grade || '').toLowerCase();
-      const section = (s.section || '').toLowerCase();
-      const guardian = (s.parent_name || '').toLowerCase();
-      const strand = getStudentStrand(s).toLowerCase();
-      const query = searchTerm.toLowerCase().trim();
-
-      const matchesSearch =
-        !query ||
-        fullName.includes(query) ||
-        lrn.includes(query) ||
-        grade.includes(query) ||
-        section.includes(query) ||
-        guardian.includes(query) ||
-        strand.includes(query);
-
       const gNum = getGradeNumber(s.grade);
       const isJhs = gNum >= 7 && gNum <= 10;
       const isShs = gNum >= 11 && gNum <= 12;
 
       const matchesLevel =
-        levelFilter === 'all' ||
+        isAllLevel ||
         (levelFilter === 'jhs' && isJhs) ||
         (levelFilter === 'shs' && isShs);
 
-      const matchesGrade =
-        gradeFilter === 'all' ||
-        (s.grade || '').toLowerCase() === gradeFilter.toLowerCase();
+      if (!matchesLevel) return false;
 
-      const matchesStrand =
-        strandFilter === 'all' ||
-        getStudentStrand(s).toLowerCase() === strandFilter.toLowerCase();
+      const sGrade = (s.grade || '').toLowerCase();
+      const matchesGrade = isAllGrade || sGrade === targetGrade;
+      if (!matchesGrade) return false;
 
-      return matchesSearch && matchesLevel && matchesGrade && matchesStrand;
+      const studentStrand = getStudentStrand(s);
+      const matchesStrand = isAllStrand || studentStrand.toLowerCase() === targetStrand;
+      if (!matchesStrand) return false;
+
+      if (!query) return true;
+
+      const fullName = `${s.fname || ''} ${s.mname || ''} ${s.lname || ''}`.toLowerCase();
+      const lrn = (s.lrn || '').toLowerCase();
+      const section = (s.section || '').toLowerCase();
+      const guardian = (s.parent_name || '').toLowerCase();
+      const strand = studentStrand.toLowerCase();
+
+      return (
+        fullName.includes(query) ||
+        lrn.includes(query) ||
+        sGrade.includes(query) ||
+        section.includes(query) ||
+        guardian.includes(query) ||
+        strand.includes(query)
+      );
     });
 
     // 2. Sort
@@ -187,8 +203,8 @@ export const StudentsPage = () => {
           comparison = getGradeNumber(a.grade) - getGradeNumber(b.grade);
         }
       } else if (sortField === 'name') {
-        const nameA = `${a.lname}, ${a.fname}`.toLowerCase();
-        const nameB = `${b.lname}, ${b.fname}`.toLowerCase();
+        const nameA = `${a.lname || ''}, ${a.fname || ''}`.toLowerCase();
+        const nameB = `${b.lname || ''}, ${b.fname || ''}`.toLowerCase();
         comparison = nameA.localeCompare(nameB);
       } else if (sortField === 'lrn') {
         comparison = (a.lrn || '').localeCompare(b.lrn || '');
@@ -200,7 +216,7 @@ export const StudentsPage = () => {
     });
 
     return result;
-  }, [students, searchTerm, levelFilter, gradeFilter, strandFilter, sortField, sortOrder]);
+  }, [students, deferredSearch, levelFilter, gradeFilter, strandFilter, sortField, sortOrder]);
 
   // Selection
   const handleSelectAll = (e) => {
@@ -456,7 +472,7 @@ export const StudentsPage = () => {
                 Across all levels & strands
               </div>
             </div>
-            <Users size={20} color="#07345f" strokeWidth={2} />
+            <Users size={20} color="#1f2937" strokeWidth={2} />
           </div>
           {levelFilter === 'all' && gradeFilter === 'all' && strandFilter === 'all' && (
             <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 2.5, background: '#07345f' }}></div>
@@ -470,7 +486,7 @@ export const StudentsPage = () => {
             background: '#ffffff',
             borderRadius: '10px',
             padding: '12px 14px',
-            border: levelFilter === 'jhs' ? '2px solid #059669' : '1px solid #e2e8f0',
+            border: levelFilter === 'jhs' ? '2px solid #07345f' : '1px solid #e2e8f0',
             boxShadow: '0 1px 4px rgba(0,0,0,0.02)',
             cursor: 'pointer',
             transition: 'all 0.2s',
@@ -483,17 +499,17 @@ export const StudentsPage = () => {
               <div style={{ fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.03em' }}>
                 Junior High (G7-10)
               </div>
-              <div style={{ fontSize: '20px', fontWeight: 800, color: stats.jhsCount > 0 ? '#059669' : '#0f172a', marginTop: '2px' }}>
+              <div style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a', marginTop: '2px' }}>
                 {stats.jhsCount}
               </div>
-              <div style={{ fontSize: '10px', color: '#059669', marginTop: '2px', fontWeight: 600 }}>
+              <div style={{ fontSize: '10px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
                 Basic Education Students
               </div>
             </div>
-            <BookOpen size={20} color="#059669" strokeWidth={2} />
+            <BookOpen size={20} color="#1f2937" strokeWidth={2} />
           </div>
           {levelFilter === 'jhs' && (
-            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 2.5, background: '#059669' }}></div>
+            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 2.5, background: '#07345f' }}></div>
           )}
         </div>
 
@@ -517,14 +533,14 @@ export const StudentsPage = () => {
               <div style={{ fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.03em' }}>
                 Senior High (G11-12)
               </div>
-              <div style={{ fontSize: '20px', fontWeight: 800, color: stats.shsCount > 0 ? '#07345f' : '#0f172a', marginTop: '2px' }}>
+              <div style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a', marginTop: '2px' }}>
                 {stats.shsCount}
               </div>
-              <div style={{ fontSize: '10px', color: '#07345f', marginTop: '2px', fontWeight: 600 }}>
+              <div style={{ fontSize: '10px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
                 Specialized Strands & Tracks
               </div>
             </div>
-            <GraduationCap size={20} color="#07345f" strokeWidth={2} />
+            <GraduationCap size={20} color="#1f2937" strokeWidth={2} />
           </div>
           {levelFilter === 'shs' && (
             <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 2.5, background: '#07345f' }}></div>
@@ -553,7 +569,7 @@ export const StudentsPage = () => {
                 STEM, ABM, HUMSS, GAS, JHS
               </div>
             </div>
-            <Layers size={20} color="#d97706" strokeWidth={2} />
+            <Layers size={20} color="#1f2937" strokeWidth={2} />
           </div>
         </div>
       </div>
@@ -1446,6 +1462,7 @@ export const StudentsPage = () => {
 
         {/* Pagination & Status Footer */}
         <div
+          className="pagination-footer-responsive table-footer"
           style={{
             padding: '16px 24px',
             borderTop: '1px solid #f1f5f9',
@@ -1470,7 +1487,7 @@ export const StudentsPage = () => {
             of <strong style={{ color: '#0f172a' }}>{filteredAndSortedStudents.length}</strong> students
           </div>
 
-          <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+          <div className="pagination-btn-group" style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
             <button
               onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
               disabled={currentPage === 1}

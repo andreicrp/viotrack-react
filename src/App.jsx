@@ -7,6 +7,7 @@ import { NotificationProvider } from './context/NotificationContext';
 import { Layout } from './components/layout/Layout';
 import { SplashScreen } from './components/common/SplashScreen';
 import { ErrorBoundary } from './components/common/ErrorBoundary';
+import { CookieConsentBanner } from './components/legal/CookieConsentBanner';
 
 // Lazy Loaded Route Pages for Optimal Code-Splitting & Speed
 const DashboardPage = lazy(() => import('./pages/DashboardPage').then(m => ({ default: m.DashboardPage })));
@@ -18,6 +19,7 @@ const MyClassPage = lazy(() => import('./pages/MyClassPage').then(m => ({ defaul
 const ScanQRPage = lazy(() => import('./pages/ScanQRPage').then(m => ({ default: m.ScanQRPage })));
 const TeachersPage = lazy(() => import('./pages/TeachersPage').then(m => ({ default: m.TeachersPage })));
 const AdvisersPage = lazy(() => import('./pages/AdvisersPage').then(m => ({ default: m.AdvisersPage })));
+const TrackLocationPage = lazy(() => import('./pages/TrackLocationPage').then(m => ({ default: m.TrackLocationPage })));
 const AdminUsersPage = lazy(() => import('./pages/AdminUsersPage').then(m => ({ default: m.AdminUsersPage })));
 const ActivityLogsPage = lazy(() => import('./pages/ActivityLogsPage').then(m => ({ default: m.ActivityLogsPage })));
 const ProfilePage = lazy(() => import('./pages/ProfilePage').then(m => ({ default: m.ProfilePage })));
@@ -108,6 +110,7 @@ export function App() {
                 >
                   <Route index element={<DashboardPage />} />
                   <Route path="scan-qr" element={<ScanQRPage />} />
+                  <Route path="track-location" element={<TrackLocationPage />} />
                   <Route path="violations" element={<ViolationsPage />} />
                   <Route path="violation-types" element={<ViolationTypesPage />} />
                   <Route path="students" element={<StudentsPage />} />
@@ -132,6 +135,7 @@ export function App() {
                 <Route path="*" element={<NotFoundPage standalone />} />
               </Routes>
             </Suspense>
+            <CookieConsentBanner />
           </BrowserRouter>
         </NotificationProvider>
       </AuthProvider>

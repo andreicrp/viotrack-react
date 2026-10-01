@@ -211,10 +211,38 @@ export const StudentViolationDetailPage = () => {
   const investigationCount = records.filter(r => (r.status || '').toLowerCase() === 'investigation').length;
   const resolvedCount = records.filter(r => (r.status || '').toLowerCase() === 'resolved').length;
 
-  // Standing Badge
-  const standingText = totalCount === 0 ? 'Good Standing' : totalCount <= 2 ? 'Under Observation' : 'Disciplinary Action';
-  const standingColor = totalCount === 0 ? '#10b981' : totalCount <= 2 ? '#f59e0b' : '#ef4444';
-  const standingBg = totalCount === 0 ? '#f0fdf4' : totalCount <= 2 ? '#fffbeb' : '#fef2f2';
+  // Standing Badge configuration for dark hero header
+  const getStandingConfig = () => {
+    if (totalCount === 0) {
+      return {
+        text: 'Good Standing',
+        color: '#34d399',
+        bg: 'rgba(16, 185, 129, 0.16)',
+        border: '1px solid rgba(52, 211, 153, 0.38)',
+        glow: '0 2px 10px rgba(16, 185, 129, 0.2)',
+        icon: <ShieldCheck size={13} color="#34d399" strokeWidth={2.4} />
+      };
+    }
+    if (totalCount <= 2) {
+      return {
+        text: 'Under Observation',
+        color: '#fbbf24',
+        bg: 'rgba(245, 158, 11, 0.16)',
+        border: '1px solid rgba(251, 191, 36, 0.38)',
+        glow: '0 2px 10px rgba(245, 158, 11, 0.2)',
+        icon: <AlertTriangle size={13} color="#fbbf24" strokeWidth={2.4} />
+      };
+    }
+    return {
+      text: 'Disciplinary Action',
+      color: '#f87171',
+      bg: 'rgba(239, 68, 68, 0.2)',
+      border: '1px solid rgba(248, 113, 113, 0.38)',
+      glow: '0 2px 10px rgba(239, 68, 68, 0.2)',
+      icon: <ShieldAlert size={13} color="#f87171" strokeWidth={2.4} />
+    };
+  };
+  const standing = getStandingConfig();
 
   // Filtered Records
   const filtered = useMemo(() => {
@@ -271,21 +299,21 @@ export const StudentViolationDetailPage = () => {
     const s = (st || '').toLowerCase();
     if (s === 'resolved') {
       return (
-        <span style={{ background: '#f0fdf4', color: '#166534', border: '1px solid #bbf7d0', padding: '4px 10px', borderRadius: '12px', fontSize: '11.5px', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
-          <CheckCircle2 size={12} color="#16a34a" /> Resolved
+        <span style={{ background: '#ecfdf5', color: '#065f46', border: '1px solid #a7f3d0', padding: '3.5px 10px', borderRadius: '12px', fontSize: '11.5px', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+          <CheckCircle2 size={12} color="#059669" strokeWidth={2.4} /> Resolved
         </span>
       );
     }
     if (s === 'investigation') {
       return (
-        <span style={{ background: '#fffbeb', color: '#b45309', border: '1px solid #fde68a', padding: '4px 10px', borderRadius: '12px', fontSize: '11.5px', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
-          <Search size={12} color="#d97706" /> In Review
+        <span style={{ background: '#fffbeb', color: '#92400e', border: '1px solid #fde68a', padding: '3.5px 10px', borderRadius: '12px', fontSize: '11.5px', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+          <Search size={12} color="#d97706" strokeWidth={2.4} /> In Review
         </span>
       );
     }
     return (
-      <span style={{ background: '#fef2f2', color: '#b91c1c', border: '1px solid #fecaca', padding: '4px 10px', borderRadius: '12px', fontSize: '11.5px', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
-        <Clock size={12} color="#dc2626" /> Pending
+      <span style={{ background: '#fef2f2', color: '#991b1b', border: '1px solid #fecaca', padding: '3.5px 10px', borderRadius: '12px', fontSize: '11.5px', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+        <Clock size={12} color="#dc2626" strokeWidth={2.4} /> Pending
       </span>
     );
   };
@@ -294,21 +322,21 @@ export const StudentViolationDetailPage = () => {
     const t = (ty || '').toLowerCase();
     if (t === 'major') {
       return (
-        <span style={{ color: '#dc2626', fontWeight: 700, fontSize: '12px', display: 'inline-flex', alignItems: 'center', gap: '4px', background: '#fef2f2', padding: '3px 8px', borderRadius: '6px' }}>
-          <ShieldAlert size={12} color="#dc2626" /> Major
+        <span style={{ color: '#991b1b', fontWeight: 800, fontSize: '11.5px', display: 'inline-flex', alignItems: 'center', gap: '4px', background: '#fef2f2', border: '1px solid #fecaca', padding: '3px 8px', borderRadius: '6px' }}>
+          <ShieldAlert size={12} color="#dc2626" strokeWidth={2.2} /> Major
         </span>
       );
     }
     if (t === 'serious') {
       return (
-        <span style={{ color: '#d97706', fontWeight: 700, fontSize: '12px', display: 'inline-flex', alignItems: 'center', gap: '4px', background: '#fffbeb', padding: '3px 8px', borderRadius: '6px' }}>
-          <AlertTriangle size={12} color="#d97706" /> Serious
+        <span style={{ color: '#9a3412', fontWeight: 800, fontSize: '11.5px', display: 'inline-flex', alignItems: 'center', gap: '4px', background: '#fff7ed', border: '1px solid #fed7aa', padding: '3px 8px', borderRadius: '6px' }}>
+          <AlertTriangle size={12} color="#ea580c" strokeWidth={2.2} /> Serious
         </span>
       );
     }
     return (
-      <span style={{ color: '#15803d', fontWeight: 700, fontSize: '12px', background: '#f0fdf4', padding: '3px 8px', borderRadius: '6px', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-        <CheckCircle2 size={12} color="#15803d" /> Minor
+      <span style={{ color: '#065f46', fontWeight: 800, fontSize: '11.5px', background: '#ecfdf5', border: '1px solid #a7f3d0', padding: '3px 8px', borderRadius: '6px', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+        <CheckCircle2 size={12} color="#059669" strokeWidth={2.2} /> Minor
       </span>
     );
   };
@@ -354,32 +382,38 @@ export const StudentViolationDetailPage = () => {
               </h2>
               <span
                 style={{
-                  background: 'rgba(255, 255, 255, 0.2)',
+                  background: 'rgba(255, 255, 255, 0.12)',
                   color: '#ffffff',
-                  fontSize: '12px',
+                  border: '1px solid rgba(255, 255, 255, 0.22)',
+                  fontSize: '11.5px',
                   fontWeight: 700,
-                  padding: '2.5px 10px',
+                  padding: '3px 11px',
                   borderRadius: '20px',
-                  backdropFilter: 'blur(4px)'
+                  backdropFilter: 'blur(6px)',
+                  letterSpacing: '0.02em'
                 }}
               >
                 LRN: {student.lrn}
               </span>
               <span
                 style={{
-                  background: standingBg,
-                  color: standingColor,
+                  background: standing.bg,
+                  color: standing.color,
+                  border: standing.border,
+                  boxShadow: standing.glow,
                   fontSize: '11.5px',
                   fontWeight: 700,
-                  padding: '3px 10px',
+                  padding: '3px 11px',
                   borderRadius: '20px',
                   display: 'inline-flex',
                   alignItems: 'center',
-                  gap: '5px'
+                  gap: '5px',
+                  backdropFilter: 'blur(6px)',
+                  letterSpacing: '0.02em'
                 }}
               >
-                {totalCount === 0 ? <ShieldCheck size={13} /> : <AlertTriangle size={13} />}
-                {standingText}
+                {standing.icon}
+                {standing.text}
               </span>
             </div>
             <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: 'rgba(255, 255, 255, 0.85)' }}>
@@ -696,7 +730,7 @@ export const StudentViolationDetailPage = () => {
             <div style={{ fontSize: '11px', color: '#475569', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.03em' }}>Total Incidents</div>
             <div style={{ fontSize: '20px', fontWeight: 800, color: '#07345f', marginTop: '2px' }}>{totalCount}</div>
           </div>
-          <FileText size={20} color="#07345f" strokeWidth={2} />
+          <FileText size={20} color="#1f2937" strokeWidth={2} />
           {statusFilter === 'all' && (
             <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 2.5, background: '#07345f' }} />
           )}
@@ -706,11 +740,11 @@ export const StudentViolationDetailPage = () => {
         <div
           onClick={() => { setStatusFilter('pending'); setCurrentPage(1); }}
           style={{
-            background: statusFilter === 'pending' ? '#fef2f2' : '#ffffff',
-            border: statusFilter === 'pending' ? '2px solid #dc2626' : '1px solid #e2e8f0',
+            background: statusFilter === 'pending' ? '#f0f4f8' : '#ffffff',
+            border: statusFilter === 'pending' ? '2px solid #07345f' : '1px solid #e2e8f0',
             borderRadius: '10px',
             padding: '12px 14px',
-            boxShadow: statusFilter === 'pending' ? '0 2px 8px rgba(220, 38, 38, 0.1)' : '0 1px 3px rgba(0,0,0,0.03)',
+            boxShadow: statusFilter === 'pending' ? '0 2px 8px rgba(7, 52, 95, 0.1)' : '0 1px 3px rgba(0,0,0,0.03)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
@@ -733,12 +767,12 @@ export const StudentViolationDetailPage = () => {
           }}
         >
           <div>
-            <div style={{ fontSize: '11px', color: '#b91c1c', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.03em' }}>Pending Review</div>
-            <div style={{ fontSize: '20px', fontWeight: 800, color: '#dc2626', marginTop: '2px' }}>{pendingCount}</div>
+            <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.03em' }}>Pending Review</div>
+            <div style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a', marginTop: '2px' }}>{pendingCount}</div>
           </div>
-          <Clock size={20} color="#dc2626" strokeWidth={2} />
+          <Clock size={20} color="#1f2937" strokeWidth={2} />
           {statusFilter === 'pending' && (
-            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 2.5, background: '#dc2626' }} />
+            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 2.5, background: '#07345f' }} />
           )}
         </div>
 
@@ -746,11 +780,11 @@ export const StudentViolationDetailPage = () => {
         <div
           onClick={() => { setStatusFilter('investigation'); setCurrentPage(1); }}
           style={{
-            background: statusFilter === 'investigation' ? '#fffbeb' : '#ffffff',
-            border: statusFilter === 'investigation' ? '2px solid #d97706' : '1px solid #e2e8f0',
+            background: statusFilter === 'investigation' ? '#f0f4f8' : '#ffffff',
+            border: statusFilter === 'investigation' ? '2px solid #07345f' : '1px solid #e2e8f0',
             borderRadius: '10px',
             padding: '12px 14px',
-            boxShadow: statusFilter === 'investigation' ? '0 2px 8px rgba(217, 119, 6, 0.1)' : '0 1px 3px rgba(0,0,0,0.03)',
+            boxShadow: statusFilter === 'investigation' ? '0 2px 8px rgba(7, 52, 95, 0.1)' : '0 1px 3px rgba(0,0,0,0.03)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
@@ -773,12 +807,12 @@ export const StudentViolationDetailPage = () => {
           }}
         >
           <div>
-            <div style={{ fontSize: '11px', color: '#b45309', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.03em' }}>In Review</div>
-            <div style={{ fontSize: '20px', fontWeight: 800, color: '#d97706', marginTop: '2px' }}>{investigationCount}</div>
+            <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.03em' }}>In Review</div>
+            <div style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a', marginTop: '2px' }}>{investigationCount}</div>
           </div>
-          <Search size={20} color="#d97706" strokeWidth={2} />
+          <Search size={20} color="#1f2937" strokeWidth={2} />
           {statusFilter === 'investigation' && (
-            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 2.5, background: '#d97706' }} />
+            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 2.5, background: '#07345f' }} />
           )}
         </div>
 
@@ -786,11 +820,11 @@ export const StudentViolationDetailPage = () => {
         <div
           onClick={() => { setStatusFilter('resolved'); setCurrentPage(1); }}
           style={{
-            background: statusFilter === 'resolved' ? '#f0fdf4' : '#ffffff',
-            border: statusFilter === 'resolved' ? '2px solid #16a34a' : '1px solid #e2e8f0',
+            background: statusFilter === 'resolved' ? '#f0f4f8' : '#ffffff',
+            border: statusFilter === 'resolved' ? '2px solid #07345f' : '1px solid #e2e8f0',
             borderRadius: '10px',
             padding: '12px 14px',
-            boxShadow: statusFilter === 'resolved' ? '0 2px 8px rgba(22, 163, 74, 0.1)' : '0 1px 3px rgba(0,0,0,0.03)',
+            boxShadow: statusFilter === 'resolved' ? '0 2px 8px rgba(7, 52, 95, 0.1)' : '0 1px 3px rgba(0,0,0,0.03)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
@@ -813,12 +847,12 @@ export const StudentViolationDetailPage = () => {
           }}
         >
           <div>
-            <div style={{ fontSize: '11px', color: '#15803d', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.03em' }}>Resolved & Cleared</div>
-            <div style={{ fontSize: '20px', fontWeight: 800, color: '#16a34a', marginTop: '2px' }}>{resolvedCount}</div>
+            <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.03em' }}>Resolved & Cleared</div>
+            <div style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a', marginTop: '2px' }}>{resolvedCount}</div>
           </div>
-          <CheckCircle2 size={20} color="#16a34a" strokeWidth={2} />
+          <CheckCircle2 size={20} color="#1f2937" strokeWidth={2} />
           {statusFilter === 'resolved' && (
-            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 2.5, background: '#16a34a' }} />
+            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 2.5, background: '#07345f' }} />
           )}
         </div>
       </div>
@@ -1282,6 +1316,7 @@ export const StudentViolationDetailPage = () => {
         {/* Table Footer with Pagination */}
         {filtered.length > 0 && (
           <div
+            className="pagination-footer-responsive table-footer"
             style={{
               display: 'flex',
               justifyContent: 'space-between',
@@ -1297,7 +1332,7 @@ export const StudentViolationDetailPage = () => {
             </div>
 
             {totalPages > 1 && (
-              <div style={{ display: 'flex', gap: '4px' }}>
+              <div className="pagination-btn-group" style={{ display: 'flex', gap: '4px' }}>
                 <button
                   onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                   disabled={currentPage === 1}

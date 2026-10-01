@@ -33,6 +33,7 @@ import {
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import { exportToCsv } from '../utils/csvHelper';
+import '../css/adviser.css';
 
 export const AdvisersPage = () => {
   const navigate = useNavigate();
@@ -265,23 +266,25 @@ export const AdvisersPage = () => {
   ];
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+    <div className="advisers-page-wrapper">
       {/* Top Banner & Action Header */}
-      <div className="page-banner-header">
-        <div className="page-banner-info">
-          <Award size={30} strokeWidth={2.2} color="#ffffff" style={{ flexShrink: 0 }} />
+      <div className="advisers-banner">
+        <div className="advisers-banner-left">
+          <div className="advisers-banner-icon">
+            <Award size={26} strokeWidth={2.2} />
+          </div>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-              <h2 style={{ fontSize: '22px', fontWeight: 800, margin: 0, color: '#ffffff', letterSpacing: '-0.02em' }}>
+              <h2 className="advisers-banner-title">
                 Adviser Management
               </h2>
               <span
                 style={{
                   background: 'rgba(255, 255, 255, 0.2)',
                   color: '#ffffff',
-                  fontSize: '12px',
+                  fontSize: '11.5px',
                   fontWeight: 700,
-                  padding: '2.5px 10px',
+                  padding: '2px 9px',
                   borderRadius: '20px',
                   backdropFilter: 'blur(4px)'
                 }}
@@ -289,256 +292,116 @@ export const AdvisersPage = () => {
                 {advisers.length} Active {advisers.length === 1 ? 'Adviser' : 'Advisers'}
               </span>
             </div>
-            <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: 'rgba(255, 255, 255, 0.85)' }}>
+            <p className="advisers-banner-desc">
               Assign, supervise, and inspect class advisers and student advisory section rosters.
             </p>
           </div>
         </div>
 
         {/* Header Action Buttons */}
-        <div className="page-banner-actions">
-          <div className="page-banner-secondary-group">
-            <button
-              onClick={() => navigate('/teachers')}
-              className="page-banner-btn-secondary"
-            >
-              <ArrowLeft size={15} /> Back to Faculty
-            </button>
+        <div className="advisers-banner-actions">
+          <button
+            onClick={() => navigate('/teachers')}
+            className="advisers-btn-secondary"
+          >
+            <ArrowLeft size={14} /> Back to Faculty
+          </button>
 
-            <button
-              onClick={handleExportPDF}
-              className="page-banner-btn-secondary"
-              title="Download formatted PDF directory"
-            >
-              <Download size={15} /> Export PDF
-            </button>
+          <button
+            onClick={handleExportPDF}
+            className="advisers-btn-secondary"
+            title="Download formatted PDF directory"
+          >
+            <Download size={14} /> Export PDF
+          </button>
 
-            <button
-              onClick={handleExportCSV}
-              className="page-banner-btn-secondary"
-              title="Download CSV spreadsheet"
-            >
-              <FileSpreadsheet size={15} /> Export CSV
-            </button>
-          </div>
+          <button
+            onClick={handleExportCSV}
+            className="advisers-btn-secondary"
+            title="Download CSV spreadsheet"
+          >
+            <FileSpreadsheet size={14} /> Export CSV
+          </button>
 
           <button
             onClick={() => setIsAppointModalOpen(true)}
-            className="page-banner-primary-btn"
+            className="advisers-btn-primary"
           >
-            <UserPlus size={16} strokeWidth={2.5} /> Appoint New Adviser
+            <UserPlus size={15} strokeWidth={2.5} /> Appoint New Adviser
           </button>
         </div>
       </div>
 
       {/* Interactive Stat Cards / Quick Filter Bar */}
-      <div
-        className="metric-cards-grid"
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-          gap: '12px'
-        }}
-      >
+      <div className="advisers-stats-grid">
         {/* Total Advisers */}
         <div
           onClick={() => { setLevelFilter('all'); setGradeFilter('all'); }}
-          style={{
-            background: levelFilter === 'all' && gradeFilter === 'all' ? '#f0f4f8' : '#ffffff',
-            borderRadius: '10px',
-            padding: '12px 14px',
-            border: levelFilter === 'all' && gradeFilter === 'all' ? '2px solid #07345f' : '1px solid #e2e8f0',
-            boxShadow: levelFilter === 'all' && gradeFilter === 'all' ? '0 4px 12px rgba(7, 52, 95, 0.1)' : '0 1px 4px rgba(0,0,0,0.02)',
-            cursor: 'pointer',
-            transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-            position: 'relative',
-            overflow: 'hidden'
-          }}
-          onMouseOver={(e) => {
-            if (!(levelFilter === 'all' && gradeFilter === 'all')) {
-              e.currentTarget.style.borderColor = '#cbd5e1';
-              e.currentTarget.style.transform = 'translateY(-2px)';
-            }
-          }}
-          onMouseOut={(e) => {
-            if (!(levelFilter === 'all' && gradeFilter === 'all')) {
-              e.currentTarget.style.borderColor = '#e2e8f0';
-              e.currentTarget.style.transform = 'translateY(0)';
-            }
-          }}
+          className={`advisers-stat-card ${levelFilter === 'all' && gradeFilter === 'all' ? 'active' : ''}`}
         >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-            <div>
-              <div style={{ fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.03em' }}>
-                Total Advisers
-              </div>
-              <div style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a', marginTop: '2px', letterSpacing: '-0.02em' }}>
-                {stats.total}
-              </div>
-              <div style={{ fontSize: '10px', color: '#64748b', marginTop: '2px', display: 'flex', alignItems: 'center', gap: '4px', fontWeight: 500 }}>
-                <span>All Grade Levels</span>
-              </div>
-            </div>
-            <UserCheck size={20} color="#07345f" strokeWidth={2} style={{ flexShrink: 0 }} />
+          <div>
+            <div className="advisers-stat-label">Total Advisers</div>
+            <div className="advisers-stat-value">{stats.total}</div>
+            <div className="advisers-stat-sub">All Grade Levels</div>
           </div>
-          {levelFilter === 'all' && gradeFilter === 'all' && (
-            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 2.5, background: '#07345f' }}></div>
-          )}
+          <div className="advisers-stat-icon-wrap">
+            <UserCheck size={18} />
+          </div>
         </div>
 
         {/* Junior High Sections */}
         <div
           onClick={() => { setLevelFilter('jhs'); setGradeFilter('all'); }}
-          style={{
-            background: levelFilter === 'jhs' ? 'linear-gradient(180deg, #ffffff 0%, #f0fdf4 100%)' : '#ffffff',
-            borderRadius: '10px',
-            padding: '12px 14px',
-            border: levelFilter === 'jhs' ? '2px solid #059669' : '1px solid #e2e8f0',
-            boxShadow: levelFilter === 'jhs' ? '0 4px 12px rgba(5, 150, 105, 0.1)' : '0 1px 4px rgba(0,0,0,0.02)',
-            cursor: 'pointer',
-            transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-            position: 'relative',
-            overflow: 'hidden'
-          }}
-          onMouseOver={(e) => {
-            if (levelFilter !== 'jhs') {
-              e.currentTarget.style.borderColor = '#cbd5e1';
-              e.currentTarget.style.transform = 'translateY(-2px)';
-            }
-          }}
-          onMouseOut={(e) => {
-            if (levelFilter !== 'jhs') {
-              e.currentTarget.style.borderColor = '#e2e8f0';
-              e.currentTarget.style.transform = 'translateY(0)';
-            }
-          }}
+          className={`advisers-stat-card ${levelFilter === 'jhs' ? 'active' : ''}`}
         >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-            <div>
-              <div style={{ fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.03em' }}>
-                Junior High (G7-10)
-              </div>
-              <div style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a', marginTop: '2px', letterSpacing: '-0.02em' }}>
-                {stats.jhsCount}
-              </div>
-              <div style={{ fontSize: '10px', color: '#059669', marginTop: '2px', fontWeight: 600 }}>
-                JHS Advisory Sections
-              </div>
-            </div>
-            <BookOpen size={20} color="#059669" strokeWidth={2} style={{ flexShrink: 0 }} />
+          <div>
+            <div className="advisers-stat-label">Junior High (G7-10)</div>
+            <div className="advisers-stat-value">{stats.jhsCount}</div>
+            <div className="advisers-stat-sub">JHS Advisory Sections</div>
           </div>
-          {levelFilter === 'jhs' && (
-            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 2.5, background: 'linear-gradient(90deg, #059669, #10b981)' }}></div>
-          )}
+          <div className="advisers-stat-icon-wrap" style={{ color: '#059669', background: '#ecfdf5' }}>
+            <BookOpen size={18} />
+          </div>
         </div>
 
         {/* Senior High Sections */}
         <div
           onClick={() => { setLevelFilter('shs'); setGradeFilter('all'); }}
-          style={{
-            background: levelFilter === 'shs' ? 'linear-gradient(180deg, #ffffff 0%, #faf5ff 100%)' : '#ffffff',
-            borderRadius: '10px',
-            padding: '12px 14px',
-            border: levelFilter === 'shs' ? '2px solid #7c3aed' : '1px solid #e2e8f0',
-            boxShadow: levelFilter === 'shs' ? '0 4px 12px rgba(124, 58, 237, 0.1)' : '0 1px 4px rgba(0,0,0,0.02)',
-            cursor: 'pointer',
-            transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-            position: 'relative',
-            overflow: 'hidden'
-          }}
-          onMouseOver={(e) => {
-            if (levelFilter !== 'shs') {
-              e.currentTarget.style.borderColor = '#cbd5e1';
-              e.currentTarget.style.transform = 'translateY(-2px)';
-            }
-          }}
-          onMouseOut={(e) => {
-            if (levelFilter !== 'shs') {
-              e.currentTarget.style.borderColor = '#e2e8f0';
-              e.currentTarget.style.transform = 'translateY(0)';
-            }
-          }}
+          className={`advisers-stat-card ${levelFilter === 'shs' ? 'active' : ''}`}
         >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-            <div>
-              <div style={{ fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.03em' }}>
-                Senior High (G11-12)
-              </div>
-              <div style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a', marginTop: '2px', letterSpacing: '-0.02em' }}>
-                {stats.shsCount}
-              </div>
-              <div style={{ fontSize: '10px', color: '#7c3aed', marginTop: '2px', fontWeight: 600 }}>
-                SHS Tracks & Strands
-              </div>
-            </div>
-            <GraduationCap size={20} color="#7c3aed" strokeWidth={2} style={{ flexShrink: 0 }} />
+          <div>
+            <div className="advisers-stat-label">Senior High (G11-12)</div>
+            <div className="advisers-stat-value">{stats.shsCount}</div>
+            <div className="advisers-stat-sub">SHS Tracks &amp; Strands</div>
           </div>
-          {levelFilter === 'shs' && (
-            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 2.5, background: 'linear-gradient(90deg, #7c3aed, #a855f7)' }}></div>
-          )}
+          <div className="advisers-stat-icon-wrap" style={{ color: '#7c3aed', background: '#f5f3ff' }}>
+            <GraduationCap size={18} />
+          </div>
         </div>
 
         {/* Assigned Students */}
-        <div
-          style={{
-            background: '#ffffff',
-            borderRadius: '10px',
-            padding: '12px 14px',
-            border: '1px solid #e2e8f0',
-            boxShadow: '0 1px 4px rgba(0,0,0,0.02)',
-            transition: 'all 0.2s ease',
-            position: 'relative',
-            overflow: 'hidden'
-          }}
-          onMouseOver={(e) => {
-            e.currentTarget.style.borderColor = '#cbd5e1';
-            e.currentTarget.style.transform = 'translateY(-2px)';
-          }}
-          onMouseOut={(e) => {
-            e.currentTarget.style.borderColor = '#e2e8f0';
-            e.currentTarget.style.transform = 'translateY(0)';
-          }}
-        >
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-            <div>
-              <div style={{ fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.03em' }}>
-                Assigned Students
-              </div>
-              <div style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a', marginTop: '2px', letterSpacing: '-0.02em' }}>
-                {stats.assignedStudentCount}
-              </div>
-              <div style={{ fontSize: '10px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
-                Across {advisers.length} advisory classes
-              </div>
-            </div>
-            <Users size={20} color="#d97706" strokeWidth={2} style={{ flexShrink: 0 }} />
+        <div className="advisers-stat-card">
+          <div>
+            <div className="advisers-stat-label">Assigned Students</div>
+            <div className="advisers-stat-value">{stats.assignedStudentCount}</div>
+            <div className="advisers-stat-sub">Across {advisers.length} advisory classes</div>
+          </div>
+          <div className="advisers-stat-icon-wrap" style={{ color: '#0ea5a0', background: '#f0fdfa' }}>
+            <Users size={18} />
           </div>
         </div>
       </div>
 
       {/* Search & Filter Toolbar */}
-      <div
-        style={{
-          background: '#ffffff',
-          borderRadius: '14px',
-          padding: '14px 18px',
-          border: '1px solid #e2e8f0',
-          boxShadow: '0 1px 4px rgba(0,0,0,0.03)',
-          display: 'flex',
-          gap: '14px',
-          flexWrap: 'wrap',
-          alignItems: 'center',
-          justifyContent: 'space-between'
-        }}
-      >
-        <div style={{ display: 'flex', gap: '12px', flex: 1, minWidth: '280px', flexWrap: 'wrap', alignItems: 'center' }}>
+      <div className="advisers-toolbar">
+        <div style={{ display: 'flex', gap: '10px', flex: 1, minWidth: '240px', flexWrap: 'wrap', alignItems: 'center' }}>
           {/* Search Input */}
-          <div style={{ position: 'relative', flex: '1 1 240px', minWidth: '200px' }}>
+          <div className="advisers-search-box">
             <Search
-              size={17}
+              size={16}
               style={{
                 position: 'absolute',
-                left: '14px',
+                left: '13px',
                 top: '50%',
                 transform: 'translateY(-50%)',
                 color: '#94a3b8',
@@ -547,31 +410,10 @@ export const AdvisersPage = () => {
             />
             <input
               type="text"
-              placeholder="Search by adviser name, email, grade, or section..."
+              placeholder="Search adviser, section, grade..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              style={{
-                width: '100%',
-                padding: '9.5px 36px 9.5px 40px',
-                border: '1px solid #cbd5e1',
-                borderRadius: '10px',
-                fontSize: '13.5px',
-                color: '#0f172a',
-                outline: 'none',
-                transition: 'all 0.2s ease',
-                background: '#f8fafc',
-                boxSizing: 'border-box'
-              }}
-              onFocus={(e) => {
-                e.currentTarget.style.borderColor = '#07345f';
-                e.currentTarget.style.background = '#ffffff';
-                e.currentTarget.style.boxShadow = '0 0 0 3px rgba(7, 52, 95, 0.1)';
-              }}
-              onBlur={(e) => {
-                e.currentTarget.style.borderColor = '#cbd5e1';
-                e.currentTarget.style.background = '#f8fafc';
-                e.currentTarget.style.boxShadow = 'none';
-              }}
+              className="advisers-search-input"
             />
             {searchTerm && (
               <button
@@ -587,81 +429,40 @@ export const AdvisersPage = () => {
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
-                  padding: 4,
+                  padding: 3,
                   borderRadius: '50%'
                 }}
                 title="Clear search"
               >
-                <X size={15} />
+                <X size={14} />
               </button>
             )}
           </div>
 
           {/* Quick Segmented Level Tabs */}
-          <div
-            style={{
-              display: 'inline-flex',
-              background: '#f1f5f9',
-              padding: '3px',
-              borderRadius: '10px',
-              gap: '3px'
-            }}
-          >
+          <div className="advisers-tab-group">
             <button
               onClick={() => setLevelFilter('all')}
-              style={{
-                padding: '6px 12px',
-                borderRadius: '7px',
-                border: 'none',
-                background: levelFilter === 'all' ? '#ffffff' : 'transparent',
-                color: levelFilter === 'all' ? '#07345f' : '#64748b',
-                fontWeight: levelFilter === 'all' ? 700 : 500,
-                fontSize: '12.5px',
-                cursor: 'pointer',
-                boxShadow: levelFilter === 'all' ? '0 1px 4px rgba(0,0,0,0.08)' : 'none',
-                transition: 'all 0.15s ease'
-              }}
+              className={`advisers-tab-btn ${levelFilter === 'all' ? 'active' : ''}`}
             >
               All Levels
             </button>
             <button
               onClick={() => setLevelFilter('jhs')}
-              style={{
-                padding: '6px 12px',
-                borderRadius: '7px',
-                border: 'none',
-                background: levelFilter === 'jhs' ? '#ffffff' : 'transparent',
-                color: levelFilter === 'jhs' ? '#059669' : '#64748b',
-                fontWeight: levelFilter === 'jhs' ? 700 : 500,
-                fontSize: '12.5px',
-                cursor: 'pointer',
-                boxShadow: levelFilter === 'jhs' ? '0 1px 4px rgba(0,0,0,0.08)' : 'none',
-                transition: 'all 0.15s ease'
-              }}
+              className={`advisers-tab-btn ${levelFilter === 'jhs' ? 'active' : ''}`}
             >
               Junior High
             </button>
             <button
               onClick={() => setLevelFilter('shs')}
-              style={{
-                padding: '6px 12px',
-                borderRadius: '7px',
-                border: 'none',
-                background: levelFilter === 'shs' ? '#ffffff' : 'transparent',
-                color: levelFilter === 'shs' ? '#7c3aed' : '#64748b',
-                fontWeight: levelFilter === 'shs' ? 700 : 500,
-                fontSize: '12.5px',
-                cursor: 'pointer',
-                boxShadow: levelFilter === 'shs' ? '0 1px 4px rgba(0,0,0,0.08)' : 'none',
-                transition: 'all 0.15s ease'
-              }}
+              className={`advisers-tab-btn ${levelFilter === 'shs' ? 'active' : ''}`}
             >
               Senior High
             </button>
           </div>
 
           {/* Grade Selector */}
-          <div style={{ minWidth: '140px' }}>
+          <div style={{ minWidth: '130px' }}>
             <CustomSelect
               value={gradeFilter}
               onChange={(e) => setGradeFilter(e.target.value)}
@@ -679,8 +480,8 @@ export const AdvisersPage = () => {
         </div>
 
         {/* Results Counter & Active Filters Reset */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <span style={{ fontSize: '13px', color: '#64748b', fontWeight: 500 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <span style={{ fontSize: '12.5px', color: '#64748b', fontWeight: 500 }}>
             Showing <strong>{filteredAdvisers.length}</strong> of {advisers.length}
           </span>
           {(searchTerm || levelFilter !== 'all' || gradeFilter !== 'all') && (
@@ -694,9 +495,9 @@ export const AdvisersPage = () => {
                 background: '#f1f5f9',
                 border: 'none',
                 color: '#475569',
-                padding: '7px 12px',
-                borderRadius: '8px',
-                fontSize: '12px',
+                padding: '5px 10px',
+                borderRadius: '7px',
+                fontSize: '11.5px',
                 fontWeight: 600,
                 cursor: 'pointer',
                 display: 'flex',
@@ -704,10 +505,8 @@ export const AdvisersPage = () => {
                 gap: '4px',
                 transition: 'all 0.15s ease'
               }}
-              onMouseOver={(e) => { e.currentTarget.style.background = '#e2e8f0'; }}
-              onMouseOut={(e) => { e.currentTarget.style.background = '#f1f5f9'; }}
             >
-              <X size={13} /> Reset
+              <X size={12} /> Reset
             </button>
           )}
         </div>
@@ -720,19 +519,19 @@ export const AdvisersPage = () => {
             background: '#ffffff',
             borderRadius: '16px',
             border: '1px dashed #cbd5e1',
-            padding: '60px 20px',
+            padding: '48px 20px',
             textAlign: 'center',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
             justifyContent: 'center',
-            gap: '14px'
+            gap: '12px'
           }}
         >
           <div
             style={{
-              width: 64,
-              height: 64,
+              width: 56,
+              height: 56,
               borderRadius: '50%',
               background: '#f1f5f9',
               color: '#64748b',
@@ -741,45 +540,26 @@ export const AdvisersPage = () => {
               justifyContent: 'center'
             }}
           >
-            <UserMinus size={30} />
+            <UserMinus size={26} />
           </div>
           <div>
-            <h4 style={{ fontSize: '16px', fontWeight: 700, color: '#1e293b', margin: '0 0 4px 0' }}>
+            <h4 style={{ fontSize: '15px', fontWeight: 700, color: '#1e293b', margin: '0 0 3px 0' }}>
               No advisers match your current search or filter
             </h4>
-            <p style={{ fontSize: '13px', color: '#64748b', margin: 0 }}>
+            <p style={{ fontSize: '12.5px', color: '#64748b', margin: 0 }}>
               Try adjusting your search criteria, or appoint a new teacher as section adviser.
             </p>
           </div>
           <button
             onClick={() => setIsAppointModalOpen(true)}
-            style={{
-              background: '#07345f',
-              color: '#ffffff',
-              border: 'none',
-              padding: '10px 20px',
-              borderRadius: '10px',
-              fontWeight: 600,
-              fontSize: '13px',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              marginTop: '8px',
-              boxShadow: '0 4px 14px rgba(7, 52, 95, 0.25)'
-            }}
+            className="advisers-btn-primary"
+            style={{ marginTop: '6px' }}
           >
-            <Plus size={15} /> Appoint Adviser
+            <Plus size={14} /> Appoint Adviser
           </button>
         </div>
       ) : (
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 330px), 1fr))',
-            gap: '20px'
-          }}
-        >
+        <div className="advisers-card-grid">
           {filteredAdvisers.map((adv) => {
             const teacherName = adv.teacher
               ? `${adv.teacher.fname} ${adv.teacher.lname}`
@@ -803,199 +583,70 @@ export const AdvisersPage = () => {
             const isSeniorHigh = isSHS(adv.grade_level);
 
             return (
-              <div
-                key={adv.id}
-                style={{
-                  background: '#ffffff',
-                  borderRadius: '16px',
-                  border: '1px solid #e2e8f0',
-                  overflow: 'hidden',
-                  boxShadow: '0 4px 16px -2px rgba(15, 23, 42, 0.05)',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  transition: 'transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.2s'
-                }}
-                onMouseOver={(e) => {
-                  e.currentTarget.style.transform = 'translateY(-3px)';
-                  e.currentTarget.style.boxShadow = '0 12px 28px -4px rgba(15, 23, 42, 0.1)';
-                  e.currentTarget.style.borderColor = '#cbd5e1';
-                }}
-                onMouseOut={(e) => {
-                  e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.boxShadow = '0 4px 16px -2px rgba(15, 23, 42, 0.05)';
-                  e.currentTarget.style.borderColor = '#e2e8f0';
-                }}
-              >
+              <div key={adv.id} className="adviser-card">
                 {/* Top Header Card Info */}
-                <div
-                  style={{
-                    padding: '20px',
-                    borderBottom: '1px solid #f1f5f9',
-                    background: '#ffffff',
-                    display: 'flex',
-                    alignItems: 'flex-start',
-                    justifyContent: 'space-between',
-                    gap: '12px'
-                  }}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '14px', minWidth: 0 }}>
-                    <div style={{ position: 'relative', flexShrink: 0 }}>
+                <div className="adviser-card-header">
+                  <div className="adviser-teacher-profile">
+                    <div className="adviser-avatar-wrapper">
                       <img
                         src={
                           adv.teacher?.image ||
                           `https://ui-avatars.com/api/?name=${encodeURIComponent(teacherName)}&background=07345f&color=fff&size=52`
                         }
                         alt={teacherName}
-                        style={{
-                          width: 48,
-                          height: 48,
-                          borderRadius: '50%',
-                          objectFit: 'cover',
-                          border: '2px solid #e2e8f0',
-                          boxShadow: '0 2px 6px rgba(0,0,0,0.06)'
-                        }}
+                        className="adviser-avatar-img"
                       />
-                      <span
-                        style={{
-                          position: 'absolute',
-                          bottom: 0,
-                          right: 0,
-                          width: 13,
-                          height: 13,
-                          borderRadius: '50%',
-                          background: '#10b981',
-                          border: '2px solid #ffffff'
-                        }}
-                        title="Active Faculty Adviser"
-                      />
+                      <span className="adviser-online-dot" title="Active Faculty Adviser" />
                     </div>
 
-                    <div style={{ minWidth: 0 }}>
-                      <h4
-                        style={{
-                          margin: 0,
-                          fontSize: '15px',
-                          fontWeight: 700,
-                          color: '#0f172a',
-                          whiteSpace: 'nowrap',
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis'
-                        }}
-                      >
+                    <div className="adviser-teacher-meta">
+                      <h4 className="adviser-teacher-name" title={teacherName}>
                         {teacherName}
                       </h4>
-                      <div
-                        style={{
-                          fontSize: '12px',
-                          color: '#64748b',
-                          marginTop: '2px',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '5px',
-                          whiteSpace: 'nowrap',
-                          overflow: 'hidden',
-                          textOverflow: 'ellipsis'
-                        }}
-                      >
+                      <div className="adviser-teacher-email" title={teacherEmail}>
                         <Mail size={12} color="#94a3b8" style={{ flexShrink: 0 }} />
-                        <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>{teacherEmail}</span>
+                        <span>{teacherEmail}</span>
                       </div>
-                      <div
-                        style={{
-                          fontSize: '11px',
-                          color: '#475569',
-                          fontWeight: 600,
-                          marginTop: '4px',
-                          display: 'inline-block',
-                          background: '#f1f5f9',
-                          padding: '2px 8px',
-                          borderRadius: '4px'
-                        }}
-                      >
+                      <span className="adviser-position-pill">
                         {teacherPos}
-                      </div>
+                      </span>
                     </div>
                   </div>
 
                   {/* Section Badge */}
-                  <div
-                    style={{
-                      background: isSeniorHigh
-                        ? 'linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%)'
-                        : 'linear-gradient(135deg, #f0f4f8 0%, #e2e8f0 100%)',
-                      color: isSeniorHigh ? '#6d28d9' : '#07345f',
-                      border: `1px solid ${isSeniorHigh ? '#ddd6fe' : '#cbd5e1'}`,
-                      borderRadius: '10px',
-                      padding: '8px 12px',
-                      textAlign: 'right',
-                      flexShrink: 0
-                    }}
-                  >
-                    <div style={{ fontSize: '10px', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                  <div className={`adviser-section-badge ${isSeniorHigh ? 'shs' : ''}`}>
+                    <div className="adviser-badge-grade">
                       {adv.grade_level}
                     </div>
-                    <div style={{ fontSize: '13px', fontWeight: 800, marginTop: '2px' }}>
+                    <div className="adviser-badge-section">
                       {adv.class_section}
                     </div>
                   </div>
                 </div>
 
                 {/* Section Metrics Overview */}
-                <div
-                  style={{
-                    padding: '12px 20px',
-                    background: '#f8fafc',
-                    borderBottom: '1px solid #f1f5f9',
-                    display: 'grid',
-                    gridTemplateColumns: '1fr 1fr',
-                    gap: '10px'
-                  }}
-                >
+                <div className="adviser-metrics-bar">
                   {/* Students count */}
-                  <div
-                    style={{
-                      background: '#ffffff',
-                      border: '1px solid #e2e8f0',
-                      borderRadius: '8px',
-                      padding: '8px 12px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '8px'
-                    }}
-                  >
-                    <div style={{ color: '#07345f', flexShrink: 0 }}>
-                      <Users size={16} />
+                  <div className="adviser-metric-box">
+                    <div style={{ color: '#07345f', flexShrink: 0, display: 'flex' }}>
+                      <Users size={15} />
                     </div>
                     <div style={{ minWidth: 0 }}>
-                      <div style={{ fontSize: '10px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase' }}>
-                        Enrolled
-                      </div>
-                      <div style={{ fontSize: '12.5px', fontWeight: 700, color: '#0f172a', whiteSpace: 'nowrap' }}>
+                      <div className="adviser-metric-label">Enrolled</div>
+                      <div className="adviser-metric-value">
                         {sectionStudents.length} {sectionStudents.length === 1 ? 'Student' : 'Students'}
                       </div>
                     </div>
                   </div>
 
                   {/* Violations Status */}
-                  <div
-                    style={{
-                      background: hasViolations ? '#fff1f2' : '#f0fdf4',
-                      border: `1px solid ${hasViolations ? '#fecdd3' : '#bbf7d0'}`,
-                      borderRadius: '8px',
-                      padding: '8px 12px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '8px'
-                    }}
-                  >
-                    <div style={{ color: hasViolations ? '#e11d48' : '#16a34a', flexShrink: 0 }}>
-                      {hasViolations ? <AlertTriangle size={16} /> : <CheckCircle2 size={16} />}
+                  <div className={`adviser-metric-box ${hasViolations ? 'incident' : 'clean'}`}>
+                    <div style={{ flexShrink: 0, display: 'flex' }}>
+                      {hasViolations ? <AlertTriangle size={15} color="#dc2626" /> : <CheckCircle2 size={15} color="#16a34a" />}
                     </div>
                     <div style={{ minWidth: 0 }}>
-                      <div style={{ fontSize: '10px', fontWeight: 700, color: hasViolations ? '#be123c' : '#15803d', textTransform: 'uppercase' }}>
-                        Discipline
-                      </div>
-                      <div style={{ fontSize: '12.5px', fontWeight: 700, color: hasViolations ? '#9f1239' : '#14532d', whiteSpace: 'nowrap' }}>
+                      <div className="adviser-metric-label">Discipline</div>
+                      <div className="adviser-metric-value">
                         {hasViolations ? `${sectionViolations.length} Incident(s)` : 'Clean Section'}
                       </div>
                     </div>
@@ -1003,28 +654,8 @@ export const AdvisersPage = () => {
                 </div>
 
                 {/* Section Student Roster Preview */}
-                <div
-                  style={{
-                    padding: '16px 20px',
-                    background: '#ffffff',
-                    flex: 1,
-                    display: 'flex',
-                    flexDirection: 'column'
-                  }}
-                >
-                  <div
-                    style={{
-                      fontSize: '11px',
-                      fontWeight: 700,
-                      color: '#475569',
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.04em',
-                      marginBottom: '10px',
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center'
-                    }}
-                  >
+                <div className="adviser-roster-preview">
+                  <div className="adviser-roster-header">
                     <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
                       <GraduationCap size={13} color="#64748b" /> Section Roster ({sectionStudents.length})
                     </span>
@@ -1036,72 +667,39 @@ export const AdvisersPage = () => {
                   {sectionStudents.length === 0 ? (
                     <div
                       style={{
-                        padding: '16px',
+                        padding: '14px',
                         background: '#f8fafc',
                         borderRadius: '8px',
                         border: '1px dashed #cbd5e1',
                         textAlign: 'center',
-                        fontSize: '12px',
+                        fontSize: '11.5px',
                         color: '#64748b'
                       }}
                     >
                       No students currently registered under this section.
                     </div>
                   ) : (
-                    <div
-                      style={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: '6px',
-                        maxHeight: '190px',
-                        overflowY: 'auto',
-                        paddingRight: '4px'
-                      }}
-                    >
+                    <div className="adviser-roster-list">
                       {sectionStudents.map((std) => {
                         const stdViolations = records.filter(r => r.student_id === std.id);
                         const isStudentClean = stdViolations.length === 0;
 
                         return (
-                          <div
-                            key={std.id}
-                            style={{
-                              background: '#f8fafc',
-                              border: '1px solid #e2e8f0',
-                              borderRadius: '8px',
-                              padding: '8px 10px',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'space-between',
-                              gap: '8px',
-                              transition: 'background 0.15s'
-                            }}
-                            onMouseOver={(e) => { e.currentTarget.style.background = '#f1f5f9'; }}
-                            onMouseOut={(e) => { e.currentTarget.style.background = '#f8fafc'; }}
-                          >
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '9px', minWidth: 0 }}>
+                          <div key={std.id} className="adviser-roster-item">
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0 }}>
                               <img
                                 src={
                                   std.image ||
                                   `https://ui-avatars.com/api/?name=${encodeURIComponent(std.fname + ' ' + std.lname)}&background=e2e8f0&color=334155&size=28`
                                 }
                                 alt={std.fname}
-                                style={{ width: 28, height: 28, borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }}
+                                className="adviser-student-avatar"
                               />
                               <div style={{ minWidth: 0 }}>
-                                <div
-                                  style={{
-                                    fontSize: '12px',
-                                    fontWeight: 600,
-                                    color: '#0f172a',
-                                    whiteSpace: 'nowrap',
-                                    overflow: 'hidden',
-                                    textOverflow: 'ellipsis'
-                                  }}
-                                >
+                                <div className="adviser-student-name">
                                   {std.fname} {std.lname}
                                 </div>
-                                <div style={{ fontSize: '10px', color: '#64748b' }}>
+                                <div className="adviser-student-lrn">
                                   LRN: {std.lrn}
                                 </div>
                               </div>
@@ -1109,40 +707,12 @@ export const AdvisersPage = () => {
 
                             {/* Violation status tag */}
                             {isStudentClean ? (
-                              <span
-                                style={{
-                                  background: '#f0fdf4',
-                                  color: '#166534',
-                                  border: '1px solid #bbf7d0',
-                                  fontSize: '10px',
-                                  fontWeight: 600,
-                                  padding: '2px 8px',
-                                  borderRadius: '12px',
-                                  whiteSpace: 'nowrap',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  gap: '3px'
-                                }}
-                              >
-                                <CheckCircle2 size={10} color="#16a34a" /> Good
+                              <span className="adviser-status-pill good">
+                                <CheckCircle2 size={10} /> Good
                               </span>
                             ) : (
-                              <span
-                                style={{
-                                  background: '#fee2e2',
-                                  color: '#991b1b',
-                                  border: '1px solid #fecaca',
-                                  fontSize: '10px',
-                                  fontWeight: 700,
-                                  padding: '2px 8px',
-                                  borderRadius: '12px',
-                                  whiteSpace: 'nowrap',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  gap: '3px'
-                                }}
-                              >
-                                <AlertTriangle size={10} color="#dc2626" /> {stdViolations.length} Viol.
+                              <span className="adviser-status-pill violation">
+                                <AlertTriangle size={10} /> {stdViolations.length} Viol.
                               </span>
                             )}
                           </div>
@@ -1153,71 +723,17 @@ export const AdvisersPage = () => {
                 </div>
 
                 {/* Card Action Buttons */}
-                <div
-                  style={{
-                    padding: '14px 20px',
-                    background: '#ffffff',
-                    borderTop: '1px solid #f1f5f9',
-                    display: 'flex',
-                    gap: '10px'
-                  }}
-                >
+                <div className="adviser-card-footer">
                   <button
                     onClick={() => navigate(`/adviserview-student/${adv.id}`)}
-                    style={{
-                      flex: 1,
-                      background: '#07345f',
-                      color: '#ffffff',
-                      border: 'none',
-                      padding: '9.5px 16px',
-                      borderRadius: '8px',
-                      fontSize: '13px',
-                      fontWeight: 600,
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '6px',
-                      transition: 'all 0.15s ease',
-                      boxShadow: '0 2px 6px rgba(7, 52, 95, 0.2)'
-                    }}
-                    onMouseOver={(e) => {
-                      e.currentTarget.style.transform = 'translateY(-1px)';
-                      e.currentTarget.style.boxShadow = '0 4px 10px rgba(7, 52, 95, 0.3)';
-                    }}
-                    onMouseOut={(e) => {
-                      e.currentTarget.style.transform = 'translateY(0)';
-                      e.currentTarget.style.boxShadow = '0 2px 6px rgba(7, 52, 95, 0.2)';
-                    }}
+                    className="adviser-btn-view-roster"
                   >
                     <Eye size={15} /> View Class Roster
                   </button>
 
                   <button
                     onClick={() => setAdviserToDelete(adv)}
-                    style={{
-                      background: '#ffffff',
-                      color: '#dc2626',
-                      border: '1px solid #fecaca',
-                      padding: '9.5px 14px',
-                      borderRadius: '8px',
-                      fontSize: '13px',
-                      fontWeight: 600,
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '6px',
-                      transition: 'all 0.15s ease'
-                    }}
-                    onMouseOver={(e) => {
-                      e.currentTarget.style.background = '#fef2f2';
-                      e.currentTarget.style.borderColor = '#f87171';
-                    }}
-                    onMouseOut={(e) => {
-                      e.currentTarget.style.background = '#ffffff';
-                      e.currentTarget.style.borderColor = '#fecaca';
-                    }}
+                    className="adviser-btn-remove"
                     title="Remove Adviser Assignment"
                   >
                     <Trash2 size={15} /> Remove

@@ -1,6 +1,6 @@
 /**
  * CSV Utility for Viotrack
- * Handles CSV export, parsing, and template downloading
+ * Handles CSV export, parsing, and template downloading with full Mobile & Desktop support
  */
 
 export const exportToCsv = (filename, headers, rows) => {
@@ -18,12 +18,19 @@ export const exportToCsv = (filename, headers, rows) => {
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
-    link.setAttribute('href', url);
+    link.href = url;
     link.setAttribute('download', filename.endsWith('.csv') ? filename : `${filename}.csv`);
+    link.target = '_self';
+    link.style.display = 'none';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+
+    // Give mobile browsers time to stream before revoking
+    setTimeout(() => {
+      URL.revokeObjectURL(url);
+    }, 4000);
+
     return true;
   } catch (err) {
     console.error('Failed to export CSV:', err);
@@ -37,12 +44,18 @@ export const downloadSampleCsv = (filename, content) => {
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
-    link.setAttribute('href', url);
+    link.href = url;
     link.setAttribute('download', filename.endsWith('.csv') ? filename : `${filename}.csv`);
+    link.target = '_self';
+    link.style.display = 'none';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+
+    setTimeout(() => {
+      URL.revokeObjectURL(url);
+    }, 4000);
+
     return true;
   } catch (err) {
     console.error('Failed to download sample CSV:', err);
@@ -94,6 +107,6 @@ export const readFileAsText = (file) => {
     const reader = new FileReader();
     reader.onload = (e) => resolve(e.target.result);
     reader.onerror = (e) => reject(new Error('Failed to read file'));
-    reader.readAsText(file);
+    reader.readAsText(file, 'UTF-8');
   });
 };

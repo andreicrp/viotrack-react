@@ -109,16 +109,22 @@ export const TeachersPage = () => {
     );
   };
 
-  const handleSaveTeacher = (updatedTeacher) => {
-    if (teacherToEdit) {
-      setTeachers(teachers.map(t => t.id === updatedTeacher.id ? updatedTeacher : t));
-      success(`Updated details for ${updatedTeacher.fname} ${updatedTeacher.lname}`);
-    } else {
-      const newT = { ...updatedTeacher, id: Date.now() };
-      setTeachers([newT, ...teachers]);
-      success(`Added teacher: ${newT.fname} ${newT.lname}`);
+  const handleSaveTeacher = async (updatedTeacher) => {
+    try {
+      if (teacherToEdit) {
+        const saved = await dataService.updateTeacher(teacherToEdit.id, updatedTeacher);
+        setTeachers(teachers.map(t => t.id === teacherToEdit.id ? saved : t));
+        success(`Updated details for ${updatedTeacher.fname} ${updatedTeacher.lname}`);
+      } else {
+        const newT = await dataService.addTeacher(updatedTeacher);
+        setTeachers([newT, ...teachers]);
+        success(`Added teacher: ${newT.fname} ${newT.lname}`);
+      }
+      setIsEditModalOpen(false);
+      loadData();
+    } catch (err) {
+      error('Failed to save faculty record: ' + err.message);
     }
-    setIsEditModalOpen(false);
   };
 
   const handleAppointAdviser = async (teacherId, grade, section) => {
@@ -131,19 +137,32 @@ export const TeachersPage = () => {
     }
   };
 
-  const handleRemoveTeacher = (id, name) => {
+  const handleRemoveTeacher = async (id, name) => {
     if (window.confirm(`Are you sure you want to remove teacher: ${name}?`)) {
-      setTeachers(teachers.filter(t => t.id !== id));
-      setSelectedIds(prev => prev.filter(x => x !== id));
-      success('Teacher removed from faculty.');
+      try {
+        await dataService.deleteTeacher(id);
+        setTeachers(teachers.filter(t => t.id !== id));
+        setSelectedIds(prev => prev.filter(x => x !== id));
+        success('Teacher removed from faculty.');
+        loadData();
+      } catch (err) {
+        error('Failed to remove teacher: ' + err.message);
+      }
     }
   };
 
-  const handleDeleteSelected = () => {
+  const handleDeleteSelected = async () => {
     if (window.confirm(`Are you sure you want to remove ${selectedIds.length} selected teacher(s)?`)) {
-      setTeachers(teachers.filter(t => !selectedIds.includes(t.id)));
-      setSelectedIds([]);
-      success('Selected teachers removed.');
+      try {
+        for (const id of selectedIds) {
+          await dataService.deleteTeacher(id);
+        }
+        setSelectedIds([]);
+        success('Selected teachers removed.');
+        loadData();
+      } catch (err) {
+        error('Failed to remove teachers: ' + err.message);
+      }
     }
   };
 
@@ -368,7 +387,7 @@ export const TeachersPage = () => {
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <Users size={20} color="#07345f" strokeWidth={2} />
+              <Users size={20} color="#1f2937" strokeWidth={2} />
               <div>
                 <span style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a', lineHeight: 1, display: 'block' }}>
                   {stats.total}
@@ -382,8 +401,8 @@ export const TeachersPage = () => {
           <div
             onClick={() => setSelectedFacultyFilter(selectedFacultyFilter === 'adviser' ? 'all' : 'adviser')}
             style={{
-              background: selectedFacultyFilter === 'adviser' ? '#f0fdf4' : '#ffffff',
-              border: selectedFacultyFilter === 'adviser' ? '2px solid #16a34a' : '1px solid #e2e8f0',
+              background: selectedFacultyFilter === 'adviser' ? '#f0f4f8' : '#ffffff',
+              border: selectedFacultyFilter === 'adviser' ? '2px solid #07345f' : '1px solid #e2e8f0',
               borderRadius: '10px',
               padding: '12px 14px',
               display: 'flex',
@@ -391,20 +410,20 @@ export const TeachersPage = () => {
               justifyContent: 'space-between',
               cursor: 'pointer',
               transition: 'all 0.2s ease',
-              boxShadow: selectedFacultyFilter === 'adviser' ? '0 2px 8px rgba(22, 163, 74, 0.12)' : '0 1px 3px rgba(0,0,0,0.02)'
+              boxShadow: selectedFacultyFilter === 'adviser' ? '0 2px 8px rgba(7, 52, 95, 0.1)' : '0 1px 3px rgba(0,0,0,0.02)'
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <UserCheck size={20} color="#16a34a" strokeWidth={2} />
+              <UserCheck size={20} color="#1f2937" strokeWidth={2} />
               <div>
-                <span style={{ fontSize: '20px', fontWeight: 800, color: '#14532d', lineHeight: 1, display: 'block' }}>
+                <span style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a', lineHeight: 1, display: 'block' }}>
                   {stats.advisersCount}
                 </span>
-                <span style={{ fontSize: '11px', color: '#15803d', fontWeight: 600 }}>Class Advisers</span>
+                <span style={{ fontSize: '11px', color: '#64748b', fontWeight: 600 }}>Class Advisers</span>
               </div>
             </div>
             {selectedFacultyFilter === 'adviser' && (
-              <span style={{ background: '#16a34a', color: '#fff', fontSize: '9px', padding: '2px 6px', borderRadius: '4px', fontWeight: 700 }}>
+              <span style={{ background: '#07345f', color: '#fff', fontSize: '9px', padding: '2px 6px', borderRadius: '4px', fontWeight: 700 }}>
                 Active
               </span>
             )}
@@ -414,8 +433,8 @@ export const TeachersPage = () => {
           <div
             onClick={() => setSelectedFacultyFilter(selectedFacultyFilter === 'subject' ? 'all' : 'subject')}
             style={{
-              background: selectedFacultyFilter === 'subject' ? '#fffbeb' : '#ffffff',
-              border: selectedFacultyFilter === 'subject' ? '2px solid #d97706' : '1px solid #e2e8f0',
+              background: selectedFacultyFilter === 'subject' ? '#f0f4f8' : '#ffffff',
+              border: selectedFacultyFilter === 'subject' ? '2px solid #07345f' : '1px solid #e2e8f0',
               borderRadius: '10px',
               padding: '12px 14px',
               display: 'flex',
@@ -423,20 +442,20 @@ export const TeachersPage = () => {
               justifyContent: 'space-between',
               cursor: 'pointer',
               transition: 'all 0.2s ease',
-              boxShadow: selectedFacultyFilter === 'subject' ? '0 2px 8px rgba(217, 119, 6, 0.12)' : '0 1px 3px rgba(0,0,0,0.02)'
+              boxShadow: selectedFacultyFilter === 'subject' ? '0 2px 8px rgba(7, 52, 95, 0.1)' : '0 1px 3px rgba(0,0,0,0.02)'
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <GraduationCap size={20} color="#d97706" strokeWidth={2} />
+              <GraduationCap size={20} color="#1f2937" strokeWidth={2} />
               <div>
-                <span style={{ fontSize: '20px', fontWeight: 800, color: '#78350f', lineHeight: 1, display: 'block' }}>
+                <span style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a', lineHeight: 1, display: 'block' }}>
                   {stats.subjectTeachers}
                 </span>
-                <span style={{ fontSize: '11px', color: '#92400e', fontWeight: 600 }}>Subject Teachers</span>
+                <span style={{ fontSize: '11px', color: '#64748b', fontWeight: 600 }}>Subject Teachers</span>
               </div>
             </div>
             {selectedFacultyFilter === 'subject' && (
-              <span style={{ background: '#d97706', color: '#fff', fontSize: '9px', padding: '2px 6px', borderRadius: '4px', fontWeight: 700 }}>
+              <span style={{ background: '#07345f', color: '#fff', fontSize: '9px', padding: '2px 6px', borderRadius: '4px', fontWeight: 700 }}>
                 Active
               </span>
             )}
@@ -455,7 +474,7 @@ export const TeachersPage = () => {
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <Building size={20} color="#64748b" strokeWidth={2} />
+              <Building size={20} color="#1f2937" strokeWidth={2} />
               <div>
                 <span style={{ fontSize: '20px', fontWeight: 800, color: '#1e293b', lineHeight: 1, display: 'block' }}>
                   {stats.departmentsCount}
@@ -1149,13 +1168,13 @@ export const TeachersPage = () => {
         </div>
 
         {/* 5. Pagination Footer */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '18px', flexWrap: 'wrap', gap: '10px' }}>
+        <div className="pagination-footer-responsive table-footer" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '18px', flexWrap: 'wrap', gap: '10px' }}>
           <span style={{ fontSize: '13px', color: '#64748b' }}>
             Showing {filteredAndSorted.length === 0 ? 0 : (currentPage - 1) * entriesPerPage + 1} to{' '}
             {Math.min(currentPage * entriesPerPage, filteredAndSorted.length)} of {filteredAndSorted.length} teachers
           </span>
 
-          <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+          <div className="pagination-btn-group" style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
             <button
               disabled={currentPage <= 1}
               onClick={() => setCurrentPage(1)}

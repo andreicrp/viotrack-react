@@ -713,14 +713,15 @@ export const ProfilePage = () => {
             background: 'none',
             border: 'none',
             color: '#2563eb',
-            fontWeight: 600,
-            fontSize: '11.5px',
+            fontWeight: 700,
+            fontSize: '12px',
             cursor: 'pointer',
             textDecoration: 'underline'
           }}
         >
-          View Privacy Policy & Data Protection Clauses
+          View Legal &amp; Compliance Center (Privacy Policy, Terms of Service, Cookie &amp; Storage)
         </button>
+        <span>VioTrack Student Conduct Portal • DepEd Compliant Academic System</span>
         <span>© 2026 VioTrack. All rights reserved.</span>
       </div>
 

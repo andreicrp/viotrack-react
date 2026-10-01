@@ -26,6 +26,8 @@ import { dataService } from '../services/dataService';
 import { AddViolationModal } from '../components/violations/AddViolationModal';
 import { useNotification } from '../context/NotificationContext';
 import { Html5Qrcode } from 'html5-qrcode';
+import successAudioSrc from '../assets/sound_effects/success.mp3';
+import errorAudioSrc from '../assets/sound_effects/error.mp3';
 
 export const ScanQRPage = () => {
   const [searchParams] = useSearchParams();
@@ -94,8 +96,39 @@ export const ScanQRPage = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [scannedStudent, isViolationModalOpen]);
 
-  // Play a soft high-tech affirmative chime on QR detect
-  const playScanBeep = () => {
+  // Play official success.mp3 sound effect when QR is scanned successfully
+  const playScanSuccessSound = () => {
+    try {
+      const audio = new Audio(successAudioSrc || '/sound_effects/success.mp3');
+      audio.volume = 0.9;
+      const playPromise = audio.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(() => {
+          playFallbackBeep();
+        });
+      }
+    } catch {
+      playFallbackBeep();
+    }
+  };
+
+  // Play official error.mp3 sound effect when QR scan fails / is invalid
+  const playScanErrorSound = () => {
+    try {
+      const audio = new Audio(errorAudioSrc || '/sound_effects/error.mp3');
+      audio.volume = 0.9;
+      const playPromise = audio.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(() => {
+          playFallbackErrorTone();
+        });
+      }
+    } catch {
+      playFallbackErrorTone();
+    }
+  };
+
+  const playFallbackBeep = () => {
     try {
       const AudioCtx = window.AudioContext || window.webkitAudioContext;
       if (!AudioCtx) return;
@@ -104,14 +137,34 @@ export const ScanQRPage = () => {
       const gain = audioCtx.createGain();
       osc.type = 'sine';
       osc.frequency.setValueAtTime(987.77, audioCtx.currentTime); // B5 note
-      gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.18);
+      gain.gain.setValueAtTime(0.25, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.2);
       osc.connect(gain);
       gain.connect(audioCtx.destination);
       osc.start();
-      osc.stop(audioCtx.currentTime + 0.18);
+      osc.stop(audioCtx.currentTime + 0.2);
     } catch (e) {
-      // AudioContext blocked or not supported
+      // AudioContext blocked
+    }
+  };
+
+  const playFallbackErrorTone = () => {
+    try {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) return;
+      const audioCtx = new AudioCtx();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(220, audioCtx.currentTime); // A3 low buzz
+      gain.gain.setValueAtTime(0.25, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + 0.3);
+    } catch (e) {
+      // AudioContext blocked
     }
   };
 
@@ -173,9 +226,11 @@ export const ScanQRPage = () => {
 
     setTimeout(() => {
       if (targetId) {
+        playScanSuccessSound();
         navigate(`/student-violation/${targetId}?scan=true`);
       } else {
         setIsCapturingLocation(false);
+        playScanErrorSound();
         error('Invalid QR Code');
       }
     }, 900);
@@ -706,11 +761,12 @@ export const ScanQRPage = () => {
       setScanProgressPercent(0);
 
       if (matched) {
-        playScanBeep();
+        playScanSuccessSound();
         setScannedStudent(matched);
         loadStudentRecords(matched.id);
         success(`Student Identified: ${matched.fname} ${matched.lname} (${matched.lrn})`);
       } else {
+        playScanErrorSound();
         error('Invalid QR Code');
       }
     } catch (err) {
@@ -718,6 +774,7 @@ export const ScanQRPage = () => {
       setScanProcessingStep('');
       setScanProcessingSubstep('');
       setScanProgressPercent(0);
+      playScanErrorSound();
       error('Invalid QR Code');
     }
   };
@@ -786,6 +843,7 @@ export const ScanQRPage = () => {
         setScanProcessingStep('');
         setScanProcessingSubstep('');
         setScanProgressPercent(0);
+        playScanErrorSound();
         error('Could not detect QR code in this image. Please ensure the QR code is clearly visible.');
       }
     } catch (err) {
@@ -793,6 +851,7 @@ export const ScanQRPage = () => {
       setScanProcessingStep('');
       setScanProcessingSubstep('');
       setScanProgressPercent(0);
+      playScanErrorSound();
       error('Failed to read image file: ' + err.message);
     } finally {
       if (fileInputRef.current) fileInputRef.current.value = '';

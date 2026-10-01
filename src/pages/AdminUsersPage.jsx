@@ -145,19 +145,33 @@ export const AdminUsersPage = () => {
     );
   };
 
-  const handleDeleteSelected = () => {
+  const handleDeleteSelected = async () => {
     if (window.confirm(`Are you sure you want to remove ${selectedIds.length} selected administrator(s)?`)) {
-      setAdminUsers(adminUsers.filter(a => !selectedIds.includes(a.id)));
-      setSelectedIds([]);
-      success('Selected administrators removed.');
+      try {
+        for (const id of selectedIds) {
+          await dataService.deleteAdmin(id);
+        }
+        setAdminUsers(adminUsers.filter(a => !selectedIds.includes(a.id)));
+        setSelectedIds([]);
+        success('Selected administrators removed.');
+        loadAdmins();
+      } catch (err) {
+        error('Failed to remove administrators: ' + err.message);
+      }
     }
   };
 
-  const handleDeleteSingle = (id, name) => {
+  const handleDeleteSingle = async (id, name) => {
     if (window.confirm(`Are you sure you want to remove admin user: "${name}"?`)) {
-      setAdminUsers(adminUsers.filter(a => a.id !== id));
-      setSelectedIds(prev => prev.filter(x => x !== id));
-      success('Administrator removed successfully.');
+      try {
+        await dataService.deleteAdmin(id);
+        setAdminUsers(adminUsers.filter(a => a.id !== id));
+        setSelectedIds(prev => prev.filter(x => x !== id));
+        success('Administrator removed successfully.');
+        loadAdmins();
+      } catch (err) {
+        error('Failed to remove administrator: ' + err.message);
+      }
     }
   };
 
@@ -193,26 +207,31 @@ export const AdminUsersPage = () => {
     setIsModalOpen(true);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.fname.trim() || !formData.lname.trim() || !formData.email.trim()) {
       error('Please fill in all mandatory fields.');
       return;
     }
 
-    if (editingAdmin) {
-      setAdminUsers(adminUsers.map(a => a.id === editingAdmin.id ? { ...a, ...formData } : a));
-      success(`Updated details for ${formData.fname} ${formData.lname}`);
-    } else {
-      const newAdmin = {
-        id: Date.now(),
-        ...formData,
-        image: formData.image || ''
-      };
-      setAdminUsers([newAdmin, ...adminUsers]);
-      success(`Created administrator account for ${formData.fname} ${formData.lname}`);
+    try {
+      if (editingAdmin) {
+        const saved = await dataService.updateAdmin(editingAdmin.id, formData);
+        setAdminUsers(adminUsers.map(a => a.id === editingAdmin.id ? (saved || { ...a, ...formData }) : a));
+        success(`Updated details for ${formData.fname} ${formData.lname}`);
+      } else {
+        const newAdmin = await dataService.addAdmin({
+          ...formData,
+          image: formData.image || ''
+        });
+        setAdminUsers([newAdmin, ...adminUsers]);
+        success(`Created administrator account for ${formData.fname} ${formData.lname}`);
+      }
+      setIsModalOpen(false);
+      loadAdmins();
+    } catch (err) {
+      error('Failed to save administrator record: ' + err.message);
     }
-    setIsModalOpen(false);
   };
 
   const handleExportPDF = () => {
@@ -414,7 +433,7 @@ export const AdminUsersPage = () => {
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <Users size={20} color="#07345f" strokeWidth={2} />
+              <Users size={20} color="#1f2937" strokeWidth={2} />
               <div>
                 <span style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a', lineHeight: 1, display: 'block' }}>
                   {stats.total}
@@ -433,8 +452,8 @@ export const AdminUsersPage = () => {
           <div
             onClick={() => setSelectedRoleFilter(selectedRoleFilter === 'Super Admin' ? 'all' : 'Super Admin')}
             style={{
-              background: selectedRoleFilter === 'Super Admin' ? '#fdf4ff' : '#ffffff',
-              border: selectedRoleFilter === 'Super Admin' ? '2px solid #a855f7' : '1px solid #e2e8f0',
+              background: selectedRoleFilter === 'Super Admin' ? '#f0f4f8' : '#ffffff',
+              border: selectedRoleFilter === 'Super Admin' ? '2px solid #07345f' : '1px solid #e2e8f0',
               borderRadius: '10px',
               padding: '12px 14px',
               display: 'flex',
@@ -442,20 +461,20 @@ export const AdminUsersPage = () => {
               justifyContent: 'space-between',
               cursor: 'pointer',
               transition: 'all 0.2s ease',
-              boxShadow: selectedRoleFilter === 'Super Admin' ? '0 2px 8px rgba(168, 85, 247, 0.12)' : '0 1px 3px rgba(0,0,0,0.02)'
+              boxShadow: selectedRoleFilter === 'Super Admin' ? '0 2px 8px rgba(7, 52, 95, 0.1)' : '0 1px 3px rgba(0,0,0,0.02)'
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <Shield size={20} color="#9333ea" strokeWidth={2} />
+              <Shield size={20} color="#1f2937" strokeWidth={2} />
               <div>
-                <span style={{ fontSize: '20px', fontWeight: 800, color: '#581c87', lineHeight: 1, display: 'block' }}>
+                <span style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a', lineHeight: 1, display: 'block' }}>
                   {stats.superAdmins}
                 </span>
-                <span style={{ fontSize: '11px', color: '#7e22ce', fontWeight: 600 }}>Super Admins</span>
+                <span style={{ fontSize: '11px', color: '#64748b', fontWeight: 600 }}>Super Admins</span>
               </div>
             </div>
             {selectedRoleFilter === 'Super Admin' && (
-              <span style={{ background: '#9333ea', color: '#fff', fontSize: '9px', padding: '2px 6px', borderRadius: '4px', fontWeight: 700 }}>
+              <span style={{ background: '#07345f', color: '#fff', fontSize: '9px', padding: '2px 6px', borderRadius: '4px', fontWeight: 700 }}>
                 Filtered
               </span>
             )}
@@ -465,8 +484,8 @@ export const AdminUsersPage = () => {
           <div
             onClick={() => setSelectedRoleFilter(selectedRoleFilter === 'Discipline Officer' ? 'all' : 'Discipline Officer')}
             style={{
-              background: selectedRoleFilter === 'Discipline Officer' ? '#f0fdf4' : '#ffffff',
-              border: selectedRoleFilter === 'Discipline Officer' ? '2px solid #16a34a' : '1px solid #e2e8f0',
+              background: selectedRoleFilter === 'Discipline Officer' ? '#f0f4f8' : '#ffffff',
+              border: selectedRoleFilter === 'Discipline Officer' ? '2px solid #07345f' : '1px solid #e2e8f0',
               borderRadius: '10px',
               padding: '12px 14px',
               display: 'flex',
@@ -474,20 +493,20 @@ export const AdminUsersPage = () => {
               justifyContent: 'space-between',
               cursor: 'pointer',
               transition: 'all 0.2s ease',
-              boxShadow: selectedRoleFilter === 'Discipline Officer' ? '0 2px 8px rgba(22, 163, 74, 0.12)' : '0 1px 3px rgba(0,0,0,0.02)'
+              boxShadow: selectedRoleFilter === 'Discipline Officer' ? '0 2px 8px rgba(7, 52, 95, 0.1)' : '0 1px 3px rgba(0,0,0,0.02)'
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <ShieldCheck size={20} color="#16a34a" strokeWidth={2} />
+              <ShieldCheck size={20} color="#1f2937" strokeWidth={2} />
               <div>
-                <span style={{ fontSize: '20px', fontWeight: 800, color: '#14532d', lineHeight: 1, display: 'block' }}>
+                <span style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a', lineHeight: 1, display: 'block' }}>
                   {stats.disciplineOfficers}
                 </span>
-                <span style={{ fontSize: '11px', color: '#15803d', fontWeight: 600 }}>Discipline Officers</span>
+                <span style={{ fontSize: '11px', color: '#64748b', fontWeight: 600 }}>Discipline Officers</span>
               </div>
             </div>
             {selectedRoleFilter === 'Discipline Officer' && (
-              <span style={{ background: '#16a34a', color: '#fff', fontSize: '9px', padding: '2px 6px', borderRadius: '4px', fontWeight: 700 }}>
+              <span style={{ background: '#07345f', color: '#fff', fontSize: '9px', padding: '2px 6px', borderRadius: '4px', fontWeight: 700 }}>
                 Filtered
               </span>
             )}
@@ -1055,13 +1074,13 @@ export const AdminUsersPage = () => {
         </div>
 
         {/* 5. Pagination Footer */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '18px', flexWrap: 'wrap', gap: '10px' }}>
+        <div className="pagination-footer-responsive table-footer" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '18px', flexWrap: 'wrap', gap: '10px' }}>
           <span style={{ fontSize: '13px', color: '#64748b' }}>
             Showing {filteredAndSorted.length === 0 ? 0 : (currentPage - 1) * entriesPerPage + 1} to{' '}
             {Math.min(currentPage * entriesPerPage, filteredAndSorted.length)} of {filteredAndSorted.length} administrators
           </span>
 
-          <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+          <div className="pagination-btn-group" style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
             <button
               disabled={currentPage <= 1}
               onClick={() => setCurrentPage(1)}

@@ -140,24 +140,12 @@
     flex-shrink: 0;
 }
 
-.stat-card-violation.total .stat-icon {
-    background: transparent !important;
-    color: #2563eb;
-}
-
-.stat-card-violation.major .stat-icon {
-    background: transparent !important;
-    color: #dc2626;
-}
-
-.stat-card-violation.serious .stat-icon {
-    background: transparent !important;
-    color: #d97706;
-}
-
+.stat-card-violation.total .stat-icon,
+.stat-card-violation.major .stat-icon,
+.stat-card-violation.serious .stat-icon,
 .stat-card-violation.minor .stat-icon {
     background: transparent !important;
-    color: #059669;
+    color: #1f2937 !important;
 }
 
 .stat-card-violation .stat-info {

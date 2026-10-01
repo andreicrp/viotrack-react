@@ -29,7 +29,7 @@ export const CustomDatePicker = ({
   useEffect(() => {
     if (isOpen && containerRef.current) {
       const rect = containerRef.current.getBoundingClientRect();
-      const popoverWidth = 285;
+      const popoverWidth = 240;
       if (align === 'right' || rect.left + popoverWidth > window.innerWidth - 12) {
         setResolvedAlign('right');
       } else {
@@ -217,40 +217,41 @@ export const CustomDatePicker = ({
       {/* Popover Custom Calendar */}
       {isOpen && (
         <div
+          className="custom-date-picker-popover"
           style={{
             position: 'absolute',
-            top: 'calc(100% + 6px)',
+            top: 'calc(100% + 4px)',
             ...(resolvedAlign === 'right' ? { right: 0, left: 'auto' } : { left: 0, right: 'auto' }),
-            zIndex: 5000,
+            zIndex: 9999,
             background: '#ffffff',
-            borderRadius: '16px',
-            boxShadow: '0 20px 50px -10px rgba(15, 23, 42, 0.25), 0 0 0 1px rgba(226, 232, 240, 0.9)',
+            borderRadius: '12px',
+            boxShadow: '0 14px 36px -4px rgba(15, 23, 42, 0.22), 0 0 0 1px rgba(226, 232, 240, 0.95)',
             border: '1px solid #e2e8f0',
-            width: '280px',
-            maxWidth: 'calc(100vw - 32px)',
-            padding: '16px',
-            animation: 'fadeInUp 0.15s ease-out'
+            width: '236px',
+            maxWidth: 'calc(100vw - 20px)',
+            padding: '10px 11px',
+            animation: 'fadeInUp 0.12s ease-out'
           }}
         >
           {/* Header with Month / Year & Prev / Next */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <span style={{ fontSize: '14px', fontWeight: 800, color: '#0f172a', letterSpacing: '-0.2px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+              <span style={{ fontSize: '13px', fontWeight: 800, color: '#0f172a', letterSpacing: '-0.2px' }}>
                 {MONTH_NAMES[currentMonth]}
               </span>
-              <span style={{ fontSize: '14px', fontWeight: 600, color: '#64748b' }}>
+              <span style={{ fontSize: '13px', fontWeight: 600, color: '#64748b' }}>
                 {currentYear}
               </span>
             </div>
 
-            <div style={{ display: 'flex', gap: '4px' }}>
+            <div style={{ display: 'flex', gap: '3px' }}>
               <button
                 type="button"
                 onClick={handlePrevMonth}
                 style={{
-                  width: 28,
-                  height: 28,
-                  borderRadius: '7px',
+                  width: 24,
+                  height: 24,
+                  borderRadius: '6px',
                   border: '1px solid #e2e8f0',
                   background: '#ffffff',
                   color: '#475569',
@@ -263,15 +264,15 @@ export const CustomDatePicker = ({
                 onMouseOver={(e) => e.currentTarget.style.background = '#f1f5f9'}
                 onMouseOut={(e) => e.currentTarget.style.background = '#ffffff'}
               >
-                <ChevronLeft size={15} />
+                <ChevronLeft size={13} />
               </button>
               <button
                 type="button"
                 onClick={handleNextMonth}
                 style={{
-                  width: 28,
-                  height: 28,
-                  borderRadius: '7px',
+                  width: 24,
+                  height: 24,
+                  borderRadius: '6px',
                   border: '1px solid #e2e8f0',
                   background: '#ffffff',
                   color: '#475569',
@@ -284,33 +285,33 @@ export const CustomDatePicker = ({
                 onMouseOver={(e) => e.currentTarget.style.background = '#f1f5f9'}
                 onMouseOut={(e) => e.currentTarget.style.background = '#ffffff'}
               >
-                <ChevronRight size={15} />
+                <ChevronRight size={13} />
               </button>
             </div>
           </div>
 
           {/* Weekdays Row */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', textAlign: 'center', marginBottom: '6px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', textAlign: 'center', marginBottom: '4px' }}>
             {DAYS_OF_WEEK.map((d) => (
-              <span key={d} style={{ fontSize: '11px', fontWeight: 800, color: '#94a3b8', padding: '2px 0' }}>
+              <span key={d} style={{ fontSize: '10px', fontWeight: 800, color: '#94a3b8', padding: '1px 0' }}>
                 {d}
               </span>
             ))}
           </div>
 
           {/* Days Grid */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '3px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '2px' }}>
             {days.map((item, index) => {
               if (!item.isCurrentMonth) {
                 return (
                   <div
                     key={index}
                     style={{
-                      height: 32,
+                      height: 26,
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      fontSize: '12px',
+                      fontSize: '11px',
                       color: '#cbd5e1',
                       userSelect: 'none'
                     }}
@@ -333,12 +334,12 @@ export const CustomDatePicker = ({
                   key={index}
                   onClick={() => handleSelectDay(item.day)}
                   style={{
-                    height: 32,
-                    borderRadius: '8px',
+                    height: 26,
+                    borderRadius: '6px',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    fontSize: '12.5px',
+                    fontSize: '11.5px',
                     fontWeight: isSelected ? 800 : isToday ? 700 : 500,
                     cursor: 'pointer',
                     background: isSelected
@@ -348,8 +349,8 @@ export const CustomDatePicker = ({
                       : '#ffffff',
                     color: isSelected ? '#ffffff' : isToday ? '#27367f' : '#1e293b',
                     border: isSelected ? 'none' : isToday ? '1px solid #c7d2fe' : '1px solid transparent',
-                    transition: 'all 0.15s ease',
-                    boxShadow: isSelected ? '0 3px 8px rgba(39, 54, 127, 0.35)' : 'none'
+                    transition: 'all 0.12s ease',
+                    boxShadow: isSelected ? '0 2px 6px rgba(39, 54, 127, 0.3)' : 'none'
                   }}
                   onMouseOver={(e) => {
                     if (!isSelected) {
@@ -371,8 +372,8 @@ export const CustomDatePicker = ({
           {/* Quick Action Footer */}
           <div
             style={{
-              marginTop: '12px',
-              paddingTop: '10px',
+              marginTop: '8px',
+              paddingTop: '8px',
               borderTop: '1px solid #f1f5f9',
               display: 'flex',
               justifyContent: 'space-between',
@@ -386,11 +387,11 @@ export const CustomDatePicker = ({
                 background: 'transparent',
                 border: 'none',
                 color: '#27367f',
-                fontSize: '12px',
+                fontSize: '11px',
                 fontWeight: 700,
                 cursor: 'pointer',
-                padding: '3px 6px',
-                borderRadius: '5px'
+                padding: '2px 5px',
+                borderRadius: '4px'
               }}
               onMouseOver={(e) => e.currentTarget.style.background = '#e0e7ff'}
               onMouseOut={(e) => e.currentTarget.style.background = 'transparent'}
@@ -405,11 +406,11 @@ export const CustomDatePicker = ({
                 background: '#f8fafc',
                 border: '1px solid #cbd5e1',
                 color: '#475569',
-                fontSize: '11.5px',
+                fontSize: '11px',
                 fontWeight: 600,
                 cursor: 'pointer',
-                padding: '4px 10px',
-                borderRadius: '6px'
+                padding: '3px 8px',
+                borderRadius: '5px'
               }}
             >
               Close

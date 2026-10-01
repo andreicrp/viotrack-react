@@ -22,9 +22,13 @@ export const Modal = ({ isOpen, onClose, title, children, maxWidth = '600px', ic
     <div
       className="modal-overlay"
       onClick={onClose}
+      role="presentation"
     >
       <div
         className="modal-dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-label={typeof title === 'string' ? title : 'Dialog Modal'}
         style={{
           maxWidth,
           animation: 'fadeInUp 0.15s ease-out'
@@ -33,12 +37,15 @@ export const Modal = ({ isOpen, onClose, title, children, maxWidth = '600px', ic
       >
         <div className="modal-header">
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            {Icon && <Icon size={18} color="#07345f" />}
             <h3 style={{ fontSize: '16px', fontWeight: 800, color: '#0f172a', margin: 0, letterSpacing: '-0.01em' }}>
               {title}
             </h3>
           </div>
           <button
+            type="button"
             onClick={onClose}
+            aria-label="Close dialog modal"
             style={{
               background: '#f1f5f9',
               border: 'none',

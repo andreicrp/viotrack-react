@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useDeferredValue } from 'react';
 import { dataService } from '../services/dataService';
 import { AddViolationModal } from '../components/violations/AddViolationModal';
 import { BulkViolationModal } from '../components/violations/BulkViolationModal';
@@ -45,6 +45,7 @@ export const ViolationsPage = () => {
 
   // Filters & Search
   const [searchTerm, setSearchTerm] = useState('');
+  const deferredSearch = useDeferredValue(searchTerm);
   const [statusFilter, setStatusFilter] = useState('all'); // 'all' | 'pending' | 'investigation' | 'resolved' | 'escalated'
   const [severityFilter, setSeverityFilter] = useState('all'); // 'all' | 'minor' | 'serious' | 'major'
   const [gradeFilter, setGradeFilter] = useState('all');
@@ -83,13 +84,25 @@ export const ViolationsPage = () => {
     }
   };
 
-  // Metric Analytics
+  // Metric Analytics - optimized single-pass calculation
   const stats = useMemo(() => {
     const total = records.length;
-    const pending = records.filter(r => (r.status || '').toLowerCase() === 'pending').length;
-    const investigation = records.filter(r => (r.status || '').toLowerCase() === 'investigation').length;
-    const resolved = records.filter(r => (r.status || '').toLowerCase() === 'resolved').length;
-    const majorCount = records.filter(r => (r.violation?.type || '').toLowerCase() === 'major').length;
+    let pending = 0;
+    let investigation = 0;
+    let resolved = 0;
+    let majorCount = 0;
+
+    for (let i = 0; i < total; i++) {
+      const r = records[i];
+      const st = (r.status || '').toLowerCase();
+      if (st === 'pending') pending++;
+      else if (st === 'investigation') investigation++;
+      else if (st === 'resolved') resolved++;
+
+      if ((r.violation?.type || '').toLowerCase() === 'major') {
+        majorCount++;
+      }
+    }
 
     return { total, pending, investigation, resolved, majorCount };
   }, [records]);
@@ -104,43 +117,44 @@ export const ViolationsPage = () => {
     }
   };
 
-  // Filtered and Sorted Records
+  // Filtered and Sorted Records with deferred search
   const filteredAndSortedRecords = useMemo(() => {
+    const query = deferredSearch.toLowerCase().trim();
+    const isAllStatus = statusFilter === 'all';
+    const isAllSeverity = severityFilter === 'all';
+    const isAllGrade = gradeFilter === 'all';
+    const targetStatus = statusFilter.toLowerCase();
+    const targetSeverity = severityFilter.toLowerCase();
+    const targetGrade = gradeFilter.toLowerCase();
+
     // 1. Filter
     const result = records.filter(r => {
+      const status = (r.status || '').toLowerCase();
+      if (!isAllStatus && status !== targetStatus) return false;
+
+      const vType = (r.violation?.type || '').toLowerCase();
+      if (!isAllSeverity && vType !== targetSeverity) return false;
+
       const student = r.student || {};
+      const sGrade = (student.grade || '').toLowerCase();
+      if (!isAllGrade && sGrade !== targetGrade) return false;
+
+      if (!query) return true;
+
       const sName = `${student.fname || ''} ${student.lname || ''}`.toLowerCase();
       const sLrn = (student.lrn || '').toLowerCase();
-      const sGrade = (student.grade || '').toLowerCase();
       const sSection = (student.section || '').toLowerCase();
       const vTitle = (r.violation?.title || '').toLowerCase();
-      const vType = (r.violation?.type || '').toLowerCase();
-      const status = (r.status || '').toLowerCase();
-      const query = searchTerm.toLowerCase().trim();
 
-      const matchesSearch =
-        !query ||
+      return (
         sName.includes(query) ||
         sLrn.includes(query) ||
         sGrade.includes(query) ||
         sSection.includes(query) ||
         vTitle.includes(query) ||
         vType.includes(query) ||
-        status.includes(query);
-
-      const matchesStatus =
-        statusFilter === 'all' ||
-        status === statusFilter.toLowerCase();
-
-      const matchesSeverity =
-        severityFilter === 'all' ||
-        vType === severityFilter.toLowerCase();
-
-      const matchesGrade =
-        gradeFilter === 'all' ||
-        sGrade === gradeFilter.toLowerCase();
-
-      return matchesSearch && matchesStatus && matchesSeverity && matchesGrade;
+        status.includes(query)
+      );
     });
 
     // 2. Sort
@@ -172,7 +186,7 @@ export const ViolationsPage = () => {
     });
 
     return result;
-  }, [records, searchTerm, statusFilter, severityFilter, gradeFilter, sortField, sortOrder]);
+  }, [records, deferredSearch, statusFilter, severityFilter, gradeFilter, sortField, sortOrder]);
 
   // Bulk Selection Handlers
   const handleSelectAll = (e) => {
@@ -328,28 +342,28 @@ export const ViolationsPage = () => {
     const s = (st || '').toLowerCase();
     if (s === 'resolved') {
       return (
-        <span style={{ background: '#f0fdf4', color: '#166534', border: '1px solid #bbf7d0', padding: '3px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-          <CheckCircle2 size={12} color="#16a34a" strokeWidth={2.2} /> Resolved
+        <span style={{ background: '#ecfdf5', color: '#065f46', border: '1px solid #a7f3d0', padding: '3.5px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+          <CheckCircle2 size={12} color="#059669" strokeWidth={2.4} /> Resolved
         </span>
       );
     }
     if (s === 'investigation') {
       return (
-        <span style={{ background: '#fffbeb', color: '#b45309', border: '1px solid #fde68a', padding: '3px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-          <Search size={12} color="#d97706" strokeWidth={2.2} /> In Review
+        <span style={{ background: '#fffbeb', color: '#92400e', border: '1px solid #fde68a', padding: '3.5px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+          <Search size={12} color="#d97706" strokeWidth={2.4} /> In Review
         </span>
       );
     }
     if (s === 'escalated') {
       return (
-        <span style={{ background: '#f5f3ff', color: '#6d28d9', border: '1px solid #ddd6fe', padding: '3px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-          <AlertCircle size={12} color="#7c3aed" strokeWidth={2.2} /> Escalated
+        <span style={{ background: '#f5f3ff', color: '#5b21b6', border: '1px solid #ddd6fe', padding: '3.5px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+          <AlertCircle size={12} color="#7c3aed" strokeWidth={2.4} /> Escalated
         </span>
       );
     }
     return (
-      <span style={{ background: '#fef2f2', color: '#b91c1c', border: '1px solid #fecaca', padding: '3px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-        <Clock size={12} color="#dc2626" strokeWidth={2.2} /> Pending
+      <span style={{ background: '#fef2f2', color: '#991b1b', border: '1px solid #fecaca', padding: '3.5px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+        <Clock size={12} color="#dc2626" strokeWidth={2.4} /> Pending
       </span>
     );
   };
@@ -358,21 +372,21 @@ export const ViolationsPage = () => {
     const t = (ty || '').toLowerCase();
     if (t === 'major') {
       return (
-        <span style={{ background: '#fee2e2', color: '#991b1b', border: '1px solid #fecaca', padding: '3px 9px', borderRadius: '6px', fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+        <span style={{ background: '#fef2f2', color: '#991b1b', border: '1px solid #fecaca', padding: '3px 9px', borderRadius: '6px', fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
           <ShieldAlert size={12} color="#dc2626" strokeWidth={2.2} /> Major
         </span>
       );
     }
     if (t === 'serious') {
       return (
-        <span style={{ background: '#ffedd5', color: '#9a3412', border: '1px solid #fed7aa', padding: '3px 9px', borderRadius: '6px', fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+        <span style={{ background: '#fff7ed', color: '#9a3412', border: '1px solid #fed7aa', padding: '3px 9px', borderRadius: '6px', fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
           <AlertTriangle size={12} color="#ea580c" strokeWidth={2.2} /> Serious
         </span>
       );
     }
     return (
-      <span style={{ background: '#eff6ff', color: '#1d4ed8', border: '1px solid #bfdbfe', padding: '3px 9px', borderRadius: '6px', fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-        Minor
+      <span style={{ background: '#ecfdf5', color: '#065f46', border: '1px solid #a7f3d0', padding: '3px 9px', borderRadius: '6px', fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+        <CheckCircle2 size={12} color="#059669" strokeWidth={2.2} /> Minor
       </span>
     );
   };
@@ -482,7 +496,7 @@ export const ViolationsPage = () => {
                 Total logged records
               </div>
             </div>
-            <ShieldAlert size={20} color="#07345f" strokeWidth={2} />
+            <ShieldAlert size={20} color="#1f2937" strokeWidth={2} />
           </div>
           {statusFilter === 'all' && severityFilter === 'all' && (
             <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 2.5, background: '#07345f' }}></div>
@@ -496,7 +510,7 @@ export const ViolationsPage = () => {
             background: '#ffffff',
             borderRadius: '10px',
             padding: '12px 14px',
-            border: statusFilter === 'pending' ? '2px solid #dc2626' : '1px solid #e2e8f0',
+            border: statusFilter === 'pending' ? '2px solid #07345f' : '1px solid #e2e8f0',
             boxShadow: '0 1px 4px rgba(0,0,0,0.02)',
             cursor: 'pointer',
             transition: 'all 0.2s',
@@ -509,17 +523,17 @@ export const ViolationsPage = () => {
               <div style={{ fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.03em' }}>
                 Pending Action
               </div>
-              <div style={{ fontSize: '20px', fontWeight: 800, color: stats.pending > 0 ? '#dc2626' : '#0f172a', marginTop: '2px' }}>
+              <div style={{ fontSize: '20px', fontWeight: 800, color: '#1f2937', marginTop: '2px' }}>
                 {stats.pending}
               </div>
-              <div style={{ fontSize: '10px', color: '#dc2626', marginTop: '2px', fontWeight: 600 }}>
+              <div style={{ fontSize: '10px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
                 Awaiting resolution
               </div>
             </div>
-            <Clock size={20} color="#dc2626" strokeWidth={2} />
+            <Clock size={20} color="#1f2937" strokeWidth={2} />
           </div>
           {statusFilter === 'pending' && (
-            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 2.5, background: '#dc2626' }}></div>
+            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 2.5, background: '#07345f' }}></div>
           )}
         </div>
 
@@ -530,7 +544,7 @@ export const ViolationsPage = () => {
             background: '#ffffff',
             borderRadius: '10px',
             padding: '12px 14px',
-            border: statusFilter === 'investigation' ? '2px solid #d97706' : '1px solid #e2e8f0',
+            border: statusFilter === 'investigation' ? '2px solid #07345f' : '1px solid #e2e8f0',
             boxShadow: '0 1px 4px rgba(0,0,0,0.02)',
             cursor: 'pointer',
             transition: 'all 0.2s',
@@ -543,17 +557,17 @@ export const ViolationsPage = () => {
               <div style={{ fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.03em' }}>
                 Investigation
               </div>
-              <div style={{ fontSize: '20px', fontWeight: 800, color: stats.investigation > 0 ? '#d97706' : '#0f172a', marginTop: '2px' }}>
+              <div style={{ fontSize: '20px', fontWeight: 800, color: '#1f2937', marginTop: '2px' }}>
                 {stats.investigation}
               </div>
-              <div style={{ fontSize: '10px', color: '#d97706', marginTop: '2px', fontWeight: 600 }}>
+              <div style={{ fontSize: '10px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
                 Under active review
               </div>
             </div>
-            <Search size={20} color="#d97706" strokeWidth={2} />
+            <Search size={20} color="#1f2937" strokeWidth={2} />
           </div>
           {statusFilter === 'investigation' && (
-            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 2.5, background: '#d97706' }}></div>
+            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 2.5, background: '#07345f' }}></div>
           )}
         </div>
 
@@ -564,7 +578,7 @@ export const ViolationsPage = () => {
             background: '#ffffff',
             borderRadius: '10px',
             padding: '12px 14px',
-            border: statusFilter === 'resolved' ? '2px solid #059669' : '1px solid #e2e8f0',
+            border: statusFilter === 'resolved' ? '2px solid #07345f' : '1px solid #e2e8f0',
             boxShadow: '0 1px 4px rgba(0,0,0,0.02)',
             cursor: 'pointer',
             transition: 'all 0.2s',
@@ -577,17 +591,17 @@ export const ViolationsPage = () => {
               <div style={{ fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.03em' }}>
                 Resolved Cases
               </div>
-              <div style={{ fontSize: '20px', fontWeight: 800, color: '#059669', marginTop: '2px' }}>
+              <div style={{ fontSize: '20px', fontWeight: 800, color: '#1f2937', marginTop: '2px' }}>
                 {stats.resolved}
               </div>
-              <div style={{ fontSize: '10px', color: '#059669', marginTop: '2px', fontWeight: 600 }}>
+              <div style={{ fontSize: '10px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
                 Documented & closed
               </div>
             </div>
-            <ShieldCheck size={20} color="#059669" strokeWidth={2} />
+            <ShieldCheck size={20} color="#1f2937" strokeWidth={2} />
           </div>
           {statusFilter === 'resolved' && (
-            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 2.5, background: '#059669' }}></div>
+            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 2.5, background: '#07345f' }}></div>
           )}
         </div>
       </div>
@@ -1426,6 +1440,7 @@ export const ViolationsPage = () => {
 
         {/* Pagination Footer */}
         <div
+          className="pagination-footer-responsive table-footer"
           style={{
             padding: '16px 24px',
             borderTop: '1px solid #f1f5f9',
@@ -1450,7 +1465,7 @@ export const ViolationsPage = () => {
             of <strong style={{ color: '#0f172a' }}>{filteredAndSortedRecords.length}</strong> records
           </div>
 
-          <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+          <div className="pagination-btn-group" style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
             <button
               onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
               disabled={currentPage === 1}

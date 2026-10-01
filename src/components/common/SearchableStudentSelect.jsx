@@ -1,14 +1,33 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Search, ChevronDown, Check, X, User } from 'lucide-react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
+import { Search, ChevronDown, Check, X, Users, UserPlus } from 'lucide-react';
 
-export const SearchableStudentSelect = ({ students = [], value, onChange, placeholder = "-- Choose Student from Directory --" }) => {
+export const SearchableStudentSelect = ({
+  students = [],
+  value,
+  onChange,
+  isMulti = true,
+  placeholder = "-- Search and choose student(s) --"
+}) => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [gradeFilter, setGradeFilter] = useState('all');
   const dropdownRef = useRef(null);
   const searchInputRef = useRef(null);
 
-  const selectedItem = students.find(s => String(s.id) === String(value));
+  // Normalize selected IDs to a Set for O(1) membership checks
+  const selectedIds = Array.isArray(value)
+    ? value.map(id => Number(id))
+    : value
+    ? [Number(value)]
+    : [];
 
+  const selectedSet = useMemo(() => new Set(selectedIds), [selectedIds]);
+
+  const selectedStudents = useMemo(() => {
+    return students.filter(s => selectedSet.has(Number(s.id)));
+  }, [students, selectedSet]);
+
+  // Close when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -19,6 +38,7 @@ export const SearchableStudentSelect = ({ students = [], value, onChange, placeh
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  // Auto-focus search input when opened
   useEffect(() => {
     if (isOpen && searchInputRef.current) {
       setTimeout(() => {
@@ -27,79 +47,144 @@ export const SearchableStudentSelect = ({ students = [], value, onChange, placeh
     }
   }, [isOpen]);
 
-  const handleSelect = (item) => {
-    onChange(item.id);
-    setIsOpen(false);
-    setSearchQuery('');
+  const handleToggle = (student) => {
+    const sid = Number(student.id);
+    if (!isMulti) {
+      onChange(sid);
+      setIsOpen(false);
+      setSearchQuery('');
+      return;
+    }
+
+    if (selectedSet.has(sid)) {
+      const next = selectedIds.filter(id => id !== sid);
+      onChange(next);
+    } else {
+      const next = [...selectedIds, sid];
+      onChange(next);
+    }
   };
 
-  const handleClear = (e) => {
+  const handleRemove = (e, sid) => {
     e.stopPropagation();
-    onChange('');
+    if (!isMulti) {
+      onChange('');
+      return;
+    }
+    const next = selectedIds.filter(id => id !== Number(sid));
+    onChange(next);
   };
 
-  const filtered = students.filter(s => {
+  const handleClearAll = (e) => {
+    e.stopPropagation();
+    onChange(isMulti ? [] : '');
+  };
+
+  // High performance memoized filter
+  const filtered = useMemo(() => {
     const query = searchQuery.toLowerCase().trim();
-    if (!query) return true;
-    const name = `${s.fname} ${s.lname}`.toLowerCase();
-    const lrn = (s.lrn || '').toLowerCase();
-    const grade = (s.grade || '').toLowerCase();
-    const section = (s.section || '').toLowerCase();
-    return name.includes(query) || lrn.includes(query) || grade.includes(query) || section.includes(query);
-  });
+    const isAllGrade = gradeFilter === 'all';
+    const targetGrade = gradeFilter.toLowerCase();
+
+    if (!query && isAllGrade) {
+      return students;
+    }
+
+    return students.filter(s => {
+      const name = `${s.fname || ''} ${s.lname || ''}`.toLowerCase();
+      const lrn = (s.lrn || '').toLowerCase();
+      const grade = (s.grade || '').toLowerCase();
+      const section = (s.section || '').toLowerCase();
+
+      const matchesQuery = !query || name.includes(query) || lrn.includes(query) || grade.includes(query) || section.includes(query);
+      const matchesGrade = isAllGrade || grade === targetGrade;
+
+      return matchesQuery && matchesGrade;
+    });
+  }, [students, searchQuery, gradeFilter]);
+
+  // Window top 50 to render in sub-millisecond time for 10,000+ records
+  const visibleStudents = useMemo(() => {
+    return filtered.slice(0, 50);
+  }, [filtered]);
+
+  const handleSelectAllFiltered = () => {
+    const filteredIds = filtered.map(s => Number(s.id));
+    const allAreSelected = filteredIds.length > 0 && filteredIds.every(id => selectedSet.has(id));
+
+    if (allAreSelected) {
+      const filteredSet = new Set(filteredIds);
+      const next = selectedIds.filter(id => !filteredSet.has(id));
+      onChange(next);
+    } else {
+      const next = Array.from(new Set([...selectedIds, ...filteredIds]));
+      onChange(next);
+    }
+  };
 
   return (
     <div ref={dropdownRef} style={{ position: 'relative', width: '100%', userSelect: 'none' }}>
       
-      {/* Trigger Box */}
+      {/* Dropdown Trigger Box */}
       <div
         onClick={() => setIsOpen(!isOpen)}
         style={{
           width: '100%',
           boxSizing: 'border-box',
-          minHeight: '42px',
-          padding: '8px 12px',
+          minHeight: '38px',
+          padding: '6px 10px',
           background: '#ffffff',
-          border: isOpen ? '2px solid #27367f' : '1.5px solid #cbd5e1',
-          borderRadius: '10px',
+          border: isOpen ? '1.5px solid #0f172a' : '1px solid #cbd5e1',
+          borderRadius: '8px',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
           cursor: 'pointer',
-          boxShadow: isOpen ? '0 0 0 3px rgba(39, 54, 127, 0.1)' : 'none',
-          transition: 'all 0.15s ease'
+          boxShadow: isOpen ? '0 0 0 2px rgba(15, 23, 42, 0.08)' : 'none',
+          transition: 'all 0.15s ease',
+          gap: '8px'
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', overflow: 'hidden', flex: 1 }}>
-          {selectedItem ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', overflow: 'hidden' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', overflow: 'hidden', flex: 1, minWidth: 0 }}>
+          {selectedStudents.length === 0 ? (
+            <span style={{ fontSize: '13px', color: '#94a3b8', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {placeholder}
+            </span>
+          ) : !isMulti ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', overflow: 'hidden' }}>
               <img
                 src={
-                  selectedItem.image ||
-                  `https://ui-avatars.com/api/?name=${encodeURIComponent(selectedItem.fname + ' ' + selectedItem.lname)}&background=27367f&color=fff&size=50`
+                  selectedStudents[0].image ||
+                  `https://ui-avatars.com/api/?name=${encodeURIComponent(selectedStudents[0].fname + ' ' + selectedStudents[0].lname)}&background=0f172a&color=fff&size=50`
                 }
-                alt={selectedItem.fname}
-                style={{ width: 24, height: 24, borderRadius: '50%', objectFit: 'cover' }}
+                alt={selectedStudents[0].fname}
+                style={{ width: 22, height: 22, borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }}
               />
-              <span style={{ fontSize: '13.5px', fontWeight: 600, color: '#0f172a' }}>
-                {selectedItem.lname}, {selectedItem.fname}
+              <span style={{ fontSize: '13px', fontWeight: 600, color: '#0f172a', whiteSpace: 'nowrap' }}>
+                {selectedStudents[0].lname}, {selectedStudents[0].fname}
               </span>
-              <span style={{ fontSize: '12px', color: '#64748b' }}>
-                ({selectedItem.grade} - {selectedItem.section} | LRN: {selectedItem.lrn})
+              <span style={{ fontSize: '11.5px', color: '#64748b', whiteSpace: 'nowrap' }}>
+                ({selectedStudents[0].grade} - {selectedStudents[0].section})
               </span>
             </div>
           ) : (
-            <span style={{ fontSize: '13.5px', color: '#94a3b8', fontWeight: 500 }}>
-              {placeholder}
-            </span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', overflow: 'hidden', minWidth: 0 }}>
+              <Users size={15} color="#0f172a" style={{ flexShrink: 0 }} />
+              <span style={{ fontSize: '13px', fontWeight: 600, color: '#0f172a', whiteSpace: 'nowrap' }}>
+                {selectedStudents.length} {selectedStudents.length === 1 ? 'Student selected' : 'Students selected'}
+              </span>
+              <span style={{ fontSize: '11px', color: '#94a3b8', whiteSpace: 'nowrap' }}>
+                — tap to edit
+              </span>
+            </div>
           )}
         </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
-          {selectedItem && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', flexShrink: 0 }}>
+          {selectedStudents.length > 0 && (
             <button
               type="button"
-              onClick={handleClear}
+              onClick={handleClearAll}
               style={{
                 background: '#f1f5f9',
                 border: 'none',
@@ -110,15 +195,17 @@ export const SearchableStudentSelect = ({ students = [], value, onChange, placeh
                 alignItems: 'center',
                 justifyContent: 'center',
                 color: '#64748b',
-                cursor: 'pointer'
+                cursor: 'pointer',
+                transition: 'all 0.15s ease',
+                padding: 0
               }}
-              title="Clear selection"
+              title="Clear all"
             >
               <X size={12} />
             </button>
           )}
           <ChevronDown
-            size={16}
+            size={15}
             color="#64748b"
             style={{
               transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
@@ -128,104 +215,286 @@ export const SearchableStudentSelect = ({ students = [], value, onChange, placeh
         </div>
       </div>
 
+      {/* Selected Student Chips Tray (Compact & Scrollable) */}
+      {isMulti && selectedStudents.length > 0 && (
+        <div
+          style={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            gap: '5px',
+            marginTop: '6px',
+            maxHeight: '96px',
+            overflowY: 'auto',
+            padding: '6px 8px',
+            background: '#f8fafc',
+            border: '1px solid #e2e8f0',
+            borderRadius: '8px'
+          }}
+        >
+          {selectedStudents.map(student => (
+            <div
+              key={student.id}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '5px',
+                background: '#ffffff',
+                border: '1px solid #cbd5e1',
+                borderRadius: '6px',
+                padding: '2px 6px 2px 4px',
+                boxShadow: '0 1px 2px rgba(0,0,0,0.03)'
+              }}
+            >
+              <img
+                src={
+                  student.image ||
+                  `https://ui-avatars.com/api/?name=${encodeURIComponent(student.fname + ' ' + student.lname)}&background=0f172a&color=fff&size=40`
+                }
+                alt={student.fname}
+                style={{ width: 18, height: 18, borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }}
+              />
+              <span style={{ fontSize: '11.5px', fontWeight: 600, color: '#0f172a', whiteSpace: 'nowrap' }}>
+                {student.fname} {student.lname}
+              </span>
+              <span style={{ fontSize: '10.5px', color: '#64748b', whiteSpace: 'nowrap' }}>
+                ({student.grade}-{student.section})
+              </span>
+              <button
+                type="button"
+                onClick={(e) => handleRemove(e, student.id)}
+                style={{
+                  background: 'transparent',
+                  border: 'none',
+                  borderRadius: '50%',
+                  width: '14px',
+                  height: '14px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#94a3b8',
+                  cursor: 'pointer',
+                  padding: 0
+                }}
+                title={`Remove ${student.fname}`}
+              >
+                <X size={10} />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
+
       {/* Floating Searchable Menu Panel */}
       {isOpen && (
         <div
           style={{
             position: 'absolute',
-            top: 'calc(100% + 6px)',
+            top: 'calc(100% + 4px)',
             left: 0,
             right: 0,
             background: '#ffffff',
-            borderRadius: '14px',
+            borderRadius: '10px',
             border: '1px solid #cbd5e1',
-            boxShadow: '0 15px 35px -5px rgba(0, 0, 0, 0.2), 0 5px 15px rgba(0,0,0,0.08)',
+            boxShadow: '0 12px 30px -5px rgba(0, 0, 0, 0.2)',
             zIndex: 9999,
             overflow: 'hidden',
             display: 'flex',
             flexDirection: 'column',
-            maxHeight: '300px',
+            maxHeight: '320px',
             animation: 'fadeInUp 0.15s ease-out'
           }}
         >
-          {/* Search Header */}
-          <div style={{ padding: '10px', background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
+          {/* Search & Filter Header */}
+          <div style={{ padding: '8px 10px', background: '#f8fafc', borderBottom: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '6px' }}>
             <div style={{ position: 'relative', width: '100%' }}>
               <input
                 ref={searchInputRef}
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search student by name, 12-digit LRN, grade..."
+                placeholder="Search by name, LRN, section..."
                 style={{
                   width: '100%',
                   boxSizing: 'border-box',
-                  padding: '8px 12px 8px 32px',
-                  borderRadius: '8px',
-                  border: '1.5px solid #cbd5e1',
-                  fontSize: '12.5px',
+                  padding: '6px 10px 6px 28px',
+                  borderRadius: '6px',
+                  border: '1px solid #cbd5e1',
+                  fontSize: '12px',
                   outline: 'none',
                   color: '#0f172a',
                   background: '#ffffff',
                   fontFamily: 'inherit'
                 }}
               />
-              <Search size={14} color="#94a3b8" style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)' }} />
+              <Search size={13} color="#94a3b8" style={{ position: 'absolute', left: 8, top: '50%', transform: 'translateY(-50%)' }} />
+              {searchQuery && (
+                <button
+                  type="button"
+                  onClick={() => setSearchQuery('')}
+                  style={{
+                    position: 'absolute',
+                    right: 6,
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'transparent',
+                    border: 'none',
+                    color: '#94a3b8',
+                    cursor: 'pointer'
+                  }}
+                >
+                  <X size={11} />
+                </button>
+              )}
+            </div>
+
+            {/* Quick Filter Bar */}
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '4px', flexWrap: 'wrap' }}>
+              <div style={{ display: 'flex', gap: '3px', flexWrap: 'wrap' }}>
+                {['all', 'Grade 7', 'Grade 8', 'Grade 9', 'Grade 10', 'Grade 11', 'Grade 12'].map(g => (
+                  <button
+                    type="button"
+                    key={g}
+                    onClick={() => setGradeFilter(g)}
+                    style={{
+                      padding: '2px 5px',
+                      borderRadius: '4px',
+                      border: gradeFilter === g ? '1px solid #0f172a' : '1px solid #e2e8f0',
+                      background: gradeFilter === g ? '#0f172a' : '#ffffff',
+                      color: gradeFilter === g ? '#ffffff' : '#64748b',
+                      fontSize: '10px',
+                      fontWeight: 600,
+                      cursor: 'pointer'
+                    }}
+                  >
+                    {g === 'all' ? 'All' : g.replace('Grade ', 'G')}
+                  </button>
+                ))}
+              </div>
+
+              {isMulti && filtered.length > 0 && (
+                <button
+                  type="button"
+                  onClick={handleSelectAllFiltered}
+                  style={{
+                    fontSize: '10.5px',
+                    fontWeight: 600,
+                    color: '#0f172a',
+                    background: '#e2e8f0',
+                    border: 'none',
+                    borderRadius: '4px',
+                    padding: '2px 6px',
+                    cursor: 'pointer'
+                  }}
+                >
+                  {filtered.every(s => selectedIds.includes(Number(s.id))) ? 'Deselect All' : 'Select Filtered'}
+                </button>
+              )}
             </div>
           </div>
 
           {/* Student List */}
-          <div style={{ overflowY: 'auto', flex: 1, padding: '6px' }}>
+          <div style={{ overflowY: 'auto', flex: 1, padding: '4px' }}>
             {filtered.length === 0 ? (
-              <div style={{ padding: '20px', textAlign: 'center', color: '#64748b', fontSize: '13px' }}>
-                No students found matching "<strong>{searchQuery}</strong>".
+              <div style={{ padding: '16px 12px', textAlign: 'center', color: '#64748b', fontSize: '12px' }}>
+                No students found.
               </div>
             ) : (
-              filtered.map(s => {
-                const isSelected = String(s.id) === String(value);
-                return (
-                  <div
-                    key={s.id}
-                    onClick={() => handleSelect(s)}
-                    style={{
-                      padding: '8px 10px',
-                      borderRadius: '8px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      cursor: 'pointer',
-                      background: isSelected ? '#eff6ff' : 'transparent',
-                      border: isSelected ? '1px solid #bfdbfe' : '1px solid transparent',
-                      marginBottom: '2px',
-                      transition: 'all 0.12s ease'
-                    }}
-                    onMouseOver={(e) => { if (!isSelected) e.currentTarget.style.background = '#f8fafc'; }}
-                    onMouseOut={(e) => { if (!isSelected) e.currentTarget.style.background = 'transparent'; }}
-                  >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                      <img
-                        src={
-                          s.image ||
-                          `https://ui-avatars.com/api/?name=${encodeURIComponent(s.fname + ' ' + s.lname)}&background=27367f&color=fff&size=50`
-                        }
-                        alt={s.fname}
-                        style={{ width: 32, height: 32, borderRadius: '50%', objectFit: 'cover' }}
-                      />
-                      <div>
-                        <div style={{ fontSize: '13px', fontWeight: isSelected ? 700 : 600, color: isSelected ? '#1e40af' : '#0f172a' }}>
-                          {s.fname} {s.lname}
-                        </div>
-                        <div style={{ fontSize: '11.5px', color: '#64748b' }}>
-                          LRN: {s.lrn} • {s.grade} - {s.section}
+              <>
+                {visibleStudents.map(s => {
+                  const isSelected = selectedSet.has(Number(s.id));
+                  return (
+                    <div
+                      key={s.id}
+                      onClick={() => handleToggle(s)}
+                      style={{
+                        padding: '6px 8px',
+                        borderRadius: '6px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        cursor: 'pointer',
+                        background: isSelected ? '#f1f5f9' : 'transparent',
+                        border: isSelected ? '1px solid #cbd5e1' : '1px solid transparent',
+                        marginBottom: '2px',
+                        transition: 'all 0.12s ease'
+                      }}
+                      onMouseOver={(e) => { if (!isSelected) e.currentTarget.style.background = '#f8fafc'; }}
+                      onMouseOut={(e) => { if (!isSelected) e.currentTarget.style.background = 'transparent'; }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        {isMulti ? (
+                          <div
+                            style={{
+                              width: 16,
+                              height: 16,
+                              borderRadius: '3px',
+                              border: isSelected ? '1.5px solid #0f172a' : '1.5px solid #cbd5e1',
+                              background: isSelected ? '#0f172a' : '#ffffff',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              flexShrink: 0
+                            }}
+                          >
+                            {isSelected && <Check size={11} color="#ffffff" strokeWidth={3} />}
+                          </div>
+                        ) : null}
+
+                        <img
+                          src={
+                            s.image ||
+                            `https://ui-avatars.com/api/?name=${encodeURIComponent(s.fname + ' ' + s.lname)}&background=0f172a&color=fff&size=50`
+                          }
+                          alt={s.fname}
+                          style={{ width: 24, height: 24, borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }}
+                        />
+                        <div>
+                          <div style={{ fontSize: '12.5px', fontWeight: isSelected ? 700 : 600, color: '#0f172a' }}>
+                            {s.fname} {s.lname}
+                          </div>
+                          <div style={{ fontSize: '11px', color: '#64748b' }}>
+                            LRN: {s.lrn} • {s.grade} - {s.section}
+                          </div>
                         </div>
                       </div>
+
+                      {!isMulti && isSelected && <Check size={14} color="#0f172a" strokeWidth={2.5} />}
                     </div>
-                    {isSelected && <Check size={14} color="#2563eb" />}
+                  );
+                })}
+                {filtered.length > 50 && (
+                  <div style={{ padding: '6px 8px', textAlign: 'center', fontSize: '11px', color: '#64748b', background: '#f8fafc', borderRadius: '6px', margin: '4px 0' }}>
+                    Showing top 50 of {filtered.length.toLocaleString()} matching students. Type to narrow search.
                   </div>
-                );
-              })
+                )}
+              </>
             )}
           </div>
+
+          {/* Bottom Bar */}
+          {isMulti && (
+            <div style={{ padding: '6px 10px', background: '#f8fafc', borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '11px', color: '#64748b', fontWeight: 500 }}>
+                {selectedIds.length} {selectedIds.length === 1 ? 'student' : 'students'} chosen
+              </span>
+              <button
+                type="button"
+                onClick={() => setIsOpen(false)}
+                style={{
+                  background: '#0f172a',
+                  color: '#ffffff',
+                  border: 'none',
+                  borderRadius: '5px',
+                  padding: '4px 12px',
+                  fontSize: '11.5px',
+                  fontWeight: 600,
+                  cursor: 'pointer'
+                }}
+              >
+                Done
+              </button>
+            </div>
+          )}
         </div>
       )}
     </div>

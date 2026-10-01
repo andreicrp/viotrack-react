@@ -204,7 +204,144 @@ const INITIAL_LOGS = [
   { id: 3, user_name: 'System Admin', user_role: 'admin', action: 'Status Update', details: 'Marked Record #1 as Resolved', created_at: new Date(Date.now() - 18000000).toISOString() }
 ];
 
-// Local Storage Helper
+const INITIAL_SCHOOL_EVENTS = [
+  {
+    id: 1,
+    title: 'Faculty General Assembly',
+    date: '2026-09-24',
+    time: '09:00 AM – 11:00 AM',
+    location: 'Main Auditorium / Hall A',
+    category: 'faculty',
+    categoryLabel: 'Faculty Meeting',
+    color: '#10b981',
+    description: 'Monthly institutional coordination meeting with Class Advisers, Guidance Counselors, and Academic Chairs.',
+    attendees: 'All Faculty & Staff'
+  },
+  {
+    id: 2,
+    title: 'Submission of Disciplinary & Attendance Reports',
+    date: '2026-09-30',
+    time: '01:00 PM – 03:00 PM',
+    location: 'Discipline Office / Room 204',
+    category: 'disciplinary',
+    categoryLabel: 'Disciplinary',
+    color: '#ef4444',
+    description: 'Submission deadline for Monthly Conduct Summary, unresolved major infraction dossiers, and adviser referrals.',
+    attendees: 'Class Advisers & Prefects'
+  },
+  {
+    id: 3,
+    title: 'Student Conduct & Values Re-orientation',
+    date: '2026-09-15',
+    time: '10:00 AM – 12:00 PM',
+    location: 'AVR 1 (Audio-Visual Room)',
+    category: 'disciplinary',
+    categoryLabel: 'Disciplinary',
+    color: '#ef4444',
+    description: 'Orientation session for students with repeat minor infractions focusing on campus policies and restorative guidelines.',
+    attendees: 'Referred Students & Guardians'
+  },
+  {
+    id: 4,
+    title: 'First Quarter Examination Week',
+    date: '2026-09-18',
+    time: '08:00 AM – 04:00 PM',
+    location: 'All Classrooms',
+    category: 'academic',
+    categoryLabel: 'Academic',
+    color: '#07345f',
+    description: 'Quarterly examinations covering all core subject areas for Junior and Senior High School levels.',
+    attendees: 'All Enrolled Students'
+  },
+  {
+    id: 5,
+    title: 'Parents-Teachers Disciplinary Council (PTDC)',
+    date: '2026-09-26',
+    time: '02:00 PM – 04:30 PM',
+    location: 'Conference Hall B',
+    category: 'faculty',
+    categoryLabel: 'Faculty Meeting',
+    color: '#10b981',
+    description: 'Quarterly consultative meeting with PTA representatives on campus security and student wellness protocols.',
+    attendees: 'PTA Officers & Admin Council'
+  },
+  {
+    id: 6,
+    title: 'Midterm Grade Submission & Review',
+    date: '2026-10-05',
+    time: '08:00 AM – 05:00 PM',
+    location: 'Registrar & Faculty Portals',
+    category: 'academic',
+    categoryLabel: 'Academic',
+    color: '#07345f',
+    description: 'Faculty portal deadline for uploading preliminary midterm evaluations.',
+    attendees: 'All Teaching Personnel'
+  },
+  {
+    id: 7,
+    title: 'National Teachers Day Celebration',
+    date: '2026-10-05',
+    time: '01:00 PM – 05:00 PM',
+    location: 'School Gymnasium',
+    category: 'activity',
+    categoryLabel: 'School Event',
+    color: '#8b5cf6',
+    description: 'Campus-wide recognition program honoring educator service and outstanding advisory leadership.',
+    attendees: 'Faculty, Students, Admin'
+  },
+  {
+    id: 8,
+    title: 'Student Leaders Disciplinary Workshop',
+    date: '2026-10-14',
+    time: '09:00 AM – 02:00 PM',
+    location: 'Student Activity Center',
+    category: 'disciplinary',
+    categoryLabel: 'Disciplinary',
+    color: '#ef4444',
+    description: 'Leadership training on peer mediation, bullying prevention, and violation reporting workflows.',
+    attendees: 'SSG & Club Officers'
+  },
+  {
+    id: 9,
+    title: 'School Foundation Week Opening',
+    date: '2026-10-22',
+    time: '07:30 AM – 04:30 PM',
+    location: 'Campus Grounds',
+    category: 'activity',
+    categoryLabel: 'School Event',
+    color: '#8b5cf6',
+    description: 'Annual institutional foundation anniversary festivities, sports matches, and cultural exhibits.',
+    attendees: 'Entire Academic Community'
+  }
+];
+
+// High-Performance In-Memory Cache for 10,000+ Items
+const _memoryCache = {
+  students: null,
+  studentsTimestamp: 0,
+  violations: null,
+  violationsTimestamp: 0,
+  teachers: null,
+  teachersTimestamp: 0,
+  advisers: null,
+  advisersTimestamp: 0,
+  records: null,
+  recordsTimestamp: 0,
+  TTL: 30000 // 30-second hot cache
+};
+
+const invalidateCache = (key) => {
+  if (key) {
+    _memoryCache[key] = null;
+    _memoryCache[`${key}Timestamp`] = 0;
+  } else {
+    Object.keys(_memoryCache).forEach(k => {
+      if (k !== 'TTL') _memoryCache[k] = null;
+    });
+  }
+};
+
+// Local Storage Safe Helper (Handles Quota Exceeded for 10k+ rows)
 const getStored = (key, fallback) => {
   try {
     const data = localStorage.getItem(`viotrack_${key}`);
@@ -218,13 +355,33 @@ const setStored = (key, val) => {
   try {
     localStorage.setItem(`viotrack_${key}`, JSON.stringify(val));
   } catch (err) {
-    console.warn('LocalStorage save failed', err);
+    // If browser localStorage quota (5MB) is exceeded, log warning and rely on in-memory cache
+    console.warn(`LocalStorage quota exceeded or write failed for ${key}, falling back to memory cache:`, err);
   }
 };
 
 export const dataService = {
+  // --- USER CONTEXT HELPER ---
+  getCurrentUser() {
+    try {
+      const saved = localStorage.getItem('viotrack_auth_user');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed?.name) return parsed;
+      }
+    } catch {}
+    return { name: 'System Admin', role: 'admin' };
+  },
+
+  invalidateCache,
+
   // --- STUDENTS ---
-  async getStudents() {
+  async getStudents(forceRefresh = false) {
+    const now = Date.now();
+    if (!forceRefresh && _memoryCache.students && (now - _memoryCache.studentsTimestamp < _memoryCache.TTL)) {
+      return _memoryCache.students;
+    }
+
     let list = [];
     if (isSupabaseConfigured()) {
       const { data, error } = await supabase.from('students').select('*').order('lname', { ascending: true });
@@ -233,6 +390,7 @@ export const dataService = {
     if (!list || list.length === 0) {
       list = getStored('students', INITIAL_STUDENTS);
     }
+
     const maleAvatars = [
       'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150&auto=format&fit=crop&q=80',
       'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
@@ -245,81 +403,175 @@ export const dataService = {
       'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
       'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&auto=format&fit=crop&q=80'
     ];
-    return list.map(s => {
+
+    const initialMap = new Map(INITIAL_STUDENTS.map(init => [init.id, init]));
+    const processed = list.map(s => {
       if (s.image && !s.image.includes('ui-avatars.com')) return s;
-      const seed = INITIAL_STUDENTS.find(init => init.id === s.id || init.lrn === s.lrn);
+      const seed = initialMap.get(s.id);
       if (seed?.image) return { ...s, image: seed.image };
       const pool = (s.gender || '').toLowerCase() === 'female' ? femaleAvatars : maleAvatars;
       const assignedImage = pool[(s.id || 1) % pool.length];
       return { ...s, image: assignedImage };
     });
+
+    _memoryCache.students = processed;
+    _memoryCache.studentsTimestamp = now;
+    return processed;
   },
 
   async addStudent(student) {
+    let result = null;
     if (isSupabaseConfigured()) {
-      const { data, error } = await supabase.from('students').insert([student]).select();
-      if (!error && data?.[0]) return data[0];
+      try {
+        const { data, error } = await supabase.from('students').insert([student]).select();
+        if (!error && data?.[0]) result = data[0];
+      } catch (err) {
+        console.warn('Supabase addStudent error:', err);
+      }
     }
-    const current = getStored('students', INITIAL_STUDENTS);
-    const newStudent = { ...student, id: Date.now(), created_at: new Date().toISOString() };
-    const updated = [newStudent, ...current];
-    setStored('students', updated);
-    this.addActivityLog('Add Student', `Registered student ${student.fname} ${student.lname} (${student.lrn})`);
-    return newStudent;
+    if (!result) {
+      const current = getStored('students', INITIAL_STUDENTS);
+      result = { ...student, id: Date.now(), created_at: new Date().toISOString() };
+      const updated = [result, ...current];
+      setStored('students', updated);
+    }
+    invalidateCache('students');
+    invalidateCache('records');
+    await this.addActivityLog('Add Student', `Enrolled student ${student.fname} ${student.lname} (${student.lrn || 'No LRN'}, ${student.grade || ''} ${student.section || ''})`);
+    return result;
   },
 
   async updateStudent(id, updates) {
+    let result = null;
     if (isSupabaseConfigured()) {
-      const { data, error } = await supabase.from('students').update(updates).eq('id', id).select();
-      if (!error && data?.[0]) return data[0];
+      try {
+        const { data, error } = await supabase.from('students').update(updates).eq('id', id).select();
+        if (!error && data?.[0]) result = data[0];
+      } catch (err) {
+        console.warn('Supabase updateStudent error:', err);
+      }
     }
     const current = getStored('students', INITIAL_STUDENTS);
     const updated = current.map(s => (s.id === Number(id) ? { ...s, ...updates } : s));
     setStored('students', updated);
-    this.addActivityLog('Update Student', `Updated information for student ID #${id}`);
-    return updated.find(s => s.id === Number(id));
+    if (!result) result = updated.find(s => s.id === Number(id));
+    invalidateCache('students');
+    invalidateCache('records');
+    const name = updates.fname || updates.lname ? `${updates.fname || ''} ${updates.lname || ''}`.trim() : `ID #${id}`;
+    await this.addActivityLog('Update Student', `Updated profile information for student ${name}`);
+    return result;
   },
 
   async deleteStudent(id) {
     if (isSupabaseConfigured()) {
-      await supabase.from('students').delete().eq('id', id);
+      try {
+        await supabase.from('students').delete().eq('id', id);
+      } catch (err) {
+        console.warn('Supabase deleteStudent error:', err);
+      }
     }
     const current = getStored('students', INITIAL_STUDENTS);
+    const target = current.find(s => s.id === Number(id));
+    const name = target ? `${target.fname} ${target.lname}` : `ID #${id}`;
     const updated = current.filter(s => s.id !== Number(id));
     setStored('students', updated);
-    this.addActivityLog('Delete Student', `Removed student record ID #${id}`);
+    invalidateCache('students');
+    invalidateCache('records');
+    await this.addActivityLog('Delete Student', `Removed student record for ${name}`);
     return true;
   },
 
-  // --- VIOLATIONS ---
-  async getViolations() {
+  // --- VIOLATIONS CATEGORIES ---
+  async getViolations(forceRefresh = false) {
+    const now = Date.now();
+    if (!forceRefresh && _memoryCache.violations && (now - _memoryCache.violationsTimestamp < _memoryCache.TTL)) {
+      return _memoryCache.violations;
+    }
+
+    let result = null;
     if (isSupabaseConfigured()) {
       const { data, error } = await supabase.from('violations').select('*').order('type', { ascending: true });
-      if (!error && data && data.length > 0) return data;
+      if (!error && data && data.length > 0) result = data;
     }
-    const stored = getStored('violations', null);
-    if (!stored || stored.length < INITIAL_VIOLATIONS.length) {
-      setStored('violations', INITIAL_VIOLATIONS);
-      return INITIAL_VIOLATIONS;
+    if (!result) {
+      const stored = getStored('violations', null);
+      if (!stored || stored.length < INITIAL_VIOLATIONS.length) {
+        setStored('violations', INITIAL_VIOLATIONS);
+        result = INITIAL_VIOLATIONS;
+      } else {
+        result = stored;
+      }
     }
-    return stored;
+    _memoryCache.violations = result;
+    _memoryCache.violationsTimestamp = now;
+    return result;
   },
 
   async addViolationType(violation) {
+    let result = null;
     if (isSupabaseConfigured()) {
-      const { data, error } = await supabase.from('violations').insert([violation]).select();
-      if (!error && data?.[0]) return data[0];
+      try {
+        const { data, error } = await supabase.from('violations').insert([violation]).select();
+        if (!error && data?.[0]) result = data[0];
+      } catch (err) {
+        console.warn('Supabase addViolationType error:', err);
+      }
     }
     const current = getStored('violations', INITIAL_VIOLATIONS);
-    const newViolation = { ...violation, id: Date.now() };
-    const updated = [...current, newViolation];
+    if (!result) {
+      result = { ...violation, id: Date.now() };
+    }
+    const updated = [...current, result];
     setStored('violations', updated);
-    this.addActivityLog('Add Violation Category', `Created category: ${violation.title}`);
-    return newViolation;
+    invalidateCache('violations');
+    await this.addActivityLog('Add Violation Category', `Created category "${violation.title}" (${violation.type || 'Minor'})`);
+    return result;
   },
 
-  // --- RECORDS ---
-  async getRecords() {
+  async updateViolationType(id, updates) {
+    let result = null;
+    if (isSupabaseConfigured()) {
+      try {
+        const { data, error } = await supabase.from('violations').update(updates).eq('id', id).select();
+        if (!error && data?.[0]) result = data[0];
+      } catch (err) {
+        console.warn('Supabase updateViolationType error:', err);
+      }
+    }
+    const current = getStored('violations', INITIAL_VIOLATIONS);
+    const updated = current.map(v => (v.id === Number(id) ? { ...v, ...updates } : v));
+    setStored('violations', updated);
+    if (!result) result = updated.find(v => v.id === Number(id));
+    invalidateCache('violations');
+    await this.addActivityLog('Update Violation Category', `Updated category "${updates.title || result?.title || '#' + id}" (${updates.type || result?.type || ''})`);
+    return result;
+  },
+
+  async deleteViolationType(id) {
+    if (isSupabaseConfigured()) {
+      try {
+        await supabase.from('violations').delete().eq('id', id);
+      } catch (err) {
+        console.warn('Supabase deleteViolationType error:', err);
+      }
+    }
+    const current = getStored('violations', INITIAL_VIOLATIONS);
+    const target = current.find(v => v.id === Number(id));
+    const title = target ? target.title : `ID #${id}`;
+    const updated = current.filter(v => v.id !== Number(id));
+    setStored('violations', updated);
+    invalidateCache('violations');
+    await this.addActivityLog('Delete Violation Category', `Removed violation category "${title}"`);
+    return true;
+  },
+
+  // --- RECORDS / INCIDENTS ---
+  async getRecords(forceRefresh = false) {
+    const now = Date.now();
+    if (!forceRefresh && _memoryCache.records && (now - _memoryCache.recordsTimestamp < _memoryCache.TTL)) {
+      return _memoryCache.records;
+    }
+
     if (isSupabaseConfigured()) {
       const { data, error } = await supabase
         .from('records')
@@ -330,40 +582,79 @@ export const dataService = {
         `)
         .order('id', { ascending: false });
       if (!error && data) {
-        return data.map(r => ({
+        const mapped = data.map(r => ({
           ...r,
           student: r.students,
           violation: r.violations
         }));
+        _memoryCache.records = mapped;
+        _memoryCache.recordsTimestamp = now;
+        return mapped;
       }
     }
     const records = getStored('records', INITIAL_RECORDS);
     const students = await this.getStudents();
     const violations = await this.getViolations();
 
-    return records.map(r => ({
+    // Instant O(1) Hash Map Indexing for 10,000+ scaling
+    const studentMap = new Map(students.map(s => [Number(s.id), s]));
+    const violationMap = new Map(violations.map(v => [Number(v.id), v]));
+
+    const mapped = records.map(r => ({
       ...r,
-      student: students.find(s => s.id === r.student_id),
-      violation: violations.find(v => v.id === r.violation_id)
+      student: studentMap.get(Number(r.student_id)),
+      violation: violationMap.get(Number(r.violation_id))
     }));
+
+    _memoryCache.records = mapped;
+    _memoryCache.recordsTimestamp = now;
+    return mapped;
   },
 
   async addRecord(record) {
+    let result = null;
     if (isSupabaseConfigured()) {
-      const { data, error } = await supabase.from('records').insert([record]).select();
-      if (!error && data?.[0]) return data[0];
+      try {
+        const { data, error } = await supabase.from('records').insert([record]).select();
+        if (!error && data?.[0]) result = data[0];
+      } catch (err) {
+        console.warn('Supabase addRecord error:', err);
+      }
     }
     const current = getStored('records', INITIAL_RECORDS);
-    const newRecord = {
-      ...record,
-      id: Date.now(),
-      date_reported: new Date().toISOString(),
-      status: record.status || 'Pending'
-    };
-    const updated = [newRecord, ...current];
+    if (!result) {
+      result = {
+        ...record,
+        id: Date.now(),
+        date_reported: new Date().toISOString(),
+        status: record.status || 'Pending'
+      };
+    }
+    const updated = [result, ...current];
     setStored('records', updated);
-    this.addActivityLog('Record Incident', `Logged violation record for Student ID #${record.student_id}`);
-    return newRecord;
+    invalidateCache('records');
+
+    // Identify student & violation details for clear log entry
+    let studentLabel = `Student ID #${record.student_id}`;
+    try {
+      const students = getStored('students', INITIAL_STUDENTS);
+      const matchedStudent = students.find(s => s.id === Number(record.student_id));
+      if (matchedStudent) {
+        studentLabel = `${matchedStudent.fname} ${matchedStudent.lname} (${matchedStudent.grade} - ${matchedStudent.section})`;
+      }
+    } catch {}
+
+    let violationLabel = record.violation_title || `Violation ID #${record.violation_id}`;
+    try {
+      const violations = getStored('violations', INITIAL_VIOLATIONS);
+      const matchedV = violations.find(v => v.id === Number(record.violation_id));
+      if (matchedV) {
+        violationLabel = `${matchedV.title} [${matchedV.type}]`;
+      }
+    } catch {}
+
+    await this.addActivityLog('Add Violation', `Logged incident "${violationLabel}" for ${studentLabel}`);
+    return result;
   },
 
   async updateRecordStatus(id, { status, resolution_notes, sanction }) {
@@ -375,111 +666,300 @@ export const dataService = {
       resolution_date: isResolved ? new Date().toISOString() : null
     };
 
+    let result = null;
     if (isSupabaseConfigured()) {
-      const { data, error } = await supabase.from('records').update(payload).eq('id', id).select();
-      if (!error && data?.[0]) return data[0];
+      try {
+        const { data, error } = await supabase.from('records').update(payload).eq('id', id).select();
+        if (!error && data?.[0]) result = data[0];
+      } catch (err) {
+        console.warn('Supabase updateRecordStatus error:', err);
+      }
     }
     const current = getStored('records', INITIAL_RECORDS);
     const updated = current.map(r => (r.id === Number(id) ? { ...r, ...payload } : r));
     setStored('records', updated);
-    this.addActivityLog('Status Update', `Updated Incident #${id} status to [${status}]`);
-    return updated.find(r => r.id === Number(id));
+    invalidateCache('records');
+    if (!result) result = updated.find(r => r.id === Number(id));
+
+    const sanctionSuffix = sanction ? ` | Sanction: ${sanction}` : '';
+    await this.addActivityLog('Status Update', `Marked Incident #${id} as "${status}"${sanctionSuffix}`);
+    return result;
   },
 
   async deleteRecord(id) {
     if (isSupabaseConfigured()) {
-      await supabase.from('records').delete().eq('id', id);
+      try {
+        await supabase.from('records').delete().eq('id', id);
+      } catch (err) {
+        console.warn('Supabase deleteRecord error:', err);
+      }
     }
     const current = getStored('records', INITIAL_RECORDS);
     const updated = current.filter(r => r.id !== Number(id));
     setStored('records', updated);
-    this.addActivityLog('Delete Record', `Deleted violation record #${id}`);
+    invalidateCache('records');
+    await this.addActivityLog('Delete Record', `Removed violation record #${id}`);
     return true;
   },
 
   // --- TEACHERS & ADVISERS ---
-  async getTeachers() {
+  async getTeachers(forceRefresh = false) {
+    const now = Date.now();
+    if (!forceRefresh && _memoryCache.teachers && (now - _memoryCache.teachersTimestamp < _memoryCache.TTL)) {
+      return _memoryCache.teachers;
+    }
+
+    let list = null;
     if (isSupabaseConfigured()) {
       const { data, error } = await supabase.from('teachers').select('*').order('lname', { ascending: true });
-      if (!error && data) return data;
+      if (!error && data && data.length > 0) list = data;
     }
-    return getStored('teachers', INITIAL_TEACHERS);
+    if (!list) list = getStored('teachers', INITIAL_TEACHERS);
+    _memoryCache.teachers = list;
+    _memoryCache.teachersTimestamp = now;
+    return list;
   },
 
-  async getAdvisers() {
+  async addTeacher(teacher) {
+    let result = null;
+    if (isSupabaseConfigured()) {
+      try {
+        const { data, error } = await supabase.from('teachers').insert([teacher]).select();
+        if (!error && data?.[0]) result = data[0];
+      } catch (err) {
+        console.warn('Supabase addTeacher error:', err);
+      }
+    }
+    const current = getStored('teachers', INITIAL_TEACHERS);
+    if (!result) {
+      result = { ...teacher, id: Date.now() };
+    }
+    const updated = [result, ...current];
+    setStored('teachers', updated);
+    invalidateCache('teachers');
+    invalidateCache('advisers');
+    await this.addActivityLog('Add Teacher', `Registered faculty member ${teacher.fname} ${teacher.lname} (${teacher.position || 'Teacher'}, ${teacher.department || 'General'})`);
+    return result;
+  },
+
+  async updateTeacher(id, updates) {
+    let result = null;
+    if (isSupabaseConfigured()) {
+      try {
+        const { data, error } = await supabase.from('teachers').update(updates).eq('id', id).select();
+        if (!error && data?.[0]) result = data[0];
+      } catch (err) {
+        console.warn('Supabase updateTeacher error:', err);
+      }
+    }
+    const current = getStored('teachers', INITIAL_TEACHERS);
+    const updated = current.map(t => (t.id === Number(id) ? { ...t, ...updates } : t));
+    setStored('teachers', updated);
+    invalidateCache('teachers');
+    invalidateCache('advisers');
+    if (!result) result = updated.find(t => t.id === Number(id));
+    await this.addActivityLog('Update Teacher', `Updated details for faculty ${updates.fname || ''} ${updates.lname || ''} (#${id})`);
+    return result;
+  },
+
+  async deleteTeacher(id) {
+    if (isSupabaseConfigured()) {
+      try {
+        await supabase.from('teachers').delete().eq('id', id);
+      } catch (err) {
+        console.warn('Supabase deleteTeacher error:', err);
+      }
+    }
+    const current = getStored('teachers', INITIAL_TEACHERS);
+    const target = current.find(t => t.id === Number(id));
+    const name = target ? `${target.fname} ${target.lname}` : `ID #${id}`;
+    const updated = current.filter(t => t.id !== Number(id));
+    setStored('teachers', updated);
+    invalidateCache('teachers');
+    invalidateCache('advisers');
+    await this.addActivityLog('Delete Teacher', `Removed faculty member ${name}`);
+    return true;
+  },
+
+  async getAdvisers(forceRefresh = false) {
+    const now = Date.now();
+    if (!forceRefresh && _memoryCache.advisers && (now - _memoryCache.advisersTimestamp < _memoryCache.TTL)) {
+      return _memoryCache.advisers;
+    }
+
     if (isSupabaseConfigured()) {
       const { data, error } = await supabase.from('advisers').select('*, teachers(*)');
       if (!error && data) {
-        return data.map(a => ({
+        const mapped = data.map(a => ({
           ...a,
           teacher: a.teachers
         }));
+        _memoryCache.advisers = mapped;
+        _memoryCache.advisersTimestamp = now;
+        return mapped;
       }
     }
     const advisers = getStored('advisers', INITIAL_ADVISERS);
-    const teachers = getStored('teachers', INITIAL_TEACHERS);
-    return advisers.map(a => ({
+    const teachers = await this.getTeachers();
+    const teacherMap = new Map(teachers.map(t => [Number(t.id), t]));
+    const mapped = advisers.map(a => ({
       ...a,
-      teacher: teachers.find(t => t.id === a.teacher_id)
+      teacher: teacherMap.get(Number(a.teacher_id))
     }));
+    _memoryCache.advisers = mapped;
+    _memoryCache.advisersTimestamp = now;
+    return mapped;
   },
 
   async saveAdviserAssignment(teacher_id, grade_level, class_section) {
     if (isSupabaseConfigured()) {
-      await supabase.from('advisers').upsert({ teacher_id, grade_level, class_section });
+      try {
+        await supabase.from('advisers').upsert({ teacher_id, grade_level, class_section });
+      } catch (err) {
+        console.warn('Supabase saveAdviserAssignment error:', err);
+      }
     }
     let current = getStored('advisers', INITIAL_ADVISERS);
     current = current.filter(a => !(a.grade_level === grade_level && a.class_section === class_section));
     current.push({ id: Date.now(), teacher_id: Number(teacher_id), grade_level, class_section });
     setStored('advisers', current);
-    this.addActivityLog('Adviser Assigned', `Assigned teacher #${teacher_id} to ${grade_level} - ${class_section}`);
+    invalidateCache('advisers');
+
+    let teacherName = `Teacher #${teacher_id}`;
+    try {
+      const teachers = getStored('teachers', INITIAL_TEACHERS);
+      const t = teachers.find(item => item.id === Number(teacher_id));
+      if (t) teacherName = `${t.fname} ${t.lname}`;
+    } catch {}
+
+    await this.addActivityLog('Adviser Assigned', `Appointed ${teacherName} as adviser for ${grade_level} - ${class_section}`);
     return true;
   },
 
   async removeAdviser(id) {
     if (isSupabaseConfigured()) {
-      await supabase.from('advisers').delete().eq('id', id);
+      try {
+        await supabase.from('advisers').delete().eq('id', id);
+      } catch (err) {
+        console.warn('Supabase removeAdviser error:', err);
+      }
     }
     const current = getStored('advisers', INITIAL_ADVISERS);
     const updated = current.filter(a => a.id !== Number(id));
     setStored('advisers', updated);
-    this.addActivityLog('Adviser Removed', `Removed adviser assignment #${id}`);
+    invalidateCache('advisers');
+    await this.addActivityLog('Adviser Removed', `Removed adviser assignment #${id}`);
     return true;
   },
-
 
   // --- ADMIN USERS ---
   async getAdmins() {
     if (isSupabaseConfigured()) {
       const { data, error } = await supabase.from('admins').select('*');
-      if (!error && data) return data;
+      if (!error && data && data.length > 0) return data;
     }
     return getStored('admins', INITIAL_ADMINS);
+  },
+
+  async addAdmin(admin) {
+    let result = null;
+    if (isSupabaseConfigured()) {
+      try {
+        const { data, error } = await supabase.from('admins').insert([admin]).select();
+        if (!error && data?.[0]) result = data[0];
+      } catch (err) {
+        console.warn('Supabase addAdmin error:', err);
+      }
+    }
+    const current = getStored('admins', INITIAL_ADMINS);
+    if (!result) {
+      result = { ...admin, id: Date.now() };
+    }
+    const updated = [result, ...current];
+    setStored('admins', updated);
+    await this.addActivityLog('Add Admin', `Created administrator account for ${admin.fname} ${admin.lname} (${admin.role || 'Admin'})`);
+    return result;
+  },
+
+  async updateAdmin(id, updates) {
+    let result = null;
+    if (isSupabaseConfigured()) {
+      try {
+        const { data, error } = await supabase.from('admins').update(updates).eq('id', id).select();
+        if (!error && data?.[0]) result = data[0];
+      } catch (err) {
+        console.warn('Supabase updateAdmin error:', err);
+      }
+    }
+    const current = getStored('admins', INITIAL_ADMINS);
+    const updated = current.map(a => (a.id === Number(id) ? { ...a, ...updates } : a));
+    setStored('admins', updated);
+    if (!result) result = updated.find(a => a.id === Number(id));
+    await this.addActivityLog('Update Admin', `Updated admin profile for ${updates.fname || ''} ${updates.lname || ''} (${updates.role || 'Admin'})`);
+    return result;
+  },
+
+  async deleteAdmin(id) {
+    if (isSupabaseConfigured()) {
+      try {
+        await supabase.from('admins').delete().eq('id', id);
+      } catch (err) {
+        console.warn('Supabase deleteAdmin error:', err);
+      }
+    }
+    const current = getStored('admins', INITIAL_ADMINS);
+    const target = current.find(a => a.id === Number(id));
+    const name = target ? `${target.fname} ${target.lname}` : `ID #${id}`;
+    const updated = current.filter(a => a.id !== Number(id));
+    setStored('admins', updated);
+    await this.addActivityLog('Delete Admin', `Removed administrator account for ${name}`);
+    return true;
   },
 
   // --- ACTIVITY LOGS ---
   async getActivityLogs() {
     if (isSupabaseConfigured()) {
-      const { data, error } = await supabase.from('activity_logs').select('*').order('id', { ascending: false }).limit(50);
-      if (!error && data) return data;
+      try {
+        const { data, error } = await supabase.from('activity_logs').select('*').order('id', { ascending: false }).limit(100);
+        if (!error && data && data.length > 0) return data;
+      } catch (err) {
+        console.warn('Supabase getActivityLogs error:', err);
+      }
     }
     return getStored('activity_logs', INITIAL_LOGS);
   },
 
-  async addActivityLog(action, details, userName = 'Current User', userRole = 'admin') {
+  async addActivityLog(action, details, userName, userRole) {
+    const activeUser = this.getCurrentUser();
+    const finalUserName = userName || activeUser.name || 'System Admin';
+    const finalUserRole = userRole || activeUser.role || 'admin';
+
     const newLog = {
-      id: Date.now(),
-      user_name: userName,
-      user_role: userRole,
+      id: Date.now() + Math.floor(Math.random() * 1000),
+      user_name: finalUserName,
+      user_role: finalUserRole,
       action,
       details,
       created_at: new Date().toISOString()
     };
+
     if (isSupabaseConfigured()) {
-      await supabase.from('activity_logs').insert([newLog]);
+      try {
+        await supabase.from('activity_logs').insert([newLog]);
+      } catch (err) {
+        console.warn('Supabase activity log insert error:', err);
+      }
     }
     const current = getStored('activity_logs', INITIAL_LOGS);
-    setStored('activity_logs', [newLog, ...current.slice(0, 49)]);
+    const updated = [newLog, ...current.slice(0, 199)];
+    setStored('activity_logs', updated);
+
+    // Notify all active listeners across the app
+    try {
+      window.dispatchEvent(new CustomEvent('viotrack_activity_logged', { detail: newLog }));
+    } catch {}
+
+    return newLog;
   },
 
   // --- STORAGE & PHOTO UPLOADS ---
@@ -503,10 +983,74 @@ export const dataService = {
     return null;
   },
 
+  // --- SCHOOL CALENDAR & EVENTS ---
+  async getSchoolEvents() {
+    if (isSupabaseConfigured()) {
+      try {
+        const { data, error } = await supabase.from('school_events').select('*').order('date', { ascending: true });
+        if (!error && data && data.length > 0) return data;
+      } catch (err) {
+        console.warn('Supabase getSchoolEvents error:', err);
+      }
+    }
+    const current = getStored('school_events', null);
+    if (!current || current.length === 0) {
+      setStored('school_events', INITIAL_SCHOOL_EVENTS);
+      return INITIAL_SCHOOL_EVENTS;
+    }
+    return current;
+  },
+
+  async addSchoolEvent(event) {
+    let result = null;
+    if (isSupabaseConfigured()) {
+      try {
+        const { data, error } = await supabase.from('school_events').insert([event]).select();
+        if (!error && data?.[0]) result = data[0];
+      } catch (err) {
+        console.warn('Supabase addSchoolEvent error:', err);
+      }
+    }
+    const current = getStored('school_events', INITIAL_SCHOOL_EVENTS);
+    if (!result) {
+      result = {
+        id: Date.now(),
+        ...event
+      };
+    }
+    const updated = [...current, result];
+    setStored('school_events', updated);
+    await this.addActivityLog('Schedule Event', `Added calendar event "${event.title}" on ${event.date}`);
+    try {
+      window.dispatchEvent(new CustomEvent('viotrack_events_updated', { detail: result }));
+    } catch {}
+    return result;
+  },
+
+  async deleteSchoolEvent(id) {
+    if (isSupabaseConfigured()) {
+      try {
+        await supabase.from('school_events').delete().eq('id', id);
+      } catch (err) {
+        console.warn('Supabase deleteSchoolEvent error:', err);
+      }
+    }
+    const current = getStored('school_events', INITIAL_SCHOOL_EVENTS);
+    const target = current.find(e => e.id === Number(id));
+    const title = target ? target.title : `ID #${id}`;
+    const updated = current.filter(e => e.id !== Number(id));
+    setStored('school_events', updated);
+    await this.addActivityLog('Delete Event', `Removed calendar event "${title}"`);
+    try {
+      window.dispatchEvent(new CustomEvent('viotrack_events_updated', { detail: { id } }));
+    } catch {}
+    return true;
+  },
+
   // --- SMS TRIGGER ---
   async sendSMS(studentContact, recipientName, studentName, violationTitle) {
     const message = `[VioTrack Alert] Dear ${recipientName || 'Parent/Guardian'}, this is to inform you that ${studentName} has received a record for: ${violationTitle}. Please contact the school guidance office for details.`;
-    this.addActivityLog('SMS Sent', `Notification dispatched to ${studentContact} (${recipientName})`);
+    await this.addActivityLog('SMS Sent', `Notification dispatched to ${studentContact} (${recipientName || 'Parent'}) for student ${studentName}`);
     return { success: true, message };
   }
 };

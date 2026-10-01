@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Modal } from '../common/Modal';
 import { dataService } from '../../services/dataService';
 import { useNotification } from '../../context/NotificationContext';
-import { UserPlus, Upload, Camera, Trash2, Image as ImageIcon, Check } from 'lucide-react';
+import { UserPlus, Upload, Camera, Trash2, Image as ImageIcon, Check, ShieldCheck } from 'lucide-react';
 import CustomSelect from '../common/CustomSelect';
 
 export const AddStudentModal = ({ isOpen, onClose, studentToEdit = null, onSaved }) => {
@@ -161,7 +161,7 @@ export const AddStudentModal = ({ isOpen, onClose, studentToEdit = null, onSaved
     }
   };
 
-  const avatarUrl = formData.image || (formData.fname || formData.lname ? `https://ui-avatars.com/api/?name=${encodeURIComponent(`${formData.fname} ${formData.lname}`)}&background=27367f&color=fff&size=90` : 'https://ui-avatars.com/api/?name=Student&background=e2e8f0&color=64748b&size=90');
+  const avatarUrl = formData.image || (formData.fname || formData.lname ? `https://ui-avatars.com/api/?name=${encodeURIComponent(`${formData.fname} ${formData.lname}`)}&background=0f172a&color=fff&size=90` : 'https://ui-avatars.com/api/?name=Student&background=e2e8f0&color=64748b&size=90');
 
   return (
     <Modal
@@ -169,10 +169,10 @@ export const AddStudentModal = ({ isOpen, onClose, studentToEdit = null, onSaved
       onClose={onClose}
       title={studentToEdit ? 'Edit Student Details' : 'Register New Student'}
       icon={UserPlus}
-      maxWidth="720px"
+      maxWidth="780px"
     >
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-        <div style={{ padding: '20px 24px', maxHeight: '72vh', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        <div style={{ padding: '20px 24px', maxHeight: '74vh', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '20px' }}>
           
           {/* Hidden File Input for Image Upload */}
           <input
@@ -186,8 +186,8 @@ export const AddStudentModal = ({ isOpen, onClose, studentToEdit = null, onSaved
           {/* Top Live Student Preview Card & Quick Photo Upload */}
           <div
             style={{
-              background: 'linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%)',
-              border: '1.5px solid #e0e7ff',
+              background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
+              border: '1.5px solid #e2e8f0',
               borderRadius: '14px',
               padding: '14px 18px',
               display: 'flex',
@@ -197,7 +197,7 @@ export const AddStudentModal = ({ isOpen, onClose, studentToEdit = null, onSaved
               gap: '14px'
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flex: 1, minWidth: '240px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flex: 1, minWidth: '220px' }}>
               <div
                 style={{ position: 'relative', cursor: 'pointer' }}
                 onClick={() => fileInputRef.current?.click()}
@@ -207,24 +207,24 @@ export const AddStudentModal = ({ isOpen, onClose, studentToEdit = null, onSaved
                   src={avatarUrl}
                   alt="Avatar Preview"
                   style={{
-                    width: 56,
-                    height: 56,
+                    width: 54,
+                    height: 54,
                     borderRadius: '14px',
                     objectFit: 'cover',
-                    border: '2px solid #27367f',
-                    boxShadow: '0 4px 12px rgba(39, 54, 127, 0.18)',
+                    border: '2px solid #0f172a',
+                    boxShadow: '0 4px 12px rgba(15, 23, 42, 0.15)',
                     display: 'block'
                   }}
                 />
                 <div
                   style={{
                     position: 'absolute',
-                    bottom: -4,
-                    right: -4,
-                    width: 22,
-                    height: 22,
+                    bottom: -3,
+                    right: -3,
+                    width: 20,
+                    height: 20,
                     borderRadius: '50%',
-                    background: '#27367f',
+                    background: '#0f172a',
                     color: '#ffffff',
                     display: 'flex',
                     alignItems: 'center',
@@ -232,7 +232,7 @@ export const AddStudentModal = ({ isOpen, onClose, studentToEdit = null, onSaved
                     boxShadow: '0 2px 5px rgba(0,0,0,0.2)'
                   }}
                 >
-                  <Camera size={12} />
+                  <Camera size={11} />
                 </div>
               </div>
 
@@ -240,10 +240,10 @@ export const AddStudentModal = ({ isOpen, onClose, studentToEdit = null, onSaved
                 <div style={{ fontSize: '15px', fontWeight: 800, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                   {formData.fname || formData.lname ? `${formData.fname} ${formData.mname ? formData.mname[0] + '. ' : ''}${formData.lname}` : 'Student Name Preview'}
                 </div>
-                <div style={{ fontSize: '12px', color: '#64748b', marginTop: '2px', display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                  <span>LRN: <strong style={{ color: '#27367f' }}>{formData.lrn || 'Pending Input'}</strong></span>
+                <div style={{ fontSize: '12px', color: '#64748b', marginTop: '2px', display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                  <span>LRN: <strong style={{ color: '#0f172a' }}>{formData.lrn || 'Pending'}</strong></span>
                   <span>•</span>
-                  <span>{formData.grade} - {formData.section || 'Section'}</span>
+                  <span>{formData.grade} – {formData.section || 'Section'}</span>
                   <span>•</span>
                   <span>SY {formData.academicyear}</span>
                 </div>
@@ -257,7 +257,7 @@ export const AddStudentModal = ({ isOpen, onClose, studentToEdit = null, onSaved
                 onClick={() => fileInputRef.current?.click()}
                 style={{
                   background: '#ffffff',
-                  color: '#27367f',
+                  color: '#0f172a',
                   border: '1.5px solid #cbd5e1',
                   padding: '7px 13px',
                   borderRadius: '8px',
@@ -270,7 +270,7 @@ export const AddStudentModal = ({ isOpen, onClose, studentToEdit = null, onSaved
                   boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
                   transition: 'all 0.15s'
                 }}
-                onMouseOver={(e) => { e.currentTarget.style.borderColor = '#27367f'; }}
+                onMouseOver={(e) => { e.currentTarget.style.borderColor = '#0f172a'; }}
                 onMouseOut={(e) => { e.currentTarget.style.borderColor = '#cbd5e1'; }}
               >
                 <Upload size={13} /> Upload Photo
@@ -301,15 +301,15 @@ export const AddStudentModal = ({ isOpen, onClose, studentToEdit = null, onSaved
             </div>
           </div>
 
-          {/* Section 1: Identification & Academic */}
+          {/* Section 1: Identification & Academic Placement */}
           <div>
-            <div style={{ fontSize: '12px', fontWeight: 800, color: '#27367f', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#27367f' }} />
-              1. Student Identification & Academic Placement
+            <div style={{ fontSize: '11.5px', fontWeight: 800, color: '#0f172a', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#0f172a' }} />
+              1. Academic Placement
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '14px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' }}>
               <div className="form-group">
-                <label className="form-label">
+                <label className="form-label" style={{ fontSize: '12.5px', fontWeight: 700, color: '#1e293b', marginBottom: '5px', display: 'block' }}>
                   Student LRN (12 Digits) <span style={{ color: '#ef4444' }}>*</span>
                 </label>
                 <input
@@ -320,11 +320,12 @@ export const AddStudentModal = ({ isOpen, onClose, studentToEdit = null, onSaved
                   placeholder="e.g. 109283746101"
                   maxLength={16}
                   required
+                  style={{ height: '40px', borderRadius: '9px', border: '1.5px solid #cbd5e1', padding: '0 12px', fontSize: '13px', width: '100%', boxSizing: 'border-box' }}
                 />
               </div>
 
               <div className="form-group">
-                <label className="form-label">
+                <label className="form-label" style={{ fontSize: '12.5px', fontWeight: 700, color: '#1e293b', marginBottom: '5px', display: 'block' }}>
                   Grade Level <span style={{ color: '#ef4444' }}>*</span>
                 </label>
                 <CustomSelect
@@ -342,7 +343,7 @@ export const AddStudentModal = ({ isOpen, onClose, studentToEdit = null, onSaved
               </div>
 
               <div className="form-group">
-                <label className="form-label">
+                <label className="form-label" style={{ fontSize: '12.5px', fontWeight: 700, color: '#1e293b', marginBottom: '5px', display: 'block' }}>
                   Class Section <span style={{ color: '#ef4444' }}>*</span>
                 </label>
                 <input
@@ -352,6 +353,7 @@ export const AddStudentModal = ({ isOpen, onClose, studentToEdit = null, onSaved
                   onChange={(e) => setFormData({ ...formData, section: e.target.value })}
                   placeholder="e.g. Rizal, STEM A"
                   required
+                  style={{ height: '40px', borderRadius: '9px', border: '1.5px solid #cbd5e1', padding: '0 12px', fontSize: '13px', width: '100%', boxSizing: 'border-box' }}
                 />
               </div>
             </div>
@@ -359,13 +361,15 @@ export const AddStudentModal = ({ isOpen, onClose, studentToEdit = null, onSaved
 
           {/* Section 2: Personal Information */}
           <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: '16px' }}>
-            <div style={{ fontSize: '12px', fontWeight: 800, color: '#27367f', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#27367f' }} />
+            <div style={{ fontSize: '11.5px', fontWeight: 800, color: '#0f172a', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#0f172a' }} />
               2. Personal Details
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '14px' }}>
+            
+            {/* Row 1: Name Breakdown */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' }}>
               <div className="form-group">
-                <label className="form-label">
+                <label className="form-label" style={{ fontSize: '12.5px', fontWeight: 700, color: '#1e293b', marginBottom: '5px', display: 'block' }}>
                   First Name <span style={{ color: '#ef4444' }}>*</span>
                 </label>
                 <input
@@ -375,22 +379,26 @@ export const AddStudentModal = ({ isOpen, onClose, studentToEdit = null, onSaved
                   onChange={(e) => setFormData({ ...formData, fname: e.target.value })}
                   placeholder="First name"
                   required
+                  style={{ height: '40px', borderRadius: '9px', border: '1.5px solid #cbd5e1', padding: '0 12px', fontSize: '13px', width: '100%', boxSizing: 'border-box' }}
                 />
               </div>
 
               <div className="form-group">
-                <label className="form-label">Middle Name</label>
+                <label className="form-label" style={{ fontSize: '12.5px', fontWeight: 700, color: '#1e293b', marginBottom: '5px', display: 'block' }}>
+                  Middle Name
+                </label>
                 <input
                   type="text"
                   className="form-control"
                   value={formData.mname}
                   onChange={(e) => setFormData({ ...formData, mname: e.target.value })}
                   placeholder="Middle name (optional)"
+                  style={{ height: '40px', borderRadius: '9px', border: '1.5px solid #cbd5e1', padding: '0 12px', fontSize: '13px', width: '100%', boxSizing: 'border-box' }}
                 />
               </div>
 
               <div className="form-group">
-                <label className="form-label">
+                <label className="form-label" style={{ fontSize: '12.5px', fontWeight: 700, color: '#1e293b', marginBottom: '5px', display: 'block' }}>
                   Last Name <span style={{ color: '#ef4444' }}>*</span>
                 </label>
                 <input
@@ -400,13 +408,17 @@ export const AddStudentModal = ({ isOpen, onClose, studentToEdit = null, onSaved
                   onChange={(e) => setFormData({ ...formData, lname: e.target.value })}
                   placeholder="Last name"
                   required
+                  style={{ height: '40px', borderRadius: '9px', border: '1.5px solid #cbd5e1', padding: '0 12px', fontSize: '13px', width: '100%', boxSizing: 'border-box' }}
                 />
               </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '14px', marginTop: '10px' }}>
+            {/* Row 2: Demographics */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px', marginTop: '12px' }}>
               <div className="form-group">
-                <label className="form-label">Gender</label>
+                <label className="form-label" style={{ fontSize: '12.5px', fontWeight: 700, color: '#1e293b', marginBottom: '5px', display: 'block' }}>
+                  Gender
+                </label>
                 <CustomSelect
                   value={formData.gender}
                   onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
@@ -418,89 +430,106 @@ export const AddStudentModal = ({ isOpen, onClose, studentToEdit = null, onSaved
               </div>
 
               <div className="form-group">
-                <label className="form-label">Student Contact Number</label>
+                <label className="form-label" style={{ fontSize: '12.5px', fontWeight: 700, color: '#1e293b', marginBottom: '5px', display: 'block' }}>
+                  Student Contact Number
+                </label>
                 <input
-                  type="text"
+                  type="tel"
                   className="form-control"
                   value={formData.contact}
                   onChange={(e) => setFormData({ ...formData, contact: e.target.value })}
                   placeholder="e.g. 09151234567"
+                  style={{ height: '40px', borderRadius: '9px', border: '1.5px solid #cbd5e1', padding: '0 12px', fontSize: '13px', width: '100%', boxSizing: 'border-box' }}
                 />
               </div>
 
               <div className="form-group">
-                <label className="form-label">School Year</label>
+                <label className="form-label" style={{ fontSize: '12.5px', fontWeight: 700, color: '#1e293b', marginBottom: '5px', display: 'block' }}>
+                  School Year
+                </label>
                 <input
                   type="text"
                   className="form-control"
                   value={formData.academicyear}
                   onChange={(e) => setFormData({ ...formData, academicyear: e.target.value })}
                   placeholder="2025-2026"
+                  style={{ height: '40px', borderRadius: '9px', border: '1.5px solid #cbd5e1', padding: '0 12px', fontSize: '13px', width: '100%', boxSizing: 'border-box' }}
                 />
               </div>
             </div>
           </div>
 
-          {/* Section 3: Parent / Guardian Info & Photo Upload Area */}
+          {/* Section 3: Guardian Details & Residential Address */}
           <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: '16px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-              <div style={{ fontSize: '12px', fontWeight: 800, color: '#27367f', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#27367f' }} />
-                3. Guardian Information (For Automated SMS Alerts)
+              <div style={{ fontSize: '11.5px', fontWeight: 800, color: '#0f172a', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#0f172a' }} />
+                3. Guardian & Contact Info
               </div>
               <span style={{ fontSize: '11px', fontWeight: 700, background: '#ecfdf5', color: '#047857', border: '1px solid #a7f3d0', padding: '2px 8px', borderRadius: '10px' }}>
                 SMS Gateway Sync
               </span>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '14px' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '12px' }}>
               <div className="form-group">
-                <label className="form-label">Parent / Guardian Full Name</label>
+                <label className="form-label" style={{ fontSize: '12.5px', fontWeight: 700, color: '#1e293b', marginBottom: '5px', display: 'block' }}>
+                  Parent / Guardian Full Name
+                </label>
                 <input
                   type="text"
                   className="form-control"
                   value={formData.parent_name}
                   onChange={(e) => setFormData({ ...formData, parent_name: e.target.value })}
                   placeholder="e.g. Maria Santos"
+                  style={{ height: '40px', borderRadius: '9px', border: '1.5px solid #cbd5e1', padding: '0 12px', fontSize: '13px', width: '100%', boxSizing: 'border-box' }}
                 />
               </div>
 
               <div className="form-group">
-                <label className="form-label">Guardian Mobile Number (SMS Alerts)</label>
+                <label className="form-label" style={{ fontSize: '12.5px', fontWeight: 700, color: '#1e293b', marginBottom: '5px', display: 'block' }}>
+                  Guardian Mobile Number (SMS Alerts)
+                </label>
                 <input
                   type="tel"
                   className="form-control"
                   value={formData.parent_contact}
                   onChange={(e) => setFormData({ ...formData, parent_contact: e.target.value })}
                   placeholder="e.g. 09156867789"
+                  style={{ height: '40px', borderRadius: '9px', border: '1.5px solid #cbd5e1', padding: '0 12px', fontSize: '13px', width: '100%', boxSizing: 'border-box' }}
                 />
               </div>
             </div>
 
-            <div className="form-group" style={{ marginTop: '10px' }}>
-              <label className="form-label">Home Residential Address</label>
+            <div className="form-group" style={{ marginTop: '12px' }}>
+              <label className="form-label" style={{ fontSize: '12.5px', fontWeight: 700, color: '#1e293b', marginBottom: '5px', display: 'block' }}>
+                Home Residential Address
+              </label>
               <input
                 type="text"
                 className="form-control"
                 value={formData.address}
                 onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                 placeholder="House #, Street, Barangay, City / Municipality"
+                style={{ height: '40px', borderRadius: '9px', border: '1.5px solid #cbd5e1', padding: '0 12px', fontSize: '13px', width: '100%', boxSizing: 'border-box' }}
               />
             </div>
 
             {/* Photo Upload Zone */}
             <div className="form-group" style={{ marginTop: '14px' }}>
-              <label className="form-label">Student Profile Picture</label>
+              <label className="form-label" style={{ fontSize: '12.5px', fontWeight: 700, color: '#1e293b', marginBottom: '5px', display: 'block' }}>
+                Student Profile Picture
+              </label>
               <div
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
                 onClick={() => fileInputRef.current?.click()}
                 style={{
-                  border: `2px dashed ${isDragging ? '#27367f' : '#cbd5e1'}`,
+                  border: `2px dashed ${isDragging ? '#0f172a' : '#cbd5e1'}`,
                   borderRadius: '12px',
-                  padding: '16px 20px',
-                  background: isDragging ? '#eef2ff' : '#f8fafc',
+                  padding: '14px 18px',
+                  background: isDragging ? '#f1f5f9' : '#f8fafc',
                   textAlign: 'center',
                   cursor: 'pointer',
                   transition: 'all 0.2s ease',
@@ -508,30 +537,30 @@ export const AddStudentModal = ({ isOpen, onClose, studentToEdit = null, onSaved
                   flexDirection: 'column',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: '8px'
+                  gap: '6px'
                 }}
               >
                 <div
                   style={{
-                    width: 42,
-                    height: 42,
+                    width: 38,
+                    height: 38,
                     borderRadius: '50%',
                     background: '#ffffff',
                     border: '1px solid #e2e8f0',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    color: '#27367f',
+                    color: '#0f172a',
                     boxShadow: '0 2px 6px rgba(0,0,0,0.04)'
                   }}
                 >
-                  <Upload size={20} />
+                  <Upload size={18} />
                 </div>
                 <div>
-                  <div style={{ fontSize: '13px', fontWeight: 700, color: '#0f172a' }}>
+                  <div style={{ fontSize: '12.5px', fontWeight: 700, color: '#0f172a' }}>
                     Click to browse or drag & drop student photo
                   </div>
-                  <div style={{ fontSize: '11.5px', color: '#64748b', marginTop: '2px' }}>
+                  <div style={{ fontSize: '11px', color: '#64748b', marginTop: '1px' }}>
                     Supports PNG, JPG, JPEG, WEBP (Max 5MB)
                   </div>
                 </div>
@@ -545,20 +574,65 @@ export const AddStudentModal = ({ isOpen, onClose, studentToEdit = null, onSaved
                   value={formData.image}
                   onChange={(e) => setFormData({ ...formData, image: e.target.value })}
                   placeholder="Or paste direct image URL (https://...)"
-                  style={{ fontSize: '12px', padding: '7px 11px' }}
+                  style={{ fontSize: '12px', padding: '8px 12px', height: '36px', borderRadius: '8px', border: '1px solid #cbd5e1', width: '100%', boxSizing: 'border-box' }}
                 />
               </div>
             </div>
           </div>
         </div>
 
+        {/* Data Privacy & DepEd Consent Notice */}
+        <div
+          style={{
+            padding: '10px 24px',
+            background: '#f8fafc',
+            borderTop: '1px solid #e2e8f0',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            fontSize: '11.5px',
+            color: '#475569',
+            lineHeight: 1.45
+          }}
+        >
+          <div
+            style={{
+              width: '24px',
+              height: '24px',
+              borderRadius: '6px',
+              background: '#ecfdf5',
+              border: '1px solid #a7f3d0',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0
+            }}
+          >
+            <ShieldCheck size={14} color="#059669" strokeWidth={2.5} />
+          </div>
+          <div style={{ flex: 1 }}>
+            <span style={{ fontWeight: 700, color: '#0f172a' }}>Data Privacy Consent (RA 10173): </span>
+            <span>By registering this student record, you certify that personal and contact details are collected strictly for legitimate academic administration, emergency guardian dispatch, and DepEd conduct records.</span>
+          </div>
+        </div>
+
         {/* Modal Footer */}
-        <div style={{ padding: '16px 24px', borderTop: '1px solid #e2e8f0', background: '#f8fafc', display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
+        <div style={{ padding: '14px 24px', borderTop: '1px solid #e2e8f0', background: '#f8fafc', display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '10px' }}>
           <button
             type="button"
             className="btn btn-secondary"
             onClick={onClose}
             disabled={loading}
+            style={{
+              padding: '9px 18px',
+              borderRadius: '9px',
+              fontWeight: 600,
+              fontSize: '13px',
+              background: '#ffffff',
+              border: '1px solid #cbd5e1',
+              color: '#0f172a',
+              cursor: 'pointer'
+            }}
           >
             Cancel
           </button>
@@ -566,6 +640,20 @@ export const AddStudentModal = ({ isOpen, onClose, studentToEdit = null, onSaved
             type="submit"
             className="btn btn-primary"
             disabled={loading}
+            style={{
+              padding: '9px 22px',
+              borderRadius: '9px',
+              fontWeight: 700,
+              fontSize: '13px',
+              background: '#0f172a',
+              color: '#ffffff',
+              border: 'none',
+              cursor: loading ? 'not-allowed' : 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              boxShadow: '0 4px 12px rgba(15, 23, 42, 0.25)'
+            }}
           >
             <UserPlus size={15} />
             {loading ? 'Saving Student...' : studentToEdit ? 'Save Changes' : 'Register Student'}
