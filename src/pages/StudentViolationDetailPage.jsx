@@ -184,14 +184,22 @@ export const StudentViolationDetailPage = () => {
     setSmsSending(true);
     try {
       const studentName = `${student.fname} ${student.lname}`;
-      const defaultNotice = `Notice for guardian of ${studentName}: Please be informed regarding student conduct record. Contact guidance office for details.`;
-      await dataService.sendSMS(
+      const defaultNotice = `[VioTrack Notice] Dear ${student.parent_name || 'Guardian'}, please be informed that student ${studentName} has a recorded notice under category: ${smsReportType}. Please contact the Guidance Office.`;
+      const messageBody = smsCustomMessage && smsCustomMessage.trim() ? smsCustomMessage.trim() : defaultNotice;
+
+      const res = await dataService.sendSMS(
         student.parent_contact,
         student.parent_name || 'Guardian',
         studentName,
-        smsCustomMessage || defaultNotice
+        smsReportType,
+        messageBody
       );
-      success(`SMS Disciplinary Alert dispatched to ${student.parent_contact} (${student.parent_name || 'Guardian'})!`);
+
+      if (res?.success) {
+        success(`SMS notice successfully dispatched to ${student.parent_contact} via iProgTech!`);
+      } else {
+        info(`SMS transmission logged to ${student.parent_contact}.`);
+      }
       setIsSmsModalOpen(false);
       setSmsCustomMessage('');
     } catch (err) {
@@ -1393,7 +1401,6 @@ export const StudentViolationDetailPage = () => {
         onClose={() => setIsAddViolationOpen(false)}
         preselectedStudentId={student.id}
         onRecordAdded={() => {
-          success('Violation incident added successfully for student!');
           loadStudentAndRecords();
         }}
       />

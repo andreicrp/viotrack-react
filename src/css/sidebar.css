@@ -356,15 +356,12 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(15, 23, 42, 0.5);
-  backdrop-filter: blur(2px);
-  -webkit-backdrop-filter: blur(2px);
+  background: rgba(15, 23, 42, 0.55);
   z-index: 2100;
   opacity: 0;
   visibility: hidden;
   transition: opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.22s ease;
   pointer-events: none;
-  will-change: opacity;
 }
 
 .sidebar-overlay.show {

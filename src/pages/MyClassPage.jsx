@@ -798,7 +798,6 @@ export const MyClassPage = () => {
           onClose={() => setSelectedStudentForViolation(null)}
           preselectedStudentId={selectedStudentForViolation}
           onRecordAdded={() => {
-            success('Violation incident successfully recorded for student.');
             loadAdviserAndClass();
           }}
         />

@@ -155,7 +155,10 @@ export const LoginPage = () => {
           </svg>
 
           <h1 className="login-brand-title">VIOTRACK</h1>
-          <p className="login-brand-tagline">Track. Manage. Stay Compliant.</p>
+          <p className="login-brand-tagline">
+            A Student Violation Tracking and Monitoring System
+            <span className="login-brand-tagline-sub">Using QR Code and Dashboard</span>
+          </p>
         </div>
 
         {/* Logged out alert */}

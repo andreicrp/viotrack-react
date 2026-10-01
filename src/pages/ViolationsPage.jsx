@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useDeferredValue } from 'react';
+import React, { useState, useEffect, useMemo, useDeferredValue, useCallback } from 'react';
 import { dataService } from '../services/dataService';
 import { AddViolationModal } from '../components/violations/AddViolationModal';
 import { BulkViolationModal } from '../components/violations/BulkViolationModal';
@@ -68,21 +68,28 @@ export const ViolationsPage = () => {
 
   const isAdmin = user?.role === 'admin';
 
-  useEffect(() => {
-    loadRecords();
-  }, []);
-
-  const loadRecords = async () => {
+  const loadRecords = useCallback(async (forceRefresh = false) => {
     setLoading(true);
     try {
-      const data = await dataService.getRecords();
+      const data = await dataService.getRecords(forceRefresh);
       setRecords(data || []);
     } catch (err) {
       error('Failed to load records: ' + err.message);
     } finally {
       setLoading(false);
     }
-  };
+  }, [error]);
+
+  useEffect(() => {
+    loadRecords();
+    const handleDataUpdate = () => {
+      loadRecords(true);
+    };
+    window.addEventListener('viotrack_data_updated', handleDataUpdate);
+    return () => {
+      window.removeEventListener('viotrack_data_updated', handleDataUpdate);
+    };
+  }, [loadRecords]);
 
   // Metric Analytics - optimized single-pass calculation
   const stats = useMemo(() => {
@@ -1548,9 +1555,8 @@ export const ViolationsPage = () => {
       <AddViolationModal
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
-        onRecordAdded={(newRec) => {
-          setRecords([newRec, ...records]);
-          success('Violation record added successfully!');
+        onRecordAdded={() => {
+          loadRecords(true);
         }}
       />
 
@@ -1558,9 +1564,8 @@ export const ViolationsPage = () => {
       <BulkViolationModal
         isOpen={isBulkModalOpen}
         onClose={() => setIsBulkModalOpen(false)}
-        onRecordsAdded={(newRecs) => {
-          setRecords([...newRecs, ...records]);
-          success(`Added ${newRecs.length} violation records!`);
+        onRecordsAdded={() => {
+          loadRecords(true);
         }}
       />
 

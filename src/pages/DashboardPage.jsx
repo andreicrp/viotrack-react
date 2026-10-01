@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   AreaChart,
@@ -16,29 +16,25 @@ import {
   Calendar as CalendarIcon,
   TrendingUp,
   ShieldCheck,
-  Clock,
+  ShieldAlert,
+  AlertTriangle,
+  AlertCircle,
   ChevronLeft,
   ChevronRight,
-  ChevronDown,
-  ShieldAlert,
   GraduationCap,
-  AlertCircle,
   CalendarDays,
   User,
   Lightbulb,
   FileText,
-  Bell,
-  ArrowUp,
-  BookOpen,
-  Sparkles,
-  Compass
+  Compass,
+  CheckCircle2,
+  Download
 } from 'lucide-react';
 import { dataService } from '../services/dataService';
 import { useAuth } from '../context/AuthContext';
 import { useNotification } from '../context/NotificationContext';
 import { AddViolationModal } from '../components/violations/AddViolationModal';
 import { SchoolCalendarModal } from '../components/common/SchoolCalendarModal';
-import { CustomDatePicker } from '../components/common/CustomDatePicker';
 import { CustomDateRangeModal } from '../components/common/CustomDateRangeModal';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
@@ -49,11 +45,25 @@ export const DashboardPage = () => {
   const { success, info } = useNotification();
   const navigate = useNavigate();
 
+  // Dynamic Date Baseline
+  const now = useMemo(() => new Date(), []);
+  const currentYear = now.getFullYear();
+  const currentMonthIdx = now.getMonth();
+
   // Filter & Date States
   const [chartFilter, setChartFilter] = useState('month'); // 'today' | 'week' | 'month' | 'custom'
-  const [startDate, setStartDate] = useState('2026-09-01');
-  const [endDate, setEndDate] = useState('2026-09-30');
+  const [startDate, setStartDate] = useState(() => {
+    const firstDay = new Date(currentYear, currentMonthIdx, 1);
+    return firstDay.toISOString().split('T')[0];
+  });
+  const [endDate, setEndDate] = useState(() => {
+    const lastDay = new Date(currentYear, currentMonthIdx + 1, 0);
+    return lastDay.toISOString().split('T')[0];
+  });
   const [isCustomModalOpen, setIsCustomModalOpen] = useState(false);
+
+  // Severity KPI Selection / Filter
+  const [activeSeverityFilter, setActiveSeverityFilter] = useState('all'); // 'all' | 'minor' | 'serious' | 'major' | 'resolved'
 
   // Series visibility toggles
   const [showMinor, setShowMinor] = useState(true);
@@ -63,20 +73,38 @@ export const DashboardPage = () => {
   // Data States
   const [students, setStudents] = useState([]);
   const [records, setRecords] = useState([]);
+  const [schoolEvents, setSchoolEvents] = useState([]);
   const [loading, setLoading] = useState(true);
 
   // Repeat Offenders Pagination
   const [offendersPage, setOffendersPage] = useState(1);
   const offendersPerPage = 4;
 
-  // Calendar State (defaults to September 2026, day 23 selected)
-  const [selectedCalendarDate, setSelectedCalendarDate] = useState(23);
-  const [calendarMonth, setCalendarMonth] = useState(new Date(2026, 8, 1));
-  const [schoolEvents, setSchoolEvents] = useState([]);
+  // Calendar State
+  const [selectedCalendarDate, setSelectedCalendarDate] = useState(now.getDate());
+  const [calendarMonth, setCalendarMonth] = useState(new Date(currentYear, currentMonthIdx, 1));
 
   // Modals
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isCalendarModalOpen, setIsCalendarModalOpen] = useState(false);
+
+  const loadData = useCallback(async () => {
+    setLoading(true);
+    try {
+      const [sData, rData, eData] = await Promise.all([
+        dataService.getStudents(),
+        dataService.getRecords(),
+        dataService.getSchoolEvents()
+      ]);
+      setStudents(sData || []);
+      setRecords(rData || []);
+      setSchoolEvents(eData || []);
+    } catch (err) {
+      console.error('Error loading dashboard data:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
     loadData();
@@ -95,154 +123,373 @@ export const DashboardPage = () => {
       window.removeEventListener('viotrack_data_updated', handleUpdate);
       window.removeEventListener('viotrack_events_updated', handleEventsUpdate);
     };
-  }, []);
+  }, [loadData]);
 
-  const loadData = async () => {
-    setLoading(true);
-    try {
-      const [sData, rData, eData] = await Promise.all([
-        dataService.getStudents(),
-        dataService.getRecords(),
-        dataService.getSchoolEvents()
-      ]);
-      setStudents(sData || []);
-      setRecords(rData || []);
-      setSchoolEvents(eData || []);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Metrics from records or high-fidelity defaults from design - optimized single pass
-  const { minorCount, seriousCount, majorCount, totalStudentsCount, totalViolationsCount } = useMemo(() => {
+  // 1. Dynamic Metric Calculations & Trend Comparisons
+  const metrics = useMemo(() => {
     let minor = 0;
     let serious = 0;
     let major = 0;
+    let resolved = 0;
+    let pending = 0;
 
-    for (let i = 0; i < records.length; i++) {
-      const type = (records[i].violation?.type || records[i].type || '').toLowerCase();
+    const sevenDaysAgo = new Date(Date.now() - 7 * 86400000);
+    const fourteenDaysAgo = new Date(Date.now() - 14 * 86400000);
+
+    let thisWeekCount = 0;
+    let lastWeekCount = 0;
+
+    records.forEach(r => {
+      const type = (r.violation?.type || r.type || '').toLowerCase();
       if (type === 'minor') minor++;
       else if (type === 'serious') serious++;
       else if (type === 'major') major++;
-    }
+
+      const status = (r.status || '').toLowerCase();
+      if (status === 'resolved') resolved++;
+      else pending++;
+
+      const rDate = new Date(r.date_reported || r.created_at || Date.now());
+      if (rDate >= sevenDaysAgo) {
+        thisWeekCount++;
+      } else if (rDate >= fourteenDaysAgo && rDate < sevenDaysAgo) {
+        lastWeekCount++;
+      }
+    });
+
+    const weeklyDelta = thisWeekCount - lastWeekCount;
+    const resolvedRate = records.length > 0 ? Math.round((resolved / records.length) * 100) : 100;
 
     return {
-      minorCount: records.length ? minor : 3,
-      seriousCount: records.length ? serious : 1,
-      majorCount: records.length ? major : 1,
-      totalStudentsCount: students.length || 6,
-      totalViolationsCount: records.length || 5
+      minorCount: minor,
+      seriousCount: serious,
+      majorCount: major,
+      totalStudentsCount: students.length,
+      totalViolationsCount: records.length,
+      resolvedCount: resolved,
+      pendingCount: pending,
+      resolvedRate,
+      weeklyDelta,
+      thisWeekCount
     };
   }, [records, students]);
 
-  // Trend Chart Data exactly mirroring the smooth curves in the reference image
+  // 2. Real-Time Dynamic Trend Data Aggregation
   const trendData = useMemo(() => {
+    // Helper to get normalized severity
+    const getSeverity = (rec) => {
+      const type = (rec.violation?.type || rec.type || rec.severity || '').toLowerCase();
+      if (type === 'minor' || type === 'serious' || type === 'major') return type;
+      return 'minor';
+    };
+
     if (chartFilter === 'today') {
-      return [
-        { time: '07:00 – 09:00', minor: 1.2, serious: 0.0, major: 0.0 },
-        { time: '09:00 – 11:00', minor: 3.8, serious: 1.2, major: 0.2 },
-        { time: '11:00 – 13:00', minor: 6.5, serious: 2.4, major: 0.8 },
-        { time: '13:00 – 15:00', minor: 4.8, serious: 1.5, major: 0.4 },
-        { time: '15:00 – 17:00', minor: 2.1, serious: 0.6, major: 0.0 }
+      // 6 continuous time intervals covering the full 24-hour day
+      const intervals = [
+        { label: '06:00 – 09:00', startH: 6, endH: 9 },
+        { label: '09:00 – 12:00', startH: 9, endH: 12 },
+        { label: '12:00 – 15:00', startH: 12, endH: 15 },
+        { label: '15:00 – 18:00', startH: 15, endH: 18 },
+        { label: '18:00 – 21:00', startH: 18, endH: 21 },
+        { label: '21:00 – 24:00', startH: 21, endH: 24 }
       ];
-    } else if (chartFilter === 'week') {
-      return [
-        { time: 'Mon (Sep 22)', minor: 4.2, serious: 1.0, major: 0.2 },
-        { time: 'Tue (Sep 23)', minor: 6.8, serious: 2.1, major: 1.0 },
-        { time: 'Wed (Sep 24)', minor: 9.6, serious: 3.9, major: 2.1 },
-        { time: 'Thu (Sep 25)', minor: 7.4, serious: 2.5, major: 1.2 },
-        { time: 'Fri (Sep 26)', minor: 5.1, serious: 1.8, major: 0.8 },
-        { time: 'Sat (Sep 27)', minor: 2.0, serious: 0.5, major: 0.1 }
-      ];
-    } else if (chartFilter === 'custom') {
-      return [
-        { time: `${startDate}`, minor: 3.0, serious: 1.2, major: 0.4 },
-        { time: 'Interval 1', minor: 5.5, serious: 2.0, major: 0.8 },
-        { time: 'Interval 2', minor: 8.2, serious: 3.1, major: 1.5 },
-        { time: 'Interval 3', minor: 6.4, serious: 2.4, major: 1.0 },
-        { time: `${endDate}`, minor: 4.1, serious: 1.1, major: 0.3 }
-      ];
-    } else {
-      // Month view matching the visual chart in the screenshot
-      return [
-        { time: 'Sep 1 – 7', minor: 6.5, serious: 1.5, major: 0.6 },
-        { time: 'Sep 8 – 14', minor: 10.5, serious: 3.8, major: 2.0 },
-        { time: 'Sep 15 – 21', minor: 6.2, serious: 1.4, major: 0.5 },
-        { time: 'Sep 22 – 28', minor: 9.6, serious: 3.9, major: 2.1 },
-        { time: 'Sep 29 – 30', minor: 4.5, serious: 1.5, major: 0.6 }
-      ];
+
+      const nowDay = new Date();
+      const isRecordToday = (r) => {
+        if (!r.date_reported && !r.created_at) return false;
+        const rDate = new Date(r.date_reported || r.created_at);
+        return (
+          rDate.getFullYear() === nowDay.getFullYear() &&
+          rDate.getMonth() === nowDay.getMonth() &&
+          rDate.getDate() === nowDay.getDate()
+        );
+      };
+
+      const todayRecords = records.filter(isRecordToday);
+
+      return intervals.map(int => {
+        let minor = 0, serious = 0, major = 0;
+        todayRecords.forEach(r => {
+          const recDate = new Date(r.date_reported || r.created_at || Date.now());
+          const h = recDate.getHours();
+          // Fallback early morning (00:00 - 05:59) into the first bracket (06:00 - 09:00)
+          const matched = (int.startH === 6 && h < 6) || (h >= int.startH && h < int.endH);
+          if (matched) {
+            const sev = getSeverity(r);
+            if (sev === 'minor') minor++;
+            else if (sev === 'serious') serious++;
+            else if (sev === 'major') major++;
+          }
+        });
+        return { time: int.label, minor, serious, major, total: minor + serious + major };
+      });
     }
-  }, [chartFilter, startDate, endDate]);
 
-  // Repeat & High-Risk Students List
-  const repeatStudentsList = useMemo(() => {
-    return [
-      {
-        id: 1,
-        rank: 1,
-        name: 'Alexander Mendoza',
-        grade: 'Grade 10 – Rizal',
-        infractions: 2,
-        infractionLabel: '2 Infractions',
-        image: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150&auto=format&fit=crop&q=80',
-        badgeType: 'amber'
-      },
-      {
-        id: 3,
-        rank: 2,
-        name: 'Gabriel Torres',
-        grade: 'Grade 10 – Bonifacio',
-        infractions: 1,
-        infractionLabel: '1 Infraction',
-        image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
-        badgeType: 'slate'
-      },
-      {
-        id: 4,
-        rank: 3,
-        name: 'Isabella Ramos',
-        grade: 'Grade 11 – STEM A',
-        infractions: 1,
-        infractionLabel: '1 Infraction',
-        image: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=150&auto=format&fit=crop&q=80',
-        badgeType: 'slate'
-      },
-      {
-        id: 5,
-        rank: 4,
-        name: 'Christian Navarro',
-        grade: 'Grade 11 – STEM A',
-        infractions: 1,
-        infractionLabel: '1 Infraction',
-        image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80',
-        badgeType: 'slate'
-      },
-      {
-        id: 2,
-        rank: 5,
-        name: 'Sophia Villanueva',
-        grade: 'Grade 10 – Rizal',
-        infractions: 1,
-        infractionLabel: '1 Infraction',
-        image: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&auto=format&fit=crop&q=80',
-        badgeType: 'slate'
+    if (chartFilter === 'week') {
+      // Last 7 days
+      const days = [];
+      for (let i = 6; i >= 0; i--) {
+        const d = new Date(Date.now() - i * 86400000);
+        const dateStr = d.toISOString().split('T')[0];
+        const dayLabel = d.toLocaleDateString('en-US', { weekday: 'short', month: 'numeric', day: 'numeric' });
+
+        let minor = 0, serious = 0, major = 0;
+        records.forEach(r => {
+          const rDateStr = (r.date_reported || r.created_at || '').split('T')[0];
+          if (rDateStr === dateStr) {
+            const sev = getSeverity(r);
+            if (sev === 'minor') minor++;
+            else if (sev === 'serious') serious++;
+            else if (sev === 'major') major++;
+          }
+        });
+
+        days.push({ time: dayLabel, dateStr, minor, serious, major, total: minor + serious + major });
       }
+      return days;
+    }
+
+    if (chartFilter === 'custom') {
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      const diffTime = Math.max(end.getTime() - start.getTime(), 86400000);
+      const step = diffTime / 5;
+
+      const intervals = [];
+      for (let i = 0; i < 5; i++) {
+        const curStart = new Date(start.getTime() + i * step);
+        const curEnd = new Date(start.getTime() + (i + 1) * step);
+        const label = `${curStart.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
+
+        let minor = 0, serious = 0, major = 0;
+        records.forEach(r => {
+          const rDate = new Date(r.date_reported || r.created_at || Date.now());
+          if (rDate >= curStart && rDate <= curEnd) {
+            const sev = getSeverity(r);
+            if (sev === 'minor') minor++;
+            else if (sev === 'serious') serious++;
+            else if (sev === 'major') major++;
+          }
+        });
+
+        intervals.push({ time: label, minor, serious, major, total: minor + serious + major });
+      }
+      return intervals;
+    }
+
+    // Default: 'month' view (4-5 weekly buckets of the current active month)
+    const year = calendarMonth.getFullYear();
+    const month = calendarMonth.getMonth();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const buckets = [
+      { start: 1, end: 7, label: `${calendarMonth.toLocaleDateString('en-US', { month: 'short' })} 1 – 7` },
+      { start: 8, end: 14, label: `${calendarMonth.toLocaleDateString('en-US', { month: 'short' })} 8 – 14` },
+      { start: 15, end: 21, label: `${calendarMonth.toLocaleDateString('en-US', { month: 'short' })} 15 – 21` },
+      { start: 22, end: 28, label: `${calendarMonth.toLocaleDateString('en-US', { month: 'short' })} 22 – 28` },
+      { start: 29, end: daysInMonth, label: `${calendarMonth.toLocaleDateString('en-US', { month: 'short' })} 29 – ${daysInMonth}` }
     ];
-  }, []);
 
-  // Section Breakdown Data
-  const sectionBreakdown = [
-    { grade: 'Grade 10', section: 'Rizal', count: 5, pct: '100%', fillPct: 100 },
-    { grade: 'Grade 7', section: 'Diamond', count: 4, pct: '80%', fillPct: 80 },
-    { grade: 'Grade 8', section: 'Emerald', count: 3, pct: '60%', fillPct: 60 },
-    { grade: 'Grade 9', section: 'Ruby', count: 2, pct: '40%', fillPct: 40 },
-    { grade: 'Grade 11', section: 'STEM A', count: 1, pct: '20%', fillPct: 20 },
-    { grade: 'Grade 12', section: 'HUMSS B', count: 1, pct: '20%', fillPct: 20 }
-  ];
+    return buckets.map(b => {
+      let minor = 0, serious = 0, major = 0;
+      records.forEach(r => {
+        const rDate = new Date(r.date_reported || r.created_at || Date.now());
+        if (rDate.getFullYear() === year && rDate.getMonth() === month) {
+          const dayNum = rDate.getDate();
+          if (dayNum >= b.start && dayNum <= b.end) {
+            const sev = getSeverity(r);
+            if (sev === 'minor') minor++;
+            else if (sev === 'serious') serious++;
+            else if (sev === 'major') major++;
+          }
+        }
+      });
+      return { time: b.label, minor, serious, major, total: minor + serious + major };
+    });
+  }, [chartFilter, records, startDate, endDate, calendarMonth]);
 
-  // Calendar Day Generation based on calendarMonth and dynamic schoolEvents
+  // Determine max domain for Chart Y-Axis dynamically with nice integer padding
+  const chartYDomain = useMemo(() => {
+    let max = 0;
+    trendData.forEach(d => {
+      const activeSum = (showMinor ? d.minor : 0) + (showSerious ? d.serious : 0) + (showMajor ? d.major : 0);
+      if (activeSum > max) max = activeSum;
+    });
+    const ceiling = Math.max(max + 2, 4);
+    return [0, ceiling];
+  }, [trendData, showMinor, showSerious, showMajor]);
+
+  // 3. Dynamic Repeat & High-Risk Students Aggregation
+  const repeatStudentsList = useMemo(() => {
+    const studentMap = new Map();
+
+    // Map students by ID
+    students.forEach(s => {
+      studentMap.set(Number(s.id), {
+        id: s.id,
+        name: `${s.fname} ${s.lname}`,
+        grade: `${s.grade} – ${s.section}`,
+        image: s.image,
+        gender: s.gender,
+        lrn: s.lrn,
+        minorCount: 0,
+        seriousCount: 0,
+        majorCount: 0,
+        totalInfractions: 0,
+        pendingCount: 0,
+        lastIncident: null
+      });
+    });
+
+    // Aggregate records
+    records.forEach(r => {
+      const sId = Number(r.student_id || r.student?.id);
+      if (!studentMap.has(sId)) {
+        if (r.student) {
+          studentMap.set(sId, {
+            id: sId,
+            name: `${r.student.fname} ${r.student.lname}`,
+            grade: `${r.student.grade || ''} – ${r.student.section || ''}`,
+            image: r.student.image,
+            gender: r.student.gender,
+            lrn: r.student.lrn,
+            minorCount: 0,
+            seriousCount: 0,
+            majorCount: 0,
+            totalInfractions: 0,
+            pendingCount: 0,
+            lastIncident: r.date_reported
+          });
+        }
+      }
+
+      const st = studentMap.get(sId);
+      if (st) {
+        const sev = (r.violation?.type || r.type || '').toLowerCase();
+        if (sev === 'minor') st.minorCount++;
+        else if (sev === 'serious') st.seriousCount++;
+        else if (sev === 'major') st.majorCount++;
+        st.totalInfractions++;
+
+        if ((r.status || '').toLowerCase() !== 'resolved') {
+          st.pendingCount++;
+        }
+        if (!st.lastIncident || new Date(r.date_reported) > new Date(st.lastIncident)) {
+          st.lastIncident = r.date_reported;
+        }
+      }
+    });
+
+    // Filter students with at least 1 infraction and sort by risk weight
+    const offenders = Array.from(studentMap.values())
+      .filter(s => s.totalInfractions > 0)
+      .sort((a, b) => {
+        // Weighted risk score: Major = 5, Serious = 3, Minor = 1
+        const scoreA = a.majorCount * 5 + a.seriousCount * 3 + a.minorCount;
+        const scoreB = b.majorCount * 5 + b.seriousCount * 3 + b.minorCount;
+        if (scoreB !== scoreA) return scoreB - scoreA;
+        return b.totalInfractions - a.totalInfractions;
+      });
+
+    return offenders.map((s, idx) => {
+      let badgeType = 'slate';
+      let statusLabel = `${s.totalInfractions} ${s.totalInfractions === 1 ? 'Infraction' : 'Infractions'}`;
+
+      if (s.majorCount > 0 || s.totalInfractions >= 3) {
+        badgeType = 'red';
+        statusLabel = s.majorCount > 0 ? `High Risk • ${s.majorCount} Major` : `High Risk • ${s.totalInfractions} Logs`;
+      } else if (s.seriousCount > 0 || s.totalInfractions === 2) {
+        badgeType = 'amber';
+        statusLabel = s.seriousCount > 0 ? `Moderate • Serious Case` : `2 Infractions`;
+      }
+
+      return {
+        ...s,
+        rank: idx + 1,
+        badgeType,
+        infractionLabel: statusLabel
+      };
+    });
+  }, [students, records]);
+
+  // Paginated Repeat Offenders Slice
+  const totalOffenderPages = Math.max(1, Math.ceil(repeatStudentsList.length / offendersPerPage));
+  const paginatedOffenders = useMemo(() => {
+    const startIdx = (offendersPage - 1) * offendersPerPage;
+    return repeatStudentsList.slice(startIdx, startIdx + offendersPerPage);
+  }, [repeatStudentsList, offendersPage]);
+
+  // 4. Dynamic Grade & Section Breakdown
+  const sectionBreakdown = useMemo(() => {
+    const secMap = new Map();
+
+    records.forEach(r => {
+      const student = r.student || students.find(s => Number(s.id) === Number(r.student_id));
+      if (student) {
+        const grade = student.grade || 'General';
+        const section = student.section || 'Unassigned';
+        const key = `${grade}::${section}`;
+
+        if (!secMap.has(key)) {
+          secMap.set(key, { grade, section, count: 0 });
+        }
+        secMap.get(key).count++;
+      }
+    });
+
+    // If empty, derive sections from student population with 0 counts
+    if (secMap.size === 0 && students.length > 0) {
+      students.slice(0, 5).forEach(s => {
+        const key = `${s.grade || 'Grade 10'}::${s.section || 'Rizal'}`;
+        if (!secMap.has(key)) {
+          secMap.set(key, { grade: s.grade || 'Grade 10', section: s.section || 'Rizal', count: 0 });
+        }
+      });
+    }
+
+    const list = Array.from(secMap.values()).sort((a, b) => b.count - a.count);
+    const maxCount = list.length > 0 && list[0].count > 0 ? list[0].count : 1;
+    const totalCount = records.length > 0 ? records.length : 1;
+
+    return list.slice(0, 6).map(item => ({
+      ...item,
+      pct: `${Math.round((item.count / totalCount) * 100)}%`,
+      fillPct: Math.round((item.count / maxCount) * 100)
+    }));
+  }, [records, students]);
+
+  // 5. Dynamic Disciplinary Insight Generator
+  const disciplinaryInsight = useMemo(() => {
+    if (records.length === 0) {
+      return {
+        title: 'Optimal Disciplinary Standing',
+        text: 'Zero active disciplinary violations currently recorded. School community adherence to campus guidelines is at 100%.'
+      };
+    }
+
+    const topSection = sectionBreakdown.length > 0 && sectionBreakdown[0].count > 0 ? sectionBreakdown[0] : null;
+    const highRiskCount = repeatStudentsList.filter(s => s.badgeType === 'red').length;
+
+    if (highRiskCount > 0) {
+      return {
+        title: 'Priority Guidance Alert',
+        text: `${highRiskCount} student${highRiskCount > 1 ? 's are' : ' is'} classified as High Risk due to multiple infractions or major offenses. Recommended action: Coordinate immediate counseling hearing with Class Advisers.`
+      };
+    }
+
+    if (topSection) {
+      return {
+        title: 'Section Focus Opportunity',
+        text: `${topSection.grade} – ${topSection.section} accounts for ${topSection.count} logged incident${topSection.count > 1 ? 's' : ''} (${topSection.pct} of total records). Recommended action: Conduct an advisory orientation with the section head.`
+      };
+    }
+
+    return {
+      title: 'Disciplinary Status Stable',
+      text: `${metrics.resolvedCount} of ${metrics.totalViolationsCount} incident records (${metrics.resolvedRate}%) have reached full resolution. Campus conduct remains well-monitored.`
+    };
+  }, [records, sectionBreakdown, repeatStudentsList, metrics]);
+
+  // 6. Dynamic School Calendar Grid Generation
   const calendarDays = useMemo(() => {
     const year = calendarMonth.getFullYear();
     const month = calendarMonth.getMonth();
@@ -272,6 +519,7 @@ export const DashboardPage = () => {
         dateStr,
         dots,
         hasEvents: dayEvents.length > 0,
+        eventCount: dayEvents.length,
         dayEvents
       });
     }
@@ -279,7 +527,7 @@ export const DashboardPage = () => {
     return days;
   }, [calendarMonth, schoolEvents]);
 
-  // Dynamic Events for Selected Date / Upcoming
+  // Dynamic Selected Date / Upcoming Events
   const displayedCalendarEvents = useMemo(() => {
     const year = calendarMonth.getFullYear();
     const month = calendarMonth.getMonth();
@@ -315,8 +563,8 @@ export const DashboardPage = () => {
     };
   }, [calendarMonth, selectedCalendarDate, schoolEvents]);
 
-  // Export Executive PDF Report
-  const handleExport = () => {
+  // Export Executive PDF Report (Dynamic)
+  const handleExportPDF = () => {
     try {
       const doc = new jsPDF();
       doc.setFillColor(11, 25, 44);
@@ -326,19 +574,19 @@ export const DashboardPage = () => {
       doc.setFontSize(15);
       doc.setFont('helvetica', 'bold');
       doc.text('VIOTRACK - Executive School Disciplinary Report', 14, 12);
-      doc.setFontSize(9.5);
+      doc.setFontSize(9);
       doc.setFont('helvetica', 'normal');
-      doc.text(`Generated: ${new Date().toLocaleDateString()} | Scope: September 2026`, 14, 20);
+      doc.text(`Generated: ${new Date().toLocaleDateString('en-US', { dateStyle: 'medium', timeStyle: 'short' })} | Status: Live Sync`, 14, 20);
 
       doc.setTextColor(30, 41, 59);
       doc.autoTable({
-        head: [['Key Disciplinary Metric', 'Count', 'Trend / Status']],
+        head: [['Key Disciplinary Metric', 'Count', 'Resolution & Status']],
         body: [
-          ['Minor Offense', minorCount, '↑ 12% (Active warning logs)'],
-          ['Serious Offense', seriousCount, '↑ 0% (Faculty interventions)'],
-          ['Major Offense', majorCount, '↑ 0% (Guidance hearing cases)'],
-          ['Total Students', totalStudentsCount, '↑ 2% (Across all levels & strands)'],
-          ['Total Violations', totalViolationsCount, '↑ 25% (Recorded incidents to date)']
+          ['Minor Offense', metrics.minorCount, 'Informal / Active Warning Logs'],
+          ['Serious Offense', metrics.seriousCount, 'Faculty Interventions Required'],
+          ['Major Offense', metrics.majorCount, 'Guidance Hearing & Formal Cases'],
+          ['Total Enrolled Students', metrics.totalStudentsCount, 'Active Student Database'],
+          ['Total Logged Incidents', metrics.totalViolationsCount, `${metrics.resolvedRate}% Overall Resolution Rate`]
         ],
         startY: 34,
         theme: 'grid',
@@ -348,22 +596,27 @@ export const DashboardPage = () => {
       const finalY = doc.lastAutoTable.finalY + 10;
       doc.setFontSize(12);
       doc.setFont('helvetica', 'bold');
-      doc.text('Repeat & High-Risk Students', 14, finalY);
+      doc.text('Repeat & Priority Intervention Students', 14, finalY);
+
+      const tableData = repeatStudentsList.length > 0
+        ? repeatStudentsList.map(s => [
+            `#${s.rank}`,
+            s.name,
+            s.grade,
+            s.infractionLabel,
+            s.pendingCount > 0 ? `${s.pendingCount} Pending` : 'All Resolved'
+          ])
+        : [['-', 'No repeat offenders recorded', '-', '-', 'Optimal']];
 
       doc.autoTable({
-        head: [['Rank', 'Student Name', 'Grade & Section', 'Infractions']],
-        body: repeatStudentsList.map(s => [
-          `#${s.rank}`,
-          s.name,
-          s.grade,
-          s.infractionLabel
-        ]),
+        head: [['Rank', 'Student Name', 'Grade & Section', 'Status / Incidents', 'Pending Cases']],
+        body: tableData,
         startY: finalY + 4,
         theme: 'striped',
-        headStyles: { fillColor: [39, 54, 127] }
+        headStyles: { fillColor: [30, 58, 138] }
       });
 
-      doc.save(`Viotrack_Summary_Report_${Date.now()}.pdf`);
+      doc.save(`Viotrack_Executive_Report_${Date.now()}.pdf`);
       success('Executive Summary PDF report exported successfully!');
     } catch (err) {
       console.error(err);
@@ -371,11 +624,35 @@ export const DashboardPage = () => {
     }
   };
 
+  // Export CSV Data
+  const handleExportCSV = () => {
+    try {
+      const exportRows = records.map(r => ({
+        Record_ID: r.id,
+        Student_LRN: r.student?.lrn || '',
+        Student_Name: r.student ? `${r.student.fname} ${r.student.lname}` : '',
+        Grade: r.student?.grade || '',
+        Section: r.student?.section || '',
+        Violation_Title: r.violation?.title || r.title || '',
+        Severity: r.violation?.type || r.type || 'Minor',
+        Status: r.status || 'Pending',
+        Reported_By: r.reported_by_name || '',
+        Date_Reported: r.date_reported || r.created_at || '',
+        Sanction: r.sanction || ''
+      }));
+
+      exportToCsv(`Viotrack_Disciplinary_Records_${Date.now()}.csv`, exportRows);
+      success('Disciplinary dataset exported to CSV.');
+    } catch (err) {
+      console.error(err);
+      info('Could not export CSV data.');
+    }
+  };
+
   return (
     <div className="dashboard-root">
-      {/* 1. Header & Filters Section */}
+      {/* 1. Header Section */}
       <div className="dash-top-header">
-        {/* Top Greeting & Top Actions */}
         <div className="dash-top-row-main">
           {/* Greeting */}
           <div className="dash-greeting-area">
@@ -388,175 +665,219 @@ export const DashboardPage = () => {
               </span>
             </div>
             <p className="dash-greeting-subtitle">
-              Here's what's happening with your school today
+              {metrics.totalViolationsCount === 0
+                ? 'Campus conduct is clean today with zero active infractions.'
+                : `Campus overview: ${metrics.thisWeekCount} incident${metrics.thisWeekCount === 1 ? '' : 's'} logged in the last 7 days.`}
             </p>
           </div>
 
           {/* Top Right Controls */}
           <div className="dash-top-actions-right">
-            {/* Log Violation Primary Button */}
             <button
               type="button"
               className="dash-log-violation-btn"
               onClick={() => setIsAddModalOpen(true)}
               id="logViolationBtn"
+              title="Record a new student disciplinary infraction"
             >
-              <PlusCircle size={15} strokeWidth={2.4} />
+              <PlusCircle size={16} strokeWidth={2.4} />
               <span>Log Violation</span>
             </button>
           </div>
         </div>
       </div>
 
-      {/* 2. Top 5 Stat Metric Cards Row */}
-      <div className="dash-stats-grid-5">
+      {/* 2. Interactive KPI Metric Cards */}
+      <div className="dash-stats-grid-5" role="region" aria-label="Disciplinary Metrics Overview">
         {/* Card 1: Minor Offense */}
-        <div className="dash-stat-card-clean card-minor">
+        <div
+          className={`dash-stat-card-clean card-minor ${activeSeverityFilter === 'minor' ? 'active-filter' : ''}`}
+          onClick={() => {
+            setShowMinor(true);
+            setActiveSeverityFilter(prev => prev === 'minor' ? 'all' : 'minor');
+          }}
+          title="Click to focus on Minor Offenses"
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => e.key === 'Enter' && setActiveSeverityFilter(prev => prev === 'minor' ? 'all' : 'minor')}
+        >
           <div className="dash-stat-top-part">
-            <div className="dash-stat-icon-circle minor">
-              <ShieldCheck size={24} strokeWidth={2.4} />
+            <div className="dash-stat-icon-circle minor" style={{ color: '#10b981' }}>
+              <ShieldCheck size={22} strokeWidth={2.4} />
             </div>
             <div className="dash-stat-center-info">
               <span className="dash-stat-title-label">Minor Offense</span>
               <div className="dash-stat-number-trend-row">
-                <span className="dash-stat-big-num">{minorCount}</span>
-                <span className="dash-stat-trend-tag">
-                  <ArrowUp size={12} strokeWidth={2.8} /> 12%
+                <span className="dash-stat-big-num">{metrics.minorCount}</span>
+                <span className="dash-stat-trend-tag" style={{ color: '#059669' }}>
+                  {metrics.minorCount > 0 ? 'Active logs' : 'Clean'}
                 </span>
               </div>
             </div>
-            <ChevronRight size={16} className="dash-stat-chevron-right" />
           </div>
-          <p className="dash-stat-bottom-text">Active warning logs</p>
+          <p className="dash-stat-bottom-text">Informal warning & compliance</p>
         </div>
 
         {/* Card 2: Serious Offense */}
-        <div className="dash-stat-card-clean card-serious">
+        <div
+          className={`dash-stat-card-clean card-serious ${activeSeverityFilter === 'serious' ? 'active-filter' : ''}`}
+          onClick={() => {
+            setShowSerious(true);
+            setActiveSeverityFilter(prev => prev === 'serious' ? 'all' : 'serious');
+          }}
+          title="Click to focus on Serious Offenses"
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => e.key === 'Enter' && setActiveSeverityFilter(prev => prev === 'serious' ? 'all' : 'serious')}
+        >
           <div className="dash-stat-top-part">
-            <div className="dash-stat-icon-circle serious">
-              <Clock size={24} strokeWidth={2.4} />
+            <div className="dash-stat-icon-circle serious" style={{ color: '#f59e0b' }}>
+              <AlertTriangle size={22} strokeWidth={2.4} />
             </div>
             <div className="dash-stat-center-info">
               <span className="dash-stat-title-label">Serious Offense</span>
               <div className="dash-stat-number-trend-row">
-                <span className="dash-stat-big-num">{seriousCount}</span>
-                <span className="dash-stat-trend-tag">
-                  <ArrowUp size={12} strokeWidth={2.8} /> 0%
+                <span className="dash-stat-big-num">{metrics.seriousCount}</span>
+                <span className="dash-stat-trend-tag" style={{ color: metrics.seriousCount > 0 ? '#d97706' : '#64748b' }}>
+                  {metrics.seriousCount > 0 ? 'Interventions' : '0 cases'}
                 </span>
               </div>
             </div>
-            <ChevronRight size={16} className="dash-stat-chevron-right" />
           </div>
-          <p className="dash-stat-bottom-text">Faculty interventions</p>
+          <p className="dash-stat-bottom-text">Faculty parent conference</p>
         </div>
 
         {/* Card 3: Major Offense */}
-        <div className="dash-stat-card-clean card-major">
+        <div
+          className={`dash-stat-card-clean card-major ${activeSeverityFilter === 'major' ? 'active-filter' : ''}`}
+          onClick={() => {
+            setShowMajor(true);
+            setActiveSeverityFilter(prev => prev === 'major' ? 'all' : 'major');
+          }}
+          title="Click to focus on Major Offenses"
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => e.key === 'Enter' && setActiveSeverityFilter(prev => prev === 'major' ? 'all' : 'major')}
+        >
           <div className="dash-stat-top-part">
-            <div className="dash-stat-icon-circle major">
-              <AlertCircle size={24} strokeWidth={2.4} />
+            <div className="dash-stat-icon-circle major" style={{ color: '#ef4444' }}>
+              <AlertCircle size={22} strokeWidth={2.4} />
             </div>
             <div className="dash-stat-center-info">
               <span className="dash-stat-title-label">Major Offense</span>
               <div className="dash-stat-number-trend-row">
-                <span className="dash-stat-big-num">{majorCount}</span>
-                <span className="dash-stat-trend-tag">
-                  <ArrowUp size={12} strokeWidth={2.8} /> 0%
+                <span className="dash-stat-big-num">{metrics.majorCount}</span>
+                <span className="dash-stat-trend-tag" style={{ color: metrics.majorCount > 0 ? '#dc2626' : '#10b981' }}>
+                  {metrics.majorCount > 0 ? 'Hearing required' : 'None'}
                 </span>
               </div>
             </div>
-            <ChevronRight size={16} className="dash-stat-chevron-right" />
           </div>
-          <p className="dash-stat-bottom-text">Guidance hearing cases</p>
+          <p className="dash-stat-bottom-text">Guidance council hearings</p>
         </div>
 
         {/* Card 4: Total Students */}
-        <div className="dash-stat-card-clean card-students">
+        <div
+          className="dash-stat-card-clean card-students"
+          onClick={() => navigate('/students')}
+          title="Click to navigate to Student Management"
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => e.key === 'Enter' && navigate('/students')}
+        >
           <div className="dash-stat-top-part">
-            <div className="dash-stat-icon-circle students">
-              <Users size={24} strokeWidth={2.4} />
+            <div className="dash-stat-icon-circle students" style={{ color: '#2563eb' }}>
+              <Users size={22} strokeWidth={2.4} />
             </div>
             <div className="dash-stat-center-info">
               <span className="dash-stat-title-label">Total Students</span>
               <div className="dash-stat-number-trend-row">
-                <span className="dash-stat-big-num">{totalStudentsCount}</span>
-                <span className="dash-stat-trend-tag">
-                  <ArrowUp size={12} strokeWidth={2.8} /> 2%
+                <span className="dash-stat-big-num">{metrics.totalStudentsCount}</span>
+                <span className="dash-stat-trend-tag" style={{ color: '#2563eb' }}>
+                  Enrolled
                 </span>
               </div>
             </div>
-            <ChevronRight size={16} className="dash-stat-chevron-right" />
           </div>
-          <p className="dash-stat-bottom-text">Across all levels & strands</p>
+          <p className="dash-stat-bottom-text">Across Junior & Senior High</p>
         </div>
 
-        {/* Card 5: Total Violations */}
-        <div className="dash-stat-card-clean card-violations">
+        {/* Card 5: Total Violations & Resolution Rate */}
+        <div
+          className="dash-stat-card-clean card-violations"
+          onClick={() => navigate('/violations')}
+          title="Click to view all Disciplinary Logs"
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => e.key === 'Enter' && navigate('/violations')}
+        >
           <div className="dash-stat-top-part">
-            <div className="dash-stat-icon-circle violations">
-              <CalendarIcon size={24} strokeWidth={2.4} />
+            <div className="dash-stat-icon-circle violations" style={{ color: '#8b5cf6' }}>
+              <CheckCircle2 size={22} strokeWidth={2.4} />
             </div>
             <div className="dash-stat-center-info">
-              <span className="dash-stat-title-label">Total Violations</span>
+              <span className="dash-stat-title-label">Total Incidents</span>
               <div className="dash-stat-number-trend-row">
-                <span className="dash-stat-big-num">{totalViolationsCount}</span>
-                <span className="dash-stat-trend-tag">
-                  <ArrowUp size={12} strokeWidth={2.8} /> 25%
+                <span className="dash-stat-big-num">{metrics.totalViolationsCount}</span>
+                <span className="dash-stat-trend-tag" style={{ color: '#7c3aed' }}>
+                  {metrics.resolvedRate}% resolved
                 </span>
               </div>
             </div>
-            <ChevronRight size={16} className="dash-stat-chevron-right" />
           </div>
-          <p className="dash-stat-bottom-text">Recorded incidents to date</p>
+          <p className="dash-stat-bottom-text">{metrics.pendingCount} pending resolution</p>
         </div>
       </div>
 
-      {/* 3. Violation Trends Chart Section */}
+      {/* 3. Real Violation Trends Chart Section */}
       <div className="dash-trends-card">
         <div className="dash-trends-header">
-          {/* Title on Left */}
           <div className="dash-trends-title-left">
-            <TrendingUp size={22} color="#1f2937" strokeWidth={2.4} />
+            <TrendingUp size={22} color="#0f172a" strokeWidth={2.4} />
             <div>
-              <h2 className="dash-trends-main-title">Violation Trends</h2>
-              <p className="dash-trends-sub-title">Timeline of student misconduct incidents by severity</p>
+              <h2 className="dash-trends-main-title">Violation Trends & Analytics</h2>
+              <p className="dash-trends-sub-title">Live timeline of verified student infractions by severity level</p>
             </div>
           </div>
 
-          {/* Controls on Right: Legend & Segment Tabs */}
           <div className="dash-trends-controls-right">
+            {/* Interactive Series Legend */}
             <div className="dash-trends-legend">
               <div
                 className="dash-legend-item"
                 onClick={() => setShowMinor(!showMinor)}
-                style={{ opacity: showMinor ? 1 : 0.4 }}
+                style={{ opacity: showMinor ? 1 : 0.35 }}
+                title="Toggle Minor Offenses series"
               >
                 <span className="dash-legend-dot minor" />
-                <span>Minor</span>
+                <span>Minor ({metrics.minorCount})</span>
               </div>
               <div
                 className="dash-legend-item"
                 onClick={() => setShowSerious(!showSerious)}
-                style={{ opacity: showSerious ? 1 : 0.4 }}
+                style={{ opacity: showSerious ? 1 : 0.35 }}
+                title="Toggle Serious Offenses series"
               >
                 <span className="dash-legend-dot serious" />
-                <span>Serious</span>
+                <span>Serious ({metrics.seriousCount})</span>
               </div>
               <div
                 className="dash-legend-item"
                 onClick={() => setShowMajor(!showMajor)}
-                style={{ opacity: showMajor ? 1 : 0.4 }}
+                style={{ opacity: showMajor ? 1 : 0.35 }}
+                title="Toggle Major Offenses series"
               >
                 <span className="dash-legend-dot major" />
-                <span>Major</span>
+                <span>Major ({metrics.majorCount})</span>
               </div>
             </div>
 
+            {/* Segmented Time Range Pills */}
             <div className="dash-segmented-pills">
               {[
                 { id: 'today', label: 'Today' },
-                { id: 'month', label: 'This Month' },
                 { id: 'week', label: 'This Week' },
+                { id: 'month', label: 'This Month' },
                 { id: 'custom', label: 'Custom' }
               ].map(tab => (
                 <button
@@ -584,20 +905,21 @@ export const DashboardPage = () => {
             <AreaChart data={trendData} margin={{ top: 10, right: 10, left: -24, bottom: 0 }}>
               <defs>
                 <linearGradient id="minorGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#10b981" stopOpacity={0.35} />
-                  <stop offset="95%" stopColor="#10b981" stopOpacity={0.02} />
+                  <stop offset="5%" stopColor="#10b981" stopOpacity={0.4} />
+                  <stop offset="95%" stopColor="#10b981" stopOpacity={0.0} />
                 </linearGradient>
                 <linearGradient id="seriousGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.35} />
-                  <stop offset="95%" stopColor="#f59e0b" stopOpacity={0.02} />
+                  <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.4} />
+                  <stop offset="95%" stopColor="#f59e0b" stopOpacity={0.0} />
                 </linearGradient>
                 <linearGradient id="majorGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#ef4444" stopOpacity={0.35} />
-                  <stop offset="95%" stopColor="#ef4444" stopOpacity={0.02} />
+                  <stop offset="5%" stopColor="#ef4444" stopOpacity={0.4} />
+                  <stop offset="95%" stopColor="#ef4444" stopOpacity={0.0} />
                 </linearGradient>
               </defs>
 
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+
               <XAxis
                 dataKey="time"
                 stroke="#94a3b8"
@@ -610,27 +932,41 @@ export const DashboardPage = () => {
                 fontSize={11.5}
                 tickLine={false}
                 axisLine={{ stroke: '#e2e8f0' }}
-                ticks={[0, 3, 6, 9, 12]}
-                domain={[0, 12]}
+                domain={chartYDomain}
+                allowDecimals={false}
               />
 
               <Tooltip
                 content={({ active, payload, label }) => {
                   if (active && payload && payload.length) {
+                    const totalVal = payload.reduce((acc, curr) => acc + (Number(curr.value) || 0), 0);
                     return (
-                      <div style={{ background: '#ffffff', borderRadius: '10px', padding: '10px 14px', border: '1px solid #e2e8f0', color: '#0f172a', fontSize: '12px', boxShadow: '0 8px 24px rgba(0, 0, 0, 0.08), 0 2px 6px rgba(0, 0, 0, 0.04)', minWidth: '130px' }}>
+                      <div style={{
+                        background: '#ffffff',
+                        borderRadius: '10px',
+                        padding: '10px 14px',
+                        border: '1px solid #e2e8f0',
+                        color: '#0f172a',
+                        fontSize: '12px',
+                        boxShadow: '0 8px 24px rgba(0, 0, 0, 0.08), 0 2px 6px rgba(0, 0, 0, 0.04)',
+                        minWidth: '140px'
+                      }}>
                         <div style={{ fontWeight: 700, marginBottom: '6px', paddingBottom: '4px', borderBottom: '1px solid #f1f5f9', color: '#64748b', fontSize: '11.5px' }}>
                           {label}
                         </div>
                         {payload.map(p => (
                           <div key={p.dataKey} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '14px', margin: '3px 0' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                              <span style={{ width: 7, height: 7, borderRadius: '50%', background: p.color }} />
+                              <span style={{ width: 8, height: 8, borderRadius: '50%', background: p.color }} />
                               <span style={{ color: p.color, fontWeight: 700 }}>{p.name}:</span>
                             </div>
-                            <span style={{ fontWeight: 800, color: '#0f172a' }}>{p.value}</span>
+                            <span style={{ fontWeight: 800, color: '#0f172a' }}>{p.value} incident{p.value === 1 ? '' : 's'}</span>
                           </div>
                         ))}
+                        <div style={{ marginTop: '6px', paddingTop: '4px', borderTop: '1px dashed #e2e8f0', display: 'flex', justifyContent: 'space-between', fontWeight: 800, fontSize: '11.5px' }}>
+                          <span>Total:</span>
+                          <span>{totalVal}</span>
+                        </div>
                       </div>
                     );
                   }
@@ -690,88 +1026,150 @@ export const DashboardPage = () => {
         <div className="dash-bottom-card">
           <div className="dash-card-header-clean">
             <div className="dash-card-header-left">
-              <ShieldAlert size={20} color="#1f2937" />
+              <ShieldAlert size={20} color="#0f172a" />
               <div>
                 <h2 className="dash-card-header-title">Repeat & High-Risk Students</h2>
-                <p className="dash-card-header-desc">Ranked by cumulative disciplinary infractions</p>
+                <p className="dash-card-header-desc">Ranked dynamically by incident weight & frequency</p>
               </div>
             </div>
           </div>
 
           {/* List */}
           <div className="dash-offenders-list">
-            {repeatStudentsList.map(st => (
-              <div key={st.id} className="dash-offender-row">
-                <div className="dash-offender-left">
-                  <span className={`dash-rank-badge rank-${st.rank}`}>
-                    #{st.rank}
-                  </span>
-                  <img
-                    src={st.image}
-                    alt={st.name}
-                    className="dash-offender-avatar"
-                    onError={(e) => {
-                      e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(st.name)}&background=0b192c&color=fff&size=50`;
-                    }}
-                  />
-                  <div className="dash-offender-meta">
-                    <span className="dash-offender-name">{st.name}</span>
-                    <span className="dash-offender-grade">{st.grade}</span>
+            {repeatStudentsList.length === 0 ? (
+              <div className="dash-empty-calendar-day" style={{ padding: '24px 16px', textAlign: 'center' }}>
+                <ShieldCheck size={28} color="#10b981" />
+                <span style={{ fontWeight: 600, color: '#0f172a', fontSize: '12.5px' }}>
+                  No Disciplinary Infractions Recorded
+                </span>
+                <span style={{ fontSize: '11px', color: '#64748b' }}>
+                  All enrolled students are in good disciplinary standing.
+                </span>
+              </div>
+            ) : (
+              paginatedOffenders.map(st => (
+                <div key={st.id} className="dash-offender-row">
+                  <div className="dash-offender-left">
+                    <span className={`dash-rank-badge rank-${st.rank}`}>
+                      #{st.rank}
+                    </span>
+                    <img
+                      src={st.image}
+                      alt={st.name}
+                      className="dash-offender-avatar"
+                      onError={(e) => {
+                        e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(st.name)}&background=0b192c&color=fff&size=50`;
+                      }}
+                    />
+                    <div className="dash-offender-meta">
+                      <span className="dash-offender-name">{st.name}</span>
+                      <span className="dash-offender-grade">{st.grade}</span>
+                    </div>
+                  </div>
+
+                  <div className="dash-offender-right">
+                    <span className={`dash-infraction-pill ${st.badgeType}`}>
+                      {st.infractionLabel}
+                    </span>
+                    <button
+                      type="button"
+                      className="dash-btn-view-offender"
+                      onClick={() => navigate(`/student-violation/${st.id}`)}
+                      title={`View disciplinary dossier for ${st.name}`}
+                    >
+                      View
+                    </button>
                   </div>
                 </div>
+              ))
+            )}
+          </div>
 
-                <div className="dash-offender-right">
-                  <span className={`dash-infraction-pill ${st.badgeType}`}>
-                    {st.infractionLabel}
-                  </span>
+          {/* Functional Pagination */}
+          {repeatStudentsList.length > 0 && (
+            <div className="dash-card-footer-pagination pagination-footer-responsive">
+              <span style={{ fontSize: '11.5px', color: '#64748b' }}>
+                Showing {(offendersPage - 1) * offendersPerPage + 1} – {Math.min(offendersPage * offendersPerPage, repeatStudentsList.length)} of {repeatStudentsList.length} students
+              </span>
+              <div style={{ display: 'flex', gap: '4px' }}>
+                <button
+                  type="button"
+                  style={{
+                    width: 28,
+                    height: 28,
+                    borderRadius: 6,
+                    border: '1px solid #e2e8f0',
+                    background: offendersPage === 1 ? '#f8fafc' : '#fff',
+                    color: offendersPage === 1 ? '#94a3b8' : '#0f172a',
+                    fontSize: '12px',
+                    cursor: offendersPage === 1 ? 'not-allowed' : 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                  disabled={offendersPage === 1}
+                  onClick={() => setOffendersPage(p => Math.max(1, p - 1))}
+                  aria-label="Previous offenders page"
+                >
+                  ‹
+                </button>
+                {Array.from({ length: totalOffenderPages }, (_, i) => i + 1).map(p => (
                   <button
+                    key={p}
                     type="button"
-                    className="dash-btn-view-offender"
-                    onClick={() => navigate(`/student-violation/${st.id}`)}
+                    style={{
+                      width: 28,
+                      height: 28,
+                      borderRadius: 6,
+                      border: p === offendersPage ? 'none' : '1px solid #e2e8f0',
+                      background: p === offendersPage ? '#0b192c' : '#fff',
+                      color: p === offendersPage ? '#fff' : '#0f172a',
+                      fontSize: '11.5px',
+                      fontWeight: p === offendersPage ? 700 : 500,
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}
+                    onClick={() => setOffendersPage(p)}
                   >
-                    View
+                    {p}
                   </button>
-                </div>
+                ))}
+                <button
+                  type="button"
+                  style={{
+                    width: 28,
+                    height: 28,
+                    borderRadius: 6,
+                    border: '1px solid #e2e8f0',
+                    background: offendersPage === totalOffenderPages ? '#f8fafc' : '#fff',
+                    color: offendersPage === totalOffenderPages ? '#94a3b8' : '#0f172a',
+                    fontSize: '12px',
+                    cursor: offendersPage === totalOffenderPages ? 'not-allowed' : 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                  disabled={offendersPage === totalOffenderPages}
+                  onClick={() => setOffendersPage(p => Math.min(totalOffenderPages, p + 1))}
+                  aria-label="Next offenders page"
+                >
+                  ›
+                </button>
               </div>
-            ))}
-          </div>
-
-          {/* Footer Pagination */}
-          <div className="dash-card-footer-pagination pagination-footer-responsive">
-            <span style={{ fontSize: '11.5px', color: '#64748b' }}>Showing 1 – {repeatStudentsList.length} of {repeatStudentsList.length}</span>
-            <div style={{ display: 'flex', gap: '4px' }}>
-              <button
-                type="button"
-                style={{ width: 24, height: 24, borderRadius: 5, border: '1px solid #e2e8f0', background: '#fff', fontSize: '11px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                onClick={() => setOffendersPage(1)}
-              >
-                ‹
-              </button>
-              <button
-                type="button"
-                style={{ width: 24, height: 24, borderRadius: 5, border: 'none', background: '#0b192c', color: '#fff', fontSize: '11px', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-              >
-                1
-              </button>
-              <button
-                type="button"
-                style={{ width: 24, height: 24, borderRadius: 5, border: '1px solid #e2e8f0', background: '#fff', fontSize: '11px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-                onClick={() => setOffendersPage(1)}
-              >
-                ›
-              </button>
             </div>
-          </div>
+          )}
         </div>
 
         {/* Column 2: Violations by Grade & Section */}
         <div className="dash-bottom-card">
           <div className="dash-card-header-clean">
             <div className="dash-card-header-left">
-              <GraduationCap size={20} color="#1f2937" />
+              <GraduationCap size={20} color="#0f172a" />
               <div>
                 <h2 className="dash-card-header-title">Violations by Grade & Section</h2>
-                <p className="dash-card-header-desc">Distribution breakdown across active sections</p>
+                <p className="dash-card-header-desc">Dynamic incident distribution across classes</p>
               </div>
             </div>
           </div>
@@ -779,7 +1177,7 @@ export const DashboardPage = () => {
           {/* Horizontal Bar Breakdown */}
           <div className="dash-sections-list">
             {sectionBreakdown.map((sec) => (
-              <div key={sec.section} className="dash-section-bar-row">
+              <div key={`${sec.grade}-${sec.section}`} className="dash-section-bar-row">
                 <span className="dash-section-tag">{sec.grade}</span>
                 <span className="dash-section-name" title={sec.section}>{sec.section}</span>
                 <div className="dash-section-track">
@@ -796,15 +1194,15 @@ export const DashboardPage = () => {
             ))}
           </div>
 
-          {/* Insight Callout Box */}
+          {/* Dynamic Insight Callout Box */}
           <div className="dash-insight-banner">
             <div className="dash-insight-icon-wrap">
               <Lightbulb size={15} color="#ffffff" strokeWidth={2.2} />
             </div>
             <div>
-              <h4 className="dash-insight-title">Disciplinary Intervention Insight</h4>
+              <h4 className="dash-insight-title">{disciplinaryInsight.title}</h4>
               <p className="dash-insight-text">
-                Grade 10 – Rizal currently accounts for 5 logged incidents (highest volume). Recommendation: Coordinate with Class Adviser for orientation.
+                {disciplinaryInsight.text}
               </p>
             </div>
           </div>
@@ -816,7 +1214,7 @@ export const DashboardPage = () => {
           <div className="dash-calendar-card">
             <div className="dash-calendar-top-header">
               <h2 className="dash-calendar-title">
-                <CalendarDays size={16} color="#1f2937" />
+                <CalendarDays size={16} color="#0f172a" />
                 <span>School Calendar</span>
               </h2>
               <span
@@ -840,7 +1238,7 @@ export const DashboardPage = () => {
                   title="Previous Month"
                   aria-label="Previous Month"
                 >
-                  <ChevronLeft size={13} strokeWidth={2.4} />
+                  <ChevronLeft size={14} strokeWidth={2.4} />
                 </button>
                 <button
                   type="button"
@@ -849,7 +1247,7 @@ export const DashboardPage = () => {
                   title="Next Month"
                   aria-label="Next Month"
                 >
-                  <ChevronRight size={13} strokeWidth={2.4} />
+                  <ChevronRight size={14} strokeWidth={2.4} />
                 </button>
               </div>
             </div>
@@ -948,7 +1346,7 @@ export const DashboardPage = () => {
             </div>
           </div>
 
-          {/* Card B: Quick Actions */}
+          {/* Card B: High-Value Quick Actions */}
           <div className="dash-quick-actions-card">
             <h4 className="dash-quick-actions-title">
               <Compass size={15} color="#07345f" />
@@ -960,6 +1358,7 @@ export const DashboardPage = () => {
                 type="button"
                 className="dash-quick-action-btn"
                 onClick={() => navigate('/students')}
+                title="Manage student directory and profiles"
               >
                 <User size={18} color="#07345f" />
                 <span>Manage Students</span>
@@ -968,28 +1367,31 @@ export const DashboardPage = () => {
               <button
                 type="button"
                 className="dash-quick-action-btn"
-                onClick={() => setIsAddModalOpen(true)}
+                onClick={() => navigate('/violations')}
+                title="Review all disciplinary violation records"
               >
                 <ShieldCheck size={18} color="#07345f" />
-                <span>Log Violation</span>
+                <span>Discipline Logs</span>
               </button>
 
               <button
                 type="button"
                 className="dash-quick-action-btn"
-                onClick={handleExport}
+                onClick={handleExportPDF}
+                title="Download Executive Disciplinary PDF Report"
               >
                 <FileText size={18} color="#07345f" />
-                <span>Generate Report</span>
+                <span>Export PDF</span>
               </button>
 
               <button
                 type="button"
                 className="dash-quick-action-btn"
-                onClick={() => navigate('/scan-qr')}
+                onClick={handleExportCSV}
+                title="Export complete disciplinary dataset as CSV"
               >
-                <QrCode size={18} color="#07345f" />
-                <span>Scan QR</span>
+                <Download size={18} color="#07345f" />
+                <span>Export CSV</span>
               </button>
             </div>
           </div>
@@ -1000,9 +1402,8 @@ export const DashboardPage = () => {
       <AddViolationModal
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
-        onRecordAdded={(newRec) => {
-          setRecords([newRec, ...records]);
-          success('Violation recorded successfully!');
+        onRecordAdded={() => {
+          loadData();
         }}
       />
 

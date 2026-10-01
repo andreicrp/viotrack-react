@@ -23,6 +23,7 @@ export const Modal = ({ isOpen, onClose, title, children, maxWidth = '600px', ic
       className="modal-overlay"
       onClick={onClose}
       role="presentation"
+      style={{ zIndex: 3500 }}
     >
       <div
         className="modal-dialog"

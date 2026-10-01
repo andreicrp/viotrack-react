@@ -2910,8 +2910,8 @@
 .dash-stat-card-clean {
     background: #ffffff;
     border: 1px solid #e2e8f0;
-    border-radius: 10px;
-    padding: 11px 13px;
+    border-radius: 12px;
+    padding: 12px 14px;
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.02);
     display: flex;
     flex-direction: column;
@@ -2919,21 +2919,41 @@
     gap: 6px;
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
-    cursor: default;
+    cursor: pointer;
     min-width: 0;
+    user-select: none;
 }
 
 .dash-stat-card-clean:hover {
     transform: translateY(-2px);
     box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+    border-color: #cbd5e1;
 }
 
-.dash-stat-card-clean.card-minor,
-.dash-stat-card-clean.card-serious,
-.dash-stat-card-clean.card-major,
-.dash-stat-card-clean.card-students,
-.dash-stat-card-clean.card-violations {
-    border-color: #e2e8f0;
+.dash-stat-card-clean:focus-visible {
+    outline: 2px solid #2563eb;
+    outline-offset: 2px;
+}
+
+.dash-stat-card-clean.active-filter {
+    border-color: #0f172a;
+    background: #f8fafc;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.08);
+}
+
+.dash-stat-card-clean.card-minor.active-filter {
+    border-color: #10b981;
+    background: #f0fdf4;
+}
+
+.dash-stat-card-clean.card-serious.active-filter {
+    border-color: #f59e0b;
+    background: #fffbeb;
+}
+
+.dash-stat-card-clean.card-major.active-filter {
+    border-color: #ef4444;
+    background: #fef2f2;
 }
 
 .dash-stat-top-part {

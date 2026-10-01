@@ -254,19 +254,31 @@ const ToastItem = ({ toast, onRemove }) => {
 
 export const NotificationProvider = ({ children }) => {
   const [toasts, setToasts] = useState([]);
+  const lastToastTimeRef = useRef(0);
+  const lastToastKeyRef = useRef('');
 
   const addToast = useCallback((message, type = 'info', duration = 4500, options = {}) => {
     if (!message) return;
+    const now = Date.now();
+    const key = `${type}:${message.trim()}`;
+
+    // Suppress identical rapid toasts fired within 1200ms
+    if (key === lastToastKeyRef.current && (now - lastToastTimeRef.current < 1200)) {
+      return;
+    }
+    lastToastKeyRef.current = key;
+    lastToastTimeRef.current = now;
+
     setToasts((prev) => {
-      // Prevent rapid duplicate messages of identical type & text
+      // Prevent duplicate messages of identical type & text
       const isDuplicate = prev.some(
         (t) => t.message === message && t.type === type
       );
       if (isDuplicate) return prev;
 
-      const id = Date.now() + Math.random();
-      // Keep up to 3 active toasts
-      const trimmed = prev.length >= 3 ? prev.slice(prev.length - 2) : prev;
+      const id = now + Math.random();
+      // Keep up to 2 active toasts max for a clean, non-cluttered interface
+      const trimmed = prev.length >= 2 ? prev.slice(prev.length - 1) : prev;
       return [...trimmed, { id, message, type, duration, ...options }];
     });
   }, []);

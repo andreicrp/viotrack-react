@@ -1,6 +1,6 @@
-# 🛡️ VioTrack — Student Violation Tracking & Conduct Management System
+# 🛡️ VIOTRACK: A Student Violation Tracking and Monitoring System Using QR Code and Dashboard
 
-A modern, responsive, full-featured **Student Violation Tracking & Conduct Management System** built with **React 19**, **Vite 8**, and **Supabase**. Designed for K-12 schools in the Philippines (DepEd-aligned Grade 7–12), with native Android support via **Capacitor**.
+A modern, responsive, full-featured **Student Violation Tracking and Monitoring System Using QR Code and Dashboard** built with **React 19**, **Vite 8**, and **Supabase**. Designed for schools in the Philippines with QR code scanning, live analytics, geolocation tracking, and SMS alerts via iProgTech.
 
 ---
 

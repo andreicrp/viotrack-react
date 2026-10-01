@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useDeferredValue } from 'react';
+import React, { useState, useEffect, useMemo, useDeferredValue, useCallback } from 'react';
 import { dataService } from '../services/dataService';
 import { AddStudentModal } from '../components/students/AddStudentModal';
 import { StudentIdModal } from '../components/students/StudentIdModal';
@@ -92,21 +92,28 @@ export const StudentsPage = () => {
 
   const isAdmin = user?.role === 'admin';
 
-  useEffect(() => {
-    loadStudents();
-  }, []);
-
-  const loadStudents = async () => {
+  const loadStudents = useCallback(async (forceRefresh = false) => {
     setLoading(true);
     try {
-      const data = await dataService.getStudents();
+      const data = await dataService.getStudents(forceRefresh);
       setStudents(data || []);
     } catch (err) {
       error('Failed to load students: ' + err.message);
     } finally {
       setLoading(false);
     }
-  };
+  }, [error]);
+
+  useEffect(() => {
+    loadStudents();
+    const handleDataUpdate = () => {
+      loadStudents(true);
+    };
+    window.addEventListener('viotrack_data_updated', handleDataUpdate);
+    return () => {
+      window.removeEventListener('viotrack_data_updated', handleDataUpdate);
+    };
+  }, [loadStudents]);
 
   // Helper sorting handler
   const handleSort = (field) => {

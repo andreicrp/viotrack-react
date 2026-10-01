@@ -182,6 +182,19 @@ export const ScanQRPage = () => {
     }
   };
 
+  const loadStudentRecords = async (studentId) => {
+    if (!studentId) return;
+    try {
+      const allRecords = await dataService.getRecords(true);
+      const studentHistory = (allRecords || []).filter(
+        r => Number(r.student?.id || r.student_id) === Number(studentId)
+      );
+      setStudentRecords(studentHistory);
+    } catch (e) {
+      console.error('Error loading student records:', e);
+    }
+  };
+
   // If accessed directly via URL from QR code scan (matching scan-qr.php)
   useEffect(() => {
     if (queryStudentId || queryLrn) {
@@ -863,16 +876,6 @@ export const ScanQRPage = () => {
     processScanWithAnimation(rawInput);
   };
 
-  const loadStudentRecords = async (studentId) => {
-    try {
-      const allRecords = await dataService.getRecords();
-      const studentHistory = allRecords.filter(r => (r.student?.id || r.student_id) === studentId);
-      setStudentRecords(studentHistory);
-    } catch (e) {
-      console.error(e);
-    }
-  };
-
   if (isCapturingLocation) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '65vh', padding: '20px' }}>
@@ -1513,9 +1516,11 @@ export const ScanQRPage = () => {
           isOpen={isViolationModalOpen}
           onClose={() => setIsViolationModalOpen(false)}
           preselectedStudentId={scannedStudent.id}
-          onRecordAdded={() => {
-            loadStudentRecords(scannedStudent.id);
-            success(`Incident logged for ${scannedStudent.fname} ${scannedStudent.lname}!`);
+          onRecordAdded={async () => {
+            setIsViolationModalOpen(false);
+            if (scannedStudent?.id) {
+              await loadStudentRecords(scannedStudent.id);
+            }
           }}
         />
       )}
