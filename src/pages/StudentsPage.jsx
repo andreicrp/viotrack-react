@@ -70,6 +70,7 @@ export const StudentsPage = () => {
   // Search & Filters
   const [searchTerm, setSearchTerm] = useState('');
   const deferredSearch = useDeferredValue(searchTerm);
+  const [yearFilter, setYearFilter] = useState('all');
   const [levelFilter, setLevelFilter] = useState('all'); // 'all' | 'jhs' | 'shs'
   const [gradeFilter, setGradeFilter] = useState('all');
   const [strandFilter, setStrandFilter] = useState('all');
@@ -680,7 +681,24 @@ export const StudentsPage = () => {
                 />
               </div>
 
-              {/* Grade Filter */}
+              {/* School Year / Academic Batch Filter */}
+              <div className="mobile-filter-item">
+                <CustomSelect
+                  value={yearFilter}
+                  onChange={(e) => {
+                    setYearFilter(e.target.value);
+                    setCurrentPage(1);
+                  }}
+                  options={[
+                    { value: 'all', label: 'All School Years' },
+                    { value: '2026-2027', label: 'S.Y. 2026-2027' },
+                    { value: '2025-2026', label: 'S.Y. 2025-2026' },
+                    { value: '2024-2025', label: 'S.Y. 2024-2025' }
+                  ]}
+                />
+              </div>
+
+              {/* Grade / Year Level Filter */}
               <div className="mobile-filter-item">
                 <CustomSelect
                   value={gradeFilter}
@@ -689,13 +707,13 @@ export const StudentsPage = () => {
                     setCurrentPage(1);
                   }}
                   options={[
-                    { value: 'all', label: 'All Grades' },
-                    { value: 'Grade 7', label: 'Grade 7' },
-                    { value: 'Grade 8', label: 'Grade 8' },
-                    { value: 'Grade 9', label: 'Grade 9' },
-                    { value: 'Grade 10', label: 'Grade 10' },
-                    { value: 'Grade 11', label: 'Grade 11' },
-                    { value: 'Grade 12', label: 'Grade 12' }
+                    { value: 'all', label: 'All Year Levels' },
+                    { value: 'Grade 7', label: 'Grade 7 (1st Year)' },
+                    { value: 'Grade 8', label: 'Grade 8 (2nd Year)' },
+                    { value: 'Grade 9', label: 'Grade 9 (3rd Year)' },
+                    { value: 'Grade 10', label: 'Grade 10 (4th Year)' },
+                    { value: 'Grade 11', label: 'Grade 11 (SHS Yr 1)' },
+                    { value: 'Grade 12', label: 'Grade 12 (SHS Yr 2)' }
                   ]}
                 />
               </div>

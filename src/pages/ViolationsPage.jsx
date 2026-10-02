@@ -46,7 +46,8 @@ export const ViolationsPage = () => {
   // Filters & Search
   const [searchTerm, setSearchTerm] = useState('');
   const deferredSearch = useDeferredValue(searchTerm);
-  const [statusFilter, setStatusFilter] = useState('all'); // 'all' | 'pending' | 'investigation' | 'resolved' | 'escalated'
+  const [yearFilter, setYearFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState('all'); // 'all' | 'pending' | 'investigation' | '1st conference' | '2nd conference' | '3rd conference' | 'resolved' | 'escalated'
   const [severityFilter, setSeverityFilter] = useState('all'); // 'all' | 'minor' | 'serious' | 'major'
   const [gradeFilter, setGradeFilter] = useState('all');
   const [exportDate, setExportDate] = useState('2026-09-25');
@@ -130,6 +131,7 @@ export const ViolationsPage = () => {
     const isAllStatus = statusFilter === 'all';
     const isAllSeverity = severityFilter === 'all';
     const isAllGrade = gradeFilter === 'all';
+    const isAllYear = yearFilter === 'all';
     const targetStatus = statusFilter.toLowerCase();
     const targetSeverity = severityFilter.toLowerCase();
     const targetGrade = gradeFilter.toLowerCase();
@@ -145,6 +147,11 @@ export const ViolationsPage = () => {
       const student = r.student || {};
       const sGrade = (student.grade || '').toLowerCase();
       if (!isAllGrade && sGrade !== targetGrade) return false;
+
+      if (!isAllYear) {
+        const itemYear = new Date(r.date_reported || r.created_at).getFullYear().toString();
+        if (itemYear !== yearFilter) return false;
+      }
 
       if (!query) return true;
 
@@ -711,6 +718,44 @@ export const ViolationsPage = () => {
                 />
               </div>
 
+              {/* Year / Date Filter */}
+              <div className="mobile-filter-item">
+                <CustomSelect
+                  value={yearFilter}
+                  onChange={(e) => {
+                    setYearFilter(e.target.value);
+                    setCurrentPage(1);
+                  }}
+                  options={[
+                    { value: 'all', label: 'All Years' },
+                    { value: '2027', label: 'Year 2027' },
+                    { value: '2026', label: 'Year 2026' },
+                    { value: '2025', label: 'Year 2025' },
+                    { value: '2024', label: 'Year 2024' }
+                  ]}
+                />
+              </div>
+
+              {/* Grade / Year Level Filter */}
+              <div className="mobile-filter-item">
+                <CustomSelect
+                  value={gradeFilter}
+                  onChange={(e) => {
+                    setGradeFilter(e.target.value);
+                    setCurrentPage(1);
+                  }}
+                  options={[
+                    { value: 'all', label: 'All Grade Levels' },
+                    { value: 'Grade 7', label: 'Grade 7 (1st Year)' },
+                    { value: 'Grade 8', label: 'Grade 8 (2nd Year)' },
+                    { value: 'Grade 9', label: 'Grade 9 (3rd Year)' },
+                    { value: 'Grade 10', label: 'Grade 10 (4th Year)' },
+                    { value: 'Grade 11', label: 'Grade 11 (SHS Yr 1)' },
+                    { value: 'Grade 12', label: 'Grade 12 (SHS Yr 2)' }
+                  ]}
+                />
+              </div>
+
               {/* Severity Filter */}
               <div className="mobile-filter-item">
                 <CustomSelect
@@ -740,6 +785,9 @@ export const ViolationsPage = () => {
                     { value: 'all', label: 'All Statuses' },
                     { value: 'pending', label: 'Pending' },
                     { value: 'investigation', label: 'In Review' },
+                    { value: '1st conference', label: '1st Conference' },
+                    { value: '2nd conference', label: '2nd Conference' },
+                    { value: '3rd conference', label: '3rd Conference' },
                     { value: 'resolved', label: 'Resolved' },
                     { value: 'escalated', label: 'Escalated' }
                   ]}
