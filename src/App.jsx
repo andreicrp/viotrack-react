@@ -1,5 +1,5 @@
 import React, { useState, useEffect, lazy, Suspense } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { Capacitor } from '@capacitor/core';
 import { StatusBar, Style } from '@capacitor/status-bar';
 import { AuthProvider, useAuth } from './context/AuthContext';
@@ -50,13 +50,20 @@ const PageLoader = () => (
 
 export const ProtectedRoute = ({ children, requireAdmin = false }) => {
   const { user, isAuthenticated, loading } = useAuth();
+  const location = useLocation();
   
   if (loading) {
     return <PageLoader />;
   }
 
   if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
+    const returnUrl = location.pathname + location.search;
+    const isScanAttempt = returnUrl.includes('scan') || returnUrl.includes('student') || returnUrl.includes('violation');
+    const redirectParam = encodeURIComponent(returnUrl);
+    const loginUrl = isScanAttempt
+      ? `/login?redirect=${redirectParam}&reason=qr_protected`
+      : `/login?redirect=${redirectParam}`;
+    return <Navigate to={loginUrl} replace />;
   }
 
   if (requireAdmin && user?.role !== 'admin') {

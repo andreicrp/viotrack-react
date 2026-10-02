@@ -4,44 +4,73 @@ import { clearRateLimit, sanitizeForLogging } from '../utils/security';
 
 const AuthContext = createContext(null);
 
-// Default Demo Fallbacks for Offline / Development Mode
-const DEFAULT_DEMO_ADMIN = {
-  id: 1,
-  name: 'System Admin',
-  email: 'admin@viotrack.edu',
-  role: 'admin',
-  avatar: '/images/phcm-logo2.png',
-  adviserSection: null
-};
-
 const INACTIVITY_TIMEOUT_MS = 30 * 60 * 1000; // Exactly 30 Minutes Inactivity Session Timeout
 
-export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(() => {
-    try {
-      const saved = localStorage.getItem('viotrack_auth_user');
-      return saved ? JSON.parse(saved) : DEFAULT_DEMO_ADMIN;
-    } catch (e) {
-      return DEFAULT_DEMO_ADMIN;
-    }
-  });
+// Helper to determine initial user from session or local storage with timeout check
+const getInitialUser = () => {
+  try {
+    const sessionSaved = sessionStorage.getItem('viotrack_auth_user');
+    const localSaved = localStorage.getItem('viotrack_auth_user');
+    const saved = sessionSaved || localSaved;
+    if (!saved) return null;
 
+    const isSession = !!sessionSaved;
+    const lastActiveStr = isSession
+      ? sessionStorage.getItem('viotrack_last_active')
+      : localStorage.getItem('viotrack_last_active');
+
+    if (lastActiveStr) {
+      const lastActive = parseInt(lastActiveStr, 10);
+      if (lastActive > 0 && Date.now() - lastActive > INACTIVITY_TIMEOUT_MS) {
+        // Stale session expired due to inactivity
+        localStorage.removeItem('viotrack_auth_user');
+        localStorage.removeItem('viotrack_session_token');
+        localStorage.removeItem('viotrack_last_active');
+        sessionStorage.removeItem('viotrack_auth_user');
+        sessionStorage.removeItem('viotrack_session_token');
+        sessionStorage.removeItem('viotrack_last_active');
+        return null;
+      }
+    }
+
+    return JSON.parse(saved);
+  } catch (e) {
+    return null;
+  }
+};
+
+export const AuthProvider = ({ children }) => {
+  const [user, setUser] = useState(getInitialUser);
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true);
   const inactivityTimerRef = useRef(null);
+  const lastActiveThrottleRef = useRef(0);
 
-  // Synchronize state changes to secure local storage
+  // Synchronize state changes to active storage
   useEffect(() => {
     if (user) {
       try {
         const sanitized = sanitizeForLogging(user);
-        localStorage.setItem('viotrack_auth_user', JSON.stringify(sanitized));
+        const serialized = JSON.stringify(sanitized);
+        const isSessionStored = !!sessionStorage.getItem('viotrack_auth_user');
+
+        if (isSessionStored) {
+          sessionStorage.setItem('viotrack_auth_user', serialized);
+          sessionStorage.setItem('viotrack_last_active', String(Date.now()));
+        } else {
+          localStorage.setItem('viotrack_auth_user', serialized);
+          localStorage.setItem('viotrack_last_active', String(Date.now()));
+        }
       } catch (e) {
         console.warn('Unable to persist session state to storage:', e);
       }
     } else {
       localStorage.removeItem('viotrack_auth_user');
       localStorage.removeItem('viotrack_session_token');
+      localStorage.removeItem('viotrack_last_active');
+      sessionStorage.removeItem('viotrack_auth_user');
+      sessionStorage.removeItem('viotrack_session_token');
+      sessionStorage.removeItem('viotrack_last_active');
     }
   }, [user]);
 
@@ -94,20 +123,61 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
+  const logout = useCallback(async (reason = 'manual', scope = 'local') => {
+    try {
+      if (isSupabaseConfigured() && supabase) {
+        await supabase.auth.signOut({ scope: scope === 'global' ? 'global' : 'local' });
+      }
+    } catch (e) {
+      console.warn('Error signing out from Supabase Auth:', e);
+    } finally {
+      if (inactivityTimerRef.current) {
+        clearTimeout(inactivityTimerRef.current);
+        inactivityTimerRef.current = null;
+      }
+      setUser(null);
+      setSession(null);
+      localStorage.removeItem('viotrack_auth_user');
+      localStorage.removeItem('viotrack_session_token');
+      localStorage.removeItem('viotrack_last_active');
+      sessionStorage.removeItem('viotrack_auth_user');
+      sessionStorage.removeItem('viotrack_session_token');
+      sessionStorage.removeItem('viotrack_last_active');
+      sessionStorage.clear();
+
+      if (reason === 'expired') {
+        window.location.href = '/login?logged_out=expired';
+      }
+    }
+  }, []);
+
   // Secure Inactivity Monitor: Auto logout after exactly 30 minutes of idle time
   const resetInactivityTimer = useCallback(() => {
     if (inactivityTimerRef.current) {
       clearTimeout(inactivityTimerRef.current);
     }
     if (user) {
+      // Throttle updating timestamp to every 15 seconds to minimize storage writes
+      const now = Date.now();
+      if (now - lastActiveThrottleRef.current > 15000) {
+        lastActiveThrottleRef.current = now;
+        if (sessionStorage.getItem('viotrack_auth_user')) {
+          sessionStorage.setItem('viotrack_last_active', String(now));
+        } else if (localStorage.getItem('viotrack_auth_user')) {
+          localStorage.setItem('viotrack_last_active', String(now));
+        }
+      }
+
       inactivityTimerRef.current = setTimeout(() => {
         console.warn('Session expired after 30 minutes of inactivity.');
         logout('expired');
       }, INACTIVITY_TIMEOUT_MS);
     }
-  }, [user]);
+  }, [user, logout]);
 
   useEffect(() => {
+    if (!user) return;
+
     const activityEvents = ['mousedown', 'keydown', 'touchstart', 'scroll'];
     const handleActivity = () => resetInactivityTimer();
 
@@ -118,53 +188,57 @@ export const AuthProvider = ({ children }) => {
       activityEvents.forEach(evt => window.removeEventListener(evt, handleActivity));
       if (inactivityTimerRef.current) clearTimeout(inactivityTimerRef.current);
     };
-  }, [resetInactivityTimer]);
+  }, [user, resetInactivityTimer]);
 
-  const login = (role = 'admin') => {
+  const login = (roleOrUser = 'admin', remember = true) => {
     clearRateLimit('login');
-    if (role === 'admin') {
-      setUser({
-        id: 1,
-        name: 'System Admin',
-        email: 'admin@viotrack.edu',
-        role: 'admin',
-        avatar: '/images/phcm-logo2.png',
-        adviserSection: null
-      });
-    } else if (role === 'teacher') {
-      setUser({
-        id: 2,
-        name: 'Juan Dela Cruz',
-        email: 'teacher@viotrack.edu',
-        role: 'teacher',
-        avatar: '/images/phcm-logo2.png',
-        adviserSection: { grade: 'Grade 10', section: 'Rizal' }
-      });
-    }
-  };
+    let userObj;
 
-  const logout = async (reason = 'manual') => {
-    try {
-      if (isSupabaseConfigured() && supabase) {
-        await supabase.auth.signOut();
+    if (typeof roleOrUser === 'string') {
+      if (roleOrUser === 'admin') {
+        userObj = {
+          id: 1,
+          name: 'System Admin',
+          email: 'admin@viotrack.edu',
+          role: 'admin',
+          avatar: '/images/phcm-logo2.png',
+          adviserSection: null
+        };
+      } else {
+        userObj = {
+          id: 2,
+          name: 'Juan Dela Cruz',
+          email: 'teacher@viotrack.edu',
+          role: 'teacher',
+          avatar: '/images/phcm-logo2.png',
+          adviserSection: { grade: 'Grade 10', section: 'Rizal' }
+        };
       }
-    } catch (e) {
-      console.warn('Error signing out from Supabase Auth:', e);
-    } finally {
-      setUser(null);
-      setSession(null);
-      localStorage.removeItem('viotrack_auth_user');
-      localStorage.removeItem('viotrack_session_token');
-      sessionStorage.clear();
-      
-      if (reason === 'expired') {
-        window.location.href = '/login?logged_out=expired';
-      }
+    } else {
+      userObj = roleOrUser;
     }
+
+    const sanitized = sanitizeForLogging(userObj);
+    const serialized = JSON.stringify(sanitized);
+    const now = String(Date.now());
+
+    if (remember) {
+      sessionStorage.removeItem('viotrack_auth_user');
+      sessionStorage.removeItem('viotrack_last_active');
+      localStorage.setItem('viotrack_auth_user', serialized);
+      localStorage.setItem('viotrack_last_active', now);
+    } else {
+      localStorage.removeItem('viotrack_auth_user');
+      localStorage.removeItem('viotrack_last_active');
+      sessionStorage.setItem('viotrack_auth_user', serialized);
+      sessionStorage.setItem('viotrack_last_active', now);
+    }
+
+    setUser(userObj);
   };
 
   const switchRole = (newRole) => {
-    login(newRole);
+    login(newRole, !sessionStorage.getItem('viotrack_auth_user'));
   };
 
   // RBAC & IDOR Authorization Helpers

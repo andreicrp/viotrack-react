@@ -366,7 +366,7 @@ export const dataService = {
   // --- USER CONTEXT HELPER ---
   getCurrentUser() {
     try {
-      const saved = localStorage.getItem('viotrack_auth_user');
+      const saved = sessionStorage.getItem('viotrack_auth_user') || localStorage.getItem('viotrack_auth_user');
       if (saved) {
         const parsed = JSON.parse(saved);
         if (parsed?.name) return parsed;

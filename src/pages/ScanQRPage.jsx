@@ -20,8 +20,11 @@ import {
   ChevronDown,
   Check,
   X,
-  FlipHorizontal
+  FlipHorizontal,
+  ShieldCheck,
+  Lock
 } from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
 import { dataService } from '../services/dataService';
 import { AddViolationModal } from '../components/violations/AddViolationModal';
 import { useNotification } from '../context/NotificationContext';
@@ -32,6 +35,7 @@ import errorAudioSrc from '../assets/sound_effects/error.mp3';
 export const ScanQRPage = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const { success, error, info } = useNotification();
 
   const queryStudentId = searchParams.get('id') || searchParams.get('student_id');
@@ -914,6 +918,30 @@ export const ScanQRPage = () => {
             </p>
           </div>
         </div>
+      </div>
+
+      {/* Authorized Scanner Security Badge */}
+      <div style={{
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        background: '#f0fdf4',
+        border: '1px solid #bbf7d0',
+        borderRadius: '12px',
+        padding: '10px 16px',
+        marginBottom: '16px',
+        fontSize: '12.5px',
+        color: '#166534',
+        fontWeight: 600,
+        boxShadow: '0 1px 3px rgba(0,0,0,0.02)'
+      }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <ShieldCheck size={17} color="#16a34a" />
+          <span>Authorized Scanner Session: <strong>{user?.name || 'Administrator'}</strong> ({user?.role?.toUpperCase() || 'FACULTY'})</span>
+        </div>
+        <span style={{ fontSize: '11px', background: '#dcfce7', color: '#15803d', padding: '4px 10px', borderRadius: '20px', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+          <Lock size={11} /> 30-Min Idle Lock Active
+        </span>
       </div>
 
       {/* Main Two-Column Scanner Grid */}

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useNotification } from '../context/NotificationContext';
 import {
@@ -27,8 +28,9 @@ import { evaluatePasswordStrength, validateUploadedFile } from '../utils/securit
 import '../css/profile.css';
 
 export const ProfilePage = () => {
-  const { user, setUser } = useAuth();
+  const { user, setUser, logout } = useAuth();
   const { success, error } = useNotification();
+  const navigate = useNavigate();
 
   // Split name if single field
   const nameParts = (user?.name || 'Sheryl Gamboa').split(' ');
@@ -627,7 +629,10 @@ export const ProfilePage = () => {
                 </div>
                 <button
                   type="button"
-                  onClick={() => success('All other remote browser sessions terminated.')}
+                  onClick={async () => {
+                    await logout('manual', 'global');
+                    navigate('/login?logged_out=1');
+                  }}
                   style={{
                     marginTop: '8px',
                     width: '100%',
@@ -641,7 +646,7 @@ export const ProfilePage = () => {
                     cursor: 'pointer'
                   }}
                 >
-                  Terminate All Other Active Sessions
+                  Terminate All Active Sessions & Log Out
                 </button>
               </div>
             </div>

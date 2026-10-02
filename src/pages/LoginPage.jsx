@@ -25,13 +25,17 @@ import {
 import '../css/login.css';
 
 export const LoginPage = () => {
-  const { login, setUser } = useAuth();
+  const { login, isAuthenticated } = useAuth();
   const { success, error: showError, info } = useNotification();
   const navigate = useNavigate();
   const location = useLocation();
 
   const queryParams = new URLSearchParams(location.search);
   const isLoggedOut = queryParams.get('logged_out') === '1';
+  const isExpired = queryParams.get('logged_out') === 'expired';
+  const isQrProtected = queryParams.get('reason') === 'qr_protected';
+  const redirectParam = queryParams.get('redirect');
+  const targetDestination = redirectParam ? decodeURIComponent(redirectParam) : '/';
 
   const [userType, setUserType] = useState('admin');
   const [email, setEmail] = useState('admin@viotrack.edu');
@@ -39,6 +43,13 @@ export const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
   const [loading, setLoading] = useState(false);
+
+  // If already authenticated and not explicitly redirected due to logout, go straight to dashboard
+  useEffect(() => {
+    if (isAuthenticated && !isLoggedOut && !isExpired) {
+      navigate('/', { replace: true });
+    }
+  }, [isAuthenticated, isLoggedOut, isExpired, navigate]);
 
   // Rate Limiting & Security Lockout State
   const [rateLimitState, setRateLimitState] = useState(() => checkRateLimit('login', 5, 120));
@@ -113,9 +124,9 @@ export const LoginPage = () => {
               authUser = signUpData.user;
             } else {
               clearRateLimit('login');
-              login(role);
+              login(role, rememberMe);
               success(`Authenticated successfully as Demo ${role.toUpperCase()}`);
-              navigate('/');
+              navigate(targetDestination);
               return;
             }
           } else {
@@ -132,19 +143,20 @@ export const LoginPage = () => {
 
         clearRateLimit('login');
         const role = authUser?.user_metadata?.role || userType;
-        setUser({
+        const userObj = {
           id: authUser?.id || (role === 'admin' ? 1 : 2),
           name: authUser?.user_metadata?.full_name || (role === 'admin' ? 'System Administrator' : 'Juan Dela Cruz'),
           email: authUser?.email || cleanEmail,
           role: role,
           avatar: '/images/phcm-logo2.png'
-        });
+        };
+        login(userObj, rememberMe);
         success(`Welcome back! Signed in as ${role.toUpperCase()}`);
       } else {
         // Fallback / Demo Offline Mode
         if (isDemoAdmin || isDemoTeacher) {
           clearRateLimit('login');
-          login(userType);
+          login(userType, rememberMe);
           success(`Signed in successfully as ${userType.toUpperCase()}`);
         } else {
           const nextRl = recordFailedAttempt('login', 5, 30);
@@ -154,7 +166,7 @@ export const LoginPage = () => {
           throw new Error('Invalid credentials. (For demo access, choose Admin Demo or Teacher Demo below)');
         }
       }
-      navigate('/');
+      navigate(targetDestination);
     } catch (err) {
       showError(err.message || 'Authentication failed. Please verify your credentials.');
     } finally {
@@ -239,6 +251,35 @@ export const LoginPage = () => {
             <span className="login-brand-tagline-sub">Using QR Code and Dashboard</span>
           </p>
         </div>
+
+        {/* QR Security & Protected Record Access Banner */}
+        {isQrProtected && (
+          <div
+            style={{
+              background: '#eff6ff',
+              color: '#1e40af',
+              border: '1.5px solid #bfdbfe',
+              padding: '12px 14px',
+              borderRadius: '12px',
+              fontSize: '12.5px',
+              fontWeight: 600,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+              marginBottom: '16px',
+              width: '100%',
+              boxSizing: 'border-box'
+            }}
+          >
+            <ShieldAlert size={22} color="#2563eb" style={{ flexShrink: 0 }} />
+            <div>
+              <div style={{ fontWeight: 700 }}>🔒 Protected Academic QR Code</div>
+              <div style={{ fontSize: '11.5px', fontWeight: 500, marginTop: '2px', color: '#3b82f6' }}>
+                You must sign in to an authorized school faculty or administrator account to scan this student record. (30-min secure session).
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Logged out & Expiration alerts */}
         {queryParams.get('logged_out') === 'expired' && (
