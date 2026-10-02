@@ -1383,5 +1383,37 @@ export const dataService = {
     );
 
     return result;
+  },
+
+  // --- DATA RESET & SYNC UTILITIES ---
+  resetRecordsToDefault() {
+    try {
+      localStorage.removeItem('viotrack_records');
+      invalidateCache('records');
+      window.dispatchEvent(new CustomEvent('viotrack_data_updated'));
+      return true;
+    } catch {
+      return false;
+    }
+  },
+
+  resetAllData() {
+    try {
+      [
+        'students',
+        'violations',
+        'records',
+        'teachers',
+        'advisers',
+        'admins',
+        'activity_logs',
+        'school_events'
+      ].forEach(k => localStorage.removeItem(`viotrack_${k}`));
+      invalidateCache();
+      window.dispatchEvent(new CustomEvent('viotrack_data_updated'));
+      return true;
+    } catch {
+      return false;
+    }
   }
 };
