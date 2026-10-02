@@ -23,12 +23,31 @@ export const Sidebar = ({ isCollapsed, isMobileOpen, onCloseMobile }) => {
 
   const [managementOpen, setManagementOpen] = useState(true);
   const [adminOpen, setAdminOpen] = useState(false);
+  const [pendingApprovalsCount, setPendingApprovalsCount] = useState(0);
 
   const isAdmin = user?.role === 'admin';
   const isTeacher = user?.role === 'teacher';
 
   const isManagementActive = location.pathname.includes('/violations') || location.pathname.includes('/violation-types');
-  const isAdminActive = location.pathname.includes('/admin-users') || location.pathname.includes('/activity-logs');
+  const isAdminActive = location.pathname.includes('/admin-users') || location.pathname.includes('/for-approval') || location.pathname.includes('/activity-logs');
+
+  useEffect(() => {
+    const updateCount = async () => {
+      try {
+        const records = await dataService.getRecords();
+        const pending = (records || []).filter(r => 
+          r.approval_status === 'Under Approval' || 
+          (r.reported_by_type === 'teacher' && r.status === 'Under Approval')
+        ).length;
+        setPendingApprovalsCount(pending);
+      } catch {}
+    };
+    updateCount();
+    window.addEventListener('viotrack_data_updated', updateCount);
+    return () => {
+      window.removeEventListener('viotrack_data_updated', updateCount);
+    };
+  }, []);
 
   useEffect(() => {
     if (isManagementActive) {
@@ -245,6 +264,29 @@ export const Sidebar = ({ isCollapsed, isMobileOpen, onCloseMobile }) => {
                       <NavLink to="/admin-users" className="submenu-link" onClick={handleLinkClick}>
                         <span className="submenu-bullet"></span>
                         Admin Users
+                      </NavLink>
+                    </li>
+                    <li className={`submenu-item ${location.pathname === '/for-approval' ? 'active' : ''}`}>
+                      <NavLink to="/for-approval" className="submenu-link" onClick={handleLinkClick} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                          <span className="submenu-bullet"></span>
+                          For Approval
+                        </div>
+                        {pendingApprovalsCount > 0 && (
+                          <span
+                            style={{
+                              background: '#f59e0b',
+                              color: '#ffffff',
+                              fontSize: '10px',
+                              fontWeight: 800,
+                              padding: '1px 6px',
+                              borderRadius: '10px',
+                              lineHeight: '1.3'
+                            }}
+                          >
+                            {pendingApprovalsCount}
+                          </span>
+                        )}
                       </NavLink>
                     </li>
                     <li className={`submenu-item ${location.pathname === '/activity-logs' ? 'active' : ''}`}>

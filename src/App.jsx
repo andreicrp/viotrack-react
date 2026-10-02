@@ -21,6 +21,7 @@ const TeachersPage = lazy(() => import('./pages/TeachersPage').then(m => ({ defa
 const AdvisersPage = lazy(() => import('./pages/AdvisersPage').then(m => ({ default: m.AdvisersPage })));
 const TrackLocationPage = lazy(() => import('./pages/TrackLocationPage').then(m => ({ default: m.TrackLocationPage })));
 const AdminUsersPage = lazy(() => import('./pages/AdminUsersPage').then(m => ({ default: m.AdminUsersPage })));
+const ForApprovalPage = lazy(() => import('./pages/ForApprovalPage').then(m => ({ default: m.ForApprovalPage })));
 const ActivityLogsPage = lazy(() => import('./pages/ActivityLogsPage').then(m => ({ default: m.ActivityLogsPage })));
 const ProfilePage = lazy(() => import('./pages/ProfilePage').then(m => ({ default: m.ProfilePage })));
 const LoginPage = lazy(() => import('./pages/LoginPage').then(m => ({ default: m.LoginPage })));
@@ -162,6 +163,14 @@ export function App() {
                     element={
                       <ProtectedRoute requireAdmin>
                         <AdminUsersPage />
+                      </ProtectedRoute>
+                    } 
+                  />
+                  <Route 
+                    path="for-approval" 
+                    element={
+                      <ProtectedRoute requireAdmin>
+                        <ForApprovalPage />
                       </ProtectedRoute>
                     } 
                   />

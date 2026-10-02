@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Modal } from '../common/Modal';
 import { SearchableViolationSelect } from '../common/SearchableViolationSelect';
 import { SearchableStudentSelect } from '../common/SearchableStudentSelect';
+import { UnderApprovalModal } from './UnderApprovalModal';
 import { dataService } from '../../services/dataService';
 import { useNotification } from '../../context/NotificationContext';
 import { useAuth } from '../../context/AuthContext';
@@ -22,7 +23,7 @@ import {
 
 export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedStudentId = null }) => {
   const { user } = useAuth();
-  const { success, error } = useNotification();
+  const { success, error, info } = useNotification();
 
   const [step, setStep] = useState(1); // 1: Student, 2: Offense & Sanction, 3: Status & SMS
   const [students, setStudents] = useState([]);
@@ -32,6 +33,11 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
   // Multi-select state
   const [selectedStudentIds, setSelectedStudentIds] = useState([]);
   const [selectedViolationIds, setSelectedViolationIds] = useState([]);
+
+  // Under Approval Popup State
+  const [isApprovalPopupOpen, setIsApprovalPopupOpen] = useState(false);
+  const [approvalPopupData, setApprovalPopupData] = useState(null);
+  const [pendingRecords, setPendingRecords] = useState(null);
 
   const [formData, setFormData] = useState({
     sanction: '',
@@ -133,6 +139,8 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
     setStep(3);
   };
 
+  const isTeacher = user?.role === 'teacher';
+
   const handleSubmit = async (e) => {
     if (e) e.preventDefault();
     if (loading) return;
@@ -173,11 +181,12 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
           const newRecord = await dataService.addRecord({
             student_id: Number(student.id),
             violation_id: Number(violation.id),
-            reported_by_name: user?.name || 'Authorized Faculty / Administrator',
-            reported_by_type: user?.role || 'admin',
+            reported_by_name: user?.name || (isTeacher ? 'Faculty Teacher' : 'Authorized Administrator'),
+            reported_by_type: isTeacher ? 'teacher' : (user?.role || 'admin'),
             sanction: formData.sanction || violation.default_sanction || 'Under Review',
             remarks: formData.remarks || 'Disciplinary incident report logged.',
-            status: formData.status,
+            status: isTeacher ? 'Under Approval' : formData.status,
+            approval_status: isTeacher ? 'Under Approval' : 'Approved',
             sms_notified: formData.notify_parent_sms,
             lat: location.lat,
             lng: location.lng,
@@ -186,8 +195,8 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
           createdRecords.push(newRecord);
         }
 
-        // Send consolidated SMS alert to guardian if enabled
-        if (formData.notify_parent_sms && student.parent_contact) {
+        // Send consolidated SMS alert to guardian if enabled and admin approved
+        if (!isTeacher && formData.notify_parent_sms && student.parent_contact) {
           const violationTitles = chosenViolations.map(v => v.title).join(', ');
           await dataService.sendSMS(
             student.parent_contact,
@@ -202,25 +211,38 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
       const studentCount = chosenStudents.length;
       const violationCount = chosenViolations.length;
 
-      if (studentCount === 1 && violationCount === 1) {
-        success(`Incident record for ${chosenStudents[0]?.fname || 'student'} added successfully!`);
+      if (isTeacher) {
+        // Teacher Flow: Show Under Approval confirmation modal!
+        setApprovalPopupData({
+          studentNames: chosenStudents.map(s => `${s.fname} ${s.lname}`),
+          violationTitles: chosenViolations.map(v => `[${v.type}] ${v.title}`),
+          sanction: formData.sanction || 'Under Administrative Review',
+          reportedBy: user?.name || 'Faculty Member'
+        });
+        setPendingRecords(createdRecords);
+        setIsApprovalPopupOpen(true);
       } else {
-        success(`Successfully recorded ${violationCount} violation(s) for ${studentCount} student(s) (${totalCount} total entries)!`);
+        // Admin Flow: Direct success
+        if (studentCount === 1 && violationCount === 1) {
+          success(`Incident record for ${chosenStudents[0]?.fname || 'student'} added successfully!`);
+        } else {
+          success(`Successfully recorded ${violationCount} violation(s) for ${studentCount} student(s) (${totalCount} total entries)!`);
+        }
+
+        onRecordAdded?.(createdRecords[0] || createdRecords);
+        onClose();
+
+        // Reset Form State
+        setSelectedStudentIds([]);
+        setSelectedViolationIds([]);
+        setStep(1);
+        setFormData({
+          sanction: '',
+          remarks: '',
+          notify_parent_sms: true,
+          status: 'Pending'
+        });
       }
-
-      onRecordAdded?.(createdRecords[0] || createdRecords);
-      onClose();
-
-      // Reset Form State
-      setSelectedStudentIds([]);
-      setSelectedViolationIds([]);
-      setStep(1);
-      setFormData({
-        sanction: '',
-        remarks: '',
-        notify_parent_sms: true,
-        status: 'Pending'
-      });
     } catch (err) {
       error('Failed to save violation records: ' + err.message);
     } finally {
@@ -229,10 +251,31 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
     }
   };
 
+  const handleCloseApprovalPopup = () => {
+    setIsApprovalPopupOpen(false);
+    if (pendingRecords) {
+      onRecordAdded?.(pendingRecords[0] || pendingRecords);
+      setPendingRecords(null);
+    }
+    onClose();
+
+    // Reset Form State
+    setSelectedStudentIds([]);
+    setSelectedViolationIds([]);
+    setStep(1);
+    setFormData({
+      sanction: '',
+      remarks: '',
+      notify_parent_sms: true,
+      status: 'Pending'
+    });
+  };
+
   const selectedStudents = students.filter(s => selectedStudentIds.includes(Number(s.id)));
   const selectedViolations = violations.filter(v => selectedViolationIds.includes(Number(v.id)));
 
   return (
+    <>
     <Modal isOpen={isOpen} onClose={onClose} title="Log Student Violation" icon={AlertTriangle} maxWidth="540px">
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
         
@@ -716,6 +759,16 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
         </div>
       </form>
     </Modal>
+
+    {/* Dedicated Popup for Teacher Submission Under Approval */}
+    <UnderApprovalModal
+      isOpen={isApprovalPopupOpen}
+      onClose={handleCloseApprovalPopup}
+      recordData={approvalPopupData}
+      students={students}
+      violations={violations}
+    />
+    </>
   );
 };
 

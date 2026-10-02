@@ -136,6 +136,9 @@ const INITIAL_RECORDS = [
     reported_by_type: 'teacher',
     date_reported: new Date(Date.now() - 2 * 86400000).toISOString(),
     status: 'Resolved',
+    approval_status: 'Approved',
+    approved_by: 'Sheryl Gamboa',
+    approved_at: new Date(Date.now() - 2 * 86400000 + 3600000).toISOString(),
     sanction: 'Verbal Warning',
     remarks: 'Forgot school necktie and ID lace during morning flag ceremony.',
     resolution_notes: 'Student complied the following day and signed acknowledgment with adviser.',
@@ -150,6 +153,9 @@ const INITIAL_RECORDS = [
     reported_by_type: 'admin',
     date_reported: new Date(Date.now() - 5 * 3600000).toISOString(),
     status: 'Pending',
+    approval_status: 'Approved',
+    approved_by: 'System Admin',
+    approved_at: new Date(Date.now() - 5 * 3600000).toISOString(),
     sanction: '1 Hour Community Service',
     remarks: 'Arrived 40 minutes late without valid excuse slip from clinic/office.',
     resolution_notes: '',
@@ -164,6 +170,9 @@ const INITIAL_RECORDS = [
     reported_by_type: 'teacher',
     date_reported: new Date(Date.now() - 1 * 86400000).toISOString(),
     status: 'Investigation',
+    approval_status: 'Approved',
+    approved_by: 'Sheryl Gamboa',
+    approved_at: new Date(Date.now() - 1 * 86400000 + 7200000).toISOString(),
     sanction: 'Parent Conference',
     remarks: 'Involved in verbal altercation with classmate near hallway lockers.',
     resolution_notes: 'Meeting with parent scheduled for Friday afternoon.',
@@ -178,6 +187,9 @@ const INITIAL_RECORDS = [
     reported_by_type: 'teacher',
     date_reported: new Date(Date.now() - 3 * 86400000).toISOString(),
     status: 'Resolved',
+    approval_status: 'Approved',
+    approved_by: 'Sheryl Gamboa',
+    approved_at: new Date(Date.now() - 3 * 86400000 + 1800000).toISOString(),
     sanction: 'Confiscation',
     remarks: 'Playing mobile games during Chemistry class period.',
     resolution_notes: 'Device returned to guardian at end of school week.',
@@ -192,11 +204,50 @@ const INITIAL_RECORDS = [
     reported_by_type: 'admin',
     date_reported: new Date(Date.now() - 4 * 86400000).toISOString(),
     status: 'Pending',
+    approval_status: 'Approved',
+    approved_by: 'System Admin',
+    approved_at: new Date(Date.now() - 4 * 86400000).toISOString(),
     sanction: 'Restitution',
     remarks: 'Graffiti tagging on back classroom wooden desk.',
     resolution_notes: '',
     resolution_date: null,
     sms_notified: false
+  },
+  {
+    id: 6,
+    student_id: 2,
+    violation_id: 4,
+    reported_by_name: 'Elena Reyes',
+    reported_by_type: 'teacher',
+    date_reported: new Date(Date.now() - 2 * 3600000).toISOString(),
+    status: 'Under Approval',
+    approval_status: 'Under Approval',
+    approved_by: null,
+    approved_at: null,
+    rejection_reason: null,
+    sanction: '1st Conference & Counseling',
+    remarks: 'Caught loitering and cutting 3rd period English class behind the gym pavilion.',
+    resolution_notes: '',
+    resolution_date: null,
+    sms_notified: true
+  },
+  {
+    id: 7,
+    student_id: 6,
+    violation_id: 1,
+    reported_by_name: 'Roberto Aquino',
+    reported_by_type: 'teacher',
+    date_reported: new Date(Date.now() - 5 * 3600000).toISOString(),
+    status: 'Under Approval',
+    approval_status: 'Under Approval',
+    approved_by: null,
+    approved_at: null,
+    rejection_reason: null,
+    sanction: 'Verbal Warning',
+    remarks: 'No school uniform and unauthorized civilian clothing without clinic permission slip.',
+    resolution_notes: '',
+    resolution_date: null,
+    sms_notified: true
   }
 ];
 
@@ -707,13 +758,22 @@ export const dataService = {
         remarksText = remarksText ? `${remarksText}${gpsNote}` : gpsNote.trim();
       }
 
+      const isTeacherReport = (record.reported_by_type === 'teacher');
+      const defaultApprovalStatus = record.approval_status || (isTeacherReport ? 'Under Approval' : 'Approved');
+
       const cleanRecord = {
         student_id: Number(record.student_id),
         violation_id: Number(record.violation_id),
         reported_by_name: record.reported_by_name || 'System Admin',
         reported_by_type: record.reported_by_type || 'admin',
         date_reported: record.date_reported || new Date().toISOString(),
-        status: record.status || 'Pending',
+        status: record.status || (isTeacherReport ? 'Under Approval' : 'Pending'),
+        approval_status: defaultApprovalStatus,
+        approved_by: record.approved_by || (defaultApprovalStatus === 'Approved' ? (record.reported_by_name || 'Admin') : null),
+        approved_at: record.approved_at || (defaultApprovalStatus === 'Approved' ? new Date().toISOString() : null),
+        rejection_reason: record.rejection_reason || null,
+        rejected_by: record.rejected_by || null,
+        rejected_at: record.rejected_at || null,
         sanction: record.sanction || '',
         remarks: remarksText,
         resolution_notes: record.resolution_notes || '',
@@ -823,6 +883,97 @@ export const dataService = {
 
       const sanctionSuffix = sanction ? ` | Sanction: ${sanction}` : '';
       await this.addActivityLog('Status Update', `Marked Incident #${id} as "${status}"${sanctionSuffix}`);
+      broadcastRecordChange('update', 'record', result);
+      return result;
+    } finally {
+      endMutation();
+    }
+  },
+
+  async approveRecord(id, { approved_by = 'Head Admin', status = 'Pending', notes = '' } = {}) {
+    startMutation();
+    try {
+      const payload = {
+        approval_status: 'Approved',
+        status: status || 'Pending',
+        approved_by,
+        approved_at: new Date().toISOString(),
+        rejection_reason: null,
+        resolution_notes: notes ? notes : undefined
+      };
+
+      let result = null;
+      if (isSupabaseConfigured()) {
+        try {
+          const { data, error } = await supabase
+            .from('records')
+            .update(payload)
+            .eq('id', Number(id))
+            .select('*, students (*), violations (*)');
+          if (!error && data?.[0]) {
+            result = {
+              ...data[0],
+              student: data[0].students,
+              violation: data[0].violations
+            };
+          }
+        } catch (err) {
+          console.warn('Supabase approveRecord error:', err);
+        }
+      }
+
+      const current = getStored('records', INITIAL_RECORDS);
+      const updated = current.map(r => (Number(r.id) === Number(id) ? { ...r, ...payload } : r));
+      setStored('records', updated);
+      invalidateCache('records');
+      if (!result) result = updated.find(r => Number(r.id) === Number(id));
+
+      await this.addActivityLog('Approve Violation', `Approved teacher violation report #${id} by ${approved_by}`);
+      broadcastRecordChange('update', 'record', result);
+      return result;
+    } finally {
+      endMutation();
+    }
+  },
+
+  async rejectRecord(id, { rejected_by = 'Head Admin', rejection_reason = 'Disapproved by administration' } = {}) {
+    startMutation();
+    try {
+      const payload = {
+        approval_status: 'Rejected',
+        status: 'Rejected',
+        rejected_by,
+        rejected_at: new Date().toISOString(),
+        rejection_reason
+      };
+
+      let result = null;
+      if (isSupabaseConfigured()) {
+        try {
+          const { data, error } = await supabase
+            .from('records')
+            .update(payload)
+            .eq('id', Number(id))
+            .select('*, students (*), violations (*)');
+          if (!error && data?.[0]) {
+            result = {
+              ...data[0],
+              student: data[0].students,
+              violation: data[0].violations
+            };
+          }
+        } catch (err) {
+          console.warn('Supabase rejectRecord error:', err);
+        }
+      }
+
+      const current = getStored('records', INITIAL_RECORDS);
+      const updated = current.map(r => (Number(r.id) === Number(id) ? { ...r, ...payload } : r));
+      setStored('records', updated);
+      invalidateCache('records');
+      if (!result) result = updated.find(r => Number(r.id) === Number(id));
+
+      await this.addActivityLog('Reject Violation', `Rejected teacher violation report #${id} (Reason: ${rejection_reason})`);
       broadcastRecordChange('update', 'record', result);
       return result;
     } finally {
