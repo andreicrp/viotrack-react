@@ -45,9 +45,28 @@ export const VerifyStudentPage = () => {
     navigate(`/login?redirect=${encodeURIComponent(`/student-violation/${id}?scan=true`)}&reason=qr_protected`);
   };
 
+  const containerStyle = {
+    position: 'fixed',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    width: '100vw',
+    height: '100vh',
+    height: '100dvh',
+    background: '#07345f',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 'max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left))',
+    boxSizing: 'border-box',
+    overflowY: 'auto',
+    zIndex: 99999
+  };
+
   if (loading) {
     return (
-      <div style={{ minHeight: '100dvh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#07345f', color: '#ffffff', padding: '16px' }}>
+      <div style={containerStyle}>
         <div style={{ textAlign: 'center' }}>
           <div style={{ width: '36px', height: '36px', border: '3px solid rgba(255,255,255,0.2)', borderTopColor: '#38bdf8', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 12px' }} />
           <span style={{ fontSize: '12px', color: '#93c5fd', fontWeight: 600 }}>Checking Student Pass...</span>
@@ -58,7 +77,7 @@ export const VerifyStudentPage = () => {
 
   if (!studentExists) {
     return (
-      <div style={{ minHeight: '100dvh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#07345f', padding: '16px', boxSizing: 'border-box' }}>
+      <div style={containerStyle}>
         <div style={{ background: '#ffffff', width: '100%', maxWidth: '380px', borderRadius: '20px', padding: '28px 20px', textAlign: 'center', boxShadow: '0 20px 30px rgba(0,0,0,0.35)' }}>
           <div style={{ width: '56px', height: '56px', borderRadius: '50%', background: '#fee2e2', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 14px' }}>
             <AlertCircle size={30} color="#dc2626" />
@@ -80,8 +99,8 @@ export const VerifyStudentPage = () => {
   }
 
   return (
-    <div style={{ minHeight: '100dvh', background: '#07345f', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '16px', boxSizing: 'border-box' }}>
-      <div style={{ width: '100%', maxWidth: '380px', background: '#ffffff', borderRadius: '20px', overflow: 'hidden', boxShadow: '0 20px 40px rgba(0, 0, 0, 0.4)' }}>
+    <div style={containerStyle}>
+      <div style={{ width: '100%', maxWidth: '380px', background: '#ffffff', borderRadius: '20px', overflow: 'hidden', boxShadow: '0 20px 40px rgba(0, 0, 0, 0.4)', margin: 'auto' }}>
         
         {/* Simple Header */}
         <div style={{ background: '#07345f', padding: '18px 16px', color: '#ffffff', textAlign: 'center', borderBottom: '3px solid #0ea5e9' }}>
