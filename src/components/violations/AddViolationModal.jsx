@@ -12,13 +12,19 @@ import {
   Check,
   Users,
   Layers,
-  ShieldCheck
+  ArrowRight,
+  ArrowLeft,
+  Send,
+  ShieldAlert,
+  Clock,
+  Sparkles
 } from 'lucide-react';
 
 export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedStudentId = null }) => {
   const { user } = useAuth();
   const { success, error } = useNotification();
 
+  const [step, setStep] = useState(1); // 1: Student, 2: Offense & Sanction, 3: Status & SMS
   const [students, setStudents] = useState([]);
   const [violations, setViolations] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -83,8 +89,10 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
 
       if (preselectedStudentId) {
         setSelectedStudentIds([Number(preselectedStudentId)]);
+        setStep(2); // If student is pre-selected (from QR scan), jump straight to Step 2!
       } else {
         setSelectedStudentIds([]);
+        setStep(1);
       }
       setSelectedViolationIds([]);
     } catch (err) {
@@ -109,16 +117,34 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
     }
   };
 
+  const handleNextToStep2 = () => {
+    if (selectedStudentIds.length === 0) {
+      error('Please select at least one student.');
+      return;
+    }
+    setStep(2);
+  };
+
+  const handleNextToStep3 = () => {
+    if (selectedViolationIds.length === 0) {
+      error('Please select at least one violation offense.');
+      return;
+    }
+    setStep(3);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (loading) return;
 
     if (selectedStudentIds.length === 0) {
       error('Please select at least one student.');
+      setStep(1);
       return;
     }
     if (selectedViolationIds.length === 0) {
       error('Please select at least one violation offense.');
+      setStep(2);
       return;
     }
 
@@ -181,6 +207,7 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
       // Reset Form State
       setSelectedStudentIds([]);
       setSelectedViolationIds([]);
+      setStep(1);
       setFormData({
         sanction: '',
         remarks: '',
@@ -199,246 +226,456 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
   const selectedViolations = violations.filter(v => selectedViolationIds.includes(Number(v.id)));
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Add New Violation Record" icon={AlertTriangle} maxWidth="560px">
+    <Modal isOpen={isOpen} onClose={onClose} title="Log Student Violation" icon={AlertTriangle} maxWidth="500px">
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-        <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '10px', padding: '14px 16px', maxHeight: '78vh', overflowY: 'auto' }}>
-          
-          {/* Geolocation Tag Banner (Only when active) */}
-          {location.captured && location.lat != null && location.lng != null && (
-            <div
-              style={{
-                background: '#f0fdf4',
-                border: '1px solid #bbf7d0',
-                borderRadius: '8px',
-                padding: '6px 10px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                fontSize: '11.5px'
+        
+        {/* Step Progress Header */}
+        <div style={{ padding: '12px 16px 8px', background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
+            
+            {/* Step 1 Pill */}
+            <div 
+              onClick={() => setStep(1)}
+              style={{ 
+                flex: 1, 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '6px', 
+                cursor: 'pointer',
+                opacity: step >= 1 ? 1 : 0.5 
               }}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <MapPin size={14} color="#16a34a" />
-                <span style={{ fontWeight: 600, color: '#14532d' }}>
-                  GPS: {location.lat.toFixed(5)}, {location.lng.toFixed(5)}
-                </span>
+              <div style={{ 
+                width: 22, 
+                height: 22, 
+                borderRadius: '50%', 
+                background: step > 1 ? '#10b981' : step === 1 ? '#07345f' : '#cbd5e1', 
+                color: '#fff', 
+                fontSize: '11px', 
+                fontWeight: 800, 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center',
+                flexShrink: 0
+              }}>
+                {step > 1 ? <Check size={13} strokeWidth={3} /> : '1'}
               </div>
-              <span style={{ fontWeight: 700, color: '#15803d', fontSize: '10px' }}>
-                ±{location.accuracy}m
+              <span style={{ fontSize: '11.5px', fontWeight: step === 1 ? 700 : 500, color: step === 1 ? '#07345f' : '#64748b', whiteSpace: 'nowrap' }}>
+                Student
               </span>
+            </div>
+
+            <div style={{ height: '2px', width: '16px', background: step > 1 ? '#10b981' : '#e2e8f0', flexShrink: 0 }} />
+
+            {/* Step 2 Pill */}
+            <div 
+              onClick={() => { if (selectedStudentIds.length > 0) setStep(2); }}
+              style={{ 
+                flex: 1, 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '6px', 
+                cursor: selectedStudentIds.length > 0 ? 'pointer' : 'not-allowed',
+                opacity: step >= 2 ? 1 : 0.5 
+              }}
+            >
+              <div style={{ 
+                width: 22, 
+                height: 22, 
+                borderRadius: '50%', 
+                background: step > 2 ? '#10b981' : step === 2 ? '#07345f' : '#cbd5e1', 
+                color: '#fff', 
+                fontSize: '11px', 
+                fontWeight: 800, 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center',
+                flexShrink: 0
+              }}>
+                {step > 2 ? <Check size={13} strokeWidth={3} /> : '2'}
+              </div>
+              <span style={{ fontSize: '11.5px', fontWeight: step === 2 ? 700 : 500, color: step === 2 ? '#07345f' : '#64748b', whiteSpace: 'nowrap' }}>
+                Offense
+              </span>
+            </div>
+
+            <div style={{ height: '2px', width: '16px', background: step > 2 ? '#10b981' : '#e2e8f0', flexShrink: 0 }} />
+
+            {/* Step 3 Pill */}
+            <div 
+              onClick={() => { if (selectedStudentIds.length > 0 && selectedViolationIds.length > 0) setStep(3); }}
+              style={{ 
+                flex: 1, 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '6px', 
+                cursor: (selectedStudentIds.length > 0 && selectedViolationIds.length > 0) ? 'pointer' : 'not-allowed',
+                opacity: step >= 3 ? 1 : 0.5 
+              }}
+            >
+              <div style={{ 
+                width: 22, 
+                height: 22, 
+                borderRadius: '50%', 
+                background: step === 3 ? '#07345f' : '#cbd5e1', 
+                color: '#fff', 
+                fontSize: '11px', 
+                fontWeight: 800, 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'center',
+                flexShrink: 0
+              }}>
+                3
+              </div>
+              <span style={{ fontSize: '11.5px', fontWeight: step === 3 ? 700 : 500, color: step === 3 ? '#07345f' : '#64748b', whiteSpace: 'nowrap' }}>
+                Status &amp; SMS
+              </span>
+            </div>
+
+          </div>
+        </div>
+
+        {/* Modal Step Content Body */}
+        <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '12px', padding: '16px', minHeight: '220px', maxHeight: '68vh', overflowY: 'auto' }}>
+          
+          {/* ================= STEP 1: STUDENT SELECTION ================= */}
+          {step === 1 && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <div>
+                <label style={{ fontSize: '12px', fontWeight: 700, color: '#0f172a', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                  <Users size={14} color="#07345f" />
+                  Select Student(s) <span style={{ color: '#ef4444' }}>*</span>
+                </label>
+                <SearchableStudentSelect
+                  students={students}
+                  value={selectedStudentIds}
+                  onChange={(newIds) => setSelectedStudentIds(newIds)}
+                  isMulti={true}
+                  placeholder="Search student by name, LRN, or section..."
+                />
+              </div>
+
+              {selectedStudents.length > 0 && (
+                <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '10px 12px', marginTop: '4px' }}>
+                  <div style={{ fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', marginBottom: '6px' }}>
+                    Selected Student Profile
+                  </div>
+                  {selectedStudents.map(s => (
+                    <div key={s.id} style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '4px' }}>
+                      <img
+                        src={s.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(s.fname + ' ' + s.lname)}&background=07345f&color=fff&size=50`}
+                        alt={s.fname}
+                        style={{ width: 32, height: 32, borderRadius: '8px', objectFit: 'cover' }}
+                      />
+                      <div>
+                        <div style={{ fontSize: '13px', fontWeight: 700, color: '#0f172a' }}>
+                          {s.lname}, {s.fname} {s.mname ? s.mname[0] + '.' : ''}
+                        </div>
+                        <div style={{ fontSize: '11px', color: '#64748b' }}>
+                          LRN: {s.lrn} • {s.grade} - {s.section}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 
-          {/* 1. Multi-Student Selection Field */}
-          <div>
-            <label style={{ fontSize: '12px', fontWeight: 700, color: '#334155', marginBottom: '3px', display: 'flex', alignItems: 'center', gap: '5px' }}>
-              <Users size={13} color="#0f172a" />
-              Student(s) <span style={{ color: '#ef4444' }}>*</span>
-            </label>
-            <SearchableStudentSelect
-              students={students}
-              value={selectedStudentIds}
-              onChange={(newIds) => setSelectedStudentIds(newIds)}
-              isMulti={true}
-              placeholder="-- Choose student(s) --"
-            />
-          </div>
+          {/* ================= STEP 2: OFFENSE & SANCTION ================= */}
+          {step === 2 && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div>
+                <label style={{ fontSize: '12px', fontWeight: 700, color: '#0f172a', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                  <Layers size={14} color="#07345f" />
+                  Violation Offense Category <span style={{ color: '#ef4444' }}>*</span>
+                </label>
+                <SearchableViolationSelect
+                  violations={violations}
+                  value={selectedViolationIds}
+                  onChange={handleViolationsChange}
+                  isMulti={true}
+                  placeholder="Search and choose infraction(s)..."
+                />
+              </div>
 
-          {/* 2. Multi-Violation Selection Field */}
-          <div>
-            <label style={{ fontSize: '12px', fontWeight: 700, color: '#334155', marginBottom: '3px', display: 'flex', alignItems: 'center', gap: '5px' }}>
-              <Layers size={13} color="#0f172a" />
-              Offense Category(ies) <span style={{ color: '#ef4444' }}>*</span>
-            </label>
-            <SearchableViolationSelect
-              violations={violations}
-              value={selectedViolationIds}
-              onChange={handleViolationsChange}
-              isMulti={true}
-              placeholder="-- Select infraction(s) --"
-            />
-          </div>
-
-          {/* 3. Disciplinary Sanction / Corrective Measure */}
-          <div>
-            <label style={{ fontSize: '12px', fontWeight: 700, color: '#334155', marginBottom: '3px', display: 'block' }}>
-              Prescribed Sanction
-            </label>
-            <input
-              type="text"
-              value={formData.sanction}
-              onChange={(e) => setFormData({ ...formData, sanction: e.target.value })}
-              placeholder="e.g. 1st Offense: Written Reprimand"
-              style={{
-                width: '100%',
-                boxSizing: 'border-box',
-                height: '36px',
-                padding: '6px 10px',
-                borderRadius: '8px',
-                border: '1px solid #cbd5e1',
-                fontSize: '12.5px',
-                color: '#0f172a',
-                background: '#ffffff',
-                outline: 'none',
-                fontFamily: 'inherit'
-              }}
-            />
-          </div>
-
-          {/* 4. Incident Remarks */}
-          <div>
-            <label style={{ fontSize: '12px', fontWeight: 700, color: '#334155', marginBottom: '3px', display: 'block' }}>
-              Incident Details & Remarks
-            </label>
-            <textarea
-              rows={2}
-              value={formData.remarks}
-              onChange={(e) => setFormData({ ...formData, remarks: e.target.value })}
-              placeholder="Specify location, witnesses, or circumstances..."
-              style={{
-                width: '100%',
-                boxSizing: 'border-box',
-                borderRadius: '8px',
-                border: '1px solid #cbd5e1',
-                fontSize: '12px',
-                padding: '6px 10px',
-                color: '#0f172a',
-                background: '#ffffff',
-                outline: 'none',
-                resize: 'none',
-                fontFamily: 'inherit',
-                lineHeight: '1.4'
-              }}
-            />
-          </div>
-
-          {/* 5. Initial Case Status */}
-          <div>
-            <label style={{ fontSize: '12px', fontWeight: 700, color: '#334155', marginBottom: '3px', display: 'block' }}>
-              Initial Case Status
-            </label>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '6px' }}>
-              {[
-                { id: 'Pending', label: 'Pending Action', color: '#ef4444' },
-                { id: 'Investigation', label: 'In Review', color: '#f59e0b' },
-                { id: 'Resolved', label: 'Resolved', color: '#10b981' }
-              ].map((st) => (
-                <button
-                  type="button"
-                  key={st.id}
-                  onClick={() => setFormData(prev => ({ ...prev, status: st.id }))}
+              <div>
+                <label style={{ fontSize: '12px', fontWeight: 700, color: '#0f172a', marginBottom: '4px', display: 'block' }}>
+                  Prescribed Sanction / Corrective Measure
+                </label>
+                <input
+                  type="text"
+                  value={formData.sanction}
+                  onChange={(e) => setFormData({ ...formData, sanction: e.target.value })}
+                  placeholder="e.g. 1st Offense: Written Reprimand, Community Service"
                   style={{
-                    padding: '6px 4px',
-                    borderRadius: '7px',
-                    fontSize: '11px',
-                    fontWeight: 700,
-                    border: formData.status === st.id ? `1.5px solid ${st.color}` : '1px solid #e2e8f0',
-                    background: formData.status === st.id ? `${st.color}15` : '#ffffff',
-                    color: formData.status === st.id ? st.color : '#64748b',
-                    cursor: 'pointer',
-                    transition: 'all 0.15s',
-                    textAlign: 'center',
+                    width: '100%',
+                    boxSizing: 'border-box',
+                    height: '38px',
+                    padding: '8px 12px',
+                    borderRadius: '8px',
+                    border: '1px solid #cbd5e1',
+                    fontSize: '12.5px',
+                    color: '#0f172a',
+                    background: '#ffffff',
+                    outline: 'none',
                     fontFamily: 'inherit'
                   }}
-                >
-                  {st.label}
-                </button>
-              ))}
-            </div>
-          </div>
+                />
+              </div>
 
-          {/* 6. SMS Notification Alert */}
-          <div
-            style={{
-              background: '#f8fafc',
-              border: '1px solid #e2e8f0',
-              borderRadius: '8px',
-              padding: '8px 10px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px'
-            }}
-          >
-            <input
-              type="checkbox"
-              id="notify_sms_check"
-              checked={formData.notify_parent_sms}
-              onChange={(e) => setFormData({ ...formData, notify_parent_sms: e.target.checked })}
-              style={{ width: 15, height: 15, cursor: 'pointer', accentColor: '#0f172a', flexShrink: 0 }}
-            />
-            <label htmlFor="notify_sms_check" style={{ fontSize: '11.5px', color: '#334155', cursor: 'pointer', margin: 0, fontFamily: 'inherit', lineHeight: 1.3 }}>
-              <strong>Send SMS Alert to Guardian(s)</strong>
-              {selectedStudents.length > 1 && (
-                <span style={{ color: '#64748b', marginLeft: '4px' }}>
-                  ({selectedStudents.length} recipients)
-                </span>
-              )}
-            </label>
-          </div>
+              <div>
+                <label style={{ fontSize: '12px', fontWeight: 700, color: '#0f172a', marginBottom: '4px', display: 'block' }}>
+                  Incident Details &amp; Faculty Remarks <span style={{ fontSize: '11px', fontWeight: 500, color: '#94a3b8' }}>(Optional)</span>
+                </label>
+                <textarea
+                  rows={2}
+                  value={formData.remarks}
+                  onChange={(e) => setFormData({ ...formData, remarks: e.target.value })}
+                  placeholder="Specify location, witnesses, circumstances, or confiscated items..."
+                  style={{
+                    width: '100%',
+                    boxSizing: 'border-box',
+                    borderRadius: '8px',
+                    border: '1px solid #cbd5e1',
+                    fontSize: '12px',
+                    padding: '8px 10px',
+                    color: '#0f172a',
+                    background: '#ffffff',
+                    outline: 'none',
+                    resize: 'none',
+                    fontFamily: 'inherit',
+                    lineHeight: '1.4'
+                  }}
+                />
+              </div>
+            </div>
+          )}
+
+          {/* ================= STEP 3: STATUS & SMS DISPATCH ================= */}
+          {step === 3 && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {/* Initial Case Status */}
+              <div>
+                <label style={{ fontSize: '12px', fontWeight: 700, color: '#0f172a', marginBottom: '6px', display: 'block' }}>
+                  Initial Case Status
+                </label>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '6px' }}>
+                  {[
+                    { id: 'Pending', label: 'Pending Action', color: '#ef4444' },
+                    { id: 'Investigation', label: 'In Review', color: '#f59e0b' },
+                    { id: 'Resolved', label: 'Resolved Now', color: '#10b981' }
+                  ].map((st) => (
+                    <button
+                      type="button"
+                      key={st.id}
+                      onClick={() => setFormData(prev => ({ ...prev, status: st.id }))}
+                      style={{
+                        padding: '8px 6px',
+                        borderRadius: '8px',
+                        fontSize: '11.5px',
+                        fontWeight: 700,
+                        border: formData.status === st.id ? `1.5px solid ${st.color}` : '1px solid #e2e8f0',
+                        background: formData.status === st.id ? `${st.color}15` : '#ffffff',
+                        color: formData.status === st.id ? st.color : '#64748b',
+                        cursor: 'pointer',
+                        transition: 'all 0.15s',
+                        textAlign: 'center',
+                        fontFamily: 'inherit'
+                      }}
+                    >
+                      {st.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* SMS Notification Toggle */}
+              <div
+                style={{
+                  background: '#f8fafc',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: '10px',
+                  padding: '10px 12px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px'
+                }}
+              >
+                <input
+                  type="checkbox"
+                  id="notify_sms_check"
+                  checked={formData.notify_parent_sms}
+                  onChange={(e) => setFormData({ ...formData, notify_parent_sms: e.target.checked })}
+                  style={{ width: 16, height: 16, cursor: 'pointer', accentColor: '#07345f', flexShrink: 0 }}
+                />
+                <label htmlFor="notify_sms_check" style={{ fontSize: '12px', color: '#0f172a', cursor: 'pointer', margin: 0, fontFamily: 'inherit', lineHeight: 1.3 }}>
+                  <strong style={{ display: 'block' }}>Dispatch SMS Alert to Guardian(s)</strong>
+                  <span style={{ fontSize: '11px', color: '#64748b' }}>
+                    {selectedStudents.length > 0
+                      ? `Sends instant notification to ${selectedStudents.length} guardian contact(s).`
+                      : 'Sends instant notification to guardian on file.'}
+                  </span>
+                </label>
+              </div>
+
+              {/* Quick Summary Card */}
+              <div style={{ background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '10px', padding: '10px 12px' }}>
+                <div style={{ fontSize: '11px', fontWeight: 700, color: '#1e40af', textTransform: 'uppercase', marginBottom: '4px' }}>
+                  Incident Summary
+                </div>
+                <div style={{ fontSize: '12px', color: '#1e293b', lineHeight: 1.4 }}>
+                  <strong>Student:</strong> {selectedStudents.map(s => `${s.fname} ${s.lname}`).join(', ') || 'None selected'}
+                </div>
+                <div style={{ fontSize: '12px', color: '#1e293b', lineHeight: 1.4, marginTop: '2px' }}>
+                  <strong>Offense:</strong> {selectedViolations.map(v => v.title).join(', ') || 'None selected'}
+                </div>
+              </div>
+            </div>
+          )}
 
         </div>
 
-        {/* Modal Footer */}
+        {/* Wizard Footer Navigation */}
         <div
           className="modal-footer"
           style={{
-            padding: '10px 16px',
+            padding: '12px 16px',
             borderTop: '1px solid #e2e8f0',
             background: '#f8fafc',
             display: 'flex',
-            justifyContent: 'flex-end',
+            justifyContent: 'space-between',
+            alignItems: 'center',
             gap: '8px',
             flexShrink: 0
           }}
         >
-          <button
-            type="button"
-            className="btn btn-secondary"
-            onClick={onClose}
-            style={{
-              borderRadius: '8px',
-              padding: '8px 14px',
-              fontWeight: 600,
-              fontSize: '12px',
-              background: '#ffffff',
-              border: '1px solid #cbd5e1',
-              color: '#0f172a',
-              cursor: 'pointer',
-              fontFamily: 'inherit'
-            }}
-          >
-            Cancel
-          </button>
-          <button
-            type="submit"
-            className="btn btn-primary btn-save-violation-action"
-            disabled={loading}
-            style={{
-              background: '#0f172a',
-              backgroundColor: '#0f172a',
-              borderRadius: '8px',
-              padding: '8px 16px',
-              fontWeight: 700,
-              fontSize: '12px',
-              color: '#ffffff',
-              border: 'none',
-              cursor: loading ? 'not-allowed' : 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              boxShadow: '0 3px 10px rgba(15, 23, 42, 0.2)',
-              fontFamily: 'inherit'
-            }}
-          >
-            <Check size={14} />
-            {loading
-              ? 'Recording...'
-              : selectedStudentIds.length > 1 || selectedViolationIds.length > 1
-              ? `Save (${selectedStudentIds.length * selectedViolationIds.length || selectedStudentIds.length || 1})`
-              : 'Save & Record Violation'}
-          </button>
+          {/* Left Back / Cancel */}
+          {step === 1 ? (
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={onClose}
+              style={{
+                borderRadius: '8px',
+                padding: '8px 14px',
+                fontWeight: 600,
+                fontSize: '12.5px',
+                background: '#ffffff',
+                border: '1px solid #cbd5e1',
+                color: '#0f172a',
+                cursor: 'pointer',
+                fontFamily: 'inherit'
+              }}
+            >
+              Cancel
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setStep(prev => Math.max(1, prev - 1))}
+              style={{
+                borderRadius: '8px',
+                padding: '8px 14px',
+                fontWeight: 600,
+                fontSize: '12.5px',
+                background: '#ffffff',
+                border: '1px solid #cbd5e1',
+                color: '#0f172a',
+                cursor: 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '5px',
+                fontFamily: 'inherit'
+              }}
+            >
+              <ArrowLeft size={14} /> Back
+            </button>
+          )}
+
+          {/* Right Next / Save */}
+          {step === 1 ? (
+            <button
+              type="button"
+              onClick={handleNextToStep2}
+              disabled={selectedStudentIds.length === 0}
+              style={{
+                background: selectedStudentIds.length === 0 ? '#94a3b8' : '#07345f',
+                borderRadius: '8px',
+                padding: '8px 16px',
+                fontWeight: 700,
+                fontSize: '12.5px',
+                color: '#ffffff',
+                border: 'none',
+                cursor: selectedStudentIds.length === 0 ? 'not-allowed' : 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                fontFamily: 'inherit',
+                boxShadow: selectedStudentIds.length === 0 ? 'none' : '0 3px 10px rgba(7, 52, 95, 0.25)'
+              }}
+            >
+              <span>Next: Offense</span>
+              <ArrowRight size={14} />
+            </button>
+          ) : step === 2 ? (
+            <button
+              type="button"
+              onClick={handleNextToStep3}
+              disabled={selectedViolationIds.length === 0}
+              style={{
+                background: selectedViolationIds.length === 0 ? '#94a3b8' : '#07345f',
+                borderRadius: '8px',
+                padding: '8px 16px',
+                fontWeight: 700,
+                fontSize: '12.5px',
+                color: '#ffffff',
+                border: 'none',
+                cursor: selectedViolationIds.length === 0 ? 'not-allowed' : 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                fontFamily: 'inherit',
+                boxShadow: selectedViolationIds.length === 0 ? 'none' : '0 3px 10px rgba(7, 52, 95, 0.25)'
+              }}
+            >
+              <span>Next: Status &amp; SMS</span>
+              <ArrowRight size={14} />
+            </button>
+          ) : (
+            <button
+              type="submit"
+              className="btn btn-primary btn-save-violation-action"
+              disabled={loading}
+              style={{
+                background: '#07345f',
+                borderRadius: '8px',
+                padding: '8px 18px',
+                fontWeight: 700,
+                fontSize: '12.5px',
+                color: '#ffffff',
+                border: 'none',
+                cursor: loading ? 'not-allowed' : 'pointer',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '6px',
+                boxShadow: '0 4px 12px rgba(7, 52, 95, 0.3)',
+                fontFamily: 'inherit'
+              }}
+            >
+              <Check size={14} />
+              {loading
+                ? 'Recording...'
+                : selectedStudentIds.length > 1 || selectedViolationIds.length > 1
+                ? `Save (${selectedStudentIds.length * selectedViolationIds.length})`
+                : 'Save & Record'}
+            </button>
+          )}
         </div>
       </form>
     </Modal>
   );
 };
+
+export default AddViolationModal;
