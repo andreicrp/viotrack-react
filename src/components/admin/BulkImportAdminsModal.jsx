@@ -5,7 +5,7 @@ import { FileSpreadsheet, Upload, Download } from 'lucide-react';
 import { parseCsvString, readFileAsText, downloadSampleCsv } from '../../utils/csvHelper';
 
 const SAMPLE_ADMINS_CSV = `First Name,Middle Name,Last Name,Email,Role,Position,Contact
-Roberto,D.,Santos,roberto.santos@viotrack.edu,Super Admin,Chief Technology Officer,09171112233
+Roberto,D.,Santos,roberto.santos@viotrack.edu,Head Admin,Chief Technology Officer,09171112233
 Carmela,M.,Reyes,carmela.reyes@viotrack.edu,Discipline Officer,Head of Student Discipline,09172223344
 Gerardo,T.,Lim,gerardo.lim@viotrack.edu,Staff,Guidance Associate,09173334455`;
 

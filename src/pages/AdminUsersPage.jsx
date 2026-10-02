@@ -42,7 +42,7 @@ export const AdminUsersPage = () => {
       mname: 'B.',
       lname: 'Gamboa',
       email: 'admin@phcmanila.edu.ph',
-      role: 'Super Admin',
+      role: 'Head Admin',
       position: 'Head of Student Affairs',
       image: '/images/phcm-logo2.png'
     },
@@ -71,7 +71,7 @@ export const AdminUsersPage = () => {
 
   // Search & Filter
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedRoleFilter, setSelectedRoleFilter] = useState('all'); // 'all' | 'Super Admin' | 'System Admin' | 'Discipline Officer'
+  const [selectedRoleFilter, setSelectedRoleFilter] = useState('all'); // 'all' | 'Head Admin' | 'System Admin' | 'Discipline Officer'
   const [selectedIds, setSelectedIds] = useState([]);
   const [entriesPerPage, setEntriesPerPage] = useState(10);
   const [currentPage, setCurrentPage] = useState(1);
@@ -90,7 +90,7 @@ export const AdminUsersPage = () => {
     mname: '',
     lname: '',
     email: '',
-    role: 'Admin',
+    role: 'Head Admin',
     position: 'Discipline Staff',
     password: '',
     image: ''
@@ -117,7 +117,8 @@ export const AdminUsersPage = () => {
   // Stats calculation
   const stats = {
     total: adminUsers.length,
-    superAdmins: adminUsers.filter(a => a.role === 'Super Admin' || a.role === 'System Admin').length,
+    headAdmins: adminUsers.filter(a => a.role === 'Head Admin' || a.role === 'Super Admin' || a.role === 'System Admin').length,
+    superAdmins: adminUsers.filter(a => a.role === 'Head Admin' || a.role === 'Super Admin' || a.role === 'System Admin').length,
     disciplineOfficers: adminUsers.filter(a => a.role === 'Discipline Officer' || a.role === 'Admin').length
   };
 
@@ -448,12 +449,12 @@ export const AdminUsersPage = () => {
             )}
           </div>
 
-          {/* Super Admins */}
+          {/* Head Admins */}
           <div
-            onClick={() => setSelectedRoleFilter(selectedRoleFilter === 'Super Admin' ? 'all' : 'Super Admin')}
+            onClick={() => setSelectedRoleFilter(selectedRoleFilter === 'Head Admin' ? 'all' : 'Head Admin')}
             style={{
-              background: selectedRoleFilter === 'Super Admin' ? '#f0f4f8' : '#ffffff',
-              border: selectedRoleFilter === 'Super Admin' ? '2px solid #07345f' : '1px solid #e2e8f0',
+              background: selectedRoleFilter === 'Head Admin' ? '#f0f4f8' : '#ffffff',
+              border: selectedRoleFilter === 'Head Admin' ? '2px solid #07345f' : '1px solid #e2e8f0',
               borderRadius: '10px',
               padding: '12px 14px',
               display: 'flex',
@@ -461,19 +462,19 @@ export const AdminUsersPage = () => {
               justifyContent: 'space-between',
               cursor: 'pointer',
               transition: 'all 0.2s ease',
-              boxShadow: selectedRoleFilter === 'Super Admin' ? '0 2px 8px rgba(7, 52, 95, 0.1)' : '0 1px 3px rgba(0,0,0,0.02)'
+              boxShadow: selectedRoleFilter === 'Head Admin' ? '0 2px 8px rgba(7, 52, 95, 0.1)' : '0 1px 3px rgba(0,0,0,0.02)'
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
               <Shield size={20} color="#1f2937" strokeWidth={2} />
               <div>
                 <span style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a', lineHeight: 1, display: 'block' }}>
-                  {stats.superAdmins}
+                  {stats.headAdmins}
                 </span>
-                <span style={{ fontSize: '11px', color: '#64748b', fontWeight: 600 }}>Super Admins</span>
+                <span style={{ fontSize: '11px', color: '#64748b', fontWeight: 600 }}>Head Admins</span>
               </div>
             </div>
-            {selectedRoleFilter === 'Super Admin' && (
+            {selectedRoleFilter === 'Head Admin' && (
               <span style={{ background: '#07345f', color: '#fff', fontSize: '9px', padding: '2px 6px', borderRadius: '4px', fontWeight: 700 }}>
                 Filtered
               </span>
@@ -690,7 +691,7 @@ export const AdminUsersPage = () => {
                   const isChecked = selectedIds.includes(admin.id);
                   const fullName = `${admin.fname} ${admin.mname ? admin.mname + ' ' : ''}${admin.lname}`.trim();
                   const initials = `${(admin.fname || 'A')[0]}${(admin.lname || 'U')[0]}`;
-                  const isSuper = admin.role === 'Super Admin' || admin.role === 'System Admin';
+                  const isSuper = admin.role === 'Head Admin' || admin.role === 'Super Admin' || admin.role === 'System Admin';
 
                   return (
                     <tr
@@ -850,7 +851,7 @@ export const AdminUsersPage = () => {
               const isChecked = selectedIds.includes(admin.id);
               const fullName = `${admin.fname} ${admin.mname ? admin.mname + ' ' : ''}${admin.lname}`.trim();
               const initials = `${(admin.fname || 'A')[0]}${(admin.lname || 'U')[0]}`;
-              const isSuper = admin.role === 'Super Admin' || admin.role === 'System Admin';
+              const isSuper = admin.role === 'Head Admin' || admin.role === 'Super Admin' || admin.role === 'System Admin';
 
               return (
                 <div
@@ -945,7 +946,7 @@ export const AdminUsersPage = () => {
               const isChecked = selectedIds.includes(admin.id);
               const fullName = `${admin.fname} ${admin.mname ? admin.mname + ' ' : ''}${admin.lname}`.trim();
               const initials = `${(admin.fname || 'A')[0]}${(admin.lname || 'U')[0]}`;
-              const isSuper = admin.role === 'Super Admin' || admin.role === 'System Admin';
+              const isSuper = admin.role === 'Head Admin' || admin.role === 'Super Admin' || admin.role === 'System Admin';
 
               return (
                 <div
@@ -1305,7 +1306,7 @@ export const AdminUsersPage = () => {
                   </label>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
                     {[
-                      { id: 'Super Admin', label: 'Super Admin', sub: 'Full System Access' },
+                      { id: 'Head Admin', label: 'Head Admin', sub: 'Full System Access' },
                       { id: 'System Admin', label: 'System Admin', sub: 'IT & Logs Master' },
                       { id: 'Discipline Officer', label: 'Discipline Officer', sub: 'Hearings & Records' }
                     ].map((r) => (

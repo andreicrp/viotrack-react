@@ -123,7 +123,7 @@ const INITIAL_ADVISERS = [
 ];
 
 const INITIAL_ADMINS = [
-  { id: 1, fname: 'System', lname: 'Admin', email: 'admin@viotrack.edu', role: 'Super Admin', image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80' },
+  { id: 1, fname: 'System', lname: 'Admin', email: 'admin@viotrack.edu', role: 'Head Admin', image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80' },
   { id: 2, fname: 'Maria', lname: 'Santos', email: 'maria.santos@viotrack.edu', role: 'Discipline Officer', image: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&auto=format&fit=crop&q=80' }
 ];
 
