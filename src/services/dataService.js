@@ -366,13 +366,13 @@ export const dataService = {
   // --- USER CONTEXT HELPER ---
   getCurrentUser() {
     try {
-      const saved = sessionStorage.getItem('viotrack_auth_user') || localStorage.getItem('viotrack_auth_user');
+      const saved = sessionStorage.getItem('viotrack_auth_v3') || localStorage.getItem('viotrack_auth_v3');
       if (saved) {
         const parsed = JSON.parse(saved);
         if (parsed?.name) return parsed;
       }
     } catch {}
-    return { name: 'System Admin', role: 'admin' };
+    return { name: 'Faculty Member', role: 'teacher' };
   },
 
   invalidateCache,

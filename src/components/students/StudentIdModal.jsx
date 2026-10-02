@@ -10,8 +10,8 @@ export const StudentIdModal = ({ isOpen, onClose, student }) => {
     window.print();
   };
 
-  // QR points to direct scan-qr / student violation URL matching PHP scan-qr.php
-  const qrTargetUrl = `${window.location.origin}/scan-qr?id=${student.id}&token=qr_${student.lrn}`;
+  // QR points to secure public ID verification pass (zero violation leak on external scanners)
+  const qrTargetUrl = `${window.location.origin}/verify-student/${student.id}`;
   const qrDataUrl = `https://api.qrserver.com/v1/create-qr-code/?size=500x500&data=${encodeURIComponent(qrTargetUrl)}&margin=0`;
 
   const fullName = `${student.lname?.toUpperCase()}, ${student.fname} ${student.mname ? student.mname[0] + '.' : ''}`;

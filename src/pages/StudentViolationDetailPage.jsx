@@ -209,8 +209,8 @@ export const StudentViolationDetailPage = () => {
     }
   };
 
-  // QR Code URL (points to /scan-qr route matching scan-qr.php)
-  const qrData = student ? `${window.location.origin}/scan-qr?id=${student.id}&token=qr_${student.lrn}` : '';
+  // QR Code URL (points to secure public ID pass, protected against data breach on external scanners)
+  const qrData = student ? `${window.location.origin}/verify-student/${student.id}` : '';
   const qrUrl = student ? `https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${encodeURIComponent(qrData)}&margin=1` : '';
 
   // Metrics

@@ -24,6 +24,7 @@ const AdminUsersPage = lazy(() => import('./pages/AdminUsersPage').then(m => ({ 
 const ActivityLogsPage = lazy(() => import('./pages/ActivityLogsPage').then(m => ({ default: m.ActivityLogsPage })));
 const ProfilePage = lazy(() => import('./pages/ProfilePage').then(m => ({ default: m.ProfilePage })));
 const LoginPage = lazy(() => import('./pages/LoginPage').then(m => ({ default: m.LoginPage })));
+const VerifyStudentPage = lazy(() => import('./pages/VerifyStudentPage').then(m => ({ default: m.VerifyStudentPage })));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage').then(m => ({ default: m.NotFoundPage })));
 const ForbiddenPage = lazy(() => import('./pages/ForbiddenPage').then(m => ({ default: m.ForbiddenPage })));
 import { ServerErrorPage } from './pages/ServerErrorPage';
@@ -108,8 +109,10 @@ export function App() {
           <BrowserRouter>
             <Suspense fallback={<PageLoader />}>
               <Routes>
-                {/* Public Auth Routes */}
+                {/* Public Auth & Student ID Pass Routes */}
                 <Route path="/login" element={<LoginPage />} />
+                <Route path="/verify-student/:id" element={<VerifyStudentPage />} />
+                <Route path="/student-pass/:id" element={<VerifyStudentPage />} />
                 <Route path="/forbidden" element={<ForbiddenPage standalone />} />
                 <Route path="/403" element={<ForbiddenPage standalone />} />
                 <Route path="/500" element={<ServerErrorPage standalone />} />
