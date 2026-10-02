@@ -230,108 +230,132 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
         
         {/* Step Progress Header */}
-        <div style={{ padding: '12px 16px 8px', background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
+        <div style={{ padding: '10px 16px', background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '6px' }}>
             
-            {/* Step 1 Pill */}
-            <div 
+            {/* Step 1: Student */}
+            <button
+              type="button"
               onClick={() => setStep(1)}
-              style={{ 
-                flex: 1, 
-                display: 'flex', 
-                alignItems: 'center', 
-                gap: '6px', 
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '6px',
+                padding: '8px 6px',
+                borderRadius: '8px',
+                border: step === 1 ? '1.5px solid #07345f' : step > 1 ? '1px solid #a7f3d0' : '1px solid #e2e8f0',
+                background: step === 1 ? '#07345f' : step > 1 ? '#ecfdf5' : '#ffffff',
+                color: step === 1 ? '#ffffff' : step > 1 ? '#065f46' : '#475569',
                 cursor: 'pointer',
-                opacity: step >= 1 ? 1 : 0.5 
+                transition: 'all 0.15s ease',
+                boxShadow: step === 1 ? '0 2px 6px rgba(7, 52, 95, 0.2)' : 'none',
+                fontFamily: 'inherit'
               }}
             >
-              <div style={{ 
-                width: 22, 
-                height: 22, 
-                borderRadius: '50%', 
-                background: step > 1 ? '#10b981' : step === 1 ? '#07345f' : '#cbd5e1', 
-                color: '#fff', 
-                fontSize: '11px', 
-                fontWeight: 800, 
-                display: 'flex', 
-                alignItems: 'center', 
+              <div style={{
+                width: 20,
+                height: 20,
+                borderRadius: '50%',
+                background: step === 1 ? '#ffffff' : step > 1 ? '#10b981' : '#f1f5f9',
+                color: step === 1 ? '#07345f' : step > 1 ? '#ffffff' : '#64748b',
+                fontSize: '11px',
+                fontWeight: 800,
+                display: 'flex',
+                alignItems: 'center',
                 justifyContent: 'center',
                 flexShrink: 0
               }}>
-                {step > 1 ? <Check size={13} strokeWidth={3} /> : '1'}
+                {step > 1 ? <Check size={12} strokeWidth={3} /> : '1'}
               </div>
-              <span style={{ fontSize: '11.5px', fontWeight: step === 1 ? 700 : 500, color: step === 1 ? '#07345f' : '#64748b', whiteSpace: 'nowrap' }}>
+              <span style={{ fontSize: '12px', fontWeight: 700, whiteSpace: 'nowrap' }}>
                 Student
               </span>
-            </div>
+            </button>
 
-            <div style={{ height: '2px', width: '16px', background: step > 1 ? '#10b981' : '#e2e8f0', flexShrink: 0 }} />
-
-            {/* Step 2 Pill */}
-            <div 
+            {/* Step 2: Offense */}
+            <button
+              type="button"
               onClick={() => { if (selectedStudentIds.length > 0) setStep(2); }}
-              style={{ 
-                flex: 1, 
-                display: 'flex', 
-                alignItems: 'center', 
-                gap: '6px', 
+              disabled={selectedStudentIds.length === 0}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '6px',
+                padding: '8px 6px',
+                borderRadius: '8px',
+                border: step === 2 ? '1.5px solid #07345f' : step > 2 ? '1px solid #a7f3d0' : '1px solid #e2e8f0',
+                background: step === 2 ? '#07345f' : step > 2 ? '#ecfdf5' : '#ffffff',
+                color: step === 2 ? '#ffffff' : step > 2 ? '#065f46' : '#475569',
                 cursor: selectedStudentIds.length > 0 ? 'pointer' : 'not-allowed',
-                opacity: step >= 2 ? 1 : 0.5 
+                transition: 'all 0.15s ease',
+                boxShadow: step === 2 ? '0 2px 6px rgba(7, 52, 95, 0.2)' : 'none',
+                opacity: selectedStudentIds.length === 0 ? 0.6 : 1,
+                fontFamily: 'inherit'
               }}
             >
-              <div style={{ 
-                width: 22, 
-                height: 22, 
-                borderRadius: '50%', 
-                background: step > 2 ? '#10b981' : step === 2 ? '#07345f' : '#cbd5e1', 
-                color: '#fff', 
-                fontSize: '11px', 
-                fontWeight: 800, 
-                display: 'flex', 
-                alignItems: 'center', 
+              <div style={{
+                width: 20,
+                height: 20,
+                borderRadius: '50%',
+                background: step === 2 ? '#ffffff' : step > 2 ? '#10b981' : '#f1f5f9',
+                color: step === 2 ? '#07345f' : step > 2 ? '#ffffff' : '#64748b',
+                fontSize: '11px',
+                fontWeight: 800,
+                display: 'flex',
+                alignItems: 'center',
                 justifyContent: 'center',
                 flexShrink: 0
               }}>
-                {step > 2 ? <Check size={13} strokeWidth={3} /> : '2'}
+                {step > 2 ? <Check size={12} strokeWidth={3} /> : '2'}
               </div>
-              <span style={{ fontSize: '11.5px', fontWeight: step === 2 ? 700 : 500, color: step === 2 ? '#07345f' : '#64748b', whiteSpace: 'nowrap' }}>
+              <span style={{ fontSize: '12px', fontWeight: 700, whiteSpace: 'nowrap' }}>
                 Offense
               </span>
-            </div>
+            </button>
 
-            <div style={{ height: '2px', width: '16px', background: step > 2 ? '#10b981' : '#e2e8f0', flexShrink: 0 }} />
-
-            {/* Step 3 Pill */}
-            <div 
+            {/* Step 3: Status & SMS */}
+            <button
+              type="button"
               onClick={() => { if (selectedStudentIds.length > 0 && selectedViolationIds.length > 0) setStep(3); }}
-              style={{ 
-                flex: 1, 
-                display: 'flex', 
-                alignItems: 'center', 
-                gap: '6px', 
+              disabled={selectedStudentIds.length === 0 || selectedViolationIds.length === 0}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '6px',
+                padding: '8px 6px',
+                borderRadius: '8px',
+                border: step === 3 ? '1.5px solid #07345f' : '1px solid #e2e8f0',
+                background: step === 3 ? '#07345f' : '#ffffff',
+                color: step === 3 ? '#ffffff' : '#475569',
                 cursor: (selectedStudentIds.length > 0 && selectedViolationIds.length > 0) ? 'pointer' : 'not-allowed',
-                opacity: step >= 3 ? 1 : 0.5 
+                transition: 'all 0.15s ease',
+                boxShadow: step === 3 ? '0 2px 6px rgba(7, 52, 95, 0.2)' : 'none',
+                opacity: (selectedStudentIds.length === 0 || selectedViolationIds.length === 0) ? 0.6 : 1,
+                fontFamily: 'inherit'
               }}
             >
-              <div style={{ 
-                width: 22, 
-                height: 22, 
-                borderRadius: '50%', 
-                background: step === 3 ? '#07345f' : '#cbd5e1', 
-                color: '#fff', 
-                fontSize: '11px', 
-                fontWeight: 800, 
-                display: 'flex', 
-                alignItems: 'center', 
+              <div style={{
+                width: 20,
+                height: 20,
+                borderRadius: '50%',
+                background: step === 3 ? '#ffffff' : '#f1f5f9',
+                color: step === 3 ? '#07345f' : '#64748b',
+                fontSize: '11px',
+                fontWeight: 800,
+                display: 'flex',
+                alignItems: 'center',
                 justifyContent: 'center',
                 flexShrink: 0
               }}>
                 3
               </div>
-              <span style={{ fontSize: '11.5px', fontWeight: step === 3 ? 700 : 500, color: step === 3 ? '#07345f' : '#64748b', whiteSpace: 'nowrap' }}>
+              <span style={{ fontSize: '12px', fontWeight: 700, whiteSpace: 'nowrap' }}>
                 Status &amp; SMS
               </span>
-            </div>
+            </button>
 
           </div>
         </div>
