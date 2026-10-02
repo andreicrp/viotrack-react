@@ -77,7 +77,7 @@ export const VerifyStudentPage = () => {
           <div>
             <div style={{ fontWeight: 700, fontSize: '13px' }}>🔒 Protected Academic QR Code</div>
             <div style={{ fontSize: '11.5px', fontWeight: 500, marginTop: '3px', color: '#3b82f6', lineHeight: 1.4 }}>
-              You must sign in to an authorized school faculty or administrator account to scan this student record. (30-min secure session).
+              You must sign in to an authorized school faculty or administrator account to scan this student record.
             </div>
           </div>
         </div>
