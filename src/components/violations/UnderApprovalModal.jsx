@@ -67,18 +67,18 @@ export const UnderApprovalModal = ({ isOpen, onClose, recordData, students = [],
       icon={ShieldAlert}
       maxWidth="580px"
     >
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', padding: '4px 0 2px 0' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', padding: '16px 20px 22px 20px' }}>
         
         {/* Top Hero Banner */}
         <div
           style={{
             background: 'linear-gradient(135deg, #07345f 0%, #0b192c 100%)',
             borderRadius: '16px',
-            padding: '22px 20px',
+            padding: '20px',
             color: '#ffffff',
             position: 'relative',
             overflow: 'hidden',
-            boxShadow: '0 8px 24px rgba(7, 52, 95, 0.25)',
+            boxShadow: '0 8px 24px rgba(7, 52, 95, 0.22)',
             border: '1px solid rgba(255, 255, 255, 0.1)'
           }}
         >
@@ -101,8 +101,8 @@ export const UnderApprovalModal = ({ isOpen, onClose, recordData, students = [],
             {/* Glowing Icon Orb */}
             <div
               style={{
-                width: '52px',
-                height: '52px',
+                width: '50px',
+                height: '50px',
                 borderRadius: '14px',
                 background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
                 display: 'flex',
@@ -110,10 +110,10 @@ export const UnderApprovalModal = ({ isOpen, onClose, recordData, students = [],
                 justifyContent: 'center',
                 flexShrink: 0,
                 boxShadow: '0 4px 16px rgba(245, 158, 11, 0.45)',
-                border: '2px solid rgba(255, 255, 255, 0.2)'
+                border: '2px solid rgba(255, 255, 255, 0.25)'
               }}
             >
-              <Clock size={28} color="#ffffff" strokeWidth={2.4} />
+              <Clock size={26} color="#ffffff" strokeWidth={2.4} />
             </div>
 
             {/* Banner Text */}
@@ -370,17 +370,17 @@ export const UnderApprovalModal = ({ isOpen, onClose, recordData, students = [],
           </span>
         </div>
 
-        {/* Primary Action Button */}
-        <div style={{ marginTop: '2px' }}>
+        {/* Improved Premium Action Button */}
+        <div style={{ marginTop: '6px', display: 'flex', alignItems: 'center', gap: '10px' }}>
           <button
             type="button"
             onClick={onClose}
             style={{
               width: '100%',
-              padding: '12px 24px',
-              borderRadius: '10px',
+              padding: '14px 24px',
+              borderRadius: '12px',
               border: 'none',
-              background: 'linear-gradient(135deg, #07345f 0%, #0b192c 100%)',
+              background: 'linear-gradient(135deg, #07345f 0%, #1e3a8a 100%)',
               color: '#ffffff',
               fontSize: '14.5px',
               fontWeight: 800,
@@ -388,15 +388,41 @@ export const UnderApprovalModal = ({ isOpen, onClose, recordData, students = [],
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              gap: '8px',
-              boxShadow: '0 4px 14px rgba(7, 52, 95, 0.28)',
-              transition: 'all 0.15s ease'
+              gap: '9px',
+              letterSpacing: '0.01em',
+              boxShadow: '0 4px 16px rgba(7, 52, 95, 0.35)',
+              transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
+              position: 'relative',
+              overflow: 'hidden'
             }}
-            onMouseOver={(e) => { e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = '0 6px 18px rgba(7, 52, 95, 0.35)'; }}
-            onMouseOut={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 14px rgba(7, 52, 95, 0.28)'; }}
+            onMouseOver={(e) => {
+              e.currentTarget.style.transform = 'translateY(-2px)';
+              e.currentTarget.style.boxShadow = '0 8px 24px rgba(7, 52, 95, 0.45)';
+              e.currentTarget.style.background = 'linear-gradient(135deg, #0a4680 0%, #2563eb 100%)';
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = '0 4px 16px rgba(7, 52, 95, 0.35)';
+              e.currentTarget.style.background = 'linear-gradient(135deg, #07345f 0%, #1e3a8a 100%)';
+            }}
+            onMouseDown={(e) => {
+              e.currentTarget.style.transform = 'translateY(0) scale(0.99)';
+            }}
           >
-            <CheckCircle2 size={18} />
-            Understood &amp; Close
+            <div
+              style={{
+                width: '24px',
+                height: '24px',
+                borderRadius: '50%',
+                background: 'rgba(255, 255, 255, 0.2)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+            >
+              <Check size={15} strokeWidth={3} color="#ffffff" />
+            </div>
+            <span>Understood &amp; Close</span>
           </button>
         </div>
 
