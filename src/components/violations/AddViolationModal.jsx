@@ -341,43 +341,45 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
           
           {/* ================= STEP 1: STUDENT SELECTION ================= */}
           {step === 1 && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               <div>
-                <label style={{ fontSize: '12px', fontWeight: 700, color: '#0f172a', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '5px' }}>
-                  <Users size={14} color="#07345f" />
-                  Select Student(s) <span style={{ color: '#ef4444' }}>*</span>
+                <label style={{ fontSize: '12px', fontWeight: 700, color: '#0f172a', marginBottom: '6px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                    <Users size={14} color="#07345f" />
+                    Select Student(s) <span style={{ color: '#ef4444' }}>*</span>
+                  </span>
+                  <span style={{ fontSize: '11px', color: selectedStudentIds.length > 0 ? '#07345f' : '#64748b', fontWeight: 600 }}>
+                    {selectedStudentIds.length} Selected
+                  </span>
                 </label>
                 <SearchableStudentSelect
                   students={students}
                   value={selectedStudentIds}
                   onChange={(newIds) => setSelectedStudentIds(newIds)}
                   isMulti={true}
+                  inline={true}
+                  maxListHeight="230px"
                   placeholder="Search student by name, LRN, or section..."
                 />
               </div>
 
               {selectedStudents.length > 0 && (
-                <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '10px 12px', marginTop: '4px' }}>
-                  <div style={{ fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', marginBottom: '6px' }}>
-                    Selected Student Profile
+                <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '8px 10px' }}>
+                  <div style={{ fontSize: '10.5px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', marginBottom: '4px' }}>
+                    Selected ({selectedStudents.length})
                   </div>
-                  {selectedStudents.map(s => (
-                    <div key={s.id} style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '4px' }}>
-                      <img
-                        src={s.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(s.fname + ' ' + s.lname)}&background=07345f&color=fff&size=50`}
-                        alt={s.fname}
-                        style={{ width: 32, height: 32, borderRadius: '8px', objectFit: 'cover' }}
-                      />
-                      <div>
-                        <div style={{ fontSize: '13px', fontWeight: 700, color: '#0f172a' }}>
-                          {s.lname}, {s.fname} {s.mname ? s.mname[0] + '.' : ''}
-                        </div>
-                        <div style={{ fontSize: '11px', color: '#64748b' }}>
-                          LRN: {s.lrn} • {s.grade} - {s.section}
-                        </div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', maxHeight: '65px', overflowY: 'auto' }}>
+                    {selectedStudents.map(s => (
+                      <div key={s.id} style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', background: '#ffffff', border: '1px solid #cbd5e1', borderRadius: '5px', padding: '2px 6px' }}>
+                        <span style={{ fontSize: '11.5px', fontWeight: 600, color: '#0f172a' }}>
+                          {s.fname} {s.lname}
+                        </span>
+                        <span style={{ fontSize: '10px', color: '#64748b' }}>
+                          ({s.grade}-{s.section})
+                        </span>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
@@ -385,17 +387,24 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
 
           {/* ================= STEP 2: OFFENSE & SANCTION ================= */}
           {step === 2 && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               <div>
-                <label style={{ fontSize: '12px', fontWeight: 700, color: '#0f172a', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '5px' }}>
-                  <Layers size={14} color="#07345f" />
-                  Violation Offense Category <span style={{ color: '#ef4444' }}>*</span>
+                <label style={{ fontSize: '12px', fontWeight: 700, color: '#0f172a', marginBottom: '6px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                    <Layers size={14} color="#07345f" />
+                    Violation Offense Category <span style={{ color: '#ef4444' }}>*</span>
+                  </span>
+                  <span style={{ fontSize: '11px', color: selectedViolationIds.length > 0 ? '#07345f' : '#64748b', fontWeight: 600 }}>
+                    {selectedViolationIds.length} Selected
+                  </span>
                 </label>
                 <SearchableViolationSelect
                   violations={violations}
                   value={selectedViolationIds}
                   onChange={handleViolationsChange}
                   isMulti={true}
+                  inline={true}
+                  maxListHeight="140px"
                   placeholder="Search and choose infraction(s)..."
                 />
               </div>
