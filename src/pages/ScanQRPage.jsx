@@ -545,23 +545,19 @@ export const ScanQRPage = () => {
     setRetryCount(prev => prev + 1);
   };
 
-  // Flip Front/Back Camera smoothly
+  // Flip Front/Back Camera or cycle through all connected devices smoothly
   const handleToggleCameraFacing = async () => {
+    if (availableCameras.length > 1) {
+      const currentCam = getActiveCamera();
+      const currentIdx = availableCameras.findIndex(c => c.id === currentCam?.id);
+      const nextIdx = currentIdx >= 0 ? (currentIdx + 1) % availableCameras.length : 0;
+      handleSelectCamera(availableCameras[nextIdx].id);
+      return;
+    }
     const nextFacing = cameraFacing === 'environment' ? 'user' : 'environment';
     setCameraFacing(nextFacing);
     setSelectedCameraId(null);
 
-    // 1. Try instant in-place track constraint switch (no stream reload, zero permission prompts)
-    if (html5QrCodeRef.current && isScannerRunning) {
-      try {
-        await html5QrCodeRef.current.applyVideoConstraints({ facingMode: nextFacing });
-        return;
-      } catch (e) {
-        // Continue to fallback restart if applyConstraints is not supported
-      }
-    }
-
-    // 2. Fallback: cleanly restart stream with next facingMode
     setIsStartingCamera(true);
     setCameraStartupStep('Switching camera...');
     if (html5QrCodeRef.current) {
@@ -712,24 +708,50 @@ export const ScanQRPage = () => {
       let clean = (rawInput || '').trim();
       let matched = null;
 
-      if (clean.includes('id=')) {
-        const urlParams = new URLSearchParams(clean.split('?')[1]);
-        const sid = urlParams.get('id');
-        if (sid) matched = students.find(s => s.id === Number(sid));
-      } else if (clean.includes('student-violation/')) {
-        const parts = clean.split('student-violation/')[1];
-        const sid = parts.split('?')[0];
-        if (sid) matched = students.find(s => s.id === Number(sid) || s.lrn.trim() === sid.trim());
-      } else if (clean.includes('VIOTRACK-STUDENT:')) {
-        clean = clean.split(':')[1] || clean;
-        matched = students.find(s => s.lrn.trim() === clean.trim() || s.lrn.includes(clean));
-      } else if (clean.startsWith('{') && clean.endsWith('}')) {
+      // 1. Check for /verify-student/:id or /student-pass/:id (Public Pass Verification URLs)
+      if (clean.includes('/verify-student/') || clean.includes('/student-pass/')) {
+        const afterPrefix = clean.includes('/verify-student/')
+          ? clean.split('/verify-student/')[1]
+          : clean.split('/student-pass/')[1];
+        const sid = afterPrefix.split('?')[0].split('#')[0].trim();
+        matched = students.find(s => String(s.id) === String(sid) || String(s.lrn).trim() === String(sid).trim());
+      }
+      // 2. Check for /student-violation/:id or /adminstudentviolation/:id
+      else if (clean.includes('/student-violation/') || clean.includes('/adminstudentviolation/')) {
+        const afterPrefix = clean.includes('/student-violation/')
+          ? clean.split('/student-violation/')[1]
+          : clean.split('/adminstudentviolation/')[1];
+        const sid = afterPrefix.split('?')[0].split('#')[0].trim();
+        matched = students.find(s => String(s.id) === String(sid) || String(s.lrn).trim() === String(sid).trim());
+      }
+      // 3. Query string parameters ?id= or ?student_id= or ?lrn=
+      else if (clean.includes('id=') || clean.includes('student_id=') || clean.includes('lrn=')) {
+        try {
+          const queryString = clean.includes('?') ? clean.split('?')[1] : clean;
+          const urlParams = new URLSearchParams(queryString);
+          const sid = urlParams.get('id') || urlParams.get('student_id');
+          const lrn = urlParams.get('lrn');
+          if (sid) {
+            matched = students.find(s => String(s.id) === String(sid) || String(s.lrn) === String(sid));
+          }
+          if (!matched && lrn) {
+            matched = students.find(s => String(s.lrn).trim() === String(lrn).trim());
+          }
+        } catch {}
+      }
+      // 4. Custom formatted prefixes e.g. "VIOTRACK-STUDENT:109283746101"
+      else if (clean.includes('VIOTRACK-STUDENT:')) {
+        const stripped = clean.split('VIOTRACK-STUDENT:')[1] || clean;
+        matched = students.find(s => String(s.lrn).trim() === stripped.trim() || String(s.id) === stripped.trim());
+      }
+      // 5. JSON formats
+      else if (clean.startsWith('{') && clean.endsWith('}')) {
         try {
           const parsed = JSON.parse(clean);
           const lrnCandidate = parsed.lrn || parsed.LRN || parsed.uli || parsed.ULI || parsed.student_id || parsed.id;
           const nameCandidate = parsed.name || parsed.Name || parsed.student_name;
           if (lrnCandidate) {
-            matched = students.find(s => s.lrn.trim() === String(lrnCandidate).trim());
+            matched = students.find(s => String(s.lrn).trim() === String(lrnCandidate).trim() || String(s.id) === String(lrnCandidate).trim());
           }
           if (!matched && nameCandidate) {
             matched = students.find(s => `${s.fname} ${s.lname}`.toLowerCase().includes(String(nameCandidate).toLowerCase()));
@@ -737,11 +759,16 @@ export const ScanQRPage = () => {
         } catch (e) {
           // not valid json
         }
-      } else {
+      }
+
+      // 6. Fallback: Direct numeric ID, 12-digit LRN, or Name matching
+      if (!matched) {
         matched = students.find(
           s =>
-            s.lrn.trim() === clean.trim() ||
-            s.lrn.includes(clean) ||
+            String(s.lrn).trim() === clean.trim() ||
+            String(s.id) === clean.trim() ||
+            String(s.lrn).includes(clean) ||
+            clean.includes(String(s.lrn)) ||
             `${s.fname} ${s.lname}`.toLowerCase().includes(clean.toLowerCase())
         );
       }
