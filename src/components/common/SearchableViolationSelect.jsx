@@ -216,7 +216,7 @@ export const SearchableViolationSelect = ({
       }
     >
       {/* Search Header */}
-      <div style={{ padding: '8px 10px', background: '#f8fafc', borderBottom: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+      <div style={{ padding: '10px 12px', background: '#f8fafc', borderBottom: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '8px' }}>
         <div style={{ position: 'relative', width: '100%' }}>
           <input
             ref={searchInputRef}
@@ -227,24 +227,24 @@ export const SearchableViolationSelect = ({
             style={{
               width: '100%',
               boxSizing: 'border-box',
-              padding: '6px 10px 6px 28px',
-              borderRadius: '6px',
+              padding: '8px 12px 8px 32px',
+              borderRadius: '8px',
               border: '1px solid #cbd5e1',
-              fontSize: '12px',
+              fontSize: '13px',
               outline: 'none',
               color: '#0f172a',
               background: '#ffffff',
               fontFamily: 'inherit'
             }}
           />
-          <Search size={13} color="#94a3b8" style={{ position: 'absolute', left: 8, top: '50%', transform: 'translateY(-50%)' }} />
+          <Search size={15} color="#94a3b8" style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)' }} />
           {searchQuery && (
             <button
               type="button"
               onClick={() => setSearchQuery('')}
               style={{
                 position: 'absolute',
-                right: 6,
+                right: 8,
                 top: '50%',
                 transform: 'translateY(-50%)',
                 background: 'transparent',
@@ -253,37 +253,42 @@ export const SearchableViolationSelect = ({
                 cursor: 'pointer'
               }}
             >
-              <X size={11} />
+              <X size={14} />
             </button>
           )}
         </div>
 
         {/* Severity Category Filter Pills */}
-        <div style={{ display: 'flex', gap: '3px' }}>
+        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
           {[
-            { id: 'all', label: 'All' },
+            { id: 'all', label: 'All', color: '#07345f' },
             { id: 'minor', label: 'Minor', color: '#16a34a' },
             { id: 'serious', label: 'Serious', color: '#d97706' },
             { id: 'major', label: 'Major', color: '#dc2626' }
-          ].map(tab => (
-            <button
-              type="button"
-              key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
-              style={{
-                padding: '2px 6px',
-                borderRadius: '4px',
-                border: activeTab === tab.id ? '1px solid #0f172a' : '1px solid #e2e8f0',
-                background: activeTab === tab.id ? '#0f172a' : '#ffffff',
-                color: activeTab === tab.id ? '#ffffff' : '#64748b',
-                fontSize: '10.5px',
-                fontWeight: 600,
-                cursor: 'pointer'
-              }}
-            >
-              {tab.label}
-            </button>
-          ))}
+          ].map(tab => {
+            const isActive = activeTab === tab.id;
+            return (
+              <button
+                type="button"
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                style={{
+                  padding: '6px 14px',
+                  borderRadius: '8px',
+                  border: isActive ? `1.5px solid ${tab.color}` : '1px solid #cbd5e1',
+                  background: isActive ? tab.color : '#ffffff',
+                  color: isActive ? '#ffffff' : '#334155',
+                  fontSize: '12.5px',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease',
+                  boxShadow: isActive ? `0 2px 6px ${tab.color}33` : 'none'
+                }}
+              >
+                {tab.label}
+              </button>
+            );
+          })}
         </div>
       </div>
 

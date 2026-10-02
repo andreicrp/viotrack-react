@@ -160,7 +160,7 @@ export const SearchableStudentSelect = ({
       }
     >
       {/* Search & Filter Header */}
-      <div style={{ padding: '8px 10px', background: '#f8fafc', borderBottom: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+      <div style={{ padding: '10px 12px', background: '#f8fafc', borderBottom: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '8px' }}>
         <div style={{ position: 'relative', width: '100%' }}>
           <input
             ref={searchInputRef}
@@ -171,24 +171,24 @@ export const SearchableStudentSelect = ({
             style={{
               width: '100%',
               boxSizing: 'border-box',
-              padding: '6px 10px 6px 28px',
-              borderRadius: '6px',
+              padding: '8px 12px 8px 32px',
+              borderRadius: '8px',
               border: '1px solid #cbd5e1',
-              fontSize: '12px',
+              fontSize: '13px',
               outline: 'none',
               color: '#0f172a',
               background: '#ffffff',
               fontFamily: 'inherit'
             }}
           />
-          <Search size={13} color="#94a3b8" style={{ position: 'absolute', left: 8, top: '50%', transform: 'translateY(-50%)' }} />
+          <Search size={15} color="#94a3b8" style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)' }} />
           {searchQuery && (
             <button
               type="button"
               onClick={() => setSearchQuery('')}
               style={{
                 position: 'absolute',
-                right: 6,
+                right: 8,
                 top: '50%',
                 transform: 'translateY(-50%)',
                 background: 'transparent',
@@ -197,33 +197,38 @@ export const SearchableStudentSelect = ({
                 cursor: 'pointer'
               }}
             >
-              <X size={11} />
+              <X size={14} />
             </button>
           )}
         </div>
 
         {/* Quick Filter Bar */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '4px', flexWrap: 'wrap' }}>
-          <div style={{ display: 'flex', gap: '3px', flexWrap: 'wrap' }}>
-            {['all', 'Grade 7', 'Grade 8', 'Grade 9', 'Grade 10', 'Grade 11', 'Grade 12'].map(g => (
-              <button
-                type="button"
-                key={g}
-                onClick={() => setGradeFilter(g)}
-                style={{
-                  padding: '2px 5px',
-                  borderRadius: '4px',
-                  border: gradeFilter === g ? '1px solid #0f172a' : '1px solid #e2e8f0',
-                  background: gradeFilter === g ? '#0f172a' : '#ffffff',
-                  color: gradeFilter === g ? '#ffffff' : '#64748b',
-                  fontSize: '10px',
-                  fontWeight: 600,
-                  cursor: 'pointer'
-                }}
-              >
-                {g === 'all' ? 'All' : g.replace('Grade ', 'G')}
-              </button>
-            ))}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '6px', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+            {['all', 'Grade 7', 'Grade 8', 'Grade 9', 'Grade 10', 'Grade 11', 'Grade 12'].map(g => {
+              const isActive = gradeFilter === g;
+              return (
+                <button
+                  type="button"
+                  key={g}
+                  onClick={() => setGradeFilter(g)}
+                  style={{
+                    padding: '5px 10px',
+                    borderRadius: '6px',
+                    border: isActive ? '1.5px solid #07345f' : '1px solid #cbd5e1',
+                    background: isActive ? '#07345f' : '#ffffff',
+                    color: isActive ? '#ffffff' : '#334155',
+                    fontSize: '11.5px',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    transition: 'all 0.15s ease',
+                    boxShadow: isActive ? '0 2px 4px rgba(7, 52, 95, 0.2)' : 'none'
+                  }}
+                >
+                  {g === 'all' ? 'All' : g.replace('Grade ', 'G')}
+                </button>
+              );
+            })}
           </div>
 
           {isMulti && filtered.length > 0 && (
@@ -231,14 +236,15 @@ export const SearchableStudentSelect = ({
               type="button"
               onClick={handleSelectAllFiltered}
               style={{
-                fontSize: '10.5px',
-                fontWeight: 600,
-                color: '#0f172a',
-                background: '#e2e8f0',
-                border: 'none',
-                borderRadius: '4px',
-                padding: '2px 6px',
-                cursor: 'pointer'
+                fontSize: '11.5px',
+                fontWeight: 700,
+                color: '#07345f',
+                background: '#e0f2fe',
+                border: '1px solid #bae6fd',
+                borderRadius: '6px',
+                padding: '5px 10px',
+                cursor: 'pointer',
+                transition: 'all 0.15s ease'
               }}
             >
               {filtered.every(s => selectedIds.includes(Number(s.id))) ? 'Deselect All' : 'Select Filtered'}
