@@ -69,11 +69,19 @@ export const ViolationsPage = () => {
 
   const isAdmin = user?.role === 'admin';
 
+  const isApproved = (r) => {
+    if (!r) return false;
+    if (r.approval_status === 'Under Approval' || r.status === 'Under Approval') return false;
+    if (r.approval_status === 'Rejected' || r.status === 'Rejected') return false;
+    return r.approval_status === 'Approved';
+  };
+
   const loadRecords = useCallback(async (forceRefresh = false) => {
     setLoading(true);
     try {
       const data = await dataService.getRecords(forceRefresh);
-      setRecords(data || []);
+      const approvedOnly = (data || []).filter(isApproved);
+      setRecords(approvedOnly);
     } catch (err) {
       error('Failed to load records: ' + err.message);
     } finally {

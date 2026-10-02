@@ -61,7 +61,14 @@ export const MyClassPage = () => {
         dataService.getRecords()
       ]);
 
-      setRecords(allRecords || []);
+      const isApproved = (r) => {
+        if (!r) return false;
+        if (r.approval_status === 'Under Approval' || r.status === 'Under Approval') return false;
+        if (r.approval_status === 'Rejected' || r.status === 'Rejected') return false;
+        return r.approval_status === 'Approved';
+      };
+
+      setRecords((allRecords || []).filter(isApproved));
 
       let currentAdv = null;
       if (id) {

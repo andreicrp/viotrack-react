@@ -101,7 +101,14 @@ export const CustomSelect = ({
         target: {
           name: name || id || '',
           value: opt.value
-        }
+        },
+        currentTarget: {
+          name: name || id || '',
+          value: opt.value
+        },
+        value: opt.value,
+        toString: () => opt.value,
+        valueOf: () => opt.value
       };
       onChange(syntheticEvent);
     }

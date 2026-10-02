@@ -70,18 +70,13 @@ export const AuthProvider = ({ children }) => {
       } catch (e) {
         console.warn('Unable to persist session state to storage:', e);
       }
-    } else {
-      localStorage.removeItem(AUTH_STORAGE_KEY);
-      localStorage.removeItem(AUTH_ACTIVE_KEY);
-      sessionStorage.removeItem(AUTH_STORAGE_KEY);
-      sessionStorage.removeItem(AUTH_ACTIVE_KEY);
     }
   }, [user]);
 
   // Sync with Supabase Auth listener if live client is active
   useEffect(() => {
     if (isSupabaseConfigured() && supabase) {
-      // 1. Get initial session
+      // 1. Get initial live session if available
       supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
         setSession(currentSession);
         if (currentSession?.user) {
@@ -97,26 +92,26 @@ export const AuthProvider = ({ children }) => {
             avatar: '/images/phcm-logo2.png',
             adviserSection: adviserSection
           });
-        } else {
-          // If Supabase has no active authenticated session, enforce logged out state
-          setUser(null);
-          localStorage.removeItem(AUTH_STORAGE_KEY);
-          localStorage.removeItem(AUTH_ACTIVE_KEY);
-          sessionStorage.removeItem(AUTH_STORAGE_KEY);
-          sessionStorage.removeItem(AUTH_ACTIVE_KEY);
         }
+        // If no active Supabase session, do NOT wipe local user; retain local/demo credentials
+        setLoading(false);
+      }).catch((err) => {
+        console.warn('Supabase getSession error:', err);
         setLoading(false);
       });
 
-      // 2. Listen to real-time auth state changes (token refresh, sign out, password recovery)
+      // 2. Listen to real-time auth state changes
       const { data: { subscription } } = supabase.auth.onAuthStateChange((event, newSession) => {
         setSession(newSession);
         if (event === 'SIGNED_OUT') {
-          setUser(null);
-          localStorage.removeItem(AUTH_STORAGE_KEY);
-          localStorage.removeItem(AUTH_ACTIVE_KEY);
-          sessionStorage.removeItem(AUTH_STORAGE_KEY);
-          sessionStorage.removeItem(AUTH_ACTIVE_KEY);
+          // If explicit signed out event triggered from Supabase
+          if (session?.user) {
+            setUser(null);
+            localStorage.removeItem(AUTH_STORAGE_KEY);
+            localStorage.removeItem(AUTH_ACTIVE_KEY);
+            sessionStorage.removeItem(AUTH_STORAGE_KEY);
+            sessionStorage.removeItem(AUTH_ACTIVE_KEY);
+          }
         } else if (newSession?.user) {
           const role = newSession.user.user_metadata?.role || 'admin';
           setUser({

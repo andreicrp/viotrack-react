@@ -125,6 +125,18 @@ export const DashboardPage = () => {
     };
   }, [loadData]);
 
+  // Helper: check if a record is officially approved (exclude under approval / rejected)
+  const isApproved = (r) => {
+    if (!r) return false;
+    if (r.approval_status === 'Under Approval' || r.status === 'Under Approval') return false;
+    if (r.approval_status === 'Rejected' || r.status === 'Rejected') return false;
+    return r.approval_status === 'Approved';
+  };
+
+  const approvedRecords = useMemo(() => {
+    return (records || []).filter(isApproved);
+  }, [records]);
+
   // 1. Dynamic Metric Calculations & Trend Comparisons
   const metrics = useMemo(() => {
     let minor = 0;
@@ -139,7 +151,7 @@ export const DashboardPage = () => {
     let thisWeekCount = 0;
     let lastWeekCount = 0;
 
-    records.forEach(r => {
+    approvedRecords.forEach(r => {
       const type = (r.violation?.type || r.type || '').toLowerCase();
       if (type === 'minor') minor++;
       else if (type === 'serious') serious++;
@@ -158,21 +170,21 @@ export const DashboardPage = () => {
     });
 
     const weeklyDelta = thisWeekCount - lastWeekCount;
-    const resolvedRate = records.length > 0 ? Math.round((resolved / records.length) * 100) : 100;
+    const resolvedRate = approvedRecords.length > 0 ? Math.round((resolved / approvedRecords.length) * 100) : 100;
 
     return {
       minorCount: minor,
       seriousCount: serious,
       majorCount: major,
       totalStudentsCount: students.length,
-      totalViolationsCount: records.length,
+      totalViolationsCount: approvedRecords.length,
       resolvedCount: resolved,
       pendingCount: pending,
       resolvedRate,
       weeklyDelta,
       thisWeekCount
     };
-  }, [records, students]);
+  }, [approvedRecords, students]);
 
   // 2. Real-Time Dynamic Trend Data Aggregation
   const trendData = useMemo(() => {
@@ -205,7 +217,7 @@ export const DashboardPage = () => {
         );
       };
 
-      const todayRecords = records.filter(isRecordToday);
+      const todayRecords = approvedRecords.filter(isRecordToday);
 
       return intervals.map(int => {
         let minor = 0, serious = 0, major = 0;
@@ -234,7 +246,7 @@ export const DashboardPage = () => {
         const dayLabel = d.toLocaleDateString('en-US', { weekday: 'short', month: 'numeric', day: 'numeric' });
 
         let minor = 0, serious = 0, major = 0;
-        records.forEach(r => {
+        approvedRecords.forEach(r => {
           const rDateStr = (r.date_reported || r.created_at || '').split('T')[0];
           if (rDateStr === dateStr) {
             const sev = getSeverity(r);
@@ -262,7 +274,7 @@ export const DashboardPage = () => {
         const label = `${curStart.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
 
         let minor = 0, serious = 0, major = 0;
-        records.forEach(r => {
+        approvedRecords.forEach(r => {
           const rDate = new Date(r.date_reported || r.created_at || Date.now());
           if (rDate >= curStart && rDate <= curEnd) {
             const sev = getSeverity(r);
@@ -291,7 +303,7 @@ export const DashboardPage = () => {
 
     return buckets.map(b => {
       let minor = 0, serious = 0, major = 0;
-      records.forEach(r => {
+      approvedRecords.forEach(r => {
         const rDate = new Date(r.date_reported || r.created_at || Date.now());
         if (rDate.getFullYear() === year && rDate.getMonth() === month) {
           const dayNum = rDate.getDate();
@@ -305,7 +317,7 @@ export const DashboardPage = () => {
       });
       return { time: b.label, minor, serious, major, total: minor + serious + major };
     });
-  }, [chartFilter, records, startDate, endDate, calendarMonth]);
+  }, [chartFilter, approvedRecords, startDate, endDate, calendarMonth]);
 
   // Determine max domain for Chart Y-Axis dynamically with nice integer padding
   const chartYDomain = useMemo(() => {
@@ -340,8 +352,8 @@ export const DashboardPage = () => {
       });
     });
 
-    // Aggregate records
-    records.forEach(r => {
+    // Aggregate approved records
+    approvedRecords.forEach(r => {
       const sId = Number(r.student_id || r.student?.id);
       if (!studentMap.has(sId)) {
         if (r.student) {
@@ -409,7 +421,7 @@ export const DashboardPage = () => {
         infractionLabel: statusLabel
       };
     });
-  }, [students, records]);
+  }, [students, approvedRecords]);
 
   // Paginated Repeat Offenders Slice
   const totalOffenderPages = Math.max(1, Math.ceil(repeatStudentsList.length / offendersPerPage));
@@ -422,7 +434,7 @@ export const DashboardPage = () => {
   const sectionBreakdown = useMemo(() => {
     const secMap = new Map();
 
-    records.forEach(r => {
+    approvedRecords.forEach(r => {
       const student = r.student || students.find(s => Number(s.id) === Number(r.student_id));
       if (student) {
         const grade = student.grade || 'General';
@@ -448,14 +460,14 @@ export const DashboardPage = () => {
 
     const list = Array.from(secMap.values()).sort((a, b) => b.count - a.count);
     const maxCount = list.length > 0 && list[0].count > 0 ? list[0].count : 1;
-    const totalCount = records.length > 0 ? records.length : 1;
+    const totalCount = approvedRecords.length > 0 ? approvedRecords.length : 1;
 
     return list.slice(0, 6).map(item => ({
       ...item,
       pct: `${Math.round((item.count / totalCount) * 100)}%`,
       fillPct: Math.round((item.count / maxCount) * 100)
     }));
-  }, [records, students]);
+  }, [approvedRecords, students]);
 
   // 5. Dynamic Disciplinary Insight Generator
   const disciplinaryInsight = useMemo(() => {

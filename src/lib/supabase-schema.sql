@@ -95,7 +95,13 @@ CREATE TABLE records (
     reported_by_type VARCHAR(20) DEFAULT 'admin', -- 'admin' or 'teacher'
     reported_by_name VARCHAR(150),
     date_reported TIMESTAMPTZ DEFAULT NOW(),
-    status VARCHAR(30) DEFAULT 'Pending' CHECK (status IN ('Pending', 'Investigation', 'Resolved', 'Dismissed')),
+    status VARCHAR(30) DEFAULT 'Pending' CHECK (status IN ('Pending', 'Investigation', 'Resolved', 'Dismissed', 'Under Approval', 'Rejected')),
+    approval_status VARCHAR(30) DEFAULT 'Approved' CHECK (approval_status IN ('Under Approval', 'Approved', 'Rejected')),
+    approved_by VARCHAR(150),
+    approved_at TIMESTAMPTZ,
+    rejected_by VARCHAR(150),
+    rejected_at TIMESTAMPTZ,
+    rejection_reason TEXT,
     sanction TEXT DEFAULT '',
     remarks TEXT DEFAULT '',
     resolution_notes TEXT DEFAULT '',
@@ -205,12 +211,13 @@ INSERT INTO students (lrn, fname, mname, lname, grade, section, academicyear, ge
 ('109283746106', 'Jasmine', 'Rose', 'Castillo', 'Grade 9', 'Diamond', '2025-2026', 'Female', '09156667788', 'Lita Castillo', '09156667789', '210 Taft Avenue, Pasay');
 
 -- Sample Violation Records
-INSERT INTO records (student_id, violation_id, reported_by_type, reported_by_name, date_reported, status, sanction, remarks, resolution_notes, sms_notified) VALUES
-(1, 1, 'teacher', 'Juan Dela Cruz', NOW() - INTERVAL '2 days', 'Resolved', 'Verbal Warning', 'Forgot school necktie and ID lace.', 'Student complied the following day and was cleared.', TRUE),
-(1, 2, 'admin', 'System Admin', NOW() - INTERVAL '5 hours', 'Pending', '1 Hour Community Service', 'Arrived 40 minutes late without excuse slip.', '', TRUE),
-(3, 4, 'teacher', 'Elena Reyes', NOW() - INTERVAL '1 day', 'Investigation', 'Parent Conference', 'Involved in an altercation in corridor.', 'Scheduled parent discussion on Friday.', TRUE),
-(4, 3, 'teacher', 'Roberto Aquino', NOW() - INTERVAL '3 days', 'Resolved', 'Confiscation', 'Playing games during Chemistry lab.', 'Device returned to guardian.', TRUE),
-(5, 5, 'admin', 'System Admin', NOW() - INTERVAL '4 days', 'Pending', 'Restitution', 'Graffiti on classroom desk.', '', FALSE);
+INSERT INTO records (student_id, violation_id, reported_by_type, reported_by_name, date_reported, status, approval_status, approved_by, approved_at, sanction, remarks, resolution_notes, sms_notified) VALUES
+(1, 1, 'teacher', 'Juan Dela Cruz', NOW() - INTERVAL '2 days', 'Resolved', 'Approved', 'System Admin', NOW() - INTERVAL '2 days', 'Verbal Warning', 'Forgot school necktie and ID lace.', 'Student complied the following day and was cleared.', TRUE),
+(1, 2, 'admin', 'System Admin', NOW() - INTERVAL '5 hours', 'Pending', 'Approved', 'System Admin', NOW() - INTERVAL '5 hours', '1 Hour Community Service', 'Arrived 40 minutes late without excuse slip.', '', TRUE),
+(3, 4, 'teacher', 'Elena Reyes', NOW() - INTERVAL '1 day', 'Investigation', 'Approved', 'System Admin', NOW() - INTERVAL '1 day', 'Parent Conference', 'Involved in an altercation in corridor.', 'Scheduled parent discussion on Friday.', TRUE),
+(4, 3, 'teacher', 'Roberto Aquino', NOW() - INTERVAL '3 days', 'Resolved', 'Approved', 'System Admin', NOW() - INTERVAL '3 days', 'Confiscation', 'Playing games during Chemistry lab.', 'Device returned to guardian.', TRUE),
+(5, 5, 'admin', 'System Admin', NOW() - INTERVAL '4 days', 'Pending', 'Approved', 'System Admin', NOW() - INTERVAL '4 days', 'Restitution', 'Graffiti on classroom desk.', '', FALSE),
+(2, 2, 'teacher', 'Elena Reyes', NOW() - INTERVAL '3 hours', 'Under Approval', 'Under Approval', NULL, NULL, 'Pending Admin Review', 'Repeated tardiness in morning period.', '', FALSE);
 
 -- Sample Activity Logs
 INSERT INTO activity_logs (user_name, user_role, action, details) VALUES

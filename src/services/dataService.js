@@ -368,29 +368,65 @@ const INITIAL_SCHOOL_EVENTS = [
   }
 ];
 
-// High-Performance In-Memory Cache for 10,000+ Items
-const _memoryCache = {
-  students: null,
-  studentsTimestamp: 0,
-  violations: null,
-  violationsTimestamp: 0,
-  teachers: null,
-  teachersTimestamp: 0,
-  advisers: null,
-  advisersTimestamp: 0,
-  records: null,
-  recordsTimestamp: 0,
-  TTL: 30000 // 30-second hot cache
+// ============================================================================
+// ULTRA-HIGH PERFORMANCE MULTI-TIER CACHING & DATA ACCELERATION ENGINE
+// ============================================================================
+const CACHE_CONFIG = {
+  FRESH_TTL: 60 * 1000,       // 60 seconds fresh (instant 0ms synchronous hits)
+  STALE_TTL: 15 * 60 * 1000,   // 15 minutes stale-while-revalidate window
+};
+
+const _cache = {
+  data: {
+    students: null,
+    violations: null,
+    records: null,
+    teachers: null,
+    advisers: null,
+    admins: null,
+    activity_logs: null,
+    school_events: null
+  },
+  timestamps: {
+    students: 0,
+    violations: 0,
+    records: 0,
+    teachers: 0,
+    advisers: 0,
+    admins: 0,
+    activity_logs: 0,
+    school_events: 0
+  },
+  inFlightPromises: new Map()
+};
+
+// Request Coalescing / In-Flight Deduplication
+const executeWithDeduplication = (key, fetcherFn) => {
+  if (_cache.inFlightPromises.has(key)) {
+    return _cache.inFlightPromises.get(key);
+  }
+  const promise = (async () => {
+    try {
+      return await fetcherFn();
+    } finally {
+      _cache.inFlightPromises.delete(key);
+    }
+  })();
+  _cache.inFlightPromises.set(key, promise);
+  return promise;
 };
 
 const invalidateCache = (key) => {
   if (key) {
-    _memoryCache[key] = null;
-    _memoryCache[`${key}Timestamp`] = 0;
+    _cache.data[key] = null;
+    _cache.timestamps[key] = 0;
+    _cache.inFlightPromises.delete(key);
   } else {
-    Object.keys(_memoryCache).forEach(k => {
-      if (k !== 'TTL') _memoryCache[k] = null;
+    Object.keys(_cache.data).forEach(k => {
+      _cache.data[k] = null;
+      _cache.timestamps[k] = 0;
     });
+    _cache.inFlightPromises.clear();
   }
 };
 
@@ -408,7 +444,6 @@ const setStored = (key, val) => {
   try {
     localStorage.setItem(`viotrack_${key}`, JSON.stringify(val));
   } catch (err) {
-    // If browser localStorage quota (5MB) is exceeded, log warning and rely on in-memory cache
     console.warn(`LocalStorage quota exceeded or write failed for ${key}, falling back to memory cache:`, err);
   }
 };
@@ -428,48 +463,79 @@ export const dataService = {
 
   invalidateCache,
 
+  // --- BACKGROUND CACHE WARMING ---
+  async warmCache() {
+    try {
+      await Promise.allSettled([
+        this.getStudents(),
+        this.getViolations(),
+        this.getRecords(),
+        this.getTeachers(),
+        this.getAdvisers(),
+        this.getSchoolEvents(),
+        this.getAdmins(),
+        this.getActivityLogs()
+      ]);
+    } catch (e) {
+      console.warn('Background cache warming warning:', e);
+    }
+  },
+
   // --- STUDENTS ---
   async getStudents(forceRefresh = false) {
     const now = Date.now();
-    if (!forceRefresh && _memoryCache.students && (now - _memoryCache.studentsTimestamp < _memoryCache.TTL)) {
-      return _memoryCache.students;
+    const cached = _cache.data.students;
+    const cacheAge = now - _cache.timestamps.students;
+
+    // 1. Instant Synchronous Cache Hit (Fresh)
+    if (!forceRefresh && cached && cacheAge < CACHE_CONFIG.FRESH_TTL) {
+      return cached;
     }
 
-    let list = [];
-    if (isSupabaseConfigured()) {
-      const { data, error } = await supabase.from('students').select('*').order('lname', { ascending: true });
-      if (!error && data && data.length > 0) list = data;
-    }
-    if (!list || list.length === 0) {
-      list = getStored('students', INITIAL_STUDENTS);
+    // 2. Stale-While-Revalidate Hit: Return immediately & revalidate in background
+    if (!forceRefresh && cached && cacheAge < CACHE_CONFIG.STALE_TTL) {
+      // Trigger background silent revalidation without awaiting
+      this.getStudents(true).catch(() => {});
+      return cached;
     }
 
-    const maleAvatars = [
-      'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150&auto=format&fit=crop&q=80',
-      'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
-      'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80',
-      'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=150&auto=format&fit=crop&q=80'
-    ];
-    const femaleAvatars = [
-      'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&auto=format&fit=crop&q=80',
-      'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80',
-      'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
-      'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&auto=format&fit=crop&q=80'
-    ];
+    return executeWithDeduplication('students', async () => {
+      let list = [];
+      if (isSupabaseConfigured()) {
+        const { data, error } = await supabase.from('students').select('*').order('lname', { ascending: true });
+        if (!error && data && data.length > 0) list = data;
+      }
+      if (!list || list.length === 0) {
+        list = getStored('students', INITIAL_STUDENTS);
+      }
 
-    const initialMap = new Map(INITIAL_STUDENTS.map(init => [init.id, init]));
-    const processed = list.map(s => {
-      if (s.image && !s.image.includes('ui-avatars.com')) return s;
-      const seed = initialMap.get(s.id);
-      if (seed?.image) return { ...s, image: seed.image };
-      const pool = (s.gender || '').toLowerCase() === 'female' ? femaleAvatars : maleAvatars;
-      const assignedImage = pool[(s.id || 1) % pool.length];
-      return { ...s, image: assignedImage };
+      const maleAvatars = [
+        'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150&auto=format&fit=crop&q=80',
+        'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
+        'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80',
+        'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=150&auto=format&fit=crop&q=80'
+      ];
+      const femaleAvatars = [
+        'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&auto=format&fit=crop&q=80',
+        'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80',
+        'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+        'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&auto=format&fit=crop&q=80'
+      ];
+
+      const initialMap = new Map(INITIAL_STUDENTS.map(init => [init.id, init]));
+      const processed = list.map(s => {
+        if (s.image && !s.image.includes('ui-avatars.com')) return s;
+        const seed = initialMap.get(s.id);
+        if (seed?.image) return { ...s, image: seed.image };
+        const pool = (s.gender || '').toLowerCase() === 'female' ? femaleAvatars : maleAvatars;
+        const assignedImage = pool[(s.id || 1) % pool.length];
+        return { ...s, image: assignedImage };
+      });
+
+      _cache.data.students = processed;
+      _cache.timestamps.students = Date.now();
+      return processed;
     });
-
-    _memoryCache.students = processed;
-    _memoryCache.studentsTimestamp = now;
-    return processed;
   },
 
   async addStudent(student) {
@@ -588,27 +654,37 @@ export const dataService = {
   // --- VIOLATIONS CATEGORIES ---
   async getViolations(forceRefresh = false) {
     const now = Date.now();
-    if (!forceRefresh && _memoryCache.violations && (now - _memoryCache.violationsTimestamp < _memoryCache.TTL)) {
-      return _memoryCache.violations;
+    const cached = _cache.data.violations;
+    const cacheAge = now - _cache.timestamps.violations;
+
+    if (!forceRefresh && cached && cacheAge < CACHE_CONFIG.FRESH_TTL) {
+      return cached;
     }
 
-    let result = null;
-    if (isSupabaseConfigured()) {
-      const { data, error } = await supabase.from('violations').select('*').order('type', { ascending: true });
-      if (!error && data && data.length > 0) result = data;
+    if (!forceRefresh && cached && cacheAge < CACHE_CONFIG.STALE_TTL) {
+      this.getViolations(true).catch(() => {});
+      return cached;
     }
-    if (!result) {
-      const stored = getStored('violations', null);
-      if (!stored || stored.length < INITIAL_VIOLATIONS.length) {
-        setStored('violations', INITIAL_VIOLATIONS);
-        result = INITIAL_VIOLATIONS;
-      } else {
-        result = stored;
+
+    return executeWithDeduplication('violations', async () => {
+      let result = null;
+      if (isSupabaseConfigured()) {
+        const { data, error } = await supabase.from('violations').select('*').order('type', { ascending: true });
+        if (!error && data && data.length > 0) result = data;
       }
-    }
-    _memoryCache.violations = result;
-    _memoryCache.violationsTimestamp = now;
-    return result;
+      if (!result) {
+        const stored = getStored('violations', null);
+        if (!stored || stored.length < INITIAL_VIOLATIONS.length) {
+          setStored('violations', INITIAL_VIOLATIONS);
+          result = INITIAL_VIOLATIONS;
+        } else {
+          result = stored;
+        }
+      }
+      _cache.data.violations = result;
+      _cache.timestamps.violations = Date.now();
+      return result;
+    });
   },
 
   async addViolationType(violation) {
@@ -705,68 +781,99 @@ export const dataService = {
   // --- RECORDS / INCIDENTS ---
   async getRecords(forceRefresh = false) {
     const now = Date.now();
-    if (!forceRefresh && _memoryCache.records && (now - _memoryCache.recordsTimestamp < _memoryCache.TTL)) {
-      return _memoryCache.records;
+    const cached = _cache.data.records;
+    const cacheAge = now - _cache.timestamps.records;
+
+    if (!forceRefresh && cached && cacheAge < CACHE_CONFIG.FRESH_TTL) {
+      return cached;
     }
 
-    if (isSupabaseConfigured()) {
-      const { data, error } = await supabase
-        .from('records')
-        .select(`
-          *,
-          students (*),
-          violations (*)
-        `)
-        .order('id', { ascending: false });
-      if (!error && data) {
-        const mapped = data.map(r => ({
-          ...r,
-          student: r.students,
-          violation: r.violations
-        }));
-        _memoryCache.records = mapped;
-        _memoryCache.recordsTimestamp = now;
-        return mapped;
-      }
+    if (!forceRefresh && cached && cacheAge < CACHE_CONFIG.STALE_TTL) {
+      this.getRecords(true).catch(() => {});
+      return cached;
     }
 
-    let records = getStored('records', INITIAL_RECORDS);
-    // Ensure initial pending approval records are present if user's localstorage was created prior to approval system
-    if (!records.some(r => r.approval_status === 'Under Approval' || r.status === 'Under Approval')) {
-      const underApprovalInitials = INITIAL_RECORDS.filter(r => r.approval_status === 'Under Approval' || r.status === 'Under Approval');
-      if (underApprovalInitials.length > 0) {
-        records = [...underApprovalInitials, ...records];
-        setStored('records', records);
+    return executeWithDeduplication('records', async () => {
+      let mappedRecords = null;
+      if (isSupabaseConfigured()) {
+        const { data, error } = await supabase
+          .from('records')
+          .select(`
+            *,
+            students (*),
+            violations (*)
+          `)
+          .order('id', { ascending: false });
+        if (!error && data) {
+          mappedRecords = data.map(r => {
+            const isTeacher = (r.reported_by_type === 'teacher');
+            let resolvedApproval = r.approval_status;
+            if (!resolvedApproval) {
+              if (r.status === 'Under Approval' || r.status === 'Rejected') {
+                resolvedApproval = r.status;
+              } else if (r.approved_by) {
+                resolvedApproval = 'Approved';
+              } else if (isTeacher || !r.approved_by) {
+                resolvedApproval = 'Under Approval';
+              } else {
+                resolvedApproval = 'Approved';
+              }
+            }
+            return {
+              ...r,
+              approval_status: resolvedApproval,
+              student: r.students,
+              violation: r.violations
+            };
+          });
+        }
       }
-    }
 
-    const students = await this.getStudents();
-    const violations = await this.getViolations();
+      if (!mappedRecords) {
+        let records = getStored('records', INITIAL_RECORDS);
+        if (!records.some(r => r.approval_status === 'Under Approval' || r.status === 'Under Approval')) {
+          const underApprovalInitials = INITIAL_RECORDS.filter(r => r.approval_status === 'Under Approval' || r.status === 'Under Approval');
+          if (underApprovalInitials.length > 0) {
+            records = [...underApprovalInitials, ...records];
+            setStored('records', records);
+          }
+        }
 
-    // Instant O(1) Hash Map Indexing for 10,000+ scaling
-    const studentMap = new Map(students.map(s => [Number(s.id), s]));
-    const violationMap = new Map(violations.map(v => [Number(v.id), v]));
+        const [students, violations] = await Promise.all([
+          this.getStudents(),
+          this.getViolations()
+        ]);
 
-    const mapped = records.map(r => {
-      const isTeacher = (r.reported_by_type === 'teacher');
-      let resolvedApproval = r.approval_status;
-      if (!resolvedApproval) {
-        if (r.status === 'Under Approval') resolvedApproval = 'Under Approval';
-        else if (r.status === 'Rejected') resolvedApproval = 'Rejected';
-        else if (isTeacher && !r.approved_by && r.status !== 'Resolved') resolvedApproval = 'Under Approval';
-        else resolvedApproval = 'Approved';
+        const studentMap = new Map(students.map(s => [Number(s.id), s]));
+        const violationMap = new Map(violations.map(v => [Number(v.id), v]));
+
+        mappedRecords = records.map(r => {
+          const isTeacher = (r.reported_by_type === 'teacher');
+          let resolvedApproval = r.approval_status;
+          if (!resolvedApproval) {
+            if (r.status === 'Under Approval' || r.status === 'Rejected') {
+              resolvedApproval = r.status;
+            } else if (r.approved_by) {
+              resolvedApproval = 'Approved';
+            } else if (isTeacher || !r.approved_by) {
+              resolvedApproval = 'Under Approval';
+            } else {
+              resolvedApproval = 'Approved';
+            }
+          }
+          return {
+            ...r,
+            approval_status: resolvedApproval,
+            student: studentMap.get(Number(r.student_id)),
+            violation: violationMap.get(Number(r.violation_id))
+          };
+        });
       }
-      return {
-        ...r,
-        approval_status: resolvedApproval,
-        student: studentMap.get(Number(r.student_id)),
-        violation: violationMap.get(Number(r.violation_id))
-      };
+
+      _cache.data.records = mappedRecords;
+      _cache.timestamps.records = Date.now();
+      return mappedRecords;
     });
-
-    _memoryCache.records = mapped;
-    _memoryCache.recordsTimestamp = now;
-    return mapped;
   },
 
   async addRecord(record) {
@@ -1028,19 +1135,29 @@ export const dataService = {
   // --- TEACHERS & ADVISERS ---
   async getTeachers(forceRefresh = false) {
     const now = Date.now();
-    if (!forceRefresh && _memoryCache.teachers && (now - _memoryCache.teachersTimestamp < _memoryCache.TTL)) {
-      return _memoryCache.teachers;
+    const cached = _cache.data.teachers;
+    const cacheAge = now - _cache.timestamps.teachers;
+
+    if (!forceRefresh && cached && cacheAge < CACHE_CONFIG.FRESH_TTL) {
+      return cached;
     }
 
-    let list = null;
-    if (isSupabaseConfigured()) {
-      const { data, error } = await supabase.from('teachers').select('*').order('lname', { ascending: true });
-      if (!error && data && data.length > 0) list = data;
+    if (!forceRefresh && cached && cacheAge < CACHE_CONFIG.STALE_TTL) {
+      this.getTeachers(true).catch(() => {});
+      return cached;
     }
-    if (!list) list = getStored('teachers', INITIAL_TEACHERS);
-    _memoryCache.teachers = list;
-    _memoryCache.teachersTimestamp = now;
-    return list;
+
+    return executeWithDeduplication('teachers', async () => {
+      let list = null;
+      if (isSupabaseConfigured()) {
+        const { data, error } = await supabase.from('teachers').select('*').order('lname', { ascending: true });
+        if (!error && data && data.length > 0) list = data;
+      }
+      if (!list) list = getStored('teachers', INITIAL_TEACHERS);
+      _cache.data.teachers = list;
+      _cache.timestamps.teachers = Date.now();
+      return list;
+    });
   },
 
   // --- LIVE STUDENT LOCATION TRACKING (GPS & TELEMETRY) ---
@@ -1247,32 +1364,42 @@ export const dataService = {
 
   async getAdvisers(forceRefresh = false) {
     const now = Date.now();
-    if (!forceRefresh && _memoryCache.advisers && (now - _memoryCache.advisersTimestamp < _memoryCache.TTL)) {
-      return _memoryCache.advisers;
+    const cached = _cache.data.advisers;
+    const cacheAge = now - _cache.timestamps.advisers;
+
+    if (!forceRefresh && cached && cacheAge < CACHE_CONFIG.FRESH_TTL) {
+      return cached;
     }
 
-    if (isSupabaseConfigured()) {
-      const { data, error } = await supabase.from('advisers').select('*, teachers(*)');
-      if (!error && data) {
-        const mapped = data.map(a => ({
-          ...a,
-          teacher: a.teachers
-        }));
-        _memoryCache.advisers = mapped;
-        _memoryCache.advisersTimestamp = now;
-        return mapped;
-      }
+    if (!forceRefresh && cached && cacheAge < CACHE_CONFIG.STALE_TTL) {
+      this.getAdvisers(true).catch(() => {});
+      return cached;
     }
-    const advisers = getStored('advisers', INITIAL_ADVISERS);
-    const teachers = await this.getTeachers();
-    const teacherMap = new Map(teachers.map(t => [Number(t.id), t]));
-    const mapped = advisers.map(a => ({
-      ...a,
-      teacher: teacherMap.get(Number(a.teacher_id))
-    }));
-    _memoryCache.advisers = mapped;
-    _memoryCache.advisersTimestamp = now;
-    return mapped;
+
+    return executeWithDeduplication('advisers', async () => {
+      if (isSupabaseConfigured()) {
+        const { data, error } = await supabase.from('advisers').select('*, teachers(*)');
+        if (!error && data) {
+          const mapped = data.map(a => ({
+            ...a,
+            teacher: a.teachers
+          }));
+          _cache.data.advisers = mapped;
+          _cache.timestamps.advisers = Date.now();
+          return mapped;
+        }
+      }
+      const advisers = getStored('advisers', INITIAL_ADVISERS);
+      const teachers = await this.getTeachers();
+      const teacherMap = new Map(teachers.map(t => [Number(t.id), t]));
+      const mapped = advisers.map(a => ({
+        ...a,
+        teacher: teacherMap.get(Number(a.teacher_id))
+      }));
+      _cache.data.advisers = mapped;
+      _cache.timestamps.advisers = Date.now();
+      return mapped;
+    });
   },
 
   async saveAdviserAssignment(teacher_id, grade_level, class_section) {
@@ -1325,12 +1452,31 @@ export const dataService = {
   },
 
   // --- ADMIN USERS ---
-  async getAdmins() {
-    if (isSupabaseConfigured()) {
-      const { data, error } = await supabase.from('admins').select('*');
-      if (!error && data && data.length > 0) return data;
+  async getAdmins(forceRefresh = false) {
+    const now = Date.now();
+    const cached = _cache.data.admins;
+    const cacheAge = now - _cache.timestamps.admins;
+
+    if (!forceRefresh && cached && cacheAge < CACHE_CONFIG.FRESH_TTL) {
+      return cached;
     }
-    return getStored('admins', INITIAL_ADMINS);
+
+    if (!forceRefresh && cached && cacheAge < CACHE_CONFIG.STALE_TTL) {
+      this.getAdmins(true).catch(() => {});
+      return cached;
+    }
+
+    return executeWithDeduplication('admins', async () => {
+      let list = null;
+      if (isSupabaseConfigured()) {
+        const { data, error } = await supabase.from('admins').select('*');
+        if (!error && data && data.length > 0) list = data;
+      }
+      if (!list) list = getStored('admins', INITIAL_ADMINS);
+      _cache.data.admins = list;
+      _cache.timestamps.admins = Date.now();
+      return list;
+    });
   },
 
   async addAdmin(admin) {
@@ -1358,6 +1504,7 @@ export const dataService = {
     }
     const updated = [result, ...current];
     setStored('admins', updated);
+    invalidateCache('admins');
     await this.addActivityLog('Add Admin', `Created administrator account for ${cleanAdmin.fname} ${cleanAdmin.lname} (${cleanAdmin.role})`);
     return result;
   },
@@ -1384,6 +1531,7 @@ export const dataService = {
     const current = getStored('admins', INITIAL_ADMINS);
     const updated = current.map(a => (a.id === Number(id) ? { ...a, ...updates } : a));
     setStored('admins', updated);
+    invalidateCache('admins');
     if (!result) result = updated.find(a => a.id === Number(id));
     await this.addActivityLog('Update Admin', `Updated admin profile for ${updates.fname || ''} ${updates.lname || ''} (${updates.role || 'Admin'})`);
     return result;
@@ -1403,21 +1551,41 @@ export const dataService = {
     const name = target ? `${target.fname} ${target.lname}` : `ID #${id}`;
     const updated = current.filter(a => a.id !== Number(id));
     setStored('admins', updated);
+    invalidateCache('admins');
     await this.addActivityLog('Delete Admin', `Removed administrator account for ${name}`);
     return true;
   },
 
   // --- ACTIVITY LOGS ---
-  async getActivityLogs() {
-    if (isSupabaseConfigured()) {
-      try {
-        const { data, error } = await supabase.from('activity_logs').select('*').order('id', { ascending: false }).limit(100);
-        if (!error && data && data.length > 0) return data;
-      } catch (err) {
-        console.warn('Supabase getActivityLogs error:', err);
-      }
+  async getActivityLogs(forceRefresh = false) {
+    const now = Date.now();
+    const cached = _cache.data.activity_logs;
+    const cacheAge = now - _cache.timestamps.activity_logs;
+
+    if (!forceRefresh && cached && cacheAge < CACHE_CONFIG.FRESH_TTL) {
+      return cached;
     }
-    return getStored('activity_logs', INITIAL_LOGS);
+
+    if (!forceRefresh && cached && cacheAge < CACHE_CONFIG.STALE_TTL) {
+      this.getActivityLogs(true).catch(() => {});
+      return cached;
+    }
+
+    return executeWithDeduplication('activity_logs', async () => {
+      let list = null;
+      if (isSupabaseConfigured()) {
+        try {
+          const { data, error } = await supabase.from('activity_logs').select('*').order('id', { ascending: false }).limit(100);
+          if (!error && data && data.length > 0) list = data;
+        } catch (err) {
+          console.warn('Supabase getActivityLogs error:', err);
+        }
+      }
+      if (!list) list = getStored('activity_logs', INITIAL_LOGS);
+      _cache.data.activity_logs = list;
+      _cache.timestamps.activity_logs = Date.now();
+      return list;
+    });
   },
 
   async addActivityLog(action, details, userName, userRole) {
@@ -1444,6 +1612,7 @@ export const dataService = {
     const current = getStored('activity_logs', INITIAL_LOGS);
     const updated = [newLog, ...current.slice(0, 199)];
     setStored('activity_logs', updated);
+    invalidateCache('activity_logs');
 
     // Notify all active listeners across the app
     try {
@@ -1475,21 +1644,43 @@ export const dataService = {
   },
 
   // --- SCHOOL CALENDAR & EVENTS ---
-  async getSchoolEvents() {
-    if (isSupabaseConfigured()) {
-      try {
-        const { data, error } = await supabase.from('school_events').select('*').order('date', { ascending: true });
-        if (!error && data && data.length > 0) return data;
-      } catch (err) {
-        console.warn('Supabase getSchoolEvents error:', err);
+  async getSchoolEvents(forceRefresh = false) {
+    const now = Date.now();
+    const cached = _cache.data.school_events;
+    const cacheAge = now - _cache.timestamps.school_events;
+
+    if (!forceRefresh && cached && cacheAge < CACHE_CONFIG.FRESH_TTL) {
+      return cached;
+    }
+
+    if (!forceRefresh && cached && cacheAge < CACHE_CONFIG.STALE_TTL) {
+      this.getSchoolEvents(true).catch(() => {});
+      return cached;
+    }
+
+    return executeWithDeduplication('school_events', async () => {
+      let list = null;
+      if (isSupabaseConfigured()) {
+        try {
+          const { data, error } = await supabase.from('school_events').select('*').order('date', { ascending: true });
+          if (!error && data && data.length > 0) list = data;
+        } catch (err) {
+          console.warn('Supabase getSchoolEvents error:', err);
+        }
       }
-    }
-    const current = getStored('school_events', null);
-    if (!current || current.length === 0) {
-      setStored('school_events', INITIAL_SCHOOL_EVENTS);
-      return INITIAL_SCHOOL_EVENTS;
-    }
-    return current;
+      if (!list) {
+        const current = getStored('school_events', null);
+        if (!current || current.length === 0) {
+          setStored('school_events', INITIAL_SCHOOL_EVENTS);
+          list = INITIAL_SCHOOL_EVENTS;
+        } else {
+          list = current;
+        }
+      }
+      _cache.data.school_events = list;
+      _cache.timestamps.school_events = Date.now();
+      return list;
+    });
   },
 
   async addSchoolEvent(event) {
@@ -1511,6 +1702,7 @@ export const dataService = {
     }
     const updated = [...current, result];
     setStored('school_events', updated);
+    invalidateCache('school_events');
     await this.addActivityLog('Schedule Event', `Added calendar event "${event.title}" on ${event.date}`);
     try {
       window.dispatchEvent(new CustomEvent('viotrack_events_updated', { detail: result }));
@@ -1531,6 +1723,7 @@ export const dataService = {
     const title = target ? target.title : `ID #${id}`;
     const updated = current.filter(e => e.id !== Number(id));
     setStored('school_events', updated);
+    invalidateCache('school_events');
     await this.addActivityLog('Delete Event', `Removed calendar event "${title}"`);
     try {
       window.dispatchEvent(new CustomEvent('viotrack_events_updated', { detail: { id } }));

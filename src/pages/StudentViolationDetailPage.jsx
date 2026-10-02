@@ -98,7 +98,16 @@ export const StudentViolationDetailPage = () => {
       const found = allStudents.find(s => String(s.id) === String(id) || String(s.lrn) === String(id));
       if (found) {
         setStudent(found);
-        const studentHistory = allRecords.filter(r => String(r.student_id) === String(found.id));
+        const isApproved = (r) => {
+          if (!r) return false;
+          if (r.approval_status === 'Under Approval' || r.status === 'Under Approval') return false;
+          if (r.approval_status === 'Rejected' || r.status === 'Rejected') return false;
+          // Must be explicitly approved by an administrator
+          return r.approval_status === 'Approved';
+        };
+        const studentHistory = (allRecords || [])
+          .filter(r => String(r.student_id) === String(found.id))
+          .filter(isApproved);
         setRecords(studentHistory);
       } else {
         error('Student profile not found.');

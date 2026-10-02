@@ -1,31 +1,97 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  RefreshCw,
   User,
   LogOut,
   Shield,
   GraduationCap,
-  Menu
+  Menu,
+  Bell,
+  CheckCircle2,
+  ChevronRight,
+  Clock
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { dataService } from '../../services/dataService';
 
 export const Header = ({ onToggleSidebar }) => {
-  const { user, switchRole, logout } = useAuth();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
   const [showDropdown, setShowDropdown] = useState(false);
+  const [showNotifDropdown, setShowNotifDropdown] = useState(false);
+  const [pendingApprovals, setPendingApprovals] = useState([]);
   const dropdownRef = useRef(null);
+  const notifRef = useRef(null);
 
   const isAdmin = user?.role === 'admin';
 
-  // Close dropdown on outside click
+  // Helper to check if a record is Under Approval
+  const resolveApprovalStatus = (r) => {
+    if (r.approval_status === 'Approved' || r.status === 'Approved') return 'Approved';
+    if (r.approval_status === 'Rejected' || r.status === 'Rejected') return 'Rejected';
+    if (r.approval_status === 'Under Approval' || r.status === 'Under Approval') return 'Under Approval';
+    if (r.reported_by_type === 'teacher' && !r.approved_by && r.status !== 'Resolved') return 'Under Approval';
+    return r.approval_status || 'Approved';
+  };
+
+  const loadPendingApprovals = useCallback(async () => {
+    try {
+      const allRecords = await dataService.getRecords();
+      const pending = (allRecords || []).filter(r => resolveApprovalStatus(r) === 'Under Approval');
+      setPendingApprovals(pending);
+    } catch (err) {
+      console.error('Failed to load pending approvals for notifications:', err);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadPendingApprovals();
+
+    const handleDataUpdate = () => {
+      loadPendingApprovals();
+    };
+
+    window.addEventListener('viotrack_data_updated', handleDataUpdate);
+    window.addEventListener('viotrack_activity_logged', handleDataUpdate);
+
+    return () => {
+      window.removeEventListener('viotrack_data_updated', handleDataUpdate);
+      window.removeEventListener('viotrack_activity_logged', handleDataUpdate);
+    };
+  }, [loadPendingApprovals]);
+
+  // Relative time helper
+  const formatTimeAgo = (dateStr) => {
+    if (!dateStr) return 'Recently';
+    try {
+      const d = new Date(dateStr);
+      if (isNaN(d.getTime())) return 'Recently';
+      const diffMs = Date.now() - d.getTime();
+      const diffMins = Math.floor(diffMs / 60000);
+      if (diffMins < 1) return 'Just now';
+      if (diffMins < 60) return `${diffMins}m ago`;
+      const diffHours = Math.floor(diffMins / 60);
+      if (diffHours < 24) return `${diffHours}h ago`;
+      const diffDays = Math.floor(diffHours / 24);
+      if (diffDays === 1) return 'Yesterday';
+      if (diffDays < 7) return `${diffDays}d ago`;
+      return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    } catch {
+      return 'Recently';
+    }
+  };
+
+  // Close dropdowns on outside click
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setShowDropdown(false);
       }
+      if (notifRef.current && !notifRef.current.contains(event.target)) {
+        setShowNotifDropdown(false);
+      }
     };
-    if (showDropdown) {
+    if (showDropdown || showNotifDropdown) {
       document.addEventListener('mousedown', handleClickOutside);
       document.addEventListener('touchstart', handleClickOutside);
     }
@@ -33,12 +99,7 @@ export const Header = ({ onToggleSidebar }) => {
       document.removeEventListener('mousedown', handleClickOutside);
       document.removeEventListener('touchstart', handleClickOutside);
     };
-  }, [showDropdown]);
-
-  const handleSwitchRole = () => {
-    switchRole(isAdmin ? 'teacher' : 'admin');
-    setShowDropdown(false);
-  };
+  }, [showDropdown, showNotifDropdown]);
 
   const handleGoProfile = () => {
     navigate('/profile');
@@ -49,6 +110,11 @@ export const Header = ({ onToggleSidebar }) => {
     logout();
     navigate('/login?logged_out=1');
     setShowDropdown(false);
+  };
+
+  const handleNavigateToApproval = () => {
+    setShowNotifDropdown(false);
+    navigate('/for-approval');
   };
 
   return (
@@ -92,12 +158,145 @@ export const Header = ({ onToggleSidebar }) => {
       </div>
 
       <div className="header-right" draggable={false}>
+        {/* Notification Bell next to profile */}
+        <div className="header-notif-wrap" ref={notifRef} draggable={false}>
+          <button
+            type="button"
+            className={`header-notif-icon-btn ${showNotifDropdown ? 'active' : ''}`}
+            onClick={() => {
+              setShowNotifDropdown(prev => !prev);
+              setShowDropdown(false);
+            }}
+            aria-label="Notifications"
+            aria-expanded={showNotifDropdown}
+            title={pendingApprovals.length > 0 ? `${pendingApprovals.length} pending approval${pendingApprovals.length > 1 ? 's' : ''}` : 'Notifications'}
+          >
+            <Bell size={20} className="header-notif-bell-icon" />
+            {pendingApprovals.length > 0 && (
+              <span className="header-notif-badge">
+                {pendingApprovals.length > 99 ? '99+' : pendingApprovals.length}
+                <span className="header-notif-pulse" />
+              </span>
+            )}
+          </button>
+
+          {showNotifDropdown && (
+            <div className="header-notif-dropdown" role="dialog" aria-label="Pending Approvals Notifications">
+              <div className="header-notif-dropdown-header">
+                <div className="header-notif-dropdown-title-group">
+                  <span className="header-notif-dropdown-title">To Be Approved</span>
+                  {pendingApprovals.length > 0 && (
+                    <span className="header-notif-count-pill">{pendingApprovals.length} Pending</span>
+                  )}
+                </div>
+                <button
+                  type="button"
+                  className="header-notif-view-all-link"
+                  onClick={handleNavigateToApproval}
+                >
+                  View All
+                </button>
+              </div>
+
+              <div className="header-notif-dropdown-list">
+                {pendingApprovals.length === 0 ? (
+                  <div className="header-notif-empty">
+                    <div className="header-notif-empty-icon">
+                      <CheckCircle2 size={32} color="#10b981" />
+                    </div>
+                    <div className="header-notif-empty-title">All Caught Up!</div>
+                    <div className="header-notif-empty-sub">There are no violation reports awaiting approval at this time.</div>
+                  </div>
+                ) : (
+                  pendingApprovals.slice(0, 5).map((rec) => {
+                    const studentObj = rec.student || rec.students || {};
+                    const studentName = (studentObj.fname && studentObj.lname)
+                      ? `${studentObj.fname} ${studentObj.lname}`
+                      : (studentObj.name || studentObj.full_name || rec.student_name || `Student #${rec.student_id || ''}`);
+                    const violationObj = rec.violation || rec.violations || {};
+                    const violationTitle = violationObj.name || violationObj.violation_name || rec.offense || 'Violation Report';
+                    const severity = violationObj.severity || violationObj.type || rec.severity || 'Minor';
+                    const reporter = rec.reported_by || 'Teacher';
+                    const timeAgo = formatTimeAgo(rec.created_at || rec.date || rec.timestamp);
+                    const avatarUrl = studentObj.image ||
+                      studentObj.avatar ||
+                      studentObj.photo_url ||
+                      studentObj.photo ||
+                      `https://ui-avatars.com/api/?name=${encodeURIComponent(studentName)}&background=07345f&color=fff&size=100&bold=true`;
+
+                    return (
+                      <div
+                        key={rec.id}
+                        className="header-notif-item"
+                        onClick={handleNavigateToApproval}
+                        role="button"
+                        tabIndex={0}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            handleNavigateToApproval();
+                          }
+                        }}
+                      >
+                        <div className="header-notif-avatar-col">
+                          <img
+                            src={avatarUrl}
+                            alt={studentName}
+                            className="header-notif-student-avatar"
+                            onError={(e) => {
+                              e.currentTarget.onerror = null;
+                              e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(studentName)}&background=07345f&color=fff&size=100&bold=true`;
+                            }}
+                          />
+                          <span className="header-notif-pending-indicator" />
+                        </div>
+                        <div className="header-notif-info-col">
+                          <div className="header-notif-item-top">
+                            <span className="header-notif-student-name">{studentName}</span>
+                            <span className="header-notif-time">
+                              <Clock size={11} style={{ marginRight: 3, verticalAlign: -1 }} />
+                              {timeAgo}
+                            </span>
+                          </div>
+                          <div className="header-notif-violation-title">{violationTitle}</div>
+                          <div className="header-notif-item-meta">
+                            <span className={`header-notif-severity-badge severity-${severity.toLowerCase()}`}>
+                              {severity}
+                            </span>
+                            <span className="header-notif-reporter">By: {reporter}</span>
+                          </div>
+                        </div>
+                        <div className="header-notif-arrow">
+                          <ChevronRight size={16} />
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+
+              <div className="header-notif-dropdown-footer">
+                <button
+                  type="button"
+                  className="header-notif-footer-btn"
+                  onClick={handleNavigateToApproval}
+                >
+                  <span>Go to To Approve Page</span>
+                  <ChevronRight size={15} />
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+
         {/* Modern User Profile Menu */}
         <div className="header-user-menu-wrap" ref={dropdownRef} draggable={false}>
           <button
             type="button"
             className="header-user-avatar-btn"
-            onClick={() => setShowDropdown(prev => !prev)}
+            onClick={() => {
+              setShowDropdown(prev => !prev);
+              setShowNotifDropdown(false);
+            }}
             aria-label="Open User Menu"
             aria-expanded={showDropdown}
             draggable={false}
@@ -132,20 +331,6 @@ export const Header = ({ onToggleSidebar }) => {
               </div>
 
               <div className="user-dropdown-list">
-                <button
-                  type="button"
-                  className="user-dropdown-btn"
-                  onClick={handleSwitchRole}
-                  role="menuitem"
-                >
-                  <span className="user-dropdown-icon-box switch">
-                    <RefreshCw size={14} strokeWidth={2.2} />
-                  </span>
-                  <span className="user-dropdown-btn-label">
-                    Switch to {isAdmin ? 'Teacher' : 'Admin'}
-                  </span>
-                </button>
-
                 <button
                   type="button"
                   className="user-dropdown-btn"

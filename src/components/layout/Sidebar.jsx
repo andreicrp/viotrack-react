@@ -11,13 +11,12 @@ import {
   UserCircle2,
   LogOut,
   ChevronDown,
-  X,
-  RefreshCw
+  X
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 export const Sidebar = ({ isCollapsed, isMobileOpen, onCloseMobile }) => {
-  const { user, switchRole, logout } = useAuth();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -110,14 +109,6 @@ export const Sidebar = ({ isCollapsed, isMobileOpen, onCloseMobile }) => {
               <div className="mobile-drawer-username">{user?.name || 'Sheryl Gamboa'}</div>
               <div className="mobile-drawer-role-row">
                 <span className="role-chip">{isAdmin ? 'Administrator' : 'Teacher'}</span>
-                <button
-                  type="button"
-                  onClick={() => switchRole(isAdmin ? 'teacher' : 'admin')}
-                  className="mobile-role-switch-btn"
-                  title="Switch Role"
-                >
-                  <RefreshCw size={11} /> Switch
-                </button>
               </div>
             </div>
           </div>

@@ -35,7 +35,15 @@ export const LoginPage = () => {
   const isExpired = queryParams.get('logged_out') === 'expired';
   const isQrProtected = queryParams.get('reason') === 'qr_protected';
   const redirectParam = queryParams.get('redirect');
-  const targetDestination = redirectParam ? decodeURIComponent(redirectParam) : '/';
+  const rawTargetDestination = redirectParam ? decodeURIComponent(redirectParam) : '/';
+
+  const getSafeDestination = (role, target) => {
+    const adminOnlyRoutes = ['/for-approval', '/teachers', '/advisers', '/admin-users', '/activity-logs'];
+    if (role !== 'admin' && adminOnlyRoutes.some(route => target.startsWith(route))) {
+      return '/';
+    }
+    return target || '/';
+  };
 
   const [userType, setUserType] = useState('admin');
   const [email, setEmail] = useState('');
@@ -47,9 +55,9 @@ export const LoginPage = () => {
   // If already authenticated and not explicitly redirected due to logout, go straight to targetDestination or dashboard
   useEffect(() => {
     if (isAuthenticated && !isLoggedOut && !isExpired) {
-      navigate(targetDestination, { replace: true });
+      navigate(getSafeDestination(userType, rawTargetDestination), { replace: true });
     }
-  }, [isAuthenticated, isLoggedOut, isExpired, targetDestination, navigate]);
+  }, [isAuthenticated, isLoggedOut, isExpired, rawTargetDestination, userType, navigate]);
 
   // Rate Limiting & Security Lockout State
   const [rateLimitState, setRateLimitState] = useState(() => checkRateLimit('login', 5, 120));
@@ -133,7 +141,7 @@ export const LoginPage = () => {
               clearRateLimit('login');
               login(role, rememberMe);
               success(`Authenticated successfully as Demo ${role.toUpperCase()}`);
-              navigate(targetDestination);
+              navigate(getSafeDestination(role, rawTargetDestination));
               return;
             }
           } else {
@@ -159,12 +167,16 @@ export const LoginPage = () => {
         };
         login(userObj, rememberMe);
         success(`Welcome back! Signed in as ${role.toUpperCase()}`);
+        navigate(getSafeDestination(role, rawTargetDestination));
+        return;
       } else {
         // Fallback / Demo Offline Mode
         if (isDemoAdmin || isDemoTeacher) {
           clearRateLimit('login');
           login(userType, rememberMe);
           success(`Signed in successfully as ${userType.toUpperCase()}`);
+          navigate(getSafeDestination(userType, rawTargetDestination));
+          return;
         } else {
           const nextRl = recordFailedAttempt('login', 5, 30);
           if (!nextRl.allowed) {
@@ -173,7 +185,6 @@ export const LoginPage = () => {
           throw new Error('Invalid credentials. (For demo access, choose Admin Demo or Teacher Demo below)');
         }
       }
-      navigate(targetDestination);
     } catch (err) {
       showError(err.message || 'Authentication failed. Please verify your credentials.');
     } finally {
