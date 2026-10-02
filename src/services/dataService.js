@@ -1,5 +1,6 @@
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
 import { smsService } from './smsService';
+import { broadcastRecordChange, startMutation, endMutation } from '../utils/dataIntegrity';
 
 // Initial Mock Seed Data
 const INITIAL_STUDENTS = [
@@ -421,107 +422,116 @@ export const dataService = {
   },
 
   async addStudent(student) {
-    let result = null;
-    const cleanStudent = {
-      lrn: String(student.lrn || '').trim(),
-      fname: String(student.fname || '').trim(),
-      mname: String(student.mname || '').trim(),
-      lname: String(student.lname || '').trim(),
-      grade: String(student.grade || '').trim(),
-      section: String(student.section || '').trim(),
-      academicyear: String(student.academicyear || '2025-2026').trim(),
-      gender: String(student.gender || 'Male').trim(),
-      contact: String(student.contact || '').trim(),
-      parent_name: String(student.parent_name || '').trim(),
-      parent_contact: String(student.parent_contact || '').trim(),
-      address: String(student.address || '').trim(),
-      image: String(student.image || '').trim()
-    };
-
-    if (isSupabaseConfigured()) {
-      try {
-        const { data, error } = await supabase.from('students').insert([cleanStudent]).select();
-        if (!error && data?.[0]) {
-          result = data[0];
-        } else if (error) {
-          console.error('Supabase addStudent error:', error);
-        }
-      } catch (err) {
-        console.warn('Supabase addStudent error:', err);
-      }
-    }
-    if (!result) {
-      const current = getStored('students', INITIAL_STUDENTS);
-      result = { ...cleanStudent, id: Date.now(), created_at: new Date().toISOString() };
-      const updated = [result, ...current];
-      setStored('students', updated);
-    }
-    invalidateCache('students');
-    invalidateCache('records');
-    await this.addActivityLog('Add Student', `Enrolled student ${cleanStudent.fname} ${cleanStudent.lname} (${cleanStudent.lrn || 'No LRN'}, ${cleanStudent.grade || ''} ${cleanStudent.section || ''})`);
+    startMutation();
     try {
-      window.dispatchEvent(new CustomEvent('viotrack_data_updated', { detail: result }));
-    } catch {}
-    return result;
+      let result = null;
+      const cleanStudent = {
+        lrn: String(student.lrn || '').trim(),
+        fname: String(student.fname || '').trim(),
+        mname: String(student.mname || '').trim(),
+        lname: String(student.lname || '').trim(),
+        grade: String(student.grade || '').trim(),
+        section: String(student.section || '').trim(),
+        academicyear: String(student.academicyear || '2025-2026').trim(),
+        gender: String(student.gender || 'Male').trim(),
+        contact: String(student.contact || '').trim(),
+        parent_name: String(student.parent_name || '').trim(),
+        parent_contact: String(student.parent_contact || '').trim(),
+        address: String(student.address || '').trim(),
+        image: String(student.image || '').trim()
+      };
+
+      if (isSupabaseConfigured()) {
+        try {
+          const { data, error } = await supabase.from('students').insert([cleanStudent]).select();
+          if (!error && data?.[0]) {
+            result = data[0];
+          } else if (error) {
+            console.error('Supabase addStudent error:', error);
+          }
+        } catch (err) {
+          console.warn('Supabase addStudent error:', err);
+        }
+      }
+      if (!result) {
+        const current = getStored('students', INITIAL_STUDENTS);
+        result = { ...cleanStudent, id: Date.now(), created_at: new Date().toISOString() };
+        const updated = [result, ...current];
+        setStored('students', updated);
+      }
+      invalidateCache('students');
+      invalidateCache('records');
+      await this.addActivityLog('Add Student', `Enrolled student ${cleanStudent.fname} ${cleanStudent.lname} (${cleanStudent.lrn || 'No LRN'}, ${cleanStudent.grade || ''} ${cleanStudent.section || ''})`);
+      broadcastRecordChange('create', 'student', result);
+      return result;
+    } finally {
+      endMutation();
+    }
   },
 
   async updateStudent(id, updates) {
-    let result = null;
-    const cleanUpdates = {};
-    const allowed = ['lrn', 'fname', 'mname', 'lname', 'grade', 'section', 'academicyear', 'gender', 'contact', 'parent_name', 'parent_contact', 'address', 'image'];
-    for (const key of allowed) {
-      if (updates[key] !== undefined) {
-        cleanUpdates[key] = updates[key];
-      }
-    }
-
-    if (isSupabaseConfigured()) {
-      try {
-        const { data, error } = await supabase.from('students').update(cleanUpdates).eq('id', Number(id)).select();
-        if (!error && data?.[0]) {
-          result = data[0];
-        } else if (error) {
-          console.error('Supabase updateStudent error:', error);
-        }
-      } catch (err) {
-        console.warn('Supabase updateStudent error:', err);
-      }
-    }
-    const current = getStored('students', INITIAL_STUDENTS);
-    const updated = current.map(s => (s.id === Number(id) ? { ...s, ...updates } : s));
-    setStored('students', updated);
-    if (!result) result = updated.find(s => s.id === Number(id));
-    invalidateCache('students');
-    invalidateCache('records');
-    const name = updates.fname || updates.lname ? `${updates.fname || ''} ${updates.lname || ''}`.trim() : `ID #${id}`;
-    await this.addActivityLog('Update Student', `Updated profile information for student ${name}`);
+    startMutation();
     try {
-      window.dispatchEvent(new CustomEvent('viotrack_data_updated', { detail: result }));
-    } catch {}
-    return result;
+      let result = null;
+      const cleanUpdates = {};
+      const allowed = ['lrn', 'fname', 'mname', 'lname', 'grade', 'section', 'academicyear', 'gender', 'contact', 'parent_name', 'parent_contact', 'address', 'image'];
+      for (const key of allowed) {
+        if (updates[key] !== undefined) {
+          cleanUpdates[key] = updates[key];
+        }
+      }
+
+      if (isSupabaseConfigured()) {
+        try {
+          const { data, error } = await supabase.from('students').update(cleanUpdates).eq('id', Number(id)).select();
+          if (!error && data?.[0]) {
+            result = data[0];
+          } else if (error) {
+            console.error('Supabase updateStudent error:', error);
+          }
+        } catch (err) {
+          console.warn('Supabase updateStudent error:', err);
+        }
+      }
+      const current = getStored('students', INITIAL_STUDENTS);
+      const updated = current.map(s => (s.id === Number(id) ? { ...s, ...updates } : s));
+      setStored('students', updated);
+      if (!result) result = updated.find(s => s.id === Number(id));
+      invalidateCache('students');
+      invalidateCache('records');
+      const name = updates.fname || updates.lname ? `${updates.fname || ''} ${updates.lname || ''}`.trim() : `ID #${id}`;
+      await this.addActivityLog('Update Student', `Updated profile information for student ${name}`);
+      broadcastRecordChange('update', 'student', result);
+      return result;
+    } finally {
+      endMutation();
+    }
   },
 
   async deleteStudent(id) {
-    if (isSupabaseConfigured()) {
-      try {
-        const { error } = await supabase.from('students').delete().eq('id', Number(id));
-        if (error) console.error('Supabase deleteStudent error:', error);
-      } catch (err) {
-        console.warn('Supabase deleteStudent error:', err);
-      }
-    }
-    const current = getStored('students', INITIAL_STUDENTS);
-    const target = current.find(s => s.id === Number(id));
-    const name = target ? `${target.fname} ${target.lname}` : `ID #${id}`;
-    const updated = current.filter(s => s.id !== Number(id));
-    setStored('students', updated);
-    invalidateCache('students');
-    invalidateCache('records');
-    await this.addActivityLog('Delete Student', `Removed student record for ${name}`);
+    startMutation();
     try {
-      window.dispatchEvent(new CustomEvent('viotrack_data_updated', { detail: { id } }));
-    } catch {}
-    return true;
+      if (isSupabaseConfigured()) {
+        try {
+          const { error } = await supabase.from('students').delete().eq('id', Number(id));
+          if (error) console.error('Supabase deleteStudent error:', error);
+        } catch (err) {
+          console.warn('Supabase deleteStudent error:', err);
+        }
+      }
+      const current = getStored('students', INITIAL_STUDENTS);
+      const target = current.find(s => s.id === Number(id));
+      const name = target ? `${target.fname} ${target.lname}` : `ID #${id}`;
+      const updated = current.filter(s => s.id !== Number(id));
+      setStored('students', updated);
+      invalidateCache('students');
+      invalidateCache('records');
+      await this.addActivityLog('Delete Student', `Removed student record for ${name}`);
+      broadcastRecordChange('delete', 'student', { id });
+      return true;
+    } finally {
+      endMutation();
+    }
   },
 
   // --- VIOLATIONS CATEGORIES ---
@@ -688,150 +698,159 @@ export const dataService = {
   },
 
   async addRecord(record) {
-    let result = null;
-    let remarksText = record.remarks || '';
-    if (record.lat && record.lng && !remarksText.includes('GPS:')) {
-      const gpsNote = ` [GPS: ${Number(record.lat).toFixed(4)}, ${Number(record.lng).toFixed(4)}${record.accuracy ? ` (±${record.accuracy}m)` : ''}]`;
-      remarksText = remarksText ? `${remarksText}${gpsNote}` : gpsNote.trim();
-    }
-
-    const cleanRecord = {
-      student_id: Number(record.student_id),
-      violation_id: Number(record.violation_id),
-      reported_by_name: record.reported_by_name || 'System Admin',
-      reported_by_type: record.reported_by_type || 'admin',
-      date_reported: record.date_reported || new Date().toISOString(),
-      status: record.status || 'Pending',
-      sanction: record.sanction || '',
-      remarks: remarksText,
-      resolution_notes: record.resolution_notes || '',
-      resolution_date: record.resolution_date || null,
-      sms_notified: Boolean(record.sms_notified)
-    };
-
-    if (isSupabaseConfigured()) {
-      try {
-        const { data, error } = await supabase
-          .from('records')
-          .insert([cleanRecord])
-          .select('*, students (*), violations (*)');
-        if (!error && data?.[0]) {
-          result = {
-            ...data[0],
-            student: data[0].students,
-            violation: data[0].violations
-          };
-        } else if (error) {
-          console.error('Supabase addRecord insert error:', error);
-        }
-      } catch (err) {
-        console.warn('Supabase addRecord error:', err);
+    startMutation();
+    try {
+      let result = null;
+      let remarksText = record.remarks || '';
+      if (record.lat && record.lng && !remarksText.includes('GPS:')) {
+        const gpsNote = ` [GPS: ${Number(record.lat).toFixed(4)}, ${Number(record.lng).toFixed(4)}${record.accuracy ? ` (±${record.accuracy}m)` : ''}]`;
+        remarksText = remarksText ? `${remarksText}${gpsNote}` : gpsNote.trim();
       }
-    }
 
-    const current = getStored('records', INITIAL_RECORDS);
-    if (!result) {
-      result = {
-        ...cleanRecord,
-        id: Date.now(),
-        lat: record.lat,
-        lng: record.lng,
-        accuracy: record.accuracy
+      const cleanRecord = {
+        student_id: Number(record.student_id),
+        violation_id: Number(record.violation_id),
+        reported_by_name: record.reported_by_name || 'System Admin',
+        reported_by_type: record.reported_by_type || 'admin',
+        date_reported: record.date_reported || new Date().toISOString(),
+        status: record.status || 'Pending',
+        sanction: record.sanction || '',
+        remarks: remarksText,
+        resolution_notes: record.resolution_notes || '',
+        resolution_date: record.resolution_date || null,
+        sms_notified: Boolean(record.sms_notified)
       };
+
+      if (isSupabaseConfigured()) {
+        try {
+          const { data, error } = await supabase
+            .from('records')
+            .insert([cleanRecord])
+            .select('*, students (*), violations (*)');
+          if (!error && data?.[0]) {
+            result = {
+              ...data[0],
+              student: data[0].students,
+              violation: data[0].violations
+            };
+          } else if (error) {
+            console.error('Supabase addRecord insert error:', error);
+          }
+        } catch (err) {
+          console.warn('Supabase addRecord error:', err);
+        }
+      }
+
+      const current = getStored('records', INITIAL_RECORDS);
+      if (!result) {
+        result = {
+          ...cleanRecord,
+          id: Date.now(),
+          lat: record.lat,
+          lng: record.lng,
+          accuracy: record.accuracy
+        };
+      }
+
+      const updated = [result, ...current];
+      setStored('records', updated);
+      invalidateCache('records');
+
+      // Identify student & violation details for clear log entry
+      let studentLabel = `Student ID #${record.student_id}`;
+      try {
+        const students = await this.getStudents();
+        const matchedStudent = (students || []).find(s => Number(s.id) === Number(record.student_id));
+        if (matchedStudent) {
+          studentLabel = `${matchedStudent.fname} ${matchedStudent.lname} (${matchedStudent.grade} - ${matchedStudent.section})`;
+        }
+      } catch {}
+
+      let violationLabel = record.violation_title || `Violation ID #${record.violation_id}`;
+      try {
+        const violations = await this.getViolations();
+        const matchedV = (violations || []).find(v => Number(v.id) === Number(record.violation_id));
+        if (matchedV) {
+          violationLabel = `${matchedV.title} [${matchedV.type}]`;
+        }
+      } catch {}
+
+      await this.addActivityLog('Add Violation', `Logged incident "${violationLabel}" for ${studentLabel}`);
+      broadcastRecordChange('create', 'record', result);
+      return result;
+    } finally {
+      endMutation();
     }
-
-    const updated = [result, ...current];
-    setStored('records', updated);
-    invalidateCache('records');
-
-    // Identify student & violation details for clear log entry
-    let studentLabel = `Student ID #${record.student_id}`;
-    try {
-      const students = await this.getStudents();
-      const matchedStudent = (students || []).find(s => Number(s.id) === Number(record.student_id));
-      if (matchedStudent) {
-        studentLabel = `${matchedStudent.fname} ${matchedStudent.lname} (${matchedStudent.grade} - ${matchedStudent.section})`;
-      }
-    } catch {}
-
-    let violationLabel = record.violation_title || `Violation ID #${record.violation_id}`;
-    try {
-      const violations = await this.getViolations();
-      const matchedV = (violations || []).find(v => Number(v.id) === Number(record.violation_id));
-      if (matchedV) {
-        violationLabel = `${matchedV.title} [${matchedV.type}]`;
-      }
-    } catch {}
-
-    await this.addActivityLog('Add Violation', `Logged incident "${violationLabel}" for ${studentLabel}`);
-    try {
-      window.dispatchEvent(new CustomEvent('viotrack_data_updated', { detail: result }));
-    } catch {}
-    return result;
   },
 
   async updateRecordStatus(id, { status, resolution_notes, sanction }) {
-    const isResolved = status === 'Resolved';
-    const payload = {
-      status,
-      resolution_notes: resolution_notes || '',
-      sanction: sanction || '',
-      resolution_date: isResolved ? new Date().toISOString() : null
-    };
-
-    let result = null;
-    if (isSupabaseConfigured()) {
-      try {
-        const { data, error } = await supabase
-          .from('records')
-          .update(payload)
-          .eq('id', Number(id))
-          .select('*, students (*), violations (*)');
-        if (!error && data?.[0]) {
-          result = {
-            ...data[0],
-            student: data[0].students,
-            violation: data[0].violations
-          };
-        } else if (error) {
-          console.error('Supabase updateRecordStatus error:', error);
-        }
-      } catch (err) {
-        console.warn('Supabase updateRecordStatus error:', err);
-      }
-    }
-    const current = getStored('records', INITIAL_RECORDS);
-    const updated = current.map(r => (Number(r.id) === Number(id) ? { ...r, ...payload } : r));
-    setStored('records', updated);
-    invalidateCache('records');
-    if (!result) result = updated.find(r => Number(r.id) === Number(id));
-
-    const sanctionSuffix = sanction ? ` | Sanction: ${sanction}` : '';
-    await this.addActivityLog('Status Update', `Marked Incident #${id} as "${status}"${sanctionSuffix}`);
+    startMutation();
     try {
-      window.dispatchEvent(new CustomEvent('viotrack_data_updated', { detail: result }));
-    } catch {}
-    return result;
+      const isResolved = status === 'Resolved';
+      const payload = {
+        status,
+        resolution_notes: resolution_notes || '',
+        sanction: sanction || '',
+        resolution_date: isResolved ? new Date().toISOString() : null
+      };
+
+      let result = null;
+      if (isSupabaseConfigured()) {
+        try {
+          const { data, error } = await supabase
+            .from('records')
+            .update(payload)
+            .eq('id', Number(id))
+            .select('*, students (*), violations (*)');
+          if (!error && data?.[0]) {
+            result = {
+              ...data[0],
+              student: data[0].students,
+              violation: data[0].violations
+            };
+          } else if (error) {
+            console.error('Supabase updateRecordStatus error:', error);
+          }
+        } catch (err) {
+          console.warn('Supabase updateRecordStatus error:', err);
+        }
+      }
+      const current = getStored('records', INITIAL_RECORDS);
+      const updated = current.map(r => (Number(r.id) === Number(id) ? { ...r, ...payload } : r));
+      setStored('records', updated);
+      invalidateCache('records');
+      if (!result) result = updated.find(r => Number(r.id) === Number(id));
+
+      const sanctionSuffix = sanction ? ` | Sanction: ${sanction}` : '';
+      await this.addActivityLog('Status Update', `Marked Incident #${id} as "${status}"${sanctionSuffix}`);
+      broadcastRecordChange('update', 'record', result);
+      return result;
+    } finally {
+      endMutation();
+    }
   },
 
   async deleteRecord(id) {
-    if (isSupabaseConfigured()) {
-      try {
-        const { error } = await supabase.from('records').delete().eq('id', Number(id));
-        if (error) console.error('Supabase deleteRecord error:', error);
-      } catch (err) {
-        console.warn('Supabase deleteRecord error:', err);
-      }
-    }
-    const current = getStored('records', INITIAL_RECORDS);
-    const updated = current.filter(r => Number(r.id) !== Number(id));
-    setStored('records', updated);
-    invalidateCache('records');
-    await this.addActivityLog('Delete Record', `Removed violation record #${id}`);
+    startMutation();
     try {
-      window.dispatchEvent(new CustomEvent('viotrack_data_updated', { detail: { id } }));
-    } catch {}
-    return true;
+      if (isSupabaseConfigured()) {
+        try {
+          const { error } = await supabase.from('records').delete().eq('id', Number(id));
+          if (error) console.error('Supabase deleteRecord error:', error);
+        } catch (err) {
+          console.warn('Supabase deleteRecord error:', err);
+        }
+      }
+      const current = getStored('records', INITIAL_RECORDS);
+      const updated = current.filter(r => Number(r.id) !== Number(id));
+      setStored('records', updated);
+      invalidateCache('records');
+      await this.addActivityLog('Delete Record', `Removed violation record #${id}`);
+      broadcastRecordChange('delete', 'record', { id });
+      return true;
+    } finally {
+      endMutation();
+    }
   },
 
   // --- TEACHERS & ADVISERS ---
@@ -850,6 +869,126 @@ export const dataService = {
     _memoryCache.teachers = list;
     _memoryCache.teachersTimestamp = now;
     return list;
+  },
+
+  // --- LIVE STUDENT LOCATION TRACKING (GPS & TELEMETRY) ---
+  async getStudentLatestLocation(studentId) {
+    if (!studentId) return null;
+
+    if (isSupabaseConfigured()) {
+      try {
+        const { data, error } = await supabase
+          .from('student_locations')
+          .select('*')
+          .eq('student_id', Number(studentId))
+          .order('recorded_at', { ascending: false })
+          .limit(1);
+        if (!error && data?.[0]) return data[0];
+      } catch (err) {
+        console.warn('Supabase getStudentLatestLocation error:', err);
+      }
+    }
+
+    const storedHistory = getStored(`locations_${studentId}`, []);
+    if (storedHistory.length > 0) return storedHistory[0];
+
+    // Fallback seed based on student ID
+    const seed = Number(studentId) || 1;
+    const latOffset = ((seed * 17) % 70 - 35) * 0.0018;
+    const lngOffset = ((seed * 23) % 70 - 35) * 0.0022;
+    return {
+      student_id: Number(studentId),
+      latitude: 14.642 + latOffset,
+      longitude: 120.985 + lngOffset,
+      accuracy_meters: 8 + (seed % 12),
+      recorded_at: new Date(Date.now() - (seed % 15) * 60000).toISOString(),
+      tracking_status: 'Active',
+      reported_by: 'GPS Telemetry'
+    };
+  },
+
+  async getStudentLocationHistory(studentId, limit = 15) {
+    if (!studentId) return [];
+
+    if (isSupabaseConfigured()) {
+      try {
+        const { data, error } = await supabase
+          .from('student_locations')
+          .select('*')
+          .eq('student_id', Number(studentId))
+          .order('recorded_at', { ascending: false })
+          .limit(limit);
+        if (!error && data) return data;
+      } catch (err) {
+        console.warn('Supabase getStudentLocationHistory error:', err);
+      }
+    }
+
+    const stored = getStored(`locations_${studentId}`, []);
+    if (stored.length > 0) return stored.slice(0, limit);
+
+    // Initial mock breadcrumbs
+    const latest = await this.getStudentLatestLocation(studentId);
+    const crumbs = [];
+    for (let i = 0; i < 5; i++) {
+      crumbs.push({
+        id: `crumb_${i}`,
+        student_id: Number(studentId),
+        latitude: latest.latitude + (i * 0.0004 * (i % 2 === 0 ? 1 : -1)),
+        longitude: latest.longitude + (i * 0.0005 * (i % 2 === 0 ? -1 : 1)),
+        accuracy_meters: Math.max(5, (latest.accuracy_meters || 10) + i * 2),
+        recorded_at: new Date(Date.now() - i * 180000).toISOString(),
+        tracking_status: i === 0 ? 'Active' : 'Historical',
+        reported_by: 'Device GPS'
+      });
+    }
+    return crumbs;
+  },
+
+  async saveStudentLocation(studentId, { latitude, longitude, accuracy_meters, tracking_status = 'Active' }) {
+    if (!studentId) throw new Error('Student ID is required');
+
+    const lat = Number(latitude);
+    const lng = Number(longitude);
+    const acc = Number(accuracy_meters) || 10;
+
+    // Strict Coordinate Validation
+    if (isNaN(lat) || lat < -90 || lat > 90) throw new Error('Invalid latitude coordinates');
+    if (isNaN(lng) || lng < -180 || lng > 180) throw new Error('Invalid longitude coordinates');
+    if (acc < 0) throw new Error('Invalid accuracy range');
+
+    const currentUser = this.getCurrentUser();
+    const payload = {
+      student_id: Number(studentId),
+      latitude: lat,
+      longitude: lng,
+      accuracy_meters: acc,
+      tracking_status: tracking_status,
+      recorded_at: new Date().toISOString(),
+      reported_by: currentUser.name || 'System'
+    };
+
+    let savedResult = null;
+    if (isSupabaseConfigured()) {
+      try {
+        const { data, error } = await supabase.from('student_locations').insert([payload]).select();
+        if (!error && data?.[0]) savedResult = data[0];
+      } catch (err) {
+        console.warn('Supabase saveStudentLocation error:', err);
+      }
+    }
+
+    // Local storage fallback
+    const key = `locations_${studentId}`;
+    const history = getStored(key, []);
+    const updatedHistory = [{ ...payload, id: Date.now() }, ...history].slice(0, 50);
+    setStored(key, updatedHistory);
+
+    try {
+      window.dispatchEvent(new CustomEvent('viotrack_location_updated', { detail: payload }));
+    } catch {}
+
+    return savedResult || payload;
   },
 
   async addTeacher(teacher) {

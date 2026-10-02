@@ -1,13 +1,17 @@
 /**
  * CSV Utility for Viotrack
- * Handles CSV export, parsing, and template downloading with full Mobile & Desktop support
+ * Handles CSV export, parsing, and template downloading with full Formula Injection (CSV Injection) Protection
  */
+
+import { sanitizeCsvCell, sanitizeText } from './security';
 
 export const exportToCsv = (filename, headers, rows) => {
   try {
     const formatCell = (cell) => {
       if (cell === null || cell === undefined) return '""';
-      const str = String(cell).replace(/"/g, '""');
+      // Protect against CSV formula execution in Excel/Calc
+      const safeContent = sanitizeCsvCell(cell);
+      const str = String(safeContent).replace(/"/g, '""');
       return `"${str}"`;
     };
 
@@ -89,13 +93,13 @@ export const parseCsvString = (text) => {
           insideQuotes = !insideQuotes;
         }
       } else if (char === ',' && !insideQuotes) {
-        row.push(currentField.trim());
+        row.push(sanitizeText(currentField.trim()));
         currentField = '';
       } else {
         currentField += char;
       }
     }
-    row.push(currentField.trim());
+    row.push(sanitizeText(currentField.trim()));
     result.push(row);
   }
 
@@ -104,9 +108,18 @@ export const parseCsvString = (text) => {
 
 export const readFileAsText = (file) => {
   return new Promise((resolve, reject) => {
+    if (!file) {
+      reject(new Error('No file provided'));
+      return;
+    }
+    // Limit max text import to 10MB to prevent memory exhaustion
+    if (file.size > 10 * 1024 * 1024) {
+      reject(new Error('File exceeds maximum 10MB CSV import limit.'));
+      return;
+    }
     const reader = new FileReader();
     reader.onload = (e) => resolve(e.target.result);
-    reader.onerror = (e) => reject(new Error('Failed to read file'));
+    reader.onerror = () => reject(new Error('Failed to read file'));
     reader.readAsText(file, 'UTF-8');
   });
 };

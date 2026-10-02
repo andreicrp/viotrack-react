@@ -5,6 +5,7 @@ import { SearchableStudentSelect } from '../common/SearchableStudentSelect';
 import { dataService } from '../../services/dataService';
 import { useNotification } from '../../context/NotificationContext';
 import { useAuth } from '../../context/AuthContext';
+import { claimSubmissionLock, releaseSubmissionLock } from '../../utils/dataIntegrity';
 import {
   AlertTriangle,
   MapPin,
@@ -110,12 +111,20 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (loading) return;
+
     if (selectedStudentIds.length === 0) {
       error('Please select at least one student.');
       return;
     }
     if (selectedViolationIds.length === 0) {
       error('Please select at least one violation offense.');
+      return;
+    }
+
+    const lockKey = `add_violation_${selectedStudentIds.join('_')}_${selectedViolationIds.join('_')}`;
+    if (!claimSubmissionLock(lockKey)) {
+      console.warn('Duplicate rapid submit blocked by data integrity lock.');
       return;
     }
 
@@ -181,6 +190,7 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
     } catch (err) {
       error('Failed to save violation records: ' + err.message);
     } finally {
+      releaseSubmissionLock(lockKey);
       setLoading(false);
     }
   };

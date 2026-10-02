@@ -1,15 +1,32 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useNotification } from '../context/NotificationContext';
 import { isSupabaseConfigured, supabase } from '../lib/supabase';
-import { Eye, EyeOff, ArrowRight, CheckCircle2 } from 'lucide-react';
+import { 
+  Eye, 
+  EyeOff, 
+  ArrowRight, 
+  CheckCircle2, 
+  ShieldAlert, 
+  KeyRound, 
+  Lock, 
+  Mail,
+  X 
+} from 'lucide-react';
 import { LegalModal } from '../components/legal/LegalModal';
+import { 
+  checkRateLimit, 
+  recordFailedAttempt, 
+  clearRateLimit, 
+  evaluatePasswordStrength,
+  sanitizeText 
+} from '../utils/security';
 import '../css/login.css';
 
 export const LoginPage = () => {
   const { login, setUser } = useAuth();
-  const { success, error: showError } = useNotification();
+  const { success, error: showError, info } = useNotification();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -22,19 +39,55 @@ export const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
   const [loading, setLoading] = useState(false);
+
+  // Rate Limiting & Security Lockout State
+  const [rateLimitState, setRateLimitState] = useState(() => checkRateLimit('login', 5, 120));
+  const [lockoutCountdown, setLockoutCountdown] = useState(0);
+
+  // Password Reset Dialog State
+  const [isResetOpen, setIsResetOpen] = useState(false);
+  const [resetEmail, setResetEmail] = useState('');
+  const [resetLoading, setResetLoading] = useState(false);
+
+  // Legal Modal
   const [isLegalModalOpen, setIsLegalModalOpen] = useState(false);
   const [legalModalTab, setLegalModalTab] = useState('privacy');
 
+  // Lockout Timer countdown effect
+  useEffect(() => {
+    let timer;
+    if (lockoutCountdown > 0) {
+      timer = setInterval(() => {
+        setLockoutCountdown(prev => {
+          if (prev <= 1) {
+            setRateLimitState(checkRateLimit('login', 5, 120));
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    return () => clearInterval(timer);
+  }, [lockoutCountdown]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
 
-    const cleanEmail = email.trim().toLowerCase();
+    // 1. Check Rate Limiting Status
+    const rlCheck = checkRateLimit('login', 5, 120);
+    if (!rlCheck.allowed) {
+      setLockoutCountdown(rlCheck.lockoutSeconds);
+      showError(rlCheck.waitMessage || 'Account temporarily locked due to excessive failed attempts.');
+      return;
+    }
+
+    setLoading(true);
+    const cleanEmail = sanitizeText(email).trim().toLowerCase();
     const isDemoAdmin = cleanEmail === 'admin@viotrack.edu' && password === 'admin123';
     const isDemoTeacher = cleanEmail === 'teacher@viotrack.edu' && password === 'teacher123';
 
     try {
-      if (isSupabaseConfigured()) {
+      if (isSupabaseConfigured() && supabase) {
         let authUser = null;
         const { data, error: authErr } = await supabase.auth.signInWithPassword({
           email: cleanEmail,
@@ -59,18 +112,25 @@ export const LoginPage = () => {
             if (!signUpErr && signUpData?.user) {
               authUser = signUpData.user;
             } else {
+              clearRateLimit('login');
               login(role);
-              success(`Signed in successfully as Demo ${role.toUpperCase()}!`);
+              success(`Authenticated successfully as Demo ${role.toUpperCase()}`);
               navigate('/');
               return;
             }
           } else {
-            throw authErr;
+            // Record failed attempt on real Supabase auth failure
+            const nextRl = recordFailedAttempt('login', 5, 30);
+            if (!nextRl.allowed) {
+              setLockoutCountdown(nextRl.lockoutSeconds);
+            }
+            throw new Error('Invalid email or password. Please verify your credentials.');
           }
         } else {
           authUser = data?.user;
         }
 
+        clearRateLimit('login');
         const role = authUser?.user_metadata?.role || userType;
         setUser({
           id: authUser?.id || (role === 'admin' ? 1 : 2),
@@ -79,16 +139,53 @@ export const LoginPage = () => {
           role: role,
           avatar: '/images/phcm-logo2.png'
         });
-        success(`Signed in successfully as ${role.toUpperCase()}!`);
+        success(`Welcome back! Signed in as ${role.toUpperCase()}`);
       } else {
-        login(userType);
-        success(`Signed in successfully as ${userType.toUpperCase()}!`);
+        // Fallback / Demo Offline Mode
+        if (isDemoAdmin || isDemoTeacher) {
+          clearRateLimit('login');
+          login(userType);
+          success(`Signed in successfully as ${userType.toUpperCase()}`);
+        } else {
+          const nextRl = recordFailedAttempt('login', 5, 30);
+          if (!nextRl.allowed) {
+            setLockoutCountdown(nextRl.lockoutSeconds);
+          }
+          throw new Error('Invalid credentials. (For demo access, choose Admin Demo or Teacher Demo below)');
+        }
       }
       navigate('/');
     } catch (err) {
-      showError('Invalid email or password: ' + err.message);
+      showError(err.message || 'Authentication failed. Please verify your credentials.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Secure Password Reset Handler (Prevents Email Enumeration)
+  const handlePasswordReset = async (e) => {
+    e.preventDefault();
+    if (!resetEmail) return;
+
+    setResetLoading(true);
+    const cleanEmail = sanitizeText(resetEmail).trim().toLowerCase();
+
+    try {
+      if (isSupabaseConfigured() && supabase) {
+        await supabase.auth.resetPasswordForEmail(cleanEmail, {
+          redirectTo: `${window.location.origin}/profile`
+        });
+      }
+      // Uniform generic response to prevent user enumeration
+      info('If this email is registered in VioTrack, a secure password reset link has been dispatched.');
+      setIsResetOpen(false);
+      setResetEmail('');
+    } catch (err) {
+      // Even on error, do not reveal if the account exists or not
+      info('If this email is registered in VioTrack, a secure password reset link has been dispatched.');
+      setIsResetOpen(false);
+    } finally {
+      setResetLoading(false);
     }
   };
 
@@ -103,6 +200,8 @@ export const LoginPage = () => {
     }
   };
 
+  const passwordFeedback = evaluatePasswordStrength(password);
+
   return (
     <div className="login-body-bg">
       {/* Background Graphic Accents */}
@@ -112,43 +211,23 @@ export const LoginPage = () => {
       <div className="login-content-wrapper">
         {/* Brand Header */}
         <div className="login-brand-header">
-          {/* Exact Brand Vector Logo */}
           <svg
             className="login-brand-logo-svg"
             viewBox="0 0 500 370"
             fill="none"
             xmlns="http://www.w3.org/2000/svg"
           >
-            {/* Left Figure (Deep Navy #07345F) */}
             <g>
               <circle cx="195" cy="96" r="30" fill="#07345F" />
               <path
-                d="M 120 105
-                   Q 108 96 110 110
-                   L 122 206
-                   Q 124 214 132 222
-                   L 235 324
-                   Q 243 332 243 320
-                   L 243 202
-                   Q 243 194 235 188
-                   Z"
+                d="M 120 105 Q 108 96 110 110 L 122 206 Q 124 214 132 222 L 235 324 Q 243 332 243 320 L 243 202 Q 243 194 235 188 Z"
                 fill="#07345F"
               />
             </g>
-
-            {/* Right Figure (Teal #0EA5A0) */}
             <g>
               <circle cx="305" cy="96" r="30" fill="#07345F" />
               <path
-                d="M 380 105
-                   Q 392 96 390 110
-                   L 378 206
-                   Q 376 214 368 222
-                   L 265 324
-                   Q 257 332 257 320
-                   L 257 202
-                   Q 257 194 265 188
-                   Z"
+                d="M 380 105 Q 392 96 390 110 L 378 206 Q 376 214 368 222 L 265 324 Q 257 332 257 320 L 257 202 Q 257 194 265 188 Z"
                 fill="#0EA5A0"
               />
             </g>
@@ -161,7 +240,30 @@ export const LoginPage = () => {
           </p>
         </div>
 
-        {/* Logged out alert */}
+        {/* Logged out & Expiration alerts */}
+        {queryParams.get('logged_out') === 'expired' && (
+          <div
+            style={{
+              background: '#fffbeb',
+              color: '#b45309',
+              border: '1px solid #fde68a',
+              padding: '12px 14px',
+              borderRadius: '12px',
+              fontSize: '12.5px',
+              fontWeight: 600,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              marginBottom: '16px',
+              width: '100%',
+              boxSizing: 'border-box'
+            }}
+          >
+            <CheckCircle2 size={16} color="#d97706" />
+            <span>Your session automatically expired after 30 minutes of inactivity. Please sign in again.</span>
+          </div>
+        )}
+
         {isLoggedOut && (
           <div
             style={{
@@ -181,7 +283,36 @@ export const LoginPage = () => {
             }}
           >
             <CheckCircle2 size={16} />
-            <span>You have been logged out successfully.</span>
+            <span>You have been logged out securely. Session invalidated.</span>
+          </div>
+        )}
+
+        {/* Rate Limiting Lockout Warning */}
+        {lockoutCountdown > 0 && (
+          <div
+            style={{
+              background: '#fef2f2',
+              color: '#dc2626',
+              border: '1px solid #fecaca',
+              padding: '12px 14px',
+              borderRadius: '12px',
+              fontSize: '13px',
+              fontWeight: 600,
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+              marginBottom: '16px',
+              width: '100%',
+              boxSizing: 'border-box'
+            }}
+          >
+            <ShieldAlert size={20} />
+            <div>
+              <div>Rate limit triggered (Too many attempts).</div>
+              <div style={{ fontSize: '11.5px', fontWeight: 500, marginTop: '2px' }}>
+                Please wait <strong>{lockoutCountdown} seconds</strong> before retrying.
+              </div>
+            </div>
           </div>
         )}
 
@@ -194,11 +325,12 @@ export const LoginPage = () => {
                 id="login-email"
                 type="email"
                 className="login-text-input-clean"
-                placeholder="Email"
+                placeholder="Institutional Email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
                 autoComplete="email"
+                disabled={loading || lockoutCountdown > 0}
               />
             </div>
 
@@ -213,6 +345,7 @@ export const LoginPage = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 autoComplete="current-password"
+                disabled={loading || lockoutCountdown > 0}
               />
               <button
                 type="button"
@@ -232,30 +365,33 @@ export const LoginPage = () => {
                   checked={rememberMe}
                   onChange={(e) => setRememberMe(e.target.checked)}
                 />
-                <span>Remember me</span>
+                <span>Remember session</span>
               </label>
 
-              <a
-                href="https://docs.google.com/forms/d/e/1FAIpQLSd7SN8jra5WfROhysYtjd80zMUSwSnxpcQ-a3d1bu8CiogDng/viewform"
+              <button
+                type="button"
+                onClick={() => {
+                  setResetEmail(email);
+                  setIsResetOpen(true);
+                }}
                 className="login-forgot-password-link"
-                target="_blank"
-                rel="noreferrer"
+                style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
               >
                 Forgot password?
-              </a>
+              </button>
             </div>
 
             {/* SIGN IN Action Button */}
             <button
               type="submit"
               className="login-submit-btn-primary"
-              disabled={loading}
+              disabled={loading || lockoutCountdown > 0}
             >
-              <span>{loading ? 'Signing in...' : 'SIGN IN'}</span>
-              {!loading && <ArrowRight size={16} />}
+              <span>{loading ? 'Authenticating...' : lockoutCountdown > 0 ? `Locked (${lockoutCountdown}s)` : 'SIGN IN'}</span>
+              {!loading && lockoutCountdown === 0 && <ArrowRight size={16} />}
             </button>
 
-            {/* Role Quick Selector / Demo Fill */}
+            {/* Role Quick Selector / Demo Access */}
             <div className="login-role-chips-wrap">
               <button
                 type="button"
@@ -297,6 +433,109 @@ export const LoginPage = () => {
           </button>
         </div>
       </div>
+
+      {/* Password Reset Modal (Enumeration-Safe) */}
+      {isResetOpen && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(15, 23, 42, 0.65)',
+            backdropFilter: 'blur(4px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 9999,
+            padding: '16px'
+          }}
+        >
+          <div
+            style={{
+              background: '#ffffff',
+              borderRadius: '20px',
+              padding: '24px',
+              maxWidth: '420px',
+              width: '100%',
+              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+              position: 'relative'
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <div style={{ background: '#e0f2fe', color: '#0369a1', padding: '8px', borderRadius: '10px' }}>
+                  <KeyRound size={20} />
+                </div>
+                <h3 style={{ fontSize: '18px', fontWeight: 700, color: '#0f172a', margin: 0 }}>Reset Password</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsResetOpen(false)}
+                style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#64748b' }}
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <p style={{ fontSize: '13px', color: '#64748b', lineHeight: 1.5, marginBottom: '20px' }}>
+              Enter your registered institutional email. If found, a single-use, time-limited verification token will be sent to your inbox.
+            </p>
+
+            <form onSubmit={handlePasswordReset}>
+              <div style={{ position: 'relative', marginBottom: '16px' }}>
+                <input
+                  type="email"
+                  placeholder="admin@viotrack.edu"
+                  value={resetEmail}
+                  onChange={(e) => setResetEmail(e.target.value)}
+                  required
+                  style={{
+                    width: '100%',
+                    padding: '12px 14px',
+                    borderRadius: '10px',
+                    border: '1.5px solid #e2e8f0',
+                    fontSize: '14px',
+                    outline: 'none',
+                    boxSizing: 'border-box'
+                  }}
+                />
+              </div>
+
+              <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
+                <button
+                  type="button"
+                  onClick={() => setIsResetOpen(false)}
+                  style={{
+                    padding: '10px 16px',
+                    borderRadius: '8px',
+                    border: '1px solid #e2e8f0',
+                    background: '#ffffff',
+                    color: '#64748b',
+                    fontWeight: 600,
+                    cursor: 'pointer'
+                  }}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={resetLoading}
+                  style={{
+                    padding: '10px 20px',
+                    borderRadius: '8px',
+                    border: 'none',
+                    background: '#07345f',
+                    color: '#ffffff',
+                    fontWeight: 700,
+                    cursor: 'pointer'
+                  }}
+                >
+                  {resetLoading ? 'Sending...' : 'Send Reset Link'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* Interactive Privacy Policy & Legal Dialog */}
       <LegalModal

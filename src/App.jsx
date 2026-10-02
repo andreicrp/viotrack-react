@@ -48,14 +48,21 @@ const PageLoader = () => (
   </div>
 );
 
-const ProtectedRoute = ({ children, requireAdmin = false }) => {
-  const { user, isAuthenticated } = useAuth();
+export const ProtectedRoute = ({ children, requireAdmin = false }) => {
+  const { user, isAuthenticated, loading } = useAuth();
+  
+  if (loading) {
+    return <PageLoader />;
+  }
+
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
+
   if (requireAdmin && user?.role !== 'admin') {
     return <Navigate to="/forbidden" replace />;
   }
+
   return children;
 };
 
@@ -94,12 +101,14 @@ export function App() {
           <BrowserRouter>
             <Suspense fallback={<PageLoader />}>
               <Routes>
+                {/* Public Auth Routes */}
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/forbidden" element={<ForbiddenPage standalone />} />
                 <Route path="/403" element={<ForbiddenPage standalone />} />
                 <Route path="/500" element={<ServerErrorPage standalone />} />
                 <Route path="/404" element={<NotFoundPage standalone />} />
 
+                {/* Authenticated Application Layout */}
                 <Route
                   path="/"
                   element={
@@ -108,6 +117,7 @@ export function App() {
                     </ProtectedRoute>
                   }
                 >
+                  {/* General Authenticated Access */}
                   <Route index element={<DashboardPage />} />
                   <Route path="scan-qr" element={<ScanQRPage />} />
                   <Route path="track-location" element={<TrackLocationPage />} />
@@ -117,12 +127,44 @@ export function App() {
                   <Route path="student-violation/:id" element={<StudentViolationDetailPage />} />
                   <Route path="adminstudentviolation/:id" element={<StudentViolationDetailPage />} />
                   <Route path="my-class" element={<MyClassPage />} />
-                  <Route path="teachers" element={<TeachersPage />} />
-                  <Route path="advisers" element={<AdvisersPage />} />
                   <Route path="adviserview-student/:id" element={<MyClassPage />} />
-                  <Route path="admin-users" element={<AdminUsersPage />} />
-                  <Route path="activity-logs" element={<ActivityLogsPage />} />
                   <Route path="profile" element={<ProfilePage />} />
+
+                  {/* Strict Admin RBAC Protected Routes */}
+                  <Route 
+                    path="teachers" 
+                    element={
+                      <ProtectedRoute requireAdmin>
+                        <TeachersPage />
+                      </ProtectedRoute>
+                    } 
+                  />
+                  <Route 
+                    path="advisers" 
+                    element={
+                      <ProtectedRoute requireAdmin>
+                        <AdvisersPage />
+                      </ProtectedRoute>
+                    } 
+                  />
+                  <Route 
+                    path="admin-users" 
+                    element={
+                      <ProtectedRoute requireAdmin>
+                        <AdminUsersPage />
+                      </ProtectedRoute>
+                    } 
+                  />
+                  <Route 
+                    path="activity-logs" 
+                    element={
+                      <ProtectedRoute requireAdmin>
+                        <ActivityLogsPage />
+                      </ProtectedRoute>
+                    } 
+                  />
+
+                  {/* Error & Fallback in layout */}
                   <Route path="error-test" element={<ErrorTestPage />} />
                   <Route path="forbidden" element={<ForbiddenPage />} />
                   <Route path="403" element={<ForbiddenPage />} />
@@ -130,7 +172,7 @@ export function App() {
                   <Route path="*" element={<NotFoundPage />} />
                 </Route>
 
-                {/* Catch-all for unauthenticated or outside-layout paths */}
+                {/* Catch-all */}
                 <Route path="/error-test" element={<ErrorTestPage />} />
                 <Route path="*" element={<NotFoundPage standalone />} />
               </Routes>

@@ -22,6 +22,8 @@ import {
   FileText
 } from 'lucide-react';
 import { PrivacyPolicyModal } from '../components/common/PrivacyPolicyModal';
+import { isSupabaseConfigured, supabase } from '../lib/supabase';
+import { evaluatePasswordStrength, validateUploadedFile } from '../utils/security';
 import '../css/profile.css';
 
 export const ProfilePage = () => {
@@ -68,8 +70,9 @@ export const ProfilePage = () => {
   const handleImageChange = (e) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        error('Image size exceeds 5MB limit.');
+      const val = validateUploadedFile(file, { isImageOnly: true });
+      if (!val.valid) {
+        error(val.error);
         return;
       }
       setSelectedFileName(file.name);
@@ -81,37 +84,57 @@ export const ProfilePage = () => {
     }
   };
 
-  const calculatePasswordStrength = (pass) => {
-    if (!pass) return 0;
-    let score = 0;
-    if (pass.length >= 6) score += 25;
-    if (pass.length >= 10) score += 25;
-    if (/[A-Z]/.test(pass)) score += 25;
-    if (/[0-9!@#$%^&*]/.test(pass)) score += 25;
-    return score;
-  };
-
-  const passwordStrength = calculatePasswordStrength(newPassword);
+  const passwordEvaluation = evaluatePasswordStrength(newPassword);
 
   const handleSave = async (e) => {
     e.preventDefault();
     setIsSaving(true);
 
     if (newPassword) {
-      if (newPassword.length < 6) {
-        error('Password must be at least 6 characters long.');
+      if (!passwordEvaluation.valid) {
+        error('Password does not meet security requirements: ' + passwordEvaluation.errors.join(', '));
         setIsSaving(false);
         return;
       }
       if (newPassword !== confirmPassword) {
-        error('New password and confirm password do not match.');
+        error('New password and confirmation do not match.');
         setIsSaving(false);
         return;
       }
+
+      // Update password via Supabase Auth if configured
+      if (isSupabaseConfigured() && supabase) {
+        try {
+          const { error: passErr } = await supabase.auth.updateUser({
+            password: newPassword
+          });
+          if (passErr) {
+            error('Failed to update password: ' + passErr.message);
+            setIsSaving(false);
+            return;
+          }
+        } catch (err) {
+          error('Error updating authentication credentials: ' + err.message);
+          setIsSaving(false);
+          return;
+        }
+      }
     }
 
-    setTimeout(() => {
+    try {
       const fullName = `${firstName} ${middleName ? middleName + ' ' : ''}${lastName}`.trim();
+      
+      // Also update user metadata on Supabase if connected
+      if (isSupabaseConfigured() && supabase) {
+        await supabase.auth.updateUser({
+          data: {
+            full_name: fullName,
+            phone: phone,
+            department: department
+          }
+        });
+      }
+
       setUser({
         ...user,
         name: fullName,
@@ -120,12 +143,15 @@ export const ProfilePage = () => {
         role
       });
 
-      success('Profile & security credentials updated successfully!');
+      success('Profile and security credentials updated successfully!');
       setNewPassword('');
       setConfirmPassword('');
       setCurrentPassword('');
+    } catch (err) {
+      error('Failed to update profile: ' + err.message);
+    } finally {
       setIsSaving(false);
-    }, 500);
+    }
   };
 
   const handleReset = () => {
