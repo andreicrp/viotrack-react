@@ -38,10 +38,10 @@ export const LoginPage = () => {
   const targetDestination = redirectParam ? decodeURIComponent(redirectParam) : '/';
 
   const [userType, setUserType] = useState('admin');
-  const [email, setEmail] = useState('admin@viotrack.edu');
-  const [password, setPassword] = useState('admin123');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(true);
+  const [rememberMe, setRememberMe] = useState(false);
   const [loading, setLoading] = useState(false);
 
   // If already authenticated and not explicitly redirected due to logout, go straight to dashboard
@@ -94,6 +94,13 @@ export const LoginPage = () => {
 
     setLoading(true);
     const cleanEmail = sanitizeText(email).trim().toLowerCase();
+    
+    if (!cleanEmail || !password) {
+      showError('Please enter your institutional email and password.');
+      setLoading(false);
+      return;
+    }
+
     const isDemoAdmin = cleanEmail === 'admin@viotrack.edu' && password === 'admin123';
     const isDemoTeacher = cleanEmail === 'teacher@viotrack.edu' && password === 'teacher123';
 
@@ -432,23 +439,41 @@ export const LoginPage = () => {
               {!loading && lockoutCountdown === 0 && <ArrowRight size={16} />}
             </button>
 
-            {/* Role Quick Selector / Demo Access */}
-            <div className="login-role-chips-wrap">
-              <button
-                type="button"
-                className={`login-role-chip-btn ${userType === 'admin' ? 'active' : ''}`}
-                onClick={() => fillRole('admin')}
+            {/* Role Quick Selector / Demo Access (Disabled on Protected QR Scans) */}
+            {isQrProtected ? (
+              <div
+                style={{
+                  marginTop: '16px',
+                  padding: '10px 14px',
+                  background: '#f8fafc',
+                  border: '1px dashed #cbd5e1',
+                  borderRadius: '10px',
+                  fontSize: '11.5px',
+                  color: '#64748b',
+                  textAlign: 'center',
+                  fontWeight: 500
+                }}
               >
-                Admin Demo
-              </button>
-              <button
-                type="button"
-                className={`login-role-chip-btn ${userType === 'teacher' ? 'active' : ''}`}
-                onClick={() => fillRole('teacher')}
-              >
-                Teacher Demo
-              </button>
-            </div>
+                🔒 Quick demo bypass is disabled for protected student QR scans. Please enter your authorized faculty credentials.
+              </div>
+            ) : (
+              <div className="login-role-chips-wrap">
+                <button
+                  type="button"
+                  className={`login-role-chip-btn ${userType === 'admin' ? 'active' : ''}`}
+                  onClick={() => fillRole('admin')}
+                >
+                  Admin Demo
+                </button>
+                <button
+                  type="button"
+                  className={`login-role-chip-btn ${userType === 'teacher' ? 'active' : ''}`}
+                  onClick={() => fillRole('teacher')}
+                >
+                  Teacher Demo
+                </button>
+              </div>
+            )}
           </form>
         </div>
 
