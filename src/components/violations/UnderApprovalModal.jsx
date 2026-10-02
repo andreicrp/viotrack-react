@@ -10,187 +10,368 @@ import {
   Calendar,
   Send,
   Sparkles,
-  Info
+  Info,
+  ShieldAlert,
+  ArrowRight,
+  Check
 } from 'lucide-react';
 
 export const UnderApprovalModal = ({ isOpen, onClose, recordData, students = [], violations = [] }) => {
   if (!isOpen) return null;
 
   const studentCount = recordData?.studentNames?.length || 1;
-  const violationCount = recordData?.violationTitles?.length || 1;
+  const violationTitles = recordData?.violationTitles || ['Disciplinary Infraction'];
+
+  // Helper to extract severity badge
+  const renderOffenseBadge = (titleString) => {
+    const isMajor = titleString.toLowerCase().includes('major');
+    const isSerious = titleString.toLowerCase().includes('serious');
+    
+    let cleanTitle = titleString.replace(/\[(Major|Minor|Serious)\]/gi, '').trim();
+    let badgeType = isMajor ? 'Major' : isSerious ? 'Serious' : 'Minor';
+    let badgeBg = isMajor ? '#fef2f2' : isSerious ? '#fffbeb' : '#eff6ff';
+    let badgeColor = isMajor ? '#dc2626' : isSerious ? '#d97706' : '#2563eb';
+    let badgeBorder = isMajor ? '#fecaca' : isSerious ? '#fde68a' : '#bfdbfe';
+
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
+          <span
+            style={{
+              fontSize: '10px',
+              fontWeight: 800,
+              padding: '2px 7px',
+              borderRadius: '6px',
+              background: badgeBg,
+              color: badgeColor,
+              border: `1px solid ${badgeBorder}`,
+              textTransform: 'uppercase',
+              letterSpacing: '0.04em'
+            }}
+          >
+            {badgeType}
+          </span>
+          <span style={{ fontWeight: 800, fontSize: '13.5px', color: '#0f172a' }}>
+            {cleanTitle}
+          </span>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <Modal
       isOpen={isOpen}
       onClose={onClose}
       title="Incident Report Submitted"
-      icon={ShieldCheck}
-      maxWidth="560px"
+      icon={ShieldAlert}
+      maxWidth="580px"
     >
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', padding: '10px 0 6px 0' }}>
-        {/* Status Badge & Animation Card */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', padding: '4px 0 2px 0' }}>
+        
+        {/* Top Hero Banner */}
         <div
           style={{
-            background: 'linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)',
-            border: '1.5px solid #fde68a',
+            background: 'linear-gradient(135deg, #07345f 0%, #0b192c 100%)',
             borderRadius: '16px',
             padding: '22px 20px',
-            textAlign: 'center',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: '12px',
+            color: '#ffffff',
             position: 'relative',
-            boxShadow: '0 4px 16px rgba(217, 119, 6, 0.08)'
+            overflow: 'hidden',
+            boxShadow: '0 8px 24px rgba(7, 52, 95, 0.25)',
+            border: '1px solid rgba(255, 255, 255, 0.1)'
           }}
         >
-          {/* Animated Glow Pill */}
+          {/* Ambient Background Decorative Glow */}
           <div
             style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '7px',
-              background: '#d97706',
-              color: '#ffffff',
-              padding: '5px 14px',
-              borderRadius: '30px',
-              fontSize: '12px',
-              fontWeight: 800,
-              letterSpacing: '0.04em',
-              textTransform: 'uppercase',
-              boxShadow: '0 2px 10px rgba(217, 119, 6, 0.35)'
+              position: 'absolute',
+              top: '-30px',
+              right: '-30px',
+              width: '120px',
+              height: '120px',
+              borderRadius: '50%',
+              background: 'radial-gradient(circle, rgba(245, 158, 11, 0.35) 0%, rgba(245, 158, 11, 0) 70%)',
+              pointerEvents: 'none'
             }}
-          >
-            <Clock size={14} className="animate-spin" style={{ animationDuration: '3s' }} />
-            Under Approval
+          />
+
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px', position: 'relative', zIndex: 1 }}>
+            
+            {/* Glowing Icon Orb */}
+            <div
+              style={{
+                width: '52px',
+                height: '52px',
+                borderRadius: '14px',
+                background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+                boxShadow: '0 4px 16px rgba(245, 158, 11, 0.45)',
+                border: '2px solid rgba(255, 255, 255, 0.2)'
+              }}
+            >
+              <Clock size={28} color="#ffffff" strokeWidth={2.4} />
+            </div>
+
+            {/* Banner Text */}
+            <div style={{ flex: 1 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px', flexWrap: 'wrap' }}>
+                <span
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '5px',
+                    background: 'rgba(245, 158, 11, 0.22)',
+                    color: '#fbbf24',
+                    border: '1px solid rgba(245, 158, 11, 0.45)',
+                    padding: '2px 9px',
+                    borderRadius: '20px',
+                    fontSize: '11px',
+                    fontWeight: 800,
+                    letterSpacing: '0.04em',
+                    textTransform: 'uppercase'
+                  }}
+                >
+                  <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#f59e0b', animation: 'pulse 1.5s infinite' }} />
+                  Under Approval
+                </span>
+                <span style={{ fontSize: '11.5px', color: 'rgba(255, 255, 255, 0.65)' }}>
+                  Report #{Date.now().toString().slice(-5)}
+                </span>
+              </div>
+
+              <h3 style={{ margin: '0 0 4px 0', fontSize: '18px', fontWeight: 800, color: '#ffffff', letterSpacing: '-0.01em' }}>
+                Queued for Administrator Review
+              </h3>
+
+              <p style={{ margin: 0, fontSize: '12.5px', color: 'rgba(255, 255, 255, 0.82)', lineHeight: 1.45 }}>
+                Your report is queued for verification. An authorized <strong>Discipline Officer</strong> or <strong>Head Admin</strong> will review this case before sanctions and parent notifications are finalized.
+              </p>
+            </div>
           </div>
-
-          <h3
-            style={{
-              margin: '2px 0 0 0',
-              fontSize: '19px',
-              fontWeight: 800,
-              color: '#92400e',
-              letterSpacing: '-0.01em'
-            }}
-          >
-            Queued for Administrator Review
-          </h3>
-
-          <p
-            style={{
-              margin: 0,
-              fontSize: '13.5px',
-              color: '#78350f',
-              lineHeight: 1.55,
-              maxWidth: '460px'
-            }}
-          >
-            Your report has been logged and marked <strong>Under Approval</strong>. An authorized <strong>Discipline Officer</strong> or <strong>Head Administrator</strong> will inspect and approve this case before official disciplinary sanctions are finalized.
-          </p>
         </div>
 
-        {/* Incident Summary Card */}
+        {/* 3-Step Approval Pipeline Flow */}
+        <div
+          style={{
+            background: '#f8fafc',
+            border: '1px solid #e2e8f0',
+            borderRadius: '12px',
+            padding: '12px 14px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '8px',
+            fontSize: '11.5px'
+          }}
+        >
+          {/* Step 1: Logged */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flex: 1 }}>
+            <div
+              style={{
+                width: 22,
+                height: 22,
+                borderRadius: '50%',
+                background: '#10b981',
+                color: '#fff',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontWeight: 800,
+                fontSize: '11px',
+                flexShrink: 0
+              }}
+            >
+              <Check size={13} strokeWidth={3} />
+            </div>
+            <div>
+              <div style={{ fontWeight: 800, color: '#0f172a', lineHeight: 1.1 }}>1. Logged</div>
+              <div style={{ fontSize: '10px', color: '#64748b' }}>Faculty submitted</div>
+            </div>
+          </div>
+
+          <ArrowRight size={14} color="#94a3b8" style={{ flexShrink: 0 }} />
+
+          {/* Step 2: Under Approval */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flex: 1.2 }}>
+            <div
+              style={{
+                width: 22,
+                height: 22,
+                borderRadius: '50%',
+                background: '#d97706',
+                color: '#fff',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontWeight: 800,
+                fontSize: '11px',
+                flexShrink: 0,
+                boxShadow: '0 0 0 3px rgba(217, 119, 6, 0.15)'
+              }}
+            >
+              <Clock size={12} strokeWidth={2.6} />
+            </div>
+            <div>
+              <div style={{ fontWeight: 800, color: '#d97706', lineHeight: 1.1 }}>2. Under Review</div>
+              <div style={{ fontSize: '10px', color: '#78350f' }}>Admin evaluation</div>
+            </div>
+          </div>
+
+          <ArrowRight size={14} color="#94a3b8" style={{ flexShrink: 0 }} />
+
+          {/* Step 3: Sanctions */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flex: 1, opacity: 0.65 }}>
+            <div
+              style={{
+                width: 22,
+                height: 22,
+                borderRadius: '50%',
+                background: '#cbd5e1',
+                color: '#475569',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontWeight: 800,
+                fontSize: '11px',
+                flexShrink: 0
+              }}
+            >
+              3
+            </div>
+            <div>
+              <div style={{ fontWeight: 700, color: '#475569', lineHeight: 1.1 }}>3. Action</div>
+              <div style={{ fontSize: '10px', color: '#94a3b8' }}>Sanctions applied</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Structured Case Details Card */}
         <div
           style={{
             background: '#ffffff',
             border: '1px solid #e2e8f0',
             borderRadius: '14px',
-            padding: '16px 18px',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '12px'
+            overflow: 'hidden',
+            boxShadow: '0 2px 10px rgba(0, 0, 0, 0.02)'
           }}
         >
+          {/* Card Section Header */}
           <div
             style={{
+              padding: '10px 16px',
+              background: '#f8fafc',
+              borderBottom: '1px solid #e2e8f0',
               display: 'flex',
               alignItems: 'center',
-              gap: '8px',
-              fontSize: '12.5px',
-              fontWeight: 800,
-              color: '#07345f',
-              textTransform: 'uppercase',
-              letterSpacing: '0.04em'
+              justifyContent: 'space-between'
             }}
           >
-            <FileText size={15} color="#07345f" />
-            Report Submission Summary
-          </div>
-
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-              gap: '12px',
-              fontSize: '13px'
-            }}
-          >
-            {/* Student Info */}
-            <div style={{ background: '#f8fafc', padding: '10px 12px', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
-              <span style={{ fontSize: '11px', color: '#64748b', fontWeight: 700, display: 'block', marginBottom: '3px' }}>
-                STUDENT ({studentCount})
-              </span>
-              <span style={{ fontWeight: 800, color: '#0f172a', wordBreak: 'break-word' }}>
-                {recordData?.studentNames?.join(', ') || 'Selected Student'}
-              </span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '7px', fontSize: '12px', fontWeight: 800, color: '#07345f', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+              <FileText size={15} color="#07345f" />
+              Submission Summary
             </div>
-
-            {/* Offense Info */}
-            <div style={{ background: '#f8fafc', padding: '10px 12px', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
-              <span style={{ fontSize: '11px', color: '#64748b', fontWeight: 700, display: 'block', marginBottom: '3px' }}>
-                OFFENSE CATEGORY ({violationCount})
-              </span>
-              <span style={{ fontWeight: 800, color: '#dc2626', wordBreak: 'break-word' }}>
-                {recordData?.violationTitles?.join(', ') || 'Logged Offense'}
-              </span>
-            </div>
-
-            {/* Prescribed Sanction */}
-            <div style={{ background: '#f8fafc', padding: '10px 12px', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
-              <span style={{ fontSize: '11px', color: '#64748b', fontWeight: 700, display: 'block', marginBottom: '3px' }}>
-                RECOMMENDED SANCTION
-              </span>
-              <span style={{ fontWeight: 700, color: '#334155' }}>
-                {recordData?.sanction || 'Under Review / Initial Counseling'}
-              </span>
-            </div>
-
-            {/* Reported By */}
-            <div style={{ background: '#f8fafc', padding: '10px 12px', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
-              <span style={{ fontSize: '11px', color: '#64748b', fontWeight: 700, display: 'block', marginBottom: '3px' }}>
-                REPORTING FACULTY
-              </span>
-              <span style={{ fontWeight: 700, color: '#334155' }}>
-                {recordData?.reportedBy || 'Faculty Member'}
-              </span>
-            </div>
-          </div>
-
-          {/* Quick Notice Tip */}
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'flex-start',
-              gap: '9px',
-              background: '#f0f9ff',
-              border: '1px solid #bae6fd',
-              borderRadius: '9px',
-              padding: '9px 12px',
-              fontSize: '12px',
-              color: '#0369a1',
-              lineHeight: 1.4
-            }}
-          >
-            <Info size={16} color="#0284c7" style={{ flexShrink: 0, marginTop: 1 }} />
-            <span>
-              You will be notified once the Discipline Office acts on this report. You can track progress under your submitted incident records.
+            <span style={{ fontSize: '11px', color: '#64748b', fontWeight: 600 }}>
+              {new Date().toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })}
             </span>
+          </div>
+
+          <div style={{ padding: '14px 16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            
+            {/* Student Row */}
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '12px', paddingBottom: '10px', borderBottom: '1px solid #f1f5f9' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <div
+                  style={{
+                    width: 34,
+                    height: 34,
+                    borderRadius: '50%',
+                    background: 'linear-gradient(135deg, #07345f 0%, #1e3a8a 100%)',
+                    color: '#ffffff',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontWeight: 800,
+                    fontSize: '13px'
+                  }}
+                >
+                  <User size={16} />
+                </div>
+                <div>
+                  <span style={{ fontSize: '11px', color: '#64748b', fontWeight: 700, display: 'block' }}>
+                    STUDENT ({studentCount})
+                  </span>
+                  <span style={{ fontWeight: 800, color: '#0f172a', fontSize: '14px' }}>
+                    {recordData?.studentNames?.join(', ') || 'Selected Student'}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Offense Category Row */}
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '12px', paddingBottom: '10px', borderBottom: '1px solid #f1f5f9' }}>
+              <div>
+                <span style={{ fontSize: '11px', color: '#64748b', fontWeight: 700, display: 'block', marginBottom: '3px' }}>
+                  REPORTED OFFENSE
+                </span>
+                {violationTitles.map((vTitle, idx) => (
+                  <div key={idx} style={{ marginTop: idx > 0 ? 4 : 0 }}>
+                    {renderOffenseBadge(vTitle)}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Sanction & Submitter Split Row */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+              <div>
+                <span style={{ fontSize: '11px', color: '#64748b', fontWeight: 700, display: 'block', marginBottom: '2px' }}>
+                  RECOMMENDED SANCTION
+                </span>
+                <span style={{ fontWeight: 700, color: '#1e293b', fontSize: '12.5px' }}>
+                  {recordData?.sanction || 'Under Review / Initial Counseling'}
+                </span>
+              </div>
+
+              <div>
+                <span style={{ fontSize: '11px', color: '#64748b', fontWeight: 700, display: 'block', marginBottom: '2px' }}>
+                  REPORTING FACULTY
+                </span>
+                <span style={{ fontWeight: 700, color: '#1e293b', fontSize: '12.5px' }}>
+                  {recordData?.reportedBy || 'Faculty Member'}
+                </span>
+              </div>
+            </div>
+
           </div>
         </div>
 
-        {/* Action Button */}
-        <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '4px' }}>
+        {/* Notice Info Callout */}
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            background: '#f0f9ff',
+            border: '1px solid #bae6fd',
+            borderRadius: '10px',
+            padding: '10px 14px',
+            fontSize: '12px',
+            color: '#0369a1',
+            lineHeight: 1.4
+          }}
+        >
+          <Info size={18} color="#0284c7" style={{ flexShrink: 0 }} />
+          <span>
+            You will receive updates once the Discipline Office acts on this report. You can review all cases anytime in your dashboard.
+          </span>
+        </div>
+
+        {/* Primary Action Button */}
+        <div style={{ marginTop: '2px' }}>
           <button
             type="button"
             onClick={onClose}
@@ -208,17 +389,20 @@ export const UnderApprovalModal = ({ isOpen, onClose, recordData, students = [],
               alignItems: 'center',
               justifyContent: 'center',
               gap: '8px',
-              boxShadow: '0 4px 12px rgba(7, 52, 95, 0.25)',
+              boxShadow: '0 4px 14px rgba(7, 52, 95, 0.28)',
               transition: 'all 0.15s ease'
             }}
-            onMouseOver={(e) => { e.currentTarget.style.transform = 'translateY(-1px)'; }}
-            onMouseOut={(e) => { e.currentTarget.style.transform = 'translateY(0)'; }}
+            onMouseOver={(e) => { e.currentTarget.style.transform = 'translateY(-1px)'; e.currentTarget.style.boxShadow = '0 6px 18px rgba(7, 52, 95, 0.35)'; }}
+            onMouseOut={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 14px rgba(7, 52, 95, 0.28)'; }}
           >
             <CheckCircle2 size={18} />
-            Understood & Close
+            Understood &amp; Close
           </button>
         </div>
+
       </div>
     </Modal>
   );
 };
+
+export default UnderApprovalModal;
