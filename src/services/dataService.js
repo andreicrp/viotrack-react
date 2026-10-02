@@ -729,7 +729,17 @@ export const dataService = {
         return mapped;
       }
     }
-    const records = getStored('records', INITIAL_RECORDS);
+
+    let records = getStored('records', INITIAL_RECORDS);
+    // Ensure initial pending approval records are present if user's localstorage was created prior to approval system
+    if (!records.some(r => r.approval_status === 'Under Approval' || r.status === 'Under Approval')) {
+      const underApprovalInitials = INITIAL_RECORDS.filter(r => r.approval_status === 'Under Approval' || r.status === 'Under Approval');
+      if (underApprovalInitials.length > 0) {
+        records = [...underApprovalInitials, ...records];
+        setStored('records', records);
+      }
+    }
+
     const students = await this.getStudents();
     const violations = await this.getViolations();
 
@@ -737,11 +747,22 @@ export const dataService = {
     const studentMap = new Map(students.map(s => [Number(s.id), s]));
     const violationMap = new Map(violations.map(v => [Number(v.id), v]));
 
-    const mapped = records.map(r => ({
-      ...r,
-      student: studentMap.get(Number(r.student_id)),
-      violation: violationMap.get(Number(r.violation_id))
-    }));
+    const mapped = records.map(r => {
+      const isTeacher = (r.reported_by_type === 'teacher');
+      let resolvedApproval = r.approval_status;
+      if (!resolvedApproval) {
+        if (r.status === 'Under Approval') resolvedApproval = 'Under Approval';
+        else if (r.status === 'Rejected') resolvedApproval = 'Rejected';
+        else if (isTeacher && !r.approved_by && r.status !== 'Resolved') resolvedApproval = 'Under Approval';
+        else resolvedApproval = 'Approved';
+      }
+      return {
+        ...r,
+        approval_status: resolvedApproval,
+        student: studentMap.get(Number(r.student_id)),
+        violation: violationMap.get(Number(r.violation_id))
+      };
+    });
 
     _memoryCache.records = mapped;
     _memoryCache.recordsTimestamp = now;

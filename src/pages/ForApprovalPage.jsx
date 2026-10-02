@@ -96,6 +96,14 @@ export const ForApprovalPage = () => {
     };
   }, [loadData]);
 
+  const getApprovalStatus = (r) => {
+    if (r.approval_status === 'Under Approval' || r.status === 'Under Approval') return 'Under Approval';
+    if (r.approval_status === 'Rejected' || r.status === 'Rejected') return 'Rejected';
+    if (r.approval_status === 'Approved') return 'Approved';
+    if (r.reported_by_type === 'teacher' && !r.approved_by && r.status !== 'Resolved') return 'Under Approval';
+    return r.approval_status || 'Approved';
+  };
+
   // Metric Analytics
   const stats = useMemo(() => {
     let pending = 0;
@@ -104,7 +112,7 @@ export const ForApprovalPage = () => {
     let highSeverity = 0;
 
     for (const r of records) {
-      const aStat = r.approval_status || (r.reported_by_type === 'teacher' && r.status === 'Under Approval' ? 'Under Approval' : 'Approved');
+      const aStat = getApprovalStatus(r);
       if (aStat === 'Under Approval') {
         pending++;
         const sev = r.violation?.type?.toLowerCase() || '';
@@ -128,7 +136,7 @@ export const ForApprovalPage = () => {
   // Filter & Sort Pipeline
   const filteredRecords = useMemo(() => {
     let result = records.filter(r => {
-      const aStat = r.approval_status || (r.reported_by_type === 'teacher' && r.status === 'Under Approval' ? 'Under Approval' : 'Approved');
+      const aStat = getApprovalStatus(r);
 
       // Approval Status Filter
       if (approvalFilter !== 'all') {
@@ -777,7 +785,7 @@ export const ForApprovalPage = () => {
                   const s = r.student || {};
                   const v = r.violation || {};
                   const sevBadge = getSeverityBadge(v.type);
-                  const aStat = r.approval_status || (r.reported_by_type === 'teacher' && r.status === 'Under Approval' ? 'Under Approval' : 'Approved');
+                  const aStat = getApprovalStatus(r);
                   const isPending = aStat === 'Under Approval';
                   const isApproved = aStat === 'Approved';
                   const isRejected = aStat === 'Rejected';
@@ -1025,7 +1033,7 @@ export const ForApprovalPage = () => {
               const s = r.student || {};
               const v = r.violation || {};
               const sevBadge = getSeverityBadge(v.type);
-              const aStat = r.approval_status || (r.reported_by_type === 'teacher' && r.status === 'Under Approval' ? 'Under Approval' : 'Approved');
+              const aStat = getApprovalStatus(r);
               const isPending = aStat === 'Under Approval';
               const isApproved = aStat === 'Approved';
 

@@ -39,13 +39,6 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
   const [approvalPopupData, setApprovalPopupData] = useState(null);
   const [pendingRecords, setPendingRecords] = useState(null);
 
-  const [formData, setFormData] = useState({
-    sanction: '',
-    remarks: '',
-    notify_parent_sms: true,
-    status: 'Pending'
-  });
-
   const [location, setLocation] = useState({
     lat: null,
     lng: null,
@@ -141,6 +134,13 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
 
   const isTeacher = user?.role === 'teacher';
 
+  const [formData, setFormData] = useState({
+    sanction: '',
+    remarks: '',
+    notify_parent_sms: true,
+    status: isTeacher ? 'Under Approval' : 'Pending'
+  });
+
   const handleSubmit = async (e) => {
     if (e) e.preventDefault();
     if (loading) return;
@@ -169,6 +169,8 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
       return;
     }
 
+    const isApprovalMode = isTeacher || formData.status === 'Under Approval';
+
     setLoading(true);
     try {
       const createdRecords = [];
@@ -182,11 +184,11 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
             student_id: Number(student.id),
             violation_id: Number(violation.id),
             reported_by_name: user?.name || (isTeacher ? 'Faculty Teacher' : 'Authorized Administrator'),
-            reported_by_type: isTeacher ? 'teacher' : (user?.role || 'admin'),
+            reported_by_type: isTeacher ? 'teacher' : (isApprovalMode ? 'teacher' : (user?.role || 'admin')),
             sanction: formData.sanction || violation.default_sanction || 'Under Review',
             remarks: formData.remarks || 'Disciplinary incident report logged.',
-            status: isTeacher ? 'Under Approval' : formData.status,
-            approval_status: isTeacher ? 'Under Approval' : 'Approved',
+            status: isApprovalMode ? 'Under Approval' : formData.status,
+            approval_status: isApprovalMode ? 'Under Approval' : 'Approved',
             sms_notified: formData.notify_parent_sms,
             lat: location.lat,
             lng: location.lng,
@@ -196,7 +198,7 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
         }
 
         // Send consolidated SMS alert to guardian if enabled and admin approved
-        if (!isTeacher && formData.notify_parent_sms && student.parent_contact) {
+        if (!isApprovalMode && formData.notify_parent_sms && student.parent_contact) {
           const violationTitles = chosenViolations.map(v => v.title).join(', ');
           await dataService.sendSMS(
             student.parent_contact,
@@ -211,18 +213,18 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
       const studentCount = chosenStudents.length;
       const violationCount = chosenViolations.length;
 
-      if (isTeacher) {
-        // Teacher Flow: Show Under Approval confirmation modal!
+      if (isApprovalMode) {
+        // Teacher / Approval Mode: Show Under Approval confirmation modal!
         setApprovalPopupData({
           studentNames: chosenStudents.map(s => `${s.fname} ${s.lname}`),
           violationTitles: chosenViolations.map(v => `[${v.type}] ${v.title}`),
           sanction: formData.sanction || 'Under Administrative Review',
-          reportedBy: user?.name || 'Faculty Member'
+          reportedBy: user?.name || (isTeacher ? 'Faculty Teacher' : 'Reporting Faculty')
         });
         setPendingRecords(createdRecords);
         setIsApprovalPopupOpen(true);
       } else {
-        // Admin Flow: Direct success
+        // Admin Direct Mode: Direct success
         if (studentCount === 1 && violationCount === 1) {
           success(`Incident record for ${chosenStudents[0]?.fname || 'student'} added successfully!`);
         } else {
@@ -544,8 +546,9 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
                 <label style={{ fontSize: '12px', fontWeight: 700, color: '#0f172a', marginBottom: '6px', display: 'block' }}>
                   Initial Case Status
                 </label>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '6px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '6px' }}>
                   {[
+                    { id: 'Under Approval', label: '⏳ Under Approval', color: '#d97706' },
                     { id: 'Pending', label: 'Pending Action', color: '#ef4444' },
                     { id: 'Investigation', label: 'In Review', color: '#f59e0b' },
                     { id: 'Resolved', label: 'Resolved Now', color: '#10b981' }
@@ -555,9 +558,9 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
                       key={st.id}
                       onClick={() => setFormData(prev => ({ ...prev, status: st.id }))}
                       style={{
-                        padding: '8px 6px',
+                        padding: '8px 4px',
                         borderRadius: '8px',
-                        fontSize: '11.5px',
+                        fontSize: '11px',
                         fontWeight: 700,
                         border: formData.status === st.id ? `1.5px solid ${st.color}` : '1px solid #e2e8f0',
                         background: formData.status === st.id ? `${st.color}15` : '#ffffff',
