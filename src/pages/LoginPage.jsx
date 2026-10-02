@@ -308,7 +308,7 @@ export const LoginPage = () => {
             }}
           >
             <CheckCircle2 size={16} color="#d97706" />
-            <span>Your session automatically expired after 30 minutes of inactivity. Please sign in again.</span>
+            <span>Session Timed Out. Please sign in again.</span>
           </div>
         )}
 
