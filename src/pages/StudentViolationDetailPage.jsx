@@ -95,10 +95,10 @@ export const StudentViolationDetailPage = () => {
         dataService.getRecords()
       ]);
 
-      const found = allStudents.find(s => s.id === Number(id) || s.lrn === id);
+      const found = allStudents.find(s => String(s.id) === String(id) || String(s.lrn) === String(id));
       if (found) {
         setStudent(found);
-        const studentHistory = allRecords.filter(r => r.student_id === found.id);
+        const studentHistory = allRecords.filter(r => String(r.student_id) === String(found.id));
         setRecords(studentHistory);
       } else {
         error('Student profile not found.');

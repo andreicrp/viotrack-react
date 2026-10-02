@@ -44,12 +44,12 @@ export const LoginPage = () => {
   const [rememberMe, setRememberMe] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // If already authenticated and not explicitly redirected due to logout, go straight to dashboard
+  // If already authenticated and not explicitly redirected due to logout, go straight to targetDestination or dashboard
   useEffect(() => {
     if (isAuthenticated && !isLoggedOut && !isExpired) {
-      navigate('/', { replace: true });
+      navigate(targetDestination, { replace: true });
     }
-  }, [isAuthenticated, isLoggedOut, isExpired, navigate]);
+  }, [isAuthenticated, isLoggedOut, isExpired, targetDestination, navigate]);
 
   // Rate Limiting & Security Lockout State
   const [rateLimitState, setRateLimitState] = useState(() => checkRateLimit('login', 5, 120));
