@@ -11,12 +11,6 @@ node_modules
 dist
 dist-ssr
 *.local
-.env
-.env.*
-!.env.example
-*.apk
-*.mp4
-*.pptx
 
 # Editor directories and files
 .vscode/*
@@ -29,4 +23,4 @@ dist-ssr
 *.sln
 *.sw?
 ~$*
-.claude/
+
