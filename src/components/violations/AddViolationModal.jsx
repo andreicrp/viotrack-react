@@ -226,7 +226,7 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
   const selectedViolations = violations.filter(v => selectedViolationIds.includes(Number(v.id)));
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Log Student Violation" icon={AlertTriangle} maxWidth="500px">
+    <Modal isOpen={isOpen} onClose={onClose} title="Log Student Violation" icon={AlertTriangle} maxWidth="540px">
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
         
         {/* Step Progress Header */}
@@ -337,7 +337,7 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
         </div>
 
         {/* Modal Step Content Body */}
-        <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '12px', padding: '16px', minHeight: '220px', maxHeight: '68vh', overflowY: 'auto' }}>
+        <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '12px', padding: '16px', minHeight: '260px', maxHeight: '78vh', overflowY: 'auto' }}>
           
           {/* ================= STEP 1: STUDENT SELECTION ================= */}
           {step === 1 && (
@@ -358,7 +358,7 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
                   onChange={(newIds) => setSelectedStudentIds(newIds)}
                   isMulti={true}
                   inline={true}
-                  maxListHeight="230px"
+                  maxListHeight="340px"
                   placeholder="Search student by name, LRN, or section..."
                 />
               </div>
@@ -404,7 +404,7 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
                   onChange={handleViolationsChange}
                   isMulti={true}
                   inline={true}
-                  maxListHeight="140px"
+                  maxListHeight="280px"
                   placeholder="Search and choose infraction(s)..."
                 />
               </div>
