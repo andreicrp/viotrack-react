@@ -132,8 +132,8 @@ export const SearchableViolationSelect = ({
             <span style={{ fontSize: '13px', color: '#94a3b8', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
               {placeholder}
             </span>
-          ) : !isMulti ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', overflow: 'hidden' }}>
+          ) : selectedViolations.length === 1 ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', overflow: 'hidden', minWidth: 0 }}>
               {(() => {
                 const conf = getSeverityStyle(selectedViolations[0].type);
                 return (
@@ -142,10 +142,10 @@ export const SearchableViolationSelect = ({
                       background: conf.bg,
                       color: conf.color,
                       border: `1px solid ${conf.border}`,
-                      padding: '1px 5px',
+                      padding: '1px 6px',
                       borderRadius: '4px',
                       fontSize: '10.5px',
-                      fontWeight: 700,
+                      fontWeight: 800,
                       flexShrink: 0
                     }}
                   >
@@ -153,7 +153,7 @@ export const SearchableViolationSelect = ({
                   </span>
                 );
               })()}
-              <span style={{ fontSize: '13px', fontWeight: 600, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              <span style={{ fontSize: '12.5px', fontWeight: 600, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                 {selectedViolations[0].title}
               </span>
             </div>
@@ -161,10 +161,7 @@ export const SearchableViolationSelect = ({
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', overflow: 'hidden', minWidth: 0 }}>
               <Layers size={15} color="#0f172a" style={{ flexShrink: 0 }} />
               <span style={{ fontSize: '13px', fontWeight: 600, color: '#0f172a', whiteSpace: 'nowrap' }}>
-                {selectedViolations.length} {selectedViolations.length === 1 ? 'Offense selected' : 'Offenses selected'}
-              </span>
-              <span style={{ fontSize: '11px', color: '#94a3b8', whiteSpace: 'nowrap' }}>
-                — tap to edit
+                {selectedViolations.length} Offenses selected
               </span>
             </div>
           )}
@@ -205,8 +202,8 @@ export const SearchableViolationSelect = ({
         </div>
       </div>
 
-      {/* Selected Violation Chips Tray (Compact & Scrollable) */}
-      {isMulti && selectedViolations.length > 0 && (
+      {/* Selected Violation Chips Tray (Only shown when 2 or more offenses are selected) */}
+      {isMulti && selectedViolations.length > 1 && (
         <div
           style={{
             display: 'flex',

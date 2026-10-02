@@ -150,8 +150,8 @@ export const SearchableStudentSelect = ({
             <span style={{ fontSize: '13px', color: '#94a3b8', fontWeight: 500, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
               {placeholder}
             </span>
-          ) : !isMulti ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', overflow: 'hidden' }}>
+          ) : selectedStudents.length === 1 ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', overflow: 'hidden', minWidth: 0 }}>
               <img
                 src={
                   selectedStudents[0].image ||
@@ -160,10 +160,10 @@ export const SearchableStudentSelect = ({
                 alt={selectedStudents[0].fname}
                 style={{ width: 22, height: 22, borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }}
               />
-              <span style={{ fontSize: '13px', fontWeight: 600, color: '#0f172a', whiteSpace: 'nowrap' }}>
-                {selectedStudents[0].lname}, {selectedStudents[0].fname}
+              <span style={{ fontSize: '12.5px', fontWeight: 700, color: '#0f172a', whiteSpace: 'nowrap' }}>
+                {selectedStudents[0].fname} {selectedStudents[0].lname}
               </span>
-              <span style={{ fontSize: '11.5px', color: '#64748b', whiteSpace: 'nowrap' }}>
+              <span style={{ fontSize: '11px', color: '#64748b', whiteSpace: 'nowrap' }}>
                 ({selectedStudents[0].grade} - {selectedStudents[0].section})
               </span>
             </div>
@@ -171,10 +171,7 @@ export const SearchableStudentSelect = ({
             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', overflow: 'hidden', minWidth: 0 }}>
               <Users size={15} color="#0f172a" style={{ flexShrink: 0 }} />
               <span style={{ fontSize: '13px', fontWeight: 600, color: '#0f172a', whiteSpace: 'nowrap' }}>
-                {selectedStudents.length} {selectedStudents.length === 1 ? 'Student selected' : 'Students selected'}
-              </span>
-              <span style={{ fontSize: '11px', color: '#94a3b8', whiteSpace: 'nowrap' }}>
-                — tap to edit
+                {selectedStudents.length} Students selected
               </span>
             </div>
           )}
@@ -215,8 +212,8 @@ export const SearchableStudentSelect = ({
         </div>
       </div>
 
-      {/* Selected Student Chips Tray (Compact & Scrollable) */}
-      {isMulti && selectedStudents.length > 0 && (
+      {/* Selected Student Chips Tray (Only shown when 2 or more students are selected) */}
+      {isMulti && selectedStudents.length > 1 && (
         <div
           style={{
             display: 'flex',
