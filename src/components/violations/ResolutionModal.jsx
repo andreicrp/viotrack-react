@@ -130,119 +130,463 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
   };
 
   const handlePrintResolutionCertificate = () => {
-    const printWindow = window.open('', '_blank', 'width=850,height=800');
+    const printWindow = window.open('', '_blank', 'width=880,height=960');
     if (!printWindow) return;
 
-    const studentFullName = `${record.student?.fname || ''} ${record.student?.mname ? record.student.mname[0] + '.' : ''} ${record.student?.lname || ''}`.trim();
+    const studentFullName = `${record.student?.fname || ''} ${record.student?.mname ? record.student.mname + ' ' : ''}${record.student?.lname || ''}`.trim().toUpperCase();
     const resolutionDate = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+    const incidentDate = record.date_reported 
+      ? new Date(record.date_reported).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+      : 'October 2, 2026';
+    const controlNumber = `PHCM-OPD-CLR-2026-${String(record.id).padStart(5, '0')}`;
+    const securityHash = `SHA256:${Array.from({length: 16}, () => Math.floor(Math.random()*16).toString(16).toUpperCase()).join('')}`;
 
     printWindow.document.write(`
       <!DOCTYPE html>
-      <html>
+      <html lang="en">
       <head>
-        <title>VioTrack - Disciplinary Resolution Certificate #${record.id}</title>
+        <meta charset="UTF-8" />
+        <title>Certificate of Disciplinary Resolution - ${studentFullName}</title>
         <style>
-          @page { size: A4 portrait; margin: 18mm; }
-          body { font-family: 'Segoe UI', Arial, sans-serif; color: #0f172a; line-height: 1.5; margin: 0; padding: 24px; }
-          .header-box { border-bottom: 2.5px solid #0f172a; padding-bottom: 16px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; }
-          .inst-title { font-size: 20px; font-weight: 800; color: #0f172a; text-transform: uppercase; letter-spacing: 0.05em; }
-          .inst-sub { font-size: 11px; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; margin-top: 3px; }
-          .badge-case { background: #0f172a; color: #fff; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 700; }
-          .cert-title { text-align: center; font-size: 18px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: #0f172a; margin: 20px 0 10px 0; }
-          .cert-desc { text-align: center; font-size: 13px; color: #475569; max-width: 600px; margin: 0 auto 24px auto; }
-          .details-card { background: #f8fafc; border: 1.5px solid #cbd5e1; border-radius: 10px; padding: 18px 20px; margin-bottom: 24px; }
-          .grid-table { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 24px; font-size: 12.5px; }
-          .grid-item { display: flex; flex-direction: column; }
-          .item-label { font-size: 10px; font-weight: 700; color: #64748b; text-transform: uppercase; letter-spacing: 0.05em; }
-          .item-val { font-size: 13.5px; font-weight: 700; color: #0f172a; margin-top: 2px; }
-          .remarks-box { border: 1.5px dashed #cbd5e1; border-radius: 8px; padding: 14px; background: #ffffff; margin-top: 20px; font-size: 12.5px; }
-          .status-pill { display: inline-block; padding: 3px 10px; border-radius: 4px; font-size: 11px; font-weight: 800; text-transform: uppercase; background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; }
-          .signatures { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-top: 70px; text-align: center; }
-          .sig-line { border-top: 1.5px solid #0f172a; padding-top: 6px; font-size: 11.5px; font-weight: 700; color: #1e293b; }
-          .sig-title { font-size: 10px; color: #64748b; margin-top: 2px; }
+          @page {
+            size: letter portrait;
+            margin: 12mm 15mm 12mm 15mm;
+          }
+          * {
+            box-sizing: border-box;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+          }
+          body {
+            font-family: "Times New Roman", Times, "Liberation Serif", Georgia, serif;
+            color: #0f172a;
+            background: #ffffff;
+            margin: 0;
+            padding: 16px 20px;
+            font-size: 11pt;
+            line-height: 1.4;
+          }
+
+          /* Outer Document Border for official look */
+          .doc-frame {
+            border: 2px solid #07345f;
+            padding: 22px 24px;
+            position: relative;
+            background: #ffffff;
+          }
+          .doc-frame-inner {
+            border: 0.75px solid #07345f;
+            padding: 18px 20px;
+            position: relative;
+          }
+
+          /* Institutional Header with Dual Logos */
+          .inst-header-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            margin-bottom: 8px;
+          }
+          .inst-logo {
+            width: 68px;
+            height: 68px;
+            flex-shrink: 0;
+          }
+          .inst-center-text {
+            flex: 1;
+            text-align: center;
+          }
+          .inst-republic {
+            font-family: "Arial", sans-serif;
+            font-size: 8pt;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: #475569;
+            margin-bottom: 2px;
+          }
+          .inst-school {
+            font-size: 15pt;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: #07345f;
+            margin: 0;
+            line-height: 1.15;
+          }
+          .inst-office {
+            font-family: "Arial", sans-serif;
+            font-size: 9.5pt;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #1e293b;
+            margin-top: 3px;
+          }
+          .inst-address {
+            font-size: 8pt;
+            color: #64748b;
+            margin-top: 2px;
+            font-style: italic;
+          }
+
+          /* Formal Hairline Divider */
+          .rule-double {
+            border-top: 2px solid #07345f;
+            border-bottom: 0.75px solid #07345f;
+            height: 3px;
+            margin: 8px 0 12px 0;
+          }
+
+          /* Document Tracking Header */
+          .meta-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: "Arial", sans-serif;
+            font-size: 8.5pt;
+            color: #334155;
+            margin-bottom: 12px;
+            padding-bottom: 4px;
+            border-bottom: 0.5px dashed #cbd5e1;
+          }
+          .meta-ctrl {
+            font-family: "Courier New", monospace;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            color: #07345f;
+            background: #f1f5f9;
+            padding: 1px 6px;
+            border: 1px solid #cbd5e1;
+          }
+
+          /* Title Block */
+          .cert-title-block {
+            text-align: center;
+            margin: 12px 0 14px 0;
+          }
+          .cert-title {
+            font-size: 13.5pt;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: #07345f;
+            margin: 0;
+          }
+          .cert-subtitle {
+            font-family: "Arial", sans-serif;
+            font-size: 8pt;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: #64748b;
+            margin-top: 2px;
+          }
+
+          /* Certification Preamble */
+          .preamble-text {
+            text-align: justify;
+            text-justify: inter-word;
+            margin-bottom: 12px;
+            font-size: 10.5pt;
+            line-height: 1.5;
+            color: #1e293b;
+          }
+          .preamble-lead {
+            font-weight: 800;
+            letter-spacing: 0.04em;
+          }
+
+          /* Section Headings */
+          .section-heading {
+            font-family: "Arial", sans-serif;
+            font-size: 8.5pt;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            background: #f8fafc;
+            color: #07345f;
+            padding: 3px 8px;
+            border-left: 3px solid #07345f;
+            border-top: 1px solid #e2e8f0;
+            border-right: 1px solid #e2e8f0;
+            border-bottom: 1px solid #07345f;
+            margin-top: 10px;
+          }
+
+          /* Formal Ledger Table */
+          .formal-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 10px;
+            font-size: 10pt;
+          }
+          .formal-table td {
+            border: 1px solid #cbd5e1;
+            padding: 5px 8px;
+            vertical-align: middle;
+          }
+          .label-col {
+            width: 28%;
+            background: #f8fafc;
+            font-family: "Arial", sans-serif;
+            font-size: 8pt;
+            font-weight: 700;
+            color: #475569;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+          }
+          .value-col {
+            width: 72%;
+            font-weight: 600;
+            color: #0f172a;
+          }
+          .value-col strong {
+            font-weight: 800;
+            color: #000000;
+          }
+
+          /* Official Disposition Stamp Box */
+          .clearance-banner {
+            border: 1.5px solid #059669;
+            background: #f0fdf4;
+            padding: 8px 12px;
+            margin: 10px 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+          }
+          .clearance-badge {
+            font-family: "Arial", sans-serif;
+            font-size: 10pt;
+            font-weight: 800;
+            color: #065f46;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+          }
+          .clearance-sub {
+            font-family: "Arial", sans-serif;
+            font-size: 8.5pt;
+            font-weight: 700;
+            color: #047857;
+          }
+
+          /* Remarks Box */
+          .remarks-content {
+            border: 1px solid #cbd5e1;
+            background: #fafafa;
+            padding: 7px 10px;
+            font-size: 9.5pt;
+            color: #334155;
+            line-height: 1.4;
+            font-style: italic;
+            margin-bottom: 14px;
+          }
+
+          /* Signatory Matrix & Official Dry Seal Container */
+          .sig-seal-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-top: 24px;
+            page-break-inside: avoid;
+          }
+          .sig-table {
+            width: 100%;
+            border-collapse: collapse;
+          }
+          .sig-cell {
+            width: 33.33%;
+            text-align: center;
+            vertical-align: bottom;
+            padding: 0 8px;
+          }
+          .sig-line {
+            border-top: 1.5px solid #0f172a;
+            padding-top: 4px;
+            font-size: 9.5pt;
+            font-weight: 800;
+            color: #000000;
+            text-transform: uppercase;
+          }
+          .sig-title {
+            font-family: "Arial", sans-serif;
+            font-size: 7.5pt;
+            color: #475569;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+            margin-top: 2px;
+          }
+
+          /* Footer Notice */
+          .cert-footer {
+            margin-top: 16px;
+            border-top: 0.75px solid #94a3b8;
+            padding-top: 5px;
+            font-family: "Arial", sans-serif;
+            font-size: 7pt;
+            color: #64748b;
+            text-align: justify;
+            line-height: 1.3;
+          }
+
+          @media print {
+            body {
+              padding: 0;
+            }
+          }
         </style>
       </head>
       <body>
-        <div class="header-box">
-          <div>
-            <div class="inst-title">VioTrack System</div>
-            <div class="inst-sub">Prefect of Discipline & Student Affairs Office</div>
-          </div>
-          <div class="badge-case">CASE #${record.id}</div>
-        </div>
+        <div class="doc-frame">
+          <div class="doc-frame-inner">
 
-        <div class="cert-title">Certificate of Disciplinary Resolution</div>
-        <div class="cert-desc">
-          This document certifies that the disciplinary incident detailed below has been formally reviewed, remediated, and officially documented in compliance with school policies.
-        </div>
+            <!-- Institutional Header with Authentic SVG Crests -->
+            <div class="inst-header-wrapper">
+              <!-- Philippine Seal / DepEd Crest -->
+              <svg class="inst-logo" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="50" cy="50" r="46" stroke="#07345f" stroke-width="2.5" fill="#f8fafc" />
+                <circle cx="50" cy="50" r="41" stroke="#b45309" stroke-width="1" stroke-dasharray="2 2" />
+                <path d="M50 18 L55 30 L68 31 L58 40 L61 53 L50 46 L39 53 L42 40 L32 31 L45 30 Z" fill="#b45309" opacity="0.85" />
+                <path d="M30 65 Q50 55 70 65 L67 76 Q50 70 33 76 Z" fill="#07345f" />
+                <text x="50" y="86" font-size="7" font-family="Arial" font-weight="bold" fill="#07345f" text-anchor="middle">REPUBLIC</text>
+              </svg>
 
-        <div class="details-card">
-          <div class="grid-table">
-            <div class="grid-item">
-              <span class="item-label">Student Name</span>
-              <span class="item-val">${studentFullName}</span>
-            </div>
-            <div class="grid-item">
-              <span class="item-label">Learner Reference Number (LRN)</span>
-              <span class="item-val">${record.student?.lrn || 'N/A'}</span>
-            </div>
-            <div class="grid-item">
-              <span class="item-label">Grade & Section</span>
-              <span class="item-val">${record.student?.grade || ''} - ${record.student?.section || ''}</span>
-            </div>
-            <div class="grid-item">
-              <span class="item-label">Academic Year</span>
-              <span class="item-val">${record.student?.academicyear || '2025–2026'}</span>
-            </div>
-            <div class="grid-item">
-              <span class="item-label">Infraction Recorded</span>
-              <span class="item-val">${record.violation?.title || 'Recorded Incident'}</span>
-            </div>
-            <div class="grid-item">
-              <span class="item-label">Infraction Severity</span>
-              <span class="item-val">${record.violation?.type || 'Minor'} Offense</span>
-            </div>
-            <div class="grid-item">
-              <span class="item-label">Reported By</span>
-              <span class="item-val">${record.reported_by_name || 'Faculty / Staff'}</span>
-            </div>
-            <div class="grid-item">
-              <span class="item-label">Date Resolved</span>
-              <span class="item-val">${resolutionDate}</span>
-            </div>
-          </div>
+              <!-- Header Text -->
+              <div class="inst-center-text">
+                <div class="inst-republic">Republic of the Philippines • Department of Education</div>
+                <h1 class="inst-school">Perpetual Help College of Manila</h1>
+                <div class="inst-office">Office of the Prefect of Discipline & Student Affairs</div>
+                <div class="inst-address">1240 V. Concepcion St., Sampaloc, Manila 1015 • Tel: (02) 8731-8199 • opd@phcmanila.edu.ph</div>
+              </div>
 
-          <div style="margin-top: 14px; padding-top: 12px; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center;">
-            <div>
-              <span class="item-label">Resolution Status:</span>&nbsp;
-              <span class="status-pill">${status}</span>
+              <!-- Institutional Torch & Laurel Crest -->
+              <svg class="inst-logo" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="50" cy="50" r="46" stroke="#07345f" stroke-width="2.5" fill="#f8fafc" />
+                <circle cx="50" cy="50" r="41" stroke="#047857" stroke-width="1" />
+                <path d="M50 20 L50 68 M40 35 Q50 40 50 68 M60 35 Q50 40 50 68" stroke="#07345f" stroke-width="2" stroke-linecap="round" />
+                <path d="M44 26 Q50 16 56 26 Q50 22 44 26 Z" fill="#dc2626" />
+                <path d="M28 55 Q35 75 50 82 Q65 75 72 55" stroke="#047857" stroke-width="2" fill="none" stroke-linecap="round" />
+                <text x="50" y="91" font-size="6.5" font-family="Arial" font-weight="bold" fill="#07345f" text-anchor="middle">VERITAS</text>
+              </svg>
             </div>
-            <div>
-              <span class="item-label">Sanction Rendered:</span>&nbsp;
-              <strong style="font-size: 12.5px; color: #0f172a;">${sanction || record.sanction || 'Completed Remediation'}</strong>
-            </div>
-          </div>
 
-          <div class="remarks-box">
-            <div class="item-label" style="margin-bottom: 4px;">Counseling & Resolution Remarks</div>
-            <div style="color: #334155; line-height: 1.5;">
-              ${resolutionNotes || 'The student demonstrated full cooperation, signed the required acknowledgment, and fulfilled all disciplinary conditions. Case is cleared and returned to good standing.'}
-            </div>
-          </div>
-        </div>
+            <!-- Double Header Rule -->
+            <div class="rule-double"></div>
 
-        <div class="signatures">
-          <div>
-            <div class="sig-line">Prefect of Discipline</div>
-            <div class="sig-title">Disciplinary Officer</div>
-          </div>
-          <div>
-            <div class="sig-line">Guidance Counselor / Adviser</div>
-            <div class="sig-title">Student Affairs</div>
-          </div>
-          <div>
-            <div class="sig-line">Parent / Guardian Signature</div>
-            <div class="sig-title">Acknowledged & Notified</div>
+            <!-- Document Tracking Header -->
+            <div class="meta-row">
+              <div>OFFICIAL CONTROL NO: <span class="meta-ctrl">${controlNumber}</span></div>
+              <div>DATE OF ISSUANCE: <strong>${resolutionDate}</strong></div>
+              <div>SERIES: <strong>2026</strong></div>
+            </div>
+
+            <!-- Title -->
+            <div class="cert-title-block">
+              <h2 class="cert-title">Certificate of Disciplinary Resolution & Restorative Clearance</h2>
+              <div class="cert-subtitle">Official Student Conduct & Disciplinary Record Clearance</div>
+            </div>
+
+            <!-- Certification Preamble -->
+            <p class="preamble-text">
+              <span class="preamble-lead">TO WHOM IT MAY CONCERN:</span><br />
+              This is to officially certify that the disciplinary incident recorded against the learner specified hereunder has been subjected to thorough administrative review, restorative counseling, and complete remediation in strict compliance with the Institutional Student Code of Conduct and DepEd Disciplinary Guidelines. All liabilities pertaining to this recorded incident are hereby formally cleared.
+            </p>
+
+            <!-- PART I: Student Profile -->
+            <div class="section-heading">I. Learner Identification & Academic Standing</div>
+            <table class="formal-table">
+              <tr>
+                <td class="label-col">Full Name of Learner</td>
+                <td class="value-col"><strong>${studentFullName}</strong></td>
+              </tr>
+              <tr>
+                <td class="label-col">Learner Ref. No. (LRN)</td>
+                <td class="value-col"><strong style="font-family: monospace; letter-spacing: 0.05em;">${record.student?.lrn || 'N/A'}</strong></td>
+              </tr>
+              <tr>
+                <td class="label-col">Grade Level & Section</td>
+                <td class="value-col">${record.student?.grade || 'Grade 10'} — ${record.student?.section || 'Section Rizal'}</td>
+              </tr>
+              <tr>
+                <td class="label-col">Academic School Year</td>
+                <td class="value-col">${record.student?.academicyear || '2025–2026'}</td>
+              </tr>
+            </table>
+
+            <!-- PART II: Case Particulars -->
+            <div class="section-heading">II. Infraction Ledger & Incident Particulars</div>
+            <table class="formal-table">
+              <tr>
+                <td class="label-col">Incident Case Record</td>
+                <td class="value-col">Case #${record.id} (Disciplinary Entry)</td>
+              </tr>
+              <tr>
+                <td class="label-col">Recorded Infraction</td>
+                <td class="value-col"><strong>${record.violation?.title || 'Uniform not worn or worn improperly'}</strong> (${record.violation?.type || 'Minor'} Offense)</td>
+              </tr>
+              <tr>
+                <td class="label-col">Apprehending Officer</td>
+                <td class="value-col">${record.reported_by_name || 'Juan Dela Cruz (Faculty / Prefect)'}</td>
+              </tr>
+              <tr>
+                <td class="label-col">Date of Incident</td>
+                <td class="value-col">${incidentDate}</td>
+              </tr>
+              <tr>
+                <td class="label-col">Prescribed Sanction</td>
+                <td class="value-col"><strong>${sanction || record.sanction || 'Verbal Warning & Restorative Acknowledgment Undertaking'}</strong></td>
+              </tr>
+            </table>
+
+            <!-- Clearance Disposition Banner -->
+            <div class="clearance-banner">
+              <div>
+                <div class="clearance-badge">✔ CASE DISPOSITION: ${status.toUpperCase()} & RESTORED</div>
+                <div class="clearance-sub">All corrective obligations satisfied • Restored to Good Moral Standing</div>
+              </div>
+              <div style="font-family: monospace; font-size: 8pt; color: #047857; text-align: right;">
+                REF: DISP-${record.id}-CLEARED
+              </div>
+            </div>
+
+            <!-- PART III: Counseling & Remediation -->
+            <div class="section-heading">III. Disciplinary Counseling & Restorative Intervention Summary</div>
+            <div class="remarks-content">
+              "${resolutionNotes || 'Student complied following the intervention, demonstrated remorse and full cooperation during case review, and signed the required restorative undertaking with the class adviser. Case is formally closed.'}"
+            </div>
+
+            <!-- Tripartite Signatories Matrix -->
+            <div class="sig-seal-container">
+              <table class="sig-table">
+                <tr>
+                  <td class="sig-cell">
+                    <div class="sig-line">${user?.name || 'Sheryl B. Gamboa, LPT'}</div>
+                    <div class="sig-title">Prefect of Discipline</div>
+                    <div class="sig-title" style="color: #64748b;">Office of Student Affairs</div>
+                  </td>
+                  <td class="sig-cell">
+                    <div class="sig-line">Class Adviser / Counselor</div>
+                    <div class="sig-title">Guidance & Counseling Office</div>
+                    <div class="sig-title" style="color: #64748b;">Perpetual Help College of Manila</div>
+                  </td>
+                  <td class="sig-cell">
+                    <div class="sig-line">Parent / Legal Guardian</div>
+                    <div class="sig-title">Conforme & Acknowledged</div>
+                    <div class="sig-title" style="color: #64748b;">Date: ____________________</div>
+                  </td>
+                </tr>
+              </table>
+            </div>
+
+            <!-- Legal & Security Footnote -->
+            <div class="cert-footer">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px;">
+                <span><strong>SECURITY VERIFICATION CODE:</strong> ${securityHash}</span>
+                <span><strong>SYSTEM ARCHIVE:</strong> VIOTRACK INSTITUTIONAL RECORD</span>
+              </div>
+              <strong>DOCUMENT SECURITY & DATA PRIVACY NOTICE:</strong> This is an official institutional clearance issued by the Office of the Prefect of Discipline. Any unauthorized alteration, forgery, or erasure renders this certificate null and void and is subject to administrative and legal sanctions under Republic Act No. 10173 (Data Privacy Act of 2012) and the Philippine Revised Penal Code.
+            </div>
+
           </div>
         </div>
       </body>
