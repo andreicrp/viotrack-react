@@ -344,8 +344,8 @@ export const AdvisersPage = () => {
             <div className="advisers-stat-value">{stats.total}</div>
             <div className="advisers-stat-sub">All Grade Levels</div>
           </div>
-          <div className="advisers-stat-icon-wrap">
-            <UserCheck size={18} />
+          <div className="advisers-stat-icon-wrap" style={{ color: '#07345f' }}>
+            <UserCheck size={20} strokeWidth={2.2} />
           </div>
         </div>
 
@@ -359,8 +359,8 @@ export const AdvisersPage = () => {
             <div className="advisers-stat-value">{stats.jhsCount}</div>
             <div className="advisers-stat-sub">JHS Advisory Sections</div>
           </div>
-          <div className="advisers-stat-icon-wrap" style={{ color: '#059669', background: '#ecfdf5' }}>
-            <BookOpen size={18} />
+          <div className="advisers-stat-icon-wrap" style={{ color: '#059669' }}>
+            <BookOpen size={20} strokeWidth={2.2} />
           </div>
         </div>
 
@@ -374,8 +374,8 @@ export const AdvisersPage = () => {
             <div className="advisers-stat-value">{stats.shsCount}</div>
             <div className="advisers-stat-sub">SHS Tracks &amp; Strands</div>
           </div>
-          <div className="advisers-stat-icon-wrap" style={{ color: '#7c3aed', background: '#f5f3ff' }}>
-            <GraduationCap size={18} />
+          <div className="advisers-stat-icon-wrap" style={{ color: '#7c3aed' }}>
+            <GraduationCap size={20} strokeWidth={2.2} />
           </div>
         </div>
 
@@ -386,8 +386,8 @@ export const AdvisersPage = () => {
             <div className="advisers-stat-value">{stats.assignedStudentCount}</div>
             <div className="advisers-stat-sub">Across {advisers.length} advisory classes</div>
           </div>
-          <div className="advisers-stat-icon-wrap" style={{ color: '#0ea5a0', background: '#f0fdfa' }}>
-            <Users size={18} />
+          <div className="advisers-stat-icon-wrap" style={{ color: '#0ea5a0' }}>
+            <Users size={20} strokeWidth={2.2} />
           </div>
         </div>
       </div>

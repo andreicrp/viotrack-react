@@ -194,13 +194,12 @@
 }
 
 .advisers-stat-icon-wrap {
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  background: #f1f5f9;
   display: flex;
   align-items: center;
   justify-content: center;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
   color: #07345f;
   flex-shrink: 0;
 }
