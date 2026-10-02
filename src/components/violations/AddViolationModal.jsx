@@ -134,8 +134,15 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    if (e) e.preventDefault();
     if (loading) return;
+
+    // Guard: Never auto-record if not on the final review step
+    if (step !== 3) {
+      if (step === 1) handleNextToStep2();
+      else if (step === 2) handleNextToStep3();
+      return;
+    }
 
     if (selectedStudentIds.length === 0) {
       error('Please select at least one student.');
@@ -678,7 +685,8 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
             </button>
           ) : (
             <button
-              type="submit"
+              type="button"
+              onClick={handleSubmit}
               className="btn btn-primary btn-save-violation-action"
               disabled={loading}
               style={{
