@@ -183,7 +183,7 @@ export const AdminUsersPage = () => {
       mname: '',
       lname: '',
       email: '',
-      role: 'Super Admin',
+      role: 'Head Admin',
       position: 'Discipline Officer',
       password: '',
       image: ''
@@ -199,7 +199,7 @@ export const AdminUsersPage = () => {
       mname: admin.mname || '',
       lname: admin.lname || '',
       email: admin.email || '',
-      role: admin.role || 'Admin',
+      role: admin.role === 'Super Admin' ? 'Head Admin' : (admin.role || 'Head Admin'),
       position: admin.position || 'Discipline Staff',
       password: '',
       image: admin.image || ''
@@ -295,9 +295,22 @@ export const AdminUsersPage = () => {
   const filteredAndSorted = useMemo(() => {
     let result = adminUsers.filter(a => {
       // Role Filter
-      if (selectedRoleFilter !== 'all' && a.role !== selectedRoleFilter) {
-        return false;
+      if (selectedRoleFilter !== 'all') {
+        const isTargetHead = selectedRoleFilter === 'Head Admin' || selectedRoleFilter === 'Super Admin';
+        const isUserHead = a.role === 'Head Admin' || a.role === 'Super Admin' || a.role === 'System Admin';
+
+        const isTargetDiscipline = selectedRoleFilter === 'Discipline Officer';
+        const isUserDiscipline = a.role === 'Discipline Officer' || a.role === 'Admin';
+
+        if (isTargetHead) {
+          if (!isUserHead) return false;
+        } else if (isTargetDiscipline) {
+          if (!isUserDiscipline) return false;
+        } else if (a.role !== selectedRoleFilter) {
+          return false;
+        }
       }
+
       // Search
       if (searchTerm.trim()) {
         const query = searchTerm.toLowerCase();
@@ -768,7 +781,7 @@ export const AdminUsersPage = () => {
                           }}
                         >
                           <span style={{ width: 6, height: 6, borderRadius: '50%', background: isSuper ? '#a855f7' : '#07345f' }} />
-                          {admin.role || 'Admin'}
+                          {admin.role === 'Super Admin' ? 'Head Admin' : (admin.role || 'Admin')}
                         </span>
                       </td>
 
@@ -877,7 +890,7 @@ export const AdminUsersPage = () => {
                         whiteSpace: 'nowrap'
                       }}
                     >
-                      {admin.role || 'Admin'}
+                      {admin.role === 'Super Admin' ? 'Head Admin' : (admin.role || 'Admin')}
                     </span>
                   </div>
 
@@ -1018,7 +1031,7 @@ export const AdminUsersPage = () => {
                         flexShrink: 0
                       }}
                     >
-                      {admin.role || 'Admin'}
+                      {admin.role === 'Super Admin' ? 'Head Admin' : (admin.role || 'Admin')}
                     </span>
                   </div>
 
