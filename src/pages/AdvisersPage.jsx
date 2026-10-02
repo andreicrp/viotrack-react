@@ -553,7 +553,7 @@ export const AdvisersPage = () => {
           <button
             onClick={() => setIsAppointModalOpen(true)}
             className="advisers-btn-primary"
-            style={{ marginTop: '6px' }}
+            style={{ marginTop: '6px', background: '#07345f', color: '#ffffff', borderColor: '#07345f' }}
           >
             <Plus size={14} /> Appoint Adviser
           </button>
