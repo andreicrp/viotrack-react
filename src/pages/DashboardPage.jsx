@@ -1131,15 +1131,15 @@ export const DashboardPage = () => {
             <div className="dash-distribution-content">
               {/* Circle Chart */}
               <div className="dash-distribution-chart-box">
-                <ResponsiveContainer width="100%" height={200}>
+                <ResponsiveContainer width="100%" height={220}>
                   <PieChart>
                     <Pie
                       data={violationDistribution}
                       cx="50%"
                       cy="50%"
-                      outerRadius={78}
+                      outerRadius={95}
                       innerRadius={0}
-                      paddingAngle={2}
+                      paddingAngle={0}
                       dataKey="value"
                       nameKey="name"
                       label={false}
@@ -1148,8 +1148,8 @@ export const DashboardPage = () => {
                         <Cell
                           key={`dist-cell-${index}`}
                           fill={entry.color}
-                          stroke="#ffffff"
-                          strokeWidth={2}
+                          stroke={entry.color}
+                          strokeWidth={0.5}
                         />
                       ))}
                     </Pie>
