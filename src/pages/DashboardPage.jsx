@@ -1112,13 +1112,6 @@ export const DashboardPage = () => {
                 <p className="dash-trends-sub-title">Distribution of infractions most likely to occur in school</p>
               </div>
             </div>
-
-            {violationDistribution.length > 0 && (
-              <span className="dash-distribution-badge-top" title="Top occurring infraction type">
-                <AlertTriangle size={13} color="#d97706" />
-                <span>Top: {violationDistribution[0]?.name}</span>
-              </span>
-            )}
           </div>
 
           {violationDistribution.length === 0 ? (
