@@ -42,6 +42,7 @@ import {
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import { getStudentQrCodeUrl, getStudentQrValue } from '../utils/qrHelper';
+import { getSafeAvatarUrl, handleAvatarError } from '../utils/avatarHelper';
 
 export const StudentViolationDetailPage = () => {
   const { id } = useParams();
@@ -501,11 +502,9 @@ export const StudentViolationDetailPage = () => {
           <div className="student-profile-identity" style={{ display: 'flex', alignItems: 'center', gap: '16px', minWidth: 0 }}>
             <div style={{ position: 'relative', flexShrink: 0 }}>
               <img
-                src={
-                  student.image ||
-                  `https://ui-avatars.com/api/?name=${encodeURIComponent(student.fname + ' ' + student.lname)}&background=07345f&color=fff&size=120`
-                }
+                src={getSafeAvatarUrl(student.image, `${student.fname} ${student.lname}`)}
                 alt={student.fname}
+                onError={(e) => handleAvatarError(e, `${student.fname} ${student.lname}`)}
                 style={{
                   width: 82,
                   height: 82,
@@ -1093,11 +1092,9 @@ export const StudentViolationDetailPage = () => {
                       <td style={{ padding: '12px 14px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                           <img
-                            src={
-                              student.image ||
-                              `https://ui-avatars.com/api/?name=${encodeURIComponent(student.fname + ' ' + student.lname)}&background=07345f&color=fff&size=50`
-                            }
+                            src={getSafeAvatarUrl(student.image, `${student.fname} ${student.lname}`)}
                             alt={student.fname}
+                            onError={(e) => handleAvatarError(e, `${student.fname} ${student.lname}`)}
                             style={{ width: 34, height: 34, borderRadius: '50%', objectFit: 'cover' }}
                           />
                           <div>

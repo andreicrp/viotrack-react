@@ -4,6 +4,7 @@ import { dataService } from '../services/dataService';
 import { useAuth } from '../context/AuthContext';
 import { AddViolationModal } from '../components/violations/AddViolationModal';
 import { useNotification } from '../context/NotificationContext';
+import { getSafeAvatarUrl, handleAvatarError } from '../utils/avatarHelper';
 import {
   GraduationCap,
   Users,
@@ -241,11 +242,9 @@ export const MyClassPage = () => {
           {/* Adviser Avatar */}
           <div style={{ position: 'relative', flexShrink: 0 }}>
             <img
-              src={
-                teacher.image ||
-                `https://ui-avatars.com/api/?name=${encodeURIComponent(teacherName)}&background=ffffff&color=07345f&size=68`
-              }
+              src={getSafeAvatarUrl(teacher.image, teacherName, '#07345f')}
               alt={teacherName}
+              onError={(e) => handleAvatarError(e, teacherName, '#07345f')}
               style={{
                 width: 60,
                 height: 60,
@@ -666,11 +665,9 @@ export const MyClassPage = () => {
                   {/* Student Info */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: '14px', minWidth: 0, flex: '1 1 320px' }}>
                     <img
-                      src={
-                        student.image ||
-                        `https://ui-avatars.com/api/?name=${encodeURIComponent(student.fname + ' ' + student.lname)}&background=07345f&color=fff&size=52`
-                      }
+                      src={getSafeAvatarUrl(student.image, `${student.fname} ${student.lname}`)}
                       alt={student.fname}
+                      onError={(e) => handleAvatarError(e, `${student.fname} ${student.lname}`)}
                       style={{
                         width: 46,
                         height: 46,

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Search, ChevronDown, Check, X, Users, UserPlus } from 'lucide-react';
+import { getSafeAvatarUrl, handleAvatarError } from '../../utils/avatarHelper';
 
 export const SearchableStudentSelect = ({
   students = [],
@@ -302,11 +303,9 @@ export const SearchableStudentSelect = ({
                     ) : null}
 
                     <img
-                      src={
-                        s.image ||
-                        `https://ui-avatars.com/api/?name=${encodeURIComponent(s.fname + ' ' + s.lname)}&background=0f172a&color=fff&size=50`
-                      }
+                      src={getSafeAvatarUrl(s.image, `${s.fname} ${s.lname}`)}
                       alt={s.fname}
+                      onError={(e) => handleAvatarError(e, `${s.fname} ${s.lname}`)}
                       style={{ width: 24, height: 24, borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }}
                     />
                     <div>
@@ -398,11 +397,9 @@ export const SearchableStudentSelect = ({
           ) : selectedStudents.length === 1 ? (
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', overflow: 'hidden', minWidth: 0 }}>
               <img
-                src={
-                  selectedStudents[0].image ||
-                  `https://ui-avatars.com/api/?name=${encodeURIComponent(selectedStudents[0].fname + ' ' + selectedStudents[0].lname)}&background=0f172a&color=fff&size=40`
-                }
+                src={getSafeAvatarUrl(selectedStudents[0].image, `${selectedStudents[0].fname} ${selectedStudents[0].lname}`)}
                 alt={selectedStudents[0].fname}
+                onError={(e) => handleAvatarError(e, `${selectedStudents[0].fname} ${selectedStudents[0].lname}`)}
                 style={{ width: 22, height: 22, borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }}
               />
               <span style={{ fontSize: '13px', fontWeight: 600, color: '#0f172a', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
@@ -490,11 +487,9 @@ export const SearchableStudentSelect = ({
               }}
             >
               <img
-                src={
-                  student.image ||
-                  `https://ui-avatars.com/api/?name=${encodeURIComponent(student.fname + ' ' + student.lname)}&background=0f172a&color=fff&size=40`
-                }
+                src={getSafeAvatarUrl(student.image, `${student.fname} ${student.lname}`)}
                 alt={student.fname}
+                onError={(e) => handleAvatarError(e, `${student.fname} ${student.lname}`)}
                 style={{ width: 18, height: 18, borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }}
               />
               <span style={{ fontSize: '11.5px', fontWeight: 600, color: '#0f172a', whiteSpace: 'nowrap' }}>

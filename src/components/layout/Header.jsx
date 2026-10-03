@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { dataService } from '../../services/dataService';
+import { getSafeAvatarUrl, handleAvatarError } from '../../utils/avatarHelper';
 
 export const Header = ({ onToggleSidebar }) => {
   const { user, logout } = useAuth();
@@ -218,11 +219,8 @@ export const Header = ({ onToggleSidebar }) => {
                     const severity = violationObj.severity || violationObj.type || rec.severity || 'Minor';
                     const reporter = rec.reported_by || 'Teacher';
                     const timeAgo = formatTimeAgo(rec.created_at || rec.date || rec.timestamp);
-                    const avatarUrl = studentObj.image ||
-                      studentObj.avatar ||
-                      studentObj.photo_url ||
-                      studentObj.photo ||
-                      `https://ui-avatars.com/api/?name=${encodeURIComponent(studentName)}&background=07345f&color=fff&size=100&bold=true`;
+                    const rawAvatar = studentObj.image || studentObj.avatar || studentObj.photo_url || studentObj.photo;
+                    const avatarUrl = getSafeAvatarUrl(rawAvatar, studentName);
 
                     return (
                       <div
@@ -242,10 +240,7 @@ export const Header = ({ onToggleSidebar }) => {
                             src={avatarUrl}
                             alt={studentName}
                             className="header-notif-student-avatar"
-                            onError={(e) => {
-                              e.currentTarget.onerror = null;
-                              e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(studentName)}&background=07345f&color=fff&size=100&bold=true`;
-                            }}
+                            onError={(e) => handleAvatarError(e, studentName)}
                           />
                           <span className="header-notif-pending-indicator" />
                         </div>
