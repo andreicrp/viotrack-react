@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Modal } from '../common/Modal';
 import { dataService } from '../../services/dataService';
 import { useNotification } from '../../context/NotificationContext';
@@ -14,10 +14,10 @@ import {
   ArrowUpRight, 
   User, 
   Calendar, 
-  Sparkles,
-  Award,
-  Eye,
-  X
+  Sparkles, 
+  Award, 
+  Eye, 
+  X 
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
@@ -662,13 +662,16 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
   };
 
   const severityStyle = getSeverityStyle(record.violation?.type);
-  const certHtmlPreview = buildCertificateHtml({
-    record,
-    status,
-    sanction,
-    resolutionNotes,
-    officerName: user?.name || user?.email?.split('@')[0] || 'Sheryl B. Gamboa, LPT'
-  });
+  const certHtmlPreview = useMemo(() => {
+    if (!showPreviewModal && !isOpen) return '';
+    return buildCertificateHtml({
+      record,
+      status,
+      sanction,
+      resolutionNotes,
+      officerName: user?.name || user?.email?.split('@')[0] || 'Sheryl B. Gamboa, LPT'
+    });
+  }, [showPreviewModal, isOpen, record, status, sanction, resolutionNotes, user]);
 
   return (
     <>
@@ -680,7 +683,7 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
         maxWidth="640px"
       >
         <form onSubmit={handleSubmit} style={{ margin: 0 }}>
-          <div className="modal-body" style={{ padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: '18px', maxHeight: 'calc(85vh - 130px)', overflowY: 'auto' }}>
+          <div className="modal-body smooth-scroll-container" style={{ padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: '18px', maxHeight: 'calc(85vh - 130px)', overflowY: 'auto', WebkitOverflowScrolling: 'touch' }}>
             
             {/* Enhanced Student & Incident Profile Banner */}
             <div
@@ -1116,7 +1119,7 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
             </div>
 
             {/* Preview Document Frame (renders exact HTML document in an isolated sandbox iframe) */}
-            <div style={{ flex: 1, overflow: 'auto', padding: '16px', background: '#f1f5f9' }}>
+            <div className="smooth-scroll-container" style={{ flex: 1, overflow: 'auto', padding: '16px', background: '#f1f5f9', WebkitOverflowScrolling: 'touch' }}>
               <iframe
                 srcDoc={certHtmlPreview}
                 title="Certificate Live Preview"

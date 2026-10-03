@@ -16,6 +16,7 @@ import {
   ShieldCheck,
   CheckCircle2
 } from 'lucide-react';
+import { lockBodyScroll, unlockBodyScroll } from '../../utils/scrollLock';
 import '../../css/student-modal.css';
 
 export const ViewStudentModal = ({ isOpen, onClose, student }) => {
@@ -27,11 +28,11 @@ export const ViewStudentModal = ({ isOpen, onClose, student }) => {
       if (e.key === 'Escape' && isOpen) onClose();
     };
     if (isOpen) {
-      document.body.style.overflow = 'hidden';
+      lockBodyScroll();
       window.addEventListener('keydown', handleKeyDown);
     }
     return () => {
-      document.body.style.overflow = '';
+      unlockBodyScroll();
       window.removeEventListener('keydown', handleKeyDown);
     };
   }, [isOpen, onClose]);

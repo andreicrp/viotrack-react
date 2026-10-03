@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Modal } from '../common/Modal';
 import { dataService } from '../../services/dataService';
 import { useNotification } from '../../context/NotificationContext';
@@ -32,8 +32,8 @@ export const BulkViolationModal = ({ isOpen, onClose, onRecordsAdded }) => {
       dataService.getStudents(),
       dataService.getViolations()
     ]);
-    setStudents(sList);
-    setViolations(vList);
+    setStudents(sList || []);
+    setViolations(vList || []);
   };
 
   const handleViolationChange = (e) => {
@@ -49,11 +49,13 @@ export const BulkViolationModal = ({ isOpen, onClose, onRecordsAdded }) => {
     );
   };
 
-  const filteredStudents = students.filter(s => {
-    const matchGrade = !filterGrade || s.grade === filterGrade;
-    const matchSection = !filterSection || s.section.toLowerCase().includes(filterSection.toLowerCase());
-    return matchGrade && matchSection;
-  });
+  const filteredStudents = useMemo(() => {
+    return students.filter(s => {
+      const matchGrade = !filterGrade || s.grade === filterGrade;
+      const matchSection = !filterSection || (s.section && s.section.toLowerCase().includes(filterSection.toLowerCase()));
+      return matchGrade && matchSection;
+    });
+  }, [students, filterGrade, filterSection]);
 
   const selectAllFiltered = () => {
     const filteredIds = filteredStudents.map(s => s.id);
@@ -102,7 +104,7 @@ export const BulkViolationModal = ({ isOpen, onClose, onRecordsAdded }) => {
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Bulk / Group Violation Entry" icon={Users} maxWidth="720px">
       <form onSubmit={handleSubmit}>
-        <div className="modal-body" style={{ maxHeight: '68vh', overflowY: 'auto' }}>
+        <div className="modal-body smooth-scroll-container" style={{ maxHeight: '68vh', overflowY: 'auto' }}>
           {/* Offense Info */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
             <div className="form-group" style={{ marginBottom: 0 }}>
@@ -190,7 +192,7 @@ export const BulkViolationModal = ({ isOpen, onClose, onRecordsAdded }) => {
             </div>
 
             {/* Students Checklist */}
-            <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '10px', maxHeight: 220, overflowY: 'auto', padding: '0.5rem' }}>
+            <div className="smooth-scroll-container" style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '10px', maxHeight: 220, overflowY: 'auto', padding: '0.5rem', WebkitOverflowScrolling: 'touch' }}>
               {filteredStudents.length === 0 ? (
                 <div style={{ padding: '1.5rem', textAlign: 'center', color: '#64748b', fontSize: '0.85rem' }}>
                   No students matched filters

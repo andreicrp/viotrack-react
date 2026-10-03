@@ -57,6 +57,8 @@
 /* Scrollable Content Body */
 .legal-tab-body {
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
   padding: 16px 20px;
   flex: 1;
   display: flex;

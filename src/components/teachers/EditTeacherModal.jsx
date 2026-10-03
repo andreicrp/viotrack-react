@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { GraduationCap, X, Save, Eye, EyeOff, User, Mail, Building, Upload, Camera, Trash2 } from 'lucide-react';
 import CustomSelect from '../common/CustomSelect';
+import { lockBodyScroll, unlockBodyScroll } from '../../utils/scrollLock';
 
 export const EditTeacherModal = ({ isOpen, onClose, teacher, onSaved }) => {
   const fileInputRef = useRef(null);
@@ -17,6 +18,13 @@ export const EditTeacherModal = ({ isOpen, onClose, teacher, onSaved }) => {
   });
 
   const [showPassword, setShowPassword] = useState(false);
+
+  useEffect(() => {
+    if (isOpen) {
+      lockBodyScroll();
+      return () => unlockBodyScroll();
+    }
+  }, [isOpen]);
 
   useEffect(() => {
     if (teacher) {
@@ -160,7 +168,18 @@ export const EditTeacherModal = ({ isOpen, onClose, teacher, onSaved }) => {
 
         {/* Body */}
         <form onSubmit={handleSubmit}>
-          <div style={{ padding: '22px 24px', display: 'flex', flexDirection: 'column', gap: '16px', maxHeight: '70vh', overflowY: 'auto' }}>
+          <div 
+            className="smooth-scroll-container"
+            style={{ 
+              padding: '22px 24px', 
+              display: 'flex', 
+              flexDirection: 'column', 
+              gap: '16px', 
+              maxHeight: '70vh', 
+              overflowY: 'auto',
+              WebkitOverflowScrolling: 'touch'
+            }}
+          >
             
             {/* Hidden File Input */}
             <input

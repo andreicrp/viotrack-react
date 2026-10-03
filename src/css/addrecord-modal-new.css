@@ -14,7 +14,8 @@
     z-index: 1999;
     opacity: 0;
     visibility: hidden;
-    transition: all 0.3s ease;
+    will-change: opacity, visibility;
+    transition: opacity 0.18s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.18s cubic-bezier(0.16, 1, 0.3, 1);
     padding: 20px;
 }
 
@@ -32,15 +33,16 @@
     max-height: 90vh;
     overflow: hidden;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
-    transform: translateY(-20px) scale(0.95);
-    transition: all 0.3s ease;
+    transform: translate3d(0, -10px, 0) scale(0.97);
+    will-change: transform;
+    transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1);
     display: flex;
     flex-direction: column;
     z-index: 2000;
 }
 
 .addrecord-modal-overlay.show .addrecord-modal {
-    transform: translateY(0) scale(1);
+    transform: translate3d(0, 0, 0) scale(1);
 }
 
 /* Modal Header */
@@ -85,6 +87,8 @@
 .addrecord-modal-body {
     padding: 24px;
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
     flex: 1;
 }
 

@@ -10,13 +10,15 @@
     background: rgba(0, 0, 0, 0.5);
     z-index: 9999;
     overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
     padding: 20px;
     display: flex;
     align-items: flex-start;
     justify-content: center;
     opacity: 0;
     visibility: hidden;
-    transition: all 0.3s ease;
+    will-change: opacity, visibility;
+    transition: opacity 0.18s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.18s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .resolution-modal-overlay.show {
@@ -32,12 +34,13 @@
     width: 100%;
     margin: 20px auto;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-    transform: scale(0.95) translateY(-20px);
-    transition: transform 0.3s ease;
+    transform: translate3d(0, -10px, 0) scale(0.97);
+    will-change: transform;
+    transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .resolution-modal-overlay.show .resolution-modal {
-    transform: scale(1) translateY(0);
+    transform: translate3d(0, 0, 0) scale(1);
 }
 
 /* Modal Header */

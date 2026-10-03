@@ -3,6 +3,7 @@ import { Award, X, Check, GraduationCap, ShieldCheck, UserMinus, AlertCircle } f
 import CustomSelect from '../common/CustomSelect';
 import { SectionSelect } from '../common/SectionSelect';
 import { dataService } from '../../services/dataService';
+import { lockBodyScroll, unlockBodyScroll } from '../../utils/scrollLock';
 
 export const AppointAdviserModal = ({ isOpen, onClose, teacher, currentAdviser, onAppointed, onUnassign }) => {
   const [gradeLevel, setGradeLevel] = useState('Grade 10');
@@ -12,8 +13,10 @@ export const AppointAdviserModal = ({ isOpen, onClose, teacher, currentAdviser, 
 
   useEffect(() => {
     if (isOpen) {
+      lockBodyScroll();
       dataService.getStudents().then(res => setStudents(res || [])).catch(() => {});
       dataService.getAdvisers().then(res => setAdvisers(res || [])).catch(() => {});
+      return () => unlockBodyScroll();
     }
   }, [isOpen]);
 

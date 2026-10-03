@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
 import { CustomDatePicker } from './CustomDatePicker';
+import { lockBodyScroll, unlockBodyScroll } from '../../utils/scrollLock';
 
 export const CustomDateRangeModal = ({
   isOpen,
@@ -16,6 +17,7 @@ export const CustomDateRangeModal = ({
 
   useEffect(() => {
     if (isOpen) {
+      lockBodyScroll();
       setStartDate(initialStartDate);
       setEndDate(initialEndDate);
       if (initialStartDate === '2026-09-01' && initialEndDate === '2026-09-30') {
@@ -25,6 +27,7 @@ export const CustomDateRangeModal = ({
       } else {
         setActivePreset('custom');
       }
+      return () => unlockBodyScroll();
     }
   }, [isOpen, initialStartDate, initialEndDate]);
 
