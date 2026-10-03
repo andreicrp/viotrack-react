@@ -447,7 +447,7 @@ export const ViolationsPage = () => {
         <div className="page-banner-actions">
           {isAdmin && (
             <div className="page-banner-secondary-group">
-              <div style={{ flex: 1, minWidth: 0 }}>
+              <div className="page-banner-datepicker-wrapper">
                 <CustomDatePicker
                   value={exportDate}
                   onChange={setExportDate}

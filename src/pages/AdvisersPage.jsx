@@ -324,33 +324,35 @@ export const AdvisersPage = () => {
         </div>
 
         {/* Header Action Buttons */}
-        <div className="advisers-banner-actions">
-          <button
-            onClick={() => navigate('/teachers')}
-            className="advisers-btn-secondary"
-          >
-            <ArrowLeft size={14} /> Back to Faculty
-          </button>
+        <div className="page-banner-actions">
+          <div className="page-banner-secondary-group">
+            <button
+              onClick={() => navigate('/teachers')}
+              className="page-banner-btn-secondary"
+            >
+              <ArrowLeft size={14} /> Back to Faculty
+            </button>
 
-          <button
-            onClick={handleExportPDF}
-            className="advisers-btn-secondary"
-            title="Download formatted PDF directory"
-          >
-            <Download size={14} /> Export PDF
-          </button>
+            <button
+              onClick={handleExportPDF}
+              className="page-banner-btn-secondary"
+              title="Download formatted PDF directory"
+            >
+              <Download size={14} /> Export PDF
+            </button>
 
-          <button
-            onClick={handleExportCSV}
-            className="advisers-btn-secondary"
-            title="Download CSV spreadsheet"
-          >
-            <FileSpreadsheet size={14} /> Export CSV
-          </button>
+            <button
+              onClick={handleExportCSV}
+              className="page-banner-btn-secondary"
+              title="Download CSV spreadsheet"
+            >
+              <FileSpreadsheet size={14} /> Export CSV
+            </button>
+          </div>
 
           <button
             onClick={() => setIsAppointModalOpen(true)}
-            className="advisers-btn-primary"
+            className="page-banner-primary-btn"
           >
             <UserPlus size={15} strokeWidth={2.5} /> Appoint New Adviser
           </button>

@@ -1603,6 +1603,10 @@ html, body {
   flex-wrap: wrap;
 }
 
+.page-banner-datepicker-wrapper {
+  min-width: 170px;
+}
+
 .page-banner-btn-secondary {
   background: rgba(255, 255, 255, 0.12);
   color: #ffffff;
@@ -1677,22 +1681,27 @@ html, body {
 
   .page-banner-secondary-group {
     width: 100% !important;
-    display: grid !important;
-    grid-template-columns: repeat(2, 1fr) !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
     gap: 8px !important;
   }
 
+  .page-banner-datepicker-wrapper,
   .page-banner-secondary-group > .custom-date-picker-wrapper,
   .page-banner-secondary-group > div:first-child:not(button) {
-    grid-column: 1 / -1 !important;
+    width: 100% !important;
+    flex: 1 1 100% !important;
+    min-width: 100% !important;
   }
 
-  .page-banner-secondary-group > *:last-child:nth-child(odd) {
-    grid-column: 1 / -1 !important;
+  .page-banner-secondary-group > button,
+  .page-banner-secondary-group > .page-banner-btn-secondary {
+    flex: 1 1 calc(50% - 4px) !important;
+    min-width: 120px !important;
   }
 
   .page-banner-btn-secondary {
-    width: 100% !important;
+    width: auto !important;
     padding: 9px 10px !important;
     font-size: 12px !important;
     justify-content: center !important;
