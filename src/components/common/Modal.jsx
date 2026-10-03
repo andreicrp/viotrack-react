@@ -30,10 +30,7 @@ export const Modal = ({ isOpen, onClose, title, children, maxWidth = '600px', ic
         role="dialog"
         aria-modal="true"
         aria-label={typeof title === 'string' ? title : 'Dialog Modal'}
-        style={{
-          maxWidth,
-          animation: 'fadeInUp 0.15s ease-out'
-        }}
+        style={{ maxWidth }}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="modal-header">

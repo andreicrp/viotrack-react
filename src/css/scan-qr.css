@@ -1133,19 +1133,18 @@ div[id*="reader"] video {
   color: #ffffff;
 }
 
-/* Student Scanned Modal Overlay & Dialog */
+/* Student Scanned Modal Overlay & Dialog (60fps Hardware Accelerated) */
 .student-scan-modal-overlay {
   position: fixed;
   inset: 0;
   background: rgba(15, 23, 42, 0.68);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 2500;
   padding: 16px;
-  animation: fadeIn 0.18s ease-out;
+  will-change: opacity;
+  animation: fadeIn 0.14s ease-out;
 }
 
 .student-scan-modal-dialog {
@@ -1159,7 +1158,10 @@ div[id*="reader"] video {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  animation: modalScaleUp 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: transform, opacity;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  animation: modalScaleUp 0.16s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @keyframes modalScaleUp {

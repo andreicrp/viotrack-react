@@ -50,30 +50,33 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
   useEffect(() => {
     if (isOpen) {
       loadDropdownData();
-      if ("geolocation" in navigator) {
-        navigator.geolocation.getCurrentPosition(
-          (pos) => {
-            const acc = Math.round(pos.coords.accuracy);
-            setLocation({
-              lat: pos.coords.latitude,
-              lng: pos.coords.longitude,
-              accuracy: acc,
-              captured: true,
-              timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-            });
-          },
-          () => {
-            setLocation({
-              lat: null,
-              lng: null,
-              accuracy: null,
-              captured: false,
-              timestamp: null
-            });
-          },
-          { timeout: 6000, enableHighAccuracy: true }
-        );
-      }
+      const geoTimer = setTimeout(() => {
+        if ("geolocation" in navigator) {
+          navigator.geolocation.getCurrentPosition(
+            (pos) => {
+              const acc = Math.round(pos.coords.accuracy);
+              setLocation({
+                lat: pos.coords.latitude,
+                lng: pos.coords.longitude,
+                accuracy: acc,
+                captured: true,
+                timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+              });
+            },
+            () => {
+              setLocation({
+                lat: null,
+                lng: null,
+                accuracy: null,
+                captured: false,
+                timestamp: null
+              });
+            },
+            { timeout: 6000, enableHighAccuracy: false }
+          );
+        }
+      }, 200);
+      return () => clearTimeout(geoTimer);
     }
   }, [isOpen, preselectedStudentId]);
 

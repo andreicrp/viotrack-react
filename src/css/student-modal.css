@@ -3,9 +3,7 @@
 .student-modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(15, 23, 42, 0.6);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
+  background: rgba(15, 23, 42, 0.65);
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
@@ -13,7 +11,8 @@
   padding: 16px;
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.2s ease, visibility 0.2s ease;
+  will-change: opacity, visibility;
+  transition: opacity 0.15s ease, visibility 0.15s ease;
 }
 
 .student-modal-overlay.show {
@@ -34,12 +33,14 @@
   flex-direction: column;
   overflow: hidden;
   margin: auto;
-  transform: scale(0.96);
-  transition: transform 0.2s ease-out;
+  will-change: transform, opacity;
+  transform: translate3d(0, 0, 0) scale(0.96);
+  backface-visibility: hidden;
+  transition: transform 0.16s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .student-modal-overlay.show .student-modal-card {
-  transform: scale(1);
+  transform: translate3d(0, 0, 0) scale(1);
 }
 
 /* Header */

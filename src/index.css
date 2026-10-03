@@ -574,17 +574,18 @@ textarea {
   }
 }
 
-/* React Specific Modal Overlays and Toast Fixes */
+/* React Specific Modal Overlays and Toast Fixes (Hardware Accelerated 60fps) */
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(15, 23, 42, 0.6);
-  backdrop-filter: blur(6px);
+  background: rgba(15, 23, 42, 0.65);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 3500;
   padding: 1rem;
+  will-change: opacity;
+  animation: modalFadeIn 0.14s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .modal-dialog {
@@ -598,6 +599,26 @@ textarea {
   box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.35);
   overflow: hidden;
   border: 1px solid #e2e8f0;
+  will-change: transform, opacity;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  animation: modalScaleUp 0.16s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modalFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes modalScaleUp {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
 }
 
 .modal-header {
