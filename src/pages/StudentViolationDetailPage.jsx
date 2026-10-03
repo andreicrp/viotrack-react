@@ -40,8 +40,7 @@ import {
   MapPin,
   Check
 } from 'lucide-react';
-import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import { getJsPDF } from '../utils/pdfHelper';
 import { getStudentQrCodeUrl, getStudentQrValue } from '../utils/qrHelper';
 
 export const StudentViolationDetailPage = () => {
@@ -135,10 +134,10 @@ export const StudentViolationDetailPage = () => {
   };
 
   // PDF Report Generation
-  const handleGenerateReport = () => {
+  const handleGenerateReport = async () => {
     if (!student) return;
     try {
-      const doc = new jsPDF();
+      const doc = await getJsPDF();
       doc.setFontSize(16);
       doc.setTextColor(39, 54, 127);
       doc.text(`VIOTRACK - OFFICIAL STUDENT DISCIPLINARY RECORD`, 14, 16);

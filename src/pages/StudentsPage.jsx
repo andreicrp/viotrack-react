@@ -32,8 +32,7 @@ import {
   ShieldAlert,
   Sparkles
 } from 'lucide-react';
-import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import { getJsPDF } from '../utils/pdfHelper';
 import { exportToCsv } from '../utils/csvHelper';
 
 import { ViewModeToggle } from '../components/common/ViewModeToggle';
@@ -270,9 +269,9 @@ export const StudentsPage = () => {
   };
 
   // PDF Export
-  const handleExportStudents = () => {
+  const handleExportStudents = async () => {
     try {
-      const doc = new jsPDF();
+      const doc = await getJsPDF();
       doc.setFontSize(16);
       doc.setTextColor(39, 54, 127);
       doc.text('VIOTRACK - OFFICIAL STUDENT ROSTER', 14, 16);

@@ -37,8 +37,7 @@ import {
   XCircle,
   Scale
 } from 'lucide-react';
-import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import { getJsPDF } from '../utils/pdfHelper';
 import { exportToCsv } from '../utils/csvHelper';
 import { ViewModeToggle } from '../components/common/ViewModeToggle';
 import { CustomSelect } from '../components/common/CustomSelect';
@@ -391,8 +390,8 @@ export const ForApprovalPage = () => {
   };
 
   // Exports
-  const handleExportPDF = () => {
-    const doc = new jsPDF();
+  const handleExportPDF = async () => {
+    const doc = await getJsPDF();
     doc.setFillColor(39, 54, 127);
     doc.rect(0, 0, 210, 24, 'F');
 

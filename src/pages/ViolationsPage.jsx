@@ -32,8 +32,7 @@ import {
   AlertCircle,
   FileSpreadsheet
 } from 'lucide-react';
-import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import { getJsPDF } from '../utils/pdfHelper';
 import { exportToCsv } from '../utils/csvHelper';
 import { ViewModeToggle } from '../components/common/ViewModeToggle';
 
@@ -281,9 +280,9 @@ export const ViolationsPage = () => {
   };
 
   // PDF Export
-  const handleExportPDF = () => {
+  const handleExportPDF = async () => {
     try {
-      const doc = new jsPDF();
+      const doc = await getJsPDF();
       doc.setFontSize(16);
       doc.setTextColor(39, 54, 127);
       doc.text('VIOTRACK - OFFICIAL VIOLATION INCIDENT REPORT', 14, 16);

@@ -28,8 +28,7 @@ import {
   Sparkles,
   ChevronRight
 } from 'lucide-react';
-import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import { getJsPDF } from '../utils/pdfHelper';
 import { exportToCsv } from '../utils/csvHelper';
 
 export const MyClassPage = () => {
@@ -157,9 +156,9 @@ export const MyClassPage = () => {
   }, [students, records, searchTerm, statusFilter]);
 
   // Export Class Roster PDF
-  const handleExportPDF = () => {
+  const handleExportPDF = async () => {
     try {
-      const doc = new jsPDF();
+      const doc = await getJsPDF();
       doc.setFontSize(16);
       doc.setTextColor(39, 54, 127);
       doc.text('VIOTRACK - CLASS ADVISORY ROSTER', 14, 18);

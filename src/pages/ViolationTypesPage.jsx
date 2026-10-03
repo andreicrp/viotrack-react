@@ -30,8 +30,7 @@ import {
   Sparkles,
   Save
 } from 'lucide-react';
-import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import { getJsPDF } from '../utils/pdfHelper';
 import { parseCsvString, readFileAsText, downloadSampleCsv } from '../utils/csvHelper';
 
 export const ViolationTypesPage = () => {
@@ -306,8 +305,8 @@ export const ViolationTypesPage = () => {
   };
 
   // Export Executive PDF Report
-  const handleExport = () => {
-    const doc = new jsPDF();
+  const handleExport = async () => {
+    const doc = await getJsPDF();
     doc.setFillColor(39, 54, 127);
     doc.rect(0, 0, 210, 24, 'F');
 

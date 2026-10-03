@@ -39,9 +39,7 @@ import { useAuth } from '../context/AuthContext';
 import { useNotification } from '../context/NotificationContext';
 import { AddViolationModal } from '../components/violations/AddViolationModal';
 import { SchoolCalendarModal } from '../components/common/SchoolCalendarModal';
-import { CustomDateRangeModal } from '../components/common/CustomDateRangeModal';
-import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import { getJsPDF } from '../utils/pdfHelper';
 import { exportToCsv } from '../utils/csvHelper';
 
 export const DashboardPage = () => {
@@ -645,9 +643,9 @@ export const DashboardPage = () => {
   }, [calendarMonth, selectedCalendarDate, schoolEvents]);
 
   // Export Executive PDF Report (Dynamic)
-  const handleExportPDF = () => {
+  const handleExportPDF = async () => {
     try {
-      const doc = new jsPDF();
+      const doc = await getJsPDF();
       doc.setFillColor(11, 25, 44);
       doc.rect(0, 0, 210, 26, 'F');
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useDeferredValue } from 'react';
 import { dataService } from '../services/dataService';
 import { CustomSelect } from '../components/common/CustomSelect';
 import { BackupRestoreModal } from '../components/common/BackupRestoreModal';
@@ -37,8 +37,7 @@ import {
   Laptop,
   Globe
 } from 'lucide-react';
-import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import { getJsPDF } from '../utils/pdfHelper';
 import { exportToCsv } from '../utils/csvHelper';
 
 export const ActivityLogsPage = () => {
@@ -59,6 +58,7 @@ export const ActivityLogsPage = () => {
 
   // Filters & Search
   const [searchTerm, setSearchTerm] = useState('');
+  const deferredSearch = useDeferredValue(searchTerm);
   const [actionCategory, setActionCategory] = useState('all'); // 'all' | 'violations' | 'users' | 'status' | 'deletions'
   const [viewMode, setViewMode] = useState('timeline'); // 'timeline' | 'table'
 
@@ -123,12 +123,12 @@ export const ActivityLogsPage = () => {
 
   // Filtered & Sorted Logs
   const filteredAndSortedLogs = useMemo(() => {
+    const query = deferredSearch.toLowerCase().trim();
     const result = logs.filter(log => {
       const act = (log.action || '').toLowerCase();
       const desc = (log.details || log.description || '').toLowerCase();
       const user = (log.user_name || '').toLowerCase();
       const role = (log.user_role || '').toLowerCase();
-      const query = searchTerm.toLowerCase().trim();
 
       const matchesSearch =
         !query ||
@@ -158,12 +158,12 @@ export const ActivityLogsPage = () => {
     });
 
     return result;
-  }, [logs, searchTerm, actionCategory, sortOrder]);
+  }, [logs, deferredSearch, actionCategory, sortOrder]);
 
   // PDF Export
-  const handleExportPDF = () => {
+  const handleExportPDF = async () => {
     try {
-      const doc = new jsPDF();
+      const doc = await getJsPDF();
       doc.setFontSize(16);
       doc.setTextColor(39, 54, 127);
       doc.text('VIOTRACK - SYSTEM AUDIT & ACTIVITY TRAIL', 14, 16);

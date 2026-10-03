@@ -30,8 +30,7 @@ import {
   ChevronRight,
   Download
 } from 'lucide-react';
-import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import { getJsPDF } from '../utils/pdfHelper';
 
 export const TeachersPage = () => {
   const { success, error, info } = useNotification();
@@ -166,8 +165,8 @@ export const TeachersPage = () => {
     }
   };
 
-  const handleExportPDF = () => {
-    const doc = new jsPDF();
+  const handleExportPDF = async () => {
+    const doc = await getJsPDF();
     doc.setFillColor(39, 54, 127);
     doc.rect(0, 0, 210, 24, 'F');
 
