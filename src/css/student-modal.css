@@ -324,15 +324,15 @@
 }
 
 .student-modal-btn.btn-track {
-  background: #07345f;
+  background: #0f172a;
   color: #ffffff;
-  border-color: #07345f;
+  border-color: #0f172a;
   flex: 1;
 }
 
 .student-modal-btn.btn-track:hover {
-  background: #0b192c;
-  border-color: #0b192c;
+  background: #1e293b;
+  border-color: #1e293b;
 }
 
 .student-modal-btn.btn-profile {

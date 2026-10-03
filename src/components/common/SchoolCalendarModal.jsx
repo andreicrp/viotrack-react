@@ -276,11 +276,11 @@ export const SchoolCalendarModal = ({ isOpen, onClose, initialDate = 23, initial
                 fontSize: '12px',
                 fontWeight: 700,
                 color: '#ffffff',
-                background: '#07345f',
+                background: '#0f172a',
                 border: 'none',
                 borderRadius: '8px',
                 cursor: 'pointer',
-                boxShadow: '0 1px 3px rgba(7, 52, 95, 0.25)',
+                boxShadow: '0 1px 3px rgba(15, 23, 42, 0.25)',
                 transition: 'all 0.15s ease'
               }}
             >

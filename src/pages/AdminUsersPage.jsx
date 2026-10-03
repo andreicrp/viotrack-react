@@ -1118,7 +1118,7 @@ export const AdminUsersPage = () => {
                   height: 32,
                   borderRadius: '6px',
                   border: '1px solid #cbd5e1',
-                  background: pageNum === currentPage ? '#07345f' : '#ffffff',
+                  background: pageNum === currentPage ? '#0f172a' : '#ffffff',
                   color: pageNum === currentPage ? '#ffffff' : '#334155',
                   fontWeight: 700,
                   fontSize: '12px',

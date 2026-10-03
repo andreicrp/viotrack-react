@@ -1361,7 +1361,7 @@ export const DashboardPage = () => {
           {/* Card B: High-Value Quick Actions */}
           <div className="dash-quick-actions-card">
             <h4 className="dash-quick-actions-title">
-              <Compass size={15} color="#07345f" />
+              <Compass size={15} color="#0f172a" />
               <span>Quick Actions</span>
             </h4>
 
@@ -1372,7 +1372,7 @@ export const DashboardPage = () => {
                 onClick={() => navigate('/students')}
                 title="Manage student directory and profiles"
               >
-                <User size={18} color="#07345f" />
+                <User size={18} color="#0f172a" />
                 <span>Manage Students</span>
               </button>
 
@@ -1382,28 +1382,28 @@ export const DashboardPage = () => {
                 onClick={() => navigate('/violations')}
                 title="Review all disciplinary violation records"
               >
-                <ShieldCheck size={18} color="#07345f" />
+                <ShieldCheck size={18} color="#0f172a" />
                 <span>Discipline Logs</span>
               </button>
 
               <button
                 type="button"
                 className="dash-quick-action-btn"
-                onClick={handleExportPDF}
-                title="Download Executive Disciplinary PDF Report"
+                onClick={() => navigate('/scan-qr')}
+                title="Open camera to scan student QR badges"
               >
-                <FileText size={18} color="#07345f" />
-                <span>Export PDF</span>
+                <QrCode size={18} color="#0f172a" />
+                <span>Scan QR</span>
               </button>
 
               <button
                 type="button"
                 className="dash-quick-action-btn"
-                onClick={handleExportCSV}
-                title="Export complete disciplinary dataset as CSV"
+                onClick={() => setIsAddModalOpen(true)}
+                title="Log a new student violation infraction"
               >
-                <Download size={18} color="#07345f" />
-                <span>Export CSV</span>
+                <AlertTriangle size={18} color="#0f172a" />
+                <span>Log Violation</span>
               </button>
             </div>
           </div>

@@ -1562,7 +1562,7 @@ export const ViolationsPage = () => {
                         padding: '6px 12px',
                         border: p === currentPage ? 'none' : '1px solid #cbd5e1',
                         borderRadius: '6px',
-                        background: p === currentPage ? '#07345f' : '#ffffff',
+                        background: p === currentPage ? '#0f172a' : '#ffffff',
                         color: p === currentPage ? '#ffffff' : '#334155',
                         fontWeight: p === currentPage ? 700 : 500,
                         fontSize: '12px',

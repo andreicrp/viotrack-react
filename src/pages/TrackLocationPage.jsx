@@ -421,7 +421,7 @@ export const TrackLocationPage = () => {
                     flex: 1,
                     padding: '8px 12px',
                     borderRadius: '8px',
-                    background: '#07345f',
+                    background: '#0f172a',
                     color: '#ffffff',
                     border: 'none',
                     fontWeight: 700,
@@ -468,7 +468,7 @@ export const TrackLocationPage = () => {
             {/* Tab: Incident Info */}
             {activeTab === 'live' && (
               <div style={{ fontSize: '12px', color: '#475569', lineHeight: 1.6 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#07345f', fontWeight: 700, marginBottom: '6px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#0f172a', fontWeight: 700, marginBottom: '6px' }}>
                   <ShieldCheck size={16} /> Violation Incident Telemetry
                 </div>
                 <p style={{ margin: '0 0 8px 0', fontSize: '11.5px', color: '#64748b' }}>
