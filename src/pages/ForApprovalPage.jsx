@@ -2,7 +2,6 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { dataService } from '../services/dataService';
 import { useNotification } from '../context/NotificationContext';
 import { useAuth } from '../context/AuthContext';
-import { getSafeAvatarUrl, handleAvatarError } from '../utils/avatarHelper';
 import {
   ShieldAlert,
   ShieldCheck,
@@ -925,7 +924,7 @@ export const ForApprovalPage = () => {
                     const isApproved = aStat === 'Approved';
                     const isRejected = aStat === 'Rejected';
                     const studentName = (s.fname && s.lname) ? `${s.fname} ${s.lname}` : (s.name || s.full_name || r.student_name || 'Student');
-                    const studentAvatar = getSafeAvatarUrl(s.image || s.avatar || s.photo_url || s.photo, studentName);
+                    const studentAvatar = s.image || s.avatar || s.photo_url || s.photo || `https://ui-avatars.com/api/?name=${encodeURIComponent(studentName)}&background=07345f&color=fff&size=40&bold=true`;
 
                     return (
                       <tr
@@ -953,7 +952,10 @@ export const ForApprovalPage = () => {
                               src={studentAvatar}
                               alt={studentName}
                               style={{ width: 34, height: 34, borderRadius: '50%', objectFit: 'cover', border: '1px solid #e2e8f0', flexShrink: 0 }}
-                              onError={(e) => handleAvatarError(e, studentName)}
+                              onError={(e) => {
+                                e.currentTarget.onerror = null;
+                                e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(studentName)}&background=07345f&color=fff&size=40&bold=true`;
+                              }}
                             />
                             <div>
                               <span style={{ fontWeight: 800, color: '#0f172a', fontSize: '13.5px', display: 'block' }}>
@@ -1156,7 +1158,7 @@ export const ForApprovalPage = () => {
                   const isPending = aStat === 'Under Approval';
                   const isApproved = aStat === 'Approved';
                   const studentName = (s.fname && s.lname) ? `${s.fname} ${s.lname}` : (s.name || s.full_name || r.student_name || 'Student');
-                  const studentAvatar = getSafeAvatarUrl(s.image || s.avatar || s.photo_url || s.photo, studentName);
+                  const studentAvatar = s.image || s.avatar || s.photo_url || s.photo || `https://ui-avatars.com/api/?name=${encodeURIComponent(studentName)}&background=07345f&color=fff&size=40&bold=true`;
 
                   return (
                     <div
@@ -1202,7 +1204,10 @@ export const ForApprovalPage = () => {
                           src={studentAvatar}
                           alt={studentName}
                           style={{ width: 40, height: 40, borderRadius: '50%', objectFit: 'cover', border: '1px solid #e2e8f0' }}
-                          onError={(e) => handleAvatarError(e, studentName)}
+                          onError={(e) => {
+                            e.currentTarget.onerror = null;
+                            e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(studentName)}&background=07345f&color=fff&size=40&bold=true`;
+                          }}
                         />
                         <div>
                           <div style={{ fontWeight: 800, fontSize: '14px', color: '#0f172a' }}>
@@ -1330,7 +1335,7 @@ export const ForApprovalPage = () => {
                   const isApproved = aStat === 'Approved';
                   const isRejected = aStat === 'Rejected';
                   const studentName = (s.fname && s.lname) ? `${s.fname} ${s.lname}` : (s.name || s.full_name || r.student_name || 'Student');
-                  const studentAvatar = getSafeAvatarUrl(s.image || s.avatar || s.photo_url || s.photo, studentName);
+                  const studentAvatar = s.image || s.avatar || s.photo_url || s.photo || `https://ui-avatars.com/api/?name=${encodeURIComponent(studentName)}&background=07345f&color=fff&size=40&bold=true`;
 
                   return (
                     <div
@@ -1366,7 +1371,10 @@ export const ForApprovalPage = () => {
                               border: '1.5px solid #e2e8f0',
                               flexShrink: 0
                             }}
-                            onError={(e) => handleAvatarError(e, studentName)}
+                            onError={(e) => {
+                              e.currentTarget.onerror = null;
+                              e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(studentName)}&background=07345f&color=fff&size=40&bold=true`;
+                            }}
                           />
                           <div style={{ minWidth: 0, flex: 1 }}>
                             <div style={{ fontWeight: 800, fontSize: '13.5px', color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
@@ -1571,7 +1579,7 @@ export const ForApprovalPage = () => {
       {/* 6. Comprehensive Case Inspection Modal */}
       {inspectRecord && (() => {
         const studentFullName = `${inspectRecord.student?.fname || ''} ${inspectRecord.student?.lname || ''}`.trim() || 'Student';
-        const studentAvatar = getSafeAvatarUrl(inspectRecord.student?.image, studentFullName);
+        const studentAvatar = inspectRecord.student?.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(studentFullName)}&background=07345f&color=fff&size=200&bold=true`;
         const aStat = getApprovalStatus(inspectRecord);
         const isUnderApproval = aStat === 'Under Approval';
         const isApproved = aStat === 'Approved';
@@ -1619,7 +1627,10 @@ export const ForApprovalPage = () => {
                     <img
                       src={studentAvatar}
                       alt={studentFullName}
-                      onError={(e) => handleAvatarError(e, studentFullName)}
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(studentFullName)}&background=07345f&color=fff&size=200&bold=true`;
+                      }}
                       style={{
                         width: '46px',
                         height: '46px',
@@ -1978,7 +1989,7 @@ export const ForApprovalPage = () => {
         const student = approveTargetRecord.student || {};
         const violation = approveTargetRecord.violation || {};
         const studentName = `${student.fname || ''} ${student.lname || ''}`.trim() || 'Student';
-        const studentAvatar = getSafeAvatarUrl(student.image, studentName);
+        const studentAvatar = student.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(studentName)}&background=07345f&color=fff&size=120&bold=true`;
         const sevBadge = getSeverityBadge(violation.type);
 
         return (
@@ -2008,7 +2019,6 @@ export const ForApprovalPage = () => {
                   <img
                     src={studentAvatar}
                     alt={studentName}
-                    onError={(e) => handleAvatarError(e, studentName)}
                     style={{
                       width: 44,
                       height: 44,
@@ -2235,7 +2245,7 @@ export const ForApprovalPage = () => {
         const student = rejectTargetRecord.student || {};
         const violation = rejectTargetRecord.violation || {};
         const studentName = `${student.fname || ''} ${student.lname || ''}`.trim() || 'Student';
-        const studentAvatar = getSafeAvatarUrl(student.image, studentName);
+        const studentAvatar = student.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(studentName)}&background=07345f&color=fff&size=120&bold=true`;
         const sevBadge = getSeverityBadge(violation.type);
 
         return (
@@ -2265,7 +2275,6 @@ export const ForApprovalPage = () => {
                   <img
                     src={studentAvatar}
                     alt={studentName}
-                    onError={(e) => handleAvatarError(e, studentName)}
                     style={{
                       width: 44,
                       height: 44,

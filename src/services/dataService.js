@@ -127,70 +127,6 @@ const INITIAL_ADMINS = [
   { id: 2, fname: 'Maria', lname: 'Santos', email: 'maria.santos@viotrack.edu', role: 'Discipline Officer', image: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&auto=format&fit=crop&q=80' }
 ];
 
-const MALE_AVATARS = [
-  'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=150&auto=format&fit=crop&q=80'
-];
-
-const FEMALE_AVATARS = [
-  'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&auto=format&fit=crop&q=80'
-];
-
-const INITIAL_STUDENT_LRN_MAP = new Map(INITIAL_STUDENTS.map(init => [String(init.lrn || '').toLowerCase().trim(), init]));
-const INITIAL_STUDENT_NAME_MAP = new Map(INITIAL_STUDENTS.map(init => [`${init.fname || ''} ${init.lname || ''}`.toLowerCase().trim(), init]));
-const INITIAL_STUDENT_ID_MAP = new Map(INITIAL_STUDENTS.map(init => [String(init.id), init]));
-
-export const resolveStudentAvatar = (student, index = 0) => {
-  if (!student) return '';
-  if (student.image && typeof student.image === 'string' && student.image.trim() !== '' && !student.image.includes('ui-avatars.com')) {
-    return student.image;
-  }
-  const lrnKey = String(student.lrn || '').toLowerCase().trim();
-  const nameKey = `${student.fname || ''} ${student.lname || ''}`.toLowerCase().trim();
-  const idKey = String(student.id || '');
-
-  const seed = INITIAL_STUDENT_LRN_MAP.get(lrnKey) ||
-               INITIAL_STUDENT_NAME_MAP.get(nameKey) ||
-               INITIAL_STUDENT_ID_MAP.get(idKey);
-  if (seed?.image) return seed.image;
-
-  const pool = (student.gender || '').toLowerCase() === 'female' ? FEMALE_AVATARS : MALE_AVATARS;
-  let hash = 0;
-  const str = lrnKey || nameKey || idKey || String(index);
-  for (let i = 0; i < str.length; i++) hash = str.charCodeAt(i) + ((hash << 5) - hash);
-  const safeIdx = Math.abs(hash) % pool.length;
-  return pool[safeIdx];
-};
-
-const INITIAL_TEACHER_EMAIL_MAP = new Map(INITIAL_TEACHERS.map(t => [String(t.email || '').toLowerCase().trim(), t]));
-export const resolveTeacherAvatar = (teacher) => {
-  if (!teacher) return '';
-  if (teacher.image && typeof teacher.image === 'string' && teacher.image.trim() !== '' && !teacher.image.includes('ui-avatars.com')) {
-    return teacher.image;
-  }
-  const emailKey = String(teacher.email || '').toLowerCase().trim();
-  const seed = INITIAL_TEACHER_EMAIL_MAP.get(emailKey);
-  if (seed?.image) return seed.image;
-  return 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80';
-};
-
-const INITIAL_ADMIN_EMAIL_MAP = new Map(INITIAL_ADMINS.map(a => [String(a.email || '').toLowerCase().trim(), a]));
-export const resolveAdminAvatar = (admin) => {
-  if (!admin) return '';
-  if (admin.image && typeof admin.image === 'string' && admin.image.trim() !== '' && !admin.image.includes('ui-avatars.com')) {
-    return admin.image;
-  }
-  const emailKey = String(admin.email || '').toLowerCase().trim();
-  const seed = INITIAL_ADMIN_EMAIL_MAP.get(emailKey);
-  if (seed?.image) return seed.image;
-  return 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80';
-};
-
 const INITIAL_RECORDS = [
   {
     id: 1,
@@ -552,38 +488,6 @@ export const dataService = {
     }
   },
 
-  // --- ASSET & PHOTO STORAGE UPLOAD ---
-  async uploadPhoto(file, folder = 'avatars') {
-    if (!file) return null;
-
-    // 1. Try Supabase Storage if configured
-    if (isSupabaseConfigured() && supabase?.storage) {
-      try {
-        const ext = file.name ? file.name.split('.').pop() : 'jpg';
-        const cleanName = `${folder}/${Date.now()}_${Math.random().toString(36).substring(2, 8)}.${ext}`;
-        const { data, error } = await supabase.storage.from('avatars').upload(cleanName, file, {
-          cacheControl: '3600',
-          upsert: true
-        });
-
-        if (!error && data?.path) {
-          const { data: publicUrlData } = supabase.storage.from('avatars').getPublicUrl(data.path);
-          if (publicUrlData?.publicUrl) return publicUrlData.publicUrl;
-        }
-      } catch (err) {
-        console.warn('Supabase storage upload notice, falling back to base64:', err);
-      }
-    }
-
-    // 2. High-performance Base64 Data URI fallback (stored directly in database column)
-    return new Promise((resolve) => {
-      const reader = new FileReader();
-      reader.onload = (e) => resolve(e.target?.result || null);
-      reader.onerror = () => resolve(null);
-      reader.readAsDataURL(file);
-    });
-  },
-
   // --- STUDENTS ---
   async getStudents(forceRefresh = false) {
     const now = Date.now();
@@ -617,33 +521,38 @@ export const dataService = {
       let list = [];
 
       if (remoteList && remoteList.length > 0) {
-        const remoteLrnMap = new Map(remoteList.map(s => [String(s.lrn || '').toLowerCase().trim(), s]));
+        const remoteLrnMap = new Map(remoteList.map(s => [String(s.lrn || '').toLowerCase(), s]));
         const mergedRemote = remoteList.map(rs => {
-          const ls = localList.find(l => 
-            (l.lrn && rs.lrn && String(l.lrn).toLowerCase().trim() === String(rs.lrn).toLowerCase().trim()) || 
-            String(l.id) === String(rs.id)
-          );
-          const rawImage = (rs.image && String(rs.image).trim() !== '' && !rs.image.includes('ui-avatars.com')) 
-            ? rs.image 
-            : (ls?.image || '');
-          return ls ? { ...ls, ...rs, image: rawImage, password: rs.password || ls.password } : { ...rs, image: rawImage };
+          const ls = localList.find(l => String(l.lrn || '').toLowerCase() === String(rs.lrn || '').toLowerCase() || l.id === rs.id);
+          return ls ? { ...ls, ...rs, password: rs.password || ls.password } : rs;
         });
-        const extraLocal = localList.filter(ls => ls.lrn && !remoteLrnMap.has(String(ls.lrn).toLowerCase().trim()));
+        const extraLocal = localList.filter(ls => ls.lrn && !remoteLrnMap.has(String(ls.lrn).toLowerCase()));
         list = [...mergedRemote, ...extraLocal];
       } else {
         list = localList;
       }
 
-      const processed = list.map((s, idx) => {
-        const resolved = resolveStudentAvatar(s, idx);
-        // Persist photo to Supabase if the remote row was empty
-        if (isSupabaseConfigured() && s.id && (!s.image || !String(s.image).trim() || s.image.includes('ui-avatars.com'))) {
-          supabase.from('students').update({ image: resolved }).eq('id', s.id).catch(() => {});
-        }
-        return {
-          ...s,
-          image: resolved
-        };
+      const maleAvatars = [
+        'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150&auto=format&fit=crop&q=80',
+        'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
+        'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80',
+        'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=150&auto=format&fit=crop&q=80'
+      ];
+      const femaleAvatars = [
+        'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&auto=format&fit=crop&q=80',
+        'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80',
+        'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+        'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&auto=format&fit=crop&q=80'
+      ];
+
+      const initialMap = new Map(INITIAL_STUDENTS.map(init => [init.id, init]));
+      const processed = list.map(s => {
+        if (s.image && !s.image.includes('ui-avatars.com')) return s;
+        const seed = initialMap.get(s.id);
+        if (seed?.image) return { ...s, image: seed.image };
+        const pool = (s.gender || '').toLowerCase() === 'female' ? femaleAvatars : maleAvatars;
+        const assignedImage = pool[(s.id || 1) % pool.length];
+        return { ...s, image: assignedImage };
       });
 
       _cache.data.students = processed;
@@ -924,7 +833,7 @@ export const dataService = {
           `)
           .order('id', { ascending: false });
         if (!error && data) {
-          mappedRecords = data.map((r, idx) => {
+          mappedRecords = data.map(r => {
             const isTeacher = (r.reported_by_type === 'teacher');
             let resolvedApproval = r.approval_status;
             if (!resolvedApproval) {
@@ -938,20 +847,11 @@ export const dataService = {
                 resolvedApproval = 'Approved';
               }
             }
-
-            let studentObj = r.students || r.student;
-            if (studentObj) {
-              studentObj = {
-                ...studentObj,
-                image: resolveStudentAvatar(studentObj, idx)
-              };
-            }
-
             return {
               ...r,
               approval_status: resolvedApproval,
-              student: studentObj,
-              violation: r.violations || r.violation
+              student: r.students,
+              violation: r.violations
             };
           });
         }
@@ -1290,37 +1190,20 @@ export const dataService = {
       let list = [];
 
       if (remoteList && remoteList.length > 0) {
-        const remoteEmailMap = new Map(remoteList.map(t => [String(t.email || '').toLowerCase().trim(), t]));
+        const remoteEmailMap = new Map(remoteList.map(t => [String(t.email || '').toLowerCase(), t]));
         const mergedRemote = remoteList.map(rt => {
-          const lt = localList.find(l => 
-            (l.email && rt.email && String(l.email).toLowerCase().trim() === String(rt.email).toLowerCase().trim()) || 
-            String(l.id) === String(rt.id)
-          );
-          const rawImage = (rt.image && String(rt.image).trim() !== '' && !rt.image.includes('ui-avatars.com')) 
-            ? rt.image 
-            : (lt?.image || '');
-          return lt ? { ...lt, ...rt, image: rawImage, password: rt.password || lt.password } : { ...rt, image: rawImage };
+          const lt = localList.find(l => String(l.email || '').toLowerCase() === String(rt.email || '').toLowerCase() || l.id === rt.id);
+          return lt ? { ...lt, ...rt, password: rt.password || lt.password } : rt;
         });
-        const extraLocal = localList.filter(lt => lt.email && !remoteEmailMap.has(String(lt.email).toLowerCase().trim()));
+        const extraLocal = localList.filter(lt => lt.email && !remoteEmailMap.has(String(lt.email).toLowerCase()));
         list = [...mergedRemote, ...extraLocal];
       } else {
         list = localList;
       }
 
-      const processed = list.map(t => {
-        const resolved = resolveTeacherAvatar(t);
-        if (isSupabaseConfigured() && t.id && (!t.image || !String(t.image).trim() || t.image.includes('ui-avatars.com'))) {
-          supabase.from('teachers').update({ image: resolved }).eq('id', t.id).catch(() => {});
-        }
-        return {
-          ...t,
-          image: resolved
-        };
-      });
-
-      _cache.data.teachers = processed;
+      _cache.data.teachers = list;
       _cache.timestamps.teachers = Date.now();
-      return processed;
+      return list;
     });
   },
 
@@ -1565,7 +1448,7 @@ export const dataService = {
         if (!error && data) {
           const mapped = data.map(a => ({
             ...a,
-            teacher: a.teachers ? { ...a.teachers, image: resolveTeacherAvatar(a.teachers) } : null
+            teacher: a.teachers
           }));
           _cache.data.advisers = mapped;
           _cache.timestamps.advisers = Date.now();
@@ -1575,13 +1458,10 @@ export const dataService = {
       const advisers = getStored('advisers', INITIAL_ADVISERS);
       const teachers = await this.getTeachers();
       const teacherMap = new Map(teachers.map(t => [Number(t.id), t]));
-      const mapped = advisers.map(a => {
-        const t = teacherMap.get(Number(a.teacher_id));
-        return {
-          ...a,
-          teacher: t ? { ...t, image: resolveTeacherAvatar(t) } : null
-        };
-      });
+      const mapped = advisers.map(a => ({
+        ...a,
+        teacher: teacherMap.get(Number(a.teacher_id))
+      }));
       _cache.data.advisers = mapped;
       _cache.timestamps.advisers = Date.now();
       return mapped;
@@ -1679,37 +1559,20 @@ export const dataService = {
       let list = [];
 
       if (remoteList && remoteList.length > 0) {
-        const remoteEmailMap = new Map(remoteList.map(a => [String(a.email || '').toLowerCase().trim(), a]));
+        const remoteEmailMap = new Map(remoteList.map(a => [String(a.email || '').toLowerCase(), a]));
         const mergedRemote = remoteList.map(ra => {
-          const la = localList.find(l => 
-            (l.email && ra.email && String(l.email).toLowerCase().trim() === String(ra.email).toLowerCase().trim()) || 
-            String(l.id) === String(ra.id)
-          );
-          const rawImage = (ra.image && String(ra.image).trim() !== '' && !ra.image.includes('ui-avatars.com')) 
-            ? ra.image 
-            : (la?.image || '');
-          return la ? { ...la, ...ra, image: rawImage, password: ra.password || la.password } : { ...ra, image: rawImage };
+          const la = localList.find(l => String(l.email || '').toLowerCase() === String(ra.email || '').toLowerCase() || l.id === ra.id);
+          return la ? { ...la, ...ra, password: ra.password || la.password } : ra;
         });
-        const extraLocal = localList.filter(la => la.email && !remoteEmailMap.has(String(la.email).toLowerCase().trim()));
+        const extraLocal = localList.filter(la => la.email && !remoteEmailMap.has(String(la.email).toLowerCase()));
         list = [...mergedRemote, ...extraLocal];
       } else {
         list = localList;
       }
 
-      const processed = list.map(a => {
-        const resolved = resolveAdminAvatar(a);
-        if (isSupabaseConfigured() && a.id && (!a.image || !String(a.image).trim() || a.image.includes('ui-avatars.com'))) {
-          supabase.from('admins').update({ image: resolved }).eq('id', a.id).catch(() => {});
-        }
-        return {
-          ...a,
-          image: resolved
-        };
-      });
-
-      _cache.data.admins = processed;
+      _cache.data.admins = list;
       _cache.timestamps.admins = Date.now();
-      return processed;
+      return list;
     });
   },
 

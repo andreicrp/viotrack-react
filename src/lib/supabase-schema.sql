@@ -197,15 +197,15 @@ CREATE INDEX IF NOT EXISTS idx_sms_logs_student ON sms_logs (student_id);
 -- ==========================================================
 
 -- Sample Admins
-INSERT INTO admins (fname, lname, email, password, role, image) VALUES
-('System', 'Admin', 'admin@viotrack.edu', 'admin123', 'admin', 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80'),
-('Maria', 'Santos', 'maria.santos@viotrack.edu', 'admin123', 'admin', 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&auto=format&fit=crop&q=80');
+INSERT INTO admins (fname, lname, email, password, role) VALUES
+('System', 'Admin', 'admin@viotrack.edu', 'admin123', 'admin'),
+('Maria', 'Santos', 'maria.santos@viotrack.edu', 'admin123', 'admin');
 
 -- Sample Teachers
-INSERT INTO teachers (fname, lname, email, password, position, department, contact, image) VALUES
-('Juan', 'Dela Cruz', 'juan.delacruz@viotrack.edu', 'teacher123', 'Master Teacher I', 'Science Department', '09171234567', 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80'),
-('Elena', 'Reyes', 'elena.reyes@viotrack.edu', 'teacher123', 'Teacher III', 'Mathematics Department', '09181234568', 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&auto=format&fit=crop&q=80'),
-('Roberto', 'Aquino', 'roberto.aquino@viotrack.edu', 'teacher123', 'Teacher II', 'English Department', '09191234569', 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&auto=format&fit=crop&q=80');
+INSERT INTO teachers (fname, lname, email, password, position, department, contact) VALUES
+('Juan', 'Dela Cruz', 'juan.delacruz@viotrack.edu', 'teacher123', 'Master Teacher I', 'Science Department', '09171234567'),
+('Elena', 'Reyes', 'elena.reyes@viotrack.edu', 'teacher123', 'Teacher III', 'Mathematics Department', '09181234568'),
+('Roberto', 'Aquino', 'roberto.aquino@viotrack.edu', 'teacher123', 'Teacher II', 'English Department', '09191234569');
 
 -- Sample Advisers
 INSERT INTO advisers (teacher_id, grade_level, class_section) VALUES
@@ -224,13 +224,13 @@ INSERT INTO violations (title, description, type, default_sanction) VALUES
 ('Cheating / Academic Dishonesty', 'Copying during examinations or submitting plagiarized works', 'Major', 'Zero on exam & Parent Notification');
 
 -- Sample Students
-INSERT INTO students (lrn, fname, mname, lname, grade, section, academicyear, gender, contact, parent_name, parent_contact, address, image) VALUES
-('109283746101', 'Alexander', 'Cruz', 'Mendoza', 'Grade 10', 'Rizal', '2025-2026', 'Male', '09151112233', 'Carlos Mendoza', '09151112234', '124 Rizal St, Sampaloc, Manila', 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150&auto=format&fit=crop&q=80'),
-('109283746102', 'Sophia', 'Grace', 'Villanueva', 'Grade 10', 'Rizal', '2025-2026', 'Female', '09152223344', 'Lorena Villanueva', '09152223345', '45 Mabini Ave, Quezon City', 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&auto=format&fit=crop&q=80'),
-('109283746103', 'Gabriel', 'Luis', 'Torres', 'Grade 10', 'Bonifacio', '2025-2026', 'Male', '09153334455', 'Ramon Torres', '09153334456', '88 Aurora Blvd, San Juan', 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80'),
-('109283746104', 'Isabella', 'Marie', 'Ramos', 'Grade 11', 'STEM A', '2025-2026', 'Female', '09154445566', 'Patricia Ramos', '09154445567', '73 Commonwealth Ave, QC', 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80'),
-('109283746105', 'Christian', 'Paul', 'Navarro', 'Grade 11', 'STEM A', '2025-2026', 'Male', '09155556677', 'Dennis Navarro', '09155556678', '19 Espana Blvd, Manila', 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80'),
-('109283746106', 'Jasmine', 'Rose', 'Castillo', 'Grade 9', 'Diamond', '2025-2026', 'Female', '09156667788', 'Lita Castillo', '09156667789', '210 Taft Avenue, Pasay', 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80');
+INSERT INTO students (lrn, fname, mname, lname, grade, section, academicyear, gender, contact, parent_name, parent_contact, address) VALUES
+('109283746101', 'Alexander', 'Cruz', 'Mendoza', 'Grade 10', 'Rizal', '2025-2026', 'Male', '09151112233', 'Carlos Mendoza', '09151112234', '124 Rizal St, Sampaloc, Manila'),
+('109283746102', 'Sophia', 'Grace', 'Villanueva', 'Grade 10', 'Rizal', '2025-2026', 'Female', '09152223344', 'Lorena Villanueva', '09152223345', '45 Mabini Ave, Quezon City'),
+('109283746103', 'Gabriel', 'Luis', 'Torres', 'Grade 10', 'Bonifacio', '2025-2026', 'Male', '09153334455', 'Ramon Torres', '09153334456', '88 Aurora Blvd, San Juan'),
+('109283746104', 'Isabella', 'Marie', 'Ramos', 'Grade 11', 'STEM A', '2025-2026', 'Female', '09154445566', 'Patricia Ramos', '09154445567', '73 Commonwealth Ave, QC'),
+('109283746105', 'Christian', 'Paul', 'Navarro', 'Grade 11', 'STEM A', '2025-2026', 'Male', '09155556677', 'Dennis Navarro', '09155556678', '19 Espana Blvd, Manila'),
+('109283746106', 'Jasmine', 'Rose', 'Castillo', 'Grade 9', 'Diamond', '2025-2026', 'Female', '09156667788', 'Lita Castillo', '09156667789', '210 Taft Avenue, Pasay');
 
 -- Sample Violation Records
 INSERT INTO records (student_id, violation_id, reported_by_type, reported_by_name, date_reported, status, approval_status, approved_by, approved_at, sanction, remarks, resolution_notes, sms_notified) VALUES

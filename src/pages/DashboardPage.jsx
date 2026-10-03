@@ -36,7 +36,6 @@ import { useNotification } from '../context/NotificationContext';
 import { AddViolationModal } from '../components/violations/AddViolationModal';
 import { SchoolCalendarModal } from '../components/common/SchoolCalendarModal';
 import { CustomDateRangeModal } from '../components/common/CustomDateRangeModal';
-import { getSafeAvatarUrl, handleAvatarError } from '../utils/avatarHelper';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import { exportToCsv } from '../utils/csvHelper';
@@ -1067,10 +1066,12 @@ export const DashboardPage = () => {
                       #{st.rank}
                     </span>
                     <img
-                      src={getSafeAvatarUrl(st.image, st.name)}
+                      src={st.image}
                       alt={st.name}
                       className="dash-offender-avatar"
-                      onError={(e) => handleAvatarError(e, st.name)}
+                      onError={(e) => {
+                        e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(st.name)}&background=0b192c&color=fff&size=50`;
+                      }}
                     />
                     <div className="dash-offender-meta">
                       <span className="dash-offender-name">{st.name}</span>

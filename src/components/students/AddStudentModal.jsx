@@ -4,7 +4,6 @@ import { dataService } from '../../services/dataService';
 import { useNotification } from '../../context/NotificationContext';
 import { UserPlus, Upload, Camera, Trash2, Image as ImageIcon, Check, ShieldCheck } from 'lucide-react';
 import CustomSelect from '../common/CustomSelect';
-import { getSafeAvatarUrl, handleAvatarError } from '../../utils/avatarHelper';
 
 export const AddStudentModal = ({ isOpen, onClose, studentToEdit = null, onSaved }) => {
   const { success, error } = useNotification();
@@ -147,10 +146,9 @@ export const AddStudentModal = ({ isOpen, onClose, studentToEdit = null, onSaved
         success(`Student ${formData.fname} ${formData.lname} updated successfully!`);
         onSaved?.(updated);
       } else {
-        const studentName = `${formData.fname} ${formData.lname}`.trim();
         const created = await dataService.addStudent({
           ...formData,
-          image: finalImageUrl || getSafeAvatarUrl(null, studentName || 'Student')
+          image: finalImageUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(`${formData.fname} ${formData.lname}`)}&background=27367f&color=fff&size=100`
         });
         success(`Student ${formData.fname} ${formData.lname} registered successfully!`);
         onSaved?.(created);
@@ -163,8 +161,7 @@ export const AddStudentModal = ({ isOpen, onClose, studentToEdit = null, onSaved
     }
   };
 
-  const previewName = `${formData.fname} ${formData.lname}`.trim() || 'Student';
-  const avatarUrl = getSafeAvatarUrl(formData.image, previewName);
+  const avatarUrl = formData.image || (formData.fname || formData.lname ? `https://ui-avatars.com/api/?name=${encodeURIComponent(`${formData.fname} ${formData.lname}`)}&background=0f172a&color=fff&size=90` : 'https://ui-avatars.com/api/?name=Student&background=e2e8f0&color=64748b&size=90');
 
   return (
     <Modal
@@ -209,7 +206,6 @@ export const AddStudentModal = ({ isOpen, onClose, studentToEdit = null, onSaved
                 <img
                   src={avatarUrl}
                   alt="Avatar Preview"
-                  onError={(e) => handleAvatarError(e, previewName)}
                   style={{
                     width: 54,
                     height: 54,

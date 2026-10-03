@@ -35,7 +35,6 @@ import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import { exportToCsv } from '../utils/csvHelper';
 import { ViewModeToggle } from '../components/common/ViewModeToggle';
-import { getSafeAvatarUrl, handleAvatarError } from '../utils/avatarHelper';
 
 export const ViolationsPage = () => {
   const { user } = useAuth();
@@ -1081,9 +1080,11 @@ export const ViolationsPage = () => {
                       <td style={{ padding: '14px 18px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                           <img
-                            src={getSafeAvatarUrl(rec.student?.image, rec.student ? `${rec.student.fname} ${rec.student.lname}` : 'Student')}
-                            alt={rec.student?.fname || 'Student'}
-                            onError={(e) => handleAvatarError(e, rec.student ? `${rec.student.fname} ${rec.student.lname}` : 'Student')}
+                            src={
+                              rec.student?.image ||
+                              `https://ui-avatars.com/api/?name=${encodeURIComponent(rec.student?.fname || 'Student')}&background=07345f&color=fff&size=38`
+                            }
+                            alt="Student"
                             style={{
                               width: 38,
                               height: 38,
@@ -1282,9 +1283,11 @@ export const ViolationsPage = () => {
 
                   {/* Center Avatar & Info */}
                   <img
-                    src={getSafeAvatarUrl(rec.student?.image, rec.student ? `${rec.student.fname} ${rec.student.lname}` : 'Student')}
-                    alt={rec.student?.fname || 'Student'}
-                    onError={(e) => handleAvatarError(e, rec.student ? `${rec.student.fname} ${rec.student.lname}` : 'Student')}
+                    src={
+                      rec.student?.image ||
+                      `https://ui-avatars.com/api/?name=${encodeURIComponent(rec.student?.fname || 'Student')}&background=07345f&color=fff&size=48`
+                    }
+                    alt="Student"
                     className="entity-grid-avatar"
                   />
 
@@ -1371,9 +1374,11 @@ export const ViolationsPage = () => {
                         style={{ cursor: 'pointer', width: '16px', height: '16px', accentColor: '#07345f', flexShrink: 0 }}
                       />
                       <img
-                        src={getSafeAvatarUrl(rec.student?.image, rec.student ? `${rec.student.fname} ${rec.student.lname}` : 'Student')}
-                        alt={rec.student?.fname || 'Student'}
-                        onError={(e) => handleAvatarError(e, rec.student ? `${rec.student.fname} ${rec.student.lname}` : 'Student')}
+                        src={
+                          rec.student?.image ||
+                          `https://ui-avatars.com/api/?name=${encodeURIComponent(rec.student?.fname || 'Student')}&background=07345f&color=fff&size=36`
+                        }
+                        alt="Student"
                         style={{
                           width: 36,
                           height: 36,

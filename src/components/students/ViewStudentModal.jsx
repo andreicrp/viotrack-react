@@ -17,7 +17,6 @@ import {
   CheckCircle2
 } from 'lucide-react';
 import '../../css/student-modal.css';
-import { getSafeAvatarUrl, handleAvatarError } from '../../utils/avatarHelper';
 
 export const ViewStudentModal = ({ isOpen, onClose, student }) => {
   const navigate = useNavigate();
@@ -50,7 +49,7 @@ export const ViewStudentModal = ({ isOpen, onClose, student }) => {
   };
 
   const fullName = `${student.fname} ${student.mname ? student.mname + ' ' : ''}${student.lname}`;
-  const avatarUrl = getSafeAvatarUrl(student.image, fullName);
+  const avatarUrl = student.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(fullName)}&background=07345f&color=fff&size=200&bold=true`;
 
   return (
     <div
@@ -90,7 +89,9 @@ export const ViewStudentModal = ({ isOpen, onClose, student }) => {
                 src={avatarUrl}
                 alt={fullName}
                 className="student-hero-avatar"
-                onError={(e) => handleAvatarError(e, fullName)}
+                onError={(e) => {
+                  e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(fullName)}&background=07345f&color=fff&size=200&bold=true`;
+                }}
               />
               <span className="student-avatar-badge" title="Active Student">
                 <CheckCircle2 size={13} />

@@ -35,8 +35,8 @@ import {
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import { exportToCsv } from '../utils/csvHelper';
+
 import { ViewModeToggle } from '../components/common/ViewModeToggle';
-import { getSafeAvatarUrl, handleAvatarError } from '../utils/avatarHelper';
 
 // Helper to detect Strand / Academic Track
 export const getStudentStrand = (student) => {
@@ -987,9 +987,11 @@ export const StudentsPage = () => {
                       <td style={{ padding: '14px 18px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                           <img
-                            src={getSafeAvatarUrl(s.image, `${s.fname} ${s.lname}`)}
+                            src={
+                              s.image ||
+                              `https://ui-avatars.com/api/?name=${encodeURIComponent(s.fname + ' ' + s.lname)}&background=07345f&color=fff&size=40`
+                            }
                             alt="Student Avatar"
-                            onError={(e) => handleAvatarError(e, `${s.fname} ${s.lname}`)}
                             style={{
                               width: 40,
                               height: 40,
@@ -1236,9 +1238,11 @@ export const StudentsPage = () => {
 
                   {/* Center Avatar & Info */}
                   <img
-                    src={getSafeAvatarUrl(s.image, `${s.fname} ${s.lname}`)}
+                    src={
+                      s.image ||
+                      `https://ui-avatars.com/api/?name=${encodeURIComponent(s.fname + ' ' + s.lname)}&background=07345f&color=fff&size=48`
+                    }
                     alt="Student"
-                    onError={(e) => handleAvatarError(e, `${s.fname} ${s.lname}`)}
                     className="entity-grid-avatar"
                   />
 
@@ -1324,9 +1328,11 @@ export const StudentsPage = () => {
                         style={{ cursor: 'pointer', width: '16px', height: '16px', accentColor: '#07345f', flexShrink: 0 }}
                       />
                       <img
-                        src={getSafeAvatarUrl(s.image, `${s.fname} ${s.lname}`)}
+                        src={
+                          s.image ||
+                          `https://ui-avatars.com/api/?name=${encodeURIComponent(s.fname + ' ' + s.lname)}&background=07345f&color=fff&size=38`
+                        }
                         alt="Student Avatar"
-                        onError={(e) => handleAvatarError(e, `${s.fname} ${s.lname}`)}
                         style={{
                           width: 38,
                           height: 38,

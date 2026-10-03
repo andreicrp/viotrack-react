@@ -3,7 +3,6 @@ import { Modal } from '../common/Modal';
 import { dataService } from '../../services/dataService';
 import { useNotification } from '../../context/NotificationContext';
 import { useAuth } from '../../context/AuthContext';
-import { getSafeAvatarUrl, handleAvatarError } from '../../utils/avatarHelper';
 import { 
   CheckCircle2, 
   ShieldCheck, 
@@ -18,7 +17,6 @@ import {
   Sparkles,
   Award,
   Eye,
-  Share2,
   X
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
@@ -649,31 +647,8 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
     printCertificateDocument(html);
   };
 
-  const handleShareCertificate = async () => {
-    const sName = `${record.student?.fname || ''} ${record.student?.lname || ''}`.trim() || 'Student';
-    const shareData = {
-      title: `Disciplinary Resolution Slip — ${sName}`,
-      text: `Official Case Resolution Certificate for ${sName} (Incident #${record.id}) • Status: ${status} • Sanction: ${sanction || 'Completed'}.`,
-      url: window.location.href
-    };
-    if (navigator.share) {
-      try {
-        await navigator.share(shareData);
-        success('Resolution slip shared!');
-      } catch (err) {
-        if (err.name !== 'AbortError') {
-          navigator.clipboard?.writeText(`${shareData.title}\n${shareData.text}\n${shareData.url}`);
-          success('Resolution summary copied to clipboard!');
-        }
-      }
-    } else {
-      navigator.clipboard?.writeText(`${shareData.title}\n${shareData.text}\n${shareData.url}`);
-      success('Resolution summary copied to clipboard!');
-    }
-  };
-
-  const studentName = `${record.student?.fname || ''} ${record.student?.lname || ''}`.trim() || 'Student';
-  const avatarUrl = getSafeAvatarUrl(record.student?.image, studentName);
+  const studentName = `${record.student?.fname || ''} ${record.student?.lname || ''}`.trim();
+  const avatarUrl = record.student?.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(studentName || 'Student')}&background=0f172a&color=fff&size=100&bold=true`;
 
   const getSeverityStyle = (type) => {
     const t = (type || '').toLowerCase();
@@ -733,7 +708,9 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
                     border: '1.5px solid #cbd5e1',
                     flexShrink: 0
                   }}
-                  onError={(e) => handleAvatarError(e, studentName)}
+                  onError={(e) => {
+                    e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(studentName || 'Student')}&background=0f172a&color=fff&size=100&bold=true`;
+                  }}
                 />
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
@@ -1027,28 +1004,6 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
                 }}
               >
                 <Printer size={15} /> Print Certificate
-              </button>
-
-              <button
-                type="button"
-                onClick={handleShareCertificate}
-                style={{
-                  background: '#f0fdf4',
-                  border: '1.5px solid #86efac',
-                  color: '#15803d',
-                  padding: '9px 14px',
-                  borderRadius: '9px',
-                  fontWeight: 700,
-                  fontSize: '12.5px',
-                  cursor: 'pointer',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  transition: 'all 0.15s ease'
-                }}
-                title="Share resolution slip via mobile share or copy summary"
-              >
-                <Share2 size={15} /> Share
               </button>
             </div>
 

@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { Modal } from '../common/Modal';
-import { getSafeAvatarUrl, handleAvatarError } from '../../utils/avatarHelper';
 import {
   Clock,
   CheckCircle2,
@@ -35,7 +34,7 @@ export const StatusModal = ({ isOpen, onClose, record, onUpdated }) => {
   const studentName = (student.fname && student.lname)
     ? `${student.fname} ${student.lname}`
     : (student.name || student.full_name || record.student_name || 'Enrolled Student');
-  const studentAvatar = getSafeAvatarUrl(student.image || student.avatar, studentName);
+  const studentAvatar = student.image || student.avatar || `https://ui-avatars.com/api/?name=${encodeURIComponent(studentName)}&background=07345f&color=fff&size=48&bold=true`;
   const violationTitle = record.violation?.title || record.violation?.name || record.offense || 'Disciplinary Violation';
 
   const statusOptions = [
@@ -190,7 +189,10 @@ export const StatusModal = ({ isOpen, onClose, record, onUpdated }) => {
                 boxShadow: '0 2px 6px rgba(0,0,0,0.08)',
                 flexShrink: 0
               }}
-              onError={(e) => handleAvatarError(e, studentName)}
+              onError={(e) => {
+                e.currentTarget.onerror = null;
+                e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(studentName)}&background=07345f&color=fff&size=48&bold=true`;
+              }}
             />
             <div style={{ minWidth: 0, flex: 1 }}>
               <div style={{ fontSize: '14px', fontWeight: 800, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>

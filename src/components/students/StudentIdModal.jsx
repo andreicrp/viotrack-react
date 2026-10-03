@@ -2,7 +2,6 @@ import React from 'react';
 import { Modal } from '../common/Modal';
 import { Printer, X } from 'lucide-react';
 import { getStudentQrCodeUrl } from '../../utils/qrHelper';
-import { getSafeAvatarUrl, handleAvatarError } from '../../utils/avatarHelper';
 import '../../css/student-id-card.css';
 
 export const StudentIdModal = ({ isOpen, onClose, student }) => {
@@ -15,9 +14,8 @@ export const StudentIdModal = ({ isOpen, onClose, student }) => {
   // QR points to secure public ID verification pass if public domain is set, or clean Student LRN/ID (no localhost)
   const qrDataUrl = getStudentQrCodeUrl(student, 500, 0);
 
-  const displayName = `${student.fname} ${student.lname}`;
   const fullName = `${student.lname?.toUpperCase()}, ${student.fname} ${student.mname ? student.mname[0] + '.' : ''}`;
-  const avatarUrl = getSafeAvatarUrl(student.image, displayName);
+  const avatarUrl = student.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(student.fname + ' ' + student.lname)}&background=07345f&color=fff&size=200&bold=true`;
 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={`Student ID Card - ${student.fname} ${student.lname}`} maxWidth="560px">
@@ -44,7 +42,9 @@ export const StudentIdModal = ({ isOpen, onClose, student }) => {
                     src={avatarUrl}
                     alt={fullName}
                     className="id-student-photo"
-                    onError={(e) => handleAvatarError(e, displayName)}
+                    onError={(e) => {
+                      e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(student.fname + ' ' + student.lname)}&background=07345f&color=fff&size=200&bold=true`;
+                    }}
                   />
                 </div>
 

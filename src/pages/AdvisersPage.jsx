@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { dataService } from '../services/dataService';
 import { CustomSelect } from '../components/common/CustomSelect';
 import { useNotification } from '../context/NotificationContext';
-import { getSafeAvatarUrl, handleAvatarError } from '../utils/avatarHelper';
 import {
   GraduationCap,
   UserCheck,
@@ -617,9 +616,11 @@ export const AdvisersPage = () => {
                   <div className="adviser-teacher-profile">
                     <div className="adviser-avatar-wrapper">
                       <img
-                        src={getSafeAvatarUrl(adv.teacher?.image, teacherName)}
+                        src={
+                          adv.teacher?.image ||
+                          `https://ui-avatars.com/api/?name=${encodeURIComponent(teacherName)}&background=07345f&color=fff&size=52`
+                        }
                         alt={teacherName}
-                        onError={(e) => handleAvatarError(e, teacherName)}
                         className="adviser-avatar-img"
                       />
                       <span className="adviser-online-dot" title="Active Faculty Adviser" />
@@ -714,9 +715,11 @@ export const AdvisersPage = () => {
                           <div key={std.id} className="adviser-roster-item">
                             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0 }}>
                               <img
-                                src={getSafeAvatarUrl(std.image, `${std.fname} ${std.lname}`)}
+                                src={
+                                  std.image ||
+                                  `https://ui-avatars.com/api/?name=${encodeURIComponent(std.fname + ' ' + std.lname)}&background=e2e8f0&color=334155&size=28`
+                                }
                                 alt={std.fname}
-                                onError={(e) => handleAvatarError(e, `${std.fname} ${std.lname}`)}
                                 className="adviser-student-avatar"
                               />
                               <div style={{ minWidth: 0 }}>
