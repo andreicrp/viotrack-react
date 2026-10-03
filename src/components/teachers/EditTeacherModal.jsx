@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { GraduationCap, X, Save, Eye, EyeOff, User, Mail, Building, Upload, Camera, Trash2 } from 'lucide-react';
 import CustomSelect from '../common/CustomSelect';
+import { getSafeAvatarUrl, handleAvatarError } from '../../utils/avatarHelper';
 
 export const EditTeacherModal = ({ isOpen, onClose, teacher, onSaved }) => {
   const fileInputRef = useRef(null);
@@ -186,13 +187,9 @@ export const EditTeacherModal = ({ isOpen, onClose, teacher, onSaved }) => {
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                 <img
-                  src={
-                    formData.image ||
-                    (formData.fname
-                      ? `https://ui-avatars.com/api/?name=${encodeURIComponent(formData.fname + ' ' + formData.lname)}&background=27367f&color=fff&size=80`
-                      : 'https://ui-avatars.com/api/?name=Teacher&background=e2e8f0&color=64748b&size=80')
-                  }
+                  src={getSafeAvatarUrl(formData.image, `${formData.fname} ${formData.lname}`.trim() || 'Teacher')}
                   alt="Faculty Photo"
+                  onError={(e) => handleAvatarError(e, `${formData.fname} ${formData.lname}`.trim() || 'Teacher')}
                   style={{
                     width: 48,
                     height: 48,

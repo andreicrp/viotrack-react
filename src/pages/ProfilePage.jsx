@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useNotification } from '../context/NotificationContext';
+import { getSafeAvatarUrl, handleAvatarError } from '../utils/avatarHelper';
 import {
   User,
   Mail,
@@ -228,12 +229,10 @@ export const ProfilePage = () => {
             {/* Avatar with Ring & Edit Overlay */}
             <div className="profile-avatar-wrap">
               <img
-                src={avatar}
+                src={getSafeAvatarUrl(avatar, displayName)}
                 alt={displayName}
                 className="profile-avatar-img"
-                onError={(e) => {
-                  e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(displayName)}&background=27367f&color=fff&size=150`;
-                }}
+                onError={(e) => handleAvatarError(e, displayName)}
               />
               <label
                 htmlFor="profileImageUploadHeader"

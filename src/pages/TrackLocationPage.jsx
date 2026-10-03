@@ -20,6 +20,7 @@ import 'leaflet/dist/leaflet.css';
 import { useAuth } from '../context/AuthContext';
 import { useNotification } from '../context/NotificationContext';
 import { dataService } from '../services/dataService';
+import { getSafeAvatarUrl, getInitialsAvatar, handleAvatarError } from '../utils/avatarHelper';
 import '../css/track-location.css';
 
 // Fix default Leaflet icon paths in Vite bundles
@@ -181,7 +182,8 @@ export const TrackLocationPage = () => {
 
     // 2. Custom student avatar pin
     const studentFullName = `${activeStudent.fname} ${activeStudent.lname}`;
-    const avatarUrl = activeStudent.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(studentFullName)}&background=07345f&color=fff&size=100&bold=true`;
+    const avatarUrl = getSafeAvatarUrl(activeStudent.image, studentFullName);
+    const fallbackSvg = getInitialsAvatar(studentFullName);
 
     const accuracyRadius = Math.max(8, Number(accuracy_meters) || 10);
 
@@ -189,7 +191,7 @@ export const TrackLocationPage = () => {
       className: 'student-avatar-pin',
       html: `
         <div class="pin-outer" title="${studentFullName}">
-          <img src="${avatarUrl}" class="pin-img" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(studentFullName)}&background=07345f&color=fff&size=100&bold=true'" />
+          <img src="${avatarUrl}" class="pin-img" onerror="this.onerror=null;this.src='${fallbackSvg}'" />
         </div>
       `,
       iconSize: [44, 44],
@@ -353,8 +355,9 @@ export const TrackLocationPage = () => {
             <div className="track-sidebar-card">
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
                 <img
-                  src={activeStudent.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(activeStudent.fname + ' ' + activeStudent.lname)}&background=07345f&color=fff&size=100&bold=true`}
+                  src={getSafeAvatarUrl(activeStudent.image, `${activeStudent.fname} ${activeStudent.lname}`)}
                   alt={activeStudent.fname}
+                  onError={(e) => handleAvatarError(e, `${activeStudent.fname} ${activeStudent.lname}`)}
                   style={{ width: '48px', height: '48px', borderRadius: '50%', objectFit: 'cover', border: '2px solid #07345f' }}
                 />
                 <div>

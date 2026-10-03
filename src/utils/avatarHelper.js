@@ -58,7 +58,8 @@ export const getSafeAvatarUrl = (imageUrl, name = '', customBg = null) => {
  * Safe image onError handler to attach to <img> tags
  */
 export const handleAvatarError = (e, name = '', customBg = null) => {
-  if (!e || !e.currentTarget) return;
-  e.currentTarget.onerror = null; // Prevent loop
-  e.currentTarget.src = getInitialsAvatar(name, customBg);
+  const target = e?.currentTarget || e?.target;
+  if (!target) return;
+  target.onerror = null; // Prevent infinite loop
+  target.src = getInitialsAvatar(name, customBg);
 };

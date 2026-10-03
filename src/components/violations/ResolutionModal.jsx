@@ -3,6 +3,7 @@ import { Modal } from '../common/Modal';
 import { dataService } from '../../services/dataService';
 import { useNotification } from '../../context/NotificationContext';
 import { useAuth } from '../../context/AuthContext';
+import { getSafeAvatarUrl, handleAvatarError } from '../../utils/avatarHelper';
 import { 
   CheckCircle2, 
   ShieldCheck, 
@@ -671,8 +672,8 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
     }
   };
 
-  const studentName = `${record.student?.fname || ''} ${record.student?.lname || ''}`.trim();
-  const avatarUrl = record.student?.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(studentName || 'Student')}&background=0f172a&color=fff&size=100&bold=true`;
+  const studentName = `${record.student?.fname || ''} ${record.student?.lname || ''}`.trim() || 'Student';
+  const avatarUrl = getSafeAvatarUrl(record.student?.image, studentName);
 
   const getSeverityStyle = (type) => {
     const t = (type || '').toLowerCase();
@@ -732,9 +733,7 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
                     border: '1.5px solid #cbd5e1',
                     flexShrink: 0
                   }}
-                  onError={(e) => {
-                    e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(studentName || 'Student')}&background=0f172a&color=fff&size=100&bold=true`;
-                  }}
+                  onError={(e) => handleAvatarError(e, studentName)}
                 />
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
