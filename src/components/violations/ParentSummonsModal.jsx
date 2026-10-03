@@ -14,7 +14,9 @@ import {
   X,
   Sparkles,
   School,
-  AlertTriangle
+  AlertTriangle,
+  UserCheck,
+  MessageSquare
 } from 'lucide-react';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
@@ -82,7 +84,7 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student }) => {
           <title>Official Parent Summons - ${studentFullName}</title>
           <style>
             @page { size: A4 portrait; margin: 15mm; }
-            body { font-family: 'Segoe UI', Arial, sans-serif; color: #1e293b; line-height: 1.5; margin: 0; padding: 20px; font-size: 13px; }
+            body { font-family: 'Times New Roman', Times, serif; color: #1e293b; line-height: 1.5; margin: 0; padding: 20px; font-size: 13px; }
             .header-tbl { width: 100%; border-bottom: 2px solid #0f172a; padding-bottom: 12px; margin-bottom: 18px; }
             .ref-no { font-family: monospace; font-size: 11px; color: #64748b; }
             .section-title { font-weight: bold; font-size: 14px; text-transform: uppercase; margin-top: 14px; margin-bottom: 6px; }
@@ -189,33 +191,34 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student }) => {
       doc.setFont('helvetica', 'normal');
       doc.text(`${officerName} (${officerTitle})`, 55, 138);
 
-      // Notes
+      // Remarks / Instructions
       doc.setFontSize(9);
-      doc.setFont('helvetica', 'normal');
-      const notes = `Special Instructions: ${customRemarks}`;
-      const splitNotes = doc.splitTextToSize(notes, 182);
-      doc.text(splitNotes, 14, 149);
+      doc.setTextColor(71, 85, 105);
+      const rem = `Important Notice: ${customRemarks}`;
+      const splitRem = doc.splitTextToSize(rem, 182);
+      doc.text(splitRem, 14, 150);
 
-      doc.text('Your active cooperation is indispensable to guiding our students toward accountability and positive behavior. Failure to attend without prior advice may result in provisional administrative measures.', 14, 162, { maxWidth: 182 });
+      // Closing
+      doc.setTextColor(15, 23, 42);
+      doc.text('Your immediate presence and cooperation are vital to addressing this matter promptly for your child\'s holistic guidance.', 14, 164);
+      doc.text('Sincerely in student development,', 14, 172);
 
       // Signatures
       doc.setFont('helvetica', 'bold');
-      doc.text('Respectfully yours,', 14, 180);
-
-      doc.line(14, 202, 75, 202);
-      doc.text(`${officerName}`, 14, 207);
+      doc.text(officerName, 14, 192);
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(8.5);
-      doc.text(`${officerTitle}`, 14, 211);
+      doc.text(officerTitle, 14, 196);
+      doc.text('Perpetual Help College of Manila', 14, 200);
 
       doc.setFont('helvetica', 'bold');
-      doc.line(130, 202, 191, 202);
-      doc.text('Class Adviser / Department Head', 130, 207);
+      doc.setFontSize(9);
+      doc.text('Class Adviser / Department Head', 130, 192);
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(8.5);
-      doc.text('Basic Education Department', 130, 211);
+      doc.text('Basic Education Department', 130, 196);
 
-      // Tear-off Slip
+      // Tear-off slip
       doc.setLineDashPattern([2, 2], 0);
       doc.setDrawColor(148, 163, 184);
       doc.line(14, 222, 196, 222);
@@ -264,7 +267,7 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student }) => {
         position: 'fixed',
         inset: 0,
         zIndex: 9999,
-        background: 'rgba(15, 23, 42, 0.65)',
+        background: 'rgba(15, 23, 42, 0.7)',
         backdropFilter: 'blur(12px)',
         WebkitBackdropFilter: 'blur(12px)',
         display: 'flex',
@@ -277,11 +280,12 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student }) => {
         className="modal-content-smooth"
         style={{
           width: '100%',
-          maxWidth: '1080px',
-          maxHeight: '92vh',
+          maxWidth: '1120px',
+          height: '92vh',
+          maxHeight: '860px',
           background: '#ffffff',
           borderRadius: '24px',
-          boxShadow: '0 30px 70px -15px rgba(15, 23, 42, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.2)',
+          boxShadow: '0 32px 80px -15px rgba(15, 23, 42, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.2)',
           display: 'flex',
           flexDirection: 'column',
           overflow: 'hidden',
@@ -291,22 +295,24 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student }) => {
         {/* Modal Header */}
         <div
           style={{
-            background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+            background: '#0f172a',
             color: '#ffffff',
-            padding: '20px 28px',
+            padding: '18px 24px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            borderBottom: '1px solid rgba(255, 255, 255, 0.08)'
+            borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+            flexShrink: 0
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <div
               style={{
-                width: '36px',
-                height: '36px',
+                width: '38px',
+                height: '38px',
                 borderRadius: '10px',
-                background: 'rgba(255, 255, 255, 0.12)',
+                background: 'rgba(56, 189, 248, 0.15)',
+                border: '1px solid rgba(56, 189, 248, 0.3)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center'
@@ -315,10 +321,27 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student }) => {
               <FileText size={20} color="#38bdf8" />
             </div>
             <div>
-              <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 800 }}>
-                Automated Parent Summons Letter Generator
-              </h3>
-              <span style={{ fontSize: '11.5px', color: '#94a3b8' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 800 }}>
+                  Automated Parent Summons Letter Generator
+                </h3>
+                <span
+                  style={{
+                    background: 'rgba(56, 189, 248, 0.15)',
+                    color: '#38bdf8',
+                    fontSize: '10px',
+                    fontWeight: 700,
+                    padding: '2px 8px',
+                    borderRadius: '9999px',
+                    border: '1px solid rgba(56, 189, 248, 0.3)',
+                    letterSpacing: '0.4px',
+                    textTransform: 'uppercase'
+                  }}
+                >
+                  Official Template
+                </span>
+              </div>
+              <span style={{ fontSize: '11.5px', color: '#94a3b8', display: 'block', marginTop: '1px' }}>
                 Pre-formatted formal conference notice with dynamic student infraction data
               </span>
             </div>
@@ -328,48 +351,61 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student }) => {
             type="button"
             onClick={onClose}
             style={{
-              background: 'none',
+              background: 'rgba(255, 255, 255, 0.08)',
               border: 'none',
               color: '#94a3b8',
               cursor: 'pointer',
-              padding: '6px',
-              borderRadius: '8px',
+              width: '32px',
+              height: '32px',
+              borderRadius: '50%',
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center'
+              justifyContent: 'center',
+              transition: 'all 0.15s ease'
             }}
-            onMouseOver={(e) => e.currentTarget.style.color = '#ffffff'}
-            onMouseOut={(e) => e.currentTarget.style.color = '#94a3b8'}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)';
+              e.currentTarget.style.color = '#ffffff';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)';
+              e.currentTarget.style.color = '#94a3b8';
+            }}
           >
-            <X size={20} />
+            <X size={18} />
           </button>
         </div>
 
-        {/* Modal Body: 2-Column Split (Form Controls on Left, Live Letter Preview on Right) */}
-        <div style={{ display: 'flex', flex: 1, overflow: 'hidden', flexDirection: 'row' }}>
+        {/* Modal Body: 2-Column Split */}
+        <div style={{ display: 'flex', flex: 1, overflow: 'hidden', minHeight: 0 }}>
           
           {/* Left Column: Form Parameters */}
           <div
             style={{
-              width: '340px',
+              width: '350px',
               borderRight: '1px solid #e2e8f0',
-              padding: '20px',
+              padding: '18px 20px',
               overflowY: 'auto',
               background: '#f8fafc',
               display: 'flex',
               flexDirection: 'column',
-              gap: '14px',
+              gap: '12px',
               flexShrink: 0
             }}
           >
-            <span style={{ fontSize: '11px', fontWeight: 800, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-              Summons Parameters
-            </span>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #e2e8f0', paddingBottom: '8px' }}>
+              <span style={{ fontSize: '11px', fontWeight: 800, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                Summons Parameters
+              </span>
+              <span style={{ fontSize: '11px', color: '#64748b', fontWeight: 600 }}>
+                Live Sync
+              </span>
+            </div>
 
             {/* Guardian Name */}
             <div>
-              <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#334155', marginBottom: '4px' }}>
-                Parent / Guardian Name
+              <label style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '12px', fontWeight: 700, color: '#334155', marginBottom: '4px' }}>
+                <User size={13} color="#2563eb" /> Parent / Guardian Name
               </label>
               <input
                 type="text"
@@ -377,19 +413,20 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student }) => {
                 onChange={(e) => setParentName(e.target.value)}
                 style={{
                   width: '100%',
-                  padding: '8px 12px',
+                  padding: '7px 11px',
                   borderRadius: '8px',
                   border: '1.5px solid #cbd5e1',
-                  fontSize: '13px',
-                  background: '#ffffff'
+                  fontSize: '12.5px',
+                  background: '#ffffff',
+                  boxSizing: 'border-box'
                 }}
               />
             </div>
 
             {/* Conference Date */}
             <div>
-              <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#334155', marginBottom: '4px' }}>
-                Conference Date
+              <label style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '12px', fontWeight: 700, color: '#334155', marginBottom: '4px' }}>
+                <Calendar size={13} color="#059669" /> Conference Date
               </label>
               <input
                 type="date"
@@ -397,19 +434,20 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student }) => {
                 onChange={(e) => setConferenceDate(e.target.value)}
                 style={{
                   width: '100%',
-                  padding: '8px 12px',
+                  padding: '7px 11px',
                   borderRadius: '8px',
                   border: '1.5px solid #cbd5e1',
-                  fontSize: '13px',
-                  background: '#ffffff'
+                  fontSize: '12.5px',
+                  background: '#ffffff',
+                  boxSizing: 'border-box'
                 }}
               />
             </div>
 
             {/* Conference Time */}
             <div>
-              <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#334155', marginBottom: '4px' }}>
-                Conference Time
+              <label style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '12px', fontWeight: 700, color: '#334155', marginBottom: '4px' }}>
+                <Clock size={13} color="#d97706" /> Conference Time
               </label>
               <input
                 type="time"
@@ -417,19 +455,20 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student }) => {
                 onChange={(e) => setConferenceTime(e.target.value)}
                 style={{
                   width: '100%',
-                  padding: '8px 12px',
+                  padding: '7px 11px',
                   borderRadius: '8px',
                   border: '1.5px solid #cbd5e1',
-                  fontSize: '13px',
-                  background: '#ffffff'
+                  fontSize: '12.5px',
+                  background: '#ffffff',
+                  boxSizing: 'border-box'
                 }}
               />
             </div>
 
             {/* Venue */}
             <div>
-              <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#334155', marginBottom: '4px' }}>
-                Designated Venue
+              <label style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '12px', fontWeight: 700, color: '#334155', marginBottom: '4px' }}>
+                <MapPin size={13} color="#dc2626" /> Designated Venue
               </label>
               <input
                 type="text"
@@ -437,19 +476,20 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student }) => {
                 onChange={(e) => setVenue(e.target.value)}
                 style={{
                   width: '100%',
-                  padding: '8px 12px',
+                  padding: '7px 11px',
                   borderRadius: '8px',
                   border: '1.5px solid #cbd5e1',
-                  fontSize: '13px',
-                  background: '#ffffff'
+                  fontSize: '12.5px',
+                  background: '#ffffff',
+                  boxSizing: 'border-box'
                 }}
               />
             </div>
 
             {/* Presiding Officer */}
             <div>
-              <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#334155', marginBottom: '4px' }}>
-                Officer in Charge
+              <label style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '12px', fontWeight: 700, color: '#334155', marginBottom: '4px' }}>
+                <UserCheck size={13} color="#4f46e5" /> Officer in Charge
               </label>
               <input
                 type="text"
@@ -457,19 +497,20 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student }) => {
                 onChange={(e) => setOfficerName(e.target.value)}
                 style={{
                   width: '100%',
-                  padding: '8px 12px',
+                  padding: '7px 11px',
                   borderRadius: '8px',
                   border: '1.5px solid #cbd5e1',
-                  fontSize: '13px',
-                  background: '#ffffff'
+                  fontSize: '12.5px',
+                  background: '#ffffff',
+                  boxSizing: 'border-box'
                 }}
               />
             </div>
 
             {/* Custom Notes */}
             <div>
-              <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#334155', marginBottom: '4px' }}>
-                Meeting Agenda / Notes
+              <label style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '12px', fontWeight: 700, color: '#334155', marginBottom: '4px' }}>
+                <MessageSquare size={13} color="#64748b" /> Meeting Agenda / Notes
               </label>
               <textarea
                 rows={3}
@@ -477,12 +518,15 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student }) => {
                 onChange={(e) => setCustomRemarks(e.target.value)}
                 style={{
                   width: '100%',
-                  padding: '8px 12px',
+                  padding: '7px 11px',
                   borderRadius: '8px',
                   border: '1.5px solid #cbd5e1',
                   fontSize: '12px',
                   background: '#ffffff',
-                  resize: 'vertical'
+                  resize: 'vertical',
+                  minHeight: '65px',
+                  maxHeight: '110px',
+                  boxSizing: 'border-box'
                 }}
               />
             </div>
@@ -495,23 +539,38 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student }) => {
                 disabled={isSendingSms}
                 style={{
                   width: '100%',
-                  padding: '9px',
-                  borderRadius: '8px',
-                  background: '#f1f5f9',
+                  padding: '9px 12px',
+                  borderRadius: '10px',
+                  background: '#ffffff',
                   color: '#0f172a',
-                  border: '1px solid #cbd5e1',
+                  border: '1.5px solid #cbd5e1',
                   fontSize: '12px',
                   fontWeight: 700,
-                  cursor: 'pointer',
+                  cursor: isSendingSms ? 'not-allowed' : 'pointer',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: '6px'
+                  gap: '6px',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+                  transition: 'all 0.15s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = '#f1f5f9';
+                  e.currentTarget.style.borderColor = '#94a3b8';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = '#ffffff';
+                  e.currentTarget.style.borderColor = '#cbd5e1';
                 }}
               >
                 <Send size={13} color="#0f172a" />
                 <span>{isSendingSms ? 'Dispatching...' : 'Send SMS Notice to Parent'}</span>
               </button>
+              {defaultParentContact && defaultParentContact !== 'N/A' && (
+                <span style={{ fontSize: '10.5px', color: '#64748b', textAlign: 'center', display: 'block', marginTop: '4px' }}>
+                  Target: {defaultParentContact}
+                </span>
+              )}
             </div>
           </div>
 
@@ -519,11 +578,10 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student }) => {
           <div
             style={{
               flex: 1,
-              padding: '24px',
+              padding: '24px 20px',
               overflowY: 'auto',
               background: '#e2e8f0',
-              display: 'flex',
-              justifyContent: 'center'
+              display: 'block'
             }}
           >
             <div
@@ -531,60 +589,70 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student }) => {
               style={{
                 width: '100%',
                 maxWidth: '680px',
+                margin: '0 auto',
                 background: '#ffffff',
-                boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+                boxShadow: '0 8px 30px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.04)',
                 borderRadius: '8px',
-                padding: '40px',
-                fontFamily: 'serif',
+                padding: '36px 44px',
+                fontFamily: "'Times New Roman', Times, serif",
                 color: '#0f172a',
-                lineHeight: 1.6
+                lineHeight: 1.55,
+                boxSizing: 'border-box'
               }}
             >
               {/* Official Letterhead */}
-              <div style={{ textAlign: 'center', borderBottom: '2px solid #0f172a', paddingBottom: '14px', marginBottom: '20px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', marginBottom: '6px' }}>
-                  <img src="/images/phcm-logo.png" alt="PHCM Logo" style={{ width: '48px', height: '48px' }} />
+              <div style={{ textAlign: 'center', borderBottom: '2px solid #0f172a', paddingBottom: '14px', marginBottom: '16px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '14px', marginBottom: '6px' }}>
+                  <img
+                    src="/images/phcm-logo.png"
+                    alt="PHCM Logo"
+                    style={{ width: '48px', height: '48px', objectFit: 'contain' }}
+                    onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                  />
                   <div>
-                    <h2 style={{ margin: 0, fontSize: '17px', fontWeight: 800, color: '#0f172a', letterSpacing: '0.04em' }}>
+                    <h2 style={{ margin: 0, fontSize: '17px', fontWeight: 800, color: '#0f172a', letterSpacing: '0.03em', fontFamily: 'Arial, sans-serif' }}>
                       PERPETUAL HELP COLLEGE OF MANILA
                     </h2>
-                    <span style={{ fontSize: '11px', color: '#475569', display: 'block' }}>
+                    <span style={{ fontSize: '11px', color: '#475569', display: 'block', fontFamily: 'Arial, sans-serif' }}>
                       1240 V. Concepcion St., Sampaloc, Manila | Office of the Prefect of Discipline
+                    </span>
+                    <span style={{ fontSize: '9.5px', color: '#64748b', fontWeight: 700, letterSpacing: '0.5px', display: 'block', textTransform: 'uppercase', fontFamily: 'Arial, sans-serif' }}>
+                      VIOTRACK DISCIPLINARY &amp; STUDENT WELFARE MANAGEMENT SYSTEM
                     </span>
                   </div>
                 </div>
               </div>
 
               {/* Reference & Date */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '12px', color: '#64748b', marginBottom: '16px' }}>
-                <span>Ref: <strong style={{ color: '#0f172a' }}>{referenceNo}</strong></span>
-                <span>Date: <strong style={{ color: '#0f172a' }}>{currentDateFormatted}</strong></span>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11.5px', color: '#64748b', marginBottom: '14px', fontFamily: 'Arial, sans-serif' }}>
+                <span>Reference No: <strong style={{ color: '#0f172a', fontFamily: 'monospace' }}>{referenceNo}</strong></span>
+                <span>Date Issued: <strong style={{ color: '#0f172a' }}>{currentDateFormatted}</strong></span>
               </div>
 
               {/* Notice Heading */}
-              <div style={{ textAlign: 'center', margin: '20px 0' }}>
-                <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 800, color: '#0f172a', textTransform: 'uppercase', textDecoration: 'underline' }}>
-                  Official Parent / Guardian Conference Notice
+              <div style={{ textAlign: 'center', margin: '14px 0 16px' }}>
+                <h3 style={{ margin: 0, fontSize: '14.5px', fontWeight: 800, color: '#0f172a', textTransform: 'uppercase', letterSpacing: '0.5px', fontFamily: 'Arial, sans-serif' }}>
+                  OFFICIAL PARENT / GUARDIAN CONFERENCE NOTICE
                 </h3>
-                <span style={{ fontSize: '11px', color: '#dc2626', fontWeight: 700 }}>
+                <span style={{ fontSize: '10.5px', color: '#dc2626', fontWeight: 700, letterSpacing: '0.4px', fontFamily: 'Arial, sans-serif' }}>
                   (MANDATORY DISCIPLINARY APPEARANCE)
                 </span>
               </div>
 
               {/* Recipient */}
-              <div style={{ fontSize: '13px', marginBottom: '16px' }}>
-                <strong>TO: {parentName.toUpperCase()}</strong><br />
-                Parent / Legal Guardian of <strong>{studentFullName}</strong><br />
-                Grade &amp; Section: <strong>{activeStudent.grade || 'Grade 10'} - {activeStudent.section || 'General'}</strong> | LRN: <strong>{activeStudent.lrn || 'N/A'}</strong>
+              <div style={{ fontSize: '12.5px', marginBottom: '14px', background: '#f8fafc', padding: '10px 14px', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
+                <div><strong>TO:</strong> {parentName.toUpperCase()}</div>
+                <div><strong>Parent / Legal Guardian of:</strong> {studentFullName}</div>
+                <div><strong>Grade &amp; Section:</strong> {activeStudent.grade || 'Grade 10'} - {activeStudent.section || 'General'} | <strong>LRN:</strong> {activeStudent.lrn || 'N/A'}</div>
               </div>
 
               {/* Letter Body */}
-              <div style={{ fontSize: '12.5px', color: '#1e293b', textAlign: 'justify', marginBottom: '16px' }}>
-                <p style={{ margin: '0 0 10px 0' }}>Dear Mr. / Mrs. / Ms. <strong>{parentName}</strong>,</p>
-                <p style={{ margin: '0 0 10px 0' }}>
+              <div style={{ fontSize: '12.5px', color: '#1e293b', textAlign: 'justify', marginBottom: '14px' }}>
+                <p style={{ margin: '0 0 8px 0' }}>Dear Mr. / Mrs. / Ms. <strong>{parentName}</strong>,</p>
+                <p style={{ margin: '0 0 8px 0' }}>
                   This is to formally inform you that your child/ward, <strong>{studentFullName}</strong>, has been reported for a disciplinary infraction regarding <strong>&quot;{violationTitle}&quot;</strong> (classified as a <strong>{violationType} Offense</strong> under the Student Code of Conduct).
                 </p>
-                <p style={{ margin: '0 0 10px 0' }}>
+                <p style={{ margin: '0 0 8px 0' }}>
                   In line with our mutual goal to nurture positive student character, accountability, and academic success, you are cordially requested to attend an in-person case conference scheduled as follows:
                 </p>
               </div>
@@ -595,19 +663,19 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student }) => {
                   background: '#f8fafc',
                   border: '1.5px solid #cbd5e1',
                   borderRadius: '8px',
-                  padding: '14px 18px',
-                  marginBottom: '16px',
+                  padding: '12px 16px',
+                  marginBottom: '14px',
                   fontSize: '12px'
                 }}
               >
-                <div style={{ display: 'grid', gridTemplateColumns: '140px 1fr', gap: '6px', rowGap: '6px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '135px 1fr', gap: '6px', rowGap: '6px' }}>
                   <strong>Conference Date:</strong>
                   <span>{formattedConfDate}</span>
 
                   <strong>Designated Time:</strong>
                   <span>{conferenceTime} (Please arrive 10 minutes prior)</span>
 
-                  <strong>Venue:</strong>
+                  <strong>Designated Venue:</strong>
                   <span>{venue}</span>
 
                   <strong>Presiding Officer:</strong>
@@ -616,38 +684,38 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student }) => {
               </div>
 
               {/* Remarks */}
-              <p style={{ fontSize: '12px', color: '#475569', fontStyle: 'italic', margin: '0 0 14px 0' }}>
+              <p style={{ fontSize: '11.5px', color: '#475569', fontStyle: 'italic', margin: '0 0 12px 0' }}>
                 <strong>Note:</strong> {customRemarks}
               </p>
 
               {/* Signatures */}
-              <div style={{ marginTop: '30px', display: 'flex', justifyContent: 'space-between' }}>
+              <div style={{ marginTop: '24px', display: 'flex', justifyContent: 'space-between' }}>
                 <div>
-                  <div style={{ height: '35px' }} />
+                  <div style={{ height: '30px' }} />
                   <div style={{ borderTop: '1.5px solid #0f172a', width: '200px', paddingTop: '4px' }}>
-                    <strong style={{ fontSize: '12.5px', display: 'block' }}>{officerName}</strong>
-                    <span style={{ fontSize: '11px', color: '#64748b' }}>{officerTitle}</span>
+                    <strong style={{ fontSize: '12px', display: 'block' }}>{officerName}</strong>
+                    <span style={{ fontSize: '10.5px', color: '#64748b' }}>{officerTitle}</span>
                   </div>
                 </div>
 
                 <div>
-                  <div style={{ height: '35px' }} />
+                  <div style={{ height: '30px' }} />
                   <div style={{ borderTop: '1.5px solid #0f172a', width: '200px', paddingTop: '4px' }}>
-                    <strong style={{ fontSize: '12.5px', display: 'block' }}>Class Adviser</strong>
-                    <span style={{ fontSize: '11px', color: '#64748b' }}>Department Head</span>
+                    <strong style={{ fontSize: '12px', display: 'block' }}>Class Adviser</strong>
+                    <span style={{ fontSize: '10.5px', color: '#64748b' }}>Department Head</span>
                   </div>
                 </div>
               </div>
 
               {/* Return Slip */}
-              <div style={{ marginTop: '30px', borderTop: '2px dashed #94a3b8', paddingTop: '16px', fontSize: '11px' }}>
-                <div style={{ textAlign: 'center', fontWeight: 800, marginBottom: '6px' }}>
+              <div style={{ marginTop: '22px', borderTop: '2px dashed #94a3b8', paddingTop: '12px', fontSize: '10.5px' }}>
+                <div style={{ textAlign: 'center', fontWeight: 800, marginBottom: '5px', letterSpacing: '0.4px', textTransform: 'uppercase' }}>
                   ACKNOWLEDGEMENT &amp; CONFIRMATION RETURN SLIP
                 </div>
-                <p style={{ margin: '0 0 10px 0' }}>
+                <p style={{ margin: '0 0 8px 0', lineHeight: 1.4 }}>
                   I acknowledge receipt of the conference notice for <strong>{studentFullName}</strong> (Ref: {referenceNo}) for the scheduled date of <strong>{formattedConfDate}</strong> at <strong>{conferenceTime}</strong>.
                 </p>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '16px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '14px' }}>
                   <span>Parent/Guardian Signature: _________________________</span>
                   <span>Date Signed: _______________</span>
                 </div>
@@ -665,7 +733,8 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student }) => {
             padding: '14px 24px',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'space-between'
+            justifyContent: 'space-between',
+            flexShrink: 0
           }}
         >
           <span style={{ fontSize: '12px', color: '#64748b' }}>
@@ -677,12 +746,12 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student }) => {
               type="button"
               onClick={onClose}
               style={{
-                padding: '9px 16px',
+                padding: '8px 16px',
                 borderRadius: '8px',
                 border: '1px solid #cbd5e1',
                 background: '#ffffff',
                 color: '#475569',
-                fontSize: '13px',
+                fontSize: '12.5px',
                 fontWeight: 700,
                 cursor: 'pointer'
               }}
@@ -694,12 +763,12 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student }) => {
               type="button"
               onClick={handlePrint}
               style={{
-                padding: '9px 16px',
+                padding: '8px 16px',
                 borderRadius: '8px',
                 border: '1px solid #cbd5e1',
                 background: '#f8fafc',
                 color: '#0f172a',
-                fontSize: '13px',
+                fontSize: '12.5px',
                 fontWeight: 700,
                 cursor: 'pointer',
                 display: 'flex',
@@ -715,12 +784,12 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student }) => {
               type="button"
               onClick={handleDownloadPDF}
               style={{
-                padding: '9px 20px',
+                padding: '8px 20px',
                 borderRadius: '8px',
                 border: 'none',
                 background: '#0f172a',
                 color: '#ffffff',
-                fontSize: '13px',
+                fontSize: '12.5px',
                 fontWeight: 700,
                 cursor: 'pointer',
                 display: 'flex',
