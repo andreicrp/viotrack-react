@@ -1669,6 +1669,7 @@ export const ViolationsPage = () => {
           onClose={() => setSummonsTargetRecord(null)}
           record={summonsTargetRecord}
           student={summonsTargetRecord.student}
+          records={records}
         />
       )}
     </div>

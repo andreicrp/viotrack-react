@@ -1807,6 +1807,7 @@ export const StudentViolationDetailPage = () => {
           onClose={() => setIsSummonsModalOpen(false)}
           student={student}
           record={summonsTargetRecord}
+          records={records}
         />
       )}
     </div>

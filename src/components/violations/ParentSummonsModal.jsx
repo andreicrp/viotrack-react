@@ -23,12 +23,10 @@ import {
   Layers,
   Edit3
 } from 'lucide-react';
-import jsPDF from 'jspdf';
-import 'jspdf-autotable';
 import { useNotification } from '../../context/NotificationContext';
 import { dataService } from '../../services/dataService';
 
-export const ParentSummonsModal = ({ isOpen, onClose, record, student }) => {
+export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }) => {
   const { success, error, info } = useNotification();
   const printRef = useRef(null);
 
@@ -75,31 +73,38 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student }) => {
   useEffect(() => {
     if (!isOpen) return;
 
-    const fetchStudentData = async () => {
+    // 1. Instant hydration if records are already available in props
+    const studentId = activeStudent.id || record?.student_id;
+    if (Array.isArray(records) && records.length > 0 && studentId) {
+      const matched = records.filter(r => String(r.student_id) === String(studentId));
+      if (matched.length > 0) {
+        setStudentViolations(matched);
+        if (record?.id) {
+          setSelectedViolationIds([record.id]);
+        } else {
+          setSelectedViolationIds(matched.map(m => m.id));
+        }
+      }
+    }
+
+    // 2. Non-blocking background fetch for advisers and latest database sync
+    const timer = setTimeout(async () => {
       try {
         const [allRecords, allAdvisers] = await Promise.all([
-          dataService.getRecords(),
+          Array.isArray(records) && records.length > 0 ? Promise.resolve(records) : dataService.getRecords(),
           dataService.getAdvisers().catch(() => [])
         ]);
 
-        const studentId = activeStudent.id || record?.student_id;
         if (studentId && Array.isArray(allRecords)) {
           const matched = allRecords.filter(r => String(r.student_id) === String(studentId));
           if (matched.length > 0) {
             setStudentViolations(matched);
-            // Select all by default or the passed record
             if (record?.id) {
-              setSelectedViolationIds([record.id]);
+              setSelectedViolationIds(prev => prev.length > 0 ? prev : [record.id]);
             } else {
-              setSelectedViolationIds(matched.map(m => m.id));
+              setSelectedViolationIds(prev => prev.length > 0 ? prev : matched.map(m => m.id));
             }
-          } else if (record) {
-            setStudentViolations([record]);
-            setSelectedViolationIds([record.id]);
           }
-        } else if (record) {
-          setStudentViolations([record]);
-          setSelectedViolationIds([record.id]);
         }
 
         // Auto-match adviser for Signatory 2 if available
@@ -122,10 +127,10 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student }) => {
           setSelectedViolationIds([record.id]);
         }
       }
-    };
+    }, 40);
 
-    fetchStudentData();
-  }, [isOpen, activeStudent.id, activeStudent.grade, activeStudent.section, record?.id]);
+    return () => clearTimeout(timer);
+  }, [isOpen, activeStudent.id, activeStudent.grade, activeStudent.section, record?.id, records]);
 
   if (!isOpen) return null;
 
@@ -187,7 +192,7 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student }) => {
             .sig-line { border-bottom: 1px solid #334155; width: 220px; margin-top: 40px; display: inline-block; }
             table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 12px; }
             th, td { border: 1px solid #cbd5e1; padding: 6px 8px; text-align: left; }
-            th { background: #f1f5f9; font-weight: bold; }
+            th { background: #f1f5f9; font-weight: bold; color: #0f172a; }
           </style>
         </head>
         <body>
@@ -204,9 +209,12 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student }) => {
     success('Print dialog opened.');
   };
 
-  // 2. High Quality PDF Generation
-  const handleDownloadPDF = () => {
+  // 2. High Quality PDF Generation (Lazy loaded on-demand for maximum 60fps performance)
+  const handleDownloadPDF = async () => {
     try {
+      const { default: jsPDF } = await import('jspdf');
+      await import('jspdf-autotable');
+
       const doc = new jsPDF({ unit: 'mm', format: 'a4' });
 
       // Header Banner
