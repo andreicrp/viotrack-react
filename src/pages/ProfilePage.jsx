@@ -20,9 +20,12 @@ import {
   Upload,
   Check,
   Fingerprint,
-  FileText
+  FileText,
+  Download,
+  Database
 } from 'lucide-react';
 import { LegalModal } from '../components/legal/LegalModal';
+import { dataService } from '../services/dataService';
 import { isSupabaseConfigured, supabase } from '../lib/supabase';
 import { evaluatePasswordStrength, validateUploadedFile } from '../utils/security';
 import '../css/profile.css';
@@ -83,6 +86,45 @@ export const ProfilePage = () => {
         setAvatar(event.target.result);
       };
       reader.readAsDataURL(file);
+    }
+  };
+
+  const handleExportBackup = async () => {
+    try {
+      const [students, violations, records, logs] = await Promise.all([
+        dataService.getStudents(),
+        dataService.getViolations(),
+        dataService.getRecords(),
+        dataService.getActivityLogs()
+      ]);
+      const backupData = {
+        app: 'VioTrack Student Conduct Portal',
+        exported_at: new Date().toISOString(),
+        exported_by: user?.name || user?.email || 'Administrator',
+        role: user?.role || 'admin',
+        counts: {
+          students: students?.length || 0,
+          violations: violations?.length || 0,
+          records: records?.length || 0,
+          activityLogs: logs?.length || 0
+        },
+        data: {
+          students,
+          violations,
+          records,
+          activityLogs: logs
+        }
+      };
+      const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `VioTrack_Disaster_Recovery_Backup_${new Date().toISOString().split('T')[0]}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      success('System State JSON backup created and downloaded!');
+    } catch (err) {
+      error('Failed to create backup: ' + err.message);
     }
   };
 
@@ -647,6 +689,52 @@ export const ProfilePage = () => {
                   }}
                 >
                   Terminate All Active Sessions & Log Out
+                </button>
+              </div>
+            </div>
+
+            {/* System Disaster Recovery & JSON Backup Card */}
+            <div className="profile-card">
+              <div className="profile-card-header">
+                <div className="profile-card-icon" style={{ background: '#ecfdf5', color: '#059669' }}>
+                  <Database size={18} />
+                </div>
+                <div>
+                  <h3 className="profile-card-title">
+                    Disaster Recovery & Data Backup
+                  </h3>
+                  <p className="profile-card-subtitle">
+                    Export offline JSON snapshots of student conduct and audit state
+                  </p>
+                </div>
+              </div>
+
+              <div style={{ background: '#f8fafc', padding: '14px', borderRadius: '10px', border: '1px solid #e2e8f0', fontSize: '12.5px', color: '#475569', lineHeight: 1.5 }}>
+                Generates a secure, timestamped JSON archive of all active student rosters, disciplinary infraction records, and immutable activity logs for offline preservation.
+              </div>
+
+              <div style={{ marginTop: '12px' }}>
+                <button
+                  type="button"
+                  onClick={handleExportBackup}
+                  style={{
+                    width: '100%',
+                    background: '#07345f',
+                    color: '#ffffff',
+                    border: 'none',
+                    padding: '10px 16px',
+                    borderRadius: '10px',
+                    fontSize: '13px',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
+                    boxShadow: '0 2px 8px rgba(7, 52, 95, 0.2)'
+                  }}
+                >
+                  <Download size={15} /> Download Full System State (JSON)
                 </button>
               </div>
             </div>
