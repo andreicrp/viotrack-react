@@ -32,7 +32,10 @@ import {
   Database,
   Shield,
   Fingerprint,
-  Check
+  Check,
+  Copy,
+  Laptop,
+  Globe
 } from 'lucide-react';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
@@ -44,6 +47,15 @@ export const ActivityLogsPage = () => {
   const [loading, setLoading] = useState(false);
   const [inspectLog, setInspectLog] = useState(null);
   const [isBackupModalOpen, setIsBackupModalOpen] = useState(false);
+  const [copiedField, setCopiedField] = useState(null);
+
+  const handleCopy = (text, fieldKey) => {
+    if (navigator?.clipboard?.writeText) {
+      navigator.clipboard.writeText(text);
+      setCopiedField(fieldKey);
+      setTimeout(() => setCopiedField(null), 2000);
+    }
+  };
 
   // Filters & Search
   const [searchTerm, setSearchTerm] = useState('');
@@ -881,6 +893,17 @@ export const ActivityLogsPage = () => {
         const devInfo = inspectLog.device_info || 'Faculty Workstation (Windows 11)';
         const imHash = inspectLog.immutable_hash || `0x${(inspectLog.id * 31).toString(16).padEnd(16, 'f')}`;
         const timestampIso = inspectLog.created_at || new Date(inspectLog.date || Date.now()).toISOString();
+        const formattedDate = new Date(inspectLog.date || timestampIso).toLocaleString('en-US', {
+          month: 'short',
+          day: 'numeric',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+          hour12: true
+        });
+
+        const certificateSummary = `[VIOTRACK AUDIT CERTIFICATE]\nAudit ID: ${auditId}\nStatus: VERIFIED & UNALTERED\nActor: ${inspectLog.user_name || 'System Admin'} (${inspectLog.user_role || 'Admin'})\nOrigin IP: ${ipAddr}\nWorkstation: ${devInfo}\nAction: ${inspectLog.action}\nDetails: ${inspectLog.details || inspectLog.description || 'Action committed.'}\nTimestamp: ${timestampIso}\nSHA-256 Hash: ${imHash}`;
 
         return (
           <div
@@ -889,7 +912,7 @@ export const ActivityLogsPage = () => {
               position: 'fixed',
               inset: 0,
               zIndex: 9999,
-              background: 'rgba(15, 23, 42, 0.65)',
+              background: 'rgba(15, 23, 42, 0.7)',
               backdropFilter: 'blur(12px)',
               WebkitBackdropFilter: 'blur(12px)',
               display: 'flex',
@@ -902,10 +925,10 @@ export const ActivityLogsPage = () => {
               className="modal-content-smooth"
               style={{
                 width: '100%',
-                maxWidth: '600px',
+                maxWidth: '620px',
                 background: '#ffffff',
                 borderRadius: '24px',
-                boxShadow: '0 30px 70px -15px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.2)',
+                boxShadow: '0 32px 80px -15px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.2)',
                 overflow: 'hidden',
                 display: 'flex',
                 flexDirection: 'column',
@@ -917,19 +940,51 @@ export const ActivityLogsPage = () => {
                 style={{
                   background: '#0f172a',
                   color: '#ffffff',
-                  padding: '18px 24px',
+                  padding: '20px 24px',
                   display: 'flex',
                   alignItems: 'center',
-                  justifyContent: 'space-between'
+                  justifyContent: 'space-between',
+                  borderBottom: '1px solid rgba(16, 185, 129, 0.2)'
                 }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <ShieldCheck size={22} color="#10b981" />
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <div
+                    style={{
+                      width: '42px',
+                      height: '42px',
+                      borderRadius: '12px',
+                      background: 'rgba(16, 185, 129, 0.15)',
+                      border: '1px solid rgba(16, 185, 129, 0.35)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      boxShadow: '0 0 16px rgba(16, 185, 129, 0.2)'
+                    }}
+                  >
+                    <ShieldCheck size={24} color="#10b981" />
+                  </div>
                   <div>
-                    <h3 style={{ margin: 0, fontSize: '15.5px', fontWeight: 800 }}>
-                      Immutable Audit Certificate
-                    </h3>
-                    <span style={{ fontSize: '11px', color: '#94a3b8' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 800, letterSpacing: '-0.2px' }}>
+                        Immutable Audit Certificate
+                      </h3>
+                      <span
+                        style={{
+                          background: 'rgba(16, 185, 129, 0.18)',
+                          color: '#34d399',
+                          fontSize: '10px',
+                          fontWeight: 800,
+                          padding: '2px 8px',
+                          borderRadius: '9999px',
+                          border: '1px solid rgba(16, 185, 129, 0.35)',
+                          letterSpacing: '0.4px',
+                          textTransform: 'uppercase'
+                        }}
+                      >
+                        Tamper-Evident
+                      </span>
+                    </div>
+                    <span style={{ fontSize: '11.5px', color: '#94a3b8', display: 'block', marginTop: '2px' }}>
                       Cryptographically verified tamper-evident event record
                     </span>
                   </div>
@@ -938,81 +993,350 @@ export const ActivityLogsPage = () => {
                 <button
                   type="button"
                   onClick={() => setInspectLog(null)}
-                  style={{ background: 'none', border: 'none', color: '#94a3b8', cursor: 'pointer', padding: '4px' }}
+                  style={{
+                    background: 'rgba(255, 255, 255, 0.08)',
+                    border: 'none',
+                    color: '#94a3b8',
+                    cursor: 'pointer',
+                    width: '32px',
+                    height: '32px',
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    transition: 'all 0.15s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)';
+                    e.currentTarget.style.color = '#ffffff';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)';
+                    e.currentTarget.style.color = '#94a3b8';
+                  }}
                 >
-                  <X size={20} />
+                  <X size={18} />
                 </button>
               </div>
 
               {/* Body */}
-              <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px', fontSize: '13px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#f0fdf4', border: '1px solid #bbf7d0', padding: '10px 14px', borderRadius: '10px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <CheckCircle2 size={16} color="#16a34a" />
-                    <strong style={{ color: '#166534', fontSize: '13px' }}>STATUS: VERIFIED &amp; UNALTERED</strong>
+              <div style={{ padding: '22px 24px', display: 'flex', flexDirection: 'column', gap: '14px', fontSize: '13px' }}>
+                {/* Verification Status Banner */}
+                <div
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)',
+                    border: '1px solid #86efac',
+                    padding: '12px 16px',
+                    borderRadius: '14px',
+                    boxShadow: '0 2px 6px rgba(22, 163, 74, 0.08)'
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '9px' }}>
+                    <span
+                      style={{
+                        width: '9px',
+                        height: '9px',
+                        borderRadius: '50%',
+                        background: '#16a34a',
+                        boxShadow: '0 0 0 3px rgba(22, 163, 74, 0.22)'
+                      }}
+                    />
+                    <strong style={{ color: '#14532d', fontSize: '13px', letterSpacing: '0.2px' }}>
+                      STATUS: VERIFIED &amp; UNALTERED
+                    </strong>
                   </div>
-                  <span style={{ fontFamily: 'monospace', fontWeight: 800, color: '#166534', fontSize: '12px' }}>
-                    {auditId}
-                  </span>
+
+                  <button
+                    type="button"
+                    onClick={() => handleCopy(auditId, 'auditId')}
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      background: '#ffffff',
+                      border: '1px solid #86efac',
+                      padding: '4px 10px',
+                      borderRadius: '8px',
+                      color: '#15803d',
+                      fontFamily: 'monospace',
+                      fontWeight: 800,
+                      fontSize: '12px',
+                      cursor: 'pointer',
+                      boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+                      transition: 'all 0.15s ease'
+                    }}
+                    title="Click to copy Audit ID"
+                  >
+                    <span>{auditId}</span>
+                    {copiedField === 'auditId' ? (
+                      <Check size={13} color="#16a34a" />
+                    ) : (
+                      <Copy size={13} color="#16a34a" />
+                    )}
+                  </button>
                 </div>
 
+                {/* Actor and Workstation Columns */}
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                  <div style={{ background: '#f8fafc', padding: '10px 12px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-                    <span style={{ fontSize: '11px', color: '#64748b', display: 'block' }}>Authorized Actor</span>
-                    <strong style={{ color: '#0f172a' }}>{inspectLog.user_name || 'System Admin'}</strong>
-                    <span style={{ fontSize: '11px', color: '#64748b', display: 'block' }}>Role: {inspectLog.user_role || 'Admin'}</span>
+                  <div
+                    style={{
+                      background: '#f8fafc',
+                      padding: '12px 14px',
+                      borderRadius: '12px',
+                      border: '1px solid #e2e8f0',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '3px'
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#3b82f6', fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.4px' }}>
+                      <User size={13} />
+                      <span>Authorized Actor</span>
+                    </div>
+                    <strong style={{ color: '#0f172a', fontSize: '14px', marginTop: '2px' }}>
+                      {inspectLog.user_name || 'System Admin'}
+                    </strong>
+                    <div style={{ marginTop: '2px' }}>
+                      <span
+                        style={{
+                          background: '#eff6ff',
+                          color: '#1d4ed8',
+                          border: '1px solid #bfdbfe',
+                          fontSize: '11px',
+                          fontWeight: 700,
+                          padding: '1px 7px',
+                          borderRadius: '6px',
+                          display: 'inline-block',
+                          textTransform: 'uppercase',
+                          letterSpacing: '0.3px'
+                        }}
+                      >
+                        Role: {inspectLog.user_role || 'Admin'}
+                      </span>
+                    </div>
                   </div>
 
-                  <div style={{ background: '#f8fafc', padding: '10px 12px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-                    <span style={{ fontSize: '11px', color: '#64748b', display: 'block' }}>Origin IP &amp; Station</span>
-                    <strong style={{ color: '#0f172a', fontFamily: 'monospace' }}>{ipAddr}</strong>
-                    <span style={{ fontSize: '11px', color: '#64748b', display: 'block' }}>{devInfo}</span>
+                  <div
+                    style={{
+                      background: '#f8fafc',
+                      padding: '12px 14px',
+                      borderRadius: '12px',
+                      border: '1px solid #e2e8f0',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '3px'
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#059669', fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.4px' }}>
+                      <Laptop size={13} />
+                      <span>Origin IP &amp; Station</span>
+                    </div>
+                    <strong style={{ color: '#0f172a', fontFamily: 'monospace', fontSize: '13.5px', marginTop: '2px' }}>
+                      {ipAddr}
+                    </strong>
+                    <span style={{ fontSize: '11px', color: '#64748b', display: 'flex', alignItems: 'center', gap: '4px', marginTop: '2px' }}>
+                      <Globe size={11} /> {devInfo}
+                    </span>
                   </div>
                 </div>
 
-                <div>
-                  <span style={{ fontSize: '11.5px', fontWeight: 700, color: '#475569', display: 'block', marginBottom: '4px' }}>
-                    Action Category &amp; Summary
-                  </span>
-                  <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '12px', color: '#1e293b' }}>
-                    <span style={{ fontWeight: 800, color: '#0f172a', display: 'block', marginBottom: '4px' }}>
-                      {inspectLog.action}
+                {/* Action Category & Summary */}
+                <div
+                  style={{
+                    background: '#f8fafc',
+                    border: '1px solid #e2e8f0',
+                    borderRadius: '12px',
+                    padding: '14px 16px'
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
+                    <span style={{ fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.4px' }}>
+                      Action Category &amp; Summary
                     </span>
+                    <span
+                      style={{
+                        background: '#f1f5f9',
+                        color: '#475569',
+                        border: '1px solid #cbd5e1',
+                        fontSize: '10.5px',
+                        fontWeight: 700,
+                        padding: '1px 8px',
+                        borderRadius: '6px'
+                      }}
+                    >
+                      Audit Event
+                    </span>
+                  </div>
+                  <strong style={{ color: '#0f172a', fontSize: '14px', display: 'block', marginBottom: '4px' }}>
+                    {inspectLog.action}
+                  </strong>
+                  <div style={{ color: '#334155', fontSize: '12.5px', lineHeight: 1.5 }}>
                     {inspectLog.details || inspectLog.description || 'Action successfully committed.'}
                   </div>
                 </div>
 
-                <div>
-                  <span style={{ fontSize: '11.5px', fontWeight: 700, color: '#475569', display: 'block', marginBottom: '4px' }}>
-                    Cryptographic Verification Signature
-                  </span>
-                  <div style={{ background: '#0f172a', color: '#38bdf8', padding: '10px 12px', borderRadius: '8px', fontFamily: 'monospace', fontSize: '11px', wordBreak: 'break-all' }}>
+                {/* Cryptographic Verification Signature Box */}
+                <div
+                  style={{
+                    background: '#0b1120',
+                    border: '1px solid #1e293b',
+                    borderRadius: '14px',
+                    padding: '14px 16px'
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#38bdf8' }}>
+                      <Fingerprint size={14} />
+                      <span style={{ fontSize: '11px', fontWeight: 700, color: '#94a3b8', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
+                        Cryptographic Verification Signature (SHA-256)
+                      </span>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => handleCopy(imHash, 'imHash')}
+                      style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                        background: 'rgba(56, 189, 248, 0.1)',
+                        border: '1px solid rgba(56, 189, 248, 0.3)',
+                        color: '#38bdf8',
+                        padding: '3px 8px',
+                        borderRadius: '6px',
+                        fontSize: '11px',
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                        transition: 'all 0.15s ease'
+                      }}
+                    >
+                      {copiedField === 'imHash' ? (
+                        <>
+                          <Check size={11} />
+                          <span>Copied</span>
+                        </>
+                      ) : (
+                        <>
+                          <Copy size={11} />
+                          <span>Copy Hash</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+
+                  <div
+                    style={{
+                      color: '#38bdf8',
+                      fontFamily: 'monospace',
+                      fontSize: '12px',
+                      fontWeight: 700,
+                      wordBreak: 'break-all',
+                      padding: '4px 0',
+                      letterSpacing: '0.4px',
+                      textShadow: '0 0 10px rgba(56, 189, 248, 0.25)'
+                    }}
+                  >
                     {imHash}
                   </div>
-                  <span style={{ fontSize: '10.5px', color: '#94a3b8', marginTop: '3px', display: 'block' }}>
-                    Timestamp: {timestampIso}
-                  </span>
+
+                  <div
+                    style={{
+                      display: 'flex',
+                      flexWrap: 'wrap',
+                      alignItems: 'center',
+                      gap: '8px',
+                      marginTop: '8px',
+                      paddingTop: '8px',
+                      borderTop: '1px solid #1e293b',
+                      fontSize: '11px',
+                      color: '#64748b'
+                    }}
+                  >
+                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', color: '#94a3b8' }}>
+                      <Clock size={11} /> {formattedDate}
+                    </span>
+                    <span style={{ color: '#334155' }}>•</span>
+                    <span style={{ fontFamily: 'monospace', color: '#64748b' }}>
+                      UTC: {timestampIso}
+                    </span>
+                  </div>
                 </div>
               </div>
 
               {/* Footer */}
-              <div style={{ background: '#f8fafc', borderTop: '1px solid #e2e8f0', padding: '12px 24px', display: 'flex', justifyContent: 'flex-end' }}>
-                <button
-                  type="button"
-                  onClick={() => setInspectLog(null)}
-                  style={{
-                    padding: '8px 18px',
-                    borderRadius: '8px',
-                    background: '#0f172a',
-                    color: '#ffffff',
-                    border: 'none',
-                    fontSize: '12.5px',
-                    fontWeight: 700,
-                    cursor: 'pointer'
-                  }}
-                >
-                  Close Certificate
-                </button>
+              <div
+                style={{
+                  background: '#f8fafc',
+                  borderTop: '1px solid #e2e8f0',
+                  padding: '14px 24px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between'
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11.5px', color: '#64748b', fontWeight: 600 }}>
+                  <ShieldCheck size={15} color="#10b981" />
+                  <span>Certified by VioTrack Audit Engine</span>
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <button
+                    type="button"
+                    onClick={() => handleCopy(certificateSummary, 'summary')}
+                    style={{
+                      padding: '8px 14px',
+                      borderRadius: '10px',
+                      background: '#ffffff',
+                      color: '#334155',
+                      border: '1px solid #cbd5e1',
+                      fontSize: '12.5px',
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '5px',
+                      transition: 'all 0.15s ease'
+                    }}
+                    onMouseEnter={(e) => { e.currentTarget.style.background = '#f1f5f9'; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.background = '#ffffff'; }}
+                  >
+                    {copiedField === 'summary' ? (
+                      <>
+                        <Check size={13} color="#16a34a" />
+                        <span>Copied Summary</span>
+                      </>
+                    ) : (
+                      <>
+                        <Copy size={13} />
+                        <span>Copy Summary</span>
+                      </>
+                    )}
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setInspectLog(null)}
+                    style={{
+                      padding: '8px 20px',
+                      borderRadius: '10px',
+                      background: '#0f172a',
+                      color: '#ffffff',
+                      border: 'none',
+                      fontSize: '12.5px',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      boxShadow: '0 2px 8px rgba(15, 23, 42, 0.25)',
+                      transition: 'all 0.15s ease'
+                    }}
+                    onMouseEnter={(e) => { e.currentTarget.style.background = '#1e293b'; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.background = '#0f172a'; }}
+                  >
+                    Close Certificate
+                  </button>
+                </div>
               </div>
             </div>
           </div>
