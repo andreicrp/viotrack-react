@@ -147,7 +147,7 @@ CREATE TABLE sms_logs (
 );
 
 -- ==========================================================
--- 4. ROW LEVEL SECURITY (RLS) POLICIES
+-- 4. ROW LEVEL SECURITY (RLS) POLICIES & PRODUCTION INDEXES
 -- ==========================================================
 ALTER TABLE students ENABLE ROW LEVEL SECURITY;
 ALTER TABLE admins ENABLE ROW LEVEL SECURITY;
@@ -169,6 +169,28 @@ CREATE POLICY "Public Read Access" ON records FOR ALL USING (true);
 CREATE POLICY "Public Read Access" ON activity_logs FOR ALL USING (true);
 CREATE POLICY "Public Read Access" ON meetings FOR ALL USING (true);
 CREATE POLICY "Public Read Access" ON sms_logs FOR ALL USING (true);
+
+-- ==========================================================
+-- 5. PERFORMANCE OPTIMIZATION INDEXES (Large Database Scale)
+-- ==========================================================
+-- Records Query & Filter Optimization
+CREATE INDEX IF NOT EXISTS idx_records_student_date ON records (student_id, date_reported DESC);
+CREATE INDEX IF NOT EXISTS idx_records_status_approval ON records (status, approval_status);
+CREATE INDEX IF NOT EXISTS idx_records_approval_date ON records (approval_status, date_reported DESC);
+CREATE INDEX IF NOT EXISTS idx_records_violation_id ON records (violation_id);
+CREATE INDEX IF NOT EXISTS idx_records_date_reported ON records (date_reported DESC);
+
+-- Students Search & Filtering Optimization
+CREATE INDEX IF NOT EXISTS idx_students_grade_section ON students (grade, section);
+CREATE INDEX IF NOT EXISTS idx_students_lrn ON students (lrn);
+CREATE INDEX IF NOT EXISTS idx_students_names ON students (lname, fname);
+CREATE INDEX IF NOT EXISTS idx_students_academicyear ON students (academicyear);
+
+-- Advisers & Logs Optimization
+CREATE INDEX IF NOT EXISTS idx_advisers_teacher ON advisers (teacher_id);
+CREATE INDEX IF NOT EXISTS idx_advisers_grade_section ON advisers (grade_level, class_section);
+CREATE INDEX IF NOT EXISTS idx_activity_logs_created ON activity_logs (created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_sms_logs_student ON sms_logs (student_id);
 
 -- ==========================================================
 -- 5. INITIAL SEED DATA

@@ -385,7 +385,8 @@ const _cache = {
     advisers: null,
     admins: null,
     activity_logs: null,
-    school_events: null
+    school_events: null,
+    dashboard_stats: null
   },
   timestamps: {
     students: 0,
@@ -395,7 +396,8 @@ const _cache = {
     advisers: 0,
     admins: 0,
     activity_logs: 0,
-    school_events: 0
+    school_events: 0,
+    dashboard_stats: 0
   },
   inFlightPromises: new Map()
 };
@@ -421,6 +423,11 @@ const invalidateCache = (key) => {
     _cache.data[key] = null;
     _cache.timestamps[key] = 0;
     _cache.inFlightPromises.delete(key);
+    if (key === 'records' || key === 'students' || key === 'violations') {
+      _cache.data.dashboard_stats = null;
+      _cache.timestamps.dashboard_stats = 0;
+      _cache.inFlightPromises.delete('dashboard_stats');
+    }
   } else {
     Object.keys(_cache.data).forEach(k => {
       _cache.data[k] = null;
@@ -1856,6 +1863,171 @@ export const dataService = {
     );
 
     return result;
+  },
+
+  // --- HIGH-PERFORMANCE PRECOMPUTED ANALYTICS & PAGINATION (Large DB Optimization) ---
+  async getDashboardStats(forceRefresh = false) {
+    const now = Date.now();
+    const cached = _cache.data.dashboard_stats;
+    const cacheAge = now - _cache.timestamps.dashboard_stats;
+
+    if (!forceRefresh && cached && cacheAge < CACHE_CONFIG.FRESH_TTL) {
+      return cached;
+    }
+
+    if (!forceRefresh && cached && cacheAge < CACHE_CONFIG.STALE_TTL) {
+      this.getDashboardStats(true).catch(() => {});
+      return cached;
+    }
+
+    return executeWithDeduplication('dashboard_stats', async () => {
+      const [students, records, events] = await Promise.all([
+        this.getStudents(),
+        this.getRecords(),
+        this.getSchoolEvents()
+      ]);
+
+      const approvedRecords = (records || []).filter(r => r.approval_status === 'Approved');
+      const underApprovalCount = (records || []).filter(r => r.approval_status === 'Under Approval' || r.status === 'Under Approval').length;
+      const pendingCount = approvedRecords.filter(r => r.status === 'Pending').length;
+      const resolvedCount = approvedRecords.filter(r => r.status === 'Resolved').length;
+      const investigationCount = approvedRecords.filter(r => r.status === 'Investigation').length;
+
+      let minorCount = 0;
+      let seriousCount = 0;
+      let majorCount = 0;
+
+      const infractionMap = new Map();
+
+      for (const r of approvedRecords) {
+        const type = (r.violation?.type || 'Minor').toLowerCase();
+        if (type.includes('major')) majorCount++;
+        else if (type.includes('serious')) seriousCount++;
+        else minorCount++;
+
+        const sId = r.student_id;
+        if (sId) {
+          const current = infractionMap.get(sId) || { count: 0, student: r.student, records: [] };
+          current.count++;
+          if (r.student) current.student = r.student;
+          current.records.push(r);
+          infractionMap.set(sId, current);
+        }
+      }
+
+      const repeatOffenders = Array.from(infractionMap.values())
+        .filter(item => item.count >= 2 && item.student)
+        .sort((a, b) => b.count - a.count);
+
+      const stats = {
+        totalStudents: (students || []).length,
+        totalViolations: approvedRecords.length,
+        pendingViolations: pendingCount,
+        resolvedViolations: resolvedCount,
+        investigationViolations: investigationCount,
+        underApprovalViolations: underApprovalCount,
+        minorCount,
+        seriousCount,
+        majorCount,
+        repeatOffenders,
+        schoolEvents: events || [],
+        calculatedAt: new Date().toISOString()
+      };
+
+      _cache.data.dashboard_stats = stats;
+      _cache.timestamps.dashboard_stats = Date.now();
+      return stats;
+    });
+  },
+
+  async getStudentsPaginated({ page = 1, limit = 10, search = '', grade = 'all', section = 'all', sortField = 'grade', sortOrder = 'asc' } = {}) {
+    const allStudents = await this.getStudents();
+    const query = String(search || '').toLowerCase().trim();
+
+    let filtered = allStudents;
+    if (query) {
+      filtered = filtered.filter(s =>
+        (s.fname && s.fname.toLowerCase().includes(query)) ||
+        (s.lname && s.lname.toLowerCase().includes(query)) ||
+        (s.lrn && String(s.lrn).toLowerCase().includes(query)) ||
+        (s.email && s.email.toLowerCase().includes(query)) ||
+        (s.section && s.section.toLowerCase().includes(query))
+      );
+    }
+
+    if (grade !== 'all') {
+      filtered = filtered.filter(s => s.grade === grade);
+    }
+    if (section !== 'all') {
+      filtered = filtered.filter(s => s.section === section);
+    }
+
+    // Sort
+    filtered = [...filtered].sort((a, b) => {
+      let valA = (a[sortField] || '').toString().toLowerCase();
+      let valB = (b[sortField] || '').toString().toLowerCase();
+      if (sortOrder === 'desc') {
+        return valB.localeCompare(valA, undefined, { numeric: true });
+      }
+      return valA.localeCompare(valB, undefined, { numeric: true });
+    });
+
+    const totalCount = filtered.length;
+    const totalPages = Math.ceil(totalCount / limit) || 1;
+    const startIndex = (page - 1) * limit;
+    const paginatedData = filtered.slice(startIndex, startIndex + limit);
+
+    return {
+      data: paginatedData,
+      totalCount,
+      totalPages,
+      currentPage: page,
+      hasNextPage: page < totalPages,
+      hasPrevPage: page > 1
+    };
+  },
+
+  async getRecordsPaginated({ page = 1, limit = 10, status = 'all', approvalStatus = 'all', search = '', dateRange = null } = {}) {
+    const allRecords = await this.getRecords();
+    const query = String(search || '').toLowerCase().trim();
+
+    let filtered = allRecords;
+
+    if (approvalStatus !== 'all') {
+      filtered = filtered.filter(r => (r.approval_status || '').toLowerCase() === approvalStatus.toLowerCase());
+    }
+
+    if (status !== 'all') {
+      filtered = filtered.filter(r => (r.status || '').toLowerCase() === status.toLowerCase());
+    }
+
+    if (query) {
+      filtered = filtered.filter(r => {
+        const s = r.student;
+        const v = r.violation;
+        return (
+          (s?.fname && s.fname.toLowerCase().includes(query)) ||
+          (s?.lname && s.lname.toLowerCase().includes(query)) ||
+          (s?.lrn && String(s.lrn).toLowerCase().includes(query)) ||
+          (v?.title && v.title.toLowerCase().includes(query)) ||
+          (r.remarks && r.remarks.toLowerCase().includes(query))
+        );
+      });
+    }
+
+    const totalCount = filtered.length;
+    const totalPages = Math.ceil(totalCount / limit) || 1;
+    const startIndex = (page - 1) * limit;
+    const paginatedData = filtered.slice(startIndex, startIndex + limit);
+
+    return {
+      data: paginatedData,
+      totalCount,
+      totalPages,
+      currentPage: page,
+      hasNextPage: page < totalPages,
+      hasPrevPage: page > 1
+    };
   },
 
   // --- DATA RESET & SYNC UTILITIES ---
