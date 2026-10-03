@@ -238,7 +238,14 @@ export const AuthProvider = ({ children }) => {
     if (!user || isLocked) return;
 
     const activityEvents = ['mousedown', 'keydown', 'touchstart', 'scroll'];
-    const handleActivity = () => resetInactivityTimer();
+    let lastHandled = 0;
+    const handleActivity = () => {
+      const now = Date.now();
+      if (now - lastHandled > 3000) {
+        lastHandled = now;
+        resetInactivityTimer();
+      }
+    };
 
     activityEvents.forEach(evt => window.addEventListener(evt, handleActivity, { passive: true }));
     resetInactivityTimer();
