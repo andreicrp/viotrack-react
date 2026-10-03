@@ -61,6 +61,7 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student }) => {
   const [signatory1Dept, setSignatory1Dept] = useState('Perpetual Help College of Manila');
 
   // Signatory 2 (Right - Class Adviser / Department Head)
+  const [includeSignatory2, setIncludeSignatory2] = useState(true);
   const [signatory2Name, setSignatory2Name] = useState('Class Adviser');
   const [signatory2Title, setSignatory2Title] = useState('Department Head');
   const [signatory2Dept, setSignatory2Dept] = useState('Basic Education Department');
@@ -355,13 +356,15 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student }) => {
       doc.text(signatory1Title, 14, currentY + 4);
       doc.text(signatory1Dept, 14, currentY + 8);
 
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(9);
-      doc.text(signatory2Name, 130, currentY);
-      doc.setFont('helvetica', 'normal');
-      doc.setFontSize(8.5);
-      doc.text(signatory2Title, 130, currentY + 4);
-      doc.text(signatory2Dept, 130, currentY + 8);
+      if (includeSignatory2) {
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(9);
+        doc.text(signatory2Name, 130, currentY);
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(8.5);
+        doc.text(signatory2Title, 130, currentY + 4);
+        doc.text(signatory2Dept, 130, currentY + 8);
+      }
 
       // Tear-off slip
       const tearOffY = Math.max(currentY + 22, 230);
@@ -785,42 +788,72 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student }) => {
               </div>
 
               {/* Signatory 2 (Right - Class Adviser / Dept Head) */}
-              <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '10px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                <span style={{ fontSize: '11px', fontWeight: 700, color: '#0f172a' }}>
-                  Signatory 2 (Right - Class Adviser / Dept Head)
-                </span>
-                <div>
-                  <input
-                    type="text"
-                    value={signatory2Name}
-                    placeholder="Signatory 2 Name (e.g. Class Adviser / Adviser Name)"
-                    onChange={(e) => setSignatory2Name(e.target.value)}
-                    style={{
-                      width: '100%',
-                      padding: '6px 9px',
-                      borderRadius: '6px',
-                      border: '1px solid #cbd5e1',
-                      fontSize: '12px',
-                      fontWeight: 600,
-                      marginBottom: '4px',
-                      boxSizing: 'border-box'
-                    }}
-                  />
-                  <input
-                    type="text"
-                    value={signatory2Title}
-                    placeholder="Designation (e.g. Department Head / Class Adviser)"
-                    onChange={(e) => setSignatory2Title(e.target.value)}
-                    style={{
-                      width: '100%',
-                      padding: '5px 9px',
-                      borderRadius: '6px',
-                      border: '1px solid #cbd5e1',
-                      fontSize: '11.5px',
-                      boxSizing: 'border-box'
-                    }}
-                  />
+              <div
+                style={{
+                  background: '#ffffff',
+                  border: includeSignatory2 ? '1px solid #e2e8f0' : '1px dashed #cbd5e1',
+                  borderRadius: '10px',
+                  padding: '10px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '6px',
+                  opacity: includeSignatory2 ? 1 : 0.7,
+                  transition: 'all 0.15s ease'
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', fontWeight: 700, color: '#0f172a', cursor: 'pointer' }}>
+                    <input
+                      type="checkbox"
+                      checked={includeSignatory2}
+                      onChange={(e) => setIncludeSignatory2(e.target.checked)}
+                      style={{ accentColor: '#0f172a', cursor: 'pointer' }}
+                    />
+                    <span>Signatory 2 (Adviser / Head)</span>
+                  </label>
+                  <span style={{ fontSize: '10px', fontWeight: 800, color: includeSignatory2 ? '#16a34a' : '#64748b' }}>
+                    {includeSignatory2 ? 'Included' : 'Removed'}
+                  </span>
                 </div>
+
+                {includeSignatory2 ? (
+                  <div>
+                    <input
+                      type="text"
+                      value={signatory2Name}
+                      placeholder="Signatory 2 Name (e.g. Class Adviser / Adviser Name)"
+                      onChange={(e) => setSignatory2Name(e.target.value)}
+                      style={{
+                        width: '100%',
+                        padding: '6px 9px',
+                        borderRadius: '6px',
+                        border: '1px solid #cbd5e1',
+                        fontSize: '12px',
+                        fontWeight: 600,
+                        marginBottom: '4px',
+                        boxSizing: 'border-box'
+                      }}
+                    />
+                    <input
+                      type="text"
+                      value={signatory2Title}
+                      placeholder="Designation (e.g. Department Head / Class Adviser)"
+                      onChange={(e) => setSignatory2Title(e.target.value)}
+                      style={{
+                        width: '100%',
+                        padding: '5px 9px',
+                        borderRadius: '6px',
+                        border: '1px solid #cbd5e1',
+                        fontSize: '11.5px',
+                        boxSizing: 'border-box'
+                      }}
+                    />
+                  </div>
+                ) : (
+                  <span style={{ fontSize: '11px', color: '#64748b', fontStyle: 'italic', padding: '4px 0' }}>
+                    Second signatory line removed from notice.
+                  </span>
+                )}
               </div>
             </div>
 
@@ -1049,7 +1082,7 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student }) => {
               </p>
 
               {/* Signatures: Fully Editable Live */}
-              <div style={{ marginTop: '24px', display: 'flex', justifyContent: 'space-between' }}>
+              <div style={{ marginTop: '24px', display: 'flex', justifyContent: includeSignatory2 ? 'space-between' : 'flex-start' }}>
                 <div>
                   <div style={{ height: '30px' }} />
                   <div style={{ borderTop: '1.5px solid #0f172a', width: '210px', paddingTop: '4px' }}>
@@ -1059,14 +1092,16 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student }) => {
                   </div>
                 </div>
 
-                <div>
-                  <div style={{ height: '30px' }} />
-                  <div style={{ borderTop: '1.5px solid #0f172a', width: '210px', paddingTop: '4px' }}>
-                    <strong style={{ fontSize: '12px', display: 'block', color: '#0f172a' }}>{signatory2Name}</strong>
-                    <span style={{ fontSize: '10.5px', color: '#64748b', display: 'block' }}>{signatory2Title}</span>
-                    <span style={{ fontSize: '10px', color: '#94a3b8', display: 'block' }}>{signatory2Dept}</span>
+                {includeSignatory2 && (
+                  <div>
+                    <div style={{ height: '30px' }} />
+                    <div style={{ borderTop: '1.5px solid #0f172a', width: '210px', paddingTop: '4px' }}>
+                      <strong style={{ fontSize: '12px', display: 'block', color: '#0f172a' }}>{signatory2Name}</strong>
+                      <span style={{ fontSize: '10.5px', color: '#64748b', display: 'block' }}>{signatory2Title}</span>
+                      <span style={{ fontSize: '10px', color: '#94a3b8', display: 'block' }}>{signatory2Dept}</span>
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
 
               {/* Return Slip */}
