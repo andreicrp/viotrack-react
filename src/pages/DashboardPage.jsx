@@ -7,7 +7,10 @@ import {
   YAxis,
   Tooltip,
   ResponsiveContainer,
-  CartesianGrid
+  CartesianGrid,
+  PieChart,
+  Pie,
+  Cell
 } from 'recharts';
 import {
   QrCode,
@@ -28,7 +31,8 @@ import {
   FileText,
   Compass,
   CheckCircle2,
-  Download
+  Download,
+  PieChart as PieChartIcon
 } from 'lucide-react';
 import { dataService } from '../services/dataService';
 import { useAuth } from '../context/AuthContext';
@@ -429,6 +433,69 @@ export const DashboardPage = () => {
     const startIdx = (offendersPage - 1) * offendersPerPage;
     return repeatStudentsList.slice(startIdx, startIdx + offendersPerPage);
   }, [repeatStudentsList, offendersPage]);
+
+  // Curated modern color palette for circle violation chart slices
+  const PIE_COLORS = [
+    '#0f172a', // Slate 900 / Midnight
+    '#2563eb', // Royal Blue
+    '#6366f1', // Indigo
+    '#8b5cf6', // Purple / Violet
+    '#06b6d4', // Cyan
+    '#10b981', // Emerald
+    '#f59e0b', // Amber
+    '#f43f5e', // Rose
+    '#64748b'  // Slate / Others
+  ];
+
+  // 4. Dynamic Most Common Violation Types Breakdown (Pie / Distribution)
+  const violationDistribution = useMemo(() => {
+    if (!approvedRecords || approvedRecords.length === 0) {
+      return [];
+    }
+
+    const counts = {};
+    approvedRecords.forEach(r => {
+      const title = (r.violation?.title || r.title || 'Other Infraction').trim();
+      const sev = (r.violation?.type || r.type || 'Minor').trim();
+      if (!counts[title]) {
+        counts[title] = { name: title, value: 0, severity: sev };
+      }
+      counts[title].value += 1;
+    });
+
+    const sorted = Object.values(counts).sort((a, b) => b.value - a.value);
+    const total = approvedRecords.length;
+
+    if (sorted.length <= 6) {
+      return sorted.map((item, idx) => ({
+        ...item,
+        color: PIE_COLORS[idx % PIE_COLORS.length],
+        percent: Number(((item.value / total) * 100).toFixed(1))
+      }));
+    }
+
+    const top5 = sorted.slice(0, 5);
+    const rest = sorted.slice(5);
+    const restCount = rest.reduce((acc, c) => acc + c.value, 0);
+
+    const result = top5.map((item, idx) => ({
+      ...item,
+      color: PIE_COLORS[idx % PIE_COLORS.length],
+      percent: Number(((item.value / total) * 100).toFixed(1))
+    }));
+
+    if (restCount > 0) {
+      result.push({
+        name: 'Other Offenses',
+        value: restCount,
+        severity: 'Various',
+        color: PIE_COLORS[5 % PIE_COLORS.length] || '#64748b',
+        percent: Number(((restCount / total) * 100).toFixed(1))
+      });
+    }
+
+    return result;
+  }, [approvedRecords]);
 
   // 4. Dynamic Grade & Section Breakdown
   const sectionBreakdown = useMemo(() => {
@@ -841,194 +908,331 @@ export const DashboardPage = () => {
         </div>
       </div>
 
-      {/* 3. Real Violation Trends Chart Section */}
-      <div className="dash-trends-card">
-        <div className="dash-trends-header">
-          <div className="dash-trends-title-left">
-            <TrendingUp size={22} color="#0f172a" strokeWidth={2.4} />
-            <div>
-              <h2 className="dash-trends-main-title">Violation Trends & Analytics</h2>
-              <p className="dash-trends-sub-title">Live timeline of verified student infractions by severity level</p>
+      {/* 3. Real Violation Trends & Distribution Section (2 Columns) */}
+      <div className="dash-trends-grid">
+        {/* Left Card: Violation Trends & Analytics Area Chart */}
+        <div className="dash-trends-card">
+          <div className="dash-trends-header">
+            <div className="dash-trends-title-left">
+              <TrendingUp size={22} color="#0f172a" strokeWidth={2.4} />
+              <div>
+                <h2 className="dash-trends-main-title">Violation Trends & Analytics</h2>
+                <p className="dash-trends-sub-title">Live timeline of verified student infractions by severity</p>
+              </div>
+            </div>
+
+            <div className="dash-trends-controls-right">
+              {/* Interactive Series Legend */}
+              <div className="dash-trends-legend">
+                <div
+                  className="dash-legend-item"
+                  onClick={() => setShowMinor(!showMinor)}
+                  style={{ opacity: showMinor ? 1 : 0.35 }}
+                  title="Toggle Minor Offenses series"
+                >
+                  <span className="dash-legend-dot minor" />
+                  <span>Minor ({metrics.minorCount})</span>
+                </div>
+                <div
+                  className="dash-legend-item"
+                  onClick={() => setShowSerious(!showSerious)}
+                  style={{ opacity: showSerious ? 1 : 0.35 }}
+                  title="Toggle Serious Offenses series"
+                >
+                  <span className="dash-legend-dot serious" />
+                  <span>Serious ({metrics.seriousCount})</span>
+                </div>
+                <div
+                  className="dash-legend-item"
+                  onClick={() => setShowMajor(!showMajor)}
+                  style={{ opacity: showMajor ? 1 : 0.35 }}
+                  title="Toggle Major Offenses series"
+                >
+                  <span className="dash-legend-dot major" />
+                  <span>Major ({metrics.majorCount})</span>
+                </div>
+              </div>
+
+              {/* Segmented Time Range Pills */}
+              <div className="dash-segmented-pills">
+                {[
+                  { id: 'today', label: 'Today' },
+                  { id: 'week', label: 'This Week' },
+                  { id: 'month', label: 'This Month' },
+                  { id: 'custom', label: 'Custom' }
+                ].map(tab => (
+                  <button
+                    key={tab.id}
+                    type="button"
+                    className={`dash-segment-btn ${chartFilter === tab.id ? 'active' : ''}`}
+                    onClick={() => {
+                      if (tab.id === 'custom') {
+                        setIsCustomModalOpen(true);
+                      } else {
+                        setChartFilter(tab.id);
+                      }
+                    }}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
 
-          <div className="dash-trends-controls-right">
-            {/* Interactive Series Legend */}
-            <div className="dash-trends-legend">
-              <div
-                className="dash-legend-item"
-                onClick={() => setShowMinor(!showMinor)}
-                style={{ opacity: showMinor ? 1 : 0.35 }}
-                title="Toggle Minor Offenses series"
-              >
-                <span className="dash-legend-dot minor" />
-                <span>Minor ({metrics.minorCount})</span>
-              </div>
-              <div
-                className="dash-legend-item"
-                onClick={() => setShowSerious(!showSerious)}
-                style={{ opacity: showSerious ? 1 : 0.35 }}
-                title="Toggle Serious Offenses series"
-              >
-                <span className="dash-legend-dot serious" />
-                <span>Serious ({metrics.seriousCount})</span>
-              </div>
-              <div
-                className="dash-legend-item"
-                onClick={() => setShowMajor(!showMajor)}
-                style={{ opacity: showMajor ? 1 : 0.35 }}
-                title="Toggle Major Offenses series"
-              >
-                <span className="dash-legend-dot major" />
-                <span>Major ({metrics.majorCount})</span>
-              </div>
-            </div>
+          {/* Chart Canvas */}
+          <div style={{ width: '100%', height: 220, marginTop: '8px' }}>
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={trendData} margin={{ top: 10, right: 10, left: -24, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="minorGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.4} />
+                    <stop offset="95%" stopColor="#10b981" stopOpacity={0.0} />
+                  </linearGradient>
+                  <linearGradient id="seriousGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.4} />
+                    <stop offset="95%" stopColor="#f59e0b" stopOpacity={0.0} />
+                  </linearGradient>
+                  <linearGradient id="majorGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#ef4444" stopOpacity={0.4} />
+                    <stop offset="95%" stopColor="#ef4444" stopOpacity={0.0} />
+                  </linearGradient>
+                </defs>
 
-            {/* Segmented Time Range Pills */}
-            <div className="dash-segmented-pills">
-              {[
-                { id: 'today', label: 'Today' },
-                { id: 'week', label: 'This Week' },
-                { id: 'month', label: 'This Month' },
-                { id: 'custom', label: 'Custom' }
-              ].map(tab => (
-                <button
-                  key={tab.id}
-                  type="button"
-                  className={`dash-segment-btn ${chartFilter === tab.id ? 'active' : ''}`}
-                  onClick={() => {
-                    if (tab.id === 'custom') {
-                      setIsCustomModalOpen(true);
-                    } else {
-                      setChartFilter(tab.id);
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+
+                <XAxis
+                  dataKey="time"
+                  stroke="#94a3b8"
+                  fontSize={11}
+                  tickLine={false}
+                  axisLine={{ stroke: '#e2e8f0' }}
+                />
+                <YAxis
+                  stroke="#94a3b8"
+                  fontSize={11}
+                  tickLine={false}
+                  axisLine={{ stroke: '#e2e8f0' }}
+                  domain={chartYDomain}
+                  allowDecimals={false}
+                />
+
+                <Tooltip
+                  content={({ active, payload, label }) => {
+                    if (active && payload && payload.length) {
+                      const totalVal = payload.reduce((acc, curr) => acc + (Number(curr.value) || 0), 0);
+                      return (
+                        <div style={{
+                          background: '#ffffff',
+                          borderRadius: '10px',
+                          padding: '10px 14px',
+                          border: '1px solid #e2e8f0',
+                          color: '#0f172a',
+                          fontSize: '12px',
+                          boxShadow: '0 8px 24px rgba(0, 0, 0, 0.08)',
+                          minWidth: '140px'
+                        }}>
+                          <div style={{ fontWeight: 700, marginBottom: '6px', paddingBottom: '4px', borderBottom: '1px solid #f1f5f9', color: '#64748b', fontSize: '11.5px' }}>
+                            {label}
+                          </div>
+                          {payload.map(p => (
+                            <div key={p.dataKey} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '14px', margin: '3px 0' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                <span style={{ width: 8, height: 8, borderRadius: '50%', background: p.color }} />
+                                <span style={{ color: p.color, fontWeight: 700 }}>{p.name}:</span>
+                              </div>
+                              <span style={{ fontWeight: 800, color: '#0f172a' }}>{p.value} incident{p.value === 1 ? '' : 's'}</span>
+                            </div>
+                          ))}
+                          <div style={{ marginTop: '6px', paddingTop: '4px', borderTop: '1px dashed #e2e8f0', display: 'flex', justifyContent: 'space-between', fontWeight: 800, fontSize: '11.5px' }}>
+                            <span>Total:</span>
+                            <span>{totalVal}</span>
+                          </div>
+                        </div>
+                      );
                     }
+                    return null;
                   }}
-                >
-                  {tab.label}
-                </button>
-              ))}
-            </div>
+                />
+
+                {showMinor && (
+                  <Area
+                    type="monotone"
+                    dataKey="minor"
+                    name="Minor"
+                    stroke="#10b981"
+                    strokeWidth={2.4}
+                    fillOpacity={1}
+                    fill="url(#minorGrad)"
+                    dot={{ r: 3, strokeWidth: 2, stroke: '#ffffff', fill: '#10b981' }}
+                    activeDot={{ r: 5, strokeWidth: 2, stroke: '#ffffff', fill: '#10b981' }}
+                  />
+                )}
+
+                {showSerious && (
+                  <Area
+                    type="monotone"
+                    dataKey="serious"
+                    name="Serious"
+                    stroke="#f59e0b"
+                    strokeWidth={2.4}
+                    fillOpacity={1}
+                    fill="url(#seriousGrad)"
+                    dot={{ r: 3, strokeWidth: 2, stroke: '#ffffff', fill: '#f59e0b' }}
+                    activeDot={{ r: 5, strokeWidth: 2, stroke: '#ffffff', fill: '#f59e0b' }}
+                  />
+                )}
+
+                {showMajor && (
+                  <Area
+                    type="monotone"
+                    dataKey="major"
+                    name="Major"
+                    stroke="#ef4444"
+                    strokeWidth={2.4}
+                    fillOpacity={1}
+                    fill="url(#majorGrad)"
+                    dot={{ r: 3, strokeWidth: 2, stroke: '#ffffff', fill: '#ef4444' }}
+                    activeDot={{ r: 5, strokeWidth: 2, stroke: '#ffffff', fill: '#ef4444' }}
+                  />
+                )}
+              </AreaChart>
+            </ResponsiveContainer>
           </div>
         </div>
 
-        {/* Chart Canvas */}
-        <div style={{ width: '100%', height: 260, marginTop: '8px' }}>
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={trendData} margin={{ top: 10, right: 10, left: -24, bottom: 0 }}>
-              <defs>
-                <linearGradient id="minorGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#10b981" stopOpacity={0.4} />
-                  <stop offset="95%" stopColor="#10b981" stopOpacity={0.0} />
-                </linearGradient>
-                <linearGradient id="seriousGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.4} />
-                  <stop offset="95%" stopColor="#f59e0b" stopOpacity={0.0} />
-                </linearGradient>
-                <linearGradient id="majorGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#ef4444" stopOpacity={0.4} />
-                  <stop offset="95%" stopColor="#ef4444" stopOpacity={0.0} />
-                </linearGradient>
-              </defs>
+        {/* Right Card: Most Likely School Violations Circle Pie Chart */}
+        <div className="dash-distribution-card">
+          <div className="dash-trends-header">
+            <div className="dash-trends-title-left">
+              <PieChartIcon size={22} color="#0f172a" strokeWidth={2.4} />
+              <div>
+                <h2 className="dash-trends-main-title">Most Common Violations</h2>
+                <p className="dash-trends-sub-title">Distribution of infractions most likely to occur in school</p>
+              </div>
+            </div>
 
-              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+            {violationDistribution.length > 0 && (
+              <span className="dash-distribution-badge-top" title="Top occurring infraction type">
+                <AlertTriangle size={13} color="#d97706" />
+                <span>Top: {violationDistribution[0]?.name}</span>
+              </span>
+            )}
+          </div>
 
-              <XAxis
-                dataKey="time"
-                stroke="#94a3b8"
-                fontSize={11.5}
-                tickLine={false}
-                axisLine={{ stroke: '#e2e8f0' }}
-              />
-              <YAxis
-                stroke="#94a3b8"
-                fontSize={11.5}
-                tickLine={false}
-                axisLine={{ stroke: '#e2e8f0' }}
-                domain={chartYDomain}
-                allowDecimals={false}
-              />
-
-              <Tooltip
-                content={({ active, payload, label }) => {
-                  if (active && payload && payload.length) {
-                    const totalVal = payload.reduce((acc, curr) => acc + (Number(curr.value) || 0), 0);
-                    return (
-                      <div style={{
-                        background: '#ffffff',
-                        borderRadius: '10px',
-                        padding: '10px 14px',
-                        border: '1px solid #e2e8f0',
-                        color: '#0f172a',
-                        fontSize: '12px',
-                        boxShadow: '0 8px 24px rgba(0, 0, 0, 0.08), 0 2px 6px rgba(0, 0, 0, 0.04)',
-                        minWidth: '140px'
-                      }}>
-                        <div style={{ fontWeight: 700, marginBottom: '6px', paddingBottom: '4px', borderBottom: '1px solid #f1f5f9', color: '#64748b', fontSize: '11.5px' }}>
-                          {label}
-                        </div>
-                        {payload.map(p => (
-                          <div key={p.dataKey} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '14px', margin: '3px 0' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                              <span style={{ width: 8, height: 8, borderRadius: '50%', background: p.color }} />
-                              <span style={{ color: p.color, fontWeight: 700 }}>{p.name}:</span>
+          {violationDistribution.length === 0 ? (
+            <div style={{ height: '220px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', textAlign: 'center' }}>
+              <PieChartIcon size={36} strokeWidth={1.5} style={{ marginBottom: 8, opacity: 0.5 }} />
+              <span style={{ fontSize: '13px', fontWeight: 600 }}>No violation data available</span>
+              <span style={{ fontSize: '11.5px', color: '#cbd5e1' }}>Approved infractions will appear here</span>
+            </div>
+          ) : (
+            <div className="dash-distribution-content">
+              {/* Circle Chart */}
+              <div className="dash-distribution-chart-box">
+                <ResponsiveContainer width="100%" height={200}>
+                  <PieChart>
+                    <Pie
+                      data={violationDistribution}
+                      cx="50%"
+                      cy="50%"
+                      outerRadius={75}
+                      innerRadius={0}
+                      paddingAngle={2}
+                      dataKey="value"
+                      nameKey="name"
+                      labelLine={false}
+                      label={({ cx, cy, midAngle, innerRadius, outerRadius, percent }) => {
+                        if (percent < 0.08) return null;
+                        const RADIAN = Math.PI / 180;
+                        const radius = innerRadius + (outerRadius - innerRadius) * 0.58;
+                        const x = cx + radius * Math.cos(-midAngle * RADIAN);
+                        const y = cy + radius * Math.sin(-midAngle * RADIAN);
+                        return (
+                          <text
+                            x={x}
+                            y={y}
+                            fill="#ffffff"
+                            textAnchor="middle"
+                            dominantBaseline="central"
+                            fontSize={10.5}
+                            fontWeight={800}
+                          >
+                            {`${(percent * 100).toFixed(0)}%`}
+                          </text>
+                        );
+                      }}
+                    >
+                      {violationDistribution.map((entry, index) => (
+                        <Cell
+                          key={`dist-cell-${index}`}
+                          fill={entry.color}
+                          stroke="#ffffff"
+                          strokeWidth={2}
+                        />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      content={({ active, payload }) => {
+                        if (active && payload && payload.length) {
+                          const data = payload[0].payload;
+                          return (
+                            <div style={{
+                              background: '#ffffff',
+                              borderRadius: '10px',
+                              padding: '10px 14px',
+                              border: '1px solid #e2e8f0',
+                              boxShadow: '0 8px 24px rgba(0, 0, 0, 0.08)',
+                              fontSize: '12px',
+                              minWidth: '150px'
+                            }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 800, color: '#0f172a', marginBottom: '4px' }}>
+                                <span style={{ width: 8, height: 8, borderRadius: '50%', background: data.color }} />
+                                <span>{data.name}</span>
+                              </div>
+                              <div style={{ color: '#64748b', fontSize: '11.5px', marginTop: '2px' }}>
+                                Frequency: <strong style={{ color: '#0f172a' }}>{data.value}</strong> ({data.percent}%)
+                              </div>
+                              <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '2px' }}>
+                                Severity: <span style={{ textTransform: 'capitalize', fontWeight: 600, color: data.severity === 'Major' ? '#dc2626' : data.severity === 'Serious' ? '#d97706' : '#10b981' }}>{data.severity}</span>
+                              </div>
                             </div>
-                            <span style={{ fontWeight: 800, color: '#0f172a' }}>{p.value} incident{p.value === 1 ? '' : 's'}</span>
-                          </div>
-                        ))}
-                        <div style={{ marginTop: '6px', paddingTop: '4px', borderTop: '1px dashed #e2e8f0', display: 'flex', justifyContent: 'space-between', fontWeight: 800, fontSize: '11.5px' }}>
-                          <span>Total:</span>
-                          <span>{totalVal}</span>
-                        </div>
+                          );
+                        }
+                        return null;
+                      }}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+
+              {/* Ranked Frequency Breakdown List */}
+              <div className="dash-distribution-list">
+                {violationDistribution.map((item, idx) => (
+                  <div key={idx} className="dash-distribution-item">
+                    <div className="dash-dist-row-top">
+                      <div className="dash-dist-name-group">
+                        <span className="dash-dist-dot" style={{ background: item.color }} />
+                        <span className="dash-dist-name" title={item.name}>{item.name}</span>
                       </div>
-                    );
-                  }
-                  return null;
-                }}
-              />
-
-              {showMinor && (
-                <Area
-                  type="monotone"
-                  dataKey="minor"
-                  name="Minor"
-                  stroke="#10b981"
-                  strokeWidth={2.4}
-                  fillOpacity={1}
-                  fill="url(#minorGrad)"
-                  dot={{ r: 3.5, strokeWidth: 2, stroke: '#ffffff', fill: '#10b981' }}
-                  activeDot={{ r: 5.5, strokeWidth: 2, stroke: '#ffffff', fill: '#10b981' }}
-                />
-              )}
-
-              {showSerious && (
-                <Area
-                  type="monotone"
-                  dataKey="serious"
-                  name="Serious"
-                  stroke="#f59e0b"
-                  strokeWidth={2.4}
-                  fillOpacity={1}
-                  fill="url(#seriousGrad)"
-                  dot={{ r: 3.5, strokeWidth: 2, stroke: '#ffffff', fill: '#f59e0b' }}
-                  activeDot={{ r: 5.5, strokeWidth: 2, stroke: '#ffffff', fill: '#f59e0b' }}
-                />
-              )}
-
-              {showMajor && (
-                <Area
-                  type="monotone"
-                  dataKey="major"
-                  name="Major"
-                  stroke="#ef4444"
-                  strokeWidth={2.4}
-                  fillOpacity={1}
-                  fill="url(#majorGrad)"
-                  dot={{ r: 3.5, strokeWidth: 2, stroke: '#ffffff', fill: '#ef4444' }}
-                  activeDot={{ r: 5.5, strokeWidth: 2, stroke: '#ffffff', fill: '#ef4444' }}
-                />
-              )}
-            </AreaChart>
-          </ResponsiveContainer>
+                      <span className="dash-dist-stat">
+                        {item.value} <span style={{ color: '#64748b', fontWeight: 600, fontSize: '10.5px' }}>({item.percent}%)</span>
+                      </span>
+                    </div>
+                    <div className="dash-dist-bar-track">
+                      <div
+                        className="dash-dist-bar-fill"
+                        style={{
+                          width: `${item.percent}%`,
+                          background: item.color
+                        }}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
