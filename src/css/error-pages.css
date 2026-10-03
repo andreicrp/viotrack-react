@@ -229,7 +229,7 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: #07345f;
+  background: #0f172a;
   color: #ffffff;
   padding: 10.5px 20px;
   border-radius: 10px;
@@ -239,13 +239,13 @@
   cursor: pointer;
   text-decoration: none;
   transition: all 0.2s ease;
-  box-shadow: 0 3px 10px rgba(7, 52, 95, 0.18);
+  box-shadow: 0 3px 10px rgba(15, 23, 42, 0.18);
 }
 
 .error-btn-primary:hover {
-  background: #0a437a;
+  background: #1e293b;
   transform: translateY(-1px);
-  box-shadow: 0 5px 14px rgba(7, 52, 95, 0.25);
+  box-shadow: 0 5px 14px rgba(15, 23, 42, 0.25);
 }
 
 .error-btn-secondary {
