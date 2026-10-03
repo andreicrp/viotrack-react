@@ -193,7 +193,7 @@ export const ALL_43_SECURITY_CHECKS = [
     description: 'Partially obscures user emails on unprivileged summary previews.',
     verify: () => {
       const masked = maskEmail('juan.delacruz@viotrack.edu');
-      return masked.includes('***@viotrack.edu');
+      return masked.includes('***') && masked.endsWith('@viotrack.edu') && !masked.includes('delacruz');
     }
   },
   {
