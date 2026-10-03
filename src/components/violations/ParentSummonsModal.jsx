@@ -1013,14 +1013,14 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student }) => {
                     </p>
 
                     {/* Multi-Infractions Table */}
-                    <table style={{ width: '100%', borderCollapse: 'collapse', margin: '10px 0 12px', fontSize: '11.5px' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', margin: '12px 0 14px', fontSize: '11.5px', border: '1px solid #cbd5e1' }}>
                       <thead>
-                        <tr style={{ background: '#0f172a', color: '#ffffff' }}>
-                          <th style={{ padding: '6px 8px', border: '1px solid #cbd5e1', width: '28px', textAlign: 'center' }}>#</th>
-                          <th style={{ padding: '6px 8px', border: '1px solid #cbd5e1', textAlign: 'left' }}>Infraction / Violation Description</th>
-                          <th style={{ padding: '6px 8px', border: '1px solid #cbd5e1', width: '100px', textAlign: 'center' }}>Offense Level</th>
-                          <th style={{ padding: '6px 8px', border: '1px solid #cbd5e1', width: '90px', textAlign: 'center' }}>Date Reported</th>
-                          <th style={{ padding: '6px 8px', border: '1px solid #cbd5e1', width: '80px', textAlign: 'center' }}>Status</th>
+                        <tr style={{ background: '#f1f5f9' }}>
+                          <th style={{ padding: '8px 6px', border: '1px solid #cbd5e1', width: '32px', textAlign: 'center', background: '#f1f5f9', color: '#0f172a', fontWeight: 800, fontSize: '11px', textTransform: 'uppercase' }}>#</th>
+                          <th style={{ padding: '8px 10px', border: '1px solid #cbd5e1', textAlign: 'left', background: '#f1f5f9', color: '#0f172a', fontWeight: 800, fontSize: '11px', textTransform: 'uppercase' }}>Infraction / Violation Description</th>
+                          <th style={{ padding: '8px 8px', border: '1px solid #cbd5e1', width: '100px', textAlign: 'center', background: '#f1f5f9', color: '#0f172a', fontWeight: 800, fontSize: '11px', textTransform: 'uppercase' }}>Offense Level</th>
+                          <th style={{ padding: '8px 8px', border: '1px solid #cbd5e1', width: '95px', textAlign: 'center', background: '#f1f5f9', color: '#0f172a', fontWeight: 800, fontSize: '11px', textTransform: 'uppercase' }}>Date Reported</th>
+                          <th style={{ padding: '8px 8px', border: '1px solid #cbd5e1', width: '80px', textAlign: 'center', background: '#f1f5f9', color: '#0f172a', fontWeight: 800, fontSize: '11px', textTransform: 'uppercase' }}>Status</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -1032,11 +1032,11 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student }) => {
 
                           return (
                             <tr key={v.id || idx} style={{ background: idx % 2 === 0 ? '#ffffff' : '#f8fafc' }}>
-                              <td style={{ padding: '6px 8px', border: '1px solid #cbd5e1', textAlign: 'center', fontWeight: 700 }}>{idx + 1}</td>
-                              <td style={{ padding: '6px 8px', border: '1px solid #cbd5e1', fontWeight: 600, color: '#0f172a' }}>{vTitle}</td>
-                              <td style={{ padding: '6px 8px', border: '1px solid #cbd5e1', textAlign: 'center', fontWeight: 700 }}>{vSev}</td>
-                              <td style={{ padding: '6px 8px', border: '1px solid #cbd5e1', textAlign: 'center', color: '#64748b' }}>{vDate}</td>
-                              <td style={{ padding: '6px 8px', border: '1px solid #cbd5e1', textAlign: 'center' }}>{vStatus}</td>
+                              <td style={{ padding: '7px 6px', border: '1px solid #e2e8f0', textAlign: 'center', fontWeight: 700, color: '#0f172a' }}>{idx + 1}</td>
+                              <td style={{ padding: '7px 10px', border: '1px solid #e2e8f0', fontWeight: 600, color: '#0f172a' }}>{vTitle}</td>
+                              <td style={{ padding: '7px 8px', border: '1px solid #e2e8f0', textAlign: 'center', fontWeight: 700, color: '#0f172a' }}>{vSev}</td>
+                              <td style={{ padding: '7px 8px', border: '1px solid #e2e8f0', textAlign: 'center', color: '#475569' }}>{vDate}</td>
+                              <td style={{ padding: '7px 8px', border: '1px solid #e2e8f0', textAlign: 'center', color: '#0f172a', fontWeight: 600 }}>{vStatus}</td>
                             </tr>
                           );
                         })}
