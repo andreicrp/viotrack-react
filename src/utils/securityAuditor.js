@@ -339,7 +339,7 @@ export const ALL_43_SECURITY_CHECKS = [
     description: 'Cleans path traversal characters and appends cryptographic timestamps and random nonces.',
     verify: () => {
       const cleanName = sanitizeFileName('../../etc/passwd.jpg');
-      return !cleanName.includes('../') && cleanName.includes('passwd_jpg');
+      return !cleanName.includes('../') && !cleanName.includes('etc') && cleanName.endsWith('passwd.jpg');
     }
   },
   {
@@ -412,10 +412,10 @@ export const ALL_43_SECURITY_CHECKS = [
     name: 'Optimistic Concurrency Control (Stale Check)',
     description: 'Detects if another user modified a disciplinary case during the review session.',
     verify: () => {
-      const current = { id: 1, status: 'Pending' };
-      const fresh = { id: 1, status: 'Resolved' };
+      const current = { id: 1, status: 'Pending', created_at: new Date(Date.now() - 60000).toISOString() };
+      const fresh = { id: 1, status: 'Resolved', updated_at: new Date().toISOString() };
       const result = checkOptimisticConcurrency(current, fresh);
-      return result.conflict === true;
+      return result.conflict === true && result.reason === 'modified';
     }
   },
 

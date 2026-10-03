@@ -326,7 +326,11 @@ export const validateUploadedFile = (file, options = { isImageOnly: true }) => {
 };
 
 export const sanitizeFileName = (fileName = '') => {
-  const clean = fileName
+  // Strip directory paths and traversal dots
+  const baseName = String(fileName || '')
+    .replace(/^.*[\\/]/, '')
+    .replace(/\.{2,}/g, '_');
+  const clean = baseName
     .toLowerCase()
     .replace(/[^a-z0-9._-]/g, '_')
     .replace(/_{2,}/g, '_');

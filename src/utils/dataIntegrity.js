@@ -107,8 +107,11 @@ export const checkOptimisticConcurrency = (currentRecord, freshRecord) => {
   const currentTs = new Date(currentRecord.updated_at || currentRecord.created_at || 0).getTime();
   const freshTs = new Date(freshRecord.updated_at || freshRecord.created_at || 0).getTime();
 
-  // If fresh record timestamp is newer than when the current form was loaded
-  if (freshTs > currentTs + 1000) {
+  const hasStatusChange = !!(currentRecord.status && freshRecord.status && currentRecord.status !== freshRecord.status);
+  const hasApprovalChange = !!(currentRecord.approval_status && freshRecord.approval_status && currentRecord.approval_status !== freshRecord.approval_status);
+  const isTimeNewer = freshTs > 0 && freshTs > currentTs + 1000;
+
+  if (isTimeNewer || hasStatusChange || hasApprovalChange) {
     return {
       conflict: true,
       reason: 'modified',
