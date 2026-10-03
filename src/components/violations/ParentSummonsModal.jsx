@@ -267,13 +267,13 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student }) => {
         position: 'fixed',
         inset: 0,
         zIndex: 9999,
-        background: 'rgba(15, 23, 42, 0.7)',
-        backdropFilter: 'blur(12px)',
-        WebkitBackdropFilter: 'blur(12px)',
+        background: 'rgba(15, 23, 42, 0.75)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: '16px'
+        padding: '16px',
+        transform: 'translateZ(0)',
+        contain: 'strict'
       }}
     >
       <div
@@ -285,11 +285,13 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student }) => {
           maxHeight: '860px',
           background: '#ffffff',
           borderRadius: '24px',
-          boxShadow: '0 32px 80px -15px rgba(15, 23, 42, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.2)',
+          boxShadow: '0 25px 60px -15px rgba(0, 0, 0, 0.35)',
           display: 'flex',
           flexDirection: 'column',
           overflow: 'hidden',
-          border: '1px solid #e2e8f0'
+          border: '1px solid #e2e8f0',
+          transform: 'translate3d(0, 0, 0)',
+          contain: 'layout paint'
         }}
       >
         {/* Modal Header */}
@@ -381,11 +383,11 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student }) => {
           
           {/* Left Column: Form Parameters */}
           <div
+            className="smooth-scroll-container"
             style={{
               width: '350px',
               borderRight: '1px solid #e2e8f0',
               padding: '18px 20px',
-              overflowY: 'auto',
               background: '#f8fafc',
               display: 'flex',
               flexDirection: 'column',
@@ -576,10 +578,10 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student }) => {
 
           {/* Right Column: Printable Letter Document Preview */}
           <div
+            className="smooth-scroll-container"
             style={{
               flex: 1,
               padding: '24px 20px',
-              overflowY: 'auto',
               background: '#e2e8f0',
               display: 'block'
             }}
@@ -591,13 +593,15 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student }) => {
                 maxWidth: '680px',
                 margin: '0 auto',
                 background: '#ffffff',
-                boxShadow: '0 8px 30px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.04)',
+                boxShadow: '0 4px 18px rgba(0, 0, 0, 0.08)',
                 borderRadius: '8px',
                 padding: '36px 44px',
                 fontFamily: "'Times New Roman', Times, serif",
                 color: '#0f172a',
                 lineHeight: 1.55,
-                boxSizing: 'border-box'
+                boxSizing: 'border-box',
+                transform: 'translate3d(0, 0, 0)',
+                contain: 'layout paint'
               }}
             >
               {/* Official Letterhead */}

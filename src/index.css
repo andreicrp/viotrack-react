@@ -1939,17 +1939,35 @@ html, body {
 }
 
 .modal-backdrop-smooth {
-  animation: modalBackdropSmooth 0.26s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+  animation: modalBackdropSmooth 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+  will-change: opacity;
+  contain: strict;
+  transform: translateZ(0);
 }
 
 .modal-content-smooth {
-  animation: modalContentPopIn 0.32s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+  animation: modalContentPopIn 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
   transform-origin: center center;
+  will-change: transform, opacity;
+  transform: translateZ(0);
+  contain: layout paint;
 }
 
 .dropdown-pop-smooth {
-  animation: dropdownPopSmooth 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+  animation: dropdownPopSmooth 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
   transform-origin: top right;
+  will-change: transform, opacity;
 }
+
+/* Hardware-accelerated 60fps scrolling container for modal bodies */
+.smooth-scroll-container {
+  overflow-y: auto !important;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  transform: translate3d(0, 0, 0);
+  will-change: scroll-position;
+  contain: content;
+}
+
 
 
