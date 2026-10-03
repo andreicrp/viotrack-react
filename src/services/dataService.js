@@ -552,6 +552,38 @@ export const dataService = {
     }
   },
 
+  // --- ASSET & PHOTO STORAGE UPLOAD ---
+  async uploadPhoto(file, folder = 'avatars') {
+    if (!file) return null;
+
+    // 1. Try Supabase Storage if configured
+    if (isSupabaseConfigured() && supabase?.storage) {
+      try {
+        const ext = file.name ? file.name.split('.').pop() : 'jpg';
+        const cleanName = `${folder}/${Date.now()}_${Math.random().toString(36).substring(2, 8)}.${ext}`;
+        const { data, error } = await supabase.storage.from('avatars').upload(cleanName, file, {
+          cacheControl: '3600',
+          upsert: true
+        });
+
+        if (!error && data?.path) {
+          const { data: publicUrlData } = supabase.storage.from('avatars').getPublicUrl(data.path);
+          if (publicUrlData?.publicUrl) return publicUrlData.publicUrl;
+        }
+      } catch (err) {
+        console.warn('Supabase storage upload notice, falling back to base64:', err);
+      }
+    }
+
+    // 2. High-performance Base64 Data URI fallback (stored directly in database column)
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = (e) => resolve(e.target?.result || null);
+      reader.onerror = () => resolve(null);
+      reader.readAsDataURL(file);
+    });
+  },
+
   // --- STUDENTS ---
   async getStudents(forceRefresh = false) {
     const now = Date.now();
@@ -602,10 +634,17 @@ export const dataService = {
         list = localList;
       }
 
-      const processed = list.map((s, idx) => ({
-        ...s,
-        image: resolveStudentAvatar(s, idx)
-      }));
+      const processed = list.map((s, idx) => {
+        const resolved = resolveStudentAvatar(s, idx);
+        // Persist photo to Supabase if the remote row was empty
+        if (isSupabaseConfigured() && s.id && (!s.image || !String(s.image).trim() || s.image.includes('ui-avatars.com'))) {
+          supabase.from('students').update({ image: resolved }).eq('id', s.id).catch(() => {});
+        }
+        return {
+          ...s,
+          image: resolved
+        };
+      });
 
       _cache.data.students = processed;
       _cache.timestamps.students = Date.now();
@@ -1268,10 +1307,16 @@ export const dataService = {
         list = localList;
       }
 
-      const processed = list.map(t => ({
-        ...t,
-        image: resolveTeacherAvatar(t)
-      }));
+      const processed = list.map(t => {
+        const resolved = resolveTeacherAvatar(t);
+        if (isSupabaseConfigured() && t.id && (!t.image || !String(t.image).trim() || t.image.includes('ui-avatars.com'))) {
+          supabase.from('teachers').update({ image: resolved }).eq('id', t.id).catch(() => {});
+        }
+        return {
+          ...t,
+          image: resolved
+        };
+      });
 
       _cache.data.teachers = processed;
       _cache.timestamps.teachers = Date.now();
@@ -1651,10 +1696,16 @@ export const dataService = {
         list = localList;
       }
 
-      const processed = list.map(a => ({
-        ...a,
-        image: resolveAdminAvatar(a)
-      }));
+      const processed = list.map(a => {
+        const resolved = resolveAdminAvatar(a);
+        if (isSupabaseConfigured() && a.id && (!a.image || !String(a.image).trim() || a.image.includes('ui-avatars.com'))) {
+          supabase.from('admins').update({ image: resolved }).eq('id', a.id).catch(() => {});
+        }
+        return {
+          ...a,
+          image: resolved
+        };
+      });
 
       _cache.data.admins = processed;
       _cache.timestamps.admins = Date.now();
