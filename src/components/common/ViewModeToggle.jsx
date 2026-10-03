@@ -30,12 +30,12 @@ export const ViewModeToggle = ({ viewMode = 'list', onChange, size = 'sm' }) => 
           fontSize: '12px',
           fontWeight: viewMode === 'list' ? 700 : 500,
           color: viewMode === 'list' ? '#ffffff' : '#64748b',
-          background: viewMode === 'list' ? '#07345f' : 'transparent',
+          background: viewMode === 'list' ? '#0f172a' : 'transparent',
           border: 'none',
           borderRadius: '6px',
           cursor: 'pointer',
           transition: 'all 0.15s ease',
-          boxShadow: viewMode === 'list' ? '0 1px 3px rgba(7, 52, 95, 0.25)' : 'none'
+          boxShadow: viewMode === 'list' ? '0 1px 3px rgba(15, 23, 42, 0.25)' : 'none'
         }}
       >
         <LayoutList size={15} strokeWidth={2.4} />
@@ -54,12 +54,12 @@ export const ViewModeToggle = ({ viewMode = 'list', onChange, size = 'sm' }) => 
           fontSize: '12px',
           fontWeight: viewMode === 'grid' ? 700 : 500,
           color: viewMode === 'grid' ? '#ffffff' : '#64748b',
-          background: viewMode === 'grid' ? '#07345f' : 'transparent',
+          background: viewMode === 'grid' ? '#0f172a' : 'transparent',
           border: 'none',
           borderRadius: '6px',
           cursor: 'pointer',
           transition: 'all 0.15s ease',
-          boxShadow: viewMode === 'grid' ? '0 1px 3px rgba(7, 52, 95, 0.25)' : 'none'
+          boxShadow: viewMode === 'grid' ? '0 1px 3px rgba(15, 23, 42, 0.25)' : 'none'
         }}
       >
         <LayoutGrid size={15} strokeWidth={2.4} />

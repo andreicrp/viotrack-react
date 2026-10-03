@@ -1423,7 +1423,7 @@ export const AdminUsersPage = () => {
                     style={{
                       padding: '9px 22px',
                       borderRadius: '9px',
-                      background: 'linear-gradient(135deg, #07345f 0%, #0b192c 100%)',
+                      background: '#0f172a',
                       color: '#ffffff',
                       border: 'none',
                       fontWeight: 700,
@@ -1432,8 +1432,11 @@ export const AdminUsersPage = () => {
                       display: 'inline-flex',
                       alignItems: 'center',
                       gap: '8px',
-                      boxShadow: '0 4px 14px rgba(7, 52, 95, 0.35)'
+                      boxShadow: '0 4px 14px rgba(15, 23, 42, 0.25)',
+                      transition: 'all 0.15s ease'
                     }}
+                    onMouseOver={(e) => { e.currentTarget.style.background = '#1e293b'; }}
+                    onMouseOut={(e) => { e.currentTarget.style.background = '#0f172a'; }}
                   >
                     <Save size={16} />
                     <span>{editingAdmin ? 'Save Changes' : 'Create Admin'}</span>

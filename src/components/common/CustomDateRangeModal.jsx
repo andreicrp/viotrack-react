@@ -216,8 +216,8 @@ export const CustomDateRangeModal = ({
                     style={{
                       padding: '9px 12px',
                       borderRadius: '8px',
-                      border: isSelected ? '1.5px solid #07345f' : '1px solid #e2e8f0',
-                      background: isSelected ? '#07345f' : '#ffffff',
+                      border: isSelected ? '1.5px solid #0f172a' : '1px solid #e2e8f0',
+                      background: isSelected ? '#0f172a' : '#ffffff',
                       color: isSelected ? '#ffffff' : '#334155',
                       fontSize: '12.5px',
                       fontWeight: isSelected ? 700 : 600,
@@ -321,7 +321,7 @@ export const CustomDateRangeModal = ({
 
             <span
               style={{
-                background: '#07345f',
+                background: '#0f172a',
                 color: '#ffffff',
                 padding: '3px 9px',
                 borderRadius: '6px',
@@ -370,16 +370,16 @@ export const CustomDateRangeModal = ({
                 padding: '9px 22px',
                 borderRadius: '8px',
                 border: 'none',
-                background: '#07345f',
+                background: '#0f172a',
                 color: '#ffffff',
                 fontSize: '13px',
                 fontWeight: 700,
                 cursor: 'pointer',
-                boxShadow: '0 4px 12px rgba(7, 52, 95, 0.25)',
+                boxShadow: '0 4px 12px rgba(15, 23, 42, 0.25)',
                 transition: 'all 0.15s ease'
               }}
-              onMouseOver={(e) => { e.currentTarget.style.background = '#0a4275'; }}
-              onMouseOut={(e) => { e.currentTarget.style.background = '#07345f'; }}
+              onMouseOver={(e) => { e.currentTarget.style.background = '#1e293b'; }}
+              onMouseOut={(e) => { e.currentTarget.style.background = '#0f172a'; }}
             >
               Apply Filter
             </button>

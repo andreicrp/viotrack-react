@@ -469,7 +469,20 @@ export const SchoolCalendarModal = ({ isOpen, onClose, initialDate = 23, initial
                 </button>
                 <button
                   type="submit"
-                  style={{ padding: '6px 16px', fontSize: '12px', fontWeight: 700, border: 'none', borderRadius: '7px', background: '#07345f', color: '#fff', cursor: 'pointer' }}
+                  style={{
+                    padding: '7px 18px',
+                    fontSize: '12.5px',
+                    fontWeight: 700,
+                    border: 'none',
+                    borderRadius: '7px',
+                    background: '#0f172a',
+                    color: '#ffffff',
+                    cursor: 'pointer',
+                    boxShadow: '0 2px 8px rgba(15, 23, 42, 0.2)',
+                    transition: 'all 0.15s ease'
+                  }}
+                  onMouseOver={(e) => { e.currentTarget.style.background = '#1e293b'; }}
+                  onMouseOut={(e) => { e.currentTarget.style.background = '#0f172a'; }}
                 >
                   Save Schedule
                 </button>
