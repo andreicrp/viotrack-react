@@ -80,10 +80,6 @@ export const DashboardPage = () => {
   const [schoolEvents, setSchoolEvents] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Repeat Offenders Pagination
-  const [offendersPage, setOffendersPage] = useState(1);
-  const offendersPerPage = 4;
-
   // Calendar State
   const [selectedCalendarDate, setSelectedCalendarDate] = useState(now.getDate());
   const [calendarMonth, setCalendarMonth] = useState(new Date(currentYear, currentMonthIdx, 1));
@@ -434,12 +430,10 @@ export const DashboardPage = () => {
     });
   }, [students, approvedRecords]);
 
-  // Paginated Repeat Offenders Slice
-  const totalOffenderPages = Math.max(1, Math.ceil(repeatStudentsList.length / offendersPerPage));
-  const paginatedOffenders = useMemo(() => {
-    const startIdx = (offendersPage - 1) * offendersPerPage;
-    return repeatStudentsList.slice(startIdx, startIdx + offendersPerPage);
-  }, [repeatStudentsList, offendersPage]);
+  // Top 5 High-Risk & Repeat Students Slice
+  const top5Offenders = useMemo(() => {
+    return repeatStudentsList.slice(0, 5);
+  }, [repeatStudentsList]);
 
   // Curated modern color palette for circle violation chart slices (inspired by multi-tone indigo/blue/sky/lavender palette)
   const PIE_COLORS = [
@@ -1232,7 +1226,7 @@ export const DashboardPage = () => {
               <ShieldAlert size={20} color="#0f172a" />
               <div>
                 <h2 className="dash-card-header-title">Repeat & High-Risk Students</h2>
-                <p className="dash-card-header-desc">Ranked dynamically by incident weight & frequency</p>
+                <p className="dash-card-header-desc">Top 5 students ranked dynamically by incident weight & frequency</p>
               </div>
             </div>
           </div>
@@ -1250,7 +1244,7 @@ export const DashboardPage = () => {
                 </span>
               </div>
             ) : (
-              paginatedOffenders.map(st => (
+              top5Offenders.map(st => (
                 <div key={st.id} className="dash-offender-row">
                   <div className="dash-offender-left">
                     <span className={`dash-rank-badge rank-${st.rank}`}>
@@ -1261,7 +1255,7 @@ export const DashboardPage = () => {
                       alt={st.name}
                       className="dash-offender-avatar"
                       onError={(e) => {
-                        e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(st.name)}&background=0b192c&color=fff&size=50`;
+                        e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(st.name)}&background=0f172a&color=fff&size=50`;
                       }}
                     />
                     <div className="dash-offender-meta">
@@ -1287,82 +1281,6 @@ export const DashboardPage = () => {
               ))
             )}
           </div>
-
-          {/* Functional Pagination */}
-          {repeatStudentsList.length > 0 && (
-            <div className="dash-card-footer-pagination pagination-footer-responsive">
-              <span style={{ fontSize: '11.5px', color: '#64748b' }}>
-                Showing {(offendersPage - 1) * offendersPerPage + 1} – {Math.min(offendersPage * offendersPerPage, repeatStudentsList.length)} of {repeatStudentsList.length} students
-              </span>
-              <div style={{ display: 'flex', gap: '4px' }}>
-                <button
-                  type="button"
-                  style={{
-                    width: 28,
-                    height: 28,
-                    borderRadius: 6,
-                    border: '1px solid #e2e8f0',
-                    background: offendersPage === 1 ? '#f8fafc' : '#fff',
-                    color: offendersPage === 1 ? '#94a3b8' : '#0f172a',
-                    fontSize: '12px',
-                    cursor: offendersPage === 1 ? 'not-allowed' : 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                  }}
-                  disabled={offendersPage === 1}
-                  onClick={() => setOffendersPage(p => Math.max(1, p - 1))}
-                  aria-label="Previous offenders page"
-                >
-                  ‹
-                </button>
-                {Array.from({ length: totalOffenderPages }, (_, i) => i + 1).map(p => (
-                  <button
-                    key={p}
-                    type="button"
-                    style={{
-                      width: 28,
-                      height: 28,
-                      borderRadius: 6,
-                      border: p === offendersPage ? 'none' : '1px solid #e2e8f0',
-                      background: p === offendersPage ? '#0f172a' : '#fff',
-                      color: p === offendersPage ? '#fff' : '#0f172a',
-                      fontSize: '11.5px',
-                      fontWeight: p === offendersPage ? 700 : 500,
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center'
-                    }}
-                    onClick={() => setOffendersPage(p)}
-                  >
-                    {p}
-                  </button>
-                ))}
-                <button
-                  type="button"
-                  style={{
-                    width: 28,
-                    height: 28,
-                    borderRadius: 6,
-                    border: '1px solid #e2e8f0',
-                    background: offendersPage === totalOffenderPages ? '#f8fafc' : '#fff',
-                    color: offendersPage === totalOffenderPages ? '#94a3b8' : '#0f172a',
-                    fontSize: '12px',
-                    cursor: offendersPage === totalOffenderPages ? 'not-allowed' : 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                  }}
-                  disabled={offendersPage === totalOffenderPages}
-                  onClick={() => setOffendersPage(p => Math.min(totalOffenderPages, p + 1))}
-                  aria-label="Next offenders page"
-                >
-                  ›
-                </button>
-              </div>
-            </div>
-          )}
         </div>
 
         {/* Column 2: Violations by Grade & Section */}
