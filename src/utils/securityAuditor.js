@@ -28,7 +28,7 @@ import {
   checkOptimisticConcurrency
 } from './dataIntegrity';
 
-import { getStudentQrValue, decodeStudentQrValue } from './qrHelper';
+import { getStudentQrValue } from './qrHelper';
 
 export const ALL_43_SECURITY_CHECKS = [
   // =========================================================================
