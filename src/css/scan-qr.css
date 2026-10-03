@@ -1029,20 +1029,20 @@ div[id*="reader"] video {
   font-size: 13px;
   font-weight: 700;
   color: #ffffff;
-  background: #07345f;
+  background: #0f172a;
   border: none;
   border-radius: 10px;
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(7, 52, 95, 0.25);
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.25);
   transition: all 0.15s ease;
   white-space: nowrap;
   height: 40px;
 }
 
 .manual-search-submit-btn:hover:not(:disabled) {
-  background: #0b192c;
+  background: #1e293b;
   transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(7, 52, 95, 0.35);
+  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.35);
 }
 
 .manual-search-submit-btn:disabled {
@@ -1426,13 +1426,13 @@ div[id*="reader"] video {
 }
 
 .verified-btn.primary {
-  background: #07345f;
+  background: #0f172a;
   color: #ffffff;
-  box-shadow: 0 2px 8px rgba(7, 52, 95, 0.25);
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.25);
 }
 
 .verified-btn.primary:hover {
-  background: #0b192c;
+  background: #1e293b;
   transform: translateY(-1px);
 }
 

@@ -253,9 +253,7 @@ export const AppointAdviserModal = ({ isOpen, onClose, teacher, currentAdviser, 
               style={{
                 padding: '9px 22px',
                 borderRadius: '9px',
-                background: isAlreadyAssigned
-                  ? 'linear-gradient(135deg, #07345f 0%, #1e40af 100%)'
-                  : 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                background: '#0f172a',
                 color: '#ffffff',
                 border: 'none',
                 fontWeight: 700,
@@ -264,9 +262,7 @@ export const AppointAdviserModal = ({ isOpen, onClose, teacher, currentAdviser, 
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '8px',
-                boxShadow: isAlreadyAssigned
-                  ? '0 4px 14px rgba(7, 52, 95, 0.3)'
-                  : '0 4px 14px rgba(16, 185, 129, 0.35)'
+                boxShadow: '0 4px 14px rgba(15, 23, 42, 0.3)'
               }}
             >
               <Check size={16} />

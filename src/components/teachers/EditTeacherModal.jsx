@@ -434,7 +434,7 @@ export const EditTeacherModal = ({ isOpen, onClose, teacher, onSaved }) => {
                 style={{
                   padding: '9px 22px',
                   borderRadius: '9px',
-                  background: 'linear-gradient(135deg, #27367f 0%, #1a2557 100%)',
+                  background: '#0f172a',
                   color: '#ffffff',
                   border: 'none',
                   fontWeight: 700,
@@ -443,7 +443,7 @@ export const EditTeacherModal = ({ isOpen, onClose, teacher, onSaved }) => {
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: '8px',
-                  boxShadow: '0 4px 14px rgba(39, 54, 127, 0.35)'
+                  boxShadow: '0 4px 14px rgba(15, 23, 42, 0.3)'
                 }}
               >
                 <Save size={16} />

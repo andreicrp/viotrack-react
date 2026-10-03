@@ -267,7 +267,7 @@
 
 .advisers-tab-btn.active {
   background: #ffffff;
-  color: #07345f;
+  color: #0f172a;
   box-shadow: 0 1px 4px rgba(15, 23, 42, 0.08);
 }
 
@@ -581,7 +581,7 @@
 .adviser-btn-view-roster {
   flex: 1;
   height: 38px;
-  background: #07345f;
+  background: #0f172a;
   color: #ffffff;
   border: none;
   border-radius: 9px;
@@ -593,12 +593,12 @@
   justify-content: center;
   gap: 6px;
   transition: all 0.18s ease;
-  box-shadow: 0 2px 6px rgba(7, 52, 95, 0.2);
+  box-shadow: 0 2px 6px rgba(15, 23, 42, 0.2);
 }
 
 .adviser-btn-view-roster:hover {
-  background: #0b192c;
-  box-shadow: 0 4px 12px rgba(7, 52, 95, 0.3);
+  background: #1e293b;
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.3);
   transform: translateY(-1px);
 }
 
