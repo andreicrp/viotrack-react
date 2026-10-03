@@ -1,10 +1,21 @@
 import React, { useState, useEffect } from 'react';
 import { Award, X, Check, GraduationCap, ShieldCheck, UserMinus, AlertCircle } from 'lucide-react';
 import CustomSelect from '../common/CustomSelect';
+import { SectionSelect } from '../common/SectionSelect';
+import { dataService } from '../../services/dataService';
 
 export const AppointAdviserModal = ({ isOpen, onClose, teacher, currentAdviser, onAppointed, onUnassign }) => {
   const [gradeLevel, setGradeLevel] = useState('Grade 10');
   const [classSection, setClassSection] = useState('');
+  const [students, setStudents] = useState([]);
+  const [advisers, setAdvisers] = useState([]);
+
+  useEffect(() => {
+    if (isOpen) {
+      dataService.getStudents().then(res => setStudents(res || [])).catch(() => {});
+      dataService.getAdvisers().then(res => setAdvisers(res || [])).catch(() => {});
+    }
+  }, [isOpen]);
 
   useEffect(() => {
     if (currentAdviser) {
@@ -33,17 +44,6 @@ export const AppointAdviserModal = ({ isOpen, onClose, teacher, currentAdviser, 
       }
     }
   };
-
-  const sectionPresets = [
-    'Rizal',
-    'Bonifacio',
-    'Diamond',
-    'Emerald',
-    'Ruby',
-    'STEM A',
-    'HUMSS B',
-    'ABM A'
-  ];
 
   const isAlreadyAssigned = Boolean(currentAdviser);
 
@@ -198,55 +198,20 @@ export const AppointAdviserModal = ({ isOpen, onClose, teacher, currentAdviser, 
               />
             </div>
 
-            {/* Class Section Name */}
+            {/* Class Section Selection */}
             <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                <label style={{ fontSize: '13px', fontWeight: 700, color: '#334155' }}>
-                  Class Section Name <span style={{ color: '#ef4444' }}>*</span>
-                </label>
-                <span style={{ fontSize: '11px', color: '#64748b' }}>Quick suggestions:</span>
-              </div>
-
-              <input
-                type="text"
-                required
-                placeholder="e.g. Rizal, STEM A, Diamond"
+              <label style={{ fontSize: '13px', fontWeight: 700, color: '#334155', display: 'block', marginBottom: '6px' }}>
+                Class Section Name <span style={{ color: '#ef4444' }}>*</span>
+              </label>
+              <SectionSelect
+                grade={gradeLevel}
                 value={classSection}
-                onChange={(e) => setClassSection(e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '10px 12px',
-                  borderRadius: '9px',
-                  border: '1.5px solid #cbd5e1',
-                  fontSize: '13.5px',
-                  outline: 'none',
-                  boxSizing: 'border-box'
-                }}
+                onChange={setClassSection}
+                students={students}
+                advisers={advisers}
+                placeholder="Select or type section name..."
+                required
               />
-
-              {/* Chips */}
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '8px' }}>
-                {sectionPresets.map((sec) => (
-                  <button
-                    key={sec}
-                    type="button"
-                    onClick={() => setClassSection(sec)}
-                    style={{
-                      fontSize: '11px',
-                      fontWeight: 600,
-                      padding: '3px 8px',
-                      borderRadius: '12px',
-                      border: '1px solid #e2e8f0',
-                      background: classSection.toLowerCase() === sec.toLowerCase() ? '#dcfce7' : '#f8fafc',
-                      color: classSection.toLowerCase() === sec.toLowerCase() ? '#15803d' : '#475569',
-                      cursor: 'pointer',
-                      transition: 'all 0.15s'
-                    }}
-                  >
-                    + {sec}
-                  </button>
-                ))}
-              </div>
             </div>
           </div>
 
