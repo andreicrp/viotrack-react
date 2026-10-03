@@ -989,7 +989,7 @@ export const DashboardPage = () => {
           </div>
 
           {/* Chart Canvas */}
-          <div style={{ width: '100%', height: 220, marginTop: '8px' }}>
+          <div style={{ width: '100%', height: 250, marginTop: '8px' }}>
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={trendData} margin={{ top: 10, right: 10, left: -24, bottom: 0 }}>
                 <defs>
@@ -1133,13 +1133,13 @@ export const DashboardPage = () => {
             <div className="dash-distribution-content">
               {/* Circle Chart */}
               <div className="dash-distribution-chart-box">
-                <ResponsiveContainer width="100%" height={220}>
+                <ResponsiveContainer width="100%" height={250}>
                   <PieChart>
                     <Pie
                       data={violationDistribution}
                       cx="50%"
                       cy="50%"
-                      outerRadius={95}
+                      outerRadius={112}
                       innerRadius={0}
                       paddingAngle={0}
                       dataKey="value"
