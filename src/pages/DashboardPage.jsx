@@ -293,34 +293,41 @@ export const DashboardPage = () => {
       return intervals;
     }
 
-    // Default: 'month' view (4-5 weekly buckets of the current active month)
+    // Default: 'month' view (Daily breakdown for every day of the active month)
     const year = calendarMonth.getFullYear();
     const month = calendarMonth.getMonth();
+    const monthShort = calendarMonth.toLocaleDateString('en-US', { month: 'short' });
     const daysInMonth = new Date(year, month + 1, 0).getDate();
-    const buckets = [
-      { start: 1, end: 7, label: `${calendarMonth.toLocaleDateString('en-US', { month: 'short' })} 1 – 7` },
-      { start: 8, end: 14, label: `${calendarMonth.toLocaleDateString('en-US', { month: 'short' })} 8 – 14` },
-      { start: 15, end: 21, label: `${calendarMonth.toLocaleDateString('en-US', { month: 'short' })} 15 – 21` },
-      { start: 22, end: 28, label: `${calendarMonth.toLocaleDateString('en-US', { month: 'short' })} 22 – 28` },
-      { start: 29, end: daysInMonth, label: `${calendarMonth.toLocaleDateString('en-US', { month: 'short' })} 29 – ${daysInMonth}` }
-    ];
 
-    return buckets.map(b => {
+    const days = [];
+    for (let d = 1; d <= daysInMonth; d++) {
       let minor = 0, serious = 0, major = 0;
       approvedRecords.forEach(r => {
-        const rDate = new Date(r.date_reported || r.created_at || Date.now());
-        if (rDate.getFullYear() === year && rDate.getMonth() === month) {
-          const dayNum = rDate.getDate();
-          if (dayNum >= b.start && dayNum <= b.end) {
-            const sev = getSeverity(r);
-            if (sev === 'minor') minor++;
-            else if (sev === 'serious') serious++;
-            else if (sev === 'major') major++;
-          }
+        const rawDate = r.date_reported || r.created_at;
+        if (!rawDate) return;
+        const rDate = new Date(rawDate);
+        if (
+          rDate.getFullYear() === year &&
+          rDate.getMonth() === month &&
+          rDate.getDate() === d
+        ) {
+          const sev = getSeverity(r);
+          if (sev === 'minor') minor++;
+          else if (sev === 'serious') serious++;
+          else if (sev === 'major') major++;
         }
       });
-      return { time: b.label, minor, serious, major, total: minor + serious + major };
-    });
+      days.push({
+        time: `${monthShort} ${d}`,
+        day: d,
+        minor,
+        serious,
+        major,
+        total: minor + serious + major
+      });
+    }
+
+    return days;
   }, [chartFilter, approvedRecords, startDate, endDate, calendarMonth]);
 
   // Determine max domain for Chart Y-Axis dynamically with nice integer padding
@@ -1005,9 +1012,11 @@ export const DashboardPage = () => {
                 <XAxis
                   dataKey="time"
                   stroke="#94a3b8"
-                  fontSize={11}
+                  fontSize={10.5}
                   tickLine={false}
                   axisLine={{ stroke: '#e2e8f0' }}
+                  interval={chartFilter === 'month' ? 'preserveStartEnd' : 0}
+                  minTickGap={14}
                 />
                 <YAxis
                   stroke="#94a3b8"
