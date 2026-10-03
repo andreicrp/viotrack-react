@@ -159,16 +159,14 @@ export const AdvisersPage = () => {
     }
   };
 
-  // All faculty options with current advisory status
+  // All faculty options with clean name and status badge
   const teacherOptions = useMemo(() => {
     return teachers.map(t => {
       const existingAdv = advisers.find(a => Number(a.teacher_id) === Number(t.id));
-      const statusLabel = existingAdv
-        ? ` • [Currently: ${existingAdv.grade_level} - ${existingAdv.class_section}]`
-        : '';
       return {
         value: String(t.id),
-        label: `${t.fname} ${t.lname} (${t.department || 'Faculty'}${statusLabel})`
+        label: `${t.fname} ${t.lname}`,
+        badge: existingAdv ? `${existingAdv.grade_level} - ${existingAdv.class_section}` : (t.department || 'Faculty')
       };
     });
   }, [teachers, advisers]);
