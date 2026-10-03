@@ -12,26 +12,26 @@ import { ScreenLockModal } from './components/common/ScreenLockModal';
 import { dataService } from './services/dataService';
 
 // Lazy Loaded Route Pages for Optimal Code-Splitting & Speed
-const DashboardPage = lazy(() => import('./pages/DashboardPage').then(m => ({ default: m.DashboardPage })));
-const ViolationsPage = lazy(() => import('./pages/ViolationsPage').then(m => ({ default: m.ViolationsPage })));
-const ViolationTypesPage = lazy(() => import('./pages/ViolationTypesPage').then(m => ({ default: m.ViolationTypesPage })));
-const StudentsPage = lazy(() => import('./pages/StudentsPage').then(m => ({ default: m.StudentsPage })));
-const StudentViolationDetailPage = lazy(() => import('./pages/StudentViolationDetailPage').then(m => ({ default: m.StudentViolationDetailPage })));
-const MyClassPage = lazy(() => import('./pages/MyClassPage').then(m => ({ default: m.MyClassPage })));
-const ScanQRPage = lazy(() => import('./pages/ScanQRPage').then(m => ({ default: m.ScanQRPage })));
-const TeachersPage = lazy(() => import('./pages/TeachersPage').then(m => ({ default: m.TeachersPage })));
-const AdvisersPage = lazy(() => import('./pages/AdvisersPage').then(m => ({ default: m.AdvisersPage })));
-const TrackLocationPage = lazy(() => import('./pages/TrackLocationPage').then(m => ({ default: m.TrackLocationPage })));
-const AdminUsersPage = lazy(() => import('./pages/AdminUsersPage').then(m => ({ default: m.AdminUsersPage })));
-const ForApprovalPage = lazy(() => import('./pages/ForApprovalPage').then(m => ({ default: m.ForApprovalPage })));
-const ActivityLogsPage = lazy(() => import('./pages/ActivityLogsPage').then(m => ({ default: m.ActivityLogsPage })));
-const ProfilePage = lazy(() => import('./pages/ProfilePage').then(m => ({ default: m.ProfilePage })));
-const LoginPage = lazy(() => import('./pages/LoginPage').then(m => ({ default: m.LoginPage })));
-const VerifyStudentPage = lazy(() => import('./pages/VerifyStudentPage').then(m => ({ default: m.VerifyStudentPage })));
-const NotFoundPage = lazy(() => import('./pages/NotFoundPage').then(m => ({ default: m.NotFoundPage })));
-const ForbiddenPage = lazy(() => import('./pages/ForbiddenPage').then(m => ({ default: m.ForbiddenPage })));
+const DashboardPage = lazy(() => import('./pages/DashboardPage').then(m => ({ default: m.DashboardPage || m.default })));
+const ViolationsPage = lazy(() => import('./pages/ViolationsPage').then(m => ({ default: m.ViolationsPage || m.default })));
+const ViolationTypesPage = lazy(() => import('./pages/ViolationTypesPage').then(m => ({ default: m.ViolationTypesPage || m.default })));
+const StudentsPage = lazy(() => import('./pages/StudentsPage').then(m => ({ default: m.StudentsPage || m.default })));
+const StudentViolationDetailPage = lazy(() => import('./pages/StudentViolationDetailPage').then(m => ({ default: m.StudentViolationDetailPage || m.default })));
+const MyClassPage = lazy(() => import('./pages/MyClassPage').then(m => ({ default: m.MyClassPage || m.default })));
+const ScanQRPage = lazy(() => import('./pages/ScanQRPage').then(m => ({ default: m.ScanQRPage || m.default })));
+const TeachersPage = lazy(() => import('./pages/TeachersPage').then(m => ({ default: m.TeachersPage || m.default })));
+const AdvisersPage = lazy(() => import('./pages/AdvisersPage').then(m => ({ default: m.AdvisersPage || m.default })));
+const TrackLocationPage = lazy(() => import('./pages/TrackLocationPage').then(m => ({ default: m.TrackLocationPage || m.default })));
+const AdminUsersPage = lazy(() => import('./pages/AdminUsersPage').then(m => ({ default: m.AdminUsersPage || m.default })));
+const ForApprovalPage = lazy(() => import('./pages/ForApprovalPage').then(m => ({ default: m.ForApprovalPage || m.default })));
+const ActivityLogsPage = lazy(() => import('./pages/ActivityLogsPage').then(m => ({ default: m.ActivityLogsPage || m.default })));
+const ProfilePage = lazy(() => import('./pages/ProfilePage').then(m => ({ default: m.ProfilePage || m.default })));
+const LoginPage = lazy(() => import('./pages/LoginPage').then(m => ({ default: m.LoginPage || m.default })));
+const VerifyStudentPage = lazy(() => import('./pages/VerifyStudentPage').then(m => ({ default: m.VerifyStudentPage || m.default })));
+const NotFoundPage = lazy(() => import('./pages/NotFoundPage').then(m => ({ default: m.NotFoundPage || m.default })));
+const ForbiddenPage = lazy(() => import('./pages/ForbiddenPage').then(m => ({ default: m.ForbiddenPage || m.default })));
 import { ServerErrorPage } from './pages/ServerErrorPage';
-const ErrorTestPage = lazy(() => import('./pages/ErrorTestPage').then(m => ({ default: m.ErrorTestPage })));
+const ErrorTestPage = lazy(() => import('./pages/ErrorTestPage').then(m => ({ default: m.ErrorTestPage || m.default })));
 
 // Lightweight Route Loading Spinner
 const PageLoader = () => (

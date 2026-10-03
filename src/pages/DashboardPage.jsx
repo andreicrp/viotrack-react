@@ -39,6 +39,7 @@ import { useAuth } from '../context/AuthContext';
 import { useNotification } from '../context/NotificationContext';
 import { AddViolationModal } from '../components/violations/AddViolationModal';
 import { SchoolCalendarModal } from '../components/common/SchoolCalendarModal';
+import { CustomDateRangeModal } from '../components/common/CustomDateRangeModal';
 import { getJsPDF } from '../utils/pdfHelper';
 import { exportToCsv } from '../utils/csvHelper';
 
