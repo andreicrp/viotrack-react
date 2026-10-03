@@ -85,7 +85,7 @@ export const LegalModal = ({ isOpen, onClose, initialTab = 'privacy' }) => {
                   We adhere to strict data minimization principles and collect only what is essential for official school administration:
                 </p>
                 <ul className="legal-list">
-                  <li><strong>Learner Identification:</strong> 12-Digit Learner Reference Number (LRN), Full Name, Grade Level, Section, and official photo.</li>
+                  <li><strong>Learner Identification:</strong> Student ID Number, Full Name, Grade Level, Section, and official photo.</li>
                   <li><strong>Guardian Emergency Contacts:</strong> Parent/Guardian Full Name and verified mobile phone number for automated SMS infraction dispatch.</li>
                   <li><strong>Disciplinary & Remediation Records:</strong> Date, category, detailed narrative of incident, assigned restorative action, and Good Moral status.</li>
                   <li><strong>Campus QR & Location Data:</strong> Ephemeral timestamp and campus gate/checkpoint coordinates logged strictly during active student ID QR verification.</li>

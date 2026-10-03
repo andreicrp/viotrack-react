@@ -293,7 +293,7 @@ export const StudentsPage = () => {
       ]);
 
       doc.autoTable({
-        head: [['#', 'LRN', 'Student Name', 'Grade', 'Strand / Track', 'Section', 'Gender', 'Guardian']],
+        head: [['#', 'Student ID', 'Student Name', 'Grade', 'Strand / Track', 'Section', 'Gender', 'Guardian']],
         body: tableData,
         startY: 28,
         theme: 'striped',
@@ -311,7 +311,7 @@ export const StudentsPage = () => {
   // CSV Export
   const handleExportCsv = () => {
     try {
-      const headers = ['LRN', 'First Name', 'Middle Name', 'Last Name', 'Grade', 'Strand', 'Section', 'Gender', 'Contact', 'Parent Name', 'Parent Contact'];
+      const headers = ['Student ID', 'First Name', 'Middle Name', 'Last Name', 'Grade', 'Strand', 'Section', 'Gender', 'Contact', 'Parent Name', 'Parent Contact'];
       const rows = filteredAndSortedStudents.map(s => [
         s.lrn,
         s.fname,
@@ -616,7 +616,7 @@ export const StudentsPage = () => {
               />
               <input
                 type="text"
-                placeholder="Search by student name, LRN, grade, strand, or section..."
+                placeholder="Search by student name, Student ID, grade, strand, or section..."
                 value={searchTerm}
                 onChange={(e) => {
                   setSearchTerm(e.target.value);
@@ -675,7 +675,7 @@ export const StudentsPage = () => {
                     { value: 'strand-desc', label: 'Strand (Z → A)' },
                     { value: 'name-asc', label: 'Name (A → Z)' },
                     { value: 'name-desc', label: 'Name (Z → A)' },
-                    { value: 'lrn-asc', label: 'Student LRN' },
+                    { value: 'lrn-asc', label: 'Student ID' },
                     { value: 'section-asc', label: 'Section' }
                   ]}
                 />
@@ -1007,7 +1007,7 @@ export const StudentsPage = () => {
                               {s.fname} {s.mname ? s.mname[0] + '. ' : ''}{s.lname}
                             </div>
                             <div style={{ fontSize: '11px', color: '#64748b', marginTop: '1px' }}>
-                              LRN: <strong style={{ color: '#334155' }}>{s.lrn}</strong> • {s.gender || 'Male'}
+                              Student ID: <strong style={{ color: '#334155' }}>{s.lrn}</strong> • {s.gender || 'Male'}
                             </div>
                           </div>
                         </div>
@@ -1259,7 +1259,7 @@ export const StudentsPage = () => {
                       {strand}
                     </div>
                     <div style={{ fontSize: '9.5px', color: '#94a3b8', marginTop: '2px' }}>
-                      LRN: {s.lrn}
+                      Student ID: {s.lrn}
                     </div>
                   </div>
 
@@ -1348,7 +1348,7 @@ export const StudentsPage = () => {
                           {s.fname} {s.mname ? s.mname[0] + '. ' : ''}{s.lname}
                         </div>
                         <div style={{ fontSize: '11px', color: '#64748b' }}>
-                          LRN: <strong style={{ color: '#334155' }}>{s.lrn}</strong> • {s.gender || 'Male'}
+                          Student ID: <strong style={{ color: '#334155' }}>{s.lrn}</strong> • {s.gender || 'Male'}
                         </div>
                       </div>
                     </div>

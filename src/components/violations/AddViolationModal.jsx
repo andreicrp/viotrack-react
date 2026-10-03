@@ -435,7 +435,7 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
                   isMulti={true}
                   inline={true}
                   maxListHeight="340px"
-                  placeholder="Search student by name, LRN, or section..."
+                  placeholder="Search student by name, Student ID, or section..."
                 />
               </div>
 

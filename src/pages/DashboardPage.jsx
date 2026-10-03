@@ -641,7 +641,7 @@ export const DashboardPage = () => {
     try {
       const exportRows = records.map(r => ({
         Record_ID: r.id,
-        Student_LRN: r.student?.lrn || '',
+        Student_ID: r.student?.lrn || '',
         Student_Name: r.student ? `${r.student.fname} ${r.student.lname}` : '',
         Grade: r.student?.grade || '',
         Section: r.student?.section || '',

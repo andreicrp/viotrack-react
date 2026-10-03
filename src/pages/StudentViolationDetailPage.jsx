@@ -153,7 +153,7 @@ export const StudentViolationDetailPage = () => {
 
       doc.setFontSize(10);
       doc.setTextColor(100, 116, 139);
-      doc.text(`Student: ${student.fname} ${student.lname} | LRN: ${student.lrn}`, 14, 23);
+      doc.text(`Student: ${student.fname} ${student.lname} | Student ID: ${student.lrn}`, 14, 23);
       doc.text(`Grade & Section: ${student.grade} - ${student.section} (${student.academicyear || '2025-2026'}) | Guardian: ${student.parent_name || 'N/A'} (${student.parent_contact || 'N/A'})`, 14, 28);
       doc.text(`Total Incidents Logged: ${records.length} | Generated: ${new Date().toLocaleString()}`, 14, 33);
 
@@ -411,7 +411,7 @@ export const StudentViolationDetailPage = () => {
                   letterSpacing: '0.02em'
                 }}
               >
-                LRN: {student.lrn}
+                Student ID: {student.lrn}
               </span>
               <span
                 style={{
@@ -551,7 +551,7 @@ export const StudentViolationDetailPage = () => {
                 {student.fname} {student.lname}
               </div>
               <div style={{ fontSize: '12.5px', color: '#334155', marginTop: '4px', fontWeight: 600 }}>
-                LRN: <strong style={{ color: '#0f172a' }}>{student.lrn}</strong>
+                Student ID: <strong style={{ color: '#0f172a' }}>{student.lrn}</strong>
               </div>
               <div style={{ fontSize: '11.5px', color: '#334155', marginTop: '6px', display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap' }}>
                 <span style={{ background: '#f1f5f9', color: '#1e293b', border: '1px solid #e2e8f0', padding: '2px 8px', borderRadius: '6px', fontWeight: 700 }}>
@@ -1505,7 +1505,7 @@ export const StudentViolationDetailPage = () => {
                   <strong style={{ color: '#16a34a' }}>+63 {student.parent_contact || '09156867789'}</strong>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span style={{ color: '#64748b' }}>Student LRN:</span>
+                  <span style={{ color: '#64748b' }}>Student ID:</span>
                   <strong style={{ color: '#07345f' }}>{student.lrn} ({student.fname} {student.lname})</strong>
                 </div>
               </div>
@@ -1699,7 +1699,7 @@ export const StudentViolationDetailPage = () => {
               </div>
 
               <div style={{ fontSize: '14px', fontWeight: 800, color: '#07345f', letterSpacing: '0.04em' }}>
-                LRN: {student.lrn}
+                Student ID: {student.lrn}
               </div>
               <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px' }}>
                 Scan to instantly access disciplinary log & track location

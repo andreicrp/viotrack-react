@@ -362,7 +362,7 @@ export const TrackLocationPage = () => {
                     {activeStudent.fname} {activeStudent.lname}
                   </h3>
                   <div style={{ fontSize: '12px', color: '#64748b', marginTop: '2px' }}>
-                    LRN: <strong style={{ color: '#0f172a' }}>{activeStudent.lrn || 'N/A'}</strong>
+                    Student ID: <strong style={{ color: '#0f172a' }}>{activeStudent.lrn || 'N/A'}</strong>
                   </div>
                   <div style={{ fontSize: '11px', color: '#0284c7', fontWeight: 700, marginTop: '2px' }}>
                     {activeStudent.grade} • Section {activeStudent.section}

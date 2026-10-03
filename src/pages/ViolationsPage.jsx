@@ -319,7 +319,7 @@ export const ViolationsPage = () => {
   // CSV Export
   const handleExportCSV = () => {
     try {
-      const headers = ['Record ID', 'LRN', 'Student Name', 'Grade', 'Section', 'Offense', 'Severity', 'Reported By', 'Reporter Type', 'Date Reported', 'Sanction', 'Status', 'Remarks', 'Resolution Notes'];
+      const headers = ['Record ID', 'Student ID', 'Student Name', 'Grade', 'Section', 'Offense', 'Severity', 'Reported By', 'Reporter Type', 'Date Reported', 'Sanction', 'Status', 'Remarks', 'Resolution Notes'];
       const rows = filteredAndSortedRecords.map(r => [
         r.id,
         r.student?.lrn || '',
@@ -1100,7 +1100,7 @@ export const ViolationsPage = () => {
                               {rec.student ? `${rec.student.fname} ${rec.student.lname}` : 'Enrolled Student'}
                             </div>
                             <div style={{ fontSize: '11px', color: '#64748b', marginTop: '1px' }}>
-                              LRN: <strong style={{ color: '#334155' }}>{rec.student?.lrn || '22-0000-000'}</strong>
+                              Student ID: <strong style={{ color: '#334155' }}>{rec.student?.lrn || '22-0000-000'}</strong>
                             </div>
                           </div>
                         </div>
@@ -1394,7 +1394,7 @@ export const ViolationsPage = () => {
                           {rec.student ? `${rec.student.fname} ${rec.student.lname}` : 'Enrolled Student'}
                         </div>
                         <div style={{ fontSize: '11px', color: '#64748b' }}>
-                          LRN: <strong style={{ color: '#334155' }}>{rec.student?.lrn || '22-0000-000'}</strong>
+                          Student ID: <strong style={{ color: '#334155' }}>{rec.student?.lrn || '22-0000-000'}</strong>
                         </div>
                       </div>
                     </div>

@@ -432,7 +432,7 @@ export const buildCertificateHtml = ({ record, status, sanction, resolutionNotes
           <td class="value-col"><strong>${studentFullName}</strong></td>
         </tr>
         <tr>
-          <td class="label-col">Learner Ref. No. (LRN)</td>
+          <td class="label-col">Student ID</td>
           <td class="value-col"><strong style="font-family: monospace; letter-spacing: 0.05em;">${record?.student?.lrn || '109283746101'}</strong></td>
         </tr>
         <tr>
@@ -732,7 +732,7 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
                     </span>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '3px', fontSize: '11.5px', color: '#64748b' }}>
-                    <span>LRN: <strong style={{ color: '#0f172a', fontFamily: 'monospace' }}>{record.student?.lrn || 'N/A'}</strong></span>
+                    <span>Student ID: <strong style={{ color: '#0f172a', fontFamily: 'monospace' }}>{record.student?.lrn || 'N/A'}</strong></span>
                     <span>•</span>
                     <span>Reported by: <strong style={{ color: '#334155' }}>{record.reported_by_name || 'Faculty'}</strong></span>
                   </div>

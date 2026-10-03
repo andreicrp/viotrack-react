@@ -167,7 +167,7 @@ export const SearchableStudentSelect = ({
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search by name, LRN, section..."
+            placeholder="Search by name, Student ID, section..."
             style={{
               width: '100%',
               boxSizing: 'border-box',
@@ -314,7 +314,7 @@ export const SearchableStudentSelect = ({
                         {s.fname} {s.lname}
                       </div>
                       <div style={{ fontSize: '11px', color: '#64748b' }}>
-                        LRN: {s.lrn} • {s.grade} - {s.section}
+                        Student ID: {s.lrn} • {s.grade} - {s.section}
                       </div>
                     </div>
                   </div>

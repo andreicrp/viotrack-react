@@ -111,7 +111,7 @@ export const ViewStudentModal = ({ isOpen, onClose, student }) => {
 
                 <span className="student-hero-pill lrn-pill">
                   <IdCard size={13} />
-                  LRN: <strong>{student.lrn}</strong>
+                  Student ID: <strong>{student.lrn}</strong>
                 </span>
 
                 {student.academicyear && (
@@ -126,13 +126,13 @@ export const ViewStudentModal = ({ isOpen, onClose, student }) => {
 
           {/* Detailed Info Cards Grid */}
           <div className="student-details-grid">
-            {/* Student LRN */}
+            {/* Student ID */}
             <div className="student-info-item">
               <div className="info-icon-box">
                 <IdCard size={15} />
               </div>
               <div className="info-text-group">
-                <span className="info-item-label">Student LRN / ID</span>
+                <span className="info-item-label">Student ID</span>
                 <span className="info-item-value lrn-font">{student.lrn || 'N/A'}</span>
               </div>
             </div>

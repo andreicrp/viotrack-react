@@ -220,7 +220,7 @@ export const BulkViolationModal = ({ isOpen, onClose, onRecordsAdded }) => {
                           {student.lname}, {student.fname}
                         </span>
                         <span style={{ fontSize: '0.75rem', color: '#64748b' }}>
-                          {student.grade} - {student.section} | LRN: {student.lrn}
+                          {student.grade} - {student.section} | Student ID: {student.lrn}
                         </span>
                       </div>
                     </div>

@@ -726,7 +726,7 @@ export const AdvisersPage = () => {
                                   {std.fname} {std.lname}
                                 </div>
                                 <div className="adviser-student-lrn">
-                                  LRN: {std.lrn}
+                                  Student ID: {std.lrn}
                                 </div>
                               </div>
                             </div>

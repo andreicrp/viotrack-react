@@ -54,7 +54,7 @@ export const StudentIdModal = ({ isOpen, onClose, student }) => {
                     {student.grade} – {student.section}
                   </div>
                   <div className="id-lrn-row">
-                    LRN: <span className="id-lrn-value">{student.lrn}</span>
+                    Student ID: <span className="id-lrn-value">{student.lrn}</span>
                   </div>
                 </div>
               </div>

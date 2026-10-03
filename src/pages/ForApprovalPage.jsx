@@ -432,7 +432,7 @@ export const ForApprovalPage = () => {
 
   const handleExportCSV = () => {
     try {
-      const headers = ['Student Name', 'LRN', 'Grade', 'Section', 'Offense', 'Severity', 'Sanction', 'Reported By', 'Approval Status', 'Date Reported', 'Remarks'];
+      const headers = ['Student Name', 'Student ID', 'Grade', 'Section', 'Offense', 'Severity', 'Sanction', 'Reported By', 'Approval Status', 'Date Reported', 'Remarks'];
       const rows = filteredRecords.map(r => [
         `${r.student?.fname || ''} ${r.student?.lname || ''}`.trim(),
         r.student?.lrn || 'N/A',
@@ -695,7 +695,7 @@ export const ForApprovalPage = () => {
             <Search size={16} color="#94a3b8" style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)' }} />
             <input
               type="text"
-              placeholder="Search student, LRN, teacher, offense..."
+              placeholder="Search student, Student ID, teacher, offense..."
               value={searchTerm}
               onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
               style={{
@@ -963,7 +963,7 @@ export const ForApprovalPage = () => {
                                 {studentName}
                               </span>
                               <span style={{ fontSize: '11.5px', color: '#64748b' }}>
-                                {s.grade} • {s.section} {s.lrn ? `• LRN: ${s.lrn}` : ''}
+                                {s.grade} • {s.section} {s.lrn ? `• Student ID: ${s.lrn}` : ''}
                               </span>
                             </div>
                           </div>
@@ -1383,7 +1383,7 @@ export const ForApprovalPage = () => {
                             </div>
                             <div style={{ fontSize: '11px', color: '#64748b' }}>
                               <span>{s.grade || 'Grade 10'} • {s.section || 'Section'}</span>
-                              {s.lrn && <span style={{ marginLeft: 4 }}>• LRN: {s.lrn}</span>}
+                              {s.lrn && <span style={{ marginLeft: 4 }}>• Student ID: {s.lrn}</span>}
                             </div>
                           </div>
                         </div>
@@ -1677,7 +1677,7 @@ export const ForApprovalPage = () => {
                       </span>
 
                       <span style={{ fontSize: '11.5px', color: '#64748b' }}>
-                        LRN: <strong style={{ color: '#334155' }}>{inspectRecord.student?.lrn || 'N/A'}</strong>
+                        Student ID: <strong style={{ color: '#334155' }}>{inspectRecord.student?.lrn || 'N/A'}</strong>
                       </span>
                     </div>
                   </div>
@@ -2035,7 +2035,7 @@ export const ForApprovalPage = () => {
                     </div>
                     <div style={{ fontSize: '12px', color: '#64748b', marginTop: '3px' }}>
                       {student.grade || 'Grade --'} • {student.section || 'Section --'}
-                      {student.lrn ? <span style={{ marginLeft: 6, color: '#94a3b8' }}>| LRN: {student.lrn}</span> : ''}
+                      {student.lrn ? <span style={{ marginLeft: 6, color: '#94a3b8' }}>| Student ID: {student.lrn}</span> : ''}
                     </div>
                   </div>
                 </div>
@@ -2291,7 +2291,7 @@ export const ForApprovalPage = () => {
                     </div>
                     <div style={{ fontSize: '12px', color: '#b91c1c', marginTop: '3px' }}>
                       {student.grade || 'Grade --'} • {student.section || 'Section --'}
-                      {student.lrn ? <span style={{ marginLeft: 6, color: '#f87171' }}>| LRN: {student.lrn}</span> : ''}
+                      {student.lrn ? <span style={{ marginLeft: 6, color: '#f87171' }}>| Student ID: {student.lrn}</span> : ''}
                     </div>
                   </div>
                 </div>

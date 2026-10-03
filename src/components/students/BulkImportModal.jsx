@@ -5,7 +5,7 @@ import { useNotification } from '../../context/NotificationContext';
 import { FileSpreadsheet, Upload, Download, CheckCircle2 } from 'lucide-react';
 import { parseCsvString, readFileAsText, downloadSampleCsv } from '../../utils/csvHelper';
 
-const SAMPLE_CSV = `LRN,First Name,Middle Name,Last Name,Grade,Section,Gender,Contact,Parent Name,Parent Contact,Strand
+const SAMPLE_CSV = `Student ID,First Name,Middle Name,Last Name,Grade,Section,Gender,Contact,Parent Name,Parent Contact,Strand
 109283746201,Danilo,G.,Ramos,Grade 10,Rizal,Male,09151234567,Arturo Ramos,09151234568,Junior High School
 109283746202,Patricia,Mae,Garcia,Grade 10,Rizal,Female,09152345678,Carmen Garcia,09152345679,Junior High School
 109283746203,Kenneth,John,Bautista,Grade 11,STEM A,Male,09153456789,Lorna Bautista,09153456780,STEM
@@ -137,7 +137,7 @@ export const BulkImportModal = ({ isOpen, onClose, onImported }) => {
             <div style={{ flex: 1, minWidth: '200px' }}>
               <strong style={{ fontSize: '12.5px', color: '#0f172a', display: 'block' }}>Required Column Headers:</strong>
               <code style={{ fontSize: '11px', color: '#475569', background: '#f1f5f9', padding: '2px 6px', borderRadius: '4px', display: 'inline-block', marginTop: '2px', wordBreak: 'break-word' }}>
-                LRN, First Name, Middle Name, Last Name, Grade, Section, Gender, Contact, Parent Name, Parent Contact, Strand
+                Student ID, First Name, Middle Name, Last Name, Grade, Section, Gender, Contact, Parent Name, Parent Contact, Strand
               </code>
             </div>
             <button
@@ -234,7 +234,7 @@ export const BulkImportModal = ({ isOpen, onClose, onImported }) => {
               background: '#ffffff',
               outline: 'none'
             }}
-            placeholder="LRN,First Name,Middle Name,Last Name,Grade,Section,Gender,Contact,Parent Name,Parent Contact,Strand..."
+            placeholder="Student ID,First Name,Middle Name,Last Name,Grade,Section,Gender,Contact,Parent Name,Parent Contact,Strand..."
             value={csvText}
             onChange={(e) => setCsvText(e.target.value)}
           />

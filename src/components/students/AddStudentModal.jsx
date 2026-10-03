@@ -124,7 +124,7 @@ export const AddStudentModal = ({ isOpen, onClose, studentToEdit = null, onSaved
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.lrn || !formData.fname || !formData.lname) {
-      error('Please complete all required fields (LRN, First Name, Last Name).');
+      error('Please complete all required fields (Student ID, First Name, Last Name).');
       return;
     }
 
@@ -241,7 +241,7 @@ export const AddStudentModal = ({ isOpen, onClose, studentToEdit = null, onSaved
                   {formData.fname || formData.lname ? `${formData.fname} ${formData.mname ? formData.mname[0] + '. ' : ''}${formData.lname}` : 'Student Name Preview'}
                 </div>
                 <div style={{ fontSize: '12px', color: '#64748b', marginTop: '2px', display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-                  <span>LRN: <strong style={{ color: '#0f172a' }}>{formData.lrn || 'Pending'}</strong></span>
+                  <span>Student ID: <strong style={{ color: '#0f172a' }}>{formData.lrn || 'Pending'}</strong></span>
                   <span>•</span>
                   <span>{formData.grade} – {formData.section || 'Section'}</span>
                   <span>•</span>
@@ -310,7 +310,7 @@ export const AddStudentModal = ({ isOpen, onClose, studentToEdit = null, onSaved
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' }}>
               <div className="form-group">
                 <label className="form-label" style={{ fontSize: '12.5px', fontWeight: 700, color: '#1e293b', marginBottom: '5px', display: 'block' }}>
-                  Student LRN (12 Digits) <span style={{ color: '#ef4444' }}>*</span>
+                  Student ID <span style={{ color: '#ef4444' }}>*</span>
                 </label>
                 <input
                   type="text"

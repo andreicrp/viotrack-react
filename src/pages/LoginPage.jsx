@@ -106,7 +106,7 @@ export const LoginPage = () => {
     const cleanPassword = password.trim();
     
     if (!cleanInput || !password) {
-      showError('Please enter your institutional email / LRN and password.');
+      showError('Please enter your institutional email / Student ID and password.');
       setLoading(false);
       return;
     }
@@ -375,7 +375,7 @@ export const LoginPage = () => {
       if (!nextRl.allowed) {
         setLockoutCountdown(nextRl.lockoutSeconds);
       }
-      throw new Error('Invalid institutional email, LRN, or password. Please verify your credentials.');
+      throw new Error('Invalid institutional email, Student ID, or password. Please verify your credentials.');
     } catch (err) {
       showError(err.message || 'Authentication failed. Please verify your credentials.');
     } finally {
@@ -569,13 +569,13 @@ export const LoginPage = () => {
         {/* Clean Login Card */}
         <div className="login-card-modern">
           <form onSubmit={handleSubmit} autoComplete="off" data-lpignore="true" data-form-type="other">
-            {/* Email / LRN Identifier Input */}
+            {/* Email / Student ID Identifier Input */}
             <div className="login-input-field-wrap">
               <input
                 id="login-email"
                 type="text"
                 className="login-text-input-clean"
-                placeholder="Institutional Email or Student LRN"
+                placeholder="Institutional Email or Student ID"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required

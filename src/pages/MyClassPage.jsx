@@ -184,7 +184,7 @@ export const MyClassPage = () => {
 
       doc.autoTable({
         startY: 35,
-        head: [['#', 'LRN', 'Student Name', 'Gender', 'Contact Info', 'Disciplinary Status']],
+        head: [['#', 'Student ID', 'Student Name', 'Gender', 'Contact Info', 'Disciplinary Status']],
         body: tableData,
         theme: 'striped',
         headStyles: { fillColor: [39, 54, 127], textColor: 255, fontStyle: 'bold' },
@@ -201,7 +201,7 @@ export const MyClassPage = () => {
   // Export Class Roster CSV
   const handleExportCSV = () => {
     try {
-      const headers = ['LRN', 'Last Name', 'First Name', 'Middle Name', 'Grade', 'Section', 'Gender', 'Contact', 'Violations Count', 'Conduct Standing'];
+      const headers = ['Student ID', 'Last Name', 'First Name', 'Middle Name', 'Grade', 'Section', 'Gender', 'Contact', 'Violations Count', 'Conduct Standing'];
       const rows = filteredStudents.map(s => {
         const vCount = records.filter(r => r.student_id === s.id).length;
         return [
@@ -517,7 +517,7 @@ export const MyClassPage = () => {
               />
               <input
                 type="text"
-                placeholder="Search by name, LRN, or email..."
+                placeholder="Search by name, Student ID, or email..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 style={{
@@ -729,7 +729,7 @@ export const MyClassPage = () => {
 
                       <div style={{ fontSize: '12px', color: '#64748b', marginTop: '3px', display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
                         <div>
-                          LRN: <strong style={{ color: '#0f172a' }}>{student.lrn}</strong>
+                          Student ID: <strong style={{ color: '#0f172a' }}>{student.lrn}</strong>
                         </div>
                         <div>
                           Email: <span style={{ color: '#475569' }}>{student.email || `${student.fname.toLowerCase()}@school.com`}</span>

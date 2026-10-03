@@ -596,7 +596,7 @@ export const dataService = {
       }
       invalidateCache('students');
       invalidateCache('records');
-      await this.addActivityLog('Add Student', `Enrolled student ${cleanStudent.fname} ${cleanStudent.lname} (${cleanStudent.lrn || 'No LRN'}, ${cleanStudent.grade || ''} ${cleanStudent.section || ''})`);
+      await this.addActivityLog('Add Student', `Enrolled student ${cleanStudent.fname} ${cleanStudent.lname} (${cleanStudent.lrn || 'No Student ID'}, ${cleanStudent.grade || ''} ${cleanStudent.section || ''})`);
       broadcastRecordChange('create', 'student', result);
       return result;
     } finally {

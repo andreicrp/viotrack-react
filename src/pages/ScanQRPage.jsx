@@ -876,7 +876,7 @@ export const ScanQRPage = () => {
               Student QR Scanner & Tracker
             </h2>
             <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: 'rgba(255, 255, 255, 0.85)' }}>
-              Scan printed student ID badges using device camera or search via 12-digit LRN.
+              Scan printed student ID badges using device camera or search via Student ID.
             </p>
           </div>
         </div>
@@ -1073,7 +1073,7 @@ export const ScanQRPage = () => {
                     }}
                   >
                     <Search size={12} className="camera-hint-icon" />
-                    <span>Or enter 12-digit LRN / Name in manual search</span>
+                    <span>Or enter Student ID / Name in manual search</span>
                   </button>
                 </div>
               </div>
@@ -1156,7 +1156,7 @@ export const ScanQRPage = () => {
                     }}
                   >
                     <Search size={12} className="camera-hint-icon" />
-                    <span>Or enter 12-digit LRN / Name in manual search</span>
+                    <span>Or enter Student ID / Name in manual search</span>
                   </button>
                 </div>
               </div>
@@ -1222,7 +1222,7 @@ export const ScanQRPage = () => {
           <div className="manual-search-box">
             <div className="manual-search-header">
               <span className="manual-search-title">Manual Student Lookup</span>
-              <span className="manual-search-subtag">12-Digit LRN or Name</span>
+              <span className="manual-search-subtag">Student ID or Name</span>
             </div>
 
             <div className="manual-search-input-group">
@@ -1232,7 +1232,7 @@ export const ScanQRPage = () => {
                   ref={manualInputRef}
                   type="text"
                   className="manual-search-field"
-                  placeholder="Enter 12-digit LRN or Student Name..."
+                  placeholder="Enter Student ID or Student Name..."
                   value={manualQuery}
                   onChange={(e) => setManualQuery(e.target.value)}
                   onKeyDown={(e) => {
@@ -1377,7 +1377,7 @@ export const ScanQRPage = () => {
                     {scannedStudent.grade} - {scannedStudent.section}
                   </div>
                   <div className="verified-lrn-row">
-                    <span>LRN:</span>
+                    <span>Student ID:</span>
                     <span className="lrn-chip">{scannedStudent.lrn}</span>
                     <span>• S.Y. {scannedStudent.academicyear || '2026-2027'}</span>
                   </div>
