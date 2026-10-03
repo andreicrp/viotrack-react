@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { X } from 'lucide-react';
+import { lockBodyScroll, unlockBodyScroll } from '../../utils/scrollLock';
 
 export const Modal = ({ isOpen, onClose, title, children, maxWidth = '600px', icon: Icon }) => {
   useEffect(() => {
@@ -7,11 +8,11 @@ export const Modal = ({ isOpen, onClose, title, children, maxWidth = '600px', ic
       if (e.key === 'Escape' && isOpen) onClose();
     };
     if (isOpen) {
-      document.body.style.overflow = 'hidden';
+      lockBodyScroll();
       window.addEventListener('keydown', handleKeyDown);
     }
     return () => {
-      document.body.style.overflow = '';
+      unlockBodyScroll();
       window.removeEventListener('keydown', handleKeyDown);
     };
   }, [isOpen, onClose]);
@@ -65,8 +66,8 @@ export const Modal = ({ isOpen, onClose, title, children, maxWidth = '600px', ic
         </div>
         
         <div
+          className="smooth-scroll-container"
           style={{
-            overflowY: 'auto',
             flex: 1,
             display: 'flex',
             flexDirection: 'column'

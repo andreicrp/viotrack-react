@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { dataService } from '../../services/dataService';
 import { useNotification } from '../../context/NotificationContext';
+import { lockBodyScroll, unlockBodyScroll } from '../../utils/scrollLock';
 
 export const BackupRestoreModal = ({ isOpen, onClose }) => {
   const { success, error, info } = useNotification();
@@ -46,10 +47,16 @@ export const BackupRestoreModal = ({ isOpen, onClose }) => {
 
   useEffect(() => {
     if (isOpen) {
+      lockBodyScroll();
       loadHistoryAndSettings();
       setUploadedFilePayload(null);
       setConfirmRestoreCheck(false);
     }
+    return () => {
+      if (isOpen) {
+        unlockBodyScroll();
+      }
+    };
   }, [isOpen]);
 
   const loadHistoryAndSettings = async () => {
@@ -167,13 +174,13 @@ export const BackupRestoreModal = ({ isOpen, onClose }) => {
         position: 'fixed',
         inset: 0,
         zIndex: 9999,
-        background: 'rgba(15, 23, 42, 0.65)',
-        backdropFilter: 'blur(12px)',
-        WebkitBackdropFilter: 'blur(12px)',
+        background: 'rgba(15, 23, 42, 0.75)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: '16px'
+        padding: '16px',
+        transform: 'translateZ(0)',
+        contain: 'strict'
       }}
     >
       <div
@@ -184,11 +191,13 @@ export const BackupRestoreModal = ({ isOpen, onClose }) => {
           maxHeight: '90vh',
           background: '#ffffff',
           borderRadius: '24px',
-          boxShadow: '0 30px 70px -15px rgba(15, 23, 42, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.2)',
+          boxShadow: '0 25px 60px -15px rgba(0, 0, 0, 0.35)',
           display: 'flex',
           flexDirection: 'column',
           overflow: 'hidden',
-          border: '1px solid #e2e8f0'
+          border: '1px solid #e2e8f0',
+          transform: 'translate3d(0, 0, 0)',
+          contain: 'layout paint'
         }}
       >
         {/* Modal Header */}
@@ -342,7 +351,7 @@ export const BackupRestoreModal = ({ isOpen, onClose }) => {
         </div>
 
         {/* Modal Body */}
-        <div style={{ padding: '24px 28px', overflowY: 'auto', flex: 1 }}>
+        <div className="smooth-scroll-container" style={{ padding: '24px 28px', flex: 1 }}>
           
           {/* TAB 1: CREATE SNAPSHOT */}
           {activeTab === 'create' && (

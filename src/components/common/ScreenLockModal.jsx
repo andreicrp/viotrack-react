@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useNotification } from '../../context/NotificationContext';
+import { lockBodyScroll, unlockBodyScroll } from '../../utils/scrollLock';
 import {
   Lock,
   Unlock,
@@ -27,12 +28,16 @@ export const ScreenLockModal = () => {
 
   useEffect(() => {
     if (isLocked) {
+      lockBodyScroll();
       setPassword('');
       setErrorMessage('');
       const timer = setTimeout(() => {
         if (inputRef.current) inputRef.current.focus();
       }, 100);
-      return () => clearTimeout(timer);
+      return () => {
+        clearTimeout(timer);
+        unlockBodyScroll();
+      };
     }
   }, [isLocked]);
 

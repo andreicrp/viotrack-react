@@ -25,6 +25,7 @@ import {
 } from 'lucide-react';
 import { useNotification } from '../../context/NotificationContext';
 import { dataService } from '../../services/dataService';
+import { lockBodyScroll, unlockBodyScroll } from '../../utils/scrollLock';
 
 export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }) => {
   const { success, error, info } = useNotification();
@@ -72,6 +73,8 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
   // Load all student violations & advisers
   useEffect(() => {
     if (!isOpen) return;
+
+    lockBodyScroll();
 
     // 1. Instant hydration if records are already available in props
     const studentId = activeStudent.id || record?.student_id;
@@ -129,7 +132,10 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
       }
     }, 40);
 
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+      unlockBodyScroll();
+    };
   }, [isOpen, activeStudent.id, activeStudent.grade, activeStudent.section, record?.id, records]);
 
   if (!isOpen) return null;

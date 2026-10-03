@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { dataService } from '../services/dataService';
 import { useNotification } from '../context/NotificationContext';
 import { Modal } from '../components/common/Modal';
+import { lockBodyScroll, unlockBodyScroll } from '../utils/scrollLock';
 import CustomSelect from '../components/common/CustomSelect';
 import { ViewModeToggle } from '../components/common/ViewModeToggle';
 import {
@@ -67,6 +68,13 @@ export const ViolationTypesPage = () => {
   useEffect(() => {
     loadViolations();
   }, []);
+
+  useEffect(() => {
+    if (isModalOpen) {
+      lockBodyScroll();
+      return () => unlockBodyScroll();
+    }
+  }, [isModalOpen]);
 
   const loadViolations = async () => {
     setLoading(true);
@@ -1332,7 +1340,18 @@ export const ViolationTypesPage = () => {
 
             {/* Modal Form */}
             <form onSubmit={handleSubmit}>
-              <div style={{ padding: '22px 24px', display: 'flex', flexDirection: 'column', gap: '18px', maxHeight: '70vh', overflowY: 'auto' }}>
+              <div 
+                className="smooth-scroll-container"
+                style={{ 
+                  padding: '22px 24px', 
+                  display: 'flex', 
+                  flexDirection: 'column', 
+                  gap: '18px', 
+                  maxHeight: '70vh', 
+                  overflowY: 'auto',
+                  WebkitOverflowScrolling: 'touch'
+                }}
+              >
                 {/* Violation Title */}
                 <div>
                   <label style={{ fontSize: '13px', fontWeight: 700, color: '#334155', display: 'block', marginBottom: '6px' }}>
