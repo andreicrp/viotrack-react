@@ -1179,6 +1179,32 @@ export const StudentViolationDetailPage = () => {
                       <td style={{ padding: '12px 14px', textAlign: 'right' }}>
                         <div style={{ display: 'flex', gap: '6px', justifyContent: 'flex-end', alignItems: 'center' }}>
                           <button
+                            onClick={() => {
+                              setSummonsTargetRecord(r);
+                              setIsSummonsModalOpen(true);
+                            }}
+                            style={{
+                              background: '#f8fafc',
+                              color: '#0f172a',
+                              border: '1px solid #cbd5e1',
+                              padding: '5px 9px',
+                              borderRadius: '8px',
+                              fontSize: '11.5px',
+                              fontWeight: 700,
+                              cursor: 'pointer',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '4px',
+                              transition: 'all 0.15s ease'
+                            }}
+                            onMouseOver={(e) => { e.currentTarget.style.background = '#e2e8f0'; }}
+                            onMouseOut={(e) => { e.currentTarget.style.background = '#f8fafc'; }}
+                            title="Generate printable Parent Summons letter for this incident"
+                          >
+                            <FileText size={12} /> Summons
+                          </button>
+
+                          <button
                             onClick={() => setSelectedRecordForResolution(r)}
                             style={{
                               background: '#eff6ff',
@@ -1288,6 +1314,29 @@ export const StudentViolationDetailPage = () => {
                     </button>
 
                     <div style={{ display: 'flex', gap: '6px' }}>
+                      <button
+                        onClick={() => {
+                          setSummonsTargetRecord(r);
+                          setIsSummonsModalOpen(true);
+                        }}
+                        style={{
+                          background: '#f8fafc',
+                          color: '#0f172a',
+                          border: '1px solid #cbd5e1',
+                          padding: '4px 9px',
+                          borderRadius: '6px',
+                          fontSize: '11.5px',
+                          fontWeight: 700,
+                          cursor: 'pointer',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '4px'
+                        }}
+                        title="Generate summons letter"
+                      >
+                        <FileText size={11} /> Summons
+                      </button>
+
                       <button
                         onClick={() => setSelectedRecordForResolution(r)}
                         style={{
