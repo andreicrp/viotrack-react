@@ -1897,3 +1897,59 @@ html, body {
   }
 }
 
+/* ==========================================================================
+   Ultra-Smooth Physics-Based Modal & Dropdown Popup Animations
+   ========================================================================== */
+@keyframes modalBackdropSmooth {
+  0% {
+    opacity: 0;
+    backdrop-filter: blur(0px);
+    -webkit-backdrop-filter: blur(0px);
+  }
+  100% {
+    opacity: 1;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+  }
+}
+
+@keyframes modalContentPopIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.92) translateY(16px);
+  }
+  70% {
+    transform: scale(1.008) translateY(-2px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes dropdownPopSmooth {
+  0% {
+    opacity: 0;
+    transform: scale(0.92) translateY(-8px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.modal-backdrop-smooth {
+  animation: modalBackdropSmooth 0.26s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+}
+
+.modal-content-smooth {
+  animation: modalContentPopIn 0.32s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+  transform-origin: center center;
+}
+
+.dropdown-pop-smooth {
+  animation: dropdownPopSmooth 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+  transform-origin: top right;
+}
+
+

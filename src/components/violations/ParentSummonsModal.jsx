@@ -259,42 +259,45 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student }) => {
 
   return (
     <div
+      className="modal-backdrop-smooth"
       style={{
         position: 'fixed',
         inset: 0,
         zIndex: 9999,
-        background: 'rgba(15, 23, 42, 0.75)',
-        backdropFilter: 'blur(8px)',
-        WebkitBackdropFilter: 'blur(8px)',
+        background: 'rgba(15, 23, 42, 0.65)',
+        backdropFilter: 'blur(12px)',
+        WebkitBackdropFilter: 'blur(12px)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: '16px',
-        animation: 'fadeIn 0.2s ease-out'
+        padding: '16px'
       }}
     >
       <div
+        className="modal-content-smooth"
         style={{
           width: '100%',
-          maxWidth: '1050px',
+          maxWidth: '1080px',
           maxHeight: '92vh',
           background: '#ffffff',
-          borderRadius: '16px',
-          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.35)',
+          borderRadius: '24px',
+          boxShadow: '0 30px 70px -15px rgba(15, 23, 42, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.2)',
           display: 'flex',
           flexDirection: 'column',
-          overflow: 'hidden'
+          overflow: 'hidden',
+          border: '1px solid #e2e8f0'
         }}
       >
         {/* Modal Header */}
         <div
           style={{
-            background: '#0f172a',
+            background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
             color: '#ffffff',
-            padding: '16px 24px',
+            padding: '20px 28px',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'space-between'
+            justifyContent: 'space-between',
+            borderBottom: '1px solid rgba(255, 255, 255, 0.08)'
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>

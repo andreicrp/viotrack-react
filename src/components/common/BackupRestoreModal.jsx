@@ -14,7 +14,10 @@ import {
   X,
   Sparkles,
   ShieldCheck,
-  HardDrive
+  HardDrive,
+  Users,
+  ShieldAlert,
+  FileText
 } from 'lucide-react';
 import { dataService } from '../../services/dataService';
 import { useNotification } from '../../context/NotificationContext';
@@ -25,6 +28,12 @@ export const BackupRestoreModal = ({ isOpen, onClose }) => {
 
   const [activeTab, setActiveTab] = useState('create'); // 'create' | 'restore' | 'schedule'
   const [history, setHistory] = useState([]);
+  const [liveCounts, setLiveCounts] = useState({
+    students: 0,
+    records: 0,
+    teachers: 0,
+    logs: 0
+  });
   const [schedule, setSchedule] = useState({
     auto_backup_enabled: true,
     frequency: 'daily',
@@ -43,11 +52,29 @@ export const BackupRestoreModal = ({ isOpen, onClose }) => {
     }
   }, [isOpen]);
 
-  const loadHistoryAndSettings = () => {
-    const list = dataService.getBackupHistory();
-    const sched = dataService.getBackupScheduleSettings();
-    setHistory(list);
-    setSchedule(sched);
+  const loadHistoryAndSettings = async () => {
+    try {
+      const list = dataService.getBackupHistory();
+      const sched = dataService.getBackupScheduleSettings();
+      setHistory(list);
+      setSchedule(sched);
+
+      const [students, records, teachers, logs] = await Promise.all([
+        dataService.getStudents(),
+        dataService.getRecords(),
+        dataService.getTeachers(),
+        dataService.getActivityLogs()
+      ]);
+
+      setLiveCounts({
+        students: students?.length || 0,
+        records: records?.length || 0,
+        teachers: teachers?.length || 0,
+        logs: logs?.length || 0
+      });
+    } catch (e) {
+      console.warn('Unable to load backup metadata:', e);
+    }
   };
 
   if (!isOpen) return null;
@@ -57,7 +84,7 @@ export const BackupRestoreModal = ({ isOpen, onClose }) => {
     setLoading(true);
     try {
       const snapshot = await dataService.createDatabaseBackup(type);
-      loadHistoryAndSettings();
+      await loadHistoryAndSettings();
 
       // Download file to browser
       const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(snapshot, null, 2));
@@ -90,7 +117,7 @@ export const BackupRestoreModal = ({ isOpen, onClose }) => {
         }
         setUploadedFilePayload(parsed);
         setConfirmRestoreCheck(false);
-        info(`Loaded backup snapshot ${parsed.backup_id || file.name}`);
+        info(`Loaded backup snapshot: ${parsed.backup_id || file.name}`);
       } catch (err) {
         error('Invalid JSON backup file: ' + err.message);
         setUploadedFilePayload(null);
@@ -107,10 +134,10 @@ export const BackupRestoreModal = ({ isOpen, onClose }) => {
       await dataService.restoreDatabase(payloadToRestore);
       success('Database successfully restored from snapshot! All records synchronized.');
       setUploadedFilePayload(null);
-      loadHistoryAndSettings();
+      await loadHistoryAndSettings();
       setTimeout(() => {
         onClose();
-      }, 800);
+      }, 600);
     } catch (err) {
       error('Restore failed: ' + err.message);
     } finally {
@@ -135,64 +162,69 @@ export const BackupRestoreModal = ({ isOpen, onClose }) => {
 
   return (
     <div
+      className="modal-backdrop-smooth"
       style={{
         position: 'fixed',
         inset: 0,
         zIndex: 9999,
-        background: 'rgba(15, 23, 42, 0.75)',
-        backdropFilter: 'blur(8px)',
-        WebkitBackdropFilter: 'blur(8px)',
+        background: 'rgba(15, 23, 42, 0.65)',
+        backdropFilter: 'blur(12px)',
+        WebkitBackdropFilter: 'blur(12px)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: '16px',
-        animation: 'fadeIn 0.2s ease-out'
+        padding: '16px'
       }}
     >
       <div
+        className="modal-content-smooth"
         style={{
           width: '100%',
           maxWidth: '780px',
           maxHeight: '90vh',
           background: '#ffffff',
-          borderRadius: '16px',
-          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.35)',
+          borderRadius: '24px',
+          boxShadow: '0 30px 70px -15px rgba(15, 23, 42, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.2)',
           display: 'flex',
           flexDirection: 'column',
-          overflow: 'hidden'
+          overflow: 'hidden',
+          border: '1px solid #e2e8f0'
         }}
       >
         {/* Modal Header */}
         <div
           style={{
-            background: '#0f172a',
+            background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
             color: '#ffffff',
-            padding: '18px 24px',
+            padding: '22px 28px',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'space-between'
+            justifyContent: 'space-between',
+            borderBottom: '1px solid rgba(255, 255, 255, 0.08)'
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
             <div
               style={{
-                width: '38px',
-                height: '38px',
-                borderRadius: '10px',
-                background: 'rgba(255, 255, 255, 0.12)',
+                width: '42px',
+                height: '42px',
+                borderRadius: '12px',
+                background: 'rgba(56, 189, 248, 0.15)',
+                border: '1px solid rgba(56, 189, 248, 0.3)',
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'center'
+                justifyContent: 'center',
+                boxShadow: '0 4px 12px rgba(56, 189, 248, 0.2)'
               }}
             >
-              <Database size={20} color="#38bdf8" />
+              <Database size={22} color="#38bdf8" />
             </div>
             <div>
-              <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 800 }}>
+              <h3 style={{ margin: 0, fontSize: '17px', fontWeight: 800, letterSpacing: '-0.01em', color: '#ffffff' }}>
                 Automated Database Backups &amp; One-Click Restore
               </h3>
-              <span style={{ fontSize: '11.5px', color: '#94a3b8' }}>
-                Secure database snapshot management and disaster recovery
+              <span style={{ fontSize: '12px', color: '#94a3b8', marginTop: '2px', display: 'block' }}>
+                Secure database snapshot management, disaster recovery &amp; automated schedules
               </span>
             </div>
           </div>
@@ -201,225 +233,331 @@ export const BackupRestoreModal = ({ isOpen, onClose }) => {
             type="button"
             onClick={onClose}
             style={{
-              background: 'none',
-              border: 'none',
-              color: '#94a3b8',
+              background: 'rgba(255, 255, 255, 0.08)',
+              border: '1px solid rgba(255, 255, 255, 0.12)',
+              color: '#cbd5e1',
               cursor: 'pointer',
-              padding: '6px',
-              borderRadius: '8px'
+              padding: '8px',
+              borderRadius: '10px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              transition: 'all 0.15s ease'
             }}
-            onMouseOver={(e) => e.currentTarget.style.color = '#ffffff'}
-            onMouseOut={(e) => e.currentTarget.style.color = '#94a3b8'}
+            onMouseOver={(e) => { e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)'; e.currentTarget.style.color = '#ffffff'; }}
+            onMouseOut={(e) => { e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)'; e.currentTarget.style.color = '#cbd5e1'; }}
+            title="Close modal"
           >
-            <X size={20} />
+            <X size={18} />
           </button>
         </div>
 
-        {/* Tab Navigation */}
-        <div
-          style={{
-            display: 'flex',
-            borderBottom: '1px solid #e2e8f0',
-            background: '#f8fafc',
-            padding: '0 24px'
-          }}
-        >
-          <button
-            type="button"
-            onClick={() => setActiveTab('create')}
+        {/* Modern Segmented Pill Switcher */}
+        <div style={{ padding: '16px 28px 0 28px', background: '#ffffff' }}>
+          <div
             style={{
-              padding: '12px 18px',
-              border: 'none',
-              background: 'none',
-              fontSize: '13px',
-              fontWeight: 700,
-              cursor: 'pointer',
-              color: activeTab === 'create' ? '#0f172a' : '#64748b',
-              borderBottom: activeTab === 'create' ? '2.5px solid #0f172a' : '2.5px solid transparent',
               display: 'flex',
-              alignItems: 'center',
-              gap: '6px'
+              background: '#f1f5f9',
+              padding: '4px',
+              borderRadius: '14px',
+              border: '1px solid #e2e8f0',
+              gap: '4px'
             }}
           >
-            <Download size={15} />
-            <span>Create Snapshot</span>
-          </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('create')}
+              style={{
+                flex: 1,
+                padding: '10px 14px',
+                border: 'none',
+                background: activeTab === 'create' ? '#ffffff' : 'transparent',
+                borderRadius: '10px',
+                fontSize: '13px',
+                fontWeight: activeTab === 'create' ? 800 : 600,
+                color: activeTab === 'create' ? '#0f172a' : '#64748b',
+                boxShadow: activeTab === 'create' ? '0 2px 8px rgba(0, 0, 0, 0.08)' : 'none',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+                transition: 'all 0.18s ease'
+              }}
+            >
+              <Download size={15} color={activeTab === 'create' ? '#0f172a' : '#64748b'} />
+              <span>Create Snapshot</span>
+            </button>
 
-          <button
-            type="button"
-            onClick={() => setActiveTab('restore')}
-            style={{
-              padding: '12px 18px',
-              border: 'none',
-              background: 'none',
-              fontSize: '13px',
-              fontWeight: 700,
-              cursor: 'pointer',
-              color: activeTab === 'restore' ? '#0f172a' : '#64748b',
-              borderBottom: activeTab === 'restore' ? '2.5px solid #0f172a' : '2.5px solid transparent',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px'
-            }}
-          >
-            <Upload size={15} />
-            <span>Restore Database</span>
-          </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('restore')}
+              style={{
+                flex: 1,
+                padding: '10px 14px',
+                border: 'none',
+                background: activeTab === 'restore' ? '#ffffff' : 'transparent',
+                borderRadius: '10px',
+                fontSize: '13px',
+                fontWeight: activeTab === 'restore' ? 800 : 600,
+                color: activeTab === 'restore' ? '#0f172a' : '#64748b',
+                boxShadow: activeTab === 'restore' ? '0 2px 8px rgba(0, 0, 0, 0.08)' : 'none',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+                transition: 'all 0.18s ease'
+              }}
+            >
+              <Upload size={15} color={activeTab === 'restore' ? '#0f172a' : '#64748b'} />
+              <span>Restore Database</span>
+            </button>
 
-          <button
-            type="button"
-            onClick={() => setActiveTab('schedule')}
-            style={{
-              padding: '12px 18px',
-              border: 'none',
-              background: 'none',
-              fontSize: '13px',
-              fontWeight: 700,
-              cursor: 'pointer',
-              color: activeTab === 'schedule' ? '#0f172a' : '#64748b',
-              borderBottom: activeTab === 'schedule' ? '2.5px solid #0f172a' : '2.5px solid transparent',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px'
-            }}
-          >
-            <Clock size={15} />
-            <span>Schedule Settings</span>
-          </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('schedule')}
+              style={{
+                flex: 1,
+                padding: '10px 14px',
+                border: 'none',
+                background: activeTab === 'schedule' ? '#ffffff' : 'transparent',
+                borderRadius: '10px',
+                fontSize: '13px',
+                fontWeight: activeTab === 'schedule' ? 800 : 600,
+                color: activeTab === 'schedule' ? '#0f172a' : '#64748b',
+                boxShadow: activeTab === 'schedule' ? '0 2px 8px rgba(0, 0, 0, 0.08)' : 'none',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+                transition: 'all 0.18s ease'
+              }}
+            >
+              <Clock size={15} color={activeTab === 'schedule' ? '#0f172a' : '#64748b'} />
+              <span>Schedule Settings</span>
+            </button>
+          </div>
         </div>
 
         {/* Modal Body */}
-        <div style={{ padding: '24px', overflowY: 'auto', flex: 1 }}>
+        <div style={{ padding: '24px 28px', overflowY: 'auto', flex: 1 }}>
           
           {/* TAB 1: CREATE SNAPSHOT */}
           {activeTab === 'create' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-              {/* Main Backup Callout */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '22px' }}>
+              {/* Main Snapshot Hero Card */}
               <div
                 style={{
-                  background: '#f8fafc',
+                  background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
                   border: '1.5px solid #e2e8f0',
-                  borderRadius: '14px',
-                  padding: '20px',
+                  borderRadius: '18px',
+                  padding: '24px',
                   display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  flexWrap: 'wrap',
-                  gap: '16px'
+                  flexDirection: 'column',
+                  gap: '18px',
+                  boxShadow: '0 4px 16px rgba(0,0,0,0.02)'
                 }}
               >
-                <div>
-                  <h4 style={{ margin: '0 0 4px', fontSize: '15px', fontWeight: 800, color: '#0f172a' }}>
-                    Instant Full Database Snapshot
-                  </h4>
-                  <p style={{ margin: 0, fontSize: '12.5px', color: '#64748b', maxWidth: '440px' }}>
-                    Exports all student registries, disciplinary incident logs, violation taxonomy, staff accounts, and audit entries into an encrypted/portable JSON file.
-                  </p>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '14px' }}>
+                  <div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+                      <h4 style={{ margin: 0, fontSize: '16px', fontWeight: 800, color: '#0f172a' }}>
+                        Instant Full Database Snapshot
+                      </h4>
+                      <span
+                        style={{
+                          background: '#ecfdf5',
+                          color: '#065f46',
+                          border: '1px solid #a7f3d0',
+                          fontSize: '11px',
+                          fontWeight: 700,
+                          padding: '2px 8px',
+                          borderRadius: '12px'
+                        }}
+                      >
+                        Ready
+                      </span>
+                    </div>
+                    <p style={{ margin: 0, fontSize: '12.5px', color: '#64748b', lineHeight: 1.5, maxWidth: '520px' }}>
+                      Exports all student registries, disciplinary incident logs, violation taxonomy, staff accounts, and audit entries into an encrypted/portable JSON file.
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => handleCreateBackup('manual')}
+                    disabled={loading}
+                    style={{
+                      padding: '12px 22px',
+                      borderRadius: '12px',
+                      background: '#0f172a',
+                      color: '#ffffff',
+                      border: 'none',
+                      fontSize: '13px',
+                      fontWeight: 800,
+                      cursor: loading ? 'not-allowed' : 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      boxShadow: '0 4px 16px rgba(15, 23, 42, 0.25)',
+                      transition: 'all 0.15s ease',
+                      flexShrink: 0
+                    }}
+                    onMouseOver={(e) => { if (!loading) { e.currentTarget.style.background = '#1e293b'; e.currentTarget.style.transform = 'translateY(-1px)'; } }}
+                    onMouseOut={(e) => { if (!loading) { e.currentTarget.style.background = '#0f172a'; e.currentTarget.style.transform = 'translateY(0)'; } }}
+                  >
+                    <Download size={16} strokeWidth={2.4} />
+                    <span>{loading ? 'Exporting...' : 'Take Snapshot & Download'}</span>
+                  </button>
                 </div>
 
-                <button
-                  type="button"
-                  onClick={() => handleCreateBackup('manual')}
-                  disabled={loading}
+                {/* Live Data Counts Pill Bar */}
+                <div
                   style={{
-                    padding: '11px 22px',
-                    borderRadius: '10px',
-                    background: '#0f172a',
-                    color: '#ffffff',
-                    border: 'none',
-                    fontSize: '13px',
-                    fontWeight: 700,
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    boxShadow: '0 4px 12px rgba(15, 23, 42, 0.25)',
-                    transition: 'background 0.15s'
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))',
+                    gap: '10px',
+                    paddingTop: '14px',
+                    borderTop: '1px solid #e2e8f0'
                   }}
-                  onMouseOver={(e) => e.currentTarget.style.background = '#1e293b'}
-                  onMouseOut={(e) => e.currentTarget.style.background = '#0f172a'}
                 >
-                  <Download size={16} />
-                  <span>{loading ? 'Exporting...' : 'Take Snapshot & Download'}</span>
-                </button>
+                  <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '10px 14px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <Users size={18} color="#0f172a" />
+                    <div>
+                      <div style={{ fontSize: '15px', fontWeight: 800, color: '#0f172a', lineHeight: 1 }}>{liveCounts.students}</div>
+                      <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px', fontWeight: 600 }}>Students</div>
+                    </div>
+                  </div>
+
+                  <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '10px 14px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <ShieldAlert size={18} color="#dc2626" />
+                    <div>
+                      <div style={{ fontSize: '15px', fontWeight: 800, color: '#0f172a', lineHeight: 1 }}>{liveCounts.records}</div>
+                      <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px', fontWeight: 600 }}>Incident Logs</div>
+                    </div>
+                  </div>
+
+                  <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '10px 14px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <ShieldCheck size={18} color="#2563eb" />
+                    <div>
+                      <div style={{ fontSize: '15px', fontWeight: 800, color: '#0f172a', lineHeight: 1 }}>{liveCounts.teachers}</div>
+                      <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px', fontWeight: 600 }}>Faculty / Staff</div>
+                    </div>
+                  </div>
+
+                  <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '10px 14px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                    <FileText size={18} color="#059669" />
+                    <div>
+                      <div style={{ fontSize: '15px', fontWeight: 800, color: '#0f172a', lineHeight: 1 }}>{liveCounts.logs}</div>
+                      <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px', fontWeight: 600 }}>Audit Events</div>
+                    </div>
+                  </div>
+                </div>
               </div>
 
-              {/* Snapshot History Table */}
+              {/* Snapshot History Section */}
               <div>
-                <h4 style={{ margin: '0 0 10px', fontSize: '13.5px', fontWeight: 800, color: '#334155' }}>
-                  Recent Local Snapshots History ({history.length})
-                </h4>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+                  <h4 style={{ margin: 0, fontSize: '14px', fontWeight: 800, color: '#0f172a', letterSpacing: '-0.01em' }}>
+                    Recent Local Snapshots ({history.length})
+                  </h4>
+                  <span style={{ fontSize: '11.5px', color: '#64748b' }}>
+                    Stored in secure browser storage
+                  </span>
+                </div>
 
                 {history.length === 0 ? (
                   <div
                     style={{
-                      padding: '30px',
+                      padding: '36px 20px',
                       textAlign: 'center',
                       background: '#f8fafc',
-                      borderRadius: '10px',
-                      border: '1px dashed #cbd5e1',
-                      color: '#94a3b8',
-                      fontSize: '12.5px'
+                      borderRadius: '14px',
+                      border: '1.5px dashed #cbd5e1',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      gap: '8px'
                     }}
                   >
-                    No snapshots created yet. Click above to generate your first backup.
+                    <HardDrive size={32} color="#94a3b8" />
+                    <span style={{ fontSize: '13.5px', fontWeight: 700, color: '#334155' }}>
+                      No snapshots created yet
+                    </span>
+                    <span style={{ fontSize: '12px', color: '#64748b', maxWidth: '360px' }}>
+                      Click "Take Snapshot &amp; Download" above to generate a complete backup file.
+                    </span>
                   </div>
                 ) : (
-                  <div style={{ border: '1px solid #e2e8f0', borderRadius: '10px', overflow: 'hidden' }}>
-                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
+                  <div style={{ border: '1px solid #e2e8f0', borderRadius: '14px', overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.02)' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12.5px' }}>
                       <thead>
-                        <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0', textAlign: 'left' }}>
-                          <th style={{ padding: '10px 14px', fontWeight: 700, color: '#475569' }}>Snapshot ID</th>
-                          <th style={{ padding: '10px 14px', fontWeight: 700, color: '#475569' }}>Date &amp; Time</th>
-                          <th style={{ padding: '10px 14px', fontWeight: 700, color: '#475569' }}>Records / Students</th>
-                          <th style={{ padding: '10px 14px', fontWeight: 700, color: '#475569', textAlign: 'right' }}>Actions</th>
+                        <tr style={{ background: '#f8fafc', borderBottom: '1.5px solid #e2e8f0', textAlign: 'left' }}>
+                          <th style={{ padding: '12px 16px', fontWeight: 800, color: '#475569', textTransform: 'uppercase', fontSize: '11px', letterSpacing: '0.03em' }}>Snapshot ID</th>
+                          <th style={{ padding: '12px 16px', fontWeight: 800, color: '#475569', textTransform: 'uppercase', fontSize: '11px', letterSpacing: '0.03em' }}>Timestamp</th>
+                          <th style={{ padding: '12px 16px', fontWeight: 800, color: '#475569', textTransform: 'uppercase', fontSize: '11px', letterSpacing: '0.03em' }}>Payload Summary</th>
+                          <th style={{ padding: '12px 16px', fontWeight: 800, color: '#475569', textTransform: 'uppercase', fontSize: '11px', letterSpacing: '0.03em', textAlign: 'right' }}>Actions</th>
                         </tr>
                       </thead>
                       <tbody>
                         {history.map((item) => (
-                          <tr key={item.id} style={{ borderBottom: '1px solid #f1f5f9' }}>
-                            <td style={{ padding: '10px 14px', fontFamily: 'monospace', fontWeight: 700, color: '#0f172a' }}>
-                              {item.id}
-                              <span style={{ marginLeft: '6px', fontSize: '10px', background: '#f1f5f9', padding: '2px 5px', borderRadius: '4px', color: '#64748b' }}>
-                                {item.type}
-                              </span>
+                          <tr key={item.id} style={{ borderBottom: '1px solid #f1f5f9', background: '#ffffff', transition: 'background 0.15s' }}>
+                            <td style={{ padding: '12px 16px' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <span style={{ fontFamily: 'monospace', fontWeight: 800, color: '#0f172a', fontSize: '12.5px' }}>
+                                  {item.id}
+                                </span>
+                                <span style={{ fontSize: '10.5px', fontWeight: 700, background: '#f1f5f9', border: '1px solid #e2e8f0', padding: '1px 6px', borderRadius: '4px', color: '#475569', textTransform: 'uppercase' }}>
+                                  {item.type}
+                                </span>
+                              </div>
                             </td>
-                            <td style={{ padding: '10px 14px', color: '#475569' }}>
-                              {new Date(item.created_at).toLocaleString()}
+                            <td style={{ padding: '12px 16px', color: '#475569' }}>
+                              {new Date(item.created_at).toLocaleDateString([], { month: 'short', day: '2-digit', year: 'numeric' })},{' '}
+                              {new Date(item.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                             </td>
-                            <td style={{ padding: '10px 14px', color: '#334155', fontWeight: 600 }}>
+                            <td style={{ padding: '12px 16px', color: '#334155', fontWeight: 600 }}>
                               {item.counts?.records || 0} incidents • {item.counts?.students || 0} students ({item.size_kb || 0} KB)
                             </td>
-                            <td style={{ padding: '10px 14px', textAlign: 'right' }}>
+                            <td style={{ padding: '12px 16px', textAlign: 'right' }}>
                               <div style={{ display: 'inline-flex', gap: '6px' }}>
                                 <button
                                   type="button"
                                   onClick={() => handleExecuteRestore(item.snapshot)}
                                   disabled={loading}
                                   style={{
-                                    padding: '4px 9px',
-                                    borderRadius: '6px',
+                                    padding: '5px 12px',
+                                    borderRadius: '8px',
                                     background: '#ecfdf5',
                                     color: '#065f46',
                                     border: '1px solid #a7f3d0',
-                                    fontSize: '11px',
-                                    fontWeight: 700,
-                                    cursor: 'pointer'
+                                    fontSize: '11.5px',
+                                    fontWeight: 800,
+                                    cursor: 'pointer',
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: '4px'
                                   }}
                                   title="Restore system directly from this snapshot"
                                 >
-                                  Restore
+                                  <RefreshCw size={12} />
+                                  <span>Restore</span>
                                 </button>
                                 <button
                                   type="button"
                                   onClick={() => handleDeleteSnapshot(item.id)}
                                   style={{
-                                    padding: '4px 6px',
-                                    borderRadius: '6px',
-                                    background: '#fef2f2',
+                                    padding: '5px 8px',
+                                    borderRadius: '8px',
+                                    background: '#ffffff',
                                     color: '#dc2626',
                                     border: '1px solid #fecaca',
-                                    cursor: 'pointer'
+                                    cursor: 'pointer',
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center'
                                   }}
                                   title="Delete from history"
                                 >
@@ -439,21 +577,25 @@ export const BackupRestoreModal = ({ isOpen, onClose }) => {
 
           {/* TAB 2: RESTORE SNAPSHOT */}
           {activeTab === 'restore' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
               {/* File Dropzone */}
               <div
                 onClick={() => fileInputRef.current?.click()}
                 style={{
                   border: '2px dashed #cbd5e1',
-                  borderRadius: '14px',
-                  padding: '36px 20px',
+                  borderRadius: '18px',
+                  padding: '40px 24px',
                   textAlign: 'center',
                   background: '#f8fafc',
                   cursor: 'pointer',
-                  transition: 'all 0.15s'
+                  transition: 'all 0.2s ease',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: '8px'
                 }}
-                onMouseOver={(e) => { e.currentTarget.style.borderColor = '#0f172a'; e.currentTarget.style.background = '#f1f5f9'; }}
-                onMouseOut={(e) => { e.currentTarget.style.borderColor = '#cbd5e1'; e.currentTarget.style.background = '#f8fafc'; }}
+                onMouseOver={(e) => { e.currentTarget.style.borderColor = '#0f172a'; e.currentTarget.style.background = '#f1f5f9'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
+                onMouseOut={(e) => { e.currentTarget.style.borderColor = '#cbd5e1'; e.currentTarget.style.background = '#f8fafc'; e.currentTarget.style.transform = 'translateY(0)'; }}
               >
                 <input
                   ref={fileInputRef}
@@ -462,12 +604,27 @@ export const BackupRestoreModal = ({ isOpen, onClose }) => {
                   onChange={handleFileUpload}
                   style={{ display: 'none' }}
                 />
-                <FileJson size={40} color="#0f172a" style={{ margin: '0 auto 10px' }} />
-                <h4 style={{ margin: '0 0 4px', fontSize: '15px', fontWeight: 800, color: '#0f172a' }}>
+                <div
+                  style={{
+                    width: '56px',
+                    height: '56px',
+                    borderRadius: '16px',
+                    background: '#ffffff',
+                    border: '1px solid #e2e8f0',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.04)',
+                    marginBottom: '4px'
+                  }}
+                >
+                  <FileJson size={28} color="#0f172a" />
+                </div>
+                <h4 style={{ margin: 0, fontSize: '15.5px', fontWeight: 800, color: '#0f172a' }}>
                   Click to select VioTrack Backup File (.json)
                 </h4>
-                <p style={{ margin: 0, fontSize: '12px', color: '#64748b' }}>
-                  Select any previous system snapshot to preview and restore
+                <p style={{ margin: 0, fontSize: '12.5px', color: '#64748b' }}>
+                  Choose any valid system snapshot exported from VioTrack to preview and restore
                 </p>
               </div>
 
@@ -477,34 +634,39 @@ export const BackupRestoreModal = ({ isOpen, onClose }) => {
                   style={{
                     background: '#ffffff',
                     border: '1.5px solid #10b981',
-                    borderRadius: '12px',
-                    padding: '18px',
-                    boxShadow: '0 4px 12px rgba(16, 185, 129, 0.1)'
+                    borderRadius: '16px',
+                    padding: '22px',
+                    boxShadow: '0 6px 20px rgba(16, 185, 129, 0.12)'
                   }}
                 >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-                    <ShieldCheck size={20} color="#10b981" />
-                    <strong style={{ fontSize: '14px', color: '#0f172a' }}>
-                      Snapshot Verified: {uploadedFilePayload.backup_id || 'Valid Backup'}
-                    </strong>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '14px', flexWrap: 'wrap', gap: '8px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <ShieldCheck size={22} color="#10b981" />
+                      <strong style={{ fontSize: '15px', color: '#0f172a' }}>
+                        Snapshot Verified: {uploadedFilePayload.backup_id || 'Valid Backup'}
+                      </strong>
+                    </div>
+                    <span style={{ fontSize: '11px', fontWeight: 700, color: '#059669', background: '#ecfdf5', padding: '3px 9px', borderRadius: '12px', border: '1px solid #a7f3d0' }}>
+                      Integrity Check Passed
+                    </span>
                   </div>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '10px', fontSize: '12px', marginBottom: '16px' }}>
-                    <div style={{ background: '#f8fafc', padding: '8px 12px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-                      <span style={{ color: '#64748b', display: 'block' }}>Students</span>
-                      <strong style={{ fontSize: '14px', color: '#0f172a' }}>{uploadedFilePayload.counts?.students || uploadedFilePayload.data?.students?.length || 0}</strong>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '10px', fontSize: '12px', marginBottom: '18px' }}>
+                    <div style={{ background: '#f8fafc', padding: '10px 14px', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
+                      <span style={{ color: '#64748b', display: 'block', fontSize: '11px' }}>Students</span>
+                      <strong style={{ fontSize: '15px', color: '#0f172a' }}>{uploadedFilePayload.counts?.students || uploadedFilePayload.data?.students?.length || 0}</strong>
                     </div>
-                    <div style={{ background: '#f8fafc', padding: '8px 12px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-                      <span style={{ color: '#64748b', display: 'block' }}>Incidents</span>
-                      <strong style={{ fontSize: '14px', color: '#0f172a' }}>{uploadedFilePayload.counts?.records || uploadedFilePayload.data?.records?.length || 0}</strong>
+                    <div style={{ background: '#f8fafc', padding: '10px 14px', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
+                      <span style={{ color: '#64748b', display: 'block', fontSize: '11px' }}>Incidents</span>
+                      <strong style={{ fontSize: '15px', color: '#0f172a' }}>{uploadedFilePayload.counts?.records || uploadedFilePayload.data?.records?.length || 0}</strong>
                     </div>
-                    <div style={{ background: '#f8fafc', padding: '8px 12px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-                      <span style={{ color: '#64748b', display: 'block' }}>Staff Accounts</span>
-                      <strong style={{ fontSize: '14px', color: '#0f172a' }}>{(uploadedFilePayload.counts?.teachers || 0) + (uploadedFilePayload.counts?.admins || 0)}</strong>
+                    <div style={{ background: '#f8fafc', padding: '10px 14px', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
+                      <span style={{ color: '#64748b', display: 'block', fontSize: '11px' }}>Staff Accounts</span>
+                      <strong style={{ fontSize: '15px', color: '#0f172a' }}>{(uploadedFilePayload.counts?.teachers || 0) + (uploadedFilePayload.counts?.admins || 0)}</strong>
                     </div>
-                    <div style={{ background: '#f8fafc', padding: '8px 12px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-                      <span style={{ color: '#64748b', display: 'block' }}>Created On</span>
-                      <strong style={{ fontSize: '12px', color: '#0f172a' }}>{new Date(uploadedFilePayload.created_at || Date.now()).toLocaleDateString()}</strong>
+                    <div style={{ background: '#f8fafc', padding: '10px 14px', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
+                      <span style={{ color: '#64748b', display: 'block', fontSize: '11px' }}>Created On</span>
+                      <strong style={{ fontSize: '13px', color: '#0f172a' }}>{new Date(uploadedFilePayload.created_at || Date.now()).toLocaleDateString()}</strong>
                     </div>
                   </div>
 
@@ -513,21 +675,25 @@ export const BackupRestoreModal = ({ isOpen, onClose }) => {
                     style={{
                       display: 'flex',
                       alignItems: 'center',
-                      gap: '8px',
-                      fontSize: '12px',
+                      gap: '10px',
+                      fontSize: '12.5px',
                       fontWeight: 600,
                       color: '#334155',
-                      marginBottom: '16px',
-                      cursor: 'pointer'
+                      marginBottom: '18px',
+                      cursor: 'pointer',
+                      background: '#f8fafc',
+                      padding: '10px 14px',
+                      borderRadius: '10px',
+                      border: '1px solid #e2e8f0'
                     }}
                   >
                     <input
                       type="checkbox"
                       checked={confirmRestoreCheck}
                       onChange={(e) => setConfirmRestoreCheck(e.target.checked)}
-                      style={{ cursor: 'pointer', accentColor: '#0f172a' }}
+                      style={{ cursor: 'pointer', accentColor: '#0f172a', width: '16px', height: '16px' }}
                     />
-                    <span>I understand this will overwrite current live database collections with the selected snapshot.</span>
+                    <span>I confirm and understand this will replace current database records with the selected snapshot.</span>
                   </label>
 
                   <button
@@ -536,22 +702,24 @@ export const BackupRestoreModal = ({ isOpen, onClose }) => {
                     disabled={!confirmRestoreCheck || loading}
                     style={{
                       width: '100%',
-                      padding: '11px',
-                      borderRadius: '8px',
+                      padding: '12px',
+                      borderRadius: '12px',
                       background: confirmRestoreCheck ? '#0f172a' : '#cbd5e1',
                       color: '#ffffff',
                       border: 'none',
-                      fontSize: '13px',
-                      fontWeight: 700,
+                      fontSize: '13.5px',
+                      fontWeight: 800,
                       cursor: confirmRestoreCheck ? 'pointer' : 'not-allowed',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      gap: '8px'
+                      gap: '8px',
+                      boxShadow: confirmRestoreCheck ? '0 4px 14px rgba(15, 23, 42, 0.25)' : 'none',
+                      transition: 'all 0.15s ease'
                     }}
                   >
-                    <RefreshCw size={15} />
-                    <span>{loading ? 'Restoring Database...' : 'Confirm 1-Click Database Restore'}</span>
+                    <RefreshCw size={16} />
+                    <span>{loading ? 'Restoring Database...' : 'Execute 1-Click Database Restore'}</span>
                   </button>
                 </div>
               )}
@@ -560,49 +728,49 @@ export const BackupRestoreModal = ({ isOpen, onClose }) => {
 
           {/* TAB 3: SCHEDULE SETTINGS */}
           {activeTab === 'schedule' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '18px' }}>
-              <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '18px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+              <div style={{ background: '#f8fafc', border: '1.5px solid #e2e8f0', borderRadius: '18px', padding: '24px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px', paddingBottom: '16px', borderBottom: '1px solid #e2e8f0' }}>
                   <div>
-                    <strong style={{ fontSize: '14px', color: '#0f172a', display: 'block' }}>
-                      Automated Snapshot Cron Trigger
+                    <strong style={{ fontSize: '15px', color: '#0f172a', display: 'block' }}>
+                      Automated Background Snapshot Cron
                     </strong>
-                    <span style={{ fontSize: '12px', color: '#64748b' }}>
-                      Automatically capture system snapshots at regular background intervals
+                    <span style={{ fontSize: '12.5px', color: '#64748b' }}>
+                      Automatically capture system snapshots at scheduled background intervals
                     </span>
                   </div>
                   <input
                     type="checkbox"
                     checked={schedule.auto_backup_enabled}
                     onChange={(e) => setSchedule(s => ({ ...s, auto_backup_enabled: e.target.checked }))}
-                    style={{ width: '18px', height: '18px', cursor: 'pointer', accentColor: '#0f172a' }}
+                    style={{ width: '20px', height: '20px', cursor: 'pointer', accentColor: '#0f172a' }}
                   />
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px', marginBottom: '16px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '20px' }}>
                   <div>
-                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#334155', marginBottom: '4px' }}>
+                    <label style={{ display: 'block', fontSize: '12.5px', fontWeight: 700, color: '#334155', marginBottom: '6px' }}>
                       Backup Frequency
                     </label>
                     <select
                       value={schedule.frequency}
                       onChange={(e) => setSchedule(s => ({ ...s, frequency: e.target.value }))}
-                      style={{ width: '100%', padding: '9px 12px', borderRadius: '8px', border: '1.5px solid #cbd5e1', fontSize: '13px' }}
+                      style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1.5px solid #cbd5e1', fontSize: '13px', background: '#ffffff' }}
                     >
-                      <option value="daily">Daily (Every 24 hours)</option>
+                      <option value="daily">Daily (Every 24 Hours)</option>
                       <option value="weekly">Weekly (Every Sunday)</option>
                     </select>
                   </div>
 
                   <div>
-                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#334155', marginBottom: '4px' }}>
-                      Trigger Time
+                    <label style={{ display: 'block', fontSize: '12.5px', fontWeight: 700, color: '#334155', marginBottom: '6px' }}>
+                      Scheduled Trigger Time
                     </label>
                     <input
                       type="time"
                       value={schedule.time || '00:00'}
                       onChange={(e) => setSchedule(s => ({ ...s, time: e.target.value }))}
-                      style={{ width: '100%', padding: '8px 12px', borderRadius: '8px', border: '1.5px solid #cbd5e1', fontSize: '13px' }}
+                      style={{ width: '100%', padding: '9px 14px', borderRadius: '10px', border: '1.5px solid #cbd5e1', fontSize: '13px', background: '#ffffff' }}
                     />
                   </div>
                 </div>
@@ -611,17 +779,18 @@ export const BackupRestoreModal = ({ isOpen, onClose }) => {
                   type="button"
                   onClick={handleSaveSchedule}
                   style={{
-                    padding: '9px 18px',
-                    borderRadius: '8px',
+                    padding: '10px 22px',
+                    borderRadius: '10px',
                     background: '#0f172a',
                     color: '#ffffff',
                     border: 'none',
-                    fontSize: '12.5px',
+                    fontSize: '13px',
                     fontWeight: 700,
-                    cursor: 'pointer'
+                    cursor: 'pointer',
+                    boxShadow: '0 2px 8px rgba(15, 23, 42, 0.2)'
                   }}
                 >
-                  Save Schedule Settings
+                  Save Schedule Preferences
                 </button>
               </div>
             </div>
@@ -632,29 +801,30 @@ export const BackupRestoreModal = ({ isOpen, onClose }) => {
         {/* Modal Footer */}
         <div
           style={{
-            background: '#ffffff',
+            background: '#f8fafc',
             borderTop: '1px solid #e2e8f0',
-            padding: '12px 24px',
+            padding: '14px 28px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between'
           }}
         >
-          <span style={{ fontSize: '11.5px', color: '#94a3b8' }}>
-            VioTrack Disaster Recovery Engine v2.4
+          <span style={{ fontSize: '12px', color: '#64748b', fontWeight: 600 }}>
+            VioTrack Disaster Recovery &amp; Snapshot Engine v2.4
           </span>
           <button
             type="button"
             onClick={onClose}
             style={{
-              padding: '8px 16px',
-              borderRadius: '8px',
-              border: '1px solid #cbd5e1',
-              background: '#ffffff',
-              color: '#334155',
-              fontSize: '12.5px',
+              padding: '9px 20px',
+              borderRadius: '10px',
+              border: 'none',
+              background: '#0f172a',
+              color: '#ffffff',
+              fontSize: '13px',
               fontWeight: 700,
-              cursor: 'pointer'
+              cursor: 'pointer',
+              boxShadow: '0 2px 6px rgba(15, 23, 42, 0.2)'
             }}
           >
             Done

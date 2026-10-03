@@ -884,30 +884,32 @@ export const ActivityLogsPage = () => {
 
         return (
           <div
+            className="modal-backdrop-smooth"
             style={{
               position: 'fixed',
               inset: 0,
               zIndex: 9999,
-              background: 'rgba(15, 23, 42, 0.75)',
-              backdropFilter: 'blur(8px)',
-              WebkitBackdropFilter: 'blur(8px)',
+              background: 'rgba(15, 23, 42, 0.65)',
+              backdropFilter: 'blur(12px)',
+              WebkitBackdropFilter: 'blur(12px)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              padding: '16px',
-              animation: 'fadeIn 0.2s ease-out'
+              padding: '16px'
             }}
           >
             <div
+              className="modal-content-smooth"
               style={{
                 width: '100%',
                 maxWidth: '600px',
                 background: '#ffffff',
-                borderRadius: '16px',
-                boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.35)',
+                borderRadius: '24px',
+                boxShadow: '0 30px 70px -15px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.2)',
                 overflow: 'hidden',
                 display: 'flex',
-                flexDirection: 'column'
+                flexDirection: 'column',
+                border: '1px solid #e2e8f0'
               }}
             >
               {/* Header */}

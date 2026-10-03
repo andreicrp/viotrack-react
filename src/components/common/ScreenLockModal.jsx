@@ -76,28 +76,28 @@ export const ScreenLockModal = () => {
 
   return (
     <div
+      className="modal-backdrop-smooth"
       style={{
         position: 'fixed',
         inset: 0,
         zIndex: 99999,
-        background: 'rgba(15, 23, 42, 0.88)',
+        background: 'rgba(15, 23, 42, 0.85)',
         backdropFilter: 'blur(16px)',
         WebkitBackdropFilter: 'blur(16px)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: '20px',
-        animation: 'fadeIn 0.25s ease-out'
+        padding: '20px'
       }}
     >
       <div
-        className={isShaking ? 'shake-animation' : ''}
+        className={`modal-content-smooth ${isShaking ? 'shake-animation' : ''}`}
         style={{
           width: '100%',
           maxWidth: '440px',
           background: '#ffffff',
-          borderRadius: '20px',
-          boxShadow: '0 25px 60px -15px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1)',
+          borderRadius: '24px',
+          boxShadow: '0 30px 70px -15px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.15)',
           overflow: 'hidden',
           display: 'flex',
           flexDirection: 'column'
