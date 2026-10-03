@@ -4,6 +4,7 @@ import { dataService } from '../../services/dataService';
 import { useNotification } from '../../context/NotificationContext';
 import { UserPlus, Upload, Camera, Trash2, Image as ImageIcon, Check, ShieldCheck } from 'lucide-react';
 import CustomSelect from '../common/CustomSelect';
+import { SectionSelect } from '../common/SectionSelect';
 
 export const AddStudentModal = ({ isOpen, onClose, studentToEdit = null, onSaved }) => {
   const { success, error } = useNotification();
@@ -28,6 +29,15 @@ export const AddStudentModal = ({ isOpen, onClose, studentToEdit = null, onSaved
   });
 
   const [photoFile, setPhotoFile] = useState(null);
+  const [existingStudents, setExistingStudents] = useState([]);
+  const [existingAdvisers, setExistingAdvisers] = useState([]);
+
+  useEffect(() => {
+    if (isOpen) {
+      dataService.getStudents().then(res => setExistingStudents(res || [])).catch(() => {});
+      dataService.getAdvisers().then(res => setExistingAdvisers(res || [])).catch(() => {});
+    }
+  }, [isOpen]);
 
   useEffect(() => {
     setPhotoFile(null);
@@ -346,14 +356,14 @@ export const AddStudentModal = ({ isOpen, onClose, studentToEdit = null, onSaved
                 <label className="form-label" style={{ fontSize: '12.5px', fontWeight: 700, color: '#1e293b', marginBottom: '5px', display: 'block' }}>
                   Class Section <span style={{ color: '#ef4444' }}>*</span>
                 </label>
-                <input
-                  type="text"
-                  className="form-control"
+                <SectionSelect
+                  grade={formData.grade}
                   value={formData.section}
-                  onChange={(e) => setFormData({ ...formData, section: e.target.value })}
-                  placeholder="e.g. Rizal, STEM A"
+                  onChange={(val) => setFormData(prev => ({ ...prev, section: val }))}
+                  students={existingStudents}
+                  advisers={existingAdvisers}
+                  placeholder="Select or type section name..."
                   required
-                  style={{ height: '40px', borderRadius: '9px', border: '1.5px solid #cbd5e1', padding: '0 12px', fontSize: '13px', width: '100%', boxSizing: 'border-box' }}
                 />
               </div>
             </div>

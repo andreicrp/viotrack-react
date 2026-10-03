@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { dataService } from '../services/dataService';
 import { CustomSelect } from '../components/common/CustomSelect';
+import { SectionSelect } from '../components/common/SectionSelect';
 import { useNotification } from '../context/NotificationContext';
 import {
   GraduationCap,
@@ -274,22 +275,6 @@ export const AdvisersPage = () => {
       error('Failed to export CSV: ' + err.message);
     }
   };
-
-  const sectionPresets = [
-    'Rizal',
-    'Bonifacio',
-    'Luna',
-    'Diamond',
-    'Emerald',
-    'Ruby',
-    'STEM A',
-    'STEM B',
-    'HUMSS A',
-    'HUMSS B',
-    'ABM A',
-    'ABM B',
-    'GAS'
-  ];
 
   return (
     <div className="advisers-page-wrapper">
@@ -909,57 +894,20 @@ export const AdvisersPage = () => {
                 </div>
               </div>
 
-              {/* Class Section Input & Presets */}
+              {/* Class Section Selection */}
               <div>
                 <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>
                   Class Section Name <span style={{ color: '#ef4444' }}>*</span>
                 </label>
-                <input
-                  type="text"
-                  placeholder="e.g. Rizal, STEM A, Diamond..."
+                <SectionSelect
+                  grade={appointGrade}
                   value={appointSection}
-                  onChange={(e) => setAppointSection(e.target.value)}
+                  onChange={setAppointSection}
+                  students={students}
+                  advisers={advisers}
+                  placeholder="Select or type section name..."
                   required
-                  style={{
-                    width: '100%',
-                    padding: '10px 14px',
-                    borderRadius: '8px',
-                    border: '1px solid #cbd5e1',
-                    fontSize: '13px',
-                    color: '#0f172a',
-                    outline: 'none',
-                    marginBottom: '10px',
-                    boxSizing: 'border-box'
-                  }}
                 />
-
-                {/* Popular presets */}
-                <div>
-                  <div style={{ fontSize: '11px', color: '#64748b', marginBottom: '6px', fontWeight: 500 }}>
-                    Quick presets:
-                  </div>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-                    {sectionPresets.map((preset) => (
-                      <button
-                        key={preset}
-                        type="button"
-                        onClick={() => setAppointSection(preset)}
-                        style={{
-                          background: appointSection === preset ? '#07345f' : '#f1f5f9',
-                          color: appointSection === preset ? '#ffffff' : '#475569',
-                          border: 'none',
-                          padding: '4px 10px',
-                          borderRadius: '6px',
-                          fontSize: '11px',
-                          fontWeight: 500,
-                          cursor: 'pointer'
-                        }}
-                      >
-                        {preset}
-                      </button>
-                    ))}
-                  </div>
-                </div>
               </div>
 
               {/* Action Buttons */}
