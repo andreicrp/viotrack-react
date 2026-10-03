@@ -71,22 +71,11 @@ export const StudentViolationDetailPage = () => {
   const [smsCustomMessage, setSmsCustomMessage] = useState('');
   const [smsReportType, setSmsReportType] = useState('Incident Notification');
 
-  const fromQRScan = searchParams.get('scan') === 'true' || searchParams.get('fromQRScan') === 'true';
   const isAdmin = user?.role === 'admin';
 
   useEffect(() => {
     loadStudentAndRecords();
   }, [id]);
-
-  useEffect(() => {
-    // Auto-open Add Record modal if coming from QR scan like in PHP
-    if (fromQRScan && student) {
-      const timer = setTimeout(() => {
-        setIsAddViolationOpen(true);
-      }, 400);
-      return () => clearTimeout(timer);
-    }
-  }, [fromQRScan, student]);
 
   const loadStudentAndRecords = async () => {
     setLoading(true);

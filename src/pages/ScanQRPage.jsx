@@ -245,7 +245,7 @@ export const ScanQRPage = () => {
     setTimeout(() => {
       if (targetId) {
         playScanSuccessSound();
-        navigate(`/student-violation/${targetId}?scan=true`);
+        navigate(`/student-violation/${targetId}`);
       } else {
         setIsCapturingLocation(false);
         playScanErrorSound();
@@ -1480,7 +1480,7 @@ export const ScanQRPage = () => {
               <button
                 type="button"
                 className="verified-btn secondary"
-                onClick={() => navigate(`/student-violation/${scannedStudent.id}?scan=true`)}
+                onClick={() => navigate(`/student-violation/${scannedStudent.id}`)}
               >
                 <FileSpreadsheet size={15} />
                 <span>Full Profile</span>

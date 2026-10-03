@@ -11,9 +11,9 @@ export const VerifyStudentPage = () => {
 
   useEffect(() => {
     if (isAuthenticated && user) {
-      navigate(`/student-violation/${id}?scan=true`, { replace: true });
+      navigate(`/student-violation/${id}`, { replace: true });
     } else {
-      navigate(`/login?redirect=${encodeURIComponent(`/student-violation/${id}?scan=true`)}&reason=qr_protected`, { replace: true });
+      navigate(`/login?redirect=${encodeURIComponent(`/student-violation/${id}`)}&reason=qr_protected`, { replace: true });
     }
   }, [id, isAuthenticated, user, navigate]);
 
