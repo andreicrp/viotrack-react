@@ -20,7 +20,6 @@
     "@capacitor/status-bar": "^8.0.3",
     "@supabase/supabase-js": "^2.117.1",
     "canvas-confetti": "^1.9.4",
-    "clsx": "^2.1.1",
     "html5-qrcode": "^2.3.8",
     "jspdf": "^4.2.1",
     "jspdf-autotable": "^5.0.8",
@@ -29,8 +28,7 @@
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
     "react-router-dom": "^7.18.4",
-    "recharts": "^3.10.1",
-    "tailwind-merge": "^3.7.0"
+    "recharts": "^3.10.1"
   },
   "devDependencies": {
     "@types/react": "^19.2.18",

@@ -22,7 +22,7 @@ import {
   Fingerprint,
   FileText
 } from 'lucide-react';
-import { PrivacyPolicyModal } from '../components/common/PrivacyPolicyModal';
+import { LegalModal } from '../components/legal/LegalModal';
 import { isSupabaseConfigured, supabase } from '../lib/supabase';
 import { evaluatePasswordStrength, validateUploadedFile } from '../utils/security';
 import '../css/profile.css';
@@ -756,7 +756,7 @@ export const ProfilePage = () => {
         <span>© 2026 VioTrack. All rights reserved.</span>
       </div>
 
-      <PrivacyPolicyModal
+      <LegalModal
         isOpen={isPrivacyModalOpen}
         onClose={() => setIsPrivacyModalOpen(false)}
       />
