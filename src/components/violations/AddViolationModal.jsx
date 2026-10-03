@@ -91,11 +91,10 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
 
       if (preselectedStudentId) {
         setSelectedStudentIds([Number(preselectedStudentId)]);
-        setStep(2); // If student is pre-selected (from QR scan), jump straight to Step 2!
       } else {
         setSelectedStudentIds([]);
-        setStep(1);
       }
+      setStep(1);
       setSelectedViolationIds([]);
     } catch (err) {
       console.error('Error loading dropdown data:', err);
