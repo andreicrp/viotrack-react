@@ -494,8 +494,7 @@ export const ForApprovalPage = () => {
                   fontSize: '12px',
                   fontWeight: 800,
                   padding: '2.5px 10px',
-                  borderRadius: '20px',
-                  backdropFilter: 'blur(4px)'
+                  borderRadius: '20px'
                 }}
               >
                 {stats.pending} {stats.pending === 1 ? 'Pending Review' : 'Pending Reviews'}

@@ -366,8 +366,7 @@ export const StudentsPage = () => {
                   fontSize: '12px',
                   fontWeight: 700,
                   padding: '2.5px 10px',
-                  borderRadius: '20px',
-                  backdropFilter: 'blur(4px)'
+                  borderRadius: '20px'
                 }}
               >
                 {students.length} Enrolled {students.length === 1 ? 'Student' : 'Students'}

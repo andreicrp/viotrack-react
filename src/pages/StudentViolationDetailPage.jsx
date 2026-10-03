@@ -396,7 +396,6 @@ export const StudentViolationDetailPage = () => {
                   fontWeight: 700,
                   padding: '3px 11px',
                   borderRadius: '20px',
-                  backdropFilter: 'blur(6px)',
                   letterSpacing: '0.02em'
                 }}
               >
@@ -415,7 +414,6 @@ export const StudentViolationDetailPage = () => {
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: '5px',
-                  backdropFilter: 'blur(6px)',
                   letterSpacing: '0.02em'
                 }}
               >
@@ -1428,13 +1426,13 @@ export const StudentViolationDetailPage = () => {
           style={{
             position: 'fixed',
             inset: 0,
-            background: 'rgba(15, 23, 42, 0.6)',
-            backdropFilter: 'blur(6px)',
+            background: 'rgba(15, 23, 42, 0.65)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             zIndex: 3000,
-            padding: '20px'
+            padding: '20px',
+            willChange: 'opacity'
           }}
           onClick={(e) => { if (e.target === e.currentTarget) setIsSmsModalOpen(false); }}
         >
@@ -1604,12 +1602,12 @@ export const StudentViolationDetailPage = () => {
             position: 'fixed',
             inset: 0,
             background: 'rgba(15, 23, 42, 0.65)',
-            backdropFilter: 'blur(6px)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             zIndex: 3000,
-            padding: '20px'
+            padding: '20px',
+            willChange: 'opacity'
           }}
           onClick={(e) => { if (e.target === e.currentTarget) setIsQrModalOpen(false); }}
         >

@@ -1060,11 +1060,11 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
             inset: 0,
             zIndex: 9999,
             background: 'rgba(15, 23, 42, 0.75)',
-            backdropFilter: 'blur(4px)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            padding: '20px'
+            padding: '20px',
+            willChange: 'opacity'
           }}
         >
           <div

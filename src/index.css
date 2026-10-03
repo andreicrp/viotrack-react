@@ -1616,7 +1616,6 @@ html, body {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  backdrop-filter: blur(8px);
   transition: all 0.15s ease;
   white-space: nowrap;
   box-sizing: border-box;

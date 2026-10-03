@@ -126,12 +126,12 @@ export const CustomDateRangeModal = ({
         position: 'fixed',
         inset: 0,
         background: 'rgba(15, 23, 42, 0.65)',
-        backdropFilter: 'blur(8px)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         zIndex: 3000,
-        padding: '16px'
+        padding: '16px',
+        willChange: 'opacity'
       }}
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();

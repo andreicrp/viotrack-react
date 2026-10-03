@@ -283,7 +283,6 @@ export const MyClassPage = () => {
                   fontWeight: 700,
                   padding: '2.5px 10px',
                   borderRadius: '20px',
-                  backdropFilter: 'blur(4px)',
                   textTransform: 'uppercase'
                 }}
               >
@@ -297,8 +296,7 @@ export const MyClassPage = () => {
                   fontSize: '11.5px',
                   fontWeight: 700,
                   padding: '2.5px 10px',
-                  borderRadius: '20px',
-                  backdropFilter: 'blur(4px)'
+                  borderRadius: '20px'
                 }}
               >
                 Advisory: {gradeLabel} - {sectionLabel}

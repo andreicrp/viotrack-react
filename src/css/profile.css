@@ -40,8 +40,6 @@
   font-weight: 800;
   letter-spacing: 0.06em;
   background: rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
   padding: 4px 10px;
   border-radius: 20px;
   color: #ffffff;
@@ -54,8 +52,6 @@
   align-items: center;
   gap: 6px;
   background: rgba(16, 185, 129, 0.2);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
   border: 1px solid rgba(16, 185, 129, 0.4);
   padding: 4px 12px;
   border-radius: 20px;

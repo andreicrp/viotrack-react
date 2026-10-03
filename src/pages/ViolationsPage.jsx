@@ -431,8 +431,7 @@ export const ViolationsPage = () => {
                   fontSize: '12px',
                   fontWeight: 700,
                   padding: '2.5px 10px',
-                  borderRadius: '20px',
-                  backdropFilter: 'blur(4px)'
+                  borderRadius: '20px'
                 }}
               >
                 {records.length} Total {records.length === 1 ? 'Record' : 'Records'}
