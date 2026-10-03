@@ -434,17 +434,18 @@ export const DashboardPage = () => {
     return repeatStudentsList.slice(startIdx, startIdx + offendersPerPage);
   }, [repeatStudentsList, offendersPage]);
 
-  // Curated modern color palette for circle violation chart slices
+  // Curated modern color palette for circle violation chart slices (inspired by multi-tone indigo/blue/sky/lavender palette)
   const PIE_COLORS = [
-    '#0f172a', // Slate 900 / Midnight
-    '#2563eb', // Royal Blue
-    '#6366f1', // Indigo
-    '#8b5cf6', // Purple / Violet
-    '#06b6d4', // Cyan
-    '#10b981', // Emerald
-    '#f59e0b', // Amber
-    '#f43f5e', // Rose
-    '#64748b'  // Slate / Others
+    '#1e1b4b', // Deep Midnight Indigo
+    '#4338ca', // Rich Indigo
+    '#6366f1', // Vivid Indigo
+    '#3b82f6', // Bright Blue
+    '#2563eb', // Royal Sapphire
+    '#0284c7', // Ocean Sky
+    '#06b6d4', // Vibrant Cyan
+    '#38bdf8', // Light Cyan/Sky
+    '#c084fc', // Soft Pastel Purple
+    '#818cf8'  // Periwinkle Lavender
   ];
 
   // 4. Dynamic Most Common Violation Types Breakdown (Pie / Distribution)
@@ -1136,32 +1137,12 @@ export const DashboardPage = () => {
                       data={violationDistribution}
                       cx="50%"
                       cy="50%"
-                      outerRadius={75}
+                      outerRadius={78}
                       innerRadius={0}
                       paddingAngle={2}
                       dataKey="value"
                       nameKey="name"
-                      labelLine={false}
-                      label={({ cx, cy, midAngle, innerRadius, outerRadius, percent }) => {
-                        if (percent < 0.08) return null;
-                        const RADIAN = Math.PI / 180;
-                        const radius = innerRadius + (outerRadius - innerRadius) * 0.58;
-                        const x = cx + radius * Math.cos(-midAngle * RADIAN);
-                        const y = cy + radius * Math.sin(-midAngle * RADIAN);
-                        return (
-                          <text
-                            x={x}
-                            y={y}
-                            fill="#ffffff"
-                            textAnchor="middle"
-                            dominantBaseline="central"
-                            fontSize={10.5}
-                            fontWeight={800}
-                          >
-                            {`${(percent * 100).toFixed(0)}%`}
-                          </text>
-                        );
-                      }}
+                      label={false}
                     >
                       {violationDistribution.map((entry, index) => (
                         <Cell
@@ -1191,7 +1172,7 @@ export const DashboardPage = () => {
                                 <span>{data.name}</span>
                               </div>
                               <div style={{ color: '#64748b', fontSize: '11.5px', marginTop: '2px' }}>
-                                Frequency: <strong style={{ color: '#0f172a' }}>{data.value}</strong> ({data.percent}%)
+                                Incidents: <strong style={{ color: '#0f172a' }}>{data.value}</strong> {data.value === 1 ? 'case' : 'cases'}
                               </div>
                               <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '2px' }}>
                                 Severity: <span style={{ textTransform: 'capitalize', fontWeight: 600, color: data.severity === 'Major' ? '#dc2626' : data.severity === 'Serious' ? '#d97706' : '#10b981' }}>{data.severity}</span>
@@ -1208,28 +1189,32 @@ export const DashboardPage = () => {
 
               {/* Ranked Frequency Breakdown List */}
               <div className="dash-distribution-list">
-                {violationDistribution.map((item, idx) => (
-                  <div key={idx} className="dash-distribution-item">
-                    <div className="dash-dist-row-top">
-                      <div className="dash-dist-name-group">
-                        <span className="dash-dist-dot" style={{ background: item.color }} />
-                        <span className="dash-dist-name" title={item.name}>{item.name}</span>
+                {violationDistribution.map((item, idx) => {
+                  const maxVal = Math.max(...violationDistribution.map(d => d.value), 1);
+                  const barWidth = Math.max(12, Math.round((item.value / maxVal) * 100));
+                  return (
+                    <div key={idx} className="dash-distribution-item">
+                      <div className="dash-dist-row-top">
+                        <div className="dash-dist-name-group">
+                          <span className="dash-dist-dot" style={{ background: item.color }} />
+                          <span className="dash-dist-name" title={item.name}>{item.name}</span>
+                        </div>
+                        <span className="dash-dist-stat">
+                          {item.value} <span style={{ color: '#64748b', fontWeight: 600, fontSize: '11px' }}>{item.value === 1 ? 'incident' : 'incidents'}</span>
+                        </span>
                       </div>
-                      <span className="dash-dist-stat">
-                        {item.value} <span style={{ color: '#64748b', fontWeight: 600, fontSize: '10.5px' }}>({item.percent}%)</span>
-                      </span>
+                      <div className="dash-dist-bar-track">
+                        <div
+                          className="dash-dist-bar-fill"
+                          style={{
+                            width: `${barWidth}%`,
+                            background: item.color
+                          }}
+                        />
+                      </div>
                     </div>
-                    <div className="dash-dist-bar-track">
-                      <div
-                        className="dash-dist-bar-fill"
-                        style={{
-                          width: `${item.percent}%`,
-                          background: item.color
-                        }}
-                      />
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           )}
