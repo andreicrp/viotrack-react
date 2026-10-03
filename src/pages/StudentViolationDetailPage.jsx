@@ -41,6 +41,7 @@ import {
 } from 'lucide-react';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
+import { getStudentQrCodeUrl, getStudentQrValue } from '../utils/qrHelper';
 
 export const StudentViolationDetailPage = () => {
   const { id } = useParams();
@@ -218,9 +219,9 @@ export const StudentViolationDetailPage = () => {
     }
   };
 
-  // QR Code URL (points to secure public ID pass, protected against data breach on external scanners)
-  const qrData = student ? `${window.location.origin}/verify-student/${student.id}` : '';
-  const qrUrl = student ? `https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${encodeURIComponent(qrData)}&margin=1` : '';
+  // QR Code data & URL (clean student identifier or public verification URL, avoiding localhost)
+  const qrData = student ? getStudentQrValue(student) : '';
+  const qrUrl = student ? getStudentQrCodeUrl(student, 240, 1) : '';
 
   // Metrics
   const totalCount = records.length;

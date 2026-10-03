@@ -800,9 +800,9 @@ export const TeachersPage = () => {
                               gap: '4px',
                               transition: 'all 0.15s'
                             }}
-                            title="Appoint as Class Section Adviser"
+                            title={adv ? `Currently assigned to ${adv.grade_level} - ${adv.class_section}. Click to manage/reassign.` : 'Appoint as Class Section Adviser'}
                           >
-                            <Award size={13} /> {adv ? 'Adviser' : 'Appoint'}
+                            <Award size={13} /> {adv ? 'Manage' : 'Appoint'}
                           </button>
 
                           <button
@@ -1236,12 +1236,23 @@ export const TeachersPage = () => {
         onSaved={handleSaveTeacher}
       />
 
-      {/* Appoint Adviser Modal */}
+      {/* Appoint / Manage Adviser Modal */}
       <AppointAdviserModal
         isOpen={!!teacherForAdviser}
         onClose={() => setTeacherForAdviser(null)}
         teacher={teacherForAdviser}
+        currentAdviser={teacherForAdviser ? advisers.find(a => Number(a.teacher_id) === Number(teacherForAdviser.id)) : null}
         onAppointed={handleAppointAdviser}
+        onUnassign={async (adviserId) => {
+          try {
+            await dataService.removeAdviser(adviserId);
+            success('Adviser unassigned from section.');
+            setTeacherForAdviser(null);
+            loadData();
+          } catch (err) {
+            error('Failed to unassign adviser: ' + err.message);
+          }
+        }}
       />
 
       {/* Bulk Import Faculty Modal */}

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Modal } from '../common/Modal';
 import { Printer, X } from 'lucide-react';
+import { getStudentQrCodeUrl } from '../../utils/qrHelper';
 import '../../css/student-id-card.css';
 
 export const StudentIdModal = ({ isOpen, onClose, student }) => {
@@ -10,9 +11,8 @@ export const StudentIdModal = ({ isOpen, onClose, student }) => {
     window.print();
   };
 
-  // QR points to secure public ID verification pass (zero violation leak on external scanners)
-  const qrTargetUrl = `${window.location.origin}/verify-student/${student.id}`;
-  const qrDataUrl = `https://api.qrserver.com/v1/create-qr-code/?size=500x500&data=${encodeURIComponent(qrTargetUrl)}&margin=0`;
+  // QR points to secure public ID verification pass if public domain is set, or clean Student LRN/ID (no localhost)
+  const qrDataUrl = getStudentQrCodeUrl(student, 500, 0);
 
   const fullName = `${student.lname?.toUpperCase()}, ${student.fname} ${student.mname ? student.mname[0] + '.' : ''}`;
   const avatarUrl = student.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(student.fname + ' ' + student.lname)}&background=07345f&color=fff&size=200&bold=true`;

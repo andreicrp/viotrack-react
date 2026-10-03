@@ -2,25 +2,18 @@ import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
   MapPin,
-  AlertCircle,
   Clock,
   ArrowLeft,
-  Navigation,
   RotateCcw,
-  Search,
   CheckCircle2,
   ShieldCheck,
   ShieldAlert,
-  Radio,
-  Play,
-  Square,
   RefreshCw,
   Crosshair,
   User,
   History,
   Activity,
-  Layers,
-  ChevronDown
+  FileText
 } from 'lucide-react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
@@ -43,10 +36,10 @@ const DEFAULT_ZOOM = 15;
 
 export const TrackLocationPage = () => {
   const navigate = useNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const studentIdParam = searchParams.get('student_id');
 
-  const { user, isAdmin, isTeacher, canAccessStudent } = useAuth();
+  const { user, canAccessStudent } = useAuth();
   const { success, error: showError, info } = useNotification();
 
   // Core Datasets
@@ -56,14 +49,10 @@ export const TrackLocationPage = () => {
 
   // Student Selection & Filtering
   const [selectedStudentId, setSelectedStudentId] = useState(studentIdParam || '');
-  const [studentSearch, setStudentSearch] = useState('');
-  const [isStudentDropdownOpen, setIsStudentDropdownOpen] = useState(false);
 
-  // Live Location State
+  // Violation Recorded Location State
   const [currentLocation, setCurrentLocation] = useState(null);
   const [locationHistory, setLocationHistory] = useState([]);
-  const [isLiveTracking, setIsLiveTracking] = useState(false);
-  const [gpsPermissionState, setGpsPermissionState] = useState('prompt'); // 'prompt' | 'granted' | 'denied'
   const [lastRefreshedAt, setLastRefreshedAt] = useState(null);
   const [activeTab, setActiveTab] = useState('live'); // 'live' | 'history' | 'incidents'
 
@@ -71,9 +60,7 @@ export const TrackLocationPage = () => {
   const mapContainerRef = useRef(null);
   const mapInstanceRef = useRef(null);
   const markerRef = useRef(null);
-  const accuracyCircleRef = useRef(null);
   const polylineRef = useRef(null);
-  const watchIdRef = useRef(null);
 
   // Filter students based on RBAC authorization
   const authorizedStudents = useMemo(() => {
@@ -114,45 +101,28 @@ export const TrackLocationPage = () => {
     }
   };
 
-  // Check initial browser permission status if supported
-  useEffect(() => {
-    if (navigator.permissions && navigator.permissions.query) {
-      navigator.permissions.query({ name: 'geolocation' }).then((result) => {
-        setGpsPermissionState(result.state);
-        result.onchange = () => {
-          setGpsPermissionState(result.state);
-          if (result.state === 'denied') {
-            stopLiveTracking();
-          }
-        };
-      }).catch(() => {
-        // Fallback for browsers with restricted permissions API
-      });
-    }
-  }, []);
-
-  // Load student location and historical breadcrumbs when activeStudent changes
-  useEffect(() => {
+  // Load student recorded location and historical incident breadcrumbs when activeStudent changes
+  const fetchLocationData = useCallback(async () => {
     if (!activeStudent?.id) return;
 
-    const fetchLocationData = async () => {
-      try {
-        const [latest, history] = await Promise.all([
-          dataService.getStudentLatestLocation(activeStudent.id),
-          dataService.getStudentLocationHistory(activeStudent.id, 15)
-        ]);
-        if (latest) {
-          setCurrentLocation(latest);
-          setLastRefreshedAt(new Date(latest.recorded_at || Date.now()));
-        }
-        setLocationHistory(history || []);
-      } catch (err) {
-        console.warn('Error fetching location data for student:', err);
+    try {
+      const [latest, history] = await Promise.all([
+        dataService.getStudentLatestLocation(activeStudent.id),
+        dataService.getStudentLocationHistory(activeStudent.id, 15)
+      ]);
+      if (latest) {
+        setCurrentLocation(latest);
+        setLastRefreshedAt(new Date(latest.recorded_at || Date.now()));
       }
-    };
-
-    fetchLocationData();
+      setLocationHistory(history || []);
+    } catch (err) {
+      console.warn('Error fetching location data for student:', err);
+    }
   }, [activeStudent?.id]);
+
+  useEffect(() => {
+    fetchLocationData();
+  }, [fetchLocationData]);
 
   // Initialize Leaflet Map
   useEffect(() => {
@@ -162,9 +132,12 @@ export const TrackLocationPage = () => {
     const map = L.map(mapContainerRef.current, {
       center: DEFAULT_CENTER,
       zoom: DEFAULT_ZOOM,
-      zoomControl: true,
+      zoomControl: false,
       scrollWheelZoom: true
     });
+
+    // Add zoom controls at bottom-right
+    L.control.zoom({ position: 'bottomright' }).addTo(map);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
@@ -173,13 +146,28 @@ export const TrackLocationPage = () => {
 
     mapInstanceRef.current = map;
 
+    // Invalidate map size on next frame so container geometry is exact
+    const resizeTimer = setTimeout(() => {
+      map.invalidateSize();
+    }, 250);
+
+    const handleWindowResize = () => {
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.invalidateSize();
+      }
+    };
+
+    window.addEventListener('resize', handleWindowResize);
+
     return () => {
+      clearTimeout(resizeTimer);
+      window.removeEventListener('resize', handleWindowResize);
       map.remove();
       mapInstanceRef.current = null;
     };
   }, []);
 
-  // Sync Map Marker, Accuracy Halo & History Trail
+  // Sync Map Marker & History Trail
   useEffect(() => {
     const map = mapInstanceRef.current;
     if (!map || !currentLocation || !activeStudent) return;
@@ -187,32 +175,20 @@ export const TrackLocationPage = () => {
     const { latitude, longitude, accuracy_meters } = currentLocation;
     const latLng = [latitude, longitude];
 
-    // 1. Remove previous marker & accuracy circle
+    // 1. Remove previous marker & polyline
     if (markerRef.current) markerRef.current.remove();
-    if (accuracyCircleRef.current) accuracyCircleRef.current.remove();
     if (polylineRef.current) polylineRef.current.remove();
 
-    // 2. Accuracy circle halo
-    const accuracyRadius = Math.max(8, Number(accuracy_meters) || 10);
-    const circleColor = accuracyRadius <= 15 ? '#10b981' : accuracyRadius <= 50 ? '#f59e0b' : '#ef4444';
-
-    accuracyCircleRef.current = L.circle(latLng, {
-      radius: accuracyRadius,
-      color: circleColor,
-      fillColor: circleColor,
-      fillOpacity: 0.15,
-      weight: 1.5,
-      dashArray: '4, 4'
-    }).addTo(map);
-
-    // 3. Custom student avatar pin with pulse beacon
+    // 2. Custom student avatar pin
     const studentFullName = `${activeStudent.fname} ${activeStudent.lname}`;
     const avatarUrl = activeStudent.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(studentFullName)}&background=07345f&color=fff&size=100&bold=true`;
+
+    const accuracyRadius = Math.max(8, Number(accuracy_meters) || 10);
 
     const customIcon = L.divIcon({
       className: 'student-avatar-pin',
       html: `
-        <div class="pin-outer ${isLiveTracking ? 'is-live' : ''}" title="${studentFullName}">
+        <div class="pin-outer" title="${studentFullName}">
           <img src="${avatarUrl}" class="pin-img" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(studentFullName)}&background=07345f&color=fff&size=100&bold=true'" />
         </div>
       `,
@@ -231,9 +207,9 @@ export const TrackLocationPage = () => {
           </div>
         </div>
         <div style="background: #f8fafc; padding: 6px 8px; border-radius: 6px; font-size: 11px; margin-bottom: 6px;">
-          <div><strong>Status:</strong> <span style="color: ${isLiveTracking ? '#16a34a' : '#0284c7'}; font-weight: 700;">${isLiveTracking ? '🟢 Live GPS Active' : '⚪ Last Known'}</span></div>
+          <div><strong>Status:</strong> <span style="color: #0284c7; font-weight: 700;">Recorded Incident Ping</span></div>
           <div><strong>Accuracy:</strong> ±${accuracyRadius} meters</div>
-          <div><strong>Time:</strong> ${new Date(currentLocation.recorded_at || Date.now()).toLocaleTimeString()}</div>
+          <div><strong>Logged At:</strong> ${new Date(currentLocation.recorded_at || Date.now()).toLocaleTimeString()}</div>
         </div>
       </div>
     `;
@@ -242,7 +218,7 @@ export const TrackLocationPage = () => {
       .addTo(map)
       .bindPopup(popupHtml);
 
-    // 4. Draw movement breadcrumb polyline if history exists
+    // 3. Draw movement breadcrumb polyline if history exists
     if (locationHistory.length > 1) {
       const pathPoints = locationHistory.map(h => [h.latitude, h.longitude]);
       polylineRef.current = L.polyline(pathPoints, {
@@ -255,93 +231,7 @@ export const TrackLocationPage = () => {
 
     // Auto-center map smoothly on coordinate update
     map.flyTo(latLng, DEFAULT_ZOOM, { duration: 0.8 });
-  }, [currentLocation, activeStudent, isLiveTracking, locationHistory]);
-
-  // Start Authorized High-Accuracy Device Tracking
-  const startLiveTracking = useCallback(() => {
-    if (!navigator.geolocation) {
-      showError('Device Geolocation is not supported by your browser.');
-      return;
-    }
-
-    if (!activeStudent) {
-      showError('Please select a student before starting live tracking.');
-      return;
-    }
-
-    info(`Initiating authorized GPS location tracking for ${activeStudent.fname} ${activeStudent.lname}...`);
-
-    const options = {
-      enableHighAccuracy: true,
-      timeout: 10000,
-      maximumAge: 2000
-    };
-
-    const handleSuccess = async (position) => {
-      const { latitude, longitude, accuracy } = position.coords;
-      const newLocation = {
-        student_id: activeStudent.id,
-        latitude,
-        longitude,
-        accuracy_meters: Math.round(accuracy),
-        tracking_status: 'Active',
-        recorded_at: new Date().toISOString()
-      };
-
-      setCurrentLocation(newLocation);
-      setLastRefreshedAt(new Date());
-      setIsLiveTracking(true);
-      setGpsPermissionState('granted');
-
-      // Persist to Supabase / Storage
-      try {
-        await dataService.saveStudentLocation(activeStudent.id, newLocation);
-        setLocationHistory(prev => [newLocation, ...prev.slice(0, 14)]);
-      } catch (err) {
-        console.warn('Failed to persist location telemetry:', err);
-      }
-    };
-
-    const handleError = (error) => {
-      console.warn('Geolocation tracking error:', error);
-      setIsLiveTracking(false);
-
-      if (error.code === error.PERMISSION_DENIED) {
-        setGpsPermissionState('denied');
-        showError('Location permission was denied. Please allow device location access in browser settings.');
-      } else if (error.code === error.POSITION_UNAVAILABLE) {
-        showError('GPS signal unavailable. Please ensure location services are enabled on the device.');
-      } else if (error.code === error.TIMEOUT) {
-        showError('Location request timed out. Retrying with cached accuracy...');
-      }
-    };
-
-    // Watch real-time position updates
-    if (watchIdRef.current !== null) {
-      navigator.geolocation.clearWatch(watchIdRef.current);
-    }
-
-    watchIdRef.current = navigator.geolocation.watchPosition(handleSuccess, handleError, options);
-  }, [activeStudent, showError, info]);
-
-  // Stop Live Tracking
-  const stopLiveTracking = useCallback(() => {
-    if (watchIdRef.current !== null) {
-      navigator.geolocation.clearWatch(watchIdRef.current);
-      watchIdRef.current = null;
-    }
-    setIsLiveTracking(false);
-    info('Live tracking session paused.');
-  }, [info]);
-
-  // Manual GPS Ping / Refresh
-  const handleRefreshGPS = () => {
-    if (isLiveTracking) {
-      info('Live tracking is active. GPS coordinates update automatically.');
-      return;
-    }
-    startLiveTracking();
-  };
+  }, [currentLocation, activeStudent, locationHistory]);
 
   // Recenter Map on Campus
   const handleRecenter = () => {
@@ -350,11 +240,20 @@ export const TrackLocationPage = () => {
     map.flyTo(DEFAULT_CENTER, 14, { duration: 0.8 });
   };
 
-  // Focus on Selected Student
+  // Focus on Selected Student's Incident Location
   const handleFocusStudent = () => {
     const map = mapInstanceRef.current;
-    if (!map || !currentLocation) return;
+    if (!map || !currentLocation) {
+      showError('No recorded location found for this student.');
+      return;
+    }
     map.flyTo([currentLocation.latitude, currentLocation.longitude], 16, { duration: 0.8 });
+    success(`Focused on ${activeStudent?.fname || 'Student'}'s incident location.`);
+  };
+
+  const handleRefreshRecords = async () => {
+    await Promise.all([loadInitialData(), fetchLocationData()]);
+    success('Student incident and location records refreshed.');
   };
 
   // Format Helper
@@ -367,26 +266,15 @@ export const TrackLocationPage = () => {
   const getAccuracyBadge = (accuracy) => {
     const acc = Number(accuracy) || 10;
     if (acc <= 15) {
-      return { text: `±${acc}m (High Accuracy)`, color: '#10b981', bg: '#ecfdf5', border: '#a7f3d0' };
+      return { text: `±${acc}m (High Precision)`, color: '#10b981', bg: '#ecfdf5', border: '#a7f3d0' };
     }
     if (acc <= 50) {
-      return { text: `±${acc}m (Moderate Accuracy)`, color: '#d97706', bg: '#fffbeb', border: '#fde68a' };
+      return { text: `±${acc}m (Standard Precision)`, color: '#d97706', bg: '#fffbeb', border: '#fde68a' };
     }
-    return { text: `±${acc}m (Low / Approximate)`, color: '#dc2626', bg: '#fef2f2', border: '#fecaca' };
+    return { text: `±${acc}m (Approximate)`, color: '#dc2626', bg: '#fef2f2', border: '#fecaca' };
   };
 
   const accuracyInfo = getAccuracyBadge(currentLocation?.accuracy_meters);
-
-  // Filtered dropdown student search
-  const filteredDropdownStudents = useMemo(() => {
-    if (!studentSearch.trim()) return authorizedStudents;
-    const q = studentSearch.toLowerCase();
-    return authorizedStudents.filter(s => 
-      `${s.fname} ${s.lname}`.toLowerCase().includes(q) ||
-      (s.lrn && s.lrn.includes(q)) ||
-      (s.grade && s.grade.toLowerCase().includes(q))
-    );
-  }, [authorizedStudents, studentSearch]);
 
   const studentIncidents = useMemo(() => {
     if (!activeStudent?.id) return [];
@@ -395,279 +283,74 @@ export const TrackLocationPage = () => {
 
   return (
     <div className="track-location-container">
-      {/* Standard App Page Banner Header */}
-      <div className="page-banner-header">
+      {/* Page Banner Header */}
+      <div className="page-banner-header track-page-banner">
         <div className="page-banner-info">
-          <MapPin size={30} strokeWidth={2.2} color="#ffffff" style={{ flexShrink: 0 }} />
+          <div className="track-header-icon-box">
+            <MapPin size={24} strokeWidth={2.2} color="#ffffff" style={{ flexShrink: 0 }} />
+          </div>
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-              <h2 style={{ fontSize: '22px', fontWeight: 800, margin: 0, color: '#ffffff', letterSpacing: '-0.02em' }}>
-                {activeStudent ? `Track Location: ${activeStudent.fname} ${activeStudent.lname}` : 'Student GPS Location Tracking'}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+              <h2 className="track-header-title">
+                {activeStudent ? `Incident Location: ${activeStudent.fname} ${activeStudent.lname}` : 'Student Incident Location Mapping'}
               </h2>
-              {isLiveTracking && (
-                <span
-                  style={{
-                    background: '#10b981',
-                    color: '#ffffff',
-                    fontSize: '11px',
-                    fontWeight: 800,
-                    padding: '3px 10px',
-                    borderRadius: '20px',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '4px',
-                    animation: 'pulse 1.5s infinite'
-                  }}
-                >
-                  <Radio size={12} /> LIVE GPS ACTIVE
-                </span>
-              )}
             </div>
-            <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: 'rgba(255, 255, 255, 0.85)' }}>
-              Authorized real-time student GPS telemetry, campus proximity monitoring, and breadcrumb history.
+            <p className="track-header-sub">
+              Logged student infraction location telemetry, campus proximity, and historical incident sites.
             </p>
           </div>
         </div>
 
         {/* Header Action Buttons */}
         <div className="page-banner-actions">
-          <button
-            type="button"
-            onClick={() => navigate('/students')}
-            className="page-banner-btn-secondary"
-          >
-            <ArrowLeft size={15} /> Student List
-          </button>
-
-          <button
-            type="button"
-            onClick={handleRecenter}
-            className="page-banner-btn-secondary"
-          >
-            <RotateCcw size={15} /> Campus Center
-          </button>
-
-          {isLiveTracking ? (
+          <div className="page-banner-secondary-group">
             <button
               type="button"
-              onClick={stopLiveTracking}
-              className="page-banner-primary-btn"
-              style={{ background: '#ef4444', borderColor: '#dc2626' }}
+              onClick={() => navigate('/students')}
+              className="page-banner-btn-secondary"
             >
-              <Square size={14} /> Stop Tracking
+              <ArrowLeft size={14} /> Student List
             </button>
-          ) : (
-            <button
-              type="button"
-              onClick={startLiveTracking}
-              className="page-banner-primary-btn"
-            >
-              <Play size={14} /> Start Live Tracking
-            </button>
-          )}
-        </div>
-      </div>
 
-      {/* Permission Denied Warning Banner */}
-      {gpsPermissionState === 'denied' && (
-        <div
-          style={{
-            background: '#fef2f2',
-            border: '1.5px solid #fecaca',
-            borderRadius: '12px',
-            padding: '12px 16px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            gap: '12px',
-            color: '#991b1b',
-            fontSize: '13px'
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <ShieldAlert size={20} color="#dc2626" />
-            <div>
-              <strong>Location Permission Denied:</strong> Device GPS access is blocked. Please enable Location Services in your browser or device settings to stream real-time coordinates.
-            </div>
-          </div>
-          <button
-            type="button"
-            onClick={startLiveTracking}
-            style={{
-              padding: '6px 12px',
-              borderRadius: '6px',
-              background: '#dc2626',
-              color: '#ffffff',
-              border: 'none',
-              fontWeight: 700,
-              fontSize: '12px',
-              cursor: 'pointer',
-              whiteSpace: 'nowrap'
-            }}
-          >
-            Retry Permission
-          </button>
-        </div>
-      )}
-
-      {/* Main Grid: Map Viewport & Telemetry Sidebar */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 360px', gap: '16px', alignItems: 'start' }}>
-        
-        {/* Map Viewport Card */}
-        <div className="track-map-card" style={{ position: 'relative' }}>
-          {/* Map Top Floating Controls Bar */}
-          <div
-            style={{
-              position: 'absolute',
-              top: '12px',
-              left: '12px',
-              right: '12px',
-              zIndex: 1000,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              gap: '10px',
-              pointerEvents: 'none'
-            }}
-          >
-            {/* Student Selector Dropdown Wrap */}
-            <div style={{ position: 'relative', pointerEvents: 'auto', width: '280px' }}>
-              <button
-                type="button"
-                onClick={() => setIsStudentDropdownOpen(!isStudentDropdownOpen)}
-                style={{
-                  width: '100%',
-                  background: '#ffffff',
-                  border: '1.5px solid #cbd5e1',
-                  borderRadius: '10px',
-                  padding: '8px 12px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  boxShadow: '0 4px 12px rgba(15, 23, 42, 0.12)',
-                  cursor: 'pointer',
-                  fontWeight: 700,
-                  fontSize: '13px',
-                  color: '#0f172a'
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', overflow: 'hidden' }}>
-                  <User size={16} color="#07345f" />
-                  <span style={{ textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }}>
-                    {activeStudent ? `${activeStudent.fname} ${activeStudent.lname}` : 'Select Student'}
-                  </span>
-                </div>
-                <ChevronDown size={16} color="#64748b" />
-              </button>
-
-              {isStudentDropdownOpen && (
-                <div
-                  style={{
-                    position: 'absolute',
-                    top: 'calc(100% + 4px)',
-                    left: 0,
-                    right: 0,
-                    background: '#ffffff',
-                    border: '1.5px solid #cbd5e1',
-                    borderRadius: '10px',
-                    boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.15)',
-                    zIndex: 1010,
-                    overflow: 'hidden',
-                    maxHeight: '260px',
-                    display: 'flex',
-                    flexDirection: 'column'
-                  }}
-                >
-                  <div style={{ padding: '8px', borderBottom: '1px solid #e2e8f0' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', background: '#f8fafc', padding: '6px 10px', borderRadius: '6px' }}>
-                      <Search size={14} color="#64748b" />
-                      <input
-                        type="text"
-                        placeholder="Search student or LRN..."
-                        value={studentSearch}
-                        onChange={(e) => setStudentSearch(e.target.value)}
-                        style={{ border: 'none', background: 'transparent', outline: 'none', width: '100%', fontSize: '12px' }}
-                      />
-                    </div>
-                  </div>
-                  <div style={{ overflowY: 'auto', maxHeight: '200px' }}>
-                    {filteredDropdownStudents.map((s) => (
-                      <button
-                        key={s.id}
-                        type="button"
-                        onClick={() => {
-                          setSelectedStudentId(s.id);
-                          setSearchParams({ student_id: s.id });
-                          setIsStudentDropdownOpen(false);
-                        }}
-                        style={{
-                          width: '100%',
-                          textAlign: 'left',
-                          padding: '8px 12px',
-                          border: 'none',
-                          background: String(activeStudent?.id) === String(s.id) ? '#f0fdf4' : 'transparent',
-                          color: '#0f172a',
-                          fontSize: '12.5px',
-                          fontWeight: String(activeStudent?.id) === String(s.id) ? 800 : 500,
-                          cursor: 'pointer',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'space-between'
-                        }}
-                      >
-                        <div>
-                          <div>{s.fname} {s.lname}</div>
-                          <div style={{ fontSize: '10.5px', color: '#64748b' }}>{s.grade} - {s.section}</div>
-                        </div>
-                        {String(activeStudent?.id) === String(s.id) && <CheckCircle2 size={14} color="#16a34a" />}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-
-            {/* Focus Target Button */}
             <button
               type="button"
               onClick={handleFocusStudent}
-              style={{
-                pointerEvents: 'auto',
-                background: '#ffffff',
-                border: '1.5px solid #cbd5e1',
-                borderRadius: '10px',
-                padding: '8px 12px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-                fontSize: '12.5px',
-                fontWeight: 700,
-                color: '#07345f',
-                boxShadow: '0 4px 12px rgba(15, 23, 42, 0.12)',
-                cursor: 'pointer'
-              }}
+              className="page-banner-btn-secondary"
             >
-              <Crosshair size={15} /> Center on Student
+              <Crosshair size={14} /> Focus Location
+            </button>
+
+            <button
+              type="button"
+              onClick={handleRecenter}
+              className="page-banner-btn-secondary"
+            >
+              <RotateCcw size={14} /> Campus Center
             </button>
           </div>
 
-          <div ref={mapContainerRef} className="track-map-wrapper" style={{ height: '520px' }} />
+          <button
+            type="button"
+            onClick={handleRefreshRecords}
+            className="page-banner-primary-btn"
+          >
+            <RefreshCw size={14} /> Refresh Records
+          </button>
+        </div>
+      </div>
+
+      {/* Main Grid: Map Viewport & Telemetry Sidebar */}
+      <div className="track-main-grid">
+        {/* Map Viewport Card */}
+        <div className="track-map-card">
+          <div ref={mapContainerRef} className="track-map-wrapper" />
         </div>
 
         {/* Telemetry & Details Sidebar */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-          
           {/* 1. Student Identity Card */}
           {activeStudent && (
-            <div
-              style={{
-                background: '#ffffff',
-                border: '1.5px solid #cbd5e1',
-                borderRadius: '14px',
-                padding: '16px',
-                boxShadow: '0 4px 12px rgba(15, 23, 42, 0.05)'
-              }}
-            >
+            <div className="track-sidebar-card">
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '12px' }}>
                 <img
                   src={activeStudent.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(activeStudent.fname + ' ' + activeStudent.lname)}&background=07345f&color=fff&size=100&bold=true`}
@@ -691,15 +374,15 @@ export const TrackLocationPage = () => {
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '12px' }}>
                 <div
                   style={{
-                    background: isLiveTracking ? '#f0fdf4' : '#f8fafc',
-                    border: `1px solid ${isLiveTracking ? '#bbf7d0' : '#e2e8f0'}`,
+                    background: '#f8fafc',
+                    border: '1px solid #e2e8f0',
                     padding: '8px',
                     borderRadius: '8px'
                   }}
                 >
                   <div style={{ fontSize: '10.5px', color: '#64748b', fontWeight: 600 }}>Tracking Mode</div>
-                  <div style={{ fontSize: '12px', fontWeight: 800, color: isLiveTracking ? '#16a34a' : '#475569', marginTop: '2px' }}>
-                    {isLiveTracking ? '🟢 Live GPS Stream' : '⚪ Last Known Ping'}
+                  <div style={{ fontSize: '12px', fontWeight: 800, color: '#475569', marginTop: '2px' }}>
+                    📍 Recorded Infraction Site
                   </div>
                 </div>
 
@@ -711,7 +394,7 @@ export const TrackLocationPage = () => {
                     borderRadius: '8px'
                   }}
                 >
-                  <div style={{ fontSize: '10.5px', color: '#64748b', fontWeight: 600 }}>Accuracy Metric</div>
+                  <div style={{ fontSize: '10.5px', color: '#64748b', fontWeight: 600 }}>Precision Metric</div>
                   <div style={{ fontSize: '12px', fontWeight: 800, color: accuracyInfo.color, marginTop: '2px' }}>
                     {accuracyInfo.text}
                   </div>
@@ -722,10 +405,10 @@ export const TrackLocationPage = () => {
               <div style={{ background: '#f8fafc', padding: '10px 12px', borderRadius: '8px', fontSize: '12px', color: '#334155' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
                   <span style={{ color: '#64748b' }}>Latitude / Longitude:</span>
-                  <strong>{currentLocation ? `${currentLocation.latitude.toFixed(5)}, ${currentLocation.longitude.toFixed(5)}` : 'N/A'}</strong>
+                  <strong>{currentLocation ? `${Number(currentLocation.latitude).toFixed(5)}, ${Number(currentLocation.longitude).toFixed(5)}` : 'N/A'}</strong>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span style={{ color: '#64748b' }}>Last Updated:</span>
+                  <span style={{ color: '#64748b' }}>Recorded At:</span>
                   <strong>{formatTime(lastRefreshedAt)}</strong>
                 </div>
               </div>
@@ -733,7 +416,7 @@ export const TrackLocationPage = () => {
               <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
                 <button
                   type="button"
-                  onClick={handleRefreshGPS}
+                  onClick={handleFocusStudent}
                   style={{
                     flex: 1,
                     padding: '8px 12px',
@@ -750,86 +433,51 @@ export const TrackLocationPage = () => {
                     gap: '6px'
                   }}
                 >
-                  <RefreshCw size={13} /> Refresh GPS Signal
+                  <Crosshair size={13} /> Focus Incident on Map
                 </button>
               </div>
             </div>
           )}
 
-          {/* 2. Navigation Tabbed Section (Live Status, Breadcrumb History, Incident History) */}
-          <div
-            style={{
-              background: '#ffffff',
-              border: '1.5px solid #cbd5e1',
-              borderRadius: '14px',
-              padding: '14px',
-              boxShadow: '0 4px 12px rgba(15, 23, 42, 0.05)'
-            }}
-          >
-            <div style={{ display: 'flex', borderBottom: '1px solid #e2e8f0', paddingBottom: '8px', marginBottom: '12px', gap: '8px' }}>
+          {/* 2. Navigation Tabbed Section (Incident Info, Breadcrumb History, Incident History) */}
+          <div className="track-sidebar-card">
+            <div className="track-tabs-container">
               <button
                 type="button"
                 onClick={() => setActiveTab('live')}
-                style={{
-                  background: activeTab === 'live' ? '#07345f' : 'transparent',
-                  color: activeTab === 'live' ? '#ffffff' : '#64748b',
-                  border: 'none',
-                  padding: '6px 10px',
-                  borderRadius: '6px',
-                  fontSize: '12px',
-                  fontWeight: 700,
-                  cursor: 'pointer'
-                }}
+                className={`track-tab-btn ${activeTab === 'live' ? 'active' : ''}`}
               >
-                Telemetry Info
+                Incident Info
               </button>
               <button
                 type="button"
                 onClick={() => setActiveTab('history')}
-                style={{
-                  background: activeTab === 'history' ? '#07345f' : 'transparent',
-                  color: activeTab === 'history' ? '#ffffff' : '#64748b',
-                  border: 'none',
-                  padding: '6px 10px',
-                  borderRadius: '6px',
-                  fontSize: '12px',
-                  fontWeight: 700,
-                  cursor: 'pointer'
-                }}
+                className={`track-tab-btn ${activeTab === 'history' ? 'active' : ''}`}
               >
-                Path History ({locationHistory.length})
+                Location History ({locationHistory.length})
               </button>
               <button
                 type="button"
                 onClick={() => setActiveTab('incidents')}
-                style={{
-                  background: activeTab === 'incidents' ? '#07345f' : 'transparent',
-                  color: activeTab === 'incidents' ? '#ffffff' : '#64748b',
-                  border: 'none',
-                  padding: '6px 10px',
-                  borderRadius: '6px',
-                  fontSize: '12px',
-                  fontWeight: 700,
-                  cursor: 'pointer'
-                }}
+                className={`track-tab-btn ${activeTab === 'incidents' ? 'active' : ''}`}
               >
                 Incidents ({studentIncidents.length})
               </button>
             </div>
 
-            {/* Tab: Live Telemetry Info */}
+            {/* Tab: Incident Info */}
             {activeTab === 'live' && (
               <div style={{ fontSize: '12px', color: '#475569', lineHeight: 1.6 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#07345f', fontWeight: 700, marginBottom: '6px' }}>
-                  <ShieldCheck size={16} /> Encrypted Geolocation
+                  <ShieldCheck size={16} /> Violation Incident Telemetry
                 </div>
                 <p style={{ margin: '0 0 8px 0', fontSize: '11.5px', color: '#64748b' }}>
-                  Location data is streamed using encrypted W3C Geolocation API, mapped to Philippine Data Privacy Act standards (RA 10173).
+                  Incident coordinates are timestamped when infractions are reported, compliant with Philippine Data Privacy Act standards (RA 10173).
                 </p>
                 <div style={{ background: '#f8fafc', padding: '8px 10px', borderRadius: '6px', fontSize: '11px' }}>
-                  <div><strong>Reported By:</strong> {currentLocation?.reported_by || 'Device Telemetry'}</div>
-                  <div><strong>Signal Source:</strong> High Accuracy GPS Sensor</div>
-                  <div><strong>Vicinity:</strong> Main Campus / Metro Manila</div>
+                  <div><strong>Reported By:</strong> {currentLocation?.reported_by || 'Discipline Officer'}</div>
+                  <div><strong>Tracking Source:</strong> Logged Violation Report</div>
+                  <div><strong>Vicinity:</strong> Main Campus Grounds</div>
                 </div>
               </div>
             )}
@@ -839,7 +487,7 @@ export const TrackLocationPage = () => {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '220px', overflowY: 'auto' }}>
                 {locationHistory.length === 0 ? (
                   <div style={{ textAlign: 'center', color: '#94a3b8', fontSize: '12px', padding: '16px' }}>
-                    No recorded movement history for this session.
+                    No recorded incident location history for this student.
                   </div>
                 ) : (
                   locationHistory.map((crumb, idx) => (
@@ -854,7 +502,7 @@ export const TrackLocationPage = () => {
                       }}
                     >
                       <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 700, color: '#0f172a' }}>
-                        <span>{idx === 0 ? '📍 Current Position' : `Point #${locationHistory.length - idx}`}</span>
+                        <span>{idx === 0 ? '📍 Latest Infraction Site' : `Incident Point #${locationHistory.length - idx}`}</span>
                         <span style={{ fontSize: '10.5px', color: '#64748b' }}>{formatTime(crumb.recorded_at)}</span>
                       </div>
                       <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px' }}>

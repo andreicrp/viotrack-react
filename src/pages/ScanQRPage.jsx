@@ -29,6 +29,7 @@ import { dataService } from '../services/dataService';
 import { AddViolationModal } from '../components/violations/AddViolationModal';
 import { useNotification } from '../context/NotificationContext';
 import { Html5Qrcode } from 'html5-qrcode';
+import { matchStudentFromScan } from '../utils/qrHelper';
 import successAudioSrc from '../assets/sound_effects/success.mp3';
 import errorAudioSrc from '../assets/sound_effects/error.mp3';
 
@@ -705,73 +706,7 @@ export const ScanQRPage = () => {
 
     try {
       const students = allStudents.length > 0 ? allStudents : await dataService.getStudents();
-      let clean = (rawInput || '').trim();
-      let matched = null;
-
-      // 1. Check for /verify-student/:id or /student-pass/:id (Public Pass Verification URLs)
-      if (clean.includes('/verify-student/') || clean.includes('/student-pass/')) {
-        const afterPrefix = clean.includes('/verify-student/')
-          ? clean.split('/verify-student/')[1]
-          : clean.split('/student-pass/')[1];
-        const sid = afterPrefix.split('?')[0].split('#')[0].trim();
-        matched = students.find(s => String(s.id) === String(sid) || String(s.lrn).trim() === String(sid).trim());
-      }
-      // 2. Check for /student-violation/:id or /adminstudentviolation/:id
-      else if (clean.includes('/student-violation/') || clean.includes('/adminstudentviolation/')) {
-        const afterPrefix = clean.includes('/student-violation/')
-          ? clean.split('/student-violation/')[1]
-          : clean.split('/adminstudentviolation/')[1];
-        const sid = afterPrefix.split('?')[0].split('#')[0].trim();
-        matched = students.find(s => String(s.id) === String(sid) || String(s.lrn).trim() === String(sid).trim());
-      }
-      // 3. Query string parameters ?id= or ?student_id= or ?lrn=
-      else if (clean.includes('id=') || clean.includes('student_id=') || clean.includes('lrn=')) {
-        try {
-          const queryString = clean.includes('?') ? clean.split('?')[1] : clean;
-          const urlParams = new URLSearchParams(queryString);
-          const sid = urlParams.get('id') || urlParams.get('student_id');
-          const lrn = urlParams.get('lrn');
-          if (sid) {
-            matched = students.find(s => String(s.id) === String(sid) || String(s.lrn) === String(sid));
-          }
-          if (!matched && lrn) {
-            matched = students.find(s => String(s.lrn).trim() === String(lrn).trim());
-          }
-        } catch {}
-      }
-      // 4. Custom formatted prefixes e.g. "VIOTRACK-STUDENT:109283746101"
-      else if (clean.includes('VIOTRACK-STUDENT:')) {
-        const stripped = clean.split('VIOTRACK-STUDENT:')[1] || clean;
-        matched = students.find(s => String(s.lrn).trim() === stripped.trim() || String(s.id) === stripped.trim());
-      }
-      // 5. JSON formats
-      else if (clean.startsWith('{') && clean.endsWith('}')) {
-        try {
-          const parsed = JSON.parse(clean);
-          const lrnCandidate = parsed.lrn || parsed.LRN || parsed.uli || parsed.ULI || parsed.student_id || parsed.id;
-          const nameCandidate = parsed.name || parsed.Name || parsed.student_name;
-          if (lrnCandidate) {
-            matched = students.find(s => String(s.lrn).trim() === String(lrnCandidate).trim() || String(s.id) === String(lrnCandidate).trim());
-          }
-          if (!matched && nameCandidate) {
-            matched = students.find(s => `${s.fname} ${s.lname}`.toLowerCase().includes(String(nameCandidate).toLowerCase()));
-          }
-        } catch (e) {
-          // not valid json
-        }
-      }
-
-      // 6. Fallback: Direct numeric ID, 12-digit LRN, or Name matching
-      if (!matched) {
-        matched = students.find(
-          s =>
-            String(s.lrn).trim() === clean.trim() ||
-            String(s.id) === clean.trim() ||
-            String(s.lrn).includes(clean) ||
-            clean.includes(String(s.lrn)) ||
-            `${s.fname} ${s.lname}`.toLowerCase().includes(clean.toLowerCase())
-        );
-      }
+      const matched = matchStudentFromScan(rawInput, students);
 
       // Stage 1 (0 -> 1800ms): Scanning visual matrix
       const elapsed1 = Date.now() - startTime;

@@ -14,6 +14,7 @@ import {
   X
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { dataService } from '../../services/dataService';
 
 export const Sidebar = ({ isCollapsed, isMobileOpen, onCloseMobile }) => {
   const { user, logout } = useAuth();
@@ -169,14 +170,14 @@ export const Sidebar = ({ isCollapsed, isMobileOpen, onCloseMobile }) => {
                   <li className={`submenu-item ${location.pathname === '/violations' ? 'active' : ''}`}>
                     <NavLink to="/violations" className="submenu-link" onClick={handleLinkClick}>
                       <span className="submenu-bullet"></span>
-                      Violation Record
+                      <span className="submenu-text">Violation Record</span>
                     </NavLink>
                   </li>
                   {isAdmin && (
                     <li className={`submenu-item ${location.pathname === '/violation-types' ? 'active' : ''}`}>
                       <NavLink to="/violation-types" className="submenu-link" onClick={handleLinkClick}>
                         <span className="submenu-bullet"></span>
-                        Violation
+                        <span className="submenu-text">Violation</span>
                       </NavLink>
                     </li>
                   )}
@@ -254,27 +255,15 @@ export const Sidebar = ({ isCollapsed, isMobileOpen, onCloseMobile }) => {
                     <li className={`submenu-item ${location.pathname === '/admin-users' ? 'active' : ''}`}>
                       <NavLink to="/admin-users" className="submenu-link" onClick={handleLinkClick}>
                         <span className="submenu-bullet"></span>
-                        Admin Users
+                        <span className="submenu-text">Admin Users</span>
                       </NavLink>
                     </li>
                     <li className={`submenu-item ${location.pathname === '/for-approval' ? 'active' : ''}`}>
-                      <NavLink to="/for-approval" className="submenu-link" onClick={handleLinkClick} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                          <span className="submenu-bullet"></span>
-                          For Approval
-                        </div>
+                      <NavLink to="/for-approval" className="submenu-link" onClick={handleLinkClick}>
+                        <span className="submenu-bullet"></span>
+                        <span className="submenu-text">For Approval</span>
                         {pendingApprovalsCount > 0 && (
-                          <span
-                            style={{
-                              background: '#f59e0b',
-                              color: '#ffffff',
-                              fontSize: '10px',
-                              fontWeight: 800,
-                              padding: '1px 6px',
-                              borderRadius: '10px',
-                              lineHeight: '1.3'
-                            }}
-                          >
+                          <span className="sidebar-count-badge">
                             {pendingApprovalsCount}
                           </span>
                         )}
@@ -283,7 +272,7 @@ export const Sidebar = ({ isCollapsed, isMobileOpen, onCloseMobile }) => {
                     <li className={`submenu-item ${location.pathname === '/activity-logs' ? 'active' : ''}`}>
                       <NavLink to="/activity-logs" className="submenu-link" onClick={handleLinkClick}>
                         <span className="submenu-bullet"></span>
-                        Activity
+                        <span className="submenu-text">Activity</span>
                       </NavLink>
                     </li>
                   </ul>

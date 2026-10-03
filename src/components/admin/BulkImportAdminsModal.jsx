@@ -3,6 +3,7 @@ import { Modal } from '../common/Modal';
 import { useNotification } from '../../context/NotificationContext';
 import { FileSpreadsheet, Upload, Download } from 'lucide-react';
 import { parseCsvString, readFileAsText, downloadSampleCsv } from '../../utils/csvHelper';
+import { dataService } from '../../services/dataService';
 
 const SAMPLE_ADMINS_CSV = `First Name,Middle Name,Last Name,Email,Role,Position,Contact
 Roberto,D.,Santos,roberto.santos@viotrack.edu,Head Admin,Chief Technology Officer,09171112233
@@ -73,8 +74,7 @@ export const BulkImportAdminsModal = ({ isOpen, onClose, onImported }) => {
           const contact = parts[6]?.trim() || '09170000000';
           const assignedImage = ADMIN_PORTRAITS[i % ADMIN_PORTRAITS.length];
 
-          createdList.push({
-            id: Date.now() + i,
+          const added = await dataService.addAdmin({
             fname,
             mname,
             lname,
@@ -82,8 +82,10 @@ export const BulkImportAdminsModal = ({ isOpen, onClose, onImported }) => {
             role,
             position,
             contact,
+            password: 'Viotrack@2026!',
             image: assignedImage
           });
+          createdList.push(added);
         }
       }
 

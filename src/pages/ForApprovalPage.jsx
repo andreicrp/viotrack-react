@@ -864,54 +864,469 @@ export const ForApprovalPage = () => {
                 : 'Try adjusting your search keywords or severity filter.'}
             </p>
           </div>
-        ) : viewMode === 'list' ? (
-          /* Table View */
-          <div className="table-container" style={{ overflowX: 'auto' }}>
-            <table className="custom-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
-              <thead>
-                <tr style={{ background: '#f8fafc', borderBottom: '1.5px solid #e2e8f0' }}>
-                  <th style={{ width: '40px', padding: '12px 14px' }}>
-                    <input
-                      type="checkbox"
-                      checked={selectedIds.length > 0 && selectedIds.length === filteredRecords.length}
-                      onChange={handleSelectAll}
-                      style={{ cursor: 'pointer', width: '15px', height: '15px', accentColor: '#07345f' }}
-                    />
-                  </th>
-                  <th
-                    onClick={() => handleSort('student')}
-                    style={{ padding: '12px 14px', fontSize: '11px', fontWeight: 800, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.04em', cursor: 'pointer' }}
-                  >
-                    Student {renderSortIcon('student')}
-                  </th>
-                  <th
-                    onClick={() => handleSort('severity')}
-                    style={{ padding: '12px 14px', fontSize: '11px', fontWeight: 800, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.04em', cursor: 'pointer' }}
-                  >
-                    Offense &amp; Severity {renderSortIcon('severity')}
-                  </th>
-                  <th
-                    onClick={() => handleSort('teacher')}
-                    style={{ padding: '12px 14px', fontSize: '11px', fontWeight: 800, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.04em', cursor: 'pointer' }}
-                  >
-                    Reported By {renderSortIcon('teacher')}
-                  </th>
-                  <th
-                    onClick={() => handleSort('date')}
-                    style={{ padding: '12px 14px', fontSize: '11px', fontWeight: 800, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.04em', cursor: 'pointer' }}
-                  >
-                    Submitted Date {renderSortIcon('date')}
-                  </th>
-                  <th style={{ padding: '12px 14px', fontSize: '11px', fontWeight: 800, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                    Approval Status
-                  </th>
-                  <th style={{ padding: '12px 14px', fontSize: '11px', fontWeight: 800, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.04em', textAlign: 'right' }}>
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {paginatedRecords.map((r) => {
+        ) : (
+          <>
+            {/* Desktop View Table */}
+            <div
+              className={`responsive-table-desktop table-container ${viewMode === 'grid' ? 'force-hidden' : ''}`}
+              style={{ overflowX: 'auto', border: '1px solid #e2e8f0', borderRadius: '12px' }}
+            >
+              <table className="custom-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <thead>
+                  <tr style={{ background: '#f8fafc', borderBottom: '1.5px solid #e2e8f0' }}>
+                    <th style={{ width: '40px', padding: '12px 14px' }}>
+                      <input
+                        type="checkbox"
+                        checked={selectedIds.length > 0 && selectedIds.length === filteredRecords.length}
+                        onChange={handleSelectAll}
+                        style={{ cursor: 'pointer', width: '15px', height: '15px', accentColor: '#07345f' }}
+                      />
+                    </th>
+                    <th
+                      onClick={() => handleSort('student')}
+                      style={{ padding: '12px 14px', fontSize: '11px', fontWeight: 800, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.04em', cursor: 'pointer' }}
+                    >
+                      Student {renderSortIcon('student')}
+                    </th>
+                    <th
+                      onClick={() => handleSort('severity')}
+                      style={{ padding: '12px 14px', fontSize: '11px', fontWeight: 800, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.04em', cursor: 'pointer' }}
+                    >
+                      Offense &amp; Severity {renderSortIcon('severity')}
+                    </th>
+                    <th
+                      onClick={() => handleSort('teacher')}
+                      style={{ padding: '12px 14px', fontSize: '11px', fontWeight: 800, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.04em', cursor: 'pointer' }}
+                    >
+                      Reported By {renderSortIcon('teacher')}
+                    </th>
+                    <th
+                      onClick={() => handleSort('date')}
+                      style={{ padding: '12px 14px', fontSize: '11px', fontWeight: 800, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.04em', cursor: 'pointer' }}
+                    >
+                      Submitted Date {renderSortIcon('date')}
+                    </th>
+                    <th style={{ padding: '12px 14px', fontSize: '11px', fontWeight: 800, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                      Approval Status
+                    </th>
+                    <th style={{ padding: '12px 14px', fontSize: '11px', fontWeight: 800, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.04em', textAlign: 'right' }}>
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {paginatedRecords.map((r) => {
+                    const isChecked = selectedIds.includes(r.id);
+                    const s = r.student || {};
+                    const v = r.violation || {};
+                    const sevBadge = getSeverityBadge(v.type);
+                    const aStat = getApprovalStatus(r);
+                    const isPending = aStat === 'Under Approval';
+                    const isApproved = aStat === 'Approved';
+                    const isRejected = aStat === 'Rejected';
+                    const studentName = (s.fname && s.lname) ? `${s.fname} ${s.lname}` : (s.name || s.full_name || r.student_name || 'Student');
+                    const studentAvatar = s.image || s.avatar || s.photo_url || s.photo || `https://ui-avatars.com/api/?name=${encodeURIComponent(studentName)}&background=07345f&color=fff&size=40&bold=true`;
+
+                    return (
+                      <tr
+                        key={r.id}
+                        style={{
+                          borderBottom: '1px solid #f1f5f9',
+                          background: isChecked ? '#f8fafc' : '#ffffff',
+                          transition: 'background 0.15s'
+                        }}
+                      >
+                        {/* Checkbox */}
+                        <td style={{ padding: '12px 14px' }}>
+                          <input
+                            type="checkbox"
+                            checked={isChecked}
+                            onChange={() => toggleSelect(r.id)}
+                            style={{ cursor: 'pointer', width: '15px', height: '15px', accentColor: '#07345f' }}
+                          />
+                        </td>
+
+                        {/* Student Info */}
+                        <td style={{ padding: '12px 14px' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                            <img
+                              src={studentAvatar}
+                              alt={studentName}
+                              style={{ width: 34, height: 34, borderRadius: '50%', objectFit: 'cover', border: '1px solid #e2e8f0', flexShrink: 0 }}
+                              onError={(e) => {
+                                e.currentTarget.onerror = null;
+                                e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(studentName)}&background=07345f&color=fff&size=40&bold=true`;
+                              }}
+                            />
+                            <div>
+                              <span style={{ fontWeight: 800, color: '#0f172a', fontSize: '13.5px', display: 'block' }}>
+                                {studentName}
+                              </span>
+                              <span style={{ fontSize: '11.5px', color: '#64748b' }}>
+                                {s.grade} • {s.section} {s.lrn ? `• LRN: ${s.lrn}` : ''}
+                              </span>
+                            </div>
+                          </div>
+                        </td>
+
+                        {/* Offense & Severity */}
+                        <td style={{ padding: '12px 14px' }}>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                            <span style={{ fontWeight: 700, color: '#1e293b', fontSize: '13px' }}>
+                              {v.title || v.name || 'Disciplinary Violation'}
+                            </span>
+                            <span
+                              style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                width: 'fit-content',
+                                padding: '2px 7px',
+                                borderRadius: '6px',
+                                fontSize: '10.5px',
+                                fontWeight: 700,
+                                background: sevBadge.bg,
+                                color: sevBadge.color,
+                                border: `1px solid ${sevBadge.border}`
+                              }}
+                            >
+                              {sevBadge.label}
+                            </span>
+                          </div>
+                        </td>
+
+                        {/* Reported By */}
+                        <td style={{ padding: '12px 14px' }}>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                            <span style={{ fontWeight: 700, color: '#334155', fontSize: '13px' }}>
+                              {r.reported_by_name || 'Faculty Member'}
+                            </span>
+                            <span style={{ fontSize: '11px', color: '#64748b' }}>
+                              {r.reported_by_type === 'teacher' ? 'Teaching Faculty' : 'Administrator'}
+                            </span>
+                          </div>
+                        </td>
+
+                        {/* Submitted Date */}
+                        <td style={{ padding: '12px 14px', fontSize: '12.5px', color: '#475569' }}>
+                          {new Date(r.date_reported).toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })}
+                          <div style={{ fontSize: '11px', color: '#94a3b8' }}>
+                            {new Date(r.date_reported).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          </div>
+                        </td>
+
+                        {/* Approval Status Badge */}
+                        <td style={{ padding: '12px 14px' }}>
+                          {isPending && (
+                            <span
+                              style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '6px',
+                                background: '#fffbeb',
+                                color: '#d97706',
+                                border: '1px solid #fde68a',
+                                padding: '4px 10px',
+                                borderRadius: '20px',
+                                fontSize: '11.5px',
+                                fontWeight: 800
+                              }}
+                            >
+                              <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#d97706', animation: 'pulse 1.5s infinite' }} />
+                              Under Approval
+                            </span>
+                          )}
+                          {isApproved && (
+                            <span
+                              style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '5px',
+                                background: '#f0fdf4',
+                                color: '#16a34a',
+                                border: '1px solid #bbf7d0',
+                                padding: '4px 10px',
+                                borderRadius: '20px',
+                                fontSize: '11.5px',
+                                fontWeight: 800
+                              }}
+                            >
+                              <CheckCircle2 size={13} />
+                              Approved
+                            </span>
+                          )}
+                          {isRejected && (
+                            <span
+                              title={r.rejection_reason || 'Declined'}
+                              style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '5px',
+                                background: '#fef2f2',
+                                color: '#dc2626',
+                                border: '1px solid #fecaca',
+                                padding: '4px 10px',
+                                borderRadius: '20px',
+                                fontSize: '11.5px',
+                                fontWeight: 800,
+                                cursor: 'help'
+                              }}
+                            >
+                              <AlertCircle size={13} />
+                              Rejected
+                            </span>
+                          )}
+                        </td>
+
+                        {/* Actions */}
+                        <td style={{ padding: '12px 14px', textAlign: 'right' }}>
+                          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
+                            {/* Inspect Modal Button */}
+                            <button
+                              type="button"
+                              onClick={() => setInspectRecord(r)}
+                              className="entity-grid-btn"
+                              title="Inspect Details"
+                              style={{ padding: '5px 8px', borderRadius: '6px', fontSize: '11.5px', border: '1px solid #cbd5e1', background: '#f8fafc' }}
+                            >
+                              <Eye size={13} />
+                            </button>
+
+                            {/* Quick Approve Button */}
+                            {isPending && (
+                              <>
+                                <button
+                                  type="button"
+                                  onClick={() => handleOpenApproveModal(r)}
+                                  style={{
+                                    padding: '5px 10px',
+                                    borderRadius: '6px',
+                                    fontSize: '12px',
+                                    fontWeight: 700,
+                                    background: '#10b981',
+                                    color: '#ffffff',
+                                    border: 'none',
+                                    cursor: 'pointer',
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: '4px',
+                                    boxShadow: '0 2px 6px rgba(16, 185, 129, 0.25)'
+                                  }}
+                                  title="Approve this incident report"
+                                >
+                                  <Check size={13} strokeWidth={2.5} /> Approve
+                                </button>
+
+                                <button
+                                  type="button"
+                                  onClick={() => handleOpenRejectModal(r)}
+                                  style={{
+                                    padding: '5px 10px',
+                                    borderRadius: '6px',
+                                    fontSize: '12px',
+                                    fontWeight: 700,
+                                    background: '#fef2f2',
+                                    color: '#dc2626',
+                                    border: '1px solid #fecaca',
+                                    cursor: 'pointer',
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: '4px'
+                                  }}
+                                  title="Reject this incident report"
+                                >
+                                  <X size={13} strokeWidth={2.5} /> Reject
+                                </button>
+                              </>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Mobile Cards & Desktop Grid View */}
+            <div className={`responsive-cards-mobile ${viewMode === 'grid' ? 'grid-view' : 'list-view'}`}>
+              {viewMode === 'grid' ? (
+                paginatedRecords.map((r) => {
+                  const isChecked = selectedIds.includes(r.id);
+                  const s = r.student || {};
+                  const v = r.violation || {};
+                  const sevBadge = getSeverityBadge(v.type);
+                  const aStat = getApprovalStatus(r);
+                  const isPending = aStat === 'Under Approval';
+                  const isApproved = aStat === 'Approved';
+                  const studentName = (s.fname && s.lname) ? `${s.fname} ${s.lname}` : (s.name || s.full_name || r.student_name || 'Student');
+                  const studentAvatar = s.image || s.avatar || s.photo_url || s.photo || `https://ui-avatars.com/api/?name=${encodeURIComponent(studentName)}&background=07345f&color=fff&size=40&bold=true`;
+
+                  return (
+                    <div
+                      key={r.id}
+                      style={{
+                        background: isChecked ? '#f8fafc' : '#ffffff',
+                        border: isChecked ? '2px solid #07345f' : '1px solid #e2e8f0',
+                        borderRadius: '14px',
+                        padding: '16px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '12px',
+                        boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
+                        position: 'relative'
+                      }}
+                    >
+                      {/* Card Header: Checkbox + Status */}
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <input
+                          type="checkbox"
+                          checked={isChecked}
+                          onChange={() => toggleSelect(r.id)}
+                          style={{ cursor: 'pointer', width: '16px', height: '16px', accentColor: '#07345f' }}
+                        />
+                        <span
+                          style={{
+                            fontSize: '10.5px',
+                            fontWeight: 800,
+                            padding: '2px 8px',
+                            borderRadius: '20px',
+                            background: isPending ? '#fffbeb' : isApproved ? '#f0fdf4' : '#fef2f2',
+                            color: isPending ? '#d97706' : isApproved ? '#16a34a' : '#dc2626',
+                            border: `1px solid ${isPending ? '#fde68a' : isApproved ? '#bbf7d0' : '#fecaca'}`
+                          }}
+                        >
+                          {aStat}
+                        </span>
+                      </div>
+
+                      {/* Student Details */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <img
+                          src={studentAvatar}
+                          alt={studentName}
+                          style={{ width: 40, height: 40, borderRadius: '50%', objectFit: 'cover', border: '1px solid #e2e8f0' }}
+                          onError={(e) => {
+                            e.currentTarget.onerror = null;
+                            e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(studentName)}&background=07345f&color=fff&size=40&bold=true`;
+                          }}
+                        />
+                        <div>
+                          <div style={{ fontWeight: 800, fontSize: '14px', color: '#0f172a' }}>
+                            {studentName}
+                          </div>
+                          <div style={{ fontSize: '11.5px', color: '#64748b' }}>
+                            {s.grade} • {s.section}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Offense Card Box */}
+                      <div style={{ background: '#f8fafc', padding: '10px 12px', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
+                        <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 700, marginBottom: '2px' }}>
+                          REPORTED OFFENSE
+                        </div>
+                        <div style={{ fontWeight: 800, fontSize: '13px', color: '#1e293b' }}>
+                          {v.title || v.name || 'Violation Incident'}
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '4px' }}>
+                          <span
+                            style={{
+                              fontSize: '10px',
+                              fontWeight: 700,
+                              padding: '1px 6px',
+                              borderRadius: '4px',
+                              background: sevBadge.bg,
+                              color: sevBadge.color
+                            }}
+                          >
+                            {sevBadge.label}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Remarks preview */}
+                      {r.remarks && (
+                        <div style={{ fontSize: '12px', color: '#475569', fontStyle: 'italic', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                          "{r.remarks}"
+                        </div>
+                      )}
+
+                      {/* Submitter & Time */}
+                      <div style={{ fontSize: '11.5px', color: '#64748b', borderTop: '1px solid #f1f5f9', paddingTop: '8px' }}>
+                        By: <strong>{r.reported_by_name || 'Faculty'}</strong> • {new Date(r.date_reported).toLocaleDateString()}
+                      </div>
+
+                      {/* Actions */}
+                      <div style={{ display: 'flex', gap: '8px', marginTop: 'auto' }}>
+                        <button
+                          type="button"
+                          onClick={() => setInspectRecord(r)}
+                          style={{
+                            flex: 1,
+                            padding: '7px',
+                            borderRadius: '8px',
+                            fontSize: '12px',
+                            fontWeight: 700,
+                            background: '#f8fafc',
+                            border: '1px solid #cbd5e1',
+                            color: '#334155',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '4px'
+                          }}
+                        >
+                          <Eye size={13} /> View
+                        </button>
+                        {isPending && (
+                          <>
+                            <button
+                              type="button"
+                              onClick={() => handleOpenApproveModal(r)}
+                              style={{
+                                flex: 1,
+                                padding: '7px',
+                                borderRadius: '8px',
+                                fontSize: '12px',
+                                fontWeight: 700,
+                                background: '#10b981',
+                                border: 'none',
+                                color: '#ffffff',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                gap: '4px'
+                              }}
+                            >
+                              <Check size={13} /> Approve
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleOpenRejectModal(r)}
+                              style={{
+                                padding: '7px 10px',
+                                borderRadius: '8px',
+                                fontSize: '12px',
+                                fontWeight: 700,
+                                background: '#fef2f2',
+                                border: '1px solid #fecaca',
+                                color: '#dc2626',
+                                cursor: 'pointer'
+                              }}
+                            >
+                              <X size={13} />
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })
+              ) : (
+                /* Mobile Card List Format */
+                paginatedRecords.map((r) => {
                   const isChecked = selectedIds.includes(r.id);
                   const s = r.student || {};
                   const v = r.violation || {};
@@ -920,433 +1335,200 @@ export const ForApprovalPage = () => {
                   const isPending = aStat === 'Under Approval';
                   const isApproved = aStat === 'Approved';
                   const isRejected = aStat === 'Rejected';
+                  const studentName = (s.fname && s.lname) ? `${s.fname} ${s.lname}` : (s.name || s.full_name || r.student_name || 'Student');
+                  const studentAvatar = s.image || s.avatar || s.photo_url || s.photo || `https://ui-avatars.com/api/?name=${encodeURIComponent(studentName)}&background=07345f&color=fff&size=40&bold=true`;
 
                   return (
-                    <tr
+                    <div
                       key={r.id}
                       style={{
-                        borderBottom: '1px solid #f1f5f9',
-                        background: isChecked ? '#f8fafc' : '#ffffff',
-                        transition: 'background 0.15s'
+                        background: isChecked ? '#f8faff' : '#ffffff',
+                        border: isChecked ? '1.5px solid #07345f' : '1px solid #e2e8f0',
+                        borderRadius: '14px',
+                        padding: '14px 16px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '10px',
+                        boxShadow: '0 2px 6px rgba(0,0,0,0.03)'
                       }}
                     >
-                      {/* Checkbox */}
-                      <td style={{ padding: '12px 14px' }}>
-                        <input
-                          type="checkbox"
-                          checked={isChecked}
-                          onChange={() => toggleSelect(r.id)}
-                          style={{ cursor: 'pointer', width: '15px', height: '15px', accentColor: '#07345f' }}
-                        />
-                      </td>
-
-                      {/* Student Info */}
-                      <td style={{ padding: '12px 14px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                          {s.image ? (
-                            <img
-                              src={s.image}
-                              alt={s.fname}
-                              style={{ width: 34, height: 34, borderRadius: '50%', objectFit: 'cover', border: '1px solid #e2e8f0' }}
-                            />
-                          ) : (
-                            <div
-                              style={{
-                                width: 34,
-                                height: 34,
-                                borderRadius: '50%',
-                                background: 'linear-gradient(135deg, #07345f 0%, #0b192c 100%)',
-                                color: '#ffffff',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                fontWeight: 800,
-                                fontSize: '12px'
-                              }}
-                            >
-                              {(s.fname || 'S')[0]}{(s.lname || 'T')[0]}
+                      {/* Top Row: Checkbox + Student Avatar + Name + Severity Badge */}
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1, minWidth: 0 }}>
+                          <input
+                            type="checkbox"
+                            checked={isChecked}
+                            onChange={() => toggleSelect(r.id)}
+                            style={{ cursor: 'pointer', width: '16px', height: '16px', accentColor: '#07345f', flexShrink: 0 }}
+                          />
+                          <img
+                            src={studentAvatar}
+                            alt={studentName}
+                            style={{
+                              width: 38,
+                              height: 38,
+                              borderRadius: '50%',
+                              objectFit: 'cover',
+                              border: '1.5px solid #e2e8f0',
+                              flexShrink: 0
+                            }}
+                            onError={(e) => {
+                              e.currentTarget.onerror = null;
+                              e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(studentName)}&background=07345f&color=fff&size=40&bold=true`;
+                            }}
+                          />
+                          <div style={{ minWidth: 0, flex: 1 }}>
+                            <div style={{ fontWeight: 800, fontSize: '13.5px', color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                              {studentName}
                             </div>
-                          )}
-                          <div>
-                            <span style={{ fontWeight: 800, color: '#0f172a', fontSize: '13.5px', display: 'block' }}>
-                              {s.fname} {s.lname}
-                            </span>
-                            <span style={{ fontSize: '11.5px', color: '#64748b' }}>
-                              {s.grade} • {s.section} {s.lrn ? `• LRN: ${s.lrn}` : ''}
-                            </span>
+                            <div style={{ fontSize: '11px', color: '#64748b' }}>
+                              <span>{s.grade || 'Grade 10'} • {s.section || 'Section'}</span>
+                              {s.lrn && <span style={{ marginLeft: 4 }}>• LRN: {s.lrn}</span>}
+                            </div>
                           </div>
                         </div>
-                      </td>
-
-                      {/* Offense & Severity */}
-                      <td style={{ padding: '12px 14px' }}>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                          <span style={{ fontWeight: 700, color: '#1e293b', fontSize: '13px' }}>
-                            {v.title || 'Disciplinary Violation'}
-                          </span>
+                        <div style={{ flexShrink: 0 }}>
                           <span
                             style={{
-                              display: 'inline-flex',
-                              alignItems: 'center',
-                              width: 'fit-content',
-                              padding: '2px 7px',
-                              borderRadius: '6px',
                               fontSize: '10.5px',
-                              fontWeight: 700,
+                              fontWeight: 800,
+                              padding: '2.5px 8px',
+                              borderRadius: '6px',
                               background: sevBadge.bg,
                               color: sevBadge.color,
-                              border: `1px solid ${sevBadge.border}`
+                              display: 'inline-block'
                             }}
                           >
                             {sevBadge.label}
                           </span>
                         </div>
-                      </td>
+                      </div>
 
-                      {/* Reported By */}
-                      <td style={{ padding: '12px 14px' }}>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                          <span style={{ fontWeight: 700, color: '#334155', fontSize: '13px' }}>
-                            {r.reported_by_name || 'Faculty Member'}
+                      {/* Offense & Description Box */}
+                      <div style={{ background: '#f8fafc', padding: '10px 12px', borderRadius: '10px', border: '1px solid #f1f5f9' }}>
+                        <div style={{ fontSize: '10.5px', color: '#64748b', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '2px' }}>
+                          Offense
+                        </div>
+                        <div style={{ fontWeight: 800, fontSize: '13px', color: '#1e293b', lineHeight: 1.35 }}>
+                          {v.title || v.name || 'Violation Incident'}
+                        </div>
+                        {r.remarks && (
+                          <div style={{ fontSize: '11.5px', color: '#475569', fontStyle: 'italic', marginTop: '4px', lineHeight: 1.4 }}>
+                            "{r.remarks}"
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Reporter, Date & Status Meta */}
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '11.5px', color: '#64748b', paddingTop: '2px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '4px' }}>
+                          <span>
+                            Reported by: <strong style={{ color: '#334155' }}>{r.reported_by_name || 'Faculty'}</strong>
                           </span>
-                          <span style={{ fontSize: '11px', color: '#64748b' }}>
-                            {r.reported_by_type === 'teacher' ? 'Teaching Faculty' : 'Administrator'}
+                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+                            <Clock size={11} />
+                            {new Date(r.date_reported || r.created_at || Date.now()).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                           </span>
                         </div>
-                      </td>
-
-                      {/* Submitted Date */}
-                      <td style={{ padding: '12px 14px', fontSize: '12.5px', color: '#475569' }}>
-                        {new Date(r.date_reported).toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })}
-                        <div style={{ fontSize: '11px', color: '#94a3b8' }}>
-                          {new Date(r.date_reported).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                        </div>
-                      </td>
-
-                      {/* Approval Status Badge */}
-                      <td style={{ padding: '12px 14px' }}>
-                        {isPending && (
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '2px' }}>
+                          <span style={{ fontWeight: 600 }}>Status:</span>
                           <span
                             style={{
-                              display: 'inline-flex',
-                              alignItems: 'center',
-                              gap: '6px',
-                              background: '#fffbeb',
-                              color: '#d97706',
-                              border: '1px solid #fde68a',
-                              padding: '4px 10px',
-                              borderRadius: '20px',
-                              fontSize: '11.5px',
-                              fontWeight: 800
-                            }}
-                          >
-                            <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#d97706', animation: 'pulse 1.5s infinite' }} />
-                            Under Approval
-                          </span>
-                        )}
-                        {isApproved && (
-                          <span
-                            style={{
-                              display: 'inline-flex',
-                              alignItems: 'center',
-                              gap: '5px',
-                              background: '#f0fdf4',
-                              color: '#16a34a',
-                              border: '1px solid #bbf7d0',
-                              padding: '4px 10px',
-                              borderRadius: '20px',
-                              fontSize: '11.5px',
-                              fontWeight: 800
-                            }}
-                          >
-                            <CheckCircle2 size={13} />
-                            Approved
-                          </span>
-                        )}
-                        {isRejected && (
-                          <span
-                            title={r.rejection_reason || 'Declined'}
-                            style={{
-                              display: 'inline-flex',
-                              alignItems: 'center',
-                              gap: '5px',
-                              background: '#fef2f2',
-                              color: '#dc2626',
-                              border: '1px solid #fecaca',
-                              padding: '4px 10px',
-                              borderRadius: '20px',
-                              fontSize: '11.5px',
+                              fontSize: '11px',
                               fontWeight: 800,
-                              cursor: 'help'
+                              padding: '2px 8px',
+                              borderRadius: '20px',
+                              background: isPending ? '#fffbeb' : isApproved ? '#f0fdf4' : '#fef2f2',
+                              color: isPending ? '#d97706' : isApproved ? '#16a34a' : '#dc2626',
+                              border: `1px solid ${isPending ? '#fde68a' : isApproved ? '#bbf7d0' : '#fecaca'}`
                             }}
                           >
-                            <AlertCircle size={13} />
-                            Rejected
+                            {isPending ? '⏳ Under Approval' : isApproved ? '✓ Approved' : '✕ Rejected'}
                           </span>
-                        )}
-                      </td>
-
-                      {/* Actions */}
-                      <td style={{ padding: '12px 14px', textAlign: 'right' }}>
-                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}>
-                          
-                          {/* Inspect Modal Button */}
-                          <button
-                            type="button"
-                            onClick={() => setInspectRecord(r)}
-                            className="entity-grid-btn"
-                            title="Inspect Details"
-                            style={{ padding: '5px 8px', borderRadius: '6px', fontSize: '11.5px', border: '1px solid #cbd5e1', background: '#f8fafc' }}
-                          >
-                            <Eye size={13} />
-                          </button>
-
-                          {/* Quick Approve Button */}
-                          {isPending && (
-                            <>
-                              <button
-                                type="button"
-                                onClick={() => handleOpenApproveModal(r)}
-                                style={{
-                                  padding: '5px 10px',
-                                  borderRadius: '6px',
-                                  fontSize: '12px',
-                                  fontWeight: 700,
-                                  background: '#10b981',
-                                  color: '#ffffff',
-                                  border: 'none',
-                                  cursor: 'pointer',
-                                  display: 'inline-flex',
-                                  alignItems: 'center',
-                                  gap: '4px',
-                                  boxShadow: '0 2px 6px rgba(16, 185, 129, 0.25)'
-                                }}
-                                title="Approve this incident report"
-                              >
-                                <Check size={13} strokeWidth={2.5} /> Approve
-                              </button>
-
-                              <button
-                                type="button"
-                                onClick={() => handleOpenRejectModal(r)}
-                                style={{
-                                  padding: '5px 10px',
-                                  borderRadius: '6px',
-                                  fontSize: '12px',
-                                  fontWeight: 700,
-                                  background: '#fef2f2',
-                                  color: '#dc2626',
-                                  border: '1px solid #fecaca',
-                                  cursor: 'pointer',
-                                  display: 'inline-flex',
-                                  alignItems: 'center',
-                                  gap: '4px'
-                                }}
-                                title="Reject this incident report"
-                              >
-                                <X size={13} strokeWidth={2.5} /> Reject
-                              </button>
-                            </>
-                          )}
                         </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        ) : (
-          /* Grid View */
-          <div className="entity-cards-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '14px' }}>
-            {paginatedRecords.map((r) => {
-              const isChecked = selectedIds.includes(r.id);
-              const s = r.student || {};
-              const v = r.violation || {};
-              const sevBadge = getSeverityBadge(v.type);
-              const aStat = getApprovalStatus(r);
-              const isPending = aStat === 'Under Approval';
-              const isApproved = aStat === 'Approved';
-
-              return (
-                <div
-                  key={r.id}
-                  style={{
-                    background: isChecked ? '#f8fafc' : '#ffffff',
-                    border: isChecked ? '2px solid #07345f' : '1px solid #e2e8f0',
-                    borderRadius: '14px',
-                    padding: '16px',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '12px',
-                    boxShadow: '0 2px 8px rgba(0,0,0,0.03)',
-                    position: 'relative'
-                  }}
-                >
-                  {/* Card Header: Checkbox + Status */}
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <input
-                      type="checkbox"
-                      checked={isChecked}
-                      onChange={() => toggleSelect(r.id)}
-                      style={{ cursor: 'pointer', width: '16px', height: '16px', accentColor: '#07345f' }}
-                    />
-                    <span
-                      style={{
-                        fontSize: '10.5px',
-                        fontWeight: 800,
-                        padding: '2px 8px',
-                        borderRadius: '20px',
-                        background: isPending ? '#fffbeb' : isApproved ? '#f0fdf4' : '#fef2f2',
-                        color: isPending ? '#d97706' : isApproved ? '#16a34a' : '#dc2626',
-                        border: `1px solid ${isPending ? '#fde68a' : isApproved ? '#bbf7d0' : '#fecaca'}`
-                      }}
-                    >
-                      {aStat}
-                    </span>
-                  </div>
-
-                  {/* Student Details */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                    {s.image ? (
-                      <img
-                        src={s.image}
-                        alt={s.fname}
-                        style={{ width: 40, height: 40, borderRadius: '50%', objectFit: 'cover' }}
-                      />
-                    ) : (
-                      <div
-                        style={{
-                          width: 40,
-                          height: 40,
-                          borderRadius: '50%',
-                          background: 'linear-gradient(135deg, #07345f 0%, #0b192c 100%)',
-                          color: '#ffffff',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          fontWeight: 800,
-                          fontSize: '13px'
-                        }}
-                      >
-                        {(s.fname || 'S')[0]}{(s.lname || 'T')[0]}
                       </div>
-                    )}
-                    <div>
-                      <div style={{ fontWeight: 800, fontSize: '14px', color: '#0f172a' }}>
-                        {s.fname} {s.lname}
-                      </div>
-                      <div style={{ fontSize: '11.5px', color: '#64748b' }}>
-                        {s.grade} • {s.section}
-                      </div>
-                    </div>
-                  </div>
 
-                  {/* Offense Card Box */}
-                  <div style={{ background: '#f8fafc', padding: '10px 12px', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
-                    <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 700, marginBottom: '2px' }}>
-                      REPORTED OFFENSE
-                    </div>
-                    <div style={{ fontWeight: 800, fontSize: '13px', color: '#1e293b' }}>
-                      {v.title || 'Violation Incident'}
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '4px' }}>
-                      <span
-                        style={{
-                          fontSize: '10px',
-                          fontWeight: 700,
-                          padding: '1px 6px',
-                          borderRadius: '4px',
-                          background: sevBadge.bg,
-                          color: sevBadge.color
-                        }}
-                      >
-                        {sevBadge.label}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Remarks preview */}
-                  {r.remarks && (
-                    <div style={{ fontSize: '12px', color: '#475569', fontStyle: 'italic', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-                      "{r.remarks}"
-                    </div>
-                  )}
-
-                  {/* Submitter & Time */}
-                  <div style={{ fontSize: '11.5px', color: '#64748b', borderTop: '1px solid #f1f5f9', paddingTop: '8px' }}>
-                    By: <strong>{r.reported_by_name || 'Faculty'}</strong> • {new Date(r.date_reported).toLocaleDateString()}
-                  </div>
-
-                  {/* Actions */}
-                  <div style={{ display: 'flex', gap: '8px', marginTop: 'auto' }}>
-                    <button
-                      type="button"
-                      onClick={() => setInspectRecord(r)}
-                      style={{
-                        flex: 1,
-                        padding: '7px',
-                        borderRadius: '8px',
-                        fontSize: '12px',
-                        fontWeight: 700,
-                        background: '#f8fafc',
-                        border: '1px solid #cbd5e1',
-                        color: '#334155',
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: '4px'
-                      }}
-                    >
-                      <Eye size={13} /> View
-                    </button>
-                    {isPending && (
-                      <>
+                      {/* Bottom Action Buttons */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', paddingTop: '8px', borderTop: '1px solid #f1f5f9' }}>
                         <button
                           type="button"
-                          onClick={() => handleOpenApproveModal(r)}
+                          onClick={() => setInspectRecord(r)}
                           style={{
                             flex: 1,
-                            padding: '7px',
+                            padding: '8px 10px',
                             borderRadius: '8px',
                             fontSize: '12px',
                             fontWeight: 700,
-                            background: '#10b981',
-                            border: 'none',
-                            color: '#ffffff',
+                            background: '#f8fafc',
+                            border: '1px solid #cbd5e1',
+                            color: '#334155',
                             cursor: 'pointer',
                             display: 'flex',
                             alignItems: 'center',
                             justifyContent: 'center',
-                            gap: '4px'
+                            gap: '4px',
+                            minHeight: '34px'
                           }}
                         >
-                          <Check size={13} /> Approve
+                          <Eye size={13} /> View
                         </button>
-                        <button
-                          type="button"
-                          onClick={() => handleOpenRejectModal(r)}
-                          style={{
-                            padding: '7px 10px',
-                            borderRadius: '8px',
-                            fontSize: '12px',
-                            fontWeight: 700,
-                            background: '#fef2f2',
-                            border: '1px solid #fecaca',
-                            color: '#dc2626',
-                            cursor: 'pointer'
-                          }}
-                        >
-                          <X size={13} />
-                        </button>
-                      </>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+
+                        {isPending && (
+                          <>
+                            <button
+                              type="button"
+                              onClick={() => handleOpenApproveModal(r)}
+                              style={{
+                                flex: 1.3,
+                                padding: '8px 12px',
+                                borderRadius: '8px',
+                                fontSize: '12px',
+                                fontWeight: 700,
+                                background: '#10b981',
+                                border: 'none',
+                                color: '#ffffff',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                gap: '4px',
+                                minHeight: '34px',
+                                boxShadow: '0 2px 6px rgba(16, 185, 129, 0.25)'
+                              }}
+                            >
+                              <Check size={14} strokeWidth={2.5} /> Approve
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleOpenRejectModal(r)}
+                              style={{
+                                flex: 1,
+                                padding: '8px 10px',
+                                borderRadius: '8px',
+                                fontSize: '12px',
+                                fontWeight: 700,
+                                background: '#fef2f2',
+                                border: '1px solid #fecaca',
+                                color: '#dc2626',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                gap: '4px',
+                                minHeight: '34px'
+                              }}
+                            >
+                              <X size={14} strokeWidth={2.5} /> Reject
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+          </>
         )}
 
         {/* 5. Pagination Footer */}

@@ -500,13 +500,29 @@ export const dataService = {
     }
 
     return executeWithDeduplication('students', async () => {
-      let list = [];
+      let remoteList = null;
       if (isSupabaseConfigured()) {
-        const { data, error } = await supabase.from('students').select('*').order('lname', { ascending: true });
-        if (!error && data && data.length > 0) list = data;
+        try {
+          const { data, error } = await supabase.from('students').select('*').order('lname', { ascending: true });
+          if (!error && data && data.length > 0) remoteList = data;
+        } catch (e) {
+          console.warn('Supabase getStudents notice:', e);
+        }
       }
-      if (!list || list.length === 0) {
-        list = getStored('students', INITIAL_STUDENTS);
+
+      const localList = getStored('students', INITIAL_STUDENTS);
+      let list = [];
+
+      if (remoteList && remoteList.length > 0) {
+        const remoteLrnMap = new Map(remoteList.map(s => [String(s.lrn || '').toLowerCase(), s]));
+        const mergedRemote = remoteList.map(rs => {
+          const ls = localList.find(l => String(l.lrn || '').toLowerCase() === String(rs.lrn || '').toLowerCase() || l.id === rs.id);
+          return ls ? { ...ls, ...rs, password: rs.password || ls.password } : rs;
+        });
+        const extraLocal = localList.filter(ls => ls.lrn && !remoteLrnMap.has(String(ls.lrn).toLowerCase()));
+        list = [...mergedRemote, ...extraLocal];
+      } else {
+        list = localList;
       }
 
       const maleAvatars = [
@@ -547,6 +563,7 @@ export const dataService = {
         fname: String(student.fname || '').trim(),
         mname: String(student.mname || '').trim(),
         lname: String(student.lname || '').trim(),
+        email: String(student.email || '').trim().toLowerCase(),
         grade: String(student.grade || '').trim(),
         section: String(student.section || '').trim(),
         academicyear: String(student.academicyear || '2025-2026').trim(),
@@ -555,6 +572,7 @@ export const dataService = {
         parent_name: String(student.parent_name || '').trim(),
         parent_contact: String(student.parent_contact || '').trim(),
         address: String(student.address || '').trim(),
+        password: String(student.password || 'Viotrack@2026!').trim(),
         image: String(student.image || '').trim()
       };
 
@@ -591,9 +609,12 @@ export const dataService = {
     try {
       let result = null;
       const cleanUpdates = {};
-      const allowed = ['lrn', 'fname', 'mname', 'lname', 'grade', 'section', 'academicyear', 'gender', 'contact', 'parent_name', 'parent_contact', 'address', 'image'];
+      const allowed = ['lrn', 'fname', 'mname', 'lname', 'email', 'grade', 'section', 'academicyear', 'gender', 'contact', 'parent_name', 'parent_contact', 'address', 'password', 'image'];
       for (const key of allowed) {
         if (updates[key] !== undefined) {
+          if (key === 'password' && !String(updates[key]).trim()) {
+            continue;
+          }
           cleanUpdates[key] = updates[key];
         }
       }
@@ -611,7 +632,7 @@ export const dataService = {
         }
       }
       const current = getStored('students', INITIAL_STUDENTS);
-      const updated = current.map(s => (s.id === Number(id) ? { ...s, ...updates } : s));
+      const updated = current.map(s => (s.id === Number(id) ? { ...s, ...cleanUpdates } : s));
       setStored('students', updated);
       if (!result) result = updated.find(s => s.id === Number(id));
       invalidateCache('students');
@@ -1148,12 +1169,31 @@ export const dataService = {
     }
 
     return executeWithDeduplication('teachers', async () => {
-      let list = null;
+      let remoteList = null;
       if (isSupabaseConfigured()) {
-        const { data, error } = await supabase.from('teachers').select('*').order('lname', { ascending: true });
-        if (!error && data && data.length > 0) list = data;
+        try {
+          const { data, error } = await supabase.from('teachers').select('*').order('lname', { ascending: true });
+          if (!error && data && data.length > 0) remoteList = data;
+        } catch (e) {
+          console.warn('Supabase getTeachers notice:', e);
+        }
       }
-      if (!list) list = getStored('teachers', INITIAL_TEACHERS);
+
+      const localList = getStored('teachers', INITIAL_TEACHERS);
+      let list = [];
+
+      if (remoteList && remoteList.length > 0) {
+        const remoteEmailMap = new Map(remoteList.map(t => [String(t.email || '').toLowerCase(), t]));
+        const mergedRemote = remoteList.map(rt => {
+          const lt = localList.find(l => String(l.email || '').toLowerCase() === String(rt.email || '').toLowerCase() || l.id === rt.id);
+          return lt ? { ...lt, ...rt, password: rt.password || lt.password } : rt;
+        });
+        const extraLocal = localList.filter(lt => lt.email && !remoteEmailMap.has(String(lt.email).toLowerCase()));
+        list = [...mergedRemote, ...extraLocal];
+      } else {
+        list = localList;
+      }
+
       _cache.data.teachers = list;
       _cache.timestamps.teachers = Date.now();
       return list;
@@ -1284,19 +1324,34 @@ export const dataService = {
     let result = null;
     const cleanTeacher = {
       fname: String(teacher.fname || '').trim(),
+      mname: String(teacher.mname || '').trim(),
       lname: String(teacher.lname || '').trim(),
-      email: String(teacher.email || '').trim(),
+      email: String(teacher.email || '').trim().toLowerCase(),
       position: String(teacher.position || 'Teacher').trim(),
       department: String(teacher.department || 'General').trim(),
       contact: String(teacher.contact || '').trim(),
+      password: String(teacher.password || 'Viotrack@2026!').trim(),
       image: String(teacher.image || '').trim()
     };
 
     if (isSupabaseConfigured()) {
       try {
-        const { data, error } = await supabase.from('teachers').insert([cleanTeacher]).select();
-        if (!error && data?.[0]) result = data[0];
-        else if (error) console.error('Supabase addTeacher error:', error);
+        const supabasePayload = {
+          fname: cleanTeacher.fname,
+          lname: cleanTeacher.lname,
+          email: cleanTeacher.email,
+          password: cleanTeacher.password,
+          position: cleanTeacher.position,
+          department: cleanTeacher.department,
+          contact: cleanTeacher.contact,
+          image: cleanTeacher.image
+        };
+        const { data, error } = await supabase.from('teachers').insert([supabasePayload]).select();
+        if (!error && data?.[0]) {
+          result = { ...cleanTeacher, ...data[0] };
+        } else if (error) {
+          console.warn('Supabase addTeacher notice:', error.message || error);
+        }
       } catch (err) {
         console.warn('Supabase addTeacher error:', err);
       }
@@ -1305,7 +1360,7 @@ export const dataService = {
     if (!result) {
       result = { ...cleanTeacher, id: Date.now(), created_at: new Date().toISOString() };
     }
-    const updated = [result, ...current];
+    const updated = [result, ...current.filter(t => t.email !== cleanTeacher.email)];
     setStored('teachers', updated);
     invalidateCache('teachers');
     invalidateCache('advisers');
@@ -1316,9 +1371,13 @@ export const dataService = {
   async updateTeacher(id, updates) {
     let result = null;
     const cleanUpdates = {};
-    const allowed = ['fname', 'lname', 'email', 'position', 'department', 'contact', 'image'];
+    const allowed = ['fname', 'mname', 'lname', 'email', 'position', 'department', 'contact', 'password', 'image'];
     for (const key of allowed) {
       if (updates[key] !== undefined) {
+        if (key === 'password' && !String(updates[key]).trim()) {
+          // Skip empty password update to preserve existing password
+          continue;
+        }
         cleanUpdates[key] = updates[key];
       }
     }
@@ -1333,7 +1392,7 @@ export const dataService = {
       }
     }
     const current = getStored('teachers', INITIAL_TEACHERS);
-    const updated = current.map(t => (t.id === Number(id) ? { ...t, ...updates } : t));
+    const updated = current.map(t => (t.id === Number(id) ? { ...t, ...cleanUpdates } : t));
     setStored('teachers', updated);
     invalidateCache('teachers');
     invalidateCache('advisers');
@@ -1411,14 +1470,26 @@ export const dataService = {
 
     if (isSupabaseConfigured()) {
       try {
-        const { error } = await supabase.from('advisers').upsert(cleanPayload);
+        // Delete any existing assignment for this teacher OR this section
+        await supabase
+          .from('advisers')
+          .delete()
+          .or(`teacher_id.eq.${cleanPayload.teacher_id},and(grade_level.eq."${cleanPayload.grade_level}",class_section.eq."${cleanPayload.class_section}")`);
+        const { error } = await supabase.from('advisers').insert(cleanPayload);
         if (error) console.error('Supabase saveAdviserAssignment error:', error);
       } catch (err) {
         console.warn('Supabase saveAdviserAssignment error:', err);
       }
     }
     let current = getStored('advisers', INITIAL_ADVISERS);
-    current = current.filter(a => !(a.grade_level === grade_level && a.class_section === class_section));
+    // Enforce 1:1 rule: remove any prior assignment for this teacher OR for this section
+    current = current.filter(a =>
+      Number(a.teacher_id) !== Number(teacher_id) &&
+      !(
+        String(a.grade_level).trim().toLowerCase() === cleanPayload.grade_level.toLowerCase() &&
+        String(a.class_section).trim().toLowerCase() === cleanPayload.class_section.toLowerCase()
+      )
+    );
     current.push({ id: Date.now(), ...cleanPayload, created_at: new Date().toISOString() });
     setStored('advisers', current);
     invalidateCache('advisers');
@@ -1467,12 +1538,31 @@ export const dataService = {
     }
 
     return executeWithDeduplication('admins', async () => {
-      let list = null;
+      let remoteList = null;
       if (isSupabaseConfigured()) {
-        const { data, error } = await supabase.from('admins').select('*');
-        if (!error && data && data.length > 0) list = data;
+        try {
+          const { data, error } = await supabase.from('admins').select('*');
+          if (!error && data && data.length > 0) remoteList = data;
+        } catch (e) {
+          console.warn('Supabase getAdmins notice:', e);
+        }
       }
-      if (!list) list = getStored('admins', INITIAL_ADMINS);
+
+      const localList = getStored('admins', INITIAL_ADMINS);
+      let list = [];
+
+      if (remoteList && remoteList.length > 0) {
+        const remoteEmailMap = new Map(remoteList.map(a => [String(a.email || '').toLowerCase(), a]));
+        const mergedRemote = remoteList.map(ra => {
+          const la = localList.find(l => String(l.email || '').toLowerCase() === String(ra.email || '').toLowerCase() || l.id === ra.id);
+          return la ? { ...la, ...ra, password: ra.password || la.password } : ra;
+        });
+        const extraLocal = localList.filter(la => la.email && !remoteEmailMap.has(String(la.email).toLowerCase()));
+        list = [...mergedRemote, ...extraLocal];
+      } else {
+        list = localList;
+      }
+
       _cache.data.admins = list;
       _cache.timestamps.admins = Date.now();
       return list;
@@ -1483,17 +1573,31 @@ export const dataService = {
     let result = null;
     const cleanAdmin = {
       fname: String(admin.fname || '').trim(),
+      mname: String(admin.mname || '').trim(),
       lname: String(admin.lname || '').trim(),
-      email: String(admin.email || '').trim(),
-      role: String(admin.role || 'admin').trim(),
+      email: String(admin.email || '').trim().toLowerCase(),
+      role: String(admin.role || 'Head Admin').trim(),
+      position: String(admin.position || 'Discipline Staff').trim(),
+      password: String(admin.password || 'Viotrack@2026!').trim(),
       image: String(admin.image || '').trim()
     };
 
     if (isSupabaseConfigured()) {
       try {
-        const { data, error } = await supabase.from('admins').insert([cleanAdmin]).select();
-        if (!error && data?.[0]) result = data[0];
-        else if (error) console.error('Supabase addAdmin error:', error);
+        const supabasePayload = {
+          fname: cleanAdmin.fname,
+          lname: cleanAdmin.lname,
+          email: cleanAdmin.email,
+          password: cleanAdmin.password,
+          role: cleanAdmin.role,
+          image: cleanAdmin.image
+        };
+        const { data, error } = await supabase.from('admins').insert([supabasePayload]).select();
+        if (!error && data?.[0]) {
+          result = { ...cleanAdmin, ...data[0] };
+        } else if (error) {
+          console.warn('Supabase addAdmin notice:', error.message || error);
+        }
       } catch (err) {
         console.warn('Supabase addAdmin error:', err);
       }
@@ -1502,7 +1606,7 @@ export const dataService = {
     if (!result) {
       result = { ...cleanAdmin, id: Date.now(), created_at: new Date().toISOString() };
     }
-    const updated = [result, ...current];
+    const updated = [result, ...current.filter(a => a.email !== cleanAdmin.email)];
     setStored('admins', updated);
     invalidateCache('admins');
     await this.addActivityLog('Add Admin', `Created administrator account for ${cleanAdmin.fname} ${cleanAdmin.lname} (${cleanAdmin.role})`);
@@ -1512,9 +1616,13 @@ export const dataService = {
   async updateAdmin(id, updates) {
     let result = null;
     const cleanUpdates = {};
-    const allowed = ['fname', 'lname', 'email', 'role', 'image'];
+    const allowed = ['fname', 'mname', 'lname', 'email', 'role', 'position', 'password', 'image'];
     for (const key of allowed) {
       if (updates[key] !== undefined) {
+        if (key === 'password' && !String(updates[key]).trim()) {
+          // Skip empty password update to prevent wiping existing password
+          continue;
+        }
         cleanUpdates[key] = updates[key];
       }
     }
@@ -1529,7 +1637,7 @@ export const dataService = {
       }
     }
     const current = getStored('admins', INITIAL_ADMINS);
-    const updated = current.map(a => (a.id === Number(id) ? { ...a, ...updates } : a));
+    const updated = current.map(a => (a.id === Number(id) ? { ...a, ...cleanUpdates } : a));
     setStored('admins', updated);
     invalidateCache('admins');
     if (!result) result = updated.find(a => a.id === Number(id));

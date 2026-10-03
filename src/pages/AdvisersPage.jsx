@@ -158,6 +158,11 @@ export const AdvisersPage = () => {
     }
   };
 
+  // Teachers available for new advisory appointments (not already assigned)
+  const unassignedTeachers = useMemo(() => {
+    return teachers.filter(t => !advisers.some(a => Number(a.teacher_id) === Number(t.id)));
+  }, [teachers, advisers]);
+
   // Handle Appoint
   const handleAppointSubmit = async (e) => {
     e.preventDefault();
@@ -170,9 +175,30 @@ export const AdvisersPage = () => {
       return;
     }
 
+    const cleanSection = appointSection.trim();
+
+    // Check if selected teacher is already assigned
+    const alreadyAssigned = advisers.find(a => Number(a.teacher_id) === Number(selectedTeacherId));
+    if (alreadyAssigned) {
+      error(`This teacher is already assigned to ${alreadyAssigned.grade_level} - ${alreadyAssigned.class_section}. Please reassign or unassign their current section first.`);
+      return;
+    }
+
+    // Check if section is already taken by another teacher
+    const sectionOccupied = advisers.find(
+      a =>
+        String(a.grade_level).trim().toLowerCase() === appointGrade.trim().toLowerCase() &&
+        String(a.class_section).trim().toLowerCase() === cleanSection.toLowerCase()
+    );
+    if (sectionOccupied) {
+      const occupantName = sectionOccupied.teacher ? `${sectionOccupied.teacher.fname} ${sectionOccupied.teacher.lname}` : 'another faculty member';
+      error(`${appointGrade} - ${cleanSection} is already assigned to ${occupantName}. Please choose a different section or unassign the current adviser first.`);
+      return;
+    }
+
     try {
-      await dataService.saveAdviserAssignment(selectedTeacherId, appointGrade, appointSection.trim());
-      success(`Successfully appointed adviser for ${appointGrade} - ${appointSection.trim()}!`);
+      await dataService.saveAdviserAssignment(selectedTeacherId, appointGrade, cleanSection);
+      success(`Successfully appointed adviser for ${appointGrade} - ${cleanSection}!`);
       setIsAppointModalOpen(false);
       setSelectedTeacherId('');
       setAppointSection('');
@@ -820,18 +846,31 @@ export const AdvisersPage = () => {
                 <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>
                   Select Faculty Member <span style={{ color: '#ef4444' }}>*</span>
                 </label>
-                <CustomSelect
-                  value={selectedTeacherId}
-                  onChange={(e) => setSelectedTeacherId(e.target.value)}
-                  placeholder="-- Choose a teacher --"
-                  options={teachers.map(t => {
-                    const alreadyAdv = advisers.find(a => a.teacher_id === t.id);
-                    return {
+                {unassignedTeachers.length === 0 ? (
+                  <div
+                    style={{
+                      background: '#fffbeb',
+                      border: '1px solid #fde68a',
+                      borderRadius: '8px',
+                      padding: '10px 12px',
+                      fontSize: '12.5px',
+                      color: '#92400e',
+                      lineHeight: 1.4
+                    }}
+                  >
+                    <strong>Notice:</strong> All registered faculty members are already assigned to an advisory section. To reassign a teacher, please remove their current advisory class from the directory table below first.
+                  </div>
+                ) : (
+                  <CustomSelect
+                    value={selectedTeacherId}
+                    onChange={(e) => setSelectedTeacherId(e.target.value)}
+                    placeholder="-- Choose an unassigned faculty teacher --"
+                    options={unassignedTeachers.map(t => ({
                       value: String(t.id),
-                      label: `${t.fname} ${t.lname} (${t.department || 'Faculty'}${alreadyAdv ? ` - Current: ${alreadyAdv.grade_level} ${alreadyAdv.class_section}` : ''})`
-                    };
-                  })}
-                />
+                      label: `${t.fname} ${t.lname} (${t.department || 'Faculty'} • ${t.position || 'Teacher'})`
+                    }))}
+                  />
+                )}
               </div>
 
               {/* Grade Level Selector */}
@@ -888,7 +927,8 @@ export const AdvisersPage = () => {
                     fontSize: '13px',
                     color: '#0f172a',
                     outline: 'none',
-                    marginBottom: '10px'
+                    marginBottom: '10px',
+                    boxSizing: 'border-box'
                   }}
                 />
 
@@ -942,17 +982,18 @@ export const AdvisersPage = () => {
                 </button>
                 <button
                   type="submit"
+                  disabled={unassignedTeachers.length === 0}
                   style={{
                     flex: 1,
-                    background: '#07345f',
+                    background: unassignedTeachers.length === 0 ? '#94a3b8' : '#07345f',
                     color: '#ffffff',
                     border: 'none',
                     padding: '10px 16px',
                     borderRadius: '8px',
                     fontSize: '13px',
                     fontWeight: 700,
-                    cursor: 'pointer',
-                    boxShadow: '0 4px 12px rgba(7, 52, 95, 0.25)'
+                    cursor: unassignedTeachers.length === 0 ? 'not-allowed' : 'pointer',
+                    boxShadow: unassignedTeachers.length === 0 ? 'none' : '0 4px 12px rgba(7, 52, 95, 0.25)'
                   }}
                 >
                   Confirm Appointment

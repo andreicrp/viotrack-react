@@ -1,10 +1,20 @@
-import React, { useState } from 'react';
-import { Award, X, Check, GraduationCap, ShieldCheck } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Award, X, Check, GraduationCap, ShieldCheck, UserMinus, AlertCircle } from 'lucide-react';
 import CustomSelect from '../common/CustomSelect';
 
-export const AppointAdviserModal = ({ isOpen, onClose, teacher, onAppointed }) => {
+export const AppointAdviserModal = ({ isOpen, onClose, teacher, currentAdviser, onAppointed, onUnassign }) => {
   const [gradeLevel, setGradeLevel] = useState('Grade 10');
   const [classSection, setClassSection] = useState('');
+
+  useEffect(() => {
+    if (currentAdviser) {
+      setGradeLevel(currentAdviser.grade_level || 'Grade 10');
+      setClassSection(currentAdviser.class_section || '');
+    } else {
+      setGradeLevel('Grade 10');
+      setClassSection('');
+    }
+  }, [currentAdviser, teacher, isOpen]);
 
   if (!isOpen || !teacher) return null;
 
@@ -13,6 +23,15 @@ export const AppointAdviserModal = ({ isOpen, onClose, teacher, onAppointed }) =
     if (!classSection.trim()) return;
     onAppointed?.(teacher.id, gradeLevel, classSection.trim());
     onClose();
+  };
+
+  const handleUnassignClick = () => {
+    if (currentAdviser && onUnassign) {
+      if (window.confirm(`Unassign ${teacher.fname} ${teacher.lname} from ${currentAdviser.grade_level} - ${currentAdviser.class_section}?`)) {
+        onUnassign(currentAdviser.id);
+        onClose();
+      }
+    }
   };
 
   const sectionPresets = [
@@ -25,6 +44,8 @@ export const AppointAdviserModal = ({ isOpen, onClose, teacher, onAppointed }) =
     'HUMSS B',
     'ABM A'
   ];
+
+  const isAlreadyAssigned = Boolean(currentAdviser);
 
   return (
     <div
@@ -72,8 +93,8 @@ export const AppointAdviserModal = ({ isOpen, onClose, teacher, onAppointed }) =
                 width: 40,
                 height: 40,
                 borderRadius: '10px',
-                background: '#dcfce7',
-                color: '#16a34a',
+                background: isAlreadyAssigned ? '#eff6ff' : '#dcfce7',
+                color: isAlreadyAssigned ? '#2563eb' : '#16a34a',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center'
@@ -83,10 +104,12 @@ export const AppointAdviserModal = ({ isOpen, onClose, teacher, onAppointed }) =
             </div>
             <div>
               <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 800, color: '#0f172a', letterSpacing: '-0.3px' }}>
-                Appoint Class Adviser
+                {isAlreadyAssigned ? 'Manage Advisory Assignment' : 'Appoint Class Adviser'}
               </h3>
               <span style={{ fontSize: '12.5px', color: '#64748b' }}>
-                Assign {teacher.fname} {teacher.lname} to an advisory section
+                {isAlreadyAssigned
+                  ? `Update or reassign ${teacher.fname} ${teacher.lname}`
+                  : `Assign ${teacher.fname} ${teacher.lname} to an advisory section`}
               </span>
             </div>
           </div>
@@ -113,7 +136,49 @@ export const AppointAdviserModal = ({ isOpen, onClose, teacher, onAppointed }) =
 
         {/* Form */}
         <form onSubmit={handleSubmit}>
-          <div style={{ padding: '22px 24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <div style={{ padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            {/* Current Assignment Status Pill */}
+            {isAlreadyAssigned && (
+              <div
+                style={{
+                  background: '#f0fdf4',
+                  border: '1px solid #bbf7d0',
+                  borderRadius: '10px',
+                  padding: '10px 14px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  fontSize: '12.5px'
+                }}
+              >
+                <div>
+                  <div style={{ fontWeight: 700, color: '#166534' }}>Currently Assigned Advisory:</div>
+                  <div style={{ color: '#15803d', fontWeight: 600, marginTop: '2px' }}>
+                    {currentAdviser.grade_level} — {currentAdviser.class_section}
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleUnassignClick}
+                  style={{
+                    background: '#ffffff',
+                    border: '1px solid #fca5a5',
+                    color: '#dc2626',
+                    padding: '5px 10px',
+                    borderRadius: '6px',
+                    fontSize: '11px',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '4px'
+                  }}
+                >
+                  <UserMinus size={12} /> Unassign
+                </button>
+              </div>
+            )}
+
             {/* Grade Level */}
             <div>
               <label style={{ fontSize: '13px', fontWeight: 700, color: '#334155', display: 'block', marginBottom: '6px' }}>
@@ -154,7 +219,8 @@ export const AppointAdviserModal = ({ isOpen, onClose, teacher, onAppointed }) =
                   borderRadius: '9px',
                   border: '1.5px solid #cbd5e1',
                   fontSize: '13.5px',
-                  outline: 'none'
+                  outline: 'none',
+                  boxSizing: 'border-box'
                 }}
               />
 
@@ -171,8 +237,8 @@ export const AppointAdviserModal = ({ isOpen, onClose, teacher, onAppointed }) =
                       padding: '3px 8px',
                       borderRadius: '12px',
                       border: '1px solid #e2e8f0',
-                      background: classSection === sec ? '#dcfce7' : '#f8fafc',
-                      color: classSection === sec ? '#15803d' : '#475569',
+                      background: classSection.toLowerCase() === sec.toLowerCase() ? '#dcfce7' : '#f8fafc',
+                      color: classSection.toLowerCase() === sec.toLowerCase() ? '#15803d' : '#475569',
                       cursor: 'pointer',
                       transition: 'all 0.15s'
                     }}
@@ -217,7 +283,9 @@ export const AppointAdviserModal = ({ isOpen, onClose, teacher, onAppointed }) =
               style={{
                 padding: '9px 22px',
                 borderRadius: '9px',
-                background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                background: isAlreadyAssigned
+                  ? 'linear-gradient(135deg, #07345f 0%, #1e40af 100%)'
+                  : 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
                 color: '#ffffff',
                 border: 'none',
                 fontWeight: 700,
@@ -226,11 +294,13 @@ export const AppointAdviserModal = ({ isOpen, onClose, teacher, onAppointed }) =
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '8px',
-                boxShadow: '0 4px 14px rgba(16, 185, 129, 0.35)'
+                boxShadow: isAlreadyAssigned
+                  ? '0 4px 14px rgba(7, 52, 95, 0.3)'
+                  : '0 4px 14px rgba(16, 185, 129, 0.35)'
               }}
             >
               <Check size={16} />
-              <span>Confirm Appointment</span>
+              <span>{isAlreadyAssigned ? 'Update Assignment' : 'Confirm Appointment'}</span>
             </button>
           </div>
         </form>
