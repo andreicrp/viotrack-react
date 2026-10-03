@@ -3804,11 +3804,11 @@
 }
 
 .dash-cal-date-cell.selected {
-    background: #0b192c;
+    background: #0f172a;
     color: #ffffff;
     font-weight: 800;
     border-radius: 6px;
-    box-shadow: 0 2px 6px rgba(11, 25, 44, 0.25);
+    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.25);
 }
 
 .dash-cal-date-cell.has-events:not(.selected) {

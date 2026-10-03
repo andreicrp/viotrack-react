@@ -1325,7 +1325,7 @@ export const DashboardPage = () => {
                       height: 28,
                       borderRadius: 6,
                       border: p === offendersPage ? 'none' : '1px solid #e2e8f0',
-                      background: p === offendersPage ? '#0b192c' : '#fff',
+                      background: p === offendersPage ? '#0f172a' : '#fff',
                       color: p === offendersPage ? '#fff' : '#0f172a',
                       fontSize: '11.5px',
                       fontWeight: p === offendersPage ? 700 : 500,
