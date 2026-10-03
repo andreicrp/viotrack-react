@@ -8,6 +8,7 @@ import { Layout } from './components/layout/Layout';
 import { SplashScreen } from './components/common/SplashScreen';
 import { ErrorBoundary } from './components/common/ErrorBoundary';
 import { CookieConsentBanner } from './components/legal/CookieConsentBanner';
+import { ScreenLockModal } from './components/common/ScreenLockModal';
 import { dataService } from './services/dataService';
 
 // Lazy Loaded Route Pages for Optimal Code-Splitting & Speed
@@ -201,6 +202,7 @@ export function App() {
               </Routes>
             </Suspense>
             <CookieConsentBanner />
+            <ScreenLockModal />
           </BrowserRouter>
         </NotificationProvider>
       </AuthProvider>

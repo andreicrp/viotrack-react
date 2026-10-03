@@ -4,6 +4,7 @@ import { dataService } from '../services/dataService';
 import { AddViolationModal } from '../components/violations/AddViolationModal';
 import { StatusModal } from '../components/violations/StatusModal';
 import { ResolutionModal } from '../components/violations/ResolutionModal';
+import { ParentSummonsModal } from '../components/violations/ParentSummonsModal';
 import { CustomSelect } from '../components/common/CustomSelect';
 import { useNotification } from '../context/NotificationContext';
 import { useAuth } from '../context/AuthContext';
@@ -67,6 +68,8 @@ export const StudentViolationDetailPage = () => {
   const [selectedRecordForResolution, setSelectedRecordForResolution] = useState(null);
   const [isSmsModalOpen, setIsSmsModalOpen] = useState(false);
   const [isQrModalOpen, setIsQrModalOpen] = useState(false);
+  const [isSummonsModalOpen, setIsSummonsModalOpen] = useState(false);
+  const [summonsTargetRecord, setSummonsTargetRecord] = useState(null);
   const [smsSending, setSmsSending] = useState(false);
   const [smsCustomMessage, setSmsCustomMessage] = useState('');
   const [smsReportType, setSmsReportType] = useState('Incident Notification');
@@ -445,6 +448,17 @@ export const StudentViolationDetailPage = () => {
                 <Send size={15} /> Send Message
               </button>
             )}
+
+            <button
+              onClick={() => {
+                setSummonsTargetRecord(records[0] || null);
+                setIsSummonsModalOpen(true);
+              }}
+              className="page-banner-btn-secondary"
+              title="Generate formal printable Parent Summons notice letter"
+            >
+              <FileText size={15} /> Parent Summons
+            </button>
 
             <button
               onClick={handleGenerateReport}
@@ -1735,6 +1749,16 @@ export const StudentViolationDetailPage = () => {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Parent Summons Letter Modal */}
+      {isSummonsModalOpen && (
+        <ParentSummonsModal
+          isOpen={isSummonsModalOpen}
+          onClose={() => setIsSummonsModalOpen(false)}
+          student={student}
+          record={summonsTargetRecord}
+        />
       )}
     </div>
   );

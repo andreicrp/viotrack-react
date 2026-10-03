@@ -9,16 +9,20 @@ import {
   Bell,
   CheckCircle2,
   ChevronRight,
-  Clock
+  Clock,
+  Lock,
+  Database
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { dataService } from '../../services/dataService';
+import { BackupRestoreModal } from '../common/BackupRestoreModal';
 
 export const Header = ({ onToggleSidebar }) => {
-  const { user, logout } = useAuth();
+  const { user, logout, lockScreen } = useAuth();
   const navigate = useNavigate();
   const [showDropdown, setShowDropdown] = useState(false);
   const [showNotifDropdown, setShowNotifDropdown] = useState(false);
+  const [isBackupModalOpen, setIsBackupModalOpen] = useState(false);
   const [pendingApprovals, setPendingApprovals] = useState([]);
   const dropdownRef = useRef(null);
   const notifRef = useRef(null);
@@ -343,6 +347,38 @@ export const Header = ({ onToggleSidebar }) => {
                   <span className="user-dropdown-btn-label">My Profile</span>
                 </button>
 
+                {isAdmin && (
+                  <button
+                    type="button"
+                    className="user-dropdown-btn"
+                    onClick={() => {
+                      setIsBackupModalOpen(true);
+                      setShowDropdown(false);
+                    }}
+                    role="menuitem"
+                  >
+                    <span className="user-dropdown-icon-box" style={{ background: '#f0f4f8', color: '#0f172a' }}>
+                      <Database size={14} strokeWidth={2.2} />
+                    </span>
+                    <span className="user-dropdown-btn-label">Database Backups</span>
+                  </button>
+                )}
+
+                <button
+                  type="button"
+                  className="user-dropdown-btn"
+                  onClick={() => {
+                    lockScreen();
+                    setShowDropdown(false);
+                  }}
+                  role="menuitem"
+                >
+                  <span className="user-dropdown-icon-box" style={{ background: '#fff1f2', color: '#e11d48' }}>
+                    <Lock size={14} strokeWidth={2.2} />
+                  </span>
+                  <span className="user-dropdown-btn-label">Lock Workstation</span>
+                </button>
+
                 <div className="user-dropdown-divider" />
 
                 <button
@@ -361,6 +397,14 @@ export const Header = ({ onToggleSidebar }) => {
           )}
         </div>
       </div>
+
+      {/* Database Backup & Restore Modal */}
+      {isBackupModalOpen && (
+        <BackupRestoreModal
+          isOpen={isBackupModalOpen}
+          onClose={() => setIsBackupModalOpen(false)}
+        />
+      )}
     </header>
   );
 };

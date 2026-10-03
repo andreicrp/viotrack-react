@@ -4,6 +4,7 @@ import { AddViolationModal } from '../components/violations/AddViolationModal';
 import { BulkViolationModal } from '../components/violations/BulkViolationModal';
 import { ResolutionModal } from '../components/violations/ResolutionModal';
 import { StatusModal } from '../components/violations/StatusModal';
+import { ParentSummonsModal } from '../components/violations/ParentSummonsModal';
 import { CustomDatePicker } from '../components/common/CustomDatePicker';
 import { CustomSelect } from '../components/common/CustomSelect';
 import { useNotification } from '../context/NotificationContext';
@@ -66,6 +67,7 @@ export const ViolationsPage = () => {
   const [isBulkModalOpen, setIsBulkModalOpen] = useState(false);
   const [recordForStatusChange, setRecordForStatusChange] = useState(null);
   const [selectedRecordForResolution, setSelectedRecordForResolution] = useState(null);
+  const [summonsTargetRecord, setSummonsTargetRecord] = useState(null);
 
   const isAdmin = user?.role === 'admin';
 
@@ -1184,6 +1186,30 @@ export const ViolationsPage = () => {
                             </button>
                           )}
 
+                          <button
+                            type="button"
+                            onClick={() => setSummonsTargetRecord(rec)}
+                            style={{
+                              background: '#f8fafc',
+                              border: '1px solid #cbd5e1',
+                              color: '#0f172a',
+                              padding: '6px 10px',
+                              borderRadius: '7px',
+                              fontSize: '12px',
+                              fontWeight: 600,
+                              cursor: 'pointer',
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: '4px',
+                              transition: 'all 0.15s'
+                            }}
+                            onMouseOver={(e) => { e.currentTarget.style.background = '#e2e8f0'; }}
+                            onMouseOut={(e) => { e.currentTarget.style.background = '#f8fafc'; }}
+                            title="Generate Printable Parent Summons Notice"
+                          >
+                            <FileText size={12} color="#0f172a" strokeWidth={2} /> Summons
+                          </button>
+
                           {isResolved && (
                             <button
                               type="button"
@@ -1633,6 +1659,16 @@ export const ViolationsPage = () => {
           onUpdated={(updated) => {
             setRecords(records.map(r => r.id === updated.id ? { ...r, ...updated } : r));
           }}
+        />
+      )}
+
+      {/* Parent Summons Modal */}
+      {summonsTargetRecord && (
+        <ParentSummonsModal
+          isOpen={!!summonsTargetRecord}
+          onClose={() => setSummonsTargetRecord(null)}
+          record={summonsTargetRecord}
+          student={summonsTargetRecord.student}
         />
       )}
     </div>

@@ -4,9 +4,11 @@ import { clearRateLimit, sanitizeForLogging } from '../utils/security';
 
 const AuthContext = createContext(null);
 
-const INACTIVITY_TIMEOUT_MS = 30 * 60 * 1000; // Exactly 30 Minutes Inactivity Session Timeout
+const INACTIVITY_AUTO_LOCK_MS = 15 * 60 * 1000; // Exactly 15 Minutes Inactivity Screen Lock
+const INACTIVITY_TIMEOUT_MS = 60 * 60 * 1000; // 60 Minutes Inactivity Hard Session Timeout
 const AUTH_STORAGE_KEY = 'viotrack_auth_v3';
 const AUTH_ACTIVE_KEY = 'viotrack_active_v3';
+const AUTH_LOCKED_KEY = 'viotrack_locked_v3';
 
 // Helper to determine initial user from session or local storage with timeout check
 const getInitialUser = () => {
@@ -33,8 +35,10 @@ const getInitialUser = () => {
         // Stale session expired due to inactivity
         localStorage.removeItem(AUTH_STORAGE_KEY);
         localStorage.removeItem(AUTH_ACTIVE_KEY);
+        localStorage.removeItem(AUTH_LOCKED_KEY);
         sessionStorage.removeItem(AUTH_STORAGE_KEY);
         sessionStorage.removeItem(AUTH_ACTIVE_KEY);
+        sessionStorage.removeItem(AUTH_LOCKED_KEY);
         return null;
       }
     }
@@ -49,7 +53,11 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(getInitialUser);
   const [session, setSession] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isLocked, setIsLocked] = useState(() => {
+    return sessionStorage.getItem(AUTH_LOCKED_KEY) === 'true';
+  });
   const inactivityTimerRef = useRef(null);
+  const hardTimeoutTimerRef = useRef(null);
   const lastActiveThrottleRef = useRef(0);
 
   // Synchronize state changes to active storage
@@ -73,6 +81,15 @@ export const AuthProvider = ({ children }) => {
     }
   }, [user]);
 
+  // Lock state persistence
+  useEffect(() => {
+    if (isLocked) {
+      sessionStorage.setItem(AUTH_LOCKED_KEY, 'true');
+    } else {
+      sessionStorage.removeItem(AUTH_LOCKED_KEY);
+    }
+  }, [isLocked]);
+
   // Sync with Supabase Auth listener if live client is active
   useEffect(() => {
     if (isSupabaseConfigured() && supabase) {
@@ -93,7 +110,6 @@ export const AuthProvider = ({ children }) => {
             adviserSection: adviserSection
           });
         }
-        // If no active Supabase session, do NOT wipe local user; retain local/demo credentials
         setLoading(false);
       }).catch((err) => {
         console.warn('Supabase getSession error:', err);
@@ -104,13 +120,15 @@ export const AuthProvider = ({ children }) => {
       const { data: { subscription } } = supabase.auth.onAuthStateChange((event, newSession) => {
         setSession(newSession);
         if (event === 'SIGNED_OUT') {
-          // If explicit signed out event triggered from Supabase
           if (session?.user) {
             setUser(null);
+            setIsLocked(false);
             localStorage.removeItem(AUTH_STORAGE_KEY);
             localStorage.removeItem(AUTH_ACTIVE_KEY);
+            localStorage.removeItem(AUTH_LOCKED_KEY);
             sessionStorage.removeItem(AUTH_STORAGE_KEY);
             sessionStorage.removeItem(AUTH_ACTIVE_KEY);
+            sessionStorage.removeItem(AUTH_LOCKED_KEY);
           }
         } else if (newSession?.user) {
           const role = newSession.user.user_metadata?.role || 'admin';
@@ -145,12 +163,19 @@ export const AuthProvider = ({ children }) => {
         clearTimeout(inactivityTimerRef.current);
         inactivityTimerRef.current = null;
       }
+      if (hardTimeoutTimerRef.current) {
+        clearTimeout(hardTimeoutTimerRef.current);
+        hardTimeoutTimerRef.current = null;
+      }
       setUser(null);
       setSession(null);
+      setIsLocked(false);
       localStorage.removeItem(AUTH_STORAGE_KEY);
       localStorage.removeItem(AUTH_ACTIVE_KEY);
+      localStorage.removeItem(AUTH_LOCKED_KEY);
       sessionStorage.removeItem(AUTH_STORAGE_KEY);
       sessionStorage.removeItem(AUTH_ACTIVE_KEY);
+      sessionStorage.removeItem(AUTH_LOCKED_KEY);
       sessionStorage.clear();
 
       if (reason === 'expired') {
@@ -159,12 +184,31 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
-  // Secure Inactivity Monitor: Auto logout after exactly 30 minutes of idle time
+  const lockScreen = useCallback(() => {
+    if (user) {
+      setIsLocked(true);
+    }
+  }, [user]);
+
+  const unlockScreen = useCallback((passwordOrPin = '') => {
+    setIsLocked(false);
+    sessionStorage.removeItem(AUTH_LOCKED_KEY);
+    const now = Date.now();
+    sessionStorage.setItem(AUTH_ACTIVE_KEY, String(now));
+    localStorage.setItem(AUTH_ACTIVE_KEY, String(now));
+    return true;
+  }, []);
+
+  // Secure Inactivity Monitor: Auto lock after 15 minutes of idle time
   const resetInactivityTimer = useCallback(() => {
     if (inactivityTimerRef.current) {
       clearTimeout(inactivityTimerRef.current);
     }
-    if (user) {
+    if (hardTimeoutTimerRef.current) {
+      clearTimeout(hardTimeoutTimerRef.current);
+    }
+
+    if (user && !isLocked) {
       // Throttle updating timestamp to every 15 seconds to minimize storage writes
       const now = Date.now();
       if (now - lastActiveThrottleRef.current > 15000) {
@@ -176,15 +220,22 @@ export const AuthProvider = ({ children }) => {
         }
       }
 
+      // Auto-lock screen after 15 minutes
       inactivityTimerRef.current = setTimeout(() => {
-        console.warn('Session expired after 30 minutes of inactivity.');
+        console.warn('Screen auto-locked due to 15 minutes of inactivity.');
+        lockScreen();
+      }, INACTIVITY_AUTO_LOCK_MS);
+
+      // Complete session timeout after 60 minutes
+      hardTimeoutTimerRef.current = setTimeout(() => {
+        console.warn('Session expired after 60 minutes of inactivity.');
         logout('expired');
       }, INACTIVITY_TIMEOUT_MS);
     }
-  }, [user, logout]);
+  }, [user, isLocked, lockScreen, logout]);
 
   useEffect(() => {
-    if (!user) return;
+    if (!user || isLocked) return;
 
     const activityEvents = ['mousedown', 'keydown', 'touchstart', 'scroll'];
     const handleActivity = () => resetInactivityTimer();
@@ -195,8 +246,9 @@ export const AuthProvider = ({ children }) => {
     return () => {
       activityEvents.forEach(evt => window.removeEventListener(evt, handleActivity));
       if (inactivityTimerRef.current) clearTimeout(inactivityTimerRef.current);
+      if (hardTimeoutTimerRef.current) clearTimeout(hardTimeoutTimerRef.current);
     };
-  }, [user, resetInactivityTimer]);
+  }, [user, isLocked, resetInactivityTimer]);
 
   const login = (roleOrUser = 'admin', remember = true) => {
     clearRateLimit('login');
@@ -279,6 +331,9 @@ export const AuthProvider = ({ children }) => {
         login,
         logout,
         switchRole,
+        isLocked,
+        lockScreen,
+        unlockScreen,
         isAuthenticated: !!user,
         isAdmin,
         isTeacher,

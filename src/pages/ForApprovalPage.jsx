@@ -1576,6 +1576,117 @@ export const ForApprovalPage = () => {
 
       </div>
 
+      {/* Floating Batch Action Bar */}
+      {selectedIds.length > 0 && (
+        <div
+          style={{
+            position: 'fixed',
+            bottom: '24px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            zIndex: 9999,
+            background: '#0f172a',
+            color: '#ffffff',
+            padding: '12px 20px',
+            borderRadius: '16px',
+            boxShadow: '0 20px 40px -10px rgba(15, 23, 42, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.15)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '16px',
+            animation: 'fadeIn 0.2s ease-out',
+            maxWidth: '92vw',
+            flexWrap: 'wrap'
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <span
+              style={{
+                background: '#38bdf8',
+                color: '#0f172a',
+                fontWeight: 800,
+                fontSize: '12px',
+                padding: '3px 9px',
+                borderRadius: '20px'
+              }}
+            >
+              {selectedIds.length} Selected
+            </span>
+            <span style={{ fontSize: '13px', fontWeight: 600, color: '#e2e8f0' }}>
+              Pending Minor/Verified Reports
+            </span>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <button
+              type="button"
+              onClick={handleBatchApprove}
+              disabled={actionLoading}
+              style={{
+                padding: '8px 16px',
+                borderRadius: '10px',
+                background: '#10b981',
+                color: '#ffffff',
+                border: 'none',
+                fontSize: '12.5px',
+                fontWeight: 700,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                boxShadow: '0 2px 8px rgba(16, 185, 129, 0.35)',
+                transition: 'all 0.15s'
+              }}
+            >
+              <Check size={15} strokeWidth={2.5} />
+              <span>{actionLoading ? 'Approving...' : `Approve All (${selectedIds.length})`}</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={handleBatchReject}
+              disabled={actionLoading}
+              style={{
+                padding: '8px 14px',
+                borderRadius: '10px',
+                background: '#dc2626',
+                color: '#ffffff',
+                border: 'none',
+                fontSize: '12.5px',
+                fontWeight: 700,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                boxShadow: '0 2px 8px rgba(220, 38, 38, 0.35)',
+                transition: 'all 0.15s'
+              }}
+            >
+              <X size={15} strokeWidth={2.5} />
+              <span>Reject All</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setSelectedIds([])}
+              style={{
+                padding: '8px',
+                borderRadius: '8px',
+                background: 'rgba(255, 255, 255, 0.1)',
+                color: '#cbd5e1',
+                border: 'none',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+              title="Deselect all"
+            >
+              <X size={16} />
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* 6. Comprehensive Case Inspection Modal */}
       {inspectRecord && (() => {
         const studentFullName = `${inspectRecord.student?.fname || ''} ${inspectRecord.student?.lname || ''}`.trim() || 'Student';
