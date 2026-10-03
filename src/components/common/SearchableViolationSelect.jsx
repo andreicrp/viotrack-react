@@ -261,7 +261,7 @@ export const SearchableViolationSelect = ({
         {/* Severity Category Filter Pills */}
         <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
           {[
-            { id: 'all', label: 'All', color: '#07345f' },
+            { id: 'all', label: 'All', color: '#0f172a' },
             { id: 'minor', label: 'Minor', color: '#16a34a' },
             { id: 'serious', label: 'Serious', color: '#d97706' },
             { id: 'major', label: 'Major', color: '#dc2626' }

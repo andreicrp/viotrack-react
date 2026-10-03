@@ -215,14 +215,14 @@ export const SearchableStudentSelect = ({
                   style={{
                     padding: '5px 10px',
                     borderRadius: '6px',
-                    border: isActive ? '1.5px solid #07345f' : '1px solid #cbd5e1',
-                    background: isActive ? '#07345f' : '#ffffff',
+                    border: isActive ? '1.5px solid #0f172a' : '1px solid #cbd5e1',
+                    background: isActive ? '#0f172a' : '#ffffff',
                     color: isActive ? '#ffffff' : '#334155',
                     fontSize: '11.5px',
                     fontWeight: 700,
                     cursor: 'pointer',
                     transition: 'all 0.15s ease',
-                    boxShadow: isActive ? '0 2px 4px rgba(7, 52, 95, 0.2)' : 'none'
+                    boxShadow: isActive ? '0 2px 4px rgba(15, 23, 42, 0.2)' : 'none'
                   }}
                 >
                   {g === 'all' ? 'All' : g.replace('Grade ', 'G')}
@@ -238,9 +238,9 @@ export const SearchableStudentSelect = ({
               style={{
                 fontSize: '11.5px',
                 fontWeight: 700,
-                color: '#07345f',
-                background: '#e0f2fe',
-                border: '1px solid #bae6fd',
+                color: '#0f172a',
+                background: '#f1f5f9',
+                border: '1px solid #cbd5e1',
                 borderRadius: '6px',
                 padding: '5px 10px',
                 cursor: 'pointer',
