@@ -23,9 +23,25 @@ export const SectionSelect = ({
   const [query, setQuery] = useState(value || '');
   const containerRef = useRef(null);
 
+  const [placement, setPlacement] = useState('bottom');
+
   useEffect(() => {
     setQuery(value || '');
   }, [value]);
+
+  // Calculate dynamic placement (flip upwards if near screen bottom)
+  useEffect(() => {
+    if (isOpen && containerRef.current) {
+      const rect = containerRef.current.getBoundingClientRect();
+      const spaceBelow = window.innerHeight - rect.bottom;
+      const spaceAbove = rect.top;
+      if (spaceBelow < 240 && spaceAbove > 240) {
+        setPlacement('top');
+      } else {
+        setPlacement('bottom');
+      }
+    }
+  }, [isOpen]);
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -77,7 +93,7 @@ export const SectionSelect = ({
   const isExactMatch = sectionList.some(s => s.toLowerCase() === (query || '').trim().toLowerCase());
 
   return (
-    <div ref={containerRef} style={{ position: 'relative', width: '100%' }}>
+    <div ref={containerRef} style={{ position: 'relative', width: '100%', zIndex: isOpen ? 99999 : 1 }}>
       <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
         <input
           type="text"
@@ -130,17 +146,18 @@ export const SectionSelect = ({
         <div
           style={{
             position: 'absolute',
-            top: 'calc(100% + 4px)',
+            top: placement === 'bottom' ? 'calc(100% + 6px)' : 'auto',
+            bottom: placement === 'top' ? 'calc(100% + 6px)' : 'auto',
             left: 0,
             right: 0,
             maxHeight: '220px',
             overflowY: 'auto',
             background: '#ffffff',
-            border: '1px solid #cbd5e1',
-            borderRadius: '10px',
-            boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
-            zIndex: 9999,
-            padding: '4px'
+            border: '1.5px solid #cbd5e1',
+            borderRadius: '12px',
+            boxShadow: '0 20px 35px -8px rgba(0, 0, 0, 0.2), 0 8px 16px -4px rgba(0, 0, 0, 0.1)',
+            zIndex: 999999,
+            padding: '6px'
           }}
         >
           <div style={{ padding: '6px 8px', fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.04em' }}>

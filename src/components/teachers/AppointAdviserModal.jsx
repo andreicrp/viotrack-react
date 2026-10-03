@@ -70,10 +70,11 @@ export const AppointAdviserModal = ({ isOpen, onClose, teacher, currentAdviser, 
           maxWidth: '480px',
           boxShadow: '0 25px 60px -15px rgba(0, 0, 0, 0.3)',
           border: '1px solid #e2e8f0',
-          overflow: 'hidden',
+          overflow: 'visible',
           display: 'flex',
           flexDirection: 'column',
-          animation: 'fadeInUp 0.2s ease-out'
+          animation: 'fadeInUp 0.2s ease-out',
+          position: 'relative'
         }}
       >
         {/* Header */}
@@ -84,7 +85,9 @@ export const AppointAdviserModal = ({ isOpen, onClose, teacher, currentAdviser, 
             alignItems: 'center',
             padding: '20px 24px',
             borderBottom: '1px solid #f1f5f9',
-            background: '#ffffff'
+            background: '#ffffff',
+            borderTopLeftRadius: '18px',
+            borderTopRightRadius: '18px'
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -223,7 +226,9 @@ export const AppointAdviserModal = ({ isOpen, onClose, teacher, currentAdviser, 
               gap: '10px',
               padding: '16px 24px',
               borderTop: '1px solid #f1f5f9',
-              background: '#f8fafc'
+              background: '#f8fafc',
+              borderBottomLeftRadius: '18px',
+              borderBottomRightRadius: '18px'
             }}
           >
             <button

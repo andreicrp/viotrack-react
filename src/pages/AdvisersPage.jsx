@@ -781,10 +781,11 @@ export const AdvisersPage = () => {
               maxWidth: '520px',
               boxShadow: '0 25px 60px -15px rgba(0, 0, 0, 0.3)',
               border: '1px solid #e2e8f0',
-              overflow: 'hidden',
+              overflow: 'visible',
               display: 'flex',
               flexDirection: 'column',
-              animation: 'fadeInUp 0.2s ease-out'
+              animation: 'fadeInUp 0.2s ease-out',
+              position: 'relative'
             }}
           >
             {/* Modal Header */}
@@ -795,7 +796,9 @@ export const AdvisersPage = () => {
                 alignItems: 'center',
                 padding: '20px 24px',
                 borderBottom: '1px solid #f1f5f9',
-                background: '#ffffff'
+                background: '#ffffff',
+                borderTopLeftRadius: '18px',
+                borderTopRightRadius: '18px'
               }}
             >
               <div>
