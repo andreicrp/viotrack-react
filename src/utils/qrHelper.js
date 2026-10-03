@@ -42,24 +42,22 @@ export const getPublicAppBaseUrl = () => {
 };
 
 /**
- * Generates the clean QR payload string for a student.
- * - When a live public web domain is configured (e.g. VITE_APP_URL or hosted web app),
- *   it encodes the public student verification URL.
- * - When in local dev or native Android build (localhost), it encodes the student's unique
- *   academic LRN / ID directly so built-in and external scanners display the student LRN instead of "localhost".
+ * Generates the secure, privacy-preserving QR payload string for a student.
+ * Encodes the student's unique academic 12-digit LRN (or ID) directly as plain numerical data.
+ *
+ * Privacy & Security Benefits (RA 10173 - Data Privacy Act):
+ * - External scanners (Google Lens, iPhone Camera, third-party scanner apps) only see
+ *   the raw student ID number (e.g., 109283746103) instead of an exposed website URL or endpoint.
+ * - Prevents public web scraping, unauthorized URL crawling, and data leaks from screenshotted ID badges.
+ * - Authorized personnel using the internal VioTrack Scanner (on Web or Mobile) can seamlessly
+ *   decode the LRN and retrieve the student's records within the authenticated session.
  *
  * @param {object} student
  * @returns {string}
  */
 export const getStudentQrValue = (student) => {
   if (!student) return '';
-
-  const publicBaseUrl = getPublicAppBaseUrl();
-  if (publicBaseUrl) {
-    return `${publicBaseUrl}/verify-student/${student.id || student.lrn}`;
-  }
-
-  // Use student LRN directly (standard school ID barcode/QR standard)
+  // Use student LRN directly (standard institutional ID barcode/QR standard)
   return String(student.lrn || student.id || '').trim();
 };
 
