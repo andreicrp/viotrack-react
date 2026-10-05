@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useDeferredValue } from 'react';
 import { dataService } from '../services/dataService';
 import { useNotification } from '../context/NotificationContext';
 import { useAuth } from '../context/AuthContext';
@@ -11,6 +11,7 @@ import {
   AlertTriangle,
   FileText,
   Download,
+  Upload,
   FileSpreadsheet,
   X,
   Check,
@@ -101,11 +102,11 @@ export const ForApprovalPage = () => {
   }, [loadData]);
 
   const getApprovalStatus = (r) => {
-    if (r.approval_status === 'Under Approval' || r.status === 'Under Approval') return 'Under Approval';
-    if (r.approval_status === 'Rejected' || r.status === 'Rejected') return 'Rejected';
-    if (r.approval_status === 'Approved') return 'Approved';
+    if (r.status === 'Under Approval' || r.approval_status === 'Under Approval') return 'Under Approval';
+    if (r.status === 'Rejected' || r.approval_status === 'Rejected') return 'Rejected';
     if (r.reported_by_type === 'teacher' && !r.approved_by && r.status !== 'Resolved') return 'Under Approval';
-    return r.approval_status || 'Approved';
+    if (r.approval_status === 'Approved') return 'Approved';
+    return r.approval_status || (r.status === 'Under Approval' ? 'Under Approval' : 'Approved');
   };
 
   // Metric Analytics
@@ -136,6 +137,8 @@ export const ForApprovalPage = () => {
       total: records.length
     };
   }, [records]);
+
+  const deferredSearch = useDeferredValue(searchTerm);
 
   // Filter & Sort Pipeline
   const filteredRecords = useMemo(() => {
@@ -175,10 +178,10 @@ export const ForApprovalPage = () => {
       }
 
       // 5. Search Query
-      if (searchTerm.trim()) {
-        const query = searchTerm.toLowerCase();
+      if (deferredSearch.trim()) {
+        const query = deferredSearch.toLowerCase();
         const studentName = `${r.student?.fname || ''} ${r.student?.lname || ''}`.toLowerCase();
-        const lrn = (r.student?.lrn || '').toLowerCase();
+        const lrn = (r.student?.student_id || r.student?.lrn || '').toLowerCase();
         const teacher = (r.reported_by_name || '').toLowerCase();
         const vTitle = (r.violation?.title || '').toLowerCase();
         const vDesc = (r.violation?.description || '').toLowerCase();
@@ -222,7 +225,7 @@ export const ForApprovalPage = () => {
     });
 
     return result;
-  }, [records, approvalFilter, severityFilter, gradeFilter, dateFilter, searchTerm, sortField, sortOrder]);
+  }, [records, approvalFilter, severityFilter, gradeFilter, dateFilter, deferredSearch, sortField, sortOrder]);
 
   const totalPages = Math.ceil(filteredRecords.length / entriesPerPage) || 1;
   const paginatedRecords = filteredRecords.slice(
@@ -396,9 +399,9 @@ export const ForApprovalPage = () => {
     doc.rect(0, 0, 210, 24, 'F');
 
     doc.setTextColor(255, 255, 255);
-    doc.setFontSize(15);
+    doc.setFontSize(14);
     doc.setFont('helvetica', 'bold');
-    doc.text('PERPETUAL HELP COLLEGE OF MANILA', 14, 11);
+    doc.text('UNIVERSITY OF PERPETUAL HELP SYSTEM MANILA', 14, 11);
     doc.setFontSize(9);
     doc.setFont('helvetica', 'normal');
     doc.text('VioTrack Disciplinary System - Violations For Approval Queue', 14, 18);
@@ -470,9 +473,9 @@ export const ForApprovalPage = () => {
       return { bg: '#fef2f2', color: '#dc2626', border: '#fecaca', label: 'Major Offense' };
     }
     if (t.includes('serious')) {
-      return { bg: '#fffbeb', color: '#d97706', border: '#fde68a', label: 'Serious Offense' };
+      return { bg: '#fef9c3', color: '#a16207', border: '#fde047', label: 'Serious Offense' };
     }
-    return { bg: '#eff6ff', color: '#2563eb', border: '#bfdbfe', label: 'Minor Offense' };
+    return { bg: '#f0fdf4', color: '#16a34a', border: '#bbf7d0', label: 'Minor Offense' };
   };
 
   return (
@@ -480,26 +483,12 @@ export const ForApprovalPage = () => {
       {/* 1. Page Banner Header */}
       <div className="page-banner-header">
         <div className="page-banner-info">
-          <ShieldAlert size={32} strokeWidth={2.2} color="#ffffff" style={{ flexShrink: 0 }} />
+          <ShieldAlert size={26} strokeWidth={2.4} color="#0f172a" style={{ flexShrink: 0 }} />
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-              <h2 style={{ fontSize: '22px', fontWeight: 800, margin: 0, color: '#ffffff', letterSpacing: '-0.02em' }}>
-                Violations For Approval
-              </h2>
-              <span
-                style={{
-                  background: stats.pending > 0 ? '#f59e0b' : 'rgba(255, 255, 255, 0.2)',
-                  color: stats.pending > 0 ? '#ffffff' : '#ffffff',
-                  fontSize: '12px',
-                  fontWeight: 800,
-                  padding: '2.5px 10px',
-                  borderRadius: '20px'
-                }}
-              >
-                {stats.pending} {stats.pending === 1 ? 'Pending Review' : 'Pending Reviews'}
-              </span>
-            </div>
-            <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: 'rgba(255, 255, 255, 0.85)' }}>
+            <h2 style={{ fontSize: '20px', fontWeight: 800, margin: 0, color: '#0f172a', letterSpacing: '-0.02em' }}>
+              Violations For Approval
+            </h2>
+            <p style={{ margin: '3px 0 0 0', fontSize: '13px', color: '#64748b' }}>
               Review, verify, approve, or reject violation reports submitted by teaching faculty before sanctions take effect.
             </p>
           </div>
@@ -513,7 +502,7 @@ export const ForApprovalPage = () => {
               className="page-banner-btn-secondary"
               title="Download PDF registry of approval cases"
             >
-              <Download size={15} /> Export PDF
+              <Upload size={14} strokeWidth={2.2} /> Export PDF
             </button>
 
             <button
@@ -521,7 +510,7 @@ export const ForApprovalPage = () => {
               className="page-banner-btn-secondary"
               title="Download CSV spreadsheet"
             >
-              <FileSpreadsheet size={15} /> Export CSV
+              <FileText size={14} strokeWidth={2.2} /> Export CSV
             </button>
           </div>
 
@@ -559,128 +548,120 @@ export const ForApprovalPage = () => {
           <div
             onClick={() => { setApprovalFilter('Under Approval'); setCurrentPage(1); }}
             style={{
-              background: approvalFilter === 'Under Approval' ? '#fef3c7' : '#ffffff',
-              border: approvalFilter === 'Under Approval' ? '2px solid #d97706' : '1px solid #e2e8f0',
+              background: '#ffffff',
+              border: approvalFilter === 'Under Approval' ? '2px solid #07345f' : '1.5px solid #cbd5e1',
               borderRadius: '12px',
               padding: '14px 16px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
               cursor: 'pointer',
-              transition: 'all 0.2s ease',
-              boxShadow: approvalFilter === 'Under Approval' ? '0 4px 12px rgba(217, 119, 6, 0.15)' : '0 1px 3px rgba(0,0,0,0.02)'
+              transition: 'all 0.15s ease',
+              boxShadow: approvalFilter === 'Under Approval' ? '0 4px 14px rgba(7, 52, 95, 0.10)' : '0 1px 3px rgba(0,0,0,0.02)',
+              position: 'relative'
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <Clock size={22} color="#d97706" strokeWidth={2.4} />
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div>
-                <span style={{ fontSize: '22px', fontWeight: 800, color: '#92400e', lineHeight: 1, display: 'block' }}>
+                <div style={{ fontSize: '11.5px', fontWeight: 800, color: '#07345f', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                  Under Approval
+                </div>
+                <div style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', margin: '4px 0 2px 0', lineHeight: 1.1 }}>
                   {stats.pending}
-                </span>
-                <span style={{ fontSize: '11.5px', color: '#78350f', fontWeight: 700 }}>Under Approval</span>
+                </div>
+                <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 500 }}>
+                  Awaiting review
+                </div>
               </div>
+              <Clock size={20} color="#07345f" strokeWidth={2} />
             </div>
-            {approvalFilter === 'Under Approval' && (
-              <span style={{ background: '#d97706', color: '#fff', fontSize: '9.5px', padding: '2px 7px', borderRadius: '5px', fontWeight: 800 }}>
-                Active Filter
-              </span>
-            )}
           </div>
 
           {/* Approved Card */}
           <div
             onClick={() => { setApprovalFilter('Approved'); setCurrentPage(1); }}
             style={{
-              background: approvalFilter === 'Approved' ? '#f0fdf4' : '#ffffff',
-              border: approvalFilter === 'Approved' ? '2px solid #10b981' : '1px solid #e2e8f0',
+              background: '#ffffff',
+              border: approvalFilter === 'Approved' ? '2px solid #07345f' : '1.5px solid #cbd5e1',
               borderRadius: '12px',
               padding: '14px 16px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
               cursor: 'pointer',
-              transition: 'all 0.2s ease',
-              boxShadow: approvalFilter === 'Approved' ? '0 4px 12px rgba(16, 185, 129, 0.15)' : '0 1px 3px rgba(0,0,0,0.02)'
+              transition: 'all 0.15s ease',
+              boxShadow: approvalFilter === 'Approved' ? '0 4px 14px rgba(7, 52, 95, 0.10)' : '0 1px 3px rgba(0,0,0,0.02)',
+              position: 'relative'
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <ShieldCheck size={22} color="#10b981" strokeWidth={2.4} />
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div>
-                <span style={{ fontSize: '22px', fontWeight: 800, color: '#065f46', lineHeight: 1, display: 'block' }}>
+                <div style={{ fontSize: '11.5px', fontWeight: 800, color: '#07345f', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                  Approved Cases
+                </div>
+                <div style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', margin: '4px 0 2px 0', lineHeight: 1.1 }}>
                   {stats.approved}
-                </span>
-                <span style={{ fontSize: '11.5px', color: '#047857', fontWeight: 700 }}>Approved Cases</span>
+                </div>
+                <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 500 }}>
+                  Sanctions active
+                </div>
               </div>
+              <ShieldCheck size={20} color="#07345f" strokeWidth={2} />
             </div>
-            {approvalFilter === 'Approved' && (
-              <span style={{ background: '#10b981', color: '#fff', fontSize: '9.5px', padding: '2px 7px', borderRadius: '5px', fontWeight: 800 }}>
-                Active Filter
-              </span>
-            )}
           </div>
 
           {/* Rejected Card */}
           <div
             onClick={() => { setApprovalFilter('Rejected'); setCurrentPage(1); }}
             style={{
-              background: approvalFilter === 'Rejected' ? '#fef2f2' : '#ffffff',
-              border: approvalFilter === 'Rejected' ? '2px solid #ef4444' : '1px solid #e2e8f0',
+              background: '#ffffff',
+              border: approvalFilter === 'Rejected' ? '2px solid #07345f' : '1.5px solid #cbd5e1',
               borderRadius: '12px',
               padding: '14px 16px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
               cursor: 'pointer',
-              transition: 'all 0.2s ease',
-              boxShadow: approvalFilter === 'Rejected' ? '0 4px 12px rgba(239, 68, 68, 0.15)' : '0 1px 3px rgba(0,0,0,0.02)'
+              transition: 'all 0.15s ease',
+              boxShadow: approvalFilter === 'Rejected' ? '0 4px 14px rgba(7, 52, 95, 0.10)' : '0 1px 3px rgba(0,0,0,0.02)',
+              position: 'relative'
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <UserX size={22} color="#ef4444" strokeWidth={2.4} />
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div>
-                <span style={{ fontSize: '22px', fontWeight: 800, color: '#991b1b', lineHeight: 1, display: 'block' }}>
+                <div style={{ fontSize: '11.5px', fontWeight: 800, color: '#07345f', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                  Rejected Reports
+                </div>
+                <div style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', margin: '4px 0 2px 0', lineHeight: 1.1 }}>
                   {stats.rejected}
-                </span>
-                <span style={{ fontSize: '11.5px', color: '#b91c1c', fontWeight: 700 }}>Rejected Reports</span>
+                </div>
+                <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 500 }}>
+                  Returned to teacher
+                </div>
               </div>
+              <UserX size={20} color="#07345f" strokeWidth={2} />
             </div>
-            {approvalFilter === 'Rejected' && (
-              <span style={{ background: '#ef4444', color: '#fff', fontSize: '9.5px', padding: '2px 7px', borderRadius: '5px', fontWeight: 800 }}>
-                Active Filter
-              </span>
-            )}
           </div>
 
           {/* All Submissions */}
           <div
             onClick={() => { setApprovalFilter('all'); setCurrentPage(1); }}
             style={{
-              background: approvalFilter === 'all' ? '#f0f4f8' : '#ffffff',
-              border: approvalFilter === 'all' ? '2px solid #07345f' : '1px solid #e2e8f0',
+              background: '#ffffff',
+              border: approvalFilter === 'all' ? '2px solid #07345f' : '1.5px solid #cbd5e1',
               borderRadius: '12px',
               padding: '14px 16px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
               cursor: 'pointer',
-              transition: 'all 0.2s ease',
-              boxShadow: approvalFilter === 'all' ? '0 4px 12px rgba(7, 52, 95, 0.15)' : '0 1px 3px rgba(0,0,0,0.02)'
+              transition: 'all 0.15s ease',
+              boxShadow: approvalFilter === 'all' ? '0 4px 14px rgba(7, 52, 95, 0.10)' : '0 1px 3px rgba(0,0,0,0.02)',
+              position: 'relative'
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <Layers size={22} color="#07345f" strokeWidth={2.4} />
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div>
-                <span style={{ fontSize: '22px', fontWeight: 800, color: '#0f172a', lineHeight: 1, display: 'block' }}>
+                <div style={{ fontSize: '11.5px', fontWeight: 800, color: '#07345f', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                  All Submissions
+                </div>
+                <div style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', margin: '4px 0 2px 0', lineHeight: 1.1 }}>
                   {stats.total}
-                </span>
-                <span style={{ fontSize: '11.5px', color: '#64748b', fontWeight: 700 }}>All Submissions</span>
+                </div>
+                <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 500 }}>
+                  Total logged reports
+                </div>
               </div>
+              <Layers size={20} color="#07345f" strokeWidth={2} />
             </div>
-            {approvalFilter === 'all' && (
-              <span style={{ background: '#07345f', color: '#fff', fontSize: '9.5px', padding: '2px 7px', borderRadius: '5px', fontWeight: 800 }}>
-                Active Filter
-              </span>
-            )}
           </div>
 
         </div>
@@ -1695,9 +1676,12 @@ export const ForApprovalPage = () => {
         const isApproved = aStat === 'Approved';
         const isRejected = aStat === 'Rejected';
 
-        const rawRemarks = inspectRecord.remarks || 'No specific narrative or remarks provided by faculty.';
+        const rawRemarks = inspectRecord.remarks || 'No specific notes provided.';
         const gpsMatch = rawRemarks.match(/\[GPS:\s*([^\]]+)\]/i);
-        const gpsCoords = gpsMatch ? gpsMatch[1].trim() : null;
+        let gpsCoords = gpsMatch ? gpsMatch[1].trim() : null;
+        if (gpsCoords) {
+          gpsCoords = gpsCoords.replace(/\s*\([^)]*\)/g, '').trim();
+        }
         const cleanRemarks = rawRemarks.replace(/\[GPS:[^\]]+\]/gi, '').trim() || 'Disciplinary incident report logged by reporting faculty.';
 
         const vType = (inspectRecord.violation?.type || 'Minor').toLowerCase();
@@ -1713,19 +1697,19 @@ export const ForApprovalPage = () => {
           <Modal
             isOpen={Boolean(inspectRecord)}
             onClose={() => setInspectRecord(null)}
-            title="Incident Report Inspection"
+            title="Incident Report Details"
             icon={FileText}
-            maxWidth="660px"
+            maxWidth="620px"
           >
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', padding: '2px 0 0 0' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', padding: '16px 20px 20px 20px' }}>
               
-              {/* 1. Student Hero Bar */}
+              {/* 1. Student Info Card */}
               <div
                 style={{
-                  background: 'linear-gradient(to right, #f8fafc, #f1f5f9)',
-                  borderRadius: '12px',
+                  background: '#ffffff',
+                  borderRadius: '10px',
                   border: '1px solid #e2e8f0',
-                  padding: '12px 16px',
+                  padding: '12px 14px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'space-between',
@@ -1733,53 +1717,39 @@ export const ForApprovalPage = () => {
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flex: 1, minWidth: 0 }}>
-                  <div style={{ position: 'relative', flexShrink: 0 }}>
-                    <img
-                      src={studentAvatar}
-                      alt={studentFullName}
-                      onError={(e) => {
-                        e.target.onerror = null;
-                        e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(studentFullName)}&background=07345f&color=fff&size=200&bold=true`;
-                      }}
-                      style={{
-                        width: '46px',
-                        height: '46px',
-                        borderRadius: '10px',
-                        objectFit: 'cover',
-                        border: '2px solid #ffffff',
-                        boxShadow: '0 2px 6px rgba(0, 0, 0, 0.08)',
-                        display: 'block'
-                      }}
-                    />
-                    <div
-                      style={{
-                        position: 'absolute',
-                        bottom: '-2px',
-                        right: '-2px',
-                        width: '12px',
-                        height: '12px',
-                        borderRadius: '50%',
-                        background: isUnderApproval ? '#f59e0b' : isApproved ? '#10b981' : '#ef4444',
-                        border: '2px solid #ffffff'
-                      }}
-                      title={aStat}
-                    />
-                  </div>
+                  <img
+                    src={studentAvatar}
+                    alt={studentFullName}
+                    onError={(e) => {
+                      e.target.onerror = null;
+                      e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(studentFullName)}&background=07345f&color=fff&size=200&bold=true`;
+                    }}
+                    style={{
+                      width: '42px',
+                      height: '42px',
+                      borderRadius: '8px',
+                      objectFit: 'cover',
+                      border: '1px solid #e2e8f0',
+                      display: 'block',
+                      flexShrink: 0
+                    }}
+                  />
 
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: '15.5px', fontWeight: 800, color: '#0f172a', letterSpacing: '-0.01em', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    <div style={{ fontSize: '15px', fontWeight: 700, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                       {studentFullName}
                     </div>
                     
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '2px', flexWrap: 'wrap' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '3px', flexWrap: 'wrap' }}>
                       <span
                         style={{
                           fontSize: '11px',
-                          fontWeight: 700,
-                          color: '#0369a1',
-                          background: '#e0f2fe',
+                          fontWeight: 600,
+                          color: '#475569',
+                          background: '#f1f5f9',
                           padding: '1px 7px',
-                          borderRadius: '5px'
+                          borderRadius: '4px',
+                          border: '1px solid #e2e8f0'
                         }}
                       >
                         {inspectRecord.student?.grade || 'Grade N/A'} - {inspectRecord.student?.section || 'Section N/A'}
@@ -1796,220 +1766,203 @@ export const ForApprovalPage = () => {
                 <div>
                   <span
                     style={{
-                      fontSize: '11px',
-                      fontWeight: 800,
-                      padding: '3.5px 10px',
-                      borderRadius: '20px',
-                      background: isUnderApproval ? '#fef3c7' : isApproved ? '#dcfce7' : '#fee2e2',
-                      color: isUnderApproval ? '#92400e' : isApproved ? '#166534' : '#991b1b',
+                      fontSize: '11.5px',
+                      fontWeight: 600,
+                      padding: '4px 10px',
+                      borderRadius: '6px',
+                      background: isUnderApproval ? '#fffbeb' : isApproved ? '#f0fdf4' : '#fef2f2',
+                      color: isUnderApproval ? '#b45309' : isApproved ? '#15803d' : '#b91c1c',
                       border: `1px solid ${isUnderApproval ? '#fde68a' : isApproved ? '#bbf7d0' : '#fecaca'}`,
                       display: 'inline-flex',
                       alignItems: 'center',
-                      gap: '5px',
-                      letterSpacing: '0.01em'
+                      gap: '5px'
                     }}
                   >
                     {isUnderApproval && (
-                      <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#d97706', animation: 'pulse 1.5s infinite' }} />
+                      <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#d97706' }} />
                     )}
                     {isApproved && (
-                      <Check size={12} strokeWidth={3} />
+                      <Check size={12} strokeWidth={2.5} />
                     )}
                     {isRejected && (
-                      <X size={12} strokeWidth={3} />
+                      <X size={12} strokeWidth={2.5} />
                     )}
                     {aStat}
                   </span>
                 </div>
               </div>
 
-              {/* 2. Unified Case Details Card */}
-              <div
-                style={{
-                  background: '#ffffff',
-                  borderRadius: '12px',
-                  border: '1px solid #e2e8f0',
-                  overflow: 'hidden',
-                  boxShadow: '0 1px 3px rgba(0, 0, 0, 0.02)'
-                }}
-              >
-                {/* 2A. Offense & Sanction Grid */}
+              {/* 2. Offense & Sanction Cards (2 columns) */}
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+                {/* Offense Card */}
                 <div
                   style={{
-                    display: 'grid',
-                    gridTemplateColumns: '1.1fr 0.9fr',
-                    gap: '14px',
-                    padding: '14px 16px',
-                    borderBottom: '1px solid #f1f5f9'
+                    background: '#ffffff',
+                    border: '1px solid #e2e8f0',
+                    borderRadius: '8px',
+                    padding: '12px 14px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '4px'
                   }}
                 >
-                  {/* Left: Offense */}
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', borderRight: '1px solid #f1f5f9', paddingRight: '12px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '6px' }}>
-                      <span style={{ fontSize: '10.5px', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                        Reported Offense
-                      </span>
-                      <span
-                        style={{
-                          fontSize: '10px',
-                          fontWeight: 800,
-                          padding: '1.5px 6px',
-                          borderRadius: '5px',
-                          background: severityBg,
-                          color: severityText,
-                          border: `1px solid ${severityBorder}`,
-                          textTransform: 'uppercase',
-                          letterSpacing: '0.03em'
-                        }}
-                      >
-                        {severityLabel}
-                      </span>
-                    </div>
-
-                    <div style={{ fontSize: '14px', fontWeight: 800, color: '#0f172a', lineHeight: 1.3 }}>
-                      {inspectRecord.violation?.title || 'Disciplinary Infraction'}
-                    </div>
-
-                    {inspectRecord.violation?.description && (
-                      <div style={{ fontSize: '12px', color: '#64748b', lineHeight: 1.4, marginTop: '2px' }}>
-                        {inspectRecord.violation.description}
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Right: Sanction */}
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                      <Scale size={12} color="#07345f" />
-                      <span style={{ fontSize: '10.5px', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                        Prescribed Sanction
-                      </span>
-                    </div>
-
-                    <div style={{ fontSize: '13.5px', fontWeight: 800, color: '#07345f', lineHeight: 1.3 }}>
-                      {inspectRecord.sanction || 'Under Review / Initial Counseling'}
-                    </div>
-
-                    <div style={{ fontSize: '11px', color: '#64748b', marginTop: 'auto', lineHeight: 1.35 }}>
-                      Standard disciplinary measure subject to administrative hearing.
-                    </div>
-                  </div>
-                </div>
-
-                {/* 2B. Faculty Statement */}
-                <div style={{ padding: '12px 16px', borderBottom: '1px solid #f1f5f9' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                      <MessageSquare size={12} color="#475569" />
-                      <span style={{ fontSize: '10.5px', fontWeight: 800, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                        Faculty Statement &amp; Narrative
-                      </span>
-                    </div>
-                    <span style={{ fontSize: '10.5px', color: '#94a3b8', fontWeight: 600 }}>
-                      Official Log
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '6px' }}>
+                    <span style={{ fontSize: '11px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase' }}>
+                      Reported Offense
+                    </span>
+                    <span
+                      style={{
+                        fontSize: '10.5px',
+                        fontWeight: 600,
+                        padding: '1px 6px',
+                        borderRadius: '4px',
+                        background: severityBg,
+                        color: severityText,
+                        border: `1px solid ${severityBorder}`
+                      }}
+                    >
+                      {severityLabel}
                     </span>
                   </div>
 
-                  <div
-                    style={{
-                      fontSize: '12.5px',
-                      color: '#1e293b',
-                      lineHeight: 1.5,
-                      background: '#f8fafc',
-                      padding: '8px 12px',
-                      borderRadius: '7px',
-                      border: '1px solid #e2e8f0',
-                      borderLeft: '3px solid #07345f'
-                    }}
-                  >
-                    "{cleanRemarks}"
+                  <div style={{ fontSize: '13.5px', fontWeight: 700, color: '#0f172a', marginTop: '2px' }}>
+                    {inspectRecord.violation?.title || 'Disciplinary Infraction'}
                   </div>
 
-                  {gpsCoords && (
-                    <div
-                      style={{
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: '6px',
-                        fontSize: '11px',
-                        color: '#0369a1',
-                        fontWeight: 700,
-                        background: '#f0f9ff',
-                        padding: '3px 8px',
-                        borderRadius: '6px',
-                        border: '1px solid #bae6fd',
-                        marginTop: '6px'
-                      }}
-                    >
-                      <MapPin size={11} color="#0284c7" />
-                      <span>GPS Incident Location: <strong>{gpsCoords}</strong></span>
+                  {inspectRecord.violation?.description && (
+                    <div style={{ fontSize: '12px', color: '#64748b', lineHeight: 1.4, marginTop: '2px' }}>
+                      {inspectRecord.violation.description}
                     </div>
                   )}
                 </div>
 
-                {/* 2C. Metadata Row */}
+                {/* Sanction Card */}
                 <div
                   style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(3, 1fr)',
-                    gap: '10px',
-                    padding: '10px 16px',
-                    background: '#f8fafc',
-                    fontSize: '11.5px'
+                    background: '#ffffff',
+                    border: '1px solid #e2e8f0',
+                    borderRadius: '8px',
+                    padding: '12px 14px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '4px'
                   }}
                 >
-                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: '7px' }}>
-                    <User size={14} color="#64748b" style={{ marginTop: '1px', flexShrink: 0 }} />
-                    <div>
-                      <span style={{ fontSize: '10px', color: '#64748b', display: 'block', fontWeight: 700, textTransform: 'uppercase' }}>
-                        Reported By
-                      </span>
-                      <span style={{ fontWeight: 800, color: '#0f172a' }}>
-                        {inspectRecord.reported_by_name || 'Faculty Member'}
-                      </span>
-                    </div>
+                  <span style={{ fontSize: '11px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase' }}>
+                    Prescribed Sanction
+                  </span>
+
+                  <div style={{ fontSize: '13.5px', fontWeight: 700, color: '#0f172a', marginTop: '2px' }}>
+                    {inspectRecord.sanction || 'Initial Counseling'}
                   </div>
 
-                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: '7px' }}>
-                    <Calendar size={14} color="#64748b" style={{ marginTop: '1px', flexShrink: 0 }} />
-                    <div>
-                      <span style={{ fontSize: '10px', color: '#64748b', display: 'block', fontWeight: 700, textTransform: 'uppercase' }}>
-                        Date Reported
-                      </span>
-                      <span style={{ fontWeight: 800, color: '#0f172a' }}>
-                        {new Date(inspectRecord.date_reported).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: '7px' }}>
-                    <Phone size={14} color="#64748b" style={{ marginTop: '1px', flexShrink: 0 }} />
-                    <div>
-                      <span style={{ fontSize: '10px', color: '#64748b', display: 'block', fontWeight: 700, textTransform: 'uppercase' }}>
-                        Guardian Contact
-                      </span>
-                      <span style={{ fontWeight: 800, color: '#0f172a' }}>
-                        {inspectRecord.student?.parent_contact || 'No Contact Listed'}
-                      </span>
-                    </div>
+                  <div style={{ fontSize: '12px', color: '#64748b', marginTop: 'auto', lineHeight: 1.4 }}>
+                    Standard disciplinary action for this violation.
                   </div>
                 </div>
               </div>
 
-              {/* 3. Action Buttons Footer Bar */}
+              {/* 3. Teacher Statement Card */}
+              <div
+                style={{
+                  background: '#ffffff',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: '8px',
+                  padding: '12px 14px'
+                }}
+              >
+                <div style={{ fontSize: '11px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase', marginBottom: '6px' }}>
+                  Reporting Teacher Statement
+                </div>
+
+                <div
+                  style={{
+                    fontSize: '12.5px',
+                    color: '#334155',
+                    lineHeight: 1.5,
+                    background: '#f8fafc',
+                    padding: '8px 12px',
+                    borderRadius: '6px',
+                    border: '1px solid #e2e8f0'
+                  }}
+                >
+                  "{cleanRemarks}"
+                </div>
+
+                {gpsCoords && (
+                  <div
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '5px',
+                      fontSize: '11px',
+                      color: '#475569',
+                      fontWeight: 600,
+                      background: '#f1f5f9',
+                      padding: '2px 8px',
+                      borderRadius: '4px',
+                      marginTop: '8px'
+                    }}
+                  >
+                    <MapPin size={11} color="#64748b" />
+                    <span>Location: {gpsCoords}</span>
+                  </div>
+                )}
+              </div>
+
+              {/* 4. Reporter & Case Details Grid (3 columns) */}
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(3, 1fr)',
+                  gap: '10px',
+                  padding: '10px 12px',
+                  background: '#f8fafc',
+                  borderRadius: '8px',
+                  border: '1px solid #e2e8f0',
+                  fontSize: '12px'
+                }}
+              >
+                <div>
+                  <span style={{ fontSize: '10.5px', color: '#64748b', display: 'block', fontWeight: 600, textTransform: 'uppercase' }}>
+                    Reported By
+                  </span>
+                  <strong style={{ color: '#0f172a', fontSize: '12.5px', display: 'block', marginTop: '1px' }}>
+                    {inspectRecord.reported_by_name || 'Faculty Member'}
+                  </strong>
+                </div>
+
+                <div>
+                  <span style={{ fontSize: '10.5px', color: '#64748b', display: 'block', fontWeight: 600, textTransform: 'uppercase' }}>
+                    Date Submitted
+                  </span>
+                  <strong style={{ color: '#0f172a', fontSize: '12.5px', display: 'block', marginTop: '1px' }}>
+                    {new Date(inspectRecord.date_reported).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                  </strong>
+                </div>
+
+                <div>
+                  <span style={{ fontSize: '10.5px', color: '#64748b', display: 'block', fontWeight: 600, textTransform: 'uppercase' }}>
+                    Guardian Contact
+                  </span>
+                  <strong style={{ color: '#0f172a', fontSize: '12.5px', display: 'block', marginTop: '1px' }}>
+                    {inspectRecord.student?.parent_contact || 'No Contact Listed'}
+                  </strong>
+                </div>
+              </div>
+
+              {/* 5. Footer Bar */}
               <div
                 style={{
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'space-between',
-                  padding: '10px 14px',
-                  background: '#f8fafc',
-                  borderRadius: '12px',
-                  border: '1px solid #e2e8f0',
-                  gap: '10px'
+                  paddingTop: '12px',
+                  borderTop: '1px solid #f1f5f9',
+                  marginTop: '2px'
                 }}
               >
-                <div style={{ fontSize: '11.5px', color: '#64748b', fontWeight: 700 }}>
+                <div style={{ fontSize: '12px', color: '#64748b', fontWeight: 600 }}>
                   Case ID: #{String(inspectRecord.id).padStart(5, '0')}
                 </div>
 
@@ -2018,18 +1971,15 @@ export const ForApprovalPage = () => {
                     type="button"
                     onClick={() => setInspectRecord(null)}
                     style={{
-                      padding: '8px 16px',
-                      borderRadius: '8px',
-                      border: '1.5px solid #cbd5e1',
+                      padding: '7px 16px',
+                      borderRadius: '6px',
+                      border: '1px solid #cbd5e1',
                       background: '#ffffff',
-                      color: '#475569',
+                      color: '#334155',
                       fontSize: '12.5px',
-                      fontWeight: 700,
-                      cursor: 'pointer',
-                      transition: 'all 0.15s ease'
+                      fontWeight: 600,
+                      cursor: 'pointer'
                     }}
-                    onMouseOver={(e) => { e.currentTarget.style.background = '#f1f5f9'; e.currentTarget.style.borderColor = '#94a3b8'; }}
-                    onMouseOut={(e) => { e.currentTarget.style.background = '#ffffff'; e.currentTarget.style.borderColor = '#cbd5e1'; }}
                   >
                     Close
                   </button>
@@ -2040,23 +1990,20 @@ export const ForApprovalPage = () => {
                         type="button"
                         onClick={() => handleOpenRejectModal(inspectRecord)}
                         style={{
-                          padding: '8px 16px',
-                          borderRadius: '8px',
-                          border: '1.5px solid #fecaca',
+                          padding: '7px 14px',
+                          borderRadius: '6px',
+                          border: '1px solid #fecaca',
                           background: '#fef2f2',
                           color: '#dc2626',
                           fontSize: '12.5px',
-                          fontWeight: 800,
+                          fontWeight: 600,
                           cursor: 'pointer',
                           display: 'inline-flex',
                           alignItems: 'center',
-                          gap: '5px',
-                          transition: 'all 0.15s ease'
+                          gap: '5px'
                         }}
-                        onMouseOver={(e) => { e.currentTarget.style.background = '#fee2e2'; e.currentTarget.style.borderColor = '#fca5a5'; }}
-                        onMouseOut={(e) => { e.currentTarget.style.background = '#fef2f2'; e.currentTarget.style.borderColor = '#fecaca'; }}
                       >
-                        <X size={14} strokeWidth={2.6} />
+                        <X size={14} />
                         Reject Report
                       </button>
                       
@@ -2064,24 +2011,20 @@ export const ForApprovalPage = () => {
                         type="button"
                         onClick={() => handleOpenApproveModal(inspectRecord)}
                         style={{
-                          padding: '8px 20px',
-                          borderRadius: '8px',
+                          padding: '7px 18px',
+                          borderRadius: '6px',
                           border: 'none',
-                          background: '#10b981',
+                          background: '#16a34a',
                           color: '#ffffff',
-                          fontSize: '13px',
-                          fontWeight: 800,
+                          fontSize: '12.5px',
+                          fontWeight: 600,
                           cursor: 'pointer',
                           display: 'inline-flex',
                           alignItems: 'center',
-                          gap: '6px',
-                          boxShadow: '0 2px 8px rgba(16, 185, 129, 0.28)',
-                          transition: 'all 0.15s ease'
+                          gap: '5px'
                         }}
-                        onMouseOver={(e) => { e.currentTarget.style.background = '#059669'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
-                        onMouseOut={(e) => { e.currentTarget.style.background = '#10b981'; e.currentTarget.style.transform = 'translateY(0)'; }}
                       >
-                        <CheckCircle2 size={15} strokeWidth={2.4} />
+                        <CheckCircle2 size={14} />
                         Approve Case
                       </button>
                     </>
@@ -2108,9 +2051,9 @@ export const ForApprovalPage = () => {
             onClose={() => setApproveTargetRecord(null)}
             title="Approve Incident Report"
             icon={CheckCircle2}
-            maxWidth="520px"
+            maxWidth="500px"
           >
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '18px', padding: '20px 24px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', padding: '16px 20px 20px 20px' }}>
               
               {/* Student Information Banner */}
               <div
@@ -2119,32 +2062,30 @@ export const ForApprovalPage = () => {
                   alignItems: 'center',
                   justifyContent: 'space-between',
                   background: '#f8fafc',
-                  padding: '12px 16px',
-                  borderRadius: '12px',
+                  padding: '10px 12px',
+                  borderRadius: '8px',
                   border: '1px solid #e2e8f0',
-                  gap: '12px'
+                  gap: '10px'
                 }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                   <img
                     src={studentAvatar}
                     alt={studentName}
                     style={{
-                      width: 44,
-                      height: 44,
-                      borderRadius: '10px',
+                      width: 38,
+                      height: 38,
+                      borderRadius: '8px',
                       objectFit: 'cover',
-                      border: '1.5px solid #ffffff',
-                      boxShadow: '0 2px 6px rgba(0,0,0,0.06)'
+                      border: '1px solid #e2e8f0'
                     }}
                   />
                   <div>
-                    <div style={{ fontWeight: 800, color: '#0f172a', fontSize: '15px', lineHeight: 1.2 }}>
+                    <div style={{ fontWeight: 700, color: '#0f172a', fontSize: '14px' }}>
                       {studentName}
                     </div>
-                    <div style={{ fontSize: '12px', color: '#64748b', marginTop: '3px' }}>
+                    <div style={{ fontSize: '11.5px', color: '#64748b', marginTop: '1px' }}>
                       {student.grade || 'Grade --'} • {student.section || 'Section --'}
-                      {student.lrn ? <span style={{ marginLeft: 6, color: '#94a3b8' }}>| Student ID: {student.lrn}</span> : ''}
                     </div>
                   </div>
                 </div>
@@ -2152,9 +2093,9 @@ export const ForApprovalPage = () => {
                 <span
                   style={{
                     fontSize: '11px',
-                    fontWeight: 800,
-                    padding: '3px 8px',
-                    borderRadius: '6px',
+                    fontWeight: 600,
+                    padding: '2px 7px',
+                    borderRadius: '4px',
                     background: '#e2e8f0',
                     color: '#475569',
                     whiteSpace: 'nowrap'
@@ -2167,25 +2108,25 @@ export const ForApprovalPage = () => {
               {/* Case Snapshot Box */}
               <div
                 style={{
-                  background: '#f0fdf4',
-                  border: '1px solid #bbf7d0',
-                  borderRadius: '12px',
-                  padding: '14px 16px',
+                  background: '#ffffff',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: '8px',
+                  padding: '12px 14px',
                   display: 'flex',
                   flexDirection: 'column',
-                  gap: '10px'
+                  gap: '8px'
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '6px' }}>
-                  <span style={{ fontWeight: 800, color: '#166534', fontSize: '14px' }}>
+                  <span style={{ fontWeight: 700, color: '#0f172a', fontSize: '13.5px' }}>
                     {violation.title || 'Reported Offense'}
                   </span>
                   <span
                     style={{
                       fontSize: '10.5px',
-                      fontWeight: 800,
-                      padding: '2px 7px',
-                      borderRadius: '5px',
+                      fontWeight: 600,
+                      padding: '1px 6px',
+                      borderRadius: '4px',
                       background: sevBadge.bg,
                       color: sevBadge.color,
                       border: `1px solid ${sevBadge.border}`
@@ -2195,20 +2136,20 @@ export const ForApprovalPage = () => {
                   </span>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', paddingTop: '8px', borderTop: '1px dashed #bbf7d0', fontSize: '12px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', paddingTop: '8px', borderTop: '1px solid #f1f5f9', fontSize: '12px' }}>
                   <div>
-                    <span style={{ color: '#15803d', display: 'block', fontSize: '10.5px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.02em' }}>
+                    <span style={{ color: '#64748b', display: 'block', fontSize: '10.5px', fontWeight: 600, textTransform: 'uppercase' }}>
                       Sanction
                     </span>
-                    <span style={{ color: '#14532d', fontWeight: 700 }}>
+                    <span style={{ color: '#0f172a', fontWeight: 600 }}>
                       {approveTargetRecord.sanction || violation.default_sanction || 'Initial Counseling'}
                     </span>
                   </div>
                   <div>
-                    <span style={{ color: '#15803d', display: 'block', fontSize: '10.5px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.02em' }}>
+                    <span style={{ color: '#64748b', display: 'block', fontSize: '10.5px', fontWeight: 600, textTransform: 'uppercase' }}>
                       Reporting Faculty
                     </span>
-                    <span style={{ color: '#14532d', fontWeight: 700 }}>
+                    <span style={{ color: '#0f172a', fontWeight: 600 }}>
                       {approveTargetRecord.reported_by_name || 'Faculty Member'}
                     </span>
                   </div>
@@ -2217,8 +2158,8 @@ export const ForApprovalPage = () => {
 
               {/* Target Status Choice */}
               <div>
-                <label style={{ fontSize: '12.5px', fontWeight: 700, color: '#334155', display: 'block', marginBottom: '8px' }}>
-                  Assign Initial Disciplinary Status
+                <label style={{ fontSize: '12px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>
+                  Assign Initial Status
                 </label>
                 <CustomSelect
                   value={approveStatusChoice}
@@ -2243,37 +2184,19 @@ export const ForApprovalPage = () => {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
-                    padding: '13px 16px',
-                    borderRadius: '12px',
-                    border: notifyParentOnApprove ? '1.5px solid #10b981' : '1px solid #e2e8f0',
-                    background: notifyParentOnApprove ? '#ecfdf5' : '#ffffff',
-                    cursor: 'pointer',
-                    transition: 'all 0.15s ease'
+                    padding: '10px 12px',
+                    borderRadius: '8px',
+                    border: '1px solid #e2e8f0',
+                    background: '#f8fafc',
+                    cursor: 'pointer'
                   }}
                 >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <div
-                      style={{
-                        width: 34,
-                        height: 34,
-                        borderRadius: '9px',
-                        background: notifyParentOnApprove ? '#10b981' : '#f1f5f9',
-                        color: notifyParentOnApprove ? '#ffffff' : '#64748b',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        flexShrink: 0
-                      }}
-                    >
-                      <MessageSquare size={16} />
+                  <div>
+                    <div style={{ fontSize: '12.5px', fontWeight: 600, color: '#0f172a' }}>
+                      Send SMS Notification
                     </div>
-                    <div>
-                      <div style={{ fontSize: '13px', fontWeight: 700, color: '#0f172a' }}>
-                        Send SMS Notification
-                      </div>
-                      <div style={{ fontSize: '11.5px', color: '#64748b', marginTop: '1px' }}>
-                        Notify guardian at <strong style={{ color: '#0f172a' }}>{student.parent_contact}</strong>
-                      </div>
+                    <div style={{ fontSize: '11px', color: '#64748b', marginTop: '1px' }}>
+                      Notify guardian at {student.parent_contact}
                     </div>
                   </div>
 
@@ -2281,7 +2204,7 @@ export const ForApprovalPage = () => {
                     type="checkbox"
                     checked={notifyParentOnApprove}
                     onChange={(e) => setNotifyParentOnApprove(e.target.checked)}
-                    style={{ accentColor: '#10b981', width: 18, height: 18, cursor: 'pointer' }}
+                    style={{ accentColor: '#0f172a', width: 16, height: 16, cursor: 'pointer' }}
                     onClick={(e) => e.stopPropagation()}
                   />
                 </div>
@@ -2293,9 +2216,8 @@ export const ForApprovalPage = () => {
                   display: 'flex',
                   justifyContent: 'flex-end',
                   alignItems: 'center',
-                  gap: '10px',
-                  paddingTop: '16px',
-                  marginTop: '4px',
+                  gap: '8px',
+                  paddingTop: '12px',
                   borderTop: '1px solid #f1f5f9'
                 }}
               >
@@ -2303,18 +2225,15 @@ export const ForApprovalPage = () => {
                   type="button"
                   onClick={() => setApproveTargetRecord(null)}
                   style={{
-                    padding: '10px 20px',
-                    borderRadius: '8px',
-                    border: '1.5px solid #cbd5e1',
+                    padding: '7px 16px',
+                    borderRadius: '6px',
+                    border: '1px solid #cbd5e1',
                     background: '#ffffff',
-                    color: '#475569',
-                    fontSize: '13px',
-                    fontWeight: 700,
-                    cursor: 'pointer',
-                    transition: 'all 0.15s ease'
+                    color: '#334155',
+                    fontSize: '12.5px',
+                    fontWeight: 600,
+                    cursor: 'pointer'
                   }}
-                  onMouseOver={(e) => { e.currentTarget.style.background = '#f8fafc'; e.currentTarget.style.borderColor = '#94a3b8'; }}
-                  onMouseOut={(e) => { e.currentTarget.style.background = '#ffffff'; e.currentTarget.style.borderColor = '#cbd5e1'; }}
                 >
                   Cancel
                 </button>
@@ -2323,25 +2242,21 @@ export const ForApprovalPage = () => {
                   onClick={handleConfirmApprove}
                   disabled={actionLoading}
                   style={{
-                    padding: '10px 24px',
-                    borderRadius: '8px',
+                    padding: '7px 18px',
+                    borderRadius: '6px',
                     border: 'none',
-                    background: '#10b981',
+                    background: '#16a34a',
                     color: '#ffffff',
-                    fontSize: '13.5px',
-                    fontWeight: 800,
+                    fontSize: '12.5px',
+                    fontWeight: 600,
                     cursor: actionLoading ? 'not-allowed' : 'pointer',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '6px',
-                    boxShadow: '0 2px 8px rgba(16, 185, 129, 0.28)',
-                    transition: 'all 0.15s ease'
+                    gap: '5px'
                   }}
-                  onMouseOver={(e) => { if (!actionLoading) e.currentTarget.style.background = '#059669'; }}
-                  onMouseOut={(e) => { if (!actionLoading) e.currentTarget.style.background = '#10b981'; }}
                 >
-                  <CheckCircle2 size={16} />
-                  {actionLoading ? 'Approving...' : 'Confirm & Approve'}
+                  <CheckCircle2 size={14} />
+                  {actionLoading ? 'Approving...' : 'Confirm Approval'}
                 </button>
               </div>
 
@@ -2364,9 +2279,9 @@ export const ForApprovalPage = () => {
             onClose={() => setRejectTargetRecord(null)}
             title="Reject Incident Report"
             icon={AlertTriangle}
-            maxWidth="520px"
+            maxWidth="500px"
           >
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '18px', padding: '20px 24px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', padding: '16px 20px 20px 20px' }}>
               
               {/* Student Information Banner */}
               <div
@@ -2375,32 +2290,30 @@ export const ForApprovalPage = () => {
                   alignItems: 'center',
                   justifyContent: 'space-between',
                   background: '#fef2f2',
-                  padding: '12px 16px',
-                  borderRadius: '12px',
+                  padding: '10px 12px',
+                  borderRadius: '8px',
                   border: '1px solid #fecaca',
-                  gap: '12px'
+                  gap: '10px'
                 }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                   <img
                     src={studentAvatar}
                     alt={studentName}
                     style={{
-                      width: 44,
-                      height: 44,
-                      borderRadius: '10px',
+                      width: 38,
+                      height: 38,
+                      borderRadius: '8px',
                       objectFit: 'cover',
-                      border: '1.5px solid #ffffff',
-                      boxShadow: '0 2px 6px rgba(0,0,0,0.06)'
+                      border: '1px solid #fecaca'
                     }}
                   />
                   <div>
-                    <div style={{ fontWeight: 800, color: '#991b1b', fontSize: '15px', lineHeight: 1.2 }}>
+                    <div style={{ fontWeight: 700, color: '#991b1b', fontSize: '14px' }}>
                       {studentName}
                     </div>
-                    <div style={{ fontSize: '12px', color: '#b91c1c', marginTop: '3px' }}>
+                    <div style={{ fontSize: '11.5px', color: '#b91c1c', marginTop: '1px' }}>
                       {student.grade || 'Grade --'} • {student.section || 'Section --'}
-                      {student.lrn ? <span style={{ marginLeft: 6, color: '#f87171' }}>| Student ID: {student.lrn}</span> : ''}
                     </div>
                   </div>
                 </div>
@@ -2408,9 +2321,9 @@ export const ForApprovalPage = () => {
                 <span
                   style={{
                     fontSize: '11px',
-                    fontWeight: 800,
-                    padding: '3px 8px',
-                    borderRadius: '6px',
+                    fontWeight: 600,
+                    padding: '2px 7px',
+                    borderRadius: '4px',
                     background: '#fee2e2',
                     color: '#991b1b',
                     whiteSpace: 'nowrap'
@@ -2423,10 +2336,10 @@ export const ForApprovalPage = () => {
               {/* Case Summary Info */}
               <div
                 style={{
-                  background: '#f8fafc',
+                  background: '#ffffff',
                   border: '1px solid #e2e8f0',
-                  borderRadius: '12px',
-                  padding: '12px 16px',
+                  borderRadius: '8px',
+                  padding: '10px 12px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'space-between',
@@ -2434,19 +2347,19 @@ export const ForApprovalPage = () => {
                 }}
               >
                 <div>
-                  <span style={{ fontSize: '11px', color: '#64748b', fontWeight: 700, display: 'block', textTransform: 'uppercase' }}>
+                  <span style={{ fontSize: '10.5px', color: '#64748b', fontWeight: 600, display: 'block', textTransform: 'uppercase' }}>
                     Incident Offense
                   </span>
-                  <span style={{ fontWeight: 800, color: '#1e293b', fontSize: '13.5px' }}>
+                  <span style={{ fontWeight: 700, color: '#0f172a', fontSize: '13px' }}>
                     {violation.title || 'Violation Incident'}
                   </span>
                 </div>
                 <span
                   style={{
                     fontSize: '10.5px',
-                    fontWeight: 800,
-                    padding: '2px 7px',
-                    borderRadius: '5px',
+                    fontWeight: 600,
+                    padding: '1px 6px',
+                    borderRadius: '4px',
                     background: sevBadge.bg,
                     color: sevBadge.color,
                     border: `1px solid ${sevBadge.border}`
@@ -2458,8 +2371,8 @@ export const ForApprovalPage = () => {
 
               {/* Reason Selector */}
               <div>
-                <label style={{ fontSize: '12.5px', fontWeight: 700, color: '#334155', display: 'block', marginBottom: '8px' }}>
-                  Primary Rejection Reason
+                <label style={{ fontSize: '12px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>
+                  Rejection Reason
                 </label>
                 <CustomSelect
                   value={rejectionReason}
@@ -2479,26 +2392,26 @@ export const ForApprovalPage = () => {
 
               {/* Custom Notes */}
               <div>
-                <label style={{ fontSize: '12.5px', fontWeight: 700, color: '#334155', display: 'block', marginBottom: '8px' }}>
-                  Administrator Feedback Notes (Optional)
+                <label style={{ fontSize: '12px', fontWeight: 600, color: '#334155', display: 'block', marginBottom: '6px' }}>
+                  Feedback Notes (Optional)
                 </label>
                 <textarea
                   rows={3}
-                  placeholder="Provide guidance or feedback notes to the reporting teacher..."
+                  placeholder="Provide feedback notes to the reporting teacher..."
                   value={customRejectNote}
                   onChange={(e) => setCustomRejectNote(e.target.value)}
                   style={{
                     width: '100%',
-                    padding: '10px 12px',
-                    borderRadius: '9px',
-                    border: '1.5px solid #cbd5e1',
-                    fontSize: '13px',
+                    padding: '8px 10px',
+                    borderRadius: '6px',
+                    border: '1px solid #cbd5e1',
+                    fontSize: '12.5px',
                     outline: 'none',
                     fontFamily: 'inherit',
                     background: '#f8fafc',
-                    transition: 'border-color 0.15s ease'
+                    boxSizing: 'border-box'
                   }}
-                  onFocus={(e) => { e.target.style.borderColor = '#07345f'; e.target.style.background = '#ffffff'; }}
+                  onFocus={(e) => { e.target.style.borderColor = '#0f172a'; e.target.style.background = '#ffffff'; }}
                   onBlur={(e) => { e.target.style.borderColor = '#cbd5e1'; e.target.style.background = '#f8fafc'; }}
                 />
               </div>
@@ -2509,9 +2422,8 @@ export const ForApprovalPage = () => {
                   display: 'flex',
                   justifyContent: 'flex-end',
                   alignItems: 'center',
-                  gap: '10px',
-                  paddingTop: '16px',
-                  marginTop: '4px',
+                  gap: '8px',
+                  paddingTop: '12px',
                   borderTop: '1px solid #f1f5f9'
                 }}
               >
@@ -2519,18 +2431,15 @@ export const ForApprovalPage = () => {
                   type="button"
                   onClick={() => setRejectTargetRecord(null)}
                   style={{
-                    padding: '10px 20px',
-                    borderRadius: '8px',
-                    border: '1.5px solid #cbd5e1',
+                    padding: '7px 16px',
+                    borderRadius: '6px',
+                    border: '1px solid #cbd5e1',
                     background: '#ffffff',
-                    color: '#475569',
-                    fontSize: '13px',
-                    fontWeight: 700,
-                    cursor: 'pointer',
-                    transition: 'all 0.15s ease'
+                    color: '#334155',
+                    fontSize: '12.5px',
+                    fontWeight: 600,
+                    cursor: 'pointer'
                   }}
-                  onMouseOver={(e) => { e.currentTarget.style.background = '#f8fafc'; e.currentTarget.style.borderColor = '#94a3b8'; }}
-                  onMouseOut={(e) => { e.currentTarget.style.background = '#ffffff'; e.currentTarget.style.borderColor = '#cbd5e1'; }}
                 >
                   Cancel
                 </button>
@@ -2539,24 +2448,20 @@ export const ForApprovalPage = () => {
                   onClick={handleConfirmReject}
                   disabled={actionLoading}
                   style={{
-                    padding: '10px 24px',
-                    borderRadius: '8px',
+                    padding: '7px 18px',
+                    borderRadius: '6px',
                     border: 'none',
                     background: '#dc2626',
                     color: '#ffffff',
-                    fontSize: '13.5px',
-                    fontWeight: 800,
+                    fontSize: '12.5px',
+                    fontWeight: 600,
                     cursor: actionLoading ? 'not-allowed' : 'pointer',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '6px',
-                    boxShadow: '0 2px 8px rgba(220, 38, 38, 0.28)',
-                    transition: 'all 0.15s ease'
+                    gap: '5px'
                   }}
-                  onMouseOver={(e) => { if (!actionLoading) e.currentTarget.style.background = '#b91c1c'; }}
-                  onMouseOut={(e) => { if (!actionLoading) e.currentTarget.style.background = '#dc2626'; }}
                 >
-                  <X size={16} strokeWidth={2.5} />
+                  <X size={14} />
                   {actionLoading ? 'Rejecting...' : 'Confirm Rejection'}
                 </button>
               </div>

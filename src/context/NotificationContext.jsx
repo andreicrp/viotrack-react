@@ -133,43 +133,33 @@ const ToastItem = ({ toast, onRemove }) => {
   const config = {
     success: {
       icon: Check,
-      title: 'Success',
+      title: 'Success!',
       color: '#22c55e',
-      accentBg: '#22c55e',
-      progressGradient: 'linear-gradient(90deg, #16a34a 0%, #22c55e 60%, #4ade80 100%)',
-      glowShadow: '0 0 10px rgba(34, 197, 94, 0.5)'
+      accentBg: '#22c55e'
     },
     error: {
       icon: X,
-      title: 'Error',
+      title: 'Error!',
       color: '#ef4444',
-      accentBg: '#ef4444',
-      progressGradient: 'linear-gradient(90deg, #dc2626 0%, #ef4444 60%, #f87171 100%)',
-      glowShadow: '0 0 10px rgba(239, 68, 68, 0.5)'
+      accentBg: '#ef4444'
     },
     warning: {
       icon: AlertTriangle,
-      title: 'Warning',
+      title: 'Warning!',
       color: '#f59e0b',
-      accentBg: '#f59e0b',
-      progressGradient: 'linear-gradient(90deg, #d97706 0%, #f59e0b 60%, #fbbf24 100%)',
-      glowShadow: '0 0 10px rgba(245, 158, 11, 0.5)'
+      accentBg: '#f59e0b'
     },
     info: {
       icon: Info,
-      title: 'Information',
+      title: 'Info',
       color: '#3b82f6',
-      accentBg: '#3b82f6',
-      progressGradient: 'linear-gradient(90deg, #1d4ed8 0%, #3b82f6 60%, #60a5fa 100%)',
-      glowShadow: '0 0 10px rgba(59, 130, 246, 0.5)'
+      accentBg: '#3b82f6'
     }
   }[toast.type] || {
     icon: Info,
-    title: 'Notice',
+    title: 'Info',
     color: '#3b82f6',
-    accentBg: '#3b82f6',
-    progressGradient: 'linear-gradient(90deg, #1d4ed8 0%, #3b82f6 60%, #60a5fa 100%)',
-    glowShadow: '0 0 10px rgba(59, 130, 246, 0.5)'
+    accentBg: '#3b82f6'
   };
 
   const IconComponent = config.icon;
@@ -194,17 +184,14 @@ const ToastItem = ({ toast, onRemove }) => {
       role="alert"
       aria-live="assertive"
     >
-      {/* Left vertical accent bar */}
-      <div className="custom-toast-left-bar" style={{ background: config.color }} />
-
-      {/* Solid rounded icon box */}
-      <div className="custom-toast-icon-box" style={{ background: config.accentBg }}>
+      {/* Circle Icon Container */}
+      <div className="custom-toast-icon-circle" style={{ background: config.accentBg }}>
         <IconComponent size={20} color="#ffffff" strokeWidth={3} />
       </div>
 
-      {/* Text body */}
+      {/* Text Body */}
       <div className="custom-toast-body">
-        <div className="custom-toast-title">
+        <div className="custom-toast-title" style={{ color: config.color }}>
           {toast.title || config.title}
         </div>
         <div className="custom-toast-message">{toast.message}</div>
@@ -227,27 +214,15 @@ const ToastItem = ({ toast, onRemove }) => {
         )}
       </div>
 
-      {/* Top-right close button */}
+      {/* Right Close Button */}
       <button
         type="button"
         className="custom-toast-close"
         onClick={triggerExit}
         aria-label="Close notification"
       >
-        <X size={15} strokeWidth={2.4} />
+        <X size={16} strokeWidth={2.4} />
       </button>
-
-      {/* High-definition meter progress track */}
-      <div className="custom-toast-progress-track">
-        <div
-          className="custom-toast-progress-fill"
-          style={{
-            width: `${progress}%`,
-            background: config.progressGradient,
-            boxShadow: config.glowShadow
-          }}
-        />
-      </div>
     </div>
   );
 };

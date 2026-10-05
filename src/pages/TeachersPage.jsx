@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useDeferredValue } from 'react';
 import { dataService } from '../services/dataService';
 import { EditTeacherModal } from '../components/teachers/EditTeacherModal';
 import { AppointAdviserModal } from '../components/teachers/AppointAdviserModal';
@@ -28,7 +28,9 @@ import {
   CheckCircle2,
   Award,
   ChevronRight,
-  Download
+  Download,
+  Plus,
+  FileText
 } from 'lucide-react';
 import { getJsPDF } from '../utils/pdfHelper';
 
@@ -171,9 +173,9 @@ export const TeachersPage = () => {
     doc.rect(0, 0, 210, 24, 'F');
 
     doc.setTextColor(255, 255, 255);
-    doc.setFontSize(15);
+    doc.setFontSize(14);
     doc.setFont('helvetica', 'bold');
-    doc.text('PERPETUAL HELP COLLEGE OF MANILA', 14, 11);
+    doc.text('UNIVERSITY OF PERPETUAL HELP SYSTEM MANILA', 14, 11);
     doc.setFontSize(9);
     doc.setFont('helvetica', 'normal');
     doc.text('Faculty Directory & Section Advisers Master Roster', 14, 18);
@@ -233,6 +235,8 @@ export const TeachersPage = () => {
     }
   };
 
+  const deferredSearch = useDeferredValue(searchTerm);
+
   // Filter & Sort Pipeline
   const filteredAndSorted = useMemo(() => {
     let result = teachers.filter(t => {
@@ -242,8 +246,8 @@ export const TeachersPage = () => {
       if (selectedFacultyFilter === 'subject' && isAdv) return false;
 
       // Search
-      if (searchTerm.trim()) {
-        const query = searchTerm.toLowerCase();
+      if (deferredSearch.trim()) {
+        const query = deferredSearch.toLowerCase();
         const fullName = `${t.fname} ${t.mname || ''} ${t.lname}`.toLowerCase();
         const email = (t.email || '').toLowerCase();
         const pos = (t.position || '').toLowerCase();
@@ -279,7 +283,7 @@ export const TeachersPage = () => {
     });
 
     return result;
-  }, [teachers, advisers, selectedFacultyFilter, searchTerm, sortField, sortOrder]);
+  }, [teachers, advisers, selectedFacultyFilter, deferredSearch, sortField, sortOrder]);
 
   const totalPages = Math.ceil(filteredAndSorted.length / entriesPerPage) || 1;
   const paginatedTeachers = filteredAndSorted.slice((currentPage - 1) * entriesPerPage, currentPage * entriesPerPage);
@@ -300,26 +304,12 @@ export const TeachersPage = () => {
       {/* 1. Top Banner & Primary Actions */}
       <div className="page-banner-header">
         <div className="page-banner-info">
-          <Users size={30} strokeWidth={2.2} color="#ffffff" style={{ flexShrink: 0 }} />
+          <Users size={26} strokeWidth={2.4} color="#0f172a" style={{ flexShrink: 0 }} />
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-              <h2 style={{ fontSize: '22px', fontWeight: 800, margin: 0, color: '#ffffff', letterSpacing: '-0.02em' }}>
-                Faculty Teachers & Advisers
-              </h2>
-              <span
-                style={{
-                  background: 'rgba(255, 255, 255, 0.2)',
-                  color: '#ffffff',
-                  fontSize: '12px',
-                  fontWeight: 700,
-                  padding: '2.5px 10px',
-                  borderRadius: '20px'
-                }}
-              >
-                {stats.total} Total Faculty
-              </span>
-            </div>
-            <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: 'rgba(255, 255, 255, 0.85)' }}>
+            <h2 style={{ fontSize: '20px', fontWeight: 800, margin: 0, color: '#0f172a', letterSpacing: '-0.02em' }}>
+              Faculty Teachers &amp; Advisers
+            </h2>
+            <p style={{ margin: '3px 0 0 0', fontSize: '13px', color: '#64748b' }}>
               Comprehensive faculty roster, advisory appointments, department heads, and academic educators.
             </p>
           </div>
@@ -333,7 +323,7 @@ export const TeachersPage = () => {
               className="page-banner-btn-secondary"
               title="Download formatted PDF faculty directory"
             >
-              <Download size={15} /> Export PDF
+              <Upload size={14} strokeWidth={2.2} /> Export PDF
             </button>
 
             <button
@@ -341,7 +331,7 @@ export const TeachersPage = () => {
               className="page-banner-btn-secondary"
               title="Download CSV spreadsheet"
             >
-              <FileSpreadsheet size={15} /> Export CSV
+              <FileText size={14} strokeWidth={2.2} /> Export CSV
             </button>
 
             <button
@@ -349,7 +339,7 @@ export const TeachersPage = () => {
               className="page-banner-btn-secondary"
               title="Import faculty members from CSV"
             >
-              <Upload size={15} /> Import CSV
+              <Upload size={14} strokeWidth={2.2} /> Import CSV
             </button>
           </div>
 
@@ -360,7 +350,7 @@ export const TeachersPage = () => {
             }}
             className="page-banner-primary-btn"
           >
-            <UserPlus size={16} strokeWidth={2.5} /> Add New Teacher
+            <Plus size={16} strokeWidth={2.5} /> Add New Teacher
           </button>
         </div>
       </div>
@@ -372,113 +362,116 @@ export const TeachersPage = () => {
           <div
             onClick={() => setSelectedFacultyFilter('all')}
             style={{
-              background: selectedFacultyFilter === 'all' ? '#f0f4f8' : '#ffffff',
-              border: selectedFacultyFilter === 'all' ? '2px solid #07345f' : '1px solid #e2e8f0',
-              borderRadius: '10px',
-              padding: '12px 14px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
+              background: '#ffffff',
+              border: selectedFacultyFilter === 'all' ? '2px solid #07345f' : '1.5px solid #cbd5e1',
+              borderRadius: '12px',
+              padding: '14px 16px',
               cursor: 'pointer',
-              transition: 'all 0.2s ease',
-              boxShadow: selectedFacultyFilter === 'all' ? '0 2px 8px rgba(7, 52, 95, 0.1)' : '0 1px 3px rgba(0,0,0,0.02)'
+              transition: 'all 0.15s ease',
+              boxShadow: selectedFacultyFilter === 'all' ? '0 4px 14px rgba(7, 52, 95, 0.10)' : '0 1px 3px rgba(0,0,0,0.02)',
+              position: 'relative'
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <Users size={20} color="#1f2937" strokeWidth={2} />
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div>
-                <span style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a', lineHeight: 1, display: 'block' }}>
+                <div style={{ fontSize: '11.5px', fontWeight: 800, color: '#07345f', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                  TOTAL TEACHERS
+                </div>
+                <div style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', margin: '4px 0 2px 0', lineHeight: 1.1 }}>
                   {stats.total}
-                </span>
-                <span style={{ fontSize: '11px', color: '#64748b', fontWeight: 600 }}>Total Teachers</span>
+                </div>
+                <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 500 }}>
+                  Active faculty members
+                </div>
               </div>
+              <Users size={20} color="#07345f" strokeWidth={2} />
             </div>
           </div>
 
           {/* Appointed Advisers */}
           <div
-            onClick={() => setSelectedFacultyFilter(selectedFacultyFilter === 'adviser' ? 'all' : 'adviser')}
+            onClick={() => setSelectedFacultyFilter('adviser')}
             style={{
-              background: selectedFacultyFilter === 'adviser' ? '#f0f4f8' : '#ffffff',
-              border: selectedFacultyFilter === 'adviser' ? '2px solid #07345f' : '1px solid #e2e8f0',
-              borderRadius: '10px',
-              padding: '12px 14px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
+              background: '#ffffff',
+              border: selectedFacultyFilter === 'adviser' ? '2px solid #07345f' : '1.5px solid #cbd5e1',
+              borderRadius: '12px',
+              padding: '14px 16px',
               cursor: 'pointer',
-              transition: 'all 0.2s ease',
-              boxShadow: selectedFacultyFilter === 'adviser' ? '0 2px 8px rgba(7, 52, 95, 0.1)' : '0 1px 3px rgba(0,0,0,0.02)'
+              transition: 'all 0.15s ease',
+              boxShadow: selectedFacultyFilter === 'adviser' ? '0 4px 14px rgba(7, 52, 95, 0.10)' : '0 1px 3px rgba(0,0,0,0.02)',
+              position: 'relative'
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <UserCheck size={20} color="#1f2937" strokeWidth={2} />
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div>
-                <span style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a', lineHeight: 1, display: 'block' }}>
+                <div style={{ fontSize: '11.5px', fontWeight: 800, color: '#07345f', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                  CLASS ADVISERS
+                </div>
+                <div style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', margin: '4px 0 2px 0', lineHeight: 1.1 }}>
                   {stats.advisersCount}
-                </span>
-                <span style={{ fontSize: '11px', color: '#64748b', fontWeight: 600 }}>Class Advisers</span>
+                </div>
+                <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 500 }}>
+                  Assigned section leads
+                </div>
               </div>
+              <UserCheck size={20} color="#07345f" strokeWidth={2} />
             </div>
-            {selectedFacultyFilter === 'adviser' && (
-              <span style={{ background: '#07345f', color: '#fff', fontSize: '9px', padding: '2px 6px', borderRadius: '4px', fontWeight: 700 }}>
-                Active
-              </span>
-            )}
           </div>
 
           {/* Subject Teachers */}
           <div
-            onClick={() => setSelectedFacultyFilter(selectedFacultyFilter === 'subject' ? 'all' : 'subject')}
+            onClick={() => setSelectedFacultyFilter('subject')}
             style={{
-              background: selectedFacultyFilter === 'subject' ? '#f0f4f8' : '#ffffff',
-              border: selectedFacultyFilter === 'subject' ? '2px solid #07345f' : '1px solid #e2e8f0',
-              borderRadius: '10px',
-              padding: '12px 14px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
+              background: '#ffffff',
+              border: selectedFacultyFilter === 'subject' ? '2px solid #07345f' : '1.5px solid #cbd5e1',
+              borderRadius: '12px',
+              padding: '14px 16px',
               cursor: 'pointer',
-              transition: 'all 0.2s ease',
-              boxShadow: selectedFacultyFilter === 'subject' ? '0 2px 8px rgba(7, 52, 95, 0.1)' : '0 1px 3px rgba(0,0,0,0.02)'
+              transition: 'all 0.15s ease',
+              boxShadow: selectedFacultyFilter === 'subject' ? '0 4px 14px rgba(7, 52, 95, 0.10)' : '0 1px 3px rgba(0,0,0,0.02)',
+              position: 'relative'
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <GraduationCap size={20} color="#1f2937" strokeWidth={2} />
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div>
-                <span style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a', lineHeight: 1, display: 'block' }}>
+                <div style={{ fontSize: '11.5px', fontWeight: 800, color: '#07345f', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                  SUBJECT TEACHERS
+                </div>
+                <div style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', margin: '4px 0 2px 0', lineHeight: 1.1 }}>
                   {stats.subjectTeachers}
-                </span>
-                <span style={{ fontSize: '11px', color: '#64748b', fontWeight: 600 }}>Subject Teachers</span>
+                </div>
+                <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 500 }}>
+                  Instructional faculty
+                </div>
               </div>
+              <GraduationCap size={20} color="#07345f" strokeWidth={2} />
             </div>
-            {selectedFacultyFilter === 'subject' && (
-              <span style={{ background: '#07345f', color: '#fff', fontSize: '9px', padding: '2px 6px', borderRadius: '4px', fontWeight: 700 }}>
-                Active
-              </span>
-            )}
           </div>
 
           {/* Departments */}
           <div
             style={{
               background: '#ffffff',
-              border: '1px solid #e2e8f0',
-              borderRadius: '10px',
-              padding: '12px 14px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between'
+              border: '1.5px solid #cbd5e1',
+              borderRadius: '12px',
+              padding: '14px 16px',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.02)',
+              position: 'relative'
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <Building size={20} color="#1f2937" strokeWidth={2} />
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div>
-                <span style={{ fontSize: '20px', fontWeight: 800, color: '#1e293b', lineHeight: 1, display: 'block' }}>
+                <div style={{ fontSize: '11.5px', fontWeight: 800, color: '#07345f', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                  DEPARTMENTS
+                </div>
+                <div style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', margin: '4px 0 2px 0', lineHeight: 1.1 }}>
                   {stats.departmentsCount}
-                </span>
-                <span style={{ fontSize: '11px', color: '#64748b', fontWeight: 600 }}>Departments</span>
+                </div>
+                <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 500 }}>
+                  Academic learning groups
+                </div>
               </div>
+              <Building size={20} color="#07345f" strokeWidth={2} />
             </div>
           </div>
         </div>

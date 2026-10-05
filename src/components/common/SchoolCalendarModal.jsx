@@ -19,6 +19,7 @@ import {
   X
 } from 'lucide-react';
 import { Modal } from './Modal';
+import { CustomDatePicker } from './CustomDatePicker';
 import { dataService } from '../../services/dataService';
 import { useNotification } from '../../context/NotificationContext';
 
@@ -264,25 +265,11 @@ export const SchoolCalendarModal = ({ isOpen, onClose, initialDate = 23, initial
           </div>
 
           {/* Action & View Mode Switcher */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+          <div className="school-cal-top-actions">
             <button
               type="button"
               onClick={() => handleOpenAddForm()}
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '5px',
-                padding: '6px 12px',
-                fontSize: '12px',
-                fontWeight: 700,
-                color: '#ffffff',
-                background: '#0f172a',
-                border: 'none',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                boxShadow: '0 1px 3px rgba(15, 23, 42, 0.25)',
-                transition: 'all 0.15s ease'
-              }}
+              className="school-cal-add-event-btn"
             >
               <Plus size={14} strokeWidth={2.5} />
               <span>Schedule Event</span>
@@ -341,77 +328,60 @@ export const SchoolCalendarModal = ({ isOpen, onClose, initialDate = 23, initial
 
         {/* Schedule Event Form Overlay / Inline Drawer */}
         {isAddingEvent && (
-          <div style={{
-            background: '#ffffff',
-            borderBottom: '2px solid #e2e8f0',
-            padding: '16px 20px',
-            animation: 'slideDown 0.2s ease-out'
-          }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <CalendarDays size={16} color="#07345f" />
-                <span style={{ fontSize: '14px', fontWeight: 800, color: '#07345f' }}>
-                  Schedule New School Event / Meeting
-                </span>
+          <div className="school-cal-add-form-wrap">
+            <div className="school-cal-add-form-header">
+              <div className="school-cal-add-form-title">
+                <CalendarDays size={16} />
+                Schedule New School Event / Meeting
               </div>
               <button
                 type="button"
                 onClick={() => setIsAddingEvent(false)}
-                style={{ border: 'none', background: 'transparent', cursor: 'pointer', color: '#64748b' }}
+                className="school-cal-add-form-close"
               >
                 <X size={16} />
               </button>
             </div>
 
-            <form onSubmit={handleSaveEvent} style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '10px' }}>
-              <div>
-                <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: '#475569', marginBottom: '4px' }}>
-                  Event Title *
-                </label>
+            <form onSubmit={handleSaveEvent} className="school-cal-add-form-grid">
+              <div className="school-cal-form-field">
+                <label className="school-cal-form-label">Event Title *</label>
                 <input
                   type="text"
                   required
                   placeholder="e.g. Faculty Coordination Meeting"
                   value={newEvent.title}
                   onChange={(e) => setNewEvent({ ...newEvent, title: e.target.value })}
-                  style={{ width: '100%', padding: '7px 10px', fontSize: '12.5px', border: '1px solid #cbd5e1', borderRadius: '7px', boxSizing: 'border-box' }}
+                  className="school-cal-form-input"
                 />
               </div>
 
-              <div>
-                <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: '#475569', marginBottom: '4px' }}>
-                  Event Date *
-                </label>
-                <input
-                  type="date"
-                  required
+              <div className="school-cal-form-field">
+                <label className="school-cal-form-label">Event Date *</label>
+                <CustomDatePicker
                   value={newEvent.date}
-                  onChange={(e) => setNewEvent({ ...newEvent, date: e.target.value })}
-                  style={{ width: '100%', padding: '6px 10px', fontSize: '12.5px', border: '1px solid #cbd5e1', borderRadius: '7px', boxSizing: 'border-box' }}
+                  onChange={(val) => setNewEvent({ ...newEvent, date: val })}
+                  placeholder="Select Event Date"
                 />
               </div>
 
-              <div>
-                <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: '#475569', marginBottom: '4px' }}>
-                  Time Range
-                </label>
+              <div className="school-cal-form-field">
+                <label className="school-cal-form-label">Time Range</label>
                 <input
                   type="text"
                   placeholder="e.g. 09:00 AM – 11:30 AM"
                   value={newEvent.time}
                   onChange={(e) => setNewEvent({ ...newEvent, time: e.target.value })}
-                  style={{ width: '100%', padding: '7px 10px', fontSize: '12.5px', border: '1px solid #cbd5e1', borderRadius: '7px', boxSizing: 'border-box' }}
+                  className="school-cal-form-input"
                 />
               </div>
 
-              <div>
-                <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: '#475569', marginBottom: '4px' }}>
-                  Category
-                </label>
+              <div className="school-cal-form-field">
+                <label className="school-cal-form-label">Category</label>
                 <select
                   value={newEvent.category}
                   onChange={(e) => setNewEvent({ ...newEvent, category: e.target.value })}
-                  style={{ width: '100%', padding: '7px 10px', fontSize: '12.5px', border: '1px solid #cbd5e1', borderRadius: '7px', boxSizing: 'border-box', background: '#fff' }}
+                  className="school-cal-form-select"
                 >
                   <option value="faculty">Faculty & Admin</option>
                   <option value="disciplinary">Disciplinary & Conduct</option>
@@ -420,69 +390,50 @@ export const SchoolCalendarModal = ({ isOpen, onClose, initialDate = 23, initial
                 </select>
               </div>
 
-              <div>
-                <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: '#475569', marginBottom: '4px' }}>
-                  Location / Venue
-                </label>
+              <div className="school-cal-form-field">
+                <label className="school-cal-form-label">Location / Venue</label>
                 <input
                   type="text"
                   placeholder="e.g. Conference Hall A / AVR"
                   value={newEvent.location}
                   onChange={(e) => setNewEvent({ ...newEvent, location: e.target.value })}
-                  style={{ width: '100%', padding: '7px 10px', fontSize: '12.5px', border: '1px solid #cbd5e1', borderRadius: '7px', boxSizing: 'border-box' }}
+                  className="school-cal-form-input"
                 />
               </div>
 
-              <div>
-                <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: '#475569', marginBottom: '4px' }}>
-                  Target Attendees
-                </label>
+              <div className="school-cal-form-field">
+                <label className="school-cal-form-label">Target Attendees</label>
                 <input
                   type="text"
                   placeholder="e.g. Class Advisers, Guidance Staff"
                   value={newEvent.attendees}
                   onChange={(e) => setNewEvent({ ...newEvent, attendees: e.target.value })}
-                  style={{ width: '100%', padding: '7px 10px', fontSize: '12.5px', border: '1px solid #cbd5e1', borderRadius: '7px', boxSizing: 'border-box' }}
+                  className="school-cal-form-input"
                 />
               </div>
 
-              <div style={{ gridColumn: '1 / -1' }}>
-                <label style={{ display: 'block', fontSize: '11px', fontWeight: 700, color: '#475569', marginBottom: '4px' }}>
-                  Description / Agenda Notes
-                </label>
+              <div className="school-cal-form-field school-cal-form-full">
+                <label className="school-cal-form-label">Description / Agenda Notes</label>
                 <textarea
                   rows={2}
                   placeholder="Provide brief details regarding the event agenda, requirements, or agenda points..."
                   value={newEvent.description}
                   onChange={(e) => setNewEvent({ ...newEvent, description: e.target.value })}
-                  style={{ width: '100%', padding: '7px 10px', fontSize: '12px', border: '1px solid #cbd5e1', borderRadius: '7px', boxSizing: 'border-box' }}
+                  className="school-cal-form-textarea"
                 />
               </div>
 
-              <div style={{ gridColumn: '1 / -1', display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '4px' }}>
+              <div className="school-cal-form-full school-cal-form-actions">
                 <button
                   type="button"
                   onClick={() => setIsAddingEvent(false)}
-                  style={{ padding: '6px 14px', fontSize: '12px', border: '1px solid #cbd5e1', borderRadius: '7px', background: '#fff', cursor: 'pointer' }}
+                  className="school-cal-form-cancel-btn"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  style={{
-                    padding: '7px 18px',
-                    fontSize: '12.5px',
-                    fontWeight: 700,
-                    border: 'none',
-                    borderRadius: '7px',
-                    background: '#0f172a',
-                    color: '#ffffff',
-                    cursor: 'pointer',
-                    boxShadow: '0 2px 8px rgba(15, 23, 42, 0.2)',
-                    transition: 'all 0.15s ease'
-                  }}
-                  onMouseOver={(e) => { e.currentTarget.style.background = '#1e293b'; }}
-                  onMouseOut={(e) => { e.currentTarget.style.background = '#0f172a'; }}
+                  className="school-cal-form-submit-btn"
                 >
                   Save Schedule
                 </button>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useDeferredValue } from 'react';
 import { dataService } from '../services/dataService';
 import { CustomSelect } from '../components/common/CustomSelect';
 import { ViewModeToggle } from '../components/common/ViewModeToggle';
@@ -26,7 +26,9 @@ import {
   CheckCircle2,
   Users,
   Eye,
-  EyeOff
+  EyeOff,
+  Plus,
+  FileText
 } from 'lucide-react';
 import { getJsPDF } from '../utils/pdfHelper';
 
@@ -239,9 +241,9 @@ export const AdminUsersPage = () => {
     doc.rect(0, 0, 210, 24, 'F');
 
     doc.setTextColor(255, 255, 255);
-    doc.setFontSize(15);
+    doc.setFontSize(14);
     doc.setFont('helvetica', 'bold');
-    doc.text('PERPETUAL HELP COLLEGE OF MANILA', 14, 11);
+    doc.text('UNIVERSITY OF PERPETUAL HELP SYSTEM MANILA', 14, 11);
     doc.setFontSize(9);
     doc.setFont('helvetica', 'normal');
     doc.text('VioTrack Disciplinary System - Official Administrators Registry', 14, 18);
@@ -289,6 +291,8 @@ export const AdminUsersPage = () => {
     }
   };
 
+  const deferredSearch = useDeferredValue(searchTerm);
+
   // Filter & Sort Pipeline
   const filteredAndSorted = useMemo(() => {
     let result = adminUsers.filter(a => {
@@ -310,8 +314,8 @@ export const AdminUsersPage = () => {
       }
 
       // Search
-      if (searchTerm.trim()) {
-        const query = searchTerm.toLowerCase();
+      if (deferredSearch.trim()) {
+        const query = deferredSearch.toLowerCase();
         const fullName = `${a.fname} ${a.mname || ''} ${a.lname}`.toLowerCase();
         const email = (a.email || '').toLowerCase();
         const role = (a.role || '').toLowerCase();
@@ -341,7 +345,7 @@ export const AdminUsersPage = () => {
     });
 
     return result;
-  }, [adminUsers, selectedRoleFilter, searchTerm, sortField, sortOrder]);
+  }, [adminUsers, selectedRoleFilter, deferredSearch, sortField, sortOrder]);
 
   const totalPages = Math.ceil(filteredAndSorted.length / entriesPerPage) || 1;
   const paginatedAdmins = filteredAndSorted.slice((currentPage - 1) * entriesPerPage, currentPage * entriesPerPage);
@@ -362,26 +366,12 @@ export const AdminUsersPage = () => {
       {/* 1. Top Banner & Primary Actions */}
       <div className="page-banner-header">
         <div className="page-banner-info">
-          <ShieldCheck size={30} strokeWidth={2.2} color="#ffffff" style={{ flexShrink: 0 }} />
+          <ShieldCheck size={26} strokeWidth={2.4} color="#0f172a" style={{ flexShrink: 0 }} />
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-              <h2 style={{ fontSize: '22px', fontWeight: 800, margin: 0, color: '#ffffff', letterSpacing: '-0.02em' }}>
-                System Administrators
-              </h2>
-              <span
-                style={{
-                  background: 'rgba(255, 255, 255, 0.2)',
-                  color: '#ffffff',
-                  fontSize: '12px',
-                  fontWeight: 700,
-                  padding: '2.5px 10px',
-                  borderRadius: '20px'
-                }}
-              >
-                {stats.total} Active {stats.total === 1 ? 'Admin' : 'Admins'}
-              </span>
-            </div>
-            <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: 'rgba(255, 255, 255, 0.85)' }}>
+            <h2 style={{ fontSize: '20px', fontWeight: 800, margin: 0, color: '#0f172a', letterSpacing: '-0.02em' }}>
+              System Administrators
+            </h2>
+            <p style={{ margin: '3px 0 0 0', fontSize: '13px', color: '#64748b' }}>
               Configured administrative accounts, system access privileges, security oversight, and credentials.
             </p>
           </div>
@@ -395,7 +385,7 @@ export const AdminUsersPage = () => {
               className="page-banner-btn-secondary"
               title="Download formatted PDF administrator roster"
             >
-              <Download size={15} /> Export PDF
+              <Upload size={14} strokeWidth={2.2} /> Export PDF
             </button>
 
             <button
@@ -403,7 +393,7 @@ export const AdminUsersPage = () => {
               className="page-banner-btn-secondary"
               title="Download CSV spreadsheet"
             >
-              <FileSpreadsheet size={15} /> Export CSV
+              <FileText size={14} strokeWidth={2.2} /> Export CSV
             </button>
 
             <button
@@ -411,7 +401,7 @@ export const AdminUsersPage = () => {
               className="page-banner-btn-secondary"
               title="Import administrators from CSV"
             >
-              <Upload size={15} /> Import CSV
+              <Upload size={14} strokeWidth={2.2} /> Import CSV
             </button>
           </div>
 
@@ -419,7 +409,7 @@ export const AdminUsersPage = () => {
             onClick={handleOpenAdd}
             className="page-banner-primary-btn"
           >
-            <UserPlus size={16} strokeWidth={2.5} /> Add Admin User
+            <Plus size={16} strokeWidth={2.5} /> Add Admin User
           </button>
         </div>
       </div>
@@ -431,96 +421,90 @@ export const AdminUsersPage = () => {
           <div
             onClick={() => setSelectedRoleFilter('all')}
             style={{
-              background: selectedRoleFilter === 'all' ? '#f0f4f8' : '#ffffff',
-              border: selectedRoleFilter === 'all' ? '2px solid #07345f' : '1px solid #e2e8f0',
-              borderRadius: '10px',
-              padding: '12px 14px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
+              background: '#ffffff',
+              border: selectedRoleFilter === 'all' ? '2px solid #07345f' : '1.5px solid #cbd5e1',
+              borderRadius: '12px',
+              padding: '14px 16px',
               cursor: 'pointer',
-              transition: 'all 0.2s ease',
-              boxShadow: selectedRoleFilter === 'all' ? '0 2px 8px rgba(7, 52, 95, 0.1)' : '0 1px 3px rgba(0,0,0,0.02)'
+              transition: 'all 0.15s ease',
+              boxShadow: selectedRoleFilter === 'all' ? '0 4px 14px rgba(7, 52, 95, 0.10)' : '0 1px 3px rgba(0,0,0,0.02)',
+              position: 'relative'
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <Users size={20} color="#1f2937" strokeWidth={2} />
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div>
-                <span style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a', lineHeight: 1, display: 'block' }}>
+                <div style={{ fontSize: '11.5px', fontWeight: 800, color: '#07345f', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                  TOTAL ADMINS
+                </div>
+                <div style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', margin: '4px 0 2px 0', lineHeight: 1.1 }}>
                   {stats.total}
-                </span>
-                <span style={{ fontSize: '11px', color: '#64748b', fontWeight: 600 }}>Total Admins</span>
+                </div>
+                <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 500 }}>
+                  System administration users
+                </div>
               </div>
+              <Users size={20} color="#07345f" strokeWidth={2} />
             </div>
-            {selectedRoleFilter === 'all' && (
-              <span style={{ background: '#07345f', color: '#fff', fontSize: '9px', padding: '2px 6px', borderRadius: '4px', fontWeight: 700 }}>
-                Active
-              </span>
-            )}
           </div>
 
           {/* Head Admins */}
           <div
             onClick={() => setSelectedRoleFilter(selectedRoleFilter === 'Head Admin' ? 'all' : 'Head Admin')}
             style={{
-              background: selectedRoleFilter === 'Head Admin' ? '#f0f4f8' : '#ffffff',
-              border: selectedRoleFilter === 'Head Admin' ? '2px solid #07345f' : '1px solid #e2e8f0',
-              borderRadius: '10px',
-              padding: '12px 14px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
+              background: '#ffffff',
+              border: selectedRoleFilter === 'Head Admin' ? '2px solid #07345f' : '1.5px solid #cbd5e1',
+              borderRadius: '12px',
+              padding: '14px 16px',
               cursor: 'pointer',
-              transition: 'all 0.2s ease',
-              boxShadow: selectedRoleFilter === 'Head Admin' ? '0 2px 8px rgba(7, 52, 95, 0.1)' : '0 1px 3px rgba(0,0,0,0.02)'
+              transition: 'all 0.15s ease',
+              boxShadow: selectedRoleFilter === 'Head Admin' ? '0 4px 14px rgba(7, 52, 95, 0.10)' : '0 1px 3px rgba(0,0,0,0.02)',
+              position: 'relative'
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <Shield size={20} color="#1f2937" strokeWidth={2} />
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div>
-                <span style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a', lineHeight: 1, display: 'block' }}>
+                <div style={{ fontSize: '11.5px', fontWeight: 800, color: '#07345f', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                  HEAD ADMINS
+                </div>
+                <div style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', margin: '4px 0 2px 0', lineHeight: 1.1 }}>
                   {stats.headAdmins}
-                </span>
-                <span style={{ fontSize: '11px', color: '#64748b', fontWeight: 600 }}>Head Admins</span>
+                </div>
+                <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 500 }}>
+                  Full executive privileges
+                </div>
               </div>
+              <Shield size={20} color="#07345f" strokeWidth={2} />
             </div>
-            {selectedRoleFilter === 'Head Admin' && (
-              <span style={{ background: '#07345f', color: '#fff', fontSize: '9px', padding: '2px 6px', borderRadius: '4px', fontWeight: 700 }}>
-                Filtered
-              </span>
-            )}
           </div>
 
           {/* Discipline Officers */}
           <div
             onClick={() => setSelectedRoleFilter(selectedRoleFilter === 'Discipline Officer' ? 'all' : 'Discipline Officer')}
             style={{
-              background: selectedRoleFilter === 'Discipline Officer' ? '#f0f4f8' : '#ffffff',
-              border: selectedRoleFilter === 'Discipline Officer' ? '2px solid #07345f' : '1px solid #e2e8f0',
-              borderRadius: '10px',
-              padding: '12px 14px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
+              background: '#ffffff',
+              border: selectedRoleFilter === 'Discipline Officer' ? '2px solid #07345f' : '1.5px solid #cbd5e1',
+              borderRadius: '12px',
+              padding: '14px 16px',
               cursor: 'pointer',
-              transition: 'all 0.2s ease',
-              boxShadow: selectedRoleFilter === 'Discipline Officer' ? '0 2px 8px rgba(7, 52, 95, 0.1)' : '0 1px 3px rgba(0,0,0,0.02)'
+              transition: 'all 0.15s ease',
+              boxShadow: selectedRoleFilter === 'Discipline Officer' ? '0 4px 14px rgba(7, 52, 95, 0.10)' : '0 1px 3px rgba(0,0,0,0.02)',
+              position: 'relative'
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <ShieldCheck size={20} color="#1f2937" strokeWidth={2} />
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div>
-                <span style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a', lineHeight: 1, display: 'block' }}>
+                <div style={{ fontSize: '11.5px', fontWeight: 800, color: '#07345f', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                  DISCIPLINE OFFICERS
+                </div>
+                <div style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', margin: '4px 0 2px 0', lineHeight: 1.1 }}>
                   {stats.disciplineOfficers}
-                </span>
-                <span style={{ fontSize: '11px', color: '#64748b', fontWeight: 600 }}>Discipline Officers</span>
+                </div>
+                <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 500 }}>
+                  Case review & hearings
+                </div>
               </div>
+              <ShieldCheck size={20} color="#07345f" strokeWidth={2} />
             </div>
-            {selectedRoleFilter === 'Discipline Officer' && (
-              <span style={{ background: '#07345f', color: '#fff', fontSize: '9px', padding: '2px 6px', borderRadius: '4px', fontWeight: 700 }}>
-                Filtered
-              </span>
-            )}
           </div>
         </div>
 
@@ -1456,3 +1440,6 @@ export const AdminUsersPage = () => {
     </div>
   );
 };
+
+export default AdminUsersPage;
+

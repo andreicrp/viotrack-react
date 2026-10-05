@@ -86,9 +86,7 @@ export const ScreenLockModal = () => {
         position: 'fixed',
         inset: 0,
         zIndex: 99999,
-        background: 'rgba(15, 23, 42, 0.85)',
-        backdropFilter: 'blur(16px)',
-        WebkitBackdropFilter: 'blur(16px)',
+        background: 'rgba(15, 23, 42, 0.75)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -99,48 +97,29 @@ export const ScreenLockModal = () => {
         className={`modal-content-smooth ${isShaking ? 'shake-animation' : ''}`}
         style={{
           width: '100%',
-          maxWidth: '440px',
+          maxWidth: '380px',
           background: '#ffffff',
-          borderRadius: '24px',
-          boxShadow: '0 30px 70px -15px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.15)',
+          borderRadius: '18px',
+          boxShadow: '0 25px 60px -15px rgba(0, 0, 0, 0.3)',
           overflow: 'hidden',
           display: 'flex',
-          flexDirection: 'column'
+          flexDirection: 'column',
+          border: '1px solid #e2e8f0'
         }}
       >
-        {/* Header Ribbon */}
-        <div
-          style={{
-            background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
-            padding: '24px 24px 20px',
-            textAlign: 'center',
-            position: 'relative'
-          }}
-        >
-          {/* Logo & Seal */}
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', marginBottom: '14px' }}>
-            <img
-              src="/images/phcm-logo.png"
-              alt="Perpetual Logo"
-              style={{ width: '32px', height: '32px', objectFit: 'contain' }}
-            />
-            <span style={{ color: '#ffffff', fontWeight: 800, fontSize: '14px', letterSpacing: '0.05em' }}>
-              VIOTRACK SECURITY
-            </span>
-          </div>
-
-          {/* User Avatar with Locked Badge */}
-          <div style={{ position: 'relative', display: 'inline-block', margin: '0 auto 12px' }}>
+        {/* Simple Header with Avatar */}
+        <div style={{ padding: '28px 24px 16px', textAlign: 'center' }}>
+          <div style={{ position: 'relative', display: 'inline-block', marginBottom: '12px' }}>
             <img
               src={userAvatar}
               alt={userName}
               style={{
-                width: '76px',
-                height: '76px',
+                width: '68px',
+                height: '68px',
                 borderRadius: '50%',
                 objectFit: 'cover',
-                border: '3px solid #ffffff',
-                boxShadow: '0 8px 20px rgba(0,0,0,0.3)',
+                border: '2.5px solid #0f172a',
+                boxShadow: '0 4px 12px rgba(15, 23, 42, 0.12)',
                 background: '#ffffff'
               }}
               onError={(e) => {
@@ -151,86 +130,41 @@ export const ScreenLockModal = () => {
             <div
               style={{
                 position: 'absolute',
-                bottom: -2,
-                right: -2,
-                width: '26px',
-                height: '26px',
+                bottom: 0,
+                right: 0,
+                width: '22px',
+                height: '22px',
                 borderRadius: '50%',
-                background: '#e11d48',
+                background: '#0f172a',
                 color: '#ffffff',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                border: '2px solid #ffffff',
-                boxShadow: '0 2px 6px rgba(0,0,0,0.2)'
+                border: '2px solid #ffffff'
               }}
               title="Session Locked"
             >
-              <Lock size={13} strokeWidth={2.6} />
+              <Lock size={11} strokeWidth={2.6} />
             </div>
           </div>
 
-          <h2 style={{ margin: '0 0 4px', color: '#ffffff', fontSize: '18px', fontWeight: 800 }}>
+          <h2 style={{ margin: '0 0 2px', color: '#0f172a', fontSize: '18px', fontWeight: 800 }}>
             {userName}
           </h2>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
-            <span
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '4px',
-                background: 'rgba(255, 255, 255, 0.15)',
-                color: '#f8fafc',
-                padding: '3px 10px',
-                borderRadius: '12px',
-                fontSize: '11px',
-                fontWeight: 700
-              }}
-            >
-              {isAdmin ? <Shield size={11} /> : <GraduationCap size={11} />}
-              {isAdmin ? 'System Administrator' : 'Faculty Adviser'}
-            </span>
-          </div>
+          <span style={{ fontSize: '12.5px', color: '#64748b' }}>
+            {isAdmin ? 'System Administrator' : 'Faculty Member'}
+          </span>
         </div>
 
-        {/* Modal Body */}
-        <div style={{ padding: '24px' }}>
-          {/* Lock Info Banner */}
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'flex-start',
-              gap: '10px',
-              background: '#f8fafc',
-              border: '1px solid #e2e8f0',
-              borderRadius: '12px',
-              padding: '12px 14px',
-              marginBottom: '20px'
-            }}
-          >
-            <Clock size={18} color="#64748b" style={{ flexShrink: 0, marginTop: '2px' }} />
-            <div style={{ fontSize: '12px', color: '#475569', lineHeight: 1.45 }}>
-              <strong style={{ color: '#0f172a', display: 'block', marginBottom: '2px' }}>
-                Workstation Locked for Privacy
-              </strong>
-              Screen auto-locked after 15 minutes of inactivity to protect sensitive student records.
-            </div>
-          </div>
-
-          {/* Unlock Form */}
+        {/* Unlock Form */}
+        <div style={{ padding: '0 24px 24px' }}>
           <form onSubmit={handleUnlock}>
-            <label
-              htmlFor="screen-lock-input"
-              style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#334155', marginBottom: '8px' }}
-            >
-              Enter Password or PIN (Default PIN: 1234)
-            </label>
-            <div style={{ position: 'relative', marginBottom: errorMessage ? '8px' : '16px' }}>
+            <div style={{ position: 'relative', marginBottom: errorMessage ? '8px' : '14px' }}>
               <input
                 id="screen-lock-input"
                 ref={inputRef}
                 type={showPassword ? 'text' : 'password'}
-                placeholder="Enter password or 1234"
+                placeholder="Enter password (PIN: 1234)"
                 value={password}
                 onChange={(e) => {
                   setPassword(e.target.value);
@@ -238,13 +172,14 @@ export const ScreenLockModal = () => {
                 }}
                 style={{
                   width: '100%',
-                  padding: '11px 40px 11px 14px',
+                  padding: '10px 38px 10px 14px',
                   borderRadius: '10px',
-                  border: errorMessage ? '1.5px solid #e11d48' : '1.5px solid #cbd5e1',
-                  fontSize: '14px',
+                  border: errorMessage ? '1.5px solid #ef4444' : '1.5px solid #cbd5e1',
+                  fontSize: '13.5px',
                   outline: 'none',
                   background: '#f8fafc',
-                  transition: 'all 0.15s'
+                  color: '#0f172a',
+                  boxSizing: 'border-box'
                 }}
                 onFocus={(e) => {
                   e.target.style.borderColor = '#0f172a';
@@ -269,11 +204,11 @@ export const ScreenLockModal = () => {
                   border: 'none',
                   color: '#94a3b8',
                   cursor: 'pointer',
-                  padding: '4px'
+                  padding: '2px'
                 }}
                 title={showPassword ? 'Hide Password' : 'Show Password'}
               >
-                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
               </button>
             </div>
 
@@ -283,96 +218,65 @@ export const ScreenLockModal = () => {
                   display: 'flex',
                   alignItems: 'center',
                   gap: '6px',
-                  color: '#e11d48',
-                  fontSize: '12px',
+                  color: '#ef4444',
+                  fontSize: '11.5px',
                   fontWeight: 600,
-                  marginBottom: '16px'
+                  marginBottom: '12px'
                 }}
               >
-                <AlertCircle size={14} />
+                <AlertCircle size={13} />
                 <span>{errorMessage}</span>
               </div>
             )}
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                style={{
-                  width: '100%',
-                  padding: '12px',
-                  borderRadius: '10px',
-                  background: '#0f172a',
-                  color: '#ffffff',
-                  border: 'none',
-                  fontSize: '13.5px',
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '8px',
-                  boxShadow: '0 4px 12px rgba(15, 23, 42, 0.25)',
-                  transition: 'background 0.15s'
-                }}
-                onMouseOver={(e) => e.currentTarget.style.background = '#1e293b'}
-                onMouseOut={(e) => e.currentTarget.style.background = '#0f172a'}
-              >
-                <Unlock size={16} />
-                <span>{isSubmitting ? 'Verifying...' : 'Unlock Workstation'}</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={handleQuickUnlock}
-                style={{
-                  width: '100%',
-                  padding: '9px',
-                  borderRadius: '10px',
-                  background: '#f1f5f9',
-                  color: '#0f172a',
-                  border: '1px solid #e2e8f0',
-                  fontSize: '12.5px',
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '6px',
-                  transition: 'background 0.15s'
-                }}
-                onMouseOver={(e) => e.currentTarget.style.background = '#e2e8f0'}
-                onMouseOut={(e) => e.currentTarget.style.background = '#f1f5f9'}
-              >
-                <Sparkles size={14} color="#0f172a" />
-                <span>1-Click Quick Resume</span>
-              </button>
-            </div>
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              style={{
+                width: '100%',
+                padding: '11px',
+                borderRadius: '10px',
+                background: '#0f172a',
+                color: '#ffffff',
+                border: 'none',
+                fontSize: '13px',
+                fontWeight: 700,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '6px',
+                boxShadow: '0 2px 8px rgba(15, 23, 42, 0.2)',
+                transition: 'all 0.15s ease'
+              }}
+              onMouseOver={(e) => e.currentTarget.style.background = '#1e293b'}
+              onMouseOut={(e) => e.currentTarget.style.background = '#0f172a'}
+            >
+              <Unlock size={15} />
+              <span>{isSubmitting ? 'Unlocking...' : 'Unlock Screen'}</span>
+            </button>
           </form>
 
           {/* Footer Actions */}
           <div
             style={{
-              marginTop: '20px',
-              paddingTop: '16px',
+              marginTop: '16px',
+              paddingTop: '12px',
               borderTop: '1px solid #f1f5f9',
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'space-between'
+              justifyContent: 'center'
             }}
           >
-            <span style={{ fontSize: '11px', color: '#94a3b8' }}>
-              Not {userName.split(' ')[0]}?
-            </span>
             <button
               type="button"
               onClick={handleSignOut}
               style={{
                 background: 'none',
                 border: 'none',
-                color: '#e11d48',
+                color: '#64748b',
                 fontSize: '12px',
-                fontWeight: 700,
+                fontWeight: 600,
                 cursor: 'pointer',
                 display: 'inline-flex',
                 alignItems: 'center',
@@ -380,11 +284,11 @@ export const ScreenLockModal = () => {
                 padding: '4px 8px',
                 borderRadius: '6px'
               }}
-              onMouseOver={(e) => e.currentTarget.style.background = '#fff1f2'}
-              onMouseOut={(e) => e.currentTarget.style.background = 'none'}
+              onMouseOver={(e) => { e.currentTarget.style.color = '#ef4444'; e.currentTarget.style.background = '#fef2f2'; }}
+              onMouseOut={(e) => { e.currentTarget.style.color = '#64748b'; e.currentTarget.style.background = 'none'; }}
             >
               <LogOut size={13} />
-              <span>Sign Out Completely</span>
+              <span>Sign Out</span>
             </button>
           </div>
         </div>

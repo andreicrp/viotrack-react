@@ -21,15 +21,94 @@ import {
   Square,
   ChevronDown,
   Layers,
-  Edit3
+  Edit3,
+  ZoomIn,
+  ZoomOut,
+  RotateCcw,
+  Move
 } from 'lucide-react';
 import { useNotification } from '../../context/NotificationContext';
 import { dataService } from '../../services/dataService';
 import { lockBodyScroll, unlockBodyScroll } from '../../utils/scrollLock';
+import { CustomDatePicker } from '../common/CustomDatePicker';
+import { CustomTimePicker } from '../common/CustomTimePicker';
 
 export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }) => {
   const { success, error, info } = useNotification();
   const printRef = useRef(null);
+  const [mobileTab, setMobileTab] = useState('form'); // 'form' | 'preview'
+
+  // Canvas Pan & Zoom states (Google Sheets style interactive layout)
+  const [zoom, setZoom] = useState(1);
+  const [pan, setPan] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const dragStartRef = useRef({ x: 0, y: 0, initialPanX: 0, initialPanY: 0 });
+
+  const handleMouseDown = (e) => {
+    if (e.button !== 0 || e.target.closest('button, input, textarea, select, a')) return;
+    setIsDragging(true);
+    dragStartRef.current = {
+      x: e.clientX,
+      y: e.clientY,
+      initialPanX: pan.x,
+      initialPanY: pan.y
+    };
+  };
+
+  const handleMouseMove = (e) => {
+    if (!isDragging) return;
+    const deltaX = e.clientX - dragStartRef.current.x;
+    const deltaY = e.clientY - dragStartRef.current.y;
+    setPan({
+      x: dragStartRef.current.initialPanX + deltaX,
+      y: dragStartRef.current.initialPanY + deltaY
+    });
+  };
+
+  const handleMouseUp = () => {
+    if (isDragging) setIsDragging(false);
+  };
+
+  const handleTouchStart = (e) => {
+    if (e.touches.length === 1 && !e.target.closest('button, input, textarea, select, a')) {
+      const touch = e.touches[0];
+      setIsDragging(true);
+      dragStartRef.current = {
+        x: touch.clientX,
+        y: touch.clientY,
+        initialPanX: pan.x,
+        initialPanY: pan.y
+      };
+    }
+  };
+
+  const handleTouchMove = (e) => {
+    if (!isDragging || e.touches.length !== 1) return;
+    const touch = e.touches[0];
+    const deltaX = touch.clientX - dragStartRef.current.x;
+    const deltaY = touch.clientY - dragStartRef.current.y;
+    setPan({
+      x: dragStartRef.current.initialPanX + deltaX,
+      y: dragStartRef.current.initialPanY + deltaY
+    });
+  };
+
+  const handleTouchEnd = () => {
+    if (isDragging) setIsDragging(false);
+  };
+
+  const handleZoomIn = () => {
+    setZoom((prev) => Math.min(1.8, Number((prev + 0.1).toFixed(1))));
+  };
+
+  const handleZoomOut = () => {
+    setZoom((prev) => Math.max(0.6, Number((prev - 0.1).toFixed(1))));
+  };
+
+  const handleResetView = () => {
+    setZoom(1);
+    setPan({ x: 0, y: 0 });
+  };
 
   // Extract initial details from record or student
   const activeStudent = student || record?.student || {};
@@ -57,13 +136,11 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
   // Signatory 1 (Left - Prefect / Discipline Officer)
   const [signatory1Name, setSignatory1Name] = useState('Sheryl Gamboa');
   const [signatory1Title, setSignatory1Title] = useState('Prefect of Discipline / Disciplinary Committee');
-  const [signatory1Dept, setSignatory1Dept] = useState('Perpetual Help College of Manila');
 
   // Signatory 2 (Right - Class Adviser / Department Head)
   const [includeSignatory2, setIncludeSignatory2] = useState(true);
   const [signatory2Name, setSignatory2Name] = useState('Class Adviser');
   const [signatory2Title, setSignatory2Title] = useState('Department Head');
-  const [signatory2Dept, setSignatory2Dept] = useState('Basic Education Department');
 
   const [customRemarks, setCustomRemarks] = useState(
     'Please bring a valid government/company ID. Your cooperation is vital to supporting your child\'s academic and personal character development.'
@@ -229,8 +306,8 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
 
       doc.setTextColor(255, 255, 255);
       doc.setFont('helvetica', 'bold');
-      doc.setFontSize(13);
-      doc.text('PERPETUAL HELP COLLEGE OF MANILA', 105, 11, { align: 'center' });
+      doc.setFontSize(12);
+      doc.text('UNIVERSITY OF PERPETUAL HELP SYSTEM MANILA', 105, 11, { align: 'center' });
       doc.setFontSize(8.5);
       doc.setFont('helvetica', 'normal');
       doc.text('1240 V. Concepcion St., Sampaloc, Manila | Office of the Prefect of Discipline', 105, 17, { align: 'center' });
@@ -259,7 +336,7 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
       doc.text(`TO: ${parentName.toUpperCase()}`, 14, 57);
       doc.setFont('helvetica', 'normal');
       doc.text(`Parent / Legal Guardian of: ${studentFullName}`, 14, 62);
-      doc.text(`Grade & Section: ${activeStudent.grade || 'Grade 10'} - ${activeStudent.section || 'General'} | LRN: ${activeStudent.lrn || 'N/A'}`, 14, 67);
+      doc.text(`Grade & Section: ${activeStudent.grade || 'Grade 10'} - ${activeStudent.section || 'General'} | Student ID: ${activeStudent.student_id || activeStudent.lrn || 'N/A'}`, 14, 67);
 
       // Body Text
       doc.setFontSize(9.5);
@@ -368,7 +445,6 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(8.5);
       doc.text(signatory1Title, 14, currentY + 4);
-      doc.text(signatory1Dept, 14, currentY + 8);
 
       if (includeSignatory2) {
         doc.setFont('helvetica', 'bold');
@@ -377,7 +453,6 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
         doc.setFont('helvetica', 'normal');
         doc.setFontSize(8.5);
         doc.text(signatory2Title, 130, currentY + 4);
-        doc.text(signatory2Dept, 130, currentY + 8);
       }
 
       // Tear-off slip
@@ -441,8 +516,465 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
         contain: 'strict'
       }}
     >
+      <style>{`
+        .psm-body {
+          display: flex;
+          flex: 1;
+          min-height: 0;
+          overflow: hidden;
+        }
+        .psm-left {
+          width: 380px;
+          flex-shrink: 0;
+          padding: 20px;
+          background: #f8fafc;
+          border-right: 1px solid #e2e8f0;
+          overflow-y: auto;
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+        }
+        .psm-right {
+          flex: 1;
+          padding: 16px 20px 32px;
+          background: #cbd5e1;
+          overflow: auto;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          position: relative;
+          user-select: none;
+        }
+        .psm-canvas-toolbar {
+          position: sticky;
+          top: 0;
+          z-index: 10;
+          margin-bottom: 14px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          background: rgba(255, 255, 255, 0.95);
+          backdrop-filter: blur(8px);
+          padding: 6px 14px;
+          border-radius: 9999px;
+          border: 1px solid #cbd5e1;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+          gap: 10px;
+          max-width: 680px;
+          width: 100%;
+          box-sizing: border-box;
+        }
+        .psm-canvas-tools-group {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+        }
+        .psm-canvas-btn {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 4px;
+          padding: 4px 8px;
+          border-radius: 6px;
+          font-size: 11.5px;
+          font-weight: 700;
+          color: #334155;
+          background: #f1f5f9;
+          border: 1px solid #cbd5e1;
+          cursor: pointer;
+          transition: all 0.12s ease;
+        }
+        .psm-canvas-btn:hover {
+          background: #e2e8f0;
+          color: #0f172a;
+        }
+        .psm-canvas-badge {
+          font-size: 11px;
+          font-weight: 800;
+          color: #0f172a;
+          font-family: monospace;
+          min-width: 42px;
+          text-align: center;
+        }
+        .psm-mobile-tabs {
+          display: none;
+        }
+        .psm-preview-paper {
+          width: 100%;
+          max-width: 680px;
+          margin: 0 auto;
+          background: #ffffff;
+          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+          border-radius: 12px;
+          padding: 32px 36px;
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Inter', sans-serif;
+          color: #0f172a;
+          line-height: 1.55;
+          box-sizing: border-box;
+          transform: translate3d(0, 0, 0);
+          contain: layout paint;
+        }
+        .psm-letterhead {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 14px;
+          margin-bottom: 4px;
+        }
+        .psm-univ-text {
+          flex: 1;
+          text-align: center;
+        }
+        .psm-univ-logo {
+          width: 46px;
+          height: 46px;
+          object-fit: contain;
+          flex-shrink: 0;
+        }
+        .psm-univ-title {
+          margin: 0 0 2px 0;
+          font-size: 15.5px;
+          font-weight: 800;
+          color: #0f172a;
+          letter-spacing: 0.01em;
+          font-family: inherit;
+        }
+        .psm-univ-sub {
+          font-size: 11px;
+          color: #475569;
+          font-weight: 600;
+          display: block;
+          font-family: inherit;
+          margin-bottom: 2px;
+        }
+        .psm-univ-tag {
+          font-size: 9.5px;
+          color: #64748b;
+          font-weight: 700;
+          letter-spacing: 0.5px;
+          display: block;
+          text-transform: uppercase;
+          font-family: inherit;
+        }
+        .psm-meta-row {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          font-size: 12px;
+          color: #64748b;
+          margin-bottom: 16px;
+          font-family: inherit;
+        }
+        .psm-notice-title {
+          margin: 0 0 4px 0;
+          font-size: 15px;
+          font-weight: 800;
+          color: #0f172a;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          font-family: inherit;
+        }
+        .psm-notice-sub {
+          font-size: 11px;
+          color: #dc2626;
+          font-weight: 800;
+          letter-spacing: 0.5px;
+          font-family: inherit;
+        }
+        .psm-recipient-box {
+          font-size: 12.5px;
+          margin-bottom: 16px;
+          background: #f8fafc;
+          padding: 12px 16px;
+          border-radius: 8px;
+          border: 1px solid #e2e8f0;
+          line-height: 1.55;
+          color: #1e293b;
+        }
+        .psm-letter-text {
+          font-size: 12.5px;
+          color: #1e293b;
+          text-align: left;
+          margin-bottom: 16px;
+          line-height: 1.6;
+        }
+        .psm-conf-card {
+          background: #f8fafc;
+          border: 1.5px solid #cbd5e1;
+          border-radius: 10px;
+          padding: 14px 18px;
+          margin-bottom: 16px;
+        }
+        .psm-conf-grid {
+          display: grid;
+          grid-template-columns: 140px 1fr;
+          gap: 8px;
+          row-gap: 8px;
+          font-size: 12.5px;
+          line-height: 1.45;
+        }
+        .psm-conf-item {
+          display: contents;
+        }
+        .psm-conf-item strong {
+          color: #0f172a;
+          font-weight: 700;
+        }
+        .psm-conf-item span {
+          color: #0f172a;
+          font-weight: 700;
+        }
+        .psm-note-text {
+          font-size: 11.5px;
+          color: #475569;
+          font-style: italic;
+          line-height: 1.5;
+          margin: 0 0 18px 0;
+        }
+        .psm-signatures-row {
+          margin-top: 24px;
+          display: flex;
+          justify-content: space-between;
+          gap: 20px;
+        }
+        .psm-sig-line {
+          border-top: 1.5px solid #0f172a;
+          width: 210px;
+          padding-top: 4px;
+        }
+        .psm-return-slip {
+          margin-top: 22px;
+          border-top: 2px dashed #cbd5e1;
+          padding-top: 14px;
+          font-size: 10.5px;
+        }
+        .psm-slip-sign-row {
+          display: flex;
+          justify-content: space-between;
+          margin-top: 14px;
+        }
+        .psm-footer {
+          background: #ffffff;
+          border-top: 1px solid #e2e8f0;
+          padding: 14px 24px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          flex-shrink: 0;
+        }
+        .psm-footer-actions {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+        }
+        .psm-footer-btn {
+          padding: 8px 16px;
+          border-radius: 8px;
+          font-size: 12.5px;
+          font-weight: 700;
+          cursor: pointer;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 6px;
+          transition: all 0.15s ease;
+        }
+        .psm-btn-close {
+          border: 1px solid #cbd5e1;
+          background: #ffffff;
+          color: #475569;
+        }
+        .psm-btn-close:hover {
+          background: #f1f5f9;
+        }
+        .psm-btn-print {
+          border: 1px solid #cbd5e1;
+          background: #f8fafc;
+          color: #0f172a;
+        }
+        .psm-btn-print:hover {
+          background: #e2e8f0;
+        }
+        .psm-btn-download {
+          border: none;
+          background: #0f172a;
+          color: #ffffff;
+          box-shadow: 0 2px 8px rgba(15, 23, 42, 0.25);
+        }
+        .psm-btn-download:hover {
+          background: #1e293b;
+        }
+
+        @media (max-width: 768px) {
+          .modal-backdrop-smooth {
+            padding: 8px !important;
+          }
+          .psm-dialog {
+            height: 98vh !important;
+            max-height: 98vh !important;
+            border-radius: 14px !important;
+            margin: 0 !important;
+          }
+          .psm-header-sub {
+            display: none !important;
+          }
+          .psm-mobile-tabs {
+            display: flex;
+            padding: 6px 10px;
+            background: #f1f5f9;
+            border-bottom: 1px solid #e2e8f0;
+            gap: 6px;
+          }
+          .psm-mobile-tab-btn {
+            flex: 1;
+            padding: 8px 10px;
+            font-size: 12px;
+            font-weight: 700;
+            border-radius: 8px;
+            border: 1px solid transparent;
+            background: transparent;
+            color: #64748b;
+            cursor: pointer;
+          }
+          .psm-mobile-tab-btn.active {
+            background: #ffffff;
+            color: #0f172a;
+            border-color: #cbd5e1;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+          }
+          .psm-body {
+            flex-direction: column;
+          }
+          .psm-left {
+            width: 100% !important;
+            border-right: none !important;
+            padding: 12px !important;
+            gap: 12px !important;
+          }
+          .psm-right {
+            width: 100% !important;
+            padding: 10px 8px !important;
+          }
+          .psm-left.hidden,
+          .psm-right.hidden {
+            display: none !important;
+          }
+          .psm-preview-paper {
+            padding: 18px 14px !important;
+            border-radius: 10px !important;
+            box-shadow: 0 1px 6px rgba(0,0,0,0.05) !important;
+          }
+          .psm-letterhead {
+            display: flex !important;
+            flex-direction: row !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            gap: 6px !important;
+            margin-bottom: 6px !important;
+          }
+          .psm-univ-text {
+            flex: 1 !important;
+            text-align: center !important;
+          }
+          .psm-univ-logo {
+            width: 34px !important;
+            height: 34px !important;
+            flex-shrink: 0 !important;
+            margin: 0 !important;
+          }
+          .psm-univ-title {
+            font-size: 11.5px !important;
+            line-height: 1.25 !important;
+            text-align: center !important;
+          }
+          .psm-univ-sub {
+            font-size: 8.5px !important;
+            line-height: 1.3 !important;
+            text-align: center !important;
+          }
+          .psm-univ-tag {
+            font-size: 7.5px !important;
+            text-align: center !important;
+          }
+          .psm-meta-row {
+            display: flex !important;
+            justify-content: space-between !important;
+            font-size: 10.5px !important;
+            margin-bottom: 12px !important;
+          }
+          .psm-notice-title {
+            font-size: 12.5px !important;
+          }
+          .psm-notice-sub {
+            font-size: 9.5px !important;
+          }
+          .psm-recipient-box {
+            font-size: 11px !important;
+            padding: 10px 12px !important;
+            margin-bottom: 12px !important;
+            line-height: 1.45 !important;
+          }
+          .psm-letter-text {
+            font-size: 11.5px !important;
+            line-height: 1.55 !important;
+            margin-bottom: 12px !important;
+          }
+          .psm-conf-card {
+            padding: 10px 12px !important;
+            margin-bottom: 12px !important;
+          }
+          .psm-conf-grid {
+            display: grid !important;
+            grid-template-columns: 115px 1fr !important;
+            gap: 6px !important;
+            row-gap: 6px !important;
+            font-size: 11px !important;
+            line-height: 1.4 !important;
+          }
+          .psm-note-text {
+            font-size: 10.5px !important;
+            margin-bottom: 14px !important;
+          }
+          .psm-signatures-row {
+            display: flex !important;
+            justify-content: space-between !important;
+            gap: 10px !important;
+            margin-top: 16px !important;
+          }
+          .psm-sig-line {
+            width: 140px !important;
+          }
+          .psm-return-slip {
+            font-size: 9.5px !important;
+            margin-top: 14px !important;
+            padding-top: 10px !important;
+          }
+          .psm-slip-sign-row {
+            flex-direction: column !important;
+            gap: 8px !important;
+            margin-top: 10px !important;
+          }
+          .psm-footer {
+            padding: 10px 12px !important;
+            flex-direction: column !important;
+            gap: 8px !important;
+          }
+          .psm-footer-text {
+            display: none !important;
+          }
+          .psm-footer-actions {
+            width: 100% !important;
+            display: grid !important;
+            grid-template-columns: 1fr 1fr !important;
+            gap: 8px !important;
+          }
+          .psm-btn-download {
+            grid-column: span 2 !important;
+          }
+        }
+      `}</style>
       <div
-        className="modal-content-smooth"
+        className="modal-content-smooth psm-dialog"
         style={{
           width: '100%',
           maxWidth: '1160px',
@@ -458,75 +990,46 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
           transform: 'translate3d(0, 0, 0)',
           contain: 'layout paint'
         }}
+        onClick={(e) => e.stopPropagation()}
       >
         {/* Modal Header */}
         <div
           style={{
-            background: '#0f172a',
-            color: '#ffffff',
-            padding: '18px 24px',
+            background: '#ffffff',
+            color: '#0f172a',
+            padding: '16px 24px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+            borderBottom: '1px solid #e2e8f0',
             flexShrink: 0
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <div
-              style={{
-                width: '38px',
-                height: '38px',
-                borderRadius: '10px',
-                background: 'rgba(56, 189, 248, 0.15)',
-                border: '1px solid rgba(56, 189, 248, 0.3)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}
-            >
-              <FileText size={20} color="#38bdf8" />
-            </div>
+            <FileText size={22} color="#0f172a" style={{ flexShrink: 0 }} />
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 800 }}>
-                  Automated Parent Summons Letter Generator
+                <h3 className="psm-header-title" style={{ margin: 0, fontSize: '16px', fontWeight: 800, color: '#0f172a' }}>
+                  Parent Summons Letter
                 </h3>
-                <span
-                  style={{
-                    background: 'rgba(56, 189, 248, 0.15)',
-                    color: '#38bdf8',
-                    fontSize: '10px',
-                    fontWeight: 700,
-                    padding: '2px 8px',
-                    borderRadius: '9999px',
-                    border: '1px solid rgba(56, 189, 248, 0.3)',
-                    letterSpacing: '0.4px',
-                    textTransform: 'uppercase'
-                  }}
-                >
-                  Official Template
-                </span>
                 {activeViolations.length > 1 && (
                   <span
                     style={{
-                      background: 'rgba(239, 68, 68, 0.15)',
-                      color: '#f87171',
-                      fontSize: '10px',
+                      background: '#f8fafc',
+                      color: '#475569',
+                      fontSize: '11px',
                       fontWeight: 700,
                       padding: '2px 8px',
-                      borderRadius: '9999px',
-                      border: '1px solid rgba(239, 68, 68, 0.3)',
-                      letterSpacing: '0.4px',
-                      textTransform: 'uppercase'
+                      borderRadius: '6px',
+                      border: '1px solid #cbd5e1'
                     }}
                   >
-                    {activeViolations.length} Violations Bundled
+                    {activeViolations.length} Violations Selected
                   </span>
                 )}
               </div>
-              <span style={{ fontSize: '11.5px', color: '#94a3b8', display: 'block', marginTop: '1px' }}>
-                Pre-formatted formal conference notice with dynamic student infraction bundling
+              <span className="psm-header-sub" style={{ fontSize: '12px', color: '#64748b', display: 'block', marginTop: '2px' }}>
+                Generate and print a formal conference notice for the student's guardian.
               </span>
             </div>
           </div>
@@ -535,48 +1038,54 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
             type="button"
             onClick={onClose}
             style={{
-              background: 'rgba(255, 255, 255, 0.08)',
-              border: 'none',
-              color: '#94a3b8',
+              background: '#f8fafc',
+              border: '1px solid #e2e8f0',
+              color: '#64748b',
               cursor: 'pointer',
               width: '32px',
               height: '32px',
-              borderRadius: '50%',
+              borderRadius: '8px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               transition: 'all 0.15s ease'
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)';
-              e.currentTarget.style.color = '#ffffff';
+              e.currentTarget.style.background = '#e2e8f0';
+              e.currentTarget.style.color = '#0f172a';
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)';
-              e.currentTarget.style.color = '#94a3b8';
+              e.currentTarget.style.background = '#f8fafc';
+              e.currentTarget.style.color = '#64748b';
             }}
           >
-            <X size={18} />
+            <X size={16} />
           </button>
         </div>
 
-        {/* Modal Body: 2-Column Split */}
-        <div style={{ display: 'flex', flex: 1, overflow: 'hidden', minHeight: 0 }}>
+        {/* Mobile Tab Switcher — only visible on small screens */}
+        <div className="psm-mobile-tabs">
+          <button
+            type="button"
+            className={`psm-mobile-tab-btn ${mobileTab === 'form' ? 'active' : ''}`}
+            onClick={() => setMobileTab('form')}
+          >
+            ✏️ Edit Form
+          </button>
+          <button
+            type="button"
+            className={`psm-mobile-tab-btn ${mobileTab === 'preview' ? 'active' : ''}`}
+            onClick={() => setMobileTab('preview')}
+          >
+            📄 Letter Preview
+          </button>
+        </div>
+
+        {/* Modal Body: 2-Column Split (stacks on mobile via CSS) */}
+        <div className="psm-body">
           
           {/* Left Column: Form Parameters */}
-          <div
-            className="smooth-scroll-container"
-            style={{
-              width: '360px',
-              borderRight: '1px solid #e2e8f0',
-              padding: '18px 20px',
-              background: '#f8fafc',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '14px',
-              flexShrink: 0
-            }}
-          >
+          <div className={`psm-left smooth-scroll-container${mobileTab === 'preview' ? ' hidden' : ''}`}>
             {/* 1. Summons Basic Parameters */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #e2e8f0', paddingBottom: '6px' }}>
@@ -588,7 +1097,7 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
               {/* Guardian Name */}
               <div>
                 <label style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '12px', fontWeight: 700, color: '#334155', marginBottom: '4px' }}>
-                  <User size={13} color="#2563eb" /> Parent / Guardian Name
+                  <User size={13} color="#0f172a" /> Parent / Guardian Name
                 </label>
                 <input
                   type="text"
@@ -610,41 +1119,24 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
                 <div>
                   <label style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '11.5px', fontWeight: 700, color: '#334155', marginBottom: '4px' }}>
-                    <Calendar size={12} color="#059669" /> Date
+                    <Calendar size={12} color="#0f172a" /> Date
                   </label>
-                  <input
-                    type="date"
+                  <CustomDatePicker
                     value={conferenceDate}
-                    onChange={(e) => setConferenceDate(e.target.value)}
-                    style={{
-                      width: '100%',
-                      padding: '7px 8px',
-                      borderRadius: '8px',
-                      border: '1.5px solid #cbd5e1',
-                      fontSize: '12px',
-                      background: '#ffffff',
-                      boxSizing: 'border-box'
-                    }}
+                    onChange={(val) => setConferenceDate(val)}
+                    placeholder="Select Date"
                   />
                 </div>
 
                 <div>
                   <label style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '11.5px', fontWeight: 700, color: '#334155', marginBottom: '4px' }}>
-                    <Clock size={12} color="#d97706" /> Time
+                    <Clock size={12} color="#0f172a" /> Time
                   </label>
-                  <input
-                    type="time"
+                  <CustomTimePicker
                     value={conferenceTime}
-                    onChange={(e) => setConferenceTime(e.target.value)}
-                    style={{
-                      width: '100%',
-                      padding: '7px 8px',
-                      borderRadius: '8px',
-                      border: '1.5px solid #cbd5e1',
-                      fontSize: '12px',
-                      background: '#ffffff',
-                      boxSizing: 'border-box'
-                    }}
+                    onChange={(val) => setConferenceTime(val)}
+                    placeholder="Select Time"
+                    align="right"
                   />
                 </div>
               </div>
@@ -652,7 +1144,7 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
               {/* Venue */}
               <div>
                 <label style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '12px', fontWeight: 700, color: '#334155', marginBottom: '4px' }}>
-                  <MapPin size={13} color="#dc2626" /> Designated Venue
+                  <MapPin size={13} color="#0f172a" /> Designated Venue
                 </label>
                 <input
                   type="text"
@@ -675,7 +1167,7 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '12px' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <span style={{ fontSize: '11px', fontWeight: 800, color: '#0f172a', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '5px' }}>
-                  <Layers size={13} color="#2563eb" /> Included Violations ({activeViolations.length})
+                  <Layers size={13} color="#0f172a" /> Included Violations ({activeViolations.length})
                 </span>
                 {studentViolations.length > 1 && (
                   <button
@@ -697,8 +1189,9 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
                   const isMajor = sev.toLowerCase().includes('major');
                   const isSerious = sev.toLowerCase().includes('serious');
 
-                  const badgeBg = isSerious ? '#fee2e2' : (isMajor ? '#fef3c7' : '#f0fdf4');
-                  const badgeColor = isSerious ? '#b91c1c' : (isMajor ? '#b45309' : '#15803d');
+                  const badgeBg = isMajor ? '#fee2e2' : (isSerious ? '#fef9c3' : '#dcfce7');
+                  const badgeColor = isMajor ? '#dc2626' : (isSerious ? '#a16207' : '#15803d');
+                  const badgeBorder = isMajor ? '#fecaca' : (isSerious ? '#fde047' : '#bbf7d0');
 
                   return (
                     <div
@@ -731,6 +1224,7 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
                             style={{
                               background: badgeBg,
                               color: badgeColor,
+                              border: `1px solid ${badgeBorder}`,
                               fontSize: '9.5px',
                               fontWeight: 800,
                               padding: '1px 5px',
@@ -874,7 +1368,7 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
             {/* 4. Custom Notes */}
             <div>
               <label style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '12px', fontWeight: 700, color: '#334155', marginBottom: '4px' }}>
-                <MessageSquare size={13} color="#64748b" /> Meeting Agenda &amp; Notes
+                <MessageSquare size={13} color="#0f172a" /> Meeting Agenda &amp; Notes
               </label>
               <textarea
                 rows={2}
@@ -940,80 +1434,120 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
 
           {/* Right Column: Printable Letter Document Preview */}
           <div
-            className="smooth-scroll-container"
+            className={`psm-right smooth-scroll-container${mobileTab === 'form' ? ' hidden' : ''}`}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}
+            onMouseLeave={handleMouseUp}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
             style={{
-              flex: 1,
-              padding: '24px 20px',
-              background: '#e2e8f0',
-              display: 'block'
+              cursor: isDragging ? 'grabbing' : 'default'
             }}
           >
+            {/* Canvas Control Toolbar (Google Sheets Print Style) */}
+            <div className="psm-canvas-toolbar">
+              <div className="psm-canvas-tools-group">
+                <Move size={13} color="#64748b" />
+                <span style={{ fontSize: '11px', fontWeight: 700, color: '#475569' }}>
+                  {isDragging ? 'Dragging layout...' : 'Drag paper to reposition'}
+                </span>
+              </div>
+              <div className="psm-canvas-tools-group">
+                <button
+                  type="button"
+                  className="psm-canvas-btn"
+                  onClick={handleZoomOut}
+                  title="Zoom Out"
+                >
+                  <ZoomOut size={13} />
+                </button>
+                <span className="psm-canvas-badge">{Math.round(zoom * 100)}%</span>
+                <button
+                  type="button"
+                  className="psm-canvas-btn"
+                  onClick={handleZoomIn}
+                  title="Zoom In"
+                >
+                  <ZoomIn size={13} />
+                </button>
+                <button
+                  type="button"
+                  className="psm-canvas-btn"
+                  onClick={handleResetView}
+                  title="Reset Position & Zoom"
+                >
+                  <RotateCcw size={12} />
+                  <span>Reset</span>
+                </button>
+              </div>
+            </div>
+
             <div
               ref={printRef}
+              className="psm-preview-paper"
               style={{
-                width: '100%',
-                maxWidth: '680px',
-                margin: '0 auto',
-                background: '#ffffff',
-                boxShadow: '0 4px 18px rgba(0, 0, 0, 0.08)',
-                borderRadius: '8px',
-                padding: '36px 44px',
-                fontFamily: "'Times New Roman', Times, serif",
-                color: '#0f172a',
-                lineHeight: 1.55,
-                boxSizing: 'border-box',
-                transform: 'translate3d(0, 0, 0)',
-                contain: 'layout paint'
+                transform: `translate3d(${pan.x}px, ${pan.y}px, 0) scale(${zoom})`,
+                transformOrigin: 'top center',
+                transition: isDragging ? 'none' : 'transform 0.12s cubic-bezier(0.2, 0, 0, 1)',
+                cursor: isDragging ? 'grabbing' : 'grab'
               }}
+              onMouseDown={handleMouseDown}
+              onTouchStart={handleTouchStart}
             >
               {/* Official Letterhead */}
               <div style={{ textAlign: 'center', borderBottom: '2px solid #0f172a', paddingBottom: '14px', marginBottom: '16px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '14px', marginBottom: '6px' }}>
+                <div className="psm-letterhead">
                   <img
                     src="/images/phcm-logo.png"
-                    alt="PHCM Logo"
-                    style={{ width: '48px', height: '48px', objectFit: 'contain' }}
+                    alt="PHCM Logo Left"
+                    className="psm-univ-logo"
                     onError={(e) => { e.currentTarget.style.display = 'none'; }}
                   />
-                  <div>
-                    <h2 style={{ margin: 0, fontSize: '17px', fontWeight: 800, color: '#0f172a', letterSpacing: '0.03em', fontFamily: 'Arial, sans-serif' }}>
-                      PERPETUAL HELP COLLEGE OF MANILA
+                  <div className="psm-univ-text">
+                    <h2 className="psm-univ-title">
+                      UNIVERSITY OF PERPETUAL HELP SYSTEM MANILA
                     </h2>
-                    <span style={{ fontSize: '11px', color: '#475569', display: 'block', fontFamily: 'Arial, sans-serif' }}>
+                    <span className="psm-univ-sub">
                       1240 V. Concepcion St., Sampaloc, Manila | Office of the Prefect of Discipline
                     </span>
-                    <span style={{ fontSize: '9.5px', color: '#64748b', fontWeight: 700, letterSpacing: '0.5px', display: 'block', textTransform: 'uppercase', fontFamily: 'Arial, sans-serif' }}>
+                    <span className="psm-univ-tag">
                       VIOTRACK DISCIPLINARY &amp; STUDENT WELFARE MANAGEMENT SYSTEM
                     </span>
                   </div>
+                  <img
+                    src="/images/phcm-seal.png"
+                    alt="PHCM University Seal"
+                    className="psm-univ-logo"
+                    onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                  />
                 </div>
               </div>
 
               {/* Reference & Date */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '11.5px', color: '#64748b', marginBottom: '14px', fontFamily: 'Arial, sans-serif' }}>
+              <div className="psm-meta-row">
                 <span>Reference No: <strong style={{ color: '#0f172a', fontFamily: 'monospace' }}>{referenceNo}</strong></span>
                 <span>Date Issued: <strong style={{ color: '#0f172a' }}>{currentDateFormatted}</strong></span>
               </div>
 
               {/* Notice Heading */}
               <div style={{ textAlign: 'center', margin: '14px 0 16px' }}>
-                <h3 style={{ margin: 0, fontSize: '14.5px', fontWeight: 800, color: '#0f172a', textTransform: 'uppercase', letterSpacing: '0.5px', fontFamily: 'Arial, sans-serif' }}>
+                <h3 className="psm-notice-title">
                   OFFICIAL PARENT / GUARDIAN CONFERENCE NOTICE
                 </h3>
-                <span style={{ fontSize: '10.5px', color: '#dc2626', fontWeight: 700, letterSpacing: '0.4px', fontFamily: 'Arial, sans-serif' }}>
+                <span className="psm-notice-sub">
                   (MANDATORY DISCIPLINARY APPEARANCE)
                 </span>
               </div>
 
               {/* Recipient */}
-              <div style={{ fontSize: '12.5px', marginBottom: '14px', background: '#f8fafc', padding: '10px 14px', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
+              <div className="psm-recipient-box">
                 <div><strong>TO:</strong> {parentName.toUpperCase()}</div>
                 <div><strong>Parent / Legal Guardian of:</strong> {studentFullName}</div>
-                <div><strong>Grade &amp; Section:</strong> {activeStudent.grade || 'Grade 10'} - {activeStudent.section || 'General'} | <strong>LRN:</strong> {activeStudent.lrn || 'N/A'}</div>
+                <div><strong>Grade &amp; Section:</strong> {activeStudent.grade || 'Grade 10'} - {activeStudent.section || 'General'} | <strong>Student ID:</strong> {activeStudent.student_id || activeStudent.lrn || 'N/A'}</div>
               </div>
 
               {/* Letter Body: Dynamically handles 1 or multiple violations */}
-              <div style={{ fontSize: '12.5px', color: '#1e293b', textAlign: 'justify', marginBottom: '14px' }}>
+              <div className="psm-letter-text">
                 <p style={{ margin: '0 0 8px 0' }}>Dear Mr. / Mrs. / Ms. <strong>{parentName}</strong>,</p>
 
                 {activeViolations.length === 1 ? (
@@ -1027,35 +1561,37 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
                     </p>
 
                     {/* Multi-Infractions Table */}
-                    <table style={{ width: '100%', borderCollapse: 'collapse', margin: '12px 0 14px', fontSize: '11.5px', border: '1px solid #cbd5e1' }}>
-                      <thead>
-                        <tr style={{ background: '#f1f5f9' }}>
-                          <th style={{ padding: '8px 6px', border: '1px solid #cbd5e1', width: '32px', textAlign: 'center', background: '#f1f5f9', color: '#0f172a', fontWeight: 800, fontSize: '11px', textTransform: 'uppercase' }}>#</th>
-                          <th style={{ padding: '8px 10px', border: '1px solid #cbd5e1', textAlign: 'left', background: '#f1f5f9', color: '#0f172a', fontWeight: 800, fontSize: '11px', textTransform: 'uppercase' }}>Infraction / Violation Description</th>
-                          <th style={{ padding: '8px 8px', border: '1px solid #cbd5e1', width: '100px', textAlign: 'center', background: '#f1f5f9', color: '#0f172a', fontWeight: 800, fontSize: '11px', textTransform: 'uppercase' }}>Offense Level</th>
-                          <th style={{ padding: '8px 8px', border: '1px solid #cbd5e1', width: '95px', textAlign: 'center', background: '#f1f5f9', color: '#0f172a', fontWeight: 800, fontSize: '11px', textTransform: 'uppercase' }}>Date Reported</th>
-                          <th style={{ padding: '8px 8px', border: '1px solid #cbd5e1', width: '80px', textAlign: 'center', background: '#f1f5f9', color: '#0f172a', fontWeight: 800, fontSize: '11px', textTransform: 'uppercase' }}>Status</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {activeViolations.map((v, idx) => {
-                          const vTitle = v.violation?.title || v.offense || 'Infraction';
-                          const vSev = v.violation?.type || v.severity || 'Minor';
-                          const vDate = v.date_reported ? new Date(v.date_reported).toLocaleDateString() : 'Recorded';
-                          const vStatus = v.status || 'Pending';
+                    <div style={{ width: '100%', overflowX: 'auto' }}>
+                      <table style={{ width: '100%', borderCollapse: 'collapse', margin: '12px 0 14px', fontSize: '11.5px', border: '1px solid #cbd5e1' }}>
+                        <thead>
+                          <tr style={{ background: '#f1f5f9' }}>
+                            <th style={{ padding: '8px 6px', border: '1px solid #cbd5e1', width: '32px', textAlign: 'center', background: '#f1f5f9', color: '#0f172a', fontWeight: 800, fontSize: '11px', textTransform: 'uppercase' }}>#</th>
+                            <th style={{ padding: '8px 10px', border: '1px solid #cbd5e1', textAlign: 'left', background: '#f1f5f9', color: '#0f172a', fontWeight: 800, fontSize: '11px', textTransform: 'uppercase' }}>Infraction / Violation Description</th>
+                            <th style={{ padding: '8px 8px', border: '1px solid #cbd5e1', width: '100px', textAlign: 'center', background: '#f1f5f9', color: '#0f172a', fontWeight: 800, fontSize: '11px', textTransform: 'uppercase' }}>Offense Level</th>
+                            <th style={{ padding: '8px 8px', border: '1px solid #cbd5e1', width: '95px', textAlign: 'center', background: '#f1f5f9', color: '#0f172a', fontWeight: 800, fontSize: '11px', textTransform: 'uppercase' }}>Date Reported</th>
+                            <th style={{ padding: '8px 8px', border: '1px solid #cbd5e1', width: '80px', textAlign: 'center', background: '#f1f5f9', color: '#0f172a', fontWeight: 800, fontSize: '11px', textTransform: 'uppercase' }}>Status</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {activeViolations.map((v, idx) => {
+                            const vTitle = v.violation?.title || v.offense || 'Infraction';
+                            const vSev = v.violation?.type || v.severity || 'Minor';
+                            const vDate = v.date_reported ? new Date(v.date_reported).toLocaleDateString() : 'Recorded';
+                            const vStatus = v.status || 'Pending';
 
-                          return (
-                            <tr key={v.id || idx} style={{ background: idx % 2 === 0 ? '#ffffff' : '#f8fafc' }}>
-                              <td style={{ padding: '7px 6px', border: '1px solid #e2e8f0', textAlign: 'center', fontWeight: 700, color: '#0f172a' }}>{idx + 1}</td>
-                              <td style={{ padding: '7px 10px', border: '1px solid #e2e8f0', fontWeight: 600, color: '#0f172a' }}>{vTitle}</td>
-                              <td style={{ padding: '7px 8px', border: '1px solid #e2e8f0', textAlign: 'center', fontWeight: 700, color: '#0f172a' }}>{vSev}</td>
-                              <td style={{ padding: '7px 8px', border: '1px solid #e2e8f0', textAlign: 'center', color: '#475569' }}>{vDate}</td>
-                              <td style={{ padding: '7px 8px', border: '1px solid #e2e8f0', textAlign: 'center', color: '#0f172a', fontWeight: 600 }}>{vStatus}</td>
-                            </tr>
-                          );
-                        })}
-                      </tbody>
-                    </table>
+                            return (
+                              <tr key={v.id || idx} style={{ background: idx % 2 === 0 ? '#ffffff' : '#f8fafc' }}>
+                                <td style={{ padding: '7px 6px', border: '1px solid #e2e8f0', textAlign: 'center', fontWeight: 700, color: '#0f172a' }}>{idx + 1}</td>
+                                <td style={{ padding: '7px 10px', border: '1px solid #e2e8f0', fontWeight: 600, color: '#0f172a' }}>{vTitle}</td>
+                                <td style={{ padding: '7px 8px', border: '1px solid #e2e8f0', textAlign: 'center', fontWeight: 700, color: '#0f172a' }}>{vSev}</td>
+                                <td style={{ padding: '7px 8px', border: '1px solid #e2e8f0', textAlign: 'center', color: '#475569' }}>{vDate}</td>
+                                <td style={{ padding: '7px 8px', border: '1px solid #e2e8f0', textAlign: 'center', color: '#0f172a', fontWeight: 600 }}>{vStatus}</td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
                   </div>
                 )}
 
@@ -1065,68 +1601,65 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
               </div>
 
               {/* Conference Details Card */}
-              <div
-                style={{
-                  background: '#f8fafc',
-                  border: '1.5px solid #cbd5e1',
-                  borderRadius: '8px',
-                  padding: '12px 16px',
-                  marginBottom: '14px',
-                  fontSize: '12px'
-                }}
-              >
-                <div style={{ display: 'grid', gridTemplateColumns: '135px 1fr', gap: '6px', rowGap: '6px' }}>
-                  <strong>Conference Date:</strong>
-                  <span>{formattedConfDate}</span>
+              <div className="psm-conf-card">
+                <div className="psm-conf-grid">
+                  <div className="psm-conf-item">
+                    <strong>Conference Date:</strong>
+                    <span>{formattedConfDate}</span>
+                  </div>
 
-                  <strong>Designated Time:</strong>
-                  <span>{conferenceTime} (Please arrive 10 minutes prior)</span>
+                  <div className="psm-conf-item">
+                    <strong>Designated Time:</strong>
+                    <span>{conferenceTime} (Please arrive 10 minutes prior)</span>
+                  </div>
 
-                  <strong>Designated Venue:</strong>
-                  <span>{venue}</span>
+                  <div className="psm-conf-item">
+                    <strong>Designated Venue:</strong>
+                    <span>{venue}</span>
+                  </div>
 
-                  <strong>Presiding Officer:</strong>
-                  <span>{signatory1Name} ({signatory1Title})</span>
+                  <div className="psm-conf-item">
+                    <strong>Presiding Officer:</strong>
+                    <span>{signatory1Name} ({signatory1Title})</span>
+                  </div>
                 </div>
               </div>
 
               {/* Remarks */}
-              <p style={{ fontSize: '11.5px', color: '#475569', fontStyle: 'italic', margin: '0 0 12px 0' }}>
+              <p className="psm-note-text">
                 <strong>Note:</strong> {customRemarks}
               </p>
 
               {/* Signatures: Fully Editable Live */}
-              <div style={{ marginTop: '24px', display: 'flex', justifyContent: includeSignatory2 ? 'space-between' : 'flex-start' }}>
+              <div className="psm-signatures-row">
                 <div>
-                  <div style={{ height: '30px' }} />
-                  <div style={{ borderTop: '1.5px solid #0f172a', width: '210px', paddingTop: '4px' }}>
+                  <div style={{ height: '24px' }} />
+                  <div className="psm-sig-line">
                     <strong style={{ fontSize: '12px', display: 'block', color: '#0f172a' }}>{signatory1Name}</strong>
                     <span style={{ fontSize: '10.5px', color: '#64748b', display: 'block' }}>{signatory1Title}</span>
-                    <span style={{ fontSize: '10px', color: '#94a3b8', display: 'block' }}>{signatory1Dept}</span>
                   </div>
                 </div>
 
                 {includeSignatory2 && (
                   <div>
-                    <div style={{ height: '30px' }} />
-                    <div style={{ borderTop: '1.5px solid #0f172a', width: '210px', paddingTop: '4px' }}>
+                    <div style={{ height: '24px' }} />
+                    <div className="psm-sig-line">
                       <strong style={{ fontSize: '12px', display: 'block', color: '#0f172a' }}>{signatory2Name}</strong>
                       <span style={{ fontSize: '10.5px', color: '#64748b', display: 'block' }}>{signatory2Title}</span>
-                      <span style={{ fontSize: '10px', color: '#94a3b8', display: 'block' }}>{signatory2Dept}</span>
                     </div>
                   </div>
                 )}
               </div>
 
               {/* Return Slip */}
-              <div style={{ marginTop: '22px', borderTop: '2px dashed #94a3b8', paddingTop: '12px', fontSize: '10.5px' }}>
+              <div className="psm-return-slip">
                 <div style={{ textAlign: 'center', fontWeight: 800, marginBottom: '5px', letterSpacing: '0.4px', textTransform: 'uppercase' }}>
                   ACKNOWLEDGEMENT &amp; CONFIRMATION RETURN SLIP
                 </div>
                 <p style={{ margin: '0 0 8px 0', lineHeight: 1.4 }}>
                   I acknowledge receipt of the conference notice for <strong>{studentFullName}</strong> (Ref: {referenceNo}) regarding <strong>[{activeViolations.map(v => v.violation?.title || v.offense || 'Infraction').join(', ')}]</strong> for the scheduled date of <strong>{formattedConfDate}</strong> at <strong>{conferenceTime}</strong>.
                 </p>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '14px' }}>
+                <div className="psm-slip-sign-row">
                   <span>Parent/Guardian Signature: _________________________</span>
                   <span>Date Signed: _______________</span>
                 </div>
@@ -1137,55 +1670,24 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
         </div>
 
         {/* Modal Footer Controls */}
-        <div
-          style={{
-            background: '#ffffff',
-            borderTop: '1px solid #e2e8f0',
-            padding: '14px 24px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            flexShrink: 0
-          }}
-        >
-          <span style={{ fontSize: '12px', color: '#64748b' }}>
+        <div className="psm-footer">
+          <span className="psm-footer-text">
             {activeViolations.length} infraction{activeViolations.length > 1 ? 's' : ''} bundled into this official conference notice.
           </span>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div className="psm-footer-actions">
             <button
               type="button"
+              className="psm-footer-btn psm-btn-close"
               onClick={onClose}
-              style={{
-                padding: '8px 16px',
-                borderRadius: '8px',
-                border: '1px solid #cbd5e1',
-                background: '#ffffff',
-                color: '#475569',
-                fontSize: '12.5px',
-                fontWeight: 700,
-                cursor: 'pointer'
-              }}
             >
               Close
             </button>
 
             <button
               type="button"
+              className="psm-footer-btn psm-btn-print"
               onClick={handlePrint}
-              style={{
-                padding: '8px 16px',
-                borderRadius: '8px',
-                border: '1px solid #cbd5e1',
-                background: '#f8fafc',
-                color: '#0f172a',
-                fontSize: '12.5px',
-                fontWeight: 700,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px'
-              }}
             >
               <Printer size={15} />
               <span>Print Letter</span>
@@ -1193,24 +1695,11 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
 
             <button
               type="button"
+              className="psm-footer-btn psm-btn-download"
               onClick={handleDownloadPDF}
-              style={{
-                padding: '8px 20px',
-                borderRadius: '8px',
-                border: 'none',
-                background: '#0f172a',
-                color: '#ffffff',
-                fontSize: '12.5px',
-                fontWeight: 700,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-                boxShadow: '0 2px 8px rgba(15, 23, 42, 0.25)'
-              }}
             >
               <Download size={15} />
-              <span>Download Official PDF</span>
+              <span>Download PDF</span>
             </button>
           </div>
         </div>

@@ -311,9 +311,9 @@ export const ViolationTypesPage = () => {
     doc.rect(0, 0, 210, 24, 'F');
 
     doc.setTextColor(255, 255, 255);
-    doc.setFontSize(15);
+    doc.setFontSize(14);
     doc.setFont('helvetica', 'bold');
-    doc.text('PERPETUAL HELP COLLEGE OF MANILA', 14, 11);
+    doc.text('UNIVERSITY OF PERPETUAL HELP SYSTEM MANILA', 14, 11);
     doc.setFontSize(9);
     doc.setFont('helvetica', 'normal');
     doc.text('Student Conduct Manual - Master Violation Offenses Catalog', 14, 18);
@@ -379,27 +379,13 @@ export const ViolationTypesPage = () => {
       {/* 1. Top Banner & Primary Actions */}
       <div className="page-banner-header">
         <div className="page-banner-info">
-          <ShieldAlert size={30} color="#ffffff" strokeWidth={2.2} style={{ flexShrink: 0 }} />
+          <ShieldAlert size={26} color="#0f172a" strokeWidth={2.4} style={{ flexShrink: 0 }} />
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-              <h2 style={{ fontSize: '22px', fontWeight: 800, margin: 0, color: '#ffffff', letterSpacing: '-0.02em' }}>
-                Violation Offenses Catalog
-              </h2>
-              <span
-                style={{
-                  background: 'rgba(255, 255, 255, 0.2)',
-                  color: '#ffffff',
-                  fontSize: '12px',
-                  fontWeight: 700,
-                  padding: '2.5px 10px',
-                  borderRadius: '20px'
-                }}
-              >
-                {stats.total} Configured Offenses
-              </span>
-            </div>
-            <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: 'rgba(255, 255, 255, 0.85)' }}>
-              Student Code of Conduct & Handbook Policies, sanctions, and severity classifications.
+            <h2 style={{ fontSize: '20px', fontWeight: 800, margin: 0, color: '#0f172a', letterSpacing: '-0.02em' }}>
+              Violation Offenses Catalog
+            </h2>
+            <p style={{ margin: '3px 0 0 0', fontSize: '13px', color: '#64748b' }}>
+              Student Code of Conduct &amp; Handbook Policies, sanctions, and severity classifications.
             </p>
           </div>
         </div>
@@ -411,14 +397,14 @@ export const ViolationTypesPage = () => {
               onClick={handleExport}
               className="page-banner-btn-secondary"
             >
-              <FileSpreadsheet size={15} /> Export PDF
+              <Upload size={14} strokeWidth={2.2} /> Export PDF
             </button>
 
             <button
               onClick={() => setIsImportModalOpen(true)}
               className="page-banner-btn-secondary"
             >
-              <Upload size={15} /> Import CSV
+              <Upload size={14} strokeWidth={2.2} /> Import CSV
             </button>
           </div>
 
@@ -438,128 +424,120 @@ export const ViolationTypesPage = () => {
           <div
             onClick={() => setSelectedSeverityFilter('all')}
             style={{
-              background: selectedSeverityFilter === 'all' ? '#f0f4f8' : '#ffffff',
-              border: selectedSeverityFilter === 'all' ? '2px solid #07345f' : '1px solid #e2e8f0',
-              borderRadius: '10px',
-              padding: '12px 14px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
+              background: '#ffffff',
+              border: selectedSeverityFilter === 'all' ? '2px solid #07345f' : '1.5px solid #cbd5e1',
+              borderRadius: '12px',
+              padding: '14px 16px',
               cursor: 'pointer',
-              transition: 'all 0.2s ease',
-              boxShadow: selectedSeverityFilter === 'all' ? '0 2px 8px rgba(7, 52, 95, 0.1)' : '0 1px 3px rgba(0,0,0,0.03)'
+              transition: 'all 0.15s ease',
+              boxShadow: selectedSeverityFilter === 'all' ? '0 4px 14px rgba(7, 52, 95, 0.10)' : '0 1px 3px rgba(0,0,0,0.02)',
+              position: 'relative'
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <List size={20} color="#07345f" strokeWidth={2} />
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div>
-                <span style={{ fontSize: '20px', fontWeight: 800, color: '#07345f', lineHeight: 1, display: 'block' }}>
+                <div style={{ fontSize: '11.5px', fontWeight: 800, color: '#07345f', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                  ALL OFFENSES
+                </div>
+                <div style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', margin: '4px 0 2px 0', lineHeight: 1.1 }}>
                   {stats.total}
-                </span>
-                <span style={{ fontSize: '11px', color: '#64748b', fontWeight: 600 }}>Total Offenses</span>
+                </div>
+                <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 500 }}>
+                  Total catalog categories
+                </div>
               </div>
+              <List size={20} color="#07345f" strokeWidth={2} />
             </div>
-            {selectedSeverityFilter === 'all' && (
-              <span style={{ background: '#07345f', color: '#fff', fontSize: '9px', padding: '2px 6px', borderRadius: '4px', fontWeight: 700 }}>
-                Active
-              </span>
-            )}
-          </div>
-
-          {/* Major Filter Card */}
-          <div
-            onClick={() => setSelectedSeverityFilter(selectedSeverityFilter === 'Major' ? 'all' : 'Major')}
-            style={{
-              background: selectedSeverityFilter === 'Major' ? '#fef2f2' : '#ffffff',
-              border: selectedSeverityFilter === 'Major' ? '2px solid #dc2626' : '1px solid #e2e8f0',
-              borderRadius: '10px',
-              padding: '12px 14px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease',
-              boxShadow: selectedSeverityFilter === 'Major' ? '0 2px 8px rgba(220, 38, 38, 0.12)' : '0 1px 3px rgba(0,0,0,0.03)'
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <ShieldAlert size={20} color="#dc2626" strokeWidth={2} />
-              <div>
-                <span style={{ fontSize: '20px', fontWeight: 800, color: stats.major > 0 ? '#dc2626' : '#1e293b', lineHeight: 1, display: 'block' }}>
-                  {stats.major}
-                </span>
-                <span style={{ fontSize: '11px', color: '#dc2626', fontWeight: 600 }}>Major Offenses</span>
-              </div>
-            </div>
-            {selectedSeverityFilter === 'Major' && (
-              <span style={{ background: '#dc2626', color: '#fff', fontSize: '9px', padding: '2px 6px', borderRadius: '4px', fontWeight: 700 }}>
-                Active
-              </span>
-            )}
-          </div>
-
-          {/* Serious Filter Card */}
-          <div
-            onClick={() => setSelectedSeverityFilter(selectedSeverityFilter === 'Serious' ? 'all' : 'Serious')}
-            style={{
-              background: selectedSeverityFilter === 'Serious' ? '#fffbeb' : '#ffffff',
-              border: selectedSeverityFilter === 'Serious' ? '2px solid #d97706' : '1px solid #e2e8f0',
-              borderRadius: '10px',
-              padding: '12px 14px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease',
-              boxShadow: selectedSeverityFilter === 'Serious' ? '0 2px 8px rgba(217, 119, 6, 0.12)' : '0 1px 3px rgba(0,0,0,0.03)'
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <AlertTriangle size={20} color="#d97706" strokeWidth={2} />
-              <div>
-                <span style={{ fontSize: '20px', fontWeight: 800, color: stats.serious > 0 ? '#d97706' : '#1e293b', lineHeight: 1, display: 'block' }}>
-                  {stats.serious}
-                </span>
-                <span style={{ fontSize: '11px', color: '#d97706', fontWeight: 600 }}>Serious Offenses</span>
-              </div>
-            </div>
-            {selectedSeverityFilter === 'Serious' && (
-              <span style={{ background: '#d97706', color: '#fff', fontSize: '9px', padding: '2px 6px', borderRadius: '4px', fontWeight: 700 }}>
-                Active
-              </span>
-            )}
           </div>
 
           {/* Minor Filter Card */}
           <div
             onClick={() => setSelectedSeverityFilter(selectedSeverityFilter === 'Minor' ? 'all' : 'Minor')}
             style={{
-              background: selectedSeverityFilter === 'Minor' ? '#f0fdf4' : '#ffffff',
-              border: selectedSeverityFilter === 'Minor' ? '2px solid #059669' : '1px solid #e2e8f0',
-              borderRadius: '10px',
-              padding: '12px 14px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
+              background: '#ffffff',
+              border: selectedSeverityFilter === 'Minor' ? '2px solid #07345f' : '1.5px solid #cbd5e1',
+              borderRadius: '12px',
+              padding: '14px 16px',
               cursor: 'pointer',
-              transition: 'all 0.2s ease',
-              boxShadow: selectedSeverityFilter === 'Minor' ? '0 2px 8px rgba(5, 150, 105, 0.12)' : '0 1px 3px rgba(0,0,0,0.03)'
+              transition: 'all 0.15s ease',
+              boxShadow: selectedSeverityFilter === 'Minor' ? '0 4px 14px rgba(7, 52, 95, 0.10)' : '0 1px 3px rgba(0,0,0,0.02)',
+              position: 'relative'
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              <ShieldCheck size={20} color="#059669" strokeWidth={2} />
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div>
-                <span style={{ fontSize: '20px', fontWeight: 800, color: stats.minor > 0 ? '#059669' : '#1e293b', lineHeight: 1, display: 'block' }}>
+                <div style={{ fontSize: '11.5px', fontWeight: 800, color: '#07345f', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                  MINOR OFFENSES
+                </div>
+                <div style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', margin: '4px 0 2px 0', lineHeight: 1.1 }}>
                   {stats.minor}
-                </span>
-                <span style={{ fontSize: '11px', color: '#059669', fontWeight: 600 }}>Minor Offenses</span>
+                </div>
+                <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 500 }}>
+                  Warnings & compliance
+                </div>
               </div>
+              <ShieldCheck size={20} color="#07345f" strokeWidth={2} />
             </div>
-            {selectedSeverityFilter === 'Minor' && (
-              <span style={{ background: '#059669', color: '#fff', fontSize: '9px', padding: '2px 6px', borderRadius: '4px', fontWeight: 700 }}>
-                Active
-              </span>
-            )}
+          </div>
+
+          {/* Serious Filter Card */}
+          <div
+            onClick={() => setSelectedSeverityFilter(selectedSeverityFilter === 'Serious' ? 'all' : 'Serious')}
+            style={{
+              background: '#ffffff',
+              border: selectedSeverityFilter === 'Serious' ? '2px solid #07345f' : '1.5px solid #cbd5e1',
+              borderRadius: '12px',
+              padding: '14px 16px',
+              cursor: 'pointer',
+              transition: 'all 0.15s ease',
+              boxShadow: selectedSeverityFilter === 'Serious' ? '0 4px 14px rgba(7, 52, 95, 0.10)' : '0 1px 3px rgba(0,0,0,0.02)',
+              position: 'relative'
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+              <div>
+                <div style={{ fontSize: '11.5px', fontWeight: 800, color: '#07345f', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                  SERIOUS OFFENSES
+                </div>
+                <div style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', margin: '4px 0 2px 0', lineHeight: 1.1 }}>
+                  {stats.serious}
+                </div>
+                <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 500 }}>
+                  Conferences required
+                </div>
+              </div>
+              <AlertTriangle size={20} color="#07345f" strokeWidth={2} />
+            </div>
+          </div>
+
+          {/* Major Filter Card */}
+          <div
+            onClick={() => setSelectedSeverityFilter(selectedSeverityFilter === 'Major' ? 'all' : 'Major')}
+            style={{
+              background: '#ffffff',
+              border: selectedSeverityFilter === 'Major' ? '2px solid #07345f' : '1.5px solid #cbd5e1',
+              borderRadius: '12px',
+              padding: '14px 16px',
+              cursor: 'pointer',
+              transition: 'all 0.15s ease',
+              boxShadow: selectedSeverityFilter === 'Major' ? '0 4px 14px rgba(7, 52, 95, 0.10)' : '0 1px 3px rgba(0,0,0,0.02)',
+              position: 'relative'
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+              <div>
+                <div style={{ fontSize: '11.5px', fontWeight: 800, color: '#07345f', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                  MAJOR OFFENSES
+                </div>
+                <div style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', margin: '4px 0 2px 0', lineHeight: 1.1 }}>
+                  {stats.major}
+                </div>
+                <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 500 }}>
+                  Formal hearings
+                </div>
+              </div>
+              <ShieldAlert size={20} color="#07345f" strokeWidth={2} />
+            </div>
           </div>
         </div>
 
@@ -988,15 +966,15 @@ export const ViolationTypesPage = () => {
                           borderRadius: '20px',
                           fontSize: '11px',
                           fontWeight: 700,
-                          background: isMajor ? '#fef2f2' : isSerious ? '#fffbeb' : '#f0fdf4',
-                          border: `1px solid ${isMajor ? '#fecaca' : isSerious ? '#fde68a' : '#bbf7d0'}`,
-                          color: isMajor ? '#dc2626' : isSerious ? '#d97706' : '#15803d',
+                          background: isMajor ? '#fef2f2' : isSerious ? '#fef9c3' : '#f0fdf4',
+                          border: `1px solid ${isMajor ? '#fecaca' : isSerious ? '#fde047' : '#bbf7d0'}`,
+                          color: isMajor ? '#dc2626' : isSerious ? '#a16207' : '#15803d',
                           display: 'inline-flex',
                           alignItems: 'center',
                           gap: '4px'
                         }}
                       >
-                        <span style={{ width: 6, height: 6, borderRadius: '50%', background: isMajor ? '#ef4444' : isSerious ? '#f59e0b' : '#22c55e' }} />
+                        <span style={{ width: 6, height: 6, borderRadius: '50%', background: isMajor ? '#ef4444' : isSerious ? '#eab308' : '#22c55e' }} />
                         {v.type || 'Minor'}
                       </span>
                     </div>
@@ -1008,9 +986,9 @@ export const ViolationTypesPage = () => {
                           width: 42,
                           height: 42,
                           borderRadius: '12px',
-                          background: isMajor ? 'linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%)' : isSerious ? 'linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)' : 'linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)',
-                          border: `1px solid ${isMajor ? '#fecaca' : isSerious ? '#fde68a' : '#bfdbfe'}`,
-                          color: isMajor ? '#dc2626' : isSerious ? '#d97706' : '#07345f',
+                          background: isMajor ? 'linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%)' : isSerious ? 'linear-gradient(135deg, #fef9c3 0%, #fef08a 100%)' : 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)',
+                          border: `1px solid ${isMajor ? '#fecaca' : isSerious ? '#fde047' : '#bbf7d0'}`,
+                          color: isMajor ? '#dc2626' : isSerious ? '#a16207' : '#15803d',
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',

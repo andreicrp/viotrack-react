@@ -10,30 +10,21 @@
 
 /* Page Banner */
 .advisers-banner {
-  background: linear-gradient(135deg, #07345f 0%, #0b192c 100%);
-  border-radius: 16px;
-  padding: 20px 24px;
-  color: #ffffff;
+  background: transparent;
+  border-radius: 0;
+  padding: 4px 0 10px 0;
+  color: #0f172a;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 16px;
+  gap: 14px;
   flex-wrap: wrap;
-  box-shadow: 0 8px 24px -4px rgba(7, 52, 95, 0.25);
+  box-shadow: none;
   position: relative;
-  overflow: hidden;
 }
 
 .advisers-banner::after {
-  content: '';
-  position: absolute;
-  top: -50px;
-  right: -50px;
-  width: 200px;
-  height: 200px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(14, 165, 160, 0.25) 0%, transparent 70%);
-  pointer-events: none;
+  display: none;
 }
 
 .advisers-banner-left {
@@ -44,14 +35,10 @@
 }
 
 .advisers-banner-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.12);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #ffffff;
+  color: #0f172a;
   flex-shrink: 0;
 }
 
@@ -59,14 +46,14 @@
   font-size: 20px;
   font-weight: 800;
   margin: 0;
-  color: #ffffff;
+  color: #0f172a;
   letter-spacing: -0.02em;
 }
 
 .advisers-banner-desc {
   margin: 3px 0 0 0;
-  font-size: 12.5px;
-  color: rgba(255, 255, 255, 0.82);
+  font-size: 13px;
+  color: #64748b;
   line-height: 1.4;
 }
 

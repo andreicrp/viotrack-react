@@ -179,7 +179,7 @@ export const CustomDatePicker = ({
         }}
       >
         {showIcon && (
-          <CalendarIcon size={15} color={isOpen ? '#07345f' : '#07345f'} style={{ flexShrink: 0 }} />
+          <CalendarIcon size={15} color="#0f172a" style={{ flexShrink: 0 }} />
         )}
         <span
           style={{
@@ -222,7 +222,7 @@ export const CustomDatePicker = ({
             position: 'absolute',
             top: 'calc(100% + 4px)',
             ...(resolvedAlign === 'right' ? { right: 0, left: 'auto' } : { left: 0, right: 'auto' }),
-            zIndex: 9999,
+            zIndex: 100005,
             background: '#ffffff',
             borderRadius: '12px',
             boxShadow: '0 14px 36px -4px rgba(15, 23, 42, 0.22), 0 0 0 1px rgba(226, 232, 240, 0.95)',

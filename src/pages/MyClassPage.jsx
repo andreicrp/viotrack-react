@@ -23,6 +23,8 @@ import {
   X,
   UserCheck,
   Download,
+  Upload,
+  FileText,
   Calendar,
   School,
   Sparkles,
@@ -235,35 +237,36 @@ export const MyClassPage = () => {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
       {/* 1. Hero Adviser Profile & Advisory Banner */}
+      {/* 1. Hero Adviser Profile & Advisory Banner */}
       <div className="page-banner-header">
-        <div className="page-banner-info" style={{ gap: '18px' }}>
+        <div className="page-banner-info" style={{ gap: '14px' }}>
           {/* Adviser Avatar */}
           <div style={{ position: 'relative', flexShrink: 0 }}>
             <img
               src={
                 teacher.image ||
-                `https://ui-avatars.com/api/?name=${encodeURIComponent(teacherName)}&background=ffffff&color=07345f&size=68`
+                `https://ui-avatars.com/api/?name=${encodeURIComponent(teacherName)}&background=f1f5f9&color=0f172a&size=68`
               }
               alt={teacherName}
               style={{
-                width: 60,
-                height: 60,
+                width: 52,
+                height: 52,
                 borderRadius: '50%',
                 objectFit: 'cover',
-                border: '2.5px solid rgba(255, 255, 255, 0.5)',
-                boxShadow: '0 4px 14px rgba(0, 0, 0, 0.2)'
+                border: '2px solid #e2e8f0',
+                boxShadow: '0 2px 6px rgba(0, 0, 0, 0.06)'
               }}
             />
             <span
               style={{
                 position: 'absolute',
-                bottom: 1,
-                right: 1,
-                width: 15,
-                height: 15,
+                bottom: 0,
+                right: 0,
+                width: 13,
+                height: 13,
                 borderRadius: '50%',
                 background: '#10b981',
-                border: '2.5px solid #07345f'
+                border: '2px solid #ffffff'
               }}
               title="Active Class Adviser"
             />
@@ -271,13 +274,14 @@ export const MyClassPage = () => {
 
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-              <h2 style={{ fontSize: '22px', fontWeight: 800, margin: 0, color: '#ffffff', letterSpacing: '-0.02em' }}>
+              <h2 style={{ fontSize: '20px', fontWeight: 800, margin: 0, color: '#0f172a', letterSpacing: '-0.02em' }}>
                 {teacherName}
               </h2>
               <span
                 style={{
-                  background: 'rgba(255, 255, 255, 0.2)',
-                  color: '#ffffff',
+                  background: '#f1f5f9',
+                  color: '#0f172a',
+                  border: '1px solid #e2e8f0',
                   fontSize: '11px',
                   fontWeight: 700,
                   padding: '2.5px 10px',
@@ -289,9 +293,9 @@ export const MyClassPage = () => {
               </span>
               <span
                 style={{
-                  background: 'rgba(16, 185, 129, 0.25)',
-                  color: '#ffffff',
-                  border: '1px solid rgba(16, 185, 129, 0.4)',
+                  background: '#ecfdf5',
+                  color: '#065f46',
+                  border: '1px solid #a7f3d0',
                   fontSize: '11.5px',
                   fontWeight: 700,
                   padding: '2.5px 10px',
@@ -302,17 +306,17 @@ export const MyClassPage = () => {
               </span>
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginTop: '6px', flexWrap: 'wrap', fontSize: '13px', color: 'rgba(255, 255, 255, 0.9)' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginTop: '4px', flexWrap: 'wrap', fontSize: '13px', color: '#64748b' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                <Mail size={14} color="rgba(255, 255, 255, 0.75)" />
+                <Mail size={14} color="#64748b" />
                 <span>{teacherEmail}</span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                <School size={14} color="rgba(255, 255, 255, 0.75)" />
+                <School size={14} color="#64748b" />
                 <span>{teacherDept}</span>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '5px', opacity: 0.85 }}>
-                <Calendar size={14} />
+              <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
+                <Calendar size={14} color="#64748b" />
                 <span>AY 2025-2026</span>
               </div>
             </div>
@@ -326,7 +330,7 @@ export const MyClassPage = () => {
               onClick={() => navigate('/advisers')}
               className="page-banner-btn-secondary"
             >
-              <ArrowLeft size={15} /> Back to Advisers
+              <ArrowLeft size={14} /> Back to Advisers
             </button>
 
             <button
@@ -334,7 +338,7 @@ export const MyClassPage = () => {
               className="page-banner-btn-secondary"
               title="Download CSV roster"
             >
-              <FileSpreadsheet size={15} /> Export CSV
+              <FileText size={14} strokeWidth={2.2} /> Export CSV
             </button>
           </div>
 
@@ -343,7 +347,7 @@ export const MyClassPage = () => {
             className="page-banner-primary-btn"
             title="Download formatted PDF class roster"
           >
-            <Download size={15} strokeWidth={2.2} /> Export Roster (PDF)
+            <Upload size={14} strokeWidth={2.2} /> Export Roster (PDF)
           </button>
         </div>
       </div>

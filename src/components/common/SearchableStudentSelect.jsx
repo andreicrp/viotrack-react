@@ -41,14 +41,7 @@ export const SearchableStudentSelect = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [inline]);
 
-  // Auto-focus search input when opened
-  useEffect(() => {
-    if ((isOpen || inline) && searchInputRef.current) {
-      setTimeout(() => {
-        searchInputRef.current?.focus();
-      }, 50);
-    }
-  }, [isOpen, inline]);
+
 
   const handleToggle = (student) => {
     const sid = Number(student.id);

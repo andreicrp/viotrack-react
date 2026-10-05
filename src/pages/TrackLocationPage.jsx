@@ -286,15 +286,11 @@ export const TrackLocationPage = () => {
       {/* Page Banner Header */}
       <div className="page-banner-header track-page-banner">
         <div className="page-banner-info">
-          <div className="track-header-icon-box">
-            <MapPin size={24} strokeWidth={2.2} color="#ffffff" style={{ flexShrink: 0 }} />
-          </div>
+          <MapPin size={26} strokeWidth={2.4} color="#0f172a" style={{ flexShrink: 0 }} />
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-              <h2 className="track-header-title">
-                {activeStudent ? `Incident Location: ${activeStudent.fname} ${activeStudent.lname}` : 'Student Incident Location Mapping'}
-              </h2>
-            </div>
+            <h2 className="track-header-title">
+              {activeStudent ? `Incident Location: ${activeStudent.fname} ${activeStudent.lname}` : 'Student Incident Location Mapping'}
+            </h2>
             <p className="track-header-sub">
               Logged student infraction location telemetry, campus proximity, and historical incident sites.
             </p>

@@ -186,18 +186,21 @@
 .error-big-code.code-404 {
   background: linear-gradient(135deg, #07345f 0%, #1e40af 100%);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
 .error-big-code.code-403 {
   background: linear-gradient(135deg, #e11d48 0%, #9f1239 100%);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
 .error-big-code.code-500 {
   background: linear-gradient(135deg, #d97706 0%, #92400e 100%);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 

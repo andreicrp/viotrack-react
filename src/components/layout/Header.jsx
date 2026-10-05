@@ -31,10 +31,10 @@ export const Header = ({ onToggleSidebar }) => {
 
   // Helper to check if a record is Under Approval
   const resolveApprovalStatus = (r) => {
-    if (r.approval_status === 'Approved' || r.status === 'Approved') return 'Approved';
-    if (r.approval_status === 'Rejected' || r.status === 'Rejected') return 'Rejected';
-    if (r.approval_status === 'Under Approval' || r.status === 'Under Approval') return 'Under Approval';
+    if (r.status === 'Under Approval' || r.approval_status === 'Under Approval') return 'Under Approval';
+    if (r.status === 'Rejected' || r.approval_status === 'Rejected') return 'Rejected';
     if (r.reported_by_type === 'teacher' && !r.approved_by && r.status !== 'Resolved') return 'Under Approval';
+    if (r.approval_status === 'Approved' || r.status === 'Approved') return 'Approved';
     return r.approval_status || 'Approved';
   };
 
@@ -341,9 +341,7 @@ export const Header = ({ onToggleSidebar }) => {
                   onClick={handleGoProfile}
                   role="menuitem"
                 >
-                  <span className="user-dropdown-icon-box profile">
-                    <User size={14} strokeWidth={2.2} />
-                  </span>
+                  <User size={16} className="user-dropdown-icon" />
                   <span className="user-dropdown-btn-label">My Profile</span>
                 </button>
 
@@ -357,9 +355,7 @@ export const Header = ({ onToggleSidebar }) => {
                     }}
                     role="menuitem"
                   >
-                    <span className="user-dropdown-icon-box" style={{ background: '#f0f4f8', color: '#0f172a' }}>
-                      <Database size={14} strokeWidth={2.2} />
-                    </span>
+                    <Database size={16} className="user-dropdown-icon" />
                     <span className="user-dropdown-btn-label">Database Backups</span>
                   </button>
                 )}
@@ -373,10 +369,8 @@ export const Header = ({ onToggleSidebar }) => {
                   }}
                   role="menuitem"
                 >
-                  <span className="user-dropdown-icon-box" style={{ background: '#fff1f2', color: '#e11d48' }}>
-                    <Lock size={14} strokeWidth={2.2} />
-                  </span>
-                  <span className="user-dropdown-btn-label">Lock Workstation</span>
+                  <Lock size={16} className="user-dropdown-icon" />
+                  <span className="user-dropdown-btn-label">Lock Screen</span>
                 </button>
 
                 <div className="user-dropdown-divider" />
@@ -387,9 +381,7 @@ export const Header = ({ onToggleSidebar }) => {
                   onClick={handleSignOut}
                   role="menuitem"
                 >
-                  <span className="user-dropdown-icon-box logout">
-                    <LogOut size={14} strokeWidth={2.2} />
-                  </span>
+                  <LogOut size={16} className="user-dropdown-icon logout-icon" />
                   <span className="user-dropdown-btn-label">Sign Out</span>
                 </button>
               </div>

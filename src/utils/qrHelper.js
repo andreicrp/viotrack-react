@@ -57,8 +57,8 @@ export const getPublicAppBaseUrl = () => {
  */
 export const getStudentQrValue = (student) => {
   if (!student) return '';
-  // Use student LRN directly (standard institutional ID barcode/QR standard)
-  return String(student.lrn || student.id || '').trim();
+  // Use student ID directly (standard institutional ID barcode/QR standard)
+  return String(student.student_id || student.lrn || student.id || '').trim();
 };
 
 /**
@@ -76,7 +76,7 @@ export const getStudentQrCodeUrl = (student, size = 300, margin = 1) => {
 
 /**
  * Robust matcher for finding a student from any scanned QR code payload
- * (supports public URLs, localhost URLs, query parameters, custom prefixes, JSON, or direct LRNs).
+ * (supports public URLs, localhost URLs, query parameters, custom prefixes, JSON, or direct Student IDs).
  *
  * @param {string} rawInput
  * @param {Array<object>} students
@@ -96,7 +96,7 @@ export const matchStudentFromScan = (rawInput, students = []) => {
       ? clean.split('/verify-student/')[1]
       : clean.split('/student-pass/')[1];
     const sid = (parts || '').split('?')[0].split('#')[0].trim();
-    const match = students.find(s => String(s.id) === String(sid) || String(s.lrn).trim() === String(sid));
+    const match = students.find(s => String(s.id) === String(sid) || String(s.student_id || s.lrn).trim() === String(sid));
     if (match) return match;
   }
 
@@ -106,7 +106,7 @@ export const matchStudentFromScan = (rawInput, students = []) => {
       ? clean.split('/student-violation/')[1]
       : clean.split('/adminstudentviolation/')[1];
     const sid = (parts || '').split('?')[0].split('#')[0].trim();
-    const match = students.find(s => String(s.id) === String(sid) || String(s.lrn).trim() === String(sid));
+    const match = students.find(s => String(s.id) === String(sid) || String(s.student_id || s.lrn).trim() === String(sid));
     if (match) return match;
   }
 
@@ -118,11 +118,11 @@ export const matchStudentFromScan = (rawInput, students = []) => {
       const sid = urlParams.get('id') || urlParams.get('student_id');
       const lrn = urlParams.get('lrn');
       if (sid) {
-        const match = students.find(s => String(s.id) === String(sid) || String(s.lrn) === String(sid));
+        const match = students.find(s => String(s.id) === String(sid) || String(s.student_id || s.lrn) === String(sid));
         if (match) return match;
       }
       if (lrn) {
-        const match = students.find(s => String(s.lrn).trim() === String(lrn).trim());
+        const match = students.find(s => String(s.student_id || s.lrn).trim() === String(lrn).trim());
         if (match) return match;
       }
     } catch {}
@@ -132,7 +132,7 @@ export const matchStudentFromScan = (rawInput, students = []) => {
   if (clean.toUpperCase().includes('VIOTRACK')) {
     const stripped = clean.replace(/^.*VIOTRACK[^:]*:\s*/i, '').trim();
     if (stripped) {
-      const match = students.find(s => String(s.lrn).trim() === stripped || String(s.id) === stripped);
+      const match = students.find(s => String(s.student_id || s.lrn).trim() === stripped || String(s.id) === stripped);
       if (match) return match;
     }
   }
@@ -141,10 +141,10 @@ export const matchStudentFromScan = (rawInput, students = []) => {
   if (clean.startsWith('{') && clean.endsWith('}')) {
     try {
       const parsed = JSON.parse(clean);
-      const lrnCandidate = parsed.lrn || parsed.LRN || parsed.uli || parsed.ULI || parsed.student_id || parsed.id;
+      const lrnCandidate = parsed.student_id || parsed.lrn || parsed.LRN || parsed.uli || parsed.ULI || parsed.id;
       const nameCandidate = parsed.name || parsed.Name || parsed.student_name;
       if (lrnCandidate) {
-        const match = students.find(s => String(s.lrn).trim() === String(lrnCandidate).trim() || String(s.id) === String(lrnCandidate).trim());
+        const match = students.find(s => String(s.student_id || s.lrn).trim() === String(lrnCandidate).trim() || String(s.id) === String(lrnCandidate).trim());
         if (match) return match;
       }
       if (nameCandidate) {
@@ -154,13 +154,17 @@ export const matchStudentFromScan = (rawInput, students = []) => {
     } catch {}
   }
 
-  // 6. Direct numeric ID, 12-digit LRN, or Name matching
+  // 6. Direct numeric ID, 12-digit Student ID, or Name matching
   return students.find(
-    s =>
-      String(s.lrn).trim() === clean ||
-      String(s.id) === clean ||
-      String(s.lrn).includes(clean) ||
-      clean.includes(String(s.lrn)) ||
-      `${s.fname} ${s.lname}`.toLowerCase().includes(clean.toLowerCase())
+    s => {
+      const sid = String(s.student_id || s.lrn || '').trim();
+      return (
+        sid === clean ||
+        String(s.id) === clean ||
+        sid.includes(clean) ||
+        clean.includes(sid) ||
+        `${s.fname} ${s.lname}`.toLowerCase().includes(clean.toLowerCase())
+      );
+    }
   ) || null;
 };

@@ -1,8 +1,20 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useMemo } from 'react';
 import { Modal } from '../common/Modal';
 import { dataService } from '../../services/dataService';
 import { useNotification } from '../../context/NotificationContext';
-import { FileSpreadsheet, Upload, Download, CheckCircle2 } from 'lucide-react';
+import {
+  FileSpreadsheet,
+  Upload,
+  Download,
+  CheckCircle2,
+  AlertTriangle,
+  Layers,
+  Sparkles,
+  Eye,
+  RefreshCw,
+  XCircle,
+  FileCheck
+} from 'lucide-react';
 import { parseCsvString, readFileAsText, downloadSampleCsv } from '../../utils/csvHelper';
 
 const SAMPLE_CSV = `Student ID,First Name,Middle Name,Last Name,Grade,Section,Gender,Contact,Parent Name,Parent Contact,Strand
@@ -32,6 +44,7 @@ export const BulkImportModal = ({ isOpen, onClose, onImported }) => {
   const [csvText, setCsvText] = useState('');
   const [loading, setLoading] = useState(false);
   const [fileName, setFileName] = useState('');
+  const [importProgress, setImportProgress] = useState({ current: 0, total: 0, percent: 0 });
   const fileInputRef = useRef(null);
 
   const handleFileUpload = async (e) => {
@@ -41,6 +54,7 @@ export const BulkImportModal = ({ isOpen, onClose, onImported }) => {
       const text = await readFileAsText(file);
       setCsvText(text);
       setFileName(file.name);
+      setImportProgress({ current: 0, total: 0, percent: 0 });
       info(`Loaded ${file.name} successfully!`);
     } catch (err) {
       error('Failed to read file: ' + err.message);
@@ -52,35 +66,23 @@ export const BulkImportModal = ({ isOpen, onClose, onImported }) => {
     success('Downloaded student import template CSV!');
   };
 
-  const handleParseAndUpload = async () => {
-    if (!csvText.trim()) {
-      error('Please upload a CSV file or paste student rows.');
-      return;
-    }
-
-    setLoading(true);
+  // Instant in-memory parsed candidate roster
+  const parsedCandidateRoster = useMemo(() => {
+    if (!csvText.trim()) return [];
     try {
       const rows = parseCsvString(csvText);
-      if (rows.length === 0) {
-        throw new Error('No valid CSV rows found.');
-      }
+      if (rows.length === 0) return [];
 
-      // Detect and skip header row if present
       const firstRow = rows[0];
-      const hasHeader = firstRow.some(col => 
-        ['lrn', 'first name', 'fname', 'name', 'student'].includes(col.toLowerCase())
+      const hasHeader = firstRow.some(col =>
+        ['student id', 'student_id', 'id', 'lrn', 'first name', 'fname', 'name', 'student'].includes(col.toLowerCase().trim())
       );
       const dataRows = hasHeader ? rows.slice(1) : rows;
 
-      if (dataRows.length === 0) {
-        throw new Error('No data rows to import.');
-      }
-
-      let count = 0;
-      for (let i = 0; i < dataRows.length; i++) {
-        const parts = dataRows[i];
-        if (parts.length >= 2 && parts.some(p => p.trim())) {
-          const lrn = parts[0]?.trim() || `109283746${Math.floor(100 + Math.random() * 900)}`;
+      return dataRows
+        .filter(parts => parts.length >= 2 && parts.some(p => p.trim()))
+        .map((parts, i) => {
+          const student_id = parts[0]?.trim() || `10928374${Math.floor(1000 + Math.random() * 9000)}`;
           const fname = parts[1]?.trim() || 'Student';
           const mname = parts[2]?.trim() || '';
           const lname = parts[3]?.trim() || 'Roster';
@@ -96,8 +98,9 @@ export const BulkImportModal = ({ isOpen, onClose, onImported }) => {
           const portraits = isFem ? FEMALE_PORTRAITS : MALE_PORTRAITS;
           const assignedImage = portraits[(i + Math.floor(Math.random() * 5)) % portraits.length];
 
-          await dataService.addStudent({
-            lrn,
+          return {
+            student_id,
+            lrn: student_id,
             fname,
             mname,
             lname,
@@ -110,33 +113,56 @@ export const BulkImportModal = ({ isOpen, onClose, onImported }) => {
             strand,
             academicyear: '2025-2026',
             image: assignedImage
-          });
-          count++;
-        }
-      }
+          };
+        });
+    } catch {
+      return [];
+    }
+  }, [csvText]);
 
-      success(`Successfully imported ${count} student records!`);
-      onImported?.();
-      onClose();
-      setCsvText('');
-      setFileName('');
+  // High-Speed Chunked Batch Upload
+  const handleParseAndUpload = async () => {
+    if (parsedCandidateRoster.length === 0) {
+      error('No valid student rows found in CSV. Please verify file format.');
+      return;
+    }
+
+    setLoading(true);
+    setImportProgress({ current: 0, total: parsedCandidateRoster.length, percent: 0 });
+
+    try {
+      const result = await dataService.bulkAddStudents(parsedCandidateRoster, (current, total) => {
+        const percent = Math.round((current / total) * 100);
+        setImportProgress({ current, total, percent });
+      });
+
+      success(`Successfully imported ${result.insertedCount || parsedCandidateRoster.length} student records in high-speed batches!`);
+      setTimeout(() => {
+        onImported?.();
+        onClose();
+        setCsvText('');
+        setFileName('');
+        setImportProgress({ current: 0, total: 0, percent: 0 });
+      }, 400);
     } catch (err) {
-      error('Import failed: ' + err.message);
+      error('Bulk import failed: ' + err.message);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Import Students via CSV" icon={FileSpreadsheet} maxWidth="660px">
-      <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '14px', padding: '16px 20px', maxHeight: '74vh', overflowY: 'auto' }}>
+    <Modal isOpen={isOpen} onClose={onClose} title="High-Speed Bulk Student Import" icon={FileSpreadsheet} maxWidth="720px">
+      <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '14px', padding: '16px 22px', maxHeight: '76vh', overflowY: 'auto' }}>
         
         {/* Format Info & Template Download */}
-        <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '12px 14px' }}>
+        <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '12px 16px' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
-            <div style={{ flex: 1, minWidth: '200px' }}>
-              <strong style={{ fontSize: '12.5px', color: '#0f172a', display: 'block' }}>Required Column Headers:</strong>
-              <code style={{ fontSize: '11px', color: '#475569', background: '#f1f5f9', padding: '2px 6px', borderRadius: '4px', display: 'inline-block', marginTop: '2px', wordBreak: 'break-word' }}>
+            <div style={{ flex: 1, minWidth: '220px' }}>
+              <strong style={{ fontSize: '12.5px', color: '#0f172a', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                <Sparkles size={14} color="#0284c7" /> Required CSV Columns:
+              </strong>
+              <code style={{ fontSize: '11px', color: '#475569', background: '#f1f5f9', padding: '3px 8px', borderRadius: '6px', display: 'inline-block', marginTop: '4px', wordBreak: 'break-word', border: '1px solid #e2e8f0' }}>
                 Student ID, First Name, Middle Name, Last Name, Grade, Section, Gender, Contact, Parent Name, Parent Contact, Strand
               </code>
             </div>
@@ -145,20 +171,21 @@ export const BulkImportModal = ({ isOpen, onClose, onImported }) => {
               onClick={handleDownloadTemplate}
               style={{
                 background: '#ffffff',
-                border: '1px solid #cbd5e1',
+                border: '1.5px solid #cbd5e1',
                 color: '#0f172a',
                 fontSize: '11.5px',
-                fontWeight: 600,
-                padding: '6px 12px',
-                borderRadius: '6px',
+                fontWeight: 700,
+                padding: '7px 13px',
+                borderRadius: '8px',
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '6px',
                 cursor: 'pointer',
-                flexShrink: 0
+                flexShrink: 0,
+                boxShadow: '0 1px 3px rgba(0,0,0,0.04)'
               }}
             >
-              <Download size={13} /> Sample CSV
+              <Download size={13} /> Download Sample CSV
             </button>
           </div>
         </div>
@@ -168,13 +195,13 @@ export const BulkImportModal = ({ isOpen, onClose, onImported }) => {
           onClick={() => fileInputRef.current?.click()}
           style={{
             border: '2px dashed #cbd5e1',
-            borderRadius: '10px',
-            padding: '16px 14px',
+            borderRadius: '12px',
+            padding: '18px 14px',
             textAlign: 'center',
             cursor: 'pointer',
             background: fileName ? '#f0fdf4' : '#fafafa',
             borderColor: fileName ? '#86efac' : '#cbd5e1',
-            transition: 'all 0.15s ease'
+            transition: 'background-color 0.15s ease, border-color 0.15s ease'
           }}
         >
           <input
@@ -186,12 +213,76 @@ export const BulkImportModal = ({ isOpen, onClose, onImported }) => {
           />
           <Upload size={24} color={fileName ? '#16a34a' : '#64748b'} style={{ margin: '0 auto 6px auto', display: 'block' }} />
           <div style={{ fontSize: '13px', fontWeight: 700, color: '#0f172a' }}>
-            {fileName ? `Loaded: ${fileName}` : 'Tap or Drag & Drop to Upload CSV File'}
+            {fileName ? `File Ready: ${fileName}` : 'Tap or Drag & Drop Enrollment CSV File'}
           </div>
           <div style={{ fontSize: '11.5px', color: '#64748b', marginTop: '2px' }}>
-            Supports .csv files and comma-delimited text
+            Supports any CSV or comma-delimited export from Excel or Student Information Systems
           </div>
         </div>
+
+        {/* Pre-Import Validation & Preview Section */}
+        {parsedCandidateRoster.length > 0 && (
+          <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '12px 14px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+              <div style={{ fontSize: '12px', fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <FileCheck size={15} color="#16a34a" />
+                <span>Ready to Import: <strong style={{ color: '#16a34a' }}>{parsedCandidateRoster.length} valid students</strong></span>
+              </div>
+              <span style={{ fontSize: '11px', color: '#64748b', background: '#f8fafc', padding: '2px 8px', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
+                Showing first {Math.min(parsedCandidateRoster.length, 4)} records
+              </span>
+            </div>
+
+            {/* Micro Preview Table */}
+            <div style={{ overflowX: 'auto', maxHeight: '150px', borderRadius: '8px', border: '1px solid #f1f5f9' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '11.5px', textAlign: 'left' }}>
+                <thead>
+                  <tr style={{ background: '#f8fafc', borderBottom: '1.5px solid #e2e8f0', color: '#475569' }}>
+                    <th style={{ padding: '6px 10px', fontWeight: 700 }}>Student ID</th>
+                    <th style={{ padding: '6px 10px', fontWeight: 700 }}>Full Name</th>
+                    <th style={{ padding: '6px 10px', fontWeight: 700 }}>Placement</th>
+                    <th style={{ padding: '6px 10px', fontWeight: 700 }}>Parent / Guardian</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {parsedCandidateRoster.slice(0, 4).map((s, idx) => (
+                    <tr key={idx} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                      <td style={{ padding: '6px 10px', fontFamily: 'monospace', fontWeight: 600, color: '#0f172a' }}>{s.student_id}</td>
+                      <td style={{ padding: '6px 10px', fontWeight: 600 }}>{s.fname} {s.mname ? s.mname + ' ' : ''}{s.lname}</td>
+                      <td style={{ padding: '6px 10px', color: '#64748b' }}>{s.grade} - {s.section}</td>
+                      <td style={{ padding: '6px 10px', color: '#64748b' }}>{s.parent_name || 'N/A'} ({s.parent_contact || 'N/A'})</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* Live Progress Bar on Upload */}
+        {loading && (
+          <div style={{ background: '#f8fafc', border: '1.5px solid #e0f2fe', borderRadius: '12px', padding: '14px 16px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px', fontSize: '12.5px' }}>
+              <span style={{ fontWeight: 700, color: '#0369a1', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <RefreshCw size={14} className="spin" /> Batch Ingesting Students...
+              </span>
+              <span style={{ fontWeight: 800, color: '#0284c7' }}>
+                {importProgress.current} / {importProgress.total} ({importProgress.percent}%)
+              </span>
+            </div>
+            <div style={{ height: '8px', background: '#e2e8f0', borderRadius: '999px', overflow: 'hidden' }}>
+              <div
+                style={{
+                  height: '100%',
+                  width: `${importProgress.percent}%`,
+                  background: 'linear-gradient(90deg, #0284c7, #38bdf8)',
+                  borderRadius: '999px',
+                  transition: 'width 0.2s ease'
+                }}
+              />
+            </div>
+          </div>
+        )}
 
         {/* Text Paste Fallback */}
         <div>
@@ -220,7 +311,7 @@ export const BulkImportModal = ({ isOpen, onClose, onImported }) => {
           </div>
           <textarea
             className="form-control"
-            rows={5}
+            rows={4}
             style={{
               width: '100%',
               boxSizing: 'border-box',
@@ -241,7 +332,7 @@ export const BulkImportModal = ({ isOpen, onClose, onImported }) => {
         </div>
       </div>
 
-      <div className="modal-footer" style={{ borderTop: '1px solid #e2e8f0', padding: '12px 20px', display: 'flex', justifyContent: 'flex-end', gap: '8px', background: '#f8fafc' }}>
+      <div className="modal-footer" style={{ borderTop: '1px solid #e2e8f0', padding: '12px 22px', display: 'flex', justifyContent: 'flex-end', gap: '8px', background: '#f8fafc' }}>
         <button
           type="button"
           className="btn btn-secondary"
@@ -266,7 +357,7 @@ export const BulkImportModal = ({ isOpen, onClose, onImported }) => {
             background: '#0f172a',
             color: '#ffffff',
             borderRadius: '8px',
-            padding: '8px 18px',
+            padding: '8px 20px',
             fontSize: '12.5px',
             fontWeight: 700,
             border: 'none',
@@ -277,10 +368,10 @@ export const BulkImportModal = ({ isOpen, onClose, onImported }) => {
             boxShadow: '0 2px 8px rgba(15, 23, 42, 0.2)'
           }}
           onClick={handleParseAndUpload}
-          disabled={loading}
+          disabled={loading || parsedCandidateRoster.length === 0}
         >
           <Upload size={14} />
-          {loading ? 'Processing Import...' : 'Import Students'}
+          {loading ? `Importing (${importProgress.percent}%)...` : `Import ${parsedCandidateRoster.length > 0 ? parsedCandidateRoster.length : ''} Students`}
         </button>
       </div>
     </Modal>

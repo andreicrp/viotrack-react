@@ -30,6 +30,7 @@ import {
   ChevronRight,
   Users,
   AlertCircle,
+  Upload,
   FileSpreadsheet
 } from 'lucide-react';
 import { getJsPDF } from '../utils/pdfHelper';
@@ -228,54 +229,61 @@ export const ViolationsPage = () => {
 
   const handleDeleteSelected = async () => {
     if (window.confirm(`Are you sure you want to delete ${selectedIds.length} selected record(s)?`)) {
+      const idsToDelete = [...selectedIds];
+      setSelectedIds([]);
+      setRecords(prev => prev.filter(r => !idsToDelete.includes(r.id)));
+      success(`Successfully deleted ${idsToDelete.length} records.`);
       try {
-        for (const id of selectedIds) {
+        for (const id of idsToDelete) {
           await dataService.deleteRecord(id);
         }
-        success(`Successfully deleted ${selectedIds.length} records.`);
-        setSelectedIds([]);
-        loadRecords();
       } catch (err) {
-        error('Bulk delete failed: ' + err.message);
+        error('Bulk delete sync error: ' + err.message);
+        loadRecords(true);
       }
     }
   };
 
   const handleResolveSelected = async () => {
+    const idsToResolve = [...selectedIds];
+    setSelectedIds([]);
+    setRecords(prev => prev.map(r => idsToResolve.includes(r.id) ? { ...r, status: 'Resolved' } : r));
+    success(`Marked ${idsToResolve.length} records as Resolved.`);
     try {
-      for (const id of selectedIds) {
+      for (const id of idsToResolve) {
         await dataService.updateRecordStatus(id, {
           status: 'Resolved',
           resolution_notes: 'Resolved via bulk action'
         });
       }
-      success(`Marked ${selectedIds.length} records as Resolved.`);
-      setSelectedIds([]);
-      loadRecords();
     } catch (err) {
-      error('Bulk resolve failed: ' + err.message);
+      error('Bulk resolve sync error: ' + err.message);
+      loadRecords(true);
     }
   };
 
   const handleDeleteSingle = async (id) => {
     if (window.confirm('Are you sure you want to delete this violation record?')) {
+      setRecords(prev => prev.filter(r => r.id !== id));
+      setSelectedIds(prev => prev.filter(x => x !== id));
+      success('Violation record deleted successfully.');
       try {
         await dataService.deleteRecord(id);
-        success('Violation record deleted successfully.');
-        loadRecords();
       } catch (err) {
-        error('Delete failed: ' + err.message);
+        error('Delete sync error: ' + err.message);
+        loadRecords(true);
       }
     }
   };
 
   const handleStatusUpdated = async (recordId, newStatus) => {
+    setRecords(prev => prev.map(r => r.id === recordId ? { ...r, status: newStatus } : r));
+    success(`Status updated successfully to "${newStatus}"!`);
     try {
       await dataService.updateRecordStatus(recordId, { status: newStatus });
-      setRecords(records.map(r => r.id === recordId ? { ...r, status: newStatus } : r));
-      success(`Status updated successfully to "${newStatus}"!`);
     } catch (err) {
-      error('Failed to update status: ' + err.message);
+      error('Failed to sync status update: ' + err.message);
+      loadRecords(true);
     }
   };
 
@@ -395,21 +403,21 @@ export const ViolationsPage = () => {
     const t = (ty || '').toLowerCase();
     if (t === 'major') {
       return (
-        <span style={{ background: '#fef2f2', color: '#991b1b', border: '1px solid #fecaca', padding: '3px 9px', borderRadius: '6px', fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+        <span style={{ background: '#fee2e2', color: '#dc2626', border: '1px solid #fecaca', padding: '3px 9px', borderRadius: '6px', fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
           <ShieldAlert size={12} color="#dc2626" strokeWidth={2.2} /> Major
         </span>
       );
     }
     if (t === 'serious') {
       return (
-        <span style={{ background: '#fff7ed', color: '#9a3412', border: '1px solid #fed7aa', padding: '3px 9px', borderRadius: '6px', fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-          <AlertTriangle size={12} color="#ea580c" strokeWidth={2.2} /> Serious
+        <span style={{ background: '#fef9c3', color: '#a16207', border: '1px solid #fde047', padding: '3px 9px', borderRadius: '6px', fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+          <AlertTriangle size={12} color="#d97706" strokeWidth={2.2} /> Serious
         </span>
       );
     }
     return (
-      <span style={{ background: '#ecfdf5', color: '#065f46', border: '1px solid #a7f3d0', padding: '3px 9px', borderRadius: '6px', fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-        <CheckCircle2 size={12} color="#059669" strokeWidth={2.2} /> Minor
+      <span style={{ background: '#dcfce7', color: '#15803d', border: '1px solid #bbf7d0', padding: '3px 9px', borderRadius: '6px', fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+        <CheckCircle2 size={12} color="#16a34a" strokeWidth={2.2} /> Minor
       </span>
     );
   };
@@ -419,26 +427,12 @@ export const ViolationsPage = () => {
       {/* Top Banner Header & Quick Actions */}
       <div className="page-banner-header">
         <div className="page-banner-info">
-          <ShieldAlert size={30} color="#ffffff" strokeWidth={2.2} style={{ flexShrink: 0 }} />
+          <ShieldAlert size={26} color="#0f172a" strokeWidth={2.4} style={{ flexShrink: 0 }} />
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-              <h2 style={{ fontSize: '22px', fontWeight: 800, margin: 0, color: '#ffffff', letterSpacing: '-0.02em' }}>
-                Incident Registry
-              </h2>
-              <span
-                style={{
-                  background: 'rgba(255, 255, 255, 0.2)',
-                  color: '#ffffff',
-                  fontSize: '12px',
-                  fontWeight: 700,
-                  padding: '2.5px 10px',
-                  borderRadius: '20px'
-                }}
-              >
-                {records.length} Total {records.length === 1 ? 'Record' : 'Records'}
-              </span>
-            </div>
-            <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: 'rgba(255, 255, 255, 0.85)' }}>
+            <h2 style={{ fontSize: '20px', fontWeight: 800, margin: 0, color: '#0f172a', letterSpacing: '-0.02em' }}>
+              Incident Registry
+            </h2>
+            <p style={{ margin: '3px 0 0 0', fontSize: '13px', color: '#64748b' }}>
               Track, investigate, update status, and document disciplinary incident resolutions.
             </p>
           </div>
@@ -461,14 +455,14 @@ export const ViolationsPage = () => {
                 className="page-banner-btn-secondary"
                 title="Download formatted PDF report"
               >
-                <Download size={14} /> Export PDF
+                <Upload size={14} strokeWidth={2.2} /> Export PDF
               </button>
               <button
                 onClick={handleExportCSV}
                 className="page-banner-btn-secondary"
                 title="Download CSV report"
               >
-                <FileSpreadsheet size={14} /> Export CSV
+                <FileText size={14} strokeWidth={2.2} /> Export CSV
               </button>
             </div>
           )}
@@ -496,33 +490,29 @@ export const ViolationsPage = () => {
           onClick={() => { setStatusFilter('all'); setSeverityFilter('all'); setGradeFilter('all'); }}
           style={{
             background: '#ffffff',
-            borderRadius: '10px',
-            padding: '12px 14px',
-            border: statusFilter === 'all' && severityFilter === 'all' ? '2px solid #07345f' : '1px solid #e2e8f0',
-            boxShadow: '0 1px 4px rgba(0,0,0,0.02)',
+            borderRadius: '12px',
+            padding: '14px 16px',
+            border: statusFilter === 'all' && severityFilter === 'all' ? '2px solid #07345f' : '1.5px solid #cbd5e1',
+            boxShadow: statusFilter === 'all' && severityFilter === 'all' ? '0 4px 14px rgba(7, 52, 95, 0.10)' : '0 1px 3px rgba(0,0,0,0.02)',
             cursor: 'pointer',
-            transition: 'all 0.2s',
-            position: 'relative',
-            overflow: 'hidden'
+            transition: 'all 0.15s ease',
+            position: 'relative'
           }}
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
-              <div style={{ fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.03em' }}>
-                All Incidents
+              <div style={{ fontSize: '11.5px', fontWeight: 800, color: '#07345f', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                ALL INCIDENTS
               </div>
-              <div style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a', marginTop: '2px' }}>
+              <div style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', margin: '4px 0 2px 0', lineHeight: 1.1 }}>
                 {stats.total}
               </div>
-              <div style={{ fontSize: '10px', color: '#64748b', marginTop: '2px' }}>
+              <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 500 }}>
                 Total logged records
               </div>
             </div>
-            <ShieldAlert size={20} color="#1f2937" strokeWidth={2} />
+            <ShieldAlert size={20} color="#07345f" strokeWidth={2} />
           </div>
-          {statusFilter === 'all' && severityFilter === 'all' && (
-            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 2.5, background: '#07345f' }}></div>
-          )}
         </div>
 
         {/* Pending Review */}
@@ -530,33 +520,29 @@ export const ViolationsPage = () => {
           onClick={() => setStatusFilter(statusFilter === 'pending' ? 'all' : 'pending')}
           style={{
             background: '#ffffff',
-            borderRadius: '10px',
-            padding: '12px 14px',
-            border: statusFilter === 'pending' ? '2px solid #07345f' : '1px solid #e2e8f0',
-            boxShadow: '0 1px 4px rgba(0,0,0,0.02)',
+            borderRadius: '12px',
+            padding: '14px 16px',
+            border: statusFilter === 'pending' ? '2px solid #07345f' : '1.5px solid #cbd5e1',
+            boxShadow: statusFilter === 'pending' ? '0 4px 14px rgba(7, 52, 95, 0.10)' : '0 1px 3px rgba(0,0,0,0.02)',
             cursor: 'pointer',
-            transition: 'all 0.2s',
-            position: 'relative',
-            overflow: 'hidden'
+            transition: 'all 0.15s ease',
+            position: 'relative'
           }}
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
-              <div style={{ fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.03em' }}>
-                Pending Action
+              <div style={{ fontSize: '11.5px', fontWeight: 800, color: '#07345f', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                PENDING ACTION
               </div>
-              <div style={{ fontSize: '20px', fontWeight: 800, color: '#1f2937', marginTop: '2px' }}>
+              <div style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', margin: '4px 0 2px 0', lineHeight: 1.1 }}>
                 {stats.pending}
               </div>
-              <div style={{ fontSize: '10px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
+              <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 500 }}>
                 Awaiting resolution
               </div>
             </div>
-            <Clock size={20} color="#1f2937" strokeWidth={2} />
+            <Clock size={20} color="#07345f" strokeWidth={2} />
           </div>
-          {statusFilter === 'pending' && (
-            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 2.5, background: '#07345f' }}></div>
-          )}
         </div>
 
         {/* In Investigation */}
@@ -564,33 +550,29 @@ export const ViolationsPage = () => {
           onClick={() => setStatusFilter(statusFilter === 'investigation' ? 'all' : 'investigation')}
           style={{
             background: '#ffffff',
-            borderRadius: '10px',
-            padding: '12px 14px',
-            border: statusFilter === 'investigation' ? '2px solid #07345f' : '1px solid #e2e8f0',
-            boxShadow: '0 1px 4px rgba(0,0,0,0.02)',
+            borderRadius: '12px',
+            padding: '14px 16px',
+            border: statusFilter === 'investigation' ? '2px solid #07345f' : '1.5px solid #cbd5e1',
+            boxShadow: statusFilter === 'investigation' ? '0 4px 14px rgba(7, 52, 95, 0.10)' : '0 1px 3px rgba(0,0,0,0.02)',
             cursor: 'pointer',
-            transition: 'all 0.2s',
-            position: 'relative',
-            overflow: 'hidden'
+            transition: 'all 0.15s ease',
+            position: 'relative'
           }}
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
-              <div style={{ fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.03em' }}>
-                Investigation
+              <div style={{ fontSize: '11.5px', fontWeight: 800, color: '#07345f', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                INVESTIGATION
               </div>
-              <div style={{ fontSize: '20px', fontWeight: 800, color: '#1f2937', marginTop: '2px' }}>
+              <div style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', margin: '4px 0 2px 0', lineHeight: 1.1 }}>
                 {stats.investigation}
               </div>
-              <div style={{ fontSize: '10px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
+              <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 500 }}>
                 Under active review
               </div>
             </div>
-            <Search size={20} color="#1f2937" strokeWidth={2} />
+            <Search size={20} color="#07345f" strokeWidth={2} />
           </div>
-          {statusFilter === 'investigation' && (
-            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 2.5, background: '#07345f' }}></div>
-          )}
         </div>
 
         {/* Resolved Cases */}
@@ -598,33 +580,29 @@ export const ViolationsPage = () => {
           onClick={() => setStatusFilter(statusFilter === 'resolved' ? 'all' : 'resolved')}
           style={{
             background: '#ffffff',
-            borderRadius: '10px',
-            padding: '12px 14px',
-            border: statusFilter === 'resolved' ? '2px solid #07345f' : '1px solid #e2e8f0',
-            boxShadow: '0 1px 4px rgba(0,0,0,0.02)',
+            borderRadius: '12px',
+            padding: '14px 16px',
+            border: statusFilter === 'resolved' ? '2px solid #07345f' : '1.5px solid #cbd5e1',
+            boxShadow: statusFilter === 'resolved' ? '0 4px 14px rgba(7, 52, 95, 0.10)' : '0 1px 3px rgba(0,0,0,0.02)',
             cursor: 'pointer',
-            transition: 'all 0.2s',
-            position: 'relative',
-            overflow: 'hidden'
+            transition: 'all 0.15s ease',
+            position: 'relative'
           }}
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
-              <div style={{ fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.03em' }}>
-                Resolved Cases
+              <div style={{ fontSize: '11.5px', fontWeight: 800, color: '#07345f', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                RESOLVED CASES
               </div>
-              <div style={{ fontSize: '20px', fontWeight: 800, color: '#1f2937', marginTop: '2px' }}>
+              <div style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', margin: '4px 0 2px 0', lineHeight: 1.1 }}>
                 {stats.resolved}
               </div>
-              <div style={{ fontSize: '10px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
+              <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 500 }}>
                 Documented & closed
               </div>
             </div>
-            <ShieldCheck size={20} color="#1f2937" strokeWidth={2} />
+            <ShieldCheck size={20} color="#07345f" strokeWidth={2} />
           </div>
-          {statusFilter === 'resolved' && (
-            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 2.5, background: '#07345f' }}></div>
-          )}
         </div>
       </div>
 
@@ -1086,6 +1064,8 @@ export const ViolationsPage = () => {
                               `https://ui-avatars.com/api/?name=${encodeURIComponent(rec.student?.fname || 'Student')}&background=07345f&color=fff&size=38`
                             }
                             alt="Student"
+                            loading="lazy"
+                            decoding="async"
                             style={{
                               width: 38,
                               height: 38,
@@ -1313,6 +1293,8 @@ export const ViolationsPage = () => {
                       `https://ui-avatars.com/api/?name=${encodeURIComponent(rec.student?.fname || 'Student')}&background=07345f&color=fff&size=48`
                     }
                     alt="Student"
+                    loading="lazy"
+                    decoding="async"
                     className="entity-grid-avatar"
                   />
 
@@ -1404,6 +1386,8 @@ export const ViolationsPage = () => {
                           `https://ui-avatars.com/api/?name=${encodeURIComponent(rec.student?.fname || 'Student')}&background=07345f&color=fff&size=36`
                         }
                         alt="Student"
+                        loading="lazy"
+                        decoding="async"
                         style={{
                           width: 36,
                           height: 36,

@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { dataService } from '../../services/dataService';
+import { preloadRoute } from '../../utils/routePreloader';
 
 export const Sidebar = ({ isCollapsed, isMobileOpen, onCloseMobile }) => {
   const { user, logout } = useAuth();
@@ -126,7 +127,7 @@ export const Sidebar = ({ isCollapsed, isMobileOpen, onCloseMobile }) => {
         <nav className="sidebar-nav">
           <ul className="nav-list">
             <li className={`nav-item ${location.pathname === '/' ? 'active' : ''}`} data-title="Dashboard">
-              <NavLink to="/" className="nav-link" onClick={handleLinkClick} end>
+              <NavLink to="/" className="nav-link" onClick={handleLinkClick} onMouseEnter={() => preloadRoute('/dashboard')} end>
                 <span className="sidebar-icon">
                   <LayoutDashboard size={20} strokeWidth={2.2} />
                 </span>
@@ -148,6 +149,10 @@ export const Sidebar = ({ isCollapsed, isMobileOpen, onCloseMobile }) => {
                   className="nav-link submenu-toggle"
                   aria-expanded={managementOpen}
                   aria-controls="management-submenu"
+                  onMouseEnter={() => {
+                    preloadRoute('/violations');
+                    preloadRoute('/violation-types');
+                  }}
                   onClick={(e) => {
                     e.preventDefault();
                     if (isCollapsed) {
@@ -168,14 +173,14 @@ export const Sidebar = ({ isCollapsed, isMobileOpen, onCloseMobile }) => {
                 </button>
                 <ul id="management-submenu" className={`submenu ${managementOpen ? 'show' : ''}`}>
                   <li className={`submenu-item ${location.pathname === '/violations' ? 'active' : ''}`}>
-                    <NavLink to="/violations" className="submenu-link" onClick={handleLinkClick}>
+                    <NavLink to="/violations" className="submenu-link" onClick={handleLinkClick} onMouseEnter={() => preloadRoute('/violations')}>
                       <span className="submenu-bullet"></span>
                       <span className="submenu-text">Violation Record</span>
                     </NavLink>
                   </li>
                   {isAdmin && (
                     <li className={`submenu-item ${location.pathname === '/violation-types' ? 'active' : ''}`}>
-                      <NavLink to="/violation-types" className="submenu-link" onClick={handleLinkClick}>
+                      <NavLink to="/violation-types" className="submenu-link" onClick={handleLinkClick} onMouseEnter={() => preloadRoute('/violation-types')}>
                         <span className="submenu-bullet"></span>
                         <span className="submenu-text">Violation</span>
                       </NavLink>
@@ -186,7 +191,7 @@ export const Sidebar = ({ isCollapsed, isMobileOpen, onCloseMobile }) => {
 
               {isTeacher && (
                 <li className={`nav-item ${location.pathname === '/my-class' ? 'active' : ''}`} data-title="My Class">
-                  <NavLink to="/my-class" className="nav-link" onClick={handleLinkClick}>
+                  <NavLink to="/my-class" className="nav-link" onClick={handleLinkClick} onMouseEnter={() => preloadRoute('/my-class')}>
                     <span className="sidebar-icon">
                       <BookOpen size={20} strokeWidth={2} />
                     </span>
@@ -197,7 +202,7 @@ export const Sidebar = ({ isCollapsed, isMobileOpen, onCloseMobile }) => {
 
               {isAdmin && (
                 <li className={`nav-item ${location.pathname === '/teachers' ? 'active' : ''}`} data-title="Teacher">
-                  <NavLink to="/teachers" className="nav-link" onClick={handleLinkClick}>
+                  <NavLink to="/teachers" className="nav-link" onClick={handleLinkClick} onMouseEnter={() => preloadRoute('/teachers')}>
                     <span className="sidebar-icon">
                       <Presentation size={20} strokeWidth={2} />
                     </span>
@@ -207,7 +212,7 @@ export const Sidebar = ({ isCollapsed, isMobileOpen, onCloseMobile }) => {
               )}
 
               <li className={`nav-item ${location.pathname === '/students' ? 'active' : ''}`} data-title="Students">
-                <NavLink to="/students" className="nav-link" onClick={handleLinkClick}>
+                <NavLink to="/students" className="nav-link" onClick={handleLinkClick} onMouseEnter={() => preloadRoute('/students')}>
                   <span className="sidebar-icon">
                     <GraduationCap size={20} strokeWidth={2} />
                   </span>
@@ -216,7 +221,7 @@ export const Sidebar = ({ isCollapsed, isMobileOpen, onCloseMobile }) => {
               </li>
 
               <li className={`nav-item ${location.pathname === '/advisers' ? 'active' : ''}`} data-title="Advisers">
-                <NavLink to="/advisers" className="nav-link" onClick={handleLinkClick}>
+                <NavLink to="/advisers" className="nav-link" onClick={handleLinkClick} onMouseEnter={() => preloadRoute('/advisers')}>
                   <span className="sidebar-icon">
                     <Briefcase size={20} strokeWidth={2} />
                   </span>
@@ -233,6 +238,11 @@ export const Sidebar = ({ isCollapsed, isMobileOpen, onCloseMobile }) => {
                   <a
                     href="#admin"
                     className="nav-link submenu-toggle"
+                    onMouseEnter={() => {
+                      preloadRoute('/admin-users');
+                      preloadRoute('/for-approval');
+                      preloadRoute('/activity-logs');
+                    }}
                     onClick={(e) => {
                       e.preventDefault();
                       if (isCollapsed) {
@@ -253,13 +263,13 @@ export const Sidebar = ({ isCollapsed, isMobileOpen, onCloseMobile }) => {
                   </a>
                   <ul className={`submenu ${adminOpen ? 'show' : ''}`}>
                     <li className={`submenu-item ${location.pathname === '/admin-users' ? 'active' : ''}`}>
-                      <NavLink to="/admin-users" className="submenu-link" onClick={handleLinkClick}>
+                      <NavLink to="/admin-users" className="submenu-link" onClick={handleLinkClick} onMouseEnter={() => preloadRoute('/admin-users')}>
                         <span className="submenu-bullet"></span>
                         <span className="submenu-text">Admin Users</span>
                       </NavLink>
                     </li>
                     <li className={`submenu-item ${location.pathname === '/for-approval' ? 'active' : ''}`}>
-                      <NavLink to="/for-approval" className="submenu-link" onClick={handleLinkClick}>
+                      <NavLink to="/for-approval" className="submenu-link" onClick={handleLinkClick} onMouseEnter={() => preloadRoute('/for-approval')}>
                         <span className="submenu-bullet"></span>
                         <span className="submenu-text">For Approval</span>
                         {pendingApprovalsCount > 0 && (
@@ -270,7 +280,7 @@ export const Sidebar = ({ isCollapsed, isMobileOpen, onCloseMobile }) => {
                       </NavLink>
                     </li>
                     <li className={`submenu-item ${location.pathname === '/activity-logs' ? 'active' : ''}`}>
-                      <NavLink to="/activity-logs" className="submenu-link" onClick={handleLinkClick}>
+                      <NavLink to="/activity-logs" className="submenu-link" onClick={handleLinkClick} onMouseEnter={() => preloadRoute('/activity-logs')}>
                         <span className="submenu-bullet"></span>
                         <span className="submenu-text">Activity</span>
                       </NavLink>
@@ -285,7 +295,7 @@ export const Sidebar = ({ isCollapsed, isMobileOpen, onCloseMobile }) => {
             <span className="nav-section-title">SETTINGS</span>
             <ul className="nav-list">
               <li className={`nav-item ${location.pathname === '/profile' ? 'active' : ''}`} data-title="Profile">
-                <NavLink to="/profile" className="nav-link" onClick={handleLinkClick}>
+                <NavLink to="/profile" className="nav-link" onClick={handleLinkClick} onMouseEnter={() => preloadRoute('/profile')}>
                   <span className="sidebar-icon">
                     <UserCircle2 size={20} strokeWidth={2} />
                   </span>

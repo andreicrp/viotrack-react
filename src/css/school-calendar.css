@@ -489,12 +489,182 @@
 }
 
 /* ==========================================================================
+   Add Event Form — CSS Class (mobile-friendly)
+   ========================================================================== */
+.school-cal-add-form-wrap {
+  background: #ffffff;
+  border-bottom: 2px solid #e2e8f0;
+  padding: 16px 20px;
+  animation: slideDown 0.2s ease-out;
+}
+
+.school-cal-add-form-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+}
+
+.school-cal-add-form-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 800;
+  color: #07345f;
+}
+
+.school-cal-add-form-close {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  padding: 4px;
+  border-radius: 6px;
+  transition: all 0.15s ease;
+}
+
+.school-cal-add-form-close:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+.school-cal-add-form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+}
+
+.school-cal-form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.school-cal-form-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.school-cal-form-input,
+.school-cal-form-select,
+.school-cal-form-textarea {
+  width: 100%;
+  padding: 8px 10px;
+  font-size: 13px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 8px;
+  box-sizing: border-box;
+  background: #f8fafc;
+  color: #0f172a;
+  transition: all 0.15s ease;
+  font-family: inherit;
+}
+
+.school-cal-form-input:focus,
+.school-cal-form-select:focus,
+.school-cal-form-textarea:focus {
+  border-color: #07345f;
+  background: #ffffff;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(7, 52, 95, 0.08);
+}
+
+.school-cal-form-textarea {
+  resize: vertical;
+  min-height: 64px;
+}
+
+.school-cal-form-full {
+  grid-column: 1 / -1;
+}
+
+.school-cal-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.school-cal-form-cancel-btn {
+  padding: 7px 16px;
+  font-size: 12.5px;
+  font-weight: 600;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #475569;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.school-cal-form-cancel-btn:hover {
+  border-color: #94a3b8;
+  color: #0f172a;
+}
+
+.school-cal-form-submit-btn {
+  padding: 7px 20px;
+  font-size: 12.5px;
+  font-weight: 700;
+  border: none;
+  border-radius: 8px;
+  background: #0f172a;
+  color: #ffffff;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.2);
+  transition: all 0.15s ease;
+}
+
+.school-cal-form-submit-btn:hover {
+  background: #1e293b;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.25);
+}
+
+/* Add Event button in top bar */
+.school-cal-add-event-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #ffffff;
+  background: #0f172a;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.25);
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.school-cal-add-event-btn:hover {
+  background: #1e293b;
+}
+
+.school-cal-top-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* ==========================================================================
    Mobile Responsive Adjustments (< 768px)
    ========================================================================== */
 @media (max-width: 768px) {
   .school-cal-top-bar {
-    padding: 10px 14px;
-    gap: 10px;
+    padding: 10px 12px;
+    gap: 8px;
+    flex-direction: column;
+    align-items: stretch;
   }
 
   .school-cal-nav-group {
@@ -503,59 +673,167 @@
   }
 
   .school-cal-month-title {
-    font-size: 14.5px;
+    font-size: 15px;
+  }
+
+  .school-cal-top-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .school-cal-add-event-btn {
+    flex: 1;
+    justify-content: center;
+    font-size: 12px;
+    padding: 7px 10px;
   }
 
   .school-cal-view-tabs {
-    width: 100%;
+    flex: 1;
     display: flex;
   }
 
   .school-cal-tab-btn {
     flex: 1;
     justify-content: center;
-    padding: 6px 8px;
-    font-size: 12px;
+    padding: 6px 4px;
+    font-size: 11.5px;
+    gap: 4px;
   }
 
   .school-cal-categories-bar {
-    padding: 8px 14px;
+    padding: 8px 12px;
     gap: 6px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    flex-wrap: nowrap;
+    scrollbar-width: none;
+  }
+
+  .school-cal-categories-bar::-webkit-scrollbar {
+    display: none;
   }
 
   .school-cal-cat-chip {
-    padding: 4px 10px;
+    padding: 5px 10px;
     font-size: 11.5px;
+    flex-shrink: 0;
   }
 
   .school-cal-content-body {
-    padding: 12px 14px;
+    padding: 10px 12px;
   }
 
   .school-cal-main-layout {
     grid-template-columns: 1fr;
-    gap: 12px;
+    gap: 10px;
   }
 
   .school-cal-card {
-    padding: 12px;
+    padding: 10px;
+  }
+
+  .school-cal-weekday-label {
+    font-size: 10px;
+    padding: 2px 0;
   }
 
   .school-cal-day-cell {
-    height: 38px;
-    font-size: 12.5px;
+    height: 36px;
+    font-size: 12px;
+    border-radius: 8px;
   }
 
   .school-cal-day-empty {
-    height: 38px;
+    height: 36px;
+  }
+
+  .school-cal-dot {
+    width: 3.5px;
+    height: 3.5px;
   }
 
   .school-cal-event-details-card {
     padding: 12px;
+    gap: 10px;
+  }
+
+  .school-cal-date-badge {
+    width: 30px;
+    height: 30px;
+    font-size: 13px;
+  }
+
+  .school-cal-date-title {
+    font-size: 12.5px;
+  }
+
+  .school-cal-date-subtitle {
+    font-size: 10.5px;
+  }
+
+  .school-cal-item-card {
+    padding: 10px 12px;
+  }
+
+  .school-cal-item-title {
+    font-size: 12.5px;
+  }
+
+  .school-cal-item-meta {
+    gap: 8px;
+    font-size: 11px;
+  }
+
+  .school-cal-item-desc {
+    font-size: 11px;
+  }
+
+  /* Add Form Mobile Adjustments */
+  .school-cal-add-form-wrap {
+    padding: 12px 12px;
+  }
+
+  .school-cal-add-form-title {
+    font-size: 13px;
+  }
+
+  .school-cal-add-form-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .school-cal-form-input,
+  .school-cal-form-select,
+  .school-cal-form-textarea {
+    font-size: 14px; /* Prevent iOS zoom */
+    padding: 9px 10px;
+  }
+
+  .school-cal-form-actions {
+    flex-direction: row;
+    gap: 8px;
+  }
+
+  .school-cal-form-cancel-btn,
+  .school-cal-form-submit-btn {
+    flex: 1;
+    text-align: center;
+    justify-content: center;
+  }
+
+  /* Agenda view */
+  .school-cal-search-input {
+    font-size: 14px; /* Prevent iOS zoom */
+  }
+
+  .school-cal-agenda-card {
+    padding: 10px 12px;
   }
 
   .school-cal-footer {
-    padding: 10px 14px;
+    padding: 10px 12px;
+    flex-direction: row;
   }
 
   .school-cal-footer-brand {
@@ -565,5 +843,34 @@
   .school-cal-close-btn {
     padding: 7px 14px;
     font-size: 12.5px;
+  }
+}
+
+/* Extra small screens */
+@media (max-width: 400px) {
+  .school-cal-grid {
+    gap: 2px;
+  }
+
+  .school-cal-day-cell {
+    height: 32px;
+    font-size: 11.5px;
+  }
+
+  .school-cal-day-empty {
+    height: 32px;
+  }
+
+  .school-cal-weekday-label {
+    font-size: 9px;
+  }
+
+  .school-cal-month-title {
+    font-size: 14px;
+  }
+
+  .school-cal-cat-chip {
+    padding: 4px 8px;
+    font-size: 11px;
   }
 }

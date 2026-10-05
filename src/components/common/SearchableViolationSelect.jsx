@@ -37,14 +37,7 @@ export const SearchableViolationSelect = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [inline]);
 
-  // Focus search when opened
-  useEffect(() => {
-    if ((isOpen || inline) && searchInputRef.current) {
-      setTimeout(() => {
-        searchInputRef.current?.focus();
-      }, 50);
-    }
-  }, [isOpen, inline]);
+
 
   const handleToggle = (violation) => {
     const vid = Number(violation.id);
@@ -104,7 +97,7 @@ export const SearchableViolationSelect = ({
       return { color: '#dc2626', bg: '#fef2f2', border: '#fecaca', label: 'Major', icon: ShieldAlert };
     }
     if (t === 'serious') {
-      return { color: '#d97706', bg: '#fffbeb', border: '#fde68a', label: 'Serious', icon: AlertTriangle };
+      return { color: '#a16207', bg: '#fef9c3', border: '#fde047', label: 'Serious', icon: AlertTriangle };
     }
     return { color: '#16a34a', bg: '#f0fdf4', border: '#bbf7d0', label: 'Minor', icon: ShieldCheck };
   };

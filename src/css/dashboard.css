@@ -2898,10 +2898,11 @@
     border-radius: 8px;
 }
 
-/* 5 Column Metric Stats Row */
+/* 4 Column Metric Stats Row */
+.dash-stats-grid-4,
 .dash-stats-grid-5 {
     display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 14px;
     width: 100%;
 }
@@ -3227,11 +3228,25 @@
     color: #475569;
 }
 
+.dash-trends-legend-bottom {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: #475569;
+    margin-top: 10px;
+    padding-top: 4px;
+}
+
 .dash-legend-item {
     display: flex;
     align-items: center;
     gap: 6px;
     cursor: pointer;
+    user-select: none;
+    transition: opacity 0.15s ease;
 }
 
 .dash-legend-dot {
@@ -4030,6 +4045,7 @@
         gap: 22px;
     }
 
+    .dash-stats-grid-4,
     .dash-stats-grid-5 {
         gap: 16px;
     }
@@ -4043,6 +4059,11 @@
 @media (max-width: 1280px) and (min-width: 1025px) {
     .dashboard-root {
         gap: 18px;
+    }
+
+    .dash-stats-grid-4 {
+        grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+        gap: 12px;
     }
 
     .dash-stats-grid-5 {
@@ -4083,6 +4104,11 @@
 @media (max-width: 1024px) and (min-width: 769px) {
     .dashboard-root {
         gap: 16px;
+    }
+
+    .dash-stats-grid-4 {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 12px;
     }
 
     .dash-stats-grid-5 {
@@ -4174,6 +4200,7 @@
         white-space: nowrap !important;
     }
 
+    .dash-stats-grid-4,
     .dash-stats-grid-5 {
         display: grid !important;
         grid-template-columns: repeat(2, minmax(0, 1fr)) !important;

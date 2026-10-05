@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useDeferredValue } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { dataService } from '../services/dataService';
 import { CustomSelect } from '../components/common/CustomSelect';
@@ -28,6 +28,8 @@ import {
   Layers,
   AlertTriangle,
   Download,
+  Upload,
+  FileText,
   UserPlus,
   FileSpreadsheet
 } from 'lucide-react';
@@ -114,6 +116,8 @@ export const AdvisersPage = () => {
     return { total, jhsCount, shsCount, assignedStudentCount };
   }, [advisers, students]);
 
+  const deferredSearch = useDeferredValue(searchTerm);
+
   // Filtered advisers
   const filteredAdvisers = useMemo(() => {
     return advisers.filter(adv => {
@@ -122,7 +126,7 @@ export const AdvisersPage = () => {
       const tEmail = (teacher.email || '').toLowerCase();
       const grade = (adv.grade_level || '').toLowerCase();
       const section = (adv.class_section || '').toLowerCase();
-      const query = searchTerm.toLowerCase().trim();
+      const query = deferredSearch.toLowerCase().trim();
 
       const matchesSearch =
         !query ||
@@ -142,7 +146,7 @@ export const AdvisersPage = () => {
 
       return matchesSearch && matchesLevel && matchesGrade;
     });
-  }, [advisers, searchTerm, levelFilter, gradeFilter]);
+  }, [advisers, deferredSearch, levelFilter, gradeFilter]);
 
   // Handle Remove
   const confirmRemoveAdviser = async () => {
@@ -284,30 +288,14 @@ export const AdvisersPage = () => {
   return (
     <div className="advisers-page-wrapper">
       {/* Top Banner & Action Header */}
-      <div className="advisers-banner">
-        <div className="advisers-banner-left">
-          <div className="advisers-banner-icon">
-            <Award size={26} strokeWidth={2.2} />
-          </div>
+      <div className="page-banner-header">
+        <div className="page-banner-info">
+          <Award size={26} color="#0f172a" strokeWidth={2.4} style={{ flexShrink: 0 }} />
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-              <h2 className="advisers-banner-title">
-                Adviser Management
-              </h2>
-              <span
-                style={{
-                  background: 'rgba(255, 255, 255, 0.2)',
-                  color: '#ffffff',
-                  fontSize: '11.5px',
-                  fontWeight: 700,
-                  padding: '2px 9px',
-                  borderRadius: '20px'
-                }}
-              >
-                {advisers.length} Active {advisers.length === 1 ? 'Adviser' : 'Advisers'}
-              </span>
-            </div>
-            <p className="advisers-banner-desc">
+            <h2 style={{ fontSize: '20px', fontWeight: 800, margin: 0, color: '#0f172a', letterSpacing: '-0.02em' }}>
+              Adviser Management
+            </h2>
+            <p style={{ margin: '3px 0 0 0', fontSize: '13px', color: '#64748b' }}>
               Assign, supervise, and inspect class advisers and student advisory section rosters.
             </p>
           </div>
@@ -328,7 +316,7 @@ export const AdvisersPage = () => {
               className="page-banner-btn-secondary"
               title="Download formatted PDF directory"
             >
-              <Download size={14} /> Export PDF
+              <Upload size={14} strokeWidth={2.2} /> Export PDF
             </button>
 
             <button
@@ -336,7 +324,7 @@ export const AdvisersPage = () => {
               className="page-banner-btn-secondary"
               title="Download CSV spreadsheet"
             >
-              <FileSpreadsheet size={14} /> Export CSV
+              <FileText size={14} strokeWidth={2.2} /> Export CSV
             </button>
           </div>
 
@@ -350,61 +338,121 @@ export const AdvisersPage = () => {
       </div>
 
       {/* Interactive Stat Cards / Quick Filter Bar */}
-      <div className="advisers-stats-grid">
+      <div className="metric-cards-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' }}>
         {/* Total Advisers */}
         <div
           onClick={() => { setLevelFilter('all'); setGradeFilter('all'); }}
-          className={`advisers-stat-card ${levelFilter === 'all' && gradeFilter === 'all' ? 'active' : ''}`}
+          style={{
+            background: '#ffffff',
+            border: levelFilter === 'all' && gradeFilter === 'all' ? '2px solid #07345f' : '1.5px solid #cbd5e1',
+            borderRadius: '12px',
+            padding: '14px 16px',
+            cursor: 'pointer',
+            transition: 'all 0.15s ease',
+            boxShadow: levelFilter === 'all' && gradeFilter === 'all' ? '0 4px 14px rgba(7, 52, 95, 0.10)' : '0 1px 3px rgba(0,0,0,0.02)',
+            position: 'relative'
+          }}
         >
-          <div>
-            <div className="advisers-stat-label">Total Advisers</div>
-            <div className="advisers-stat-value">{stats.total}</div>
-            <div className="advisers-stat-sub">All Grade Levels</div>
-          </div>
-          <div className="advisers-stat-icon-wrap" style={{ color: '#07345f' }}>
-            <UserCheck size={20} strokeWidth={2.2} />
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <div>
+              <div style={{ fontSize: '11.5px', fontWeight: 800, color: '#07345f', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                TOTAL ADVISERS
+              </div>
+              <div style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', margin: '4px 0 2px 0', lineHeight: 1.1 }}>
+                {stats.total}
+              </div>
+              <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 500 }}>
+                All grade levels
+              </div>
+            </div>
+            <UserCheck size={20} color="#07345f" strokeWidth={2} />
           </div>
         </div>
 
         {/* Junior High Sections */}
         <div
           onClick={() => { setLevelFilter('jhs'); setGradeFilter('all'); }}
-          className={`advisers-stat-card ${levelFilter === 'jhs' ? 'active' : ''}`}
+          style={{
+            background: '#ffffff',
+            border: levelFilter === 'jhs' ? '2px solid #07345f' : '1.5px solid #cbd5e1',
+            borderRadius: '12px',
+            padding: '14px 16px',
+            cursor: 'pointer',
+            transition: 'all 0.15s ease',
+            boxShadow: levelFilter === 'jhs' ? '0 4px 14px rgba(7, 52, 95, 0.10)' : '0 1px 3px rgba(0,0,0,0.02)',
+            position: 'relative'
+          }}
         >
-          <div>
-            <div className="advisers-stat-label">Junior High (G7-10)</div>
-            <div className="advisers-stat-value">{stats.jhsCount}</div>
-            <div className="advisers-stat-sub">JHS Advisory Sections</div>
-          </div>
-          <div className="advisers-stat-icon-wrap" style={{ color: '#059669' }}>
-            <BookOpen size={20} strokeWidth={2.2} />
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <div>
+              <div style={{ fontSize: '11.5px', fontWeight: 800, color: '#07345f', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                JUNIOR HIGH (G7-10)
+              </div>
+              <div style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', margin: '4px 0 2px 0', lineHeight: 1.1 }}>
+                {stats.jhsCount}
+              </div>
+              <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 500 }}>
+                JHS advisory sections
+              </div>
+            </div>
+            <BookOpen size={20} color="#07345f" strokeWidth={2} />
           </div>
         </div>
 
         {/* Senior High Sections */}
         <div
           onClick={() => { setLevelFilter('shs'); setGradeFilter('all'); }}
-          className={`advisers-stat-card ${levelFilter === 'shs' ? 'active' : ''}`}
+          style={{
+            background: '#ffffff',
+            border: levelFilter === 'shs' ? '2px solid #07345f' : '1.5px solid #cbd5e1',
+            borderRadius: '12px',
+            padding: '14px 16px',
+            cursor: 'pointer',
+            transition: 'all 0.15s ease',
+            boxShadow: levelFilter === 'shs' ? '0 4px 14px rgba(7, 52, 95, 0.10)' : '0 1px 3px rgba(0,0,0,0.02)',
+            position: 'relative'
+          }}
         >
-          <div>
-            <div className="advisers-stat-label">Senior High (G11-12)</div>
-            <div className="advisers-stat-value">{stats.shsCount}</div>
-            <div className="advisers-stat-sub">SHS Tracks &amp; Strands</div>
-          </div>
-          <div className="advisers-stat-icon-wrap" style={{ color: '#7c3aed' }}>
-            <GraduationCap size={20} strokeWidth={2.2} />
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <div>
+              <div style={{ fontSize: '11.5px', fontWeight: 800, color: '#07345f', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                SENIOR HIGH (G11-12)
+              </div>
+              <div style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', margin: '4px 0 2px 0', lineHeight: 1.1 }}>
+                {stats.shsCount}
+              </div>
+              <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 500 }}>
+                SHS tracks & strands
+              </div>
+            </div>
+            <GraduationCap size={20} color="#07345f" strokeWidth={2} />
           </div>
         </div>
 
         {/* Assigned Students */}
-        <div className="advisers-stat-card">
-          <div>
-            <div className="advisers-stat-label">Assigned Students</div>
-            <div className="advisers-stat-value">{stats.assignedStudentCount}</div>
-            <div className="advisers-stat-sub">Across {advisers.length} advisory classes</div>
-          </div>
-          <div className="advisers-stat-icon-wrap" style={{ color: '#0ea5a0' }}>
-            <Users size={20} strokeWidth={2.2} />
+        <div
+          style={{
+            background: '#ffffff',
+            border: '1.5px solid #cbd5e1',
+            borderRadius: '12px',
+            padding: '14px 16px',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.02)',
+            position: 'relative'
+          }}
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <div>
+              <div style={{ fontSize: '11.5px', fontWeight: 800, color: '#07345f', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                ASSIGNED STUDENTS
+              </div>
+              <div style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', margin: '4px 0 2px 0', lineHeight: 1.1 }}>
+                {stats.assignedStudentCount}
+              </div>
+              <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 500 }}>
+                Across {advisers.length} advisory classes
+              </div>
+            </div>
+            <Users size={20} color="#07345f" strokeWidth={2} />
           </div>
         </div>
       </div>

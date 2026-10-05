@@ -203,37 +203,23 @@ export const BackupRestoreModal = ({ isOpen, onClose }) => {
         {/* Modal Header */}
         <div
           style={{
-            background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
-            color: '#ffffff',
-            padding: '22px 28px',
+            background: '#ffffff',
+            color: '#0f172a',
+            padding: '18px 28px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            borderBottom: '1px solid rgba(255, 255, 255, 0.08)'
+            borderBottom: '1px solid #e2e8f0'
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-            <div
-              style={{
-                width: '42px',
-                height: '42px',
-                borderRadius: '12px',
-                background: 'rgba(56, 189, 248, 0.15)',
-                border: '1px solid rgba(56, 189, 248, 0.3)',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                boxShadow: '0 4px 12px rgba(56, 189, 248, 0.2)'
-              }}
-            >
-              <Database size={22} color="#38bdf8" />
-            </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <Database size={22} color="#0f172a" style={{ flexShrink: 0 }} />
             <div>
-              <h3 style={{ margin: 0, fontSize: '17px', fontWeight: 800, letterSpacing: '-0.01em', color: '#ffffff' }}>
-                Automated Database Backups &amp; One-Click Restore
+              <h3 style={{ margin: 0, fontSize: '17px', fontWeight: 800, letterSpacing: '-0.01em', color: '#0f172a' }}>
+                Database Backup & Restore
               </h3>
-              <span style={{ fontSize: '12px', color: '#94a3b8', marginTop: '2px', display: 'block' }}>
-                Secure database snapshot management, disaster recovery &amp; automated schedules
+              <span style={{ fontSize: '12px', color: '#64748b', marginTop: '2px', display: 'block' }}>
+                Create portable backups, restore from files, or configure auto-backup schedules.
               </span>
             </div>
           </div>
@@ -242,22 +228,23 @@ export const BackupRestoreModal = ({ isOpen, onClose }) => {
             type="button"
             onClick={onClose}
             style={{
-              background: 'rgba(255, 255, 255, 0.08)',
-              border: '1px solid rgba(255, 255, 255, 0.12)',
-              color: '#cbd5e1',
+              background: '#f8fafc',
+              border: '1px solid #e2e8f0',
+              color: '#64748b',
               cursor: 'pointer',
-              padding: '8px',
-              borderRadius: '10px',
+              width: '32px',
+              height: '32px',
+              borderRadius: '8px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               transition: 'all 0.15s ease'
             }}
-            onMouseOver={(e) => { e.currentTarget.style.background = 'rgba(255, 255, 255, 0.2)'; e.currentTarget.style.color = '#ffffff'; }}
-            onMouseOut={(e) => { e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)'; e.currentTarget.style.color = '#cbd5e1'; }}
+            onMouseOver={(e) => { e.currentTarget.style.background = '#e2e8f0'; e.currentTarget.style.color = '#0f172a'; }}
+            onMouseOut={(e) => { e.currentTarget.style.background = '#f8fafc'; e.currentTarget.style.color = '#64748b'; }}
             title="Close modal"
           >
-            <X size={18} />
+            <X size={16} />
           </button>
         </div>
 
@@ -371,26 +358,11 @@ export const BackupRestoreModal = ({ isOpen, onClose }) => {
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '14px' }}>
                   <div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                      <h4 style={{ margin: 0, fontSize: '16px', fontWeight: 800, color: '#0f172a' }}>
-                        Instant Full Database Snapshot
-                      </h4>
-                      <span
-                        style={{
-                          background: '#ecfdf5',
-                          color: '#065f46',
-                          border: '1px solid #a7f3d0',
-                          fontSize: '11px',
-                          fontWeight: 700,
-                          padding: '2px 8px',
-                          borderRadius: '12px'
-                        }}
-                      >
-                        Ready
-                      </span>
-                    </div>
+                    <h4 style={{ margin: '0 0 4px 0', fontSize: '16px', fontWeight: 800, color: '#0f172a' }}>
+                      Database Backup
+                    </h4>
                     <p style={{ margin: 0, fontSize: '12.5px', color: '#64748b', lineHeight: 1.5, maxWidth: '520px' }}>
-                      Exports all student registries, disciplinary incident logs, violation taxonomy, staff accounts, and audit entries into an encrypted/portable JSON file.
+                      Download a complete JSON file containing all students, violation records, faculty, and activity logs.
                     </p>
                   </div>
 
@@ -399,26 +371,26 @@ export const BackupRestoreModal = ({ isOpen, onClose }) => {
                     onClick={() => handleCreateBackup('manual')}
                     disabled={loading}
                     style={{
-                      padding: '12px 22px',
-                      borderRadius: '12px',
+                      padding: '11px 20px',
+                      borderRadius: '10px',
                       background: '#0f172a',
                       color: '#ffffff',
                       border: 'none',
                       fontSize: '13px',
-                      fontWeight: 800,
+                      fontWeight: 700,
                       cursor: loading ? 'not-allowed' : 'pointer',
                       display: 'flex',
                       alignItems: 'center',
                       gap: '8px',
-                      boxShadow: '0 4px 16px rgba(15, 23, 42, 0.25)',
+                      boxShadow: '0 2px 8px rgba(15, 23, 42, 0.2)',
                       transition: 'all 0.15s ease',
                       flexShrink: 0
                     }}
-                    onMouseOver={(e) => { if (!loading) { e.currentTarget.style.background = '#1e293b'; e.currentTarget.style.transform = 'translateY(-1px)'; } }}
-                    onMouseOut={(e) => { if (!loading) { e.currentTarget.style.background = '#0f172a'; e.currentTarget.style.transform = 'translateY(0)'; } }}
+                    onMouseOver={(e) => { if (!loading) e.currentTarget.style.background = '#1e293b'; }}
+                    onMouseOut={(e) => { if (!loading) e.currentTarget.style.background = '#0f172a'; }}
                   >
-                    <Download size={16} strokeWidth={2.4} />
-                    <span>{loading ? 'Exporting...' : 'Take Snapshot & Download'}</span>
+                    <Download size={15} strokeWidth={2.4} />
+                    <span>{loading ? 'Exporting...' : 'Download Backup'}</span>
                   </button>
                 </div>
 
@@ -728,7 +700,7 @@ export const BackupRestoreModal = ({ isOpen, onClose }) => {
                     }}
                   >
                     <RefreshCw size={16} />
-                    <span>{loading ? 'Restoring Database...' : 'Execute 1-Click Database Restore'}</span>
+                    <span>{loading ? 'Restoring Database...' : 'Restore Database'}</span>
                   </button>
                 </div>
               )}
@@ -742,10 +714,10 @@ export const BackupRestoreModal = ({ isOpen, onClose }) => {
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px', paddingBottom: '16px', borderBottom: '1px solid #e2e8f0' }}>
                   <div>
                     <strong style={{ fontSize: '15px', color: '#0f172a', display: 'block' }}>
-                      Automated Background Snapshot Cron
+                      Automatic Backups
                     </strong>
                     <span style={{ fontSize: '12.5px', color: '#64748b' }}>
-                      Automatically capture system snapshots at scheduled background intervals
+                      Schedule recurring backups of system records
                     </span>
                   </div>
                   <input
@@ -799,7 +771,7 @@ export const BackupRestoreModal = ({ isOpen, onClose }) => {
                     boxShadow: '0 2px 8px rgba(15, 23, 42, 0.2)'
                   }}
                 >
-                  Save Schedule Preferences
+                  Save Settings
                 </button>
               </div>
             </div>
@@ -818,25 +790,25 @@ export const BackupRestoreModal = ({ isOpen, onClose }) => {
             justifyContent: 'space-between'
           }}
         >
-          <span style={{ fontSize: '12px', color: '#64748b', fontWeight: 600 }}>
-            VioTrack Disaster Recovery &amp; Snapshot Engine v2.4
+          <span style={{ fontSize: '12px', color: '#64748b' }}>
+            Backups are stored locally and encrypted.
           </span>
           <button
             type="button"
             onClick={onClose}
             style={{
-              padding: '9px 20px',
-              borderRadius: '10px',
+              padding: '8px 18px',
+              borderRadius: '8px',
               border: 'none',
               background: '#0f172a',
               color: '#ffffff',
-              fontSize: '13px',
+              fontSize: '12.5px',
               fontWeight: 700,
               cursor: 'pointer',
               boxShadow: '0 2px 6px rgba(15, 23, 42, 0.2)'
             }}
           >
-            Done
+            Close
           </button>
         </div>
 

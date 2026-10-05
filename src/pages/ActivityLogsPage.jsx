@@ -8,6 +8,7 @@ import {
   Search,
   RefreshCw,
   Download,
+  Upload,
   Calendar,
   Clock,
   User,
@@ -273,26 +274,12 @@ export const ActivityLogsPage = () => {
       {/* Top Banner & Quick Actions */}
       <div className="page-banner-header">
         <div className="page-banner-info">
-          <Activity size={30} strokeWidth={2.2} color="#ffffff" style={{ flexShrink: 0 }} />
+          <Activity size={26} strokeWidth={2.4} color="#0f172a" style={{ flexShrink: 0 }} />
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-              <h2 style={{ fontSize: '22px', fontWeight: 800, margin: 0, color: '#ffffff', letterSpacing: '-0.02em' }}>
-                System Audit & Activity Logs
-              </h2>
-              <span
-                style={{
-                  background: 'rgba(255, 255, 255, 0.2)',
-                  color: '#ffffff',
-                  fontSize: '12px',
-                  fontWeight: 700,
-                  padding: '2.5px 10px',
-                  borderRadius: '20px'
-                }}
-              >
-                {logs.length} Recorded Events
-              </span>
-            </div>
-            <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: 'rgba(255, 255, 255, 0.85)' }}>
+            <h2 style={{ fontSize: '20px', fontWeight: 800, margin: 0, color: '#0f172a', letterSpacing: '-0.02em' }}>
+              System Audit &amp; Activity Logs
+            </h2>
+            <p style={{ margin: '3px 0 0 0', fontSize: '13px', color: '#64748b' }}>
               Real-time audit trail of administrative events, disciplinary logging, and user modifications.
             </p>
           </div>
@@ -306,7 +293,7 @@ export const ActivityLogsPage = () => {
               className="page-banner-btn-secondary"
               title="Open database snapshot and automated backup manager"
             >
-              <Database size={15} /> Database Backups
+              <Database size={14} /> Database Backups
             </button>
 
             <button
@@ -314,7 +301,7 @@ export const ActivityLogsPage = () => {
               className="page-banner-btn-secondary"
               title="Download formatted PDF audit report"
             >
-              <Download size={15} /> Export PDF
+              <Upload size={14} strokeWidth={2.2} /> Export PDF
             </button>
 
             <button
@@ -322,7 +309,7 @@ export const ActivityLogsPage = () => {
               className="page-banner-btn-secondary"
               title="Download CSV audit log"
             >
-              <FileSpreadsheet size={15} /> Export CSV
+              <FileText size={14} strokeWidth={2.2} /> Export CSV
             </button>
           </div>
 
@@ -351,59 +338,56 @@ export const ActivityLogsPage = () => {
         <div
           onClick={() => setActionCategory('all')}
           style={{
-            background: actionCategory === 'all' ? '#f0f4f8' : '#ffffff',
-            borderRadius: '10px',
-            padding: '12px 14px',
-            border: actionCategory === 'all' ? '2px solid #07345f' : '1px solid #e2e8f0',
-            boxShadow: '0 1px 4px rgba(0,0,0,0.02)',
+            background: '#ffffff',
+            borderRadius: '12px',
+            padding: '14px 16px',
+            border: actionCategory === 'all' ? '2px solid #07345f' : '1.5px solid #cbd5e1',
+            boxShadow: actionCategory === 'all' ? '0 4px 14px rgba(7, 52, 95, 0.10)' : '0 1px 3px rgba(0,0,0,0.02)',
             cursor: 'pointer',
-            transition: 'all 0.2s',
-            position: 'relative',
-            overflow: 'hidden'
+            transition: 'all 0.15s ease',
+            position: 'relative'
           }}
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
-              <div style={{ fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.03em' }}>
-                Total Audit Events
+              <div style={{ fontSize: '11.5px', fontWeight: 800, color: '#07345f', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                TOTAL AUDIT EVENTS
               </div>
-              <div style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a', marginTop: '2px' }}>
+              <div style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', margin: '4px 0 2px 0', lineHeight: 1.1 }}>
                 {stats.total}
               </div>
-              <div style={{ fontSize: '10px', color: '#64748b', marginTop: '2px' }}>
+              <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 500 }}>
                 Full system activity trail
               </div>
             </div>
-            <Activity size={20} color="#1f2937" strokeWidth={2} style={{ flexShrink: 0 }} />
+            <Activity size={20} color="#07345f" strokeWidth={2} style={{ flexShrink: 0 }} />
           </div>
-          {actionCategory === 'all' && (
-            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 2.5, background: '#07345f' }}></div>
-          )}
         </div>
 
         {/* Today's Events */}
         <div
           style={{
             background: '#ffffff',
-            borderRadius: '10px',
-            padding: '12px 14px',
-            border: '1px solid #e2e8f0',
-            boxShadow: '0 1px 4px rgba(0,0,0,0.02)'
+            borderRadius: '12px',
+            padding: '14px 16px',
+            border: '1.5px solid #cbd5e1',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.02)',
+            position: 'relative'
           }}
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
-              <div style={{ fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.03em' }}>
-                Today's Actions
+              <div style={{ fontSize: '11.5px', fontWeight: 800, color: '#07345f', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                TODAY'S ACTIONS
               </div>
-              <div style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a', marginTop: '2px' }}>
+              <div style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', margin: '4px 0 2px 0', lineHeight: 1.1 }}>
                 {stats.todayCount}
               </div>
-              <div style={{ fontSize: '10px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
+              <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 500 }}>
                 Logged in last 24 hours
               </div>
             </div>
-            <Clock size={20} color="#1f2937" strokeWidth={2} style={{ flexShrink: 0 }} />
+            <Clock size={20} color="#07345f" strokeWidth={2} style={{ flexShrink: 0 }} />
           </div>
         </div>
 
@@ -412,33 +396,29 @@ export const ActivityLogsPage = () => {
           onClick={() => setActionCategory(actionCategory === 'violations' ? 'all' : 'violations')}
           style={{
             background: '#ffffff',
-            borderRadius: '10px',
-            padding: '12px 14px',
-            border: actionCategory === 'violations' ? '2px solid #07345f' : '1px solid #e2e8f0',
-            boxShadow: '0 1px 4px rgba(0,0,0,0.02)',
+            borderRadius: '12px',
+            padding: '14px 16px',
+            border: actionCategory === 'violations' ? '2px solid #07345f' : '1.5px solid #cbd5e1',
+            boxShadow: actionCategory === 'violations' ? '0 4px 14px rgba(7, 52, 95, 0.10)' : '0 1px 3px rgba(0,0,0,0.02)',
             cursor: 'pointer',
-            transition: 'all 0.2s',
-            position: 'relative',
-            overflow: 'hidden'
+            transition: 'all 0.15s ease',
+            position: 'relative'
           }}
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
-              <div style={{ fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.03em' }}>
-                Discipline Events
+              <div style={{ fontSize: '11.5px', fontWeight: 800, color: '#07345f', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                DISCIPLINE EVENTS
               </div>
-              <div style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a', marginTop: '2px' }}>
+              <div style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', margin: '4px 0 2px 0', lineHeight: 1.1 }}>
                 {stats.violationEvents}
               </div>
-              <div style={{ fontSize: '10px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
+              <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 500 }}>
                 Violations & resolutions
               </div>
             </div>
-            <ShieldAlert size={20} color="#1f2937" strokeWidth={2} style={{ flexShrink: 0 }} />
+            <ShieldAlert size={20} color="#07345f" strokeWidth={2} style={{ flexShrink: 0 }} />
           </div>
-          {actionCategory === 'violations' && (
-            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 2.5, background: '#07345f' }}></div>
-          )}
         </div>
 
         {/* Admin Governance */}
@@ -446,33 +426,29 @@ export const ActivityLogsPage = () => {
           onClick={() => setActionCategory(actionCategory === 'users' ? 'all' : 'users')}
           style={{
             background: '#ffffff',
-            borderRadius: '10px',
-            padding: '12px 14px',
-            border: actionCategory === 'users' ? '2px solid #07345f' : '1px solid #e2e8f0',
-            boxShadow: '0 1px 4px rgba(0,0,0,0.02)',
+            borderRadius: '12px',
+            padding: '14px 16px',
+            border: actionCategory === 'users' ? '2px solid #07345f' : '1.5px solid #cbd5e1',
+            boxShadow: actionCategory === 'users' ? '0 4px 14px rgba(7, 52, 95, 0.10)' : '0 1px 3px rgba(0,0,0,0.02)',
             cursor: 'pointer',
-            transition: 'all 0.2s',
-            position: 'relative',
-            overflow: 'hidden'
+            transition: 'all 0.15s ease',
+            position: 'relative'
           }}
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
-              <div style={{ fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.03em' }}>
-                User Governance
+              <div style={{ fontSize: '11.5px', fontWeight: 800, color: '#07345f', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                USER GOVERNANCE
               </div>
-              <div style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a', marginTop: '2px' }}>
+              <div style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', margin: '4px 0 2px 0', lineHeight: 1.1 }}>
                 {stats.adminEvents}
               </div>
-              <div style={{ fontSize: '10px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
+              <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 500 }}>
                 Faculty & account edits
               </div>
             </div>
-            <ShieldCheck size={20} color="#1f2937" strokeWidth={2} style={{ flexShrink: 0 }} />
+            <ShieldCheck size={20} color="#07345f" strokeWidth={2} style={{ flexShrink: 0 }} />
           </div>
-          {actionCategory === 'users' && (
-            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 2.5, background: '#d97706' }}></div>
-          )}
         </div>
       </div>
 
@@ -903,7 +879,7 @@ export const ActivityLogsPage = () => {
           hour12: true
         });
 
-        const certificateSummary = `[VIOTRACK AUDIT CERTIFICATE]\nAudit ID: ${auditId}\nStatus: VERIFIED & UNALTERED\nActor: ${inspectLog.user_name || 'System Admin'} (${inspectLog.user_role || 'Admin'})\nOrigin IP: ${ipAddr}\nWorkstation: ${devInfo}\nAction: ${inspectLog.action}\nDetails: ${inspectLog.details || inspectLog.description || 'Action committed.'}\nTimestamp: ${timestampIso}\nSHA-256 Hash: ${imHash}`;
+        const certificateSummary = `[VIOTRACK AUDIT EVENT]\nAudit ID: ${auditId}\nStatus: Verified Record\nActor: ${inspectLog.user_name || 'System Admin'} (${inspectLog.user_role || 'Admin'})\nOrigin IP: ${ipAddr}\nWorkstation: ${devInfo}\nAction: ${inspectLog.action}\nDetails: ${inspectLog.details || inspectLog.description || 'Action committed.'}\nTimestamp: ${timestampIso}\nHash: ${imHash}`;
 
         return (
           <div
@@ -912,9 +888,8 @@ export const ActivityLogsPage = () => {
               position: 'fixed',
               inset: 0,
               zIndex: 9999,
-              background: 'rgba(15, 23, 42, 0.7)',
-              backdropFilter: 'blur(12px)',
-              WebkitBackdropFilter: 'blur(12px)',
+              background: 'rgba(15, 23, 42, 0.65)',
+              backdropFilter: 'blur(4px)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -925,67 +900,36 @@ export const ActivityLogsPage = () => {
               className="modal-content-smooth"
               style={{
                 width: '100%',
-                maxWidth: '620px',
+                maxWidth: '560px',
                 background: '#ffffff',
-                borderRadius: '24px',
-                boxShadow: '0 32px 80px -15px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.2)',
+                borderRadius: '16px',
+                boxShadow: '0 25px 50px -12px rgba(15, 23, 42, 0.25)',
                 overflow: 'hidden',
                 display: 'flex',
                 flexDirection: 'column',
                 border: '1px solid #e2e8f0'
               }}
             >
-              {/* Header */}
+              {/* Clean Light Modal Header */}
               <div
                 style={{
-                  background: '#0f172a',
-                  color: '#ffffff',
-                  padding: '20px 24px',
+                  background: '#ffffff',
+                  color: '#0f172a',
+                  padding: '18px 22px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'space-between',
-                  borderBottom: '1px solid rgba(16, 185, 129, 0.2)'
+                  borderBottom: '1px solid #f1f5f9'
                 }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <div
-                    style={{
-                      width: '42px',
-                      height: '42px',
-                      borderRadius: '12px',
-                      background: 'rgba(16, 185, 129, 0.15)',
-                      border: '1px solid rgba(16, 185, 129, 0.35)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      boxShadow: '0 0 16px rgba(16, 185, 129, 0.2)'
-                    }}
-                  >
-                    <ShieldCheck size={24} color="#10b981" />
-                  </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                  <ShieldCheck size={20} color="#0f172a" style={{ flexShrink: 0 }} />
                   <div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 800, letterSpacing: '-0.2px' }}>
-                        Immutable Audit Certificate
-                      </h3>
-                      <span
-                        style={{
-                          background: 'rgba(16, 185, 129, 0.18)',
-                          color: '#34d399',
-                          fontSize: '10px',
-                          fontWeight: 800,
-                          padding: '2px 8px',
-                          borderRadius: '9999px',
-                          border: '1px solid rgba(16, 185, 129, 0.35)',
-                          letterSpacing: '0.4px',
-                          textTransform: 'uppercase'
-                        }}
-                      >
-                        Tamper-Evident
-                      </span>
-                    </div>
-                    <span style={{ fontSize: '11.5px', color: '#94a3b8', display: 'block', marginTop: '2px' }}>
-                      Cryptographically verified tamper-evident event record
+                    <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 700, letterSpacing: '-0.01em', color: '#0f172a' }}>
+                      Audit Event Details
+                    </h3>
+                    <span style={{ fontSize: '12px', color: '#64748b', display: 'block', marginTop: '1px' }}>
+                      System activity record and verification details
                     </span>
                   </div>
                 </div>
@@ -994,59 +938,50 @@ export const ActivityLogsPage = () => {
                   type="button"
                   onClick={() => setInspectLog(null)}
                   style={{
-                    background: 'rgba(255, 255, 255, 0.08)',
-                    border: 'none',
-                    color: '#94a3b8',
+                    background: '#f8fafc',
+                    border: '1px solid #e2e8f0',
+                    color: '#64748b',
                     cursor: 'pointer',
                     width: '32px',
                     height: '32px',
-                    borderRadius: '50%',
+                    borderRadius: '8px',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     transition: 'all 0.15s ease'
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.background = 'rgba(255, 255, 255, 0.15)';
-                    e.currentTarget.style.color = '#ffffff';
+                    e.currentTarget.style.background = '#e2e8f0';
+                    e.currentTarget.style.color = '#0f172a';
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.background = 'rgba(255, 255, 255, 0.08)';
-                    e.currentTarget.style.color = '#94a3b8';
+                    e.currentTarget.style.background = '#f8fafc';
+                    e.currentTarget.style.color = '#64748b';
                   }}
                 >
-                  <X size={18} />
+                  <X size={16} />
                 </button>
               </div>
 
               {/* Body */}
-              <div style={{ padding: '22px 24px', display: 'flex', flexDirection: 'column', gap: '14px', fontSize: '13px' }}>
-                {/* Verification Status Banner */}
+              <div style={{ padding: '20px 22px', display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '13px' }}>
+                {/* Audit ID & Verified Row */}
                 <div
                   style={{
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
-                    background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)',
-                    border: '1px solid #86efac',
-                    padding: '12px 16px',
-                    borderRadius: '14px',
-                    boxShadow: '0 2px 6px rgba(22, 163, 74, 0.08)'
+                    background: '#f0fdf4',
+                    border: '1px solid #bbf7d0',
+                    padding: '9px 12px',
+                    borderRadius: '8px'
                   }}
                 >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '9px' }}>
-                    <span
-                      style={{
-                        width: '9px',
-                        height: '9px',
-                        borderRadius: '50%',
-                        background: '#16a34a',
-                        boxShadow: '0 0 0 3px rgba(22, 163, 74, 0.22)'
-                      }}
-                    />
-                    <strong style={{ color: '#14532d', fontSize: '13px', letterSpacing: '0.2px' }}>
-                      STATUS: VERIFIED &amp; UNALTERED
-                    </strong>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
+                    <CheckCircle2 size={15} color="#16a34a" />
+                    <span style={{ color: '#166534', fontWeight: 600, fontSize: '12px' }}>
+                      Verified System Record
+                    </span>
                   </div>
 
                   <button
@@ -1055,66 +990,60 @@ export const ActivityLogsPage = () => {
                     style={{
                       display: 'inline-flex',
                       alignItems: 'center',
-                      gap: '6px',
+                      gap: '5px',
                       background: '#ffffff',
                       border: '1px solid #86efac',
-                      padding: '4px 10px',
-                      borderRadius: '8px',
-                      color: '#15803d',
+                      padding: '3px 8px',
+                      borderRadius: '6px',
+                      color: '#166534',
                       fontFamily: 'monospace',
-                      fontWeight: 800,
-                      fontSize: '12px',
-                      cursor: 'pointer',
-                      boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
-                      transition: 'all 0.15s ease'
+                      fontWeight: 700,
+                      fontSize: '11px',
+                      cursor: 'pointer'
                     }}
-                    title="Click to copy Audit ID"
+                    title="Copy Audit ID"
                   >
                     <span>{auditId}</span>
                     {copiedField === 'auditId' ? (
-                      <Check size={13} color="#16a34a" />
+                      <Check size={11} color="#16a34a" />
                     ) : (
-                      <Copy size={13} color="#16a34a" />
+                      <Copy size={11} color="#166534" />
                     )}
                   </button>
                 </div>
 
                 {/* Actor and Workstation Columns */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                   <div
                     style={{
                       background: '#f8fafc',
-                      padding: '12px 14px',
-                      borderRadius: '12px',
+                      padding: '10px 12px',
+                      borderRadius: '8px',
                       border: '1px solid #e2e8f0',
                       display: 'flex',
                       flexDirection: 'column',
-                      gap: '3px'
+                      gap: '2px'
                     }}
                   >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#3b82f6', fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.4px' }}>
-                      <User size={13} />
-                      <span>Authorized Actor</span>
-                    </div>
-                    <strong style={{ color: '#0f172a', fontSize: '14px', marginTop: '2px' }}>
+                    <span style={{ color: '#64748b', fontSize: '11px', fontWeight: 600, textTransform: 'uppercase' }}>
+                      Authorized Actor
+                    </span>
+                    <strong style={{ color: '#0f172a', fontSize: '13px', marginTop: '1px' }}>
                       {inspectLog.user_name || 'System Admin'}
                     </strong>
                     <div style={{ marginTop: '2px' }}>
                       <span
                         style={{
-                          background: '#eff6ff',
-                          color: '#1d4ed8',
-                          border: '1px solid #bfdbfe',
-                          fontSize: '11px',
-                          fontWeight: 700,
-                          padding: '1px 7px',
-                          borderRadius: '6px',
-                          display: 'inline-block',
-                          textTransform: 'uppercase',
-                          letterSpacing: '0.3px'
+                          background: '#e2e8f0',
+                          color: '#334155',
+                          fontSize: '10.5px',
+                          fontWeight: 600,
+                          padding: '1px 6px',
+                          borderRadius: '4px',
+                          display: 'inline-block'
                         }}
                       >
-                        Role: {inspectLog.user_role || 'Admin'}
+                        {inspectLog.user_role || 'Admin'}
                       </span>
                     </div>
                   </div>
@@ -1122,78 +1051,61 @@ export const ActivityLogsPage = () => {
                   <div
                     style={{
                       background: '#f8fafc',
-                      padding: '12px 14px',
-                      borderRadius: '12px',
+                      padding: '10px 12px',
+                      borderRadius: '8px',
                       border: '1px solid #e2e8f0',
                       display: 'flex',
                       flexDirection: 'column',
-                      gap: '3px'
+                      gap: '2px'
                     }}
                   >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#059669', fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.4px' }}>
-                      <Laptop size={13} />
-                      <span>Origin IP &amp; Station</span>
-                    </div>
-                    <strong style={{ color: '#0f172a', fontFamily: 'monospace', fontSize: '13.5px', marginTop: '2px' }}>
+                    <span style={{ color: '#64748b', fontSize: '11px', fontWeight: 600, textTransform: 'uppercase' }}>
+                      Origin Station
+                    </span>
+                    <strong style={{ color: '#0f172a', fontFamily: 'monospace', fontSize: '12.5px', marginTop: '1px' }}>
                       {ipAddr}
                     </strong>
-                    <span style={{ fontSize: '11px', color: '#64748b', display: 'flex', alignItems: 'center', gap: '4px', marginTop: '2px' }}>
-                      <Globe size={11} /> {devInfo}
+                    <span style={{ fontSize: '11px', color: '#64748b', marginTop: '2px' }}>
+                      {devInfo}
                     </span>
                   </div>
                 </div>
 
-                {/* Action Category & Summary */}
+                {/* Action Category & Details */}
+                <div
+                  style={{
+                    background: '#ffffff',
+                    border: '1px solid #e2e8f0',
+                    borderRadius: '8px',
+                    padding: '12px 14px'
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
+                    <span style={{ fontSize: '11px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase' }}>
+                      Action Description
+                    </span>
+                  </div>
+                  <strong style={{ color: '#0f172a', fontSize: '13.5px', display: 'block', marginBottom: '4px' }}>
+                    {inspectLog.action}
+                  </strong>
+                  <div style={{ color: '#475569', fontSize: '12.5px', lineHeight: 1.5 }}>
+                    {inspectLog.details || inspectLog.description || 'Action committed.'}
+                  </div>
+                </div>
+
+                {/* Verification Hash Card */}
                 <div
                   style={{
                     background: '#f8fafc',
                     border: '1px solid #e2e8f0',
-                    borderRadius: '12px',
-                    padding: '14px 16px'
+                    borderRadius: '8px',
+                    padding: '10px 12px'
                   }}
                 >
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
-                    <span style={{ fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.4px' }}>
-                      Action Category &amp; Summary
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
+                    <span style={{ fontSize: '11px', fontWeight: 600, color: '#64748b', textTransform: 'uppercase' }}>
+                      Verification Hash (SHA-256)
                     </span>
-                    <span
-                      style={{
-                        background: '#f1f5f9',
-                        color: '#475569',
-                        border: '1px solid #cbd5e1',
-                        fontSize: '10.5px',
-                        fontWeight: 700,
-                        padding: '1px 8px',
-                        borderRadius: '6px'
-                      }}
-                    >
-                      Audit Event
-                    </span>
-                  </div>
-                  <strong style={{ color: '#0f172a', fontSize: '14px', display: 'block', marginBottom: '4px' }}>
-                    {inspectLog.action}
-                  </strong>
-                  <div style={{ color: '#334155', fontSize: '12.5px', lineHeight: 1.5 }}>
-                    {inspectLog.details || inspectLog.description || 'Action successfully committed.'}
-                  </div>
-                </div>
-
-                {/* Cryptographic Verification Signature Box */}
-                <div
-                  style={{
-                    background: '#0b1120',
-                    border: '1px solid #1e293b',
-                    borderRadius: '14px',
-                    padding: '14px 16px'
-                  }}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '6px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#38bdf8' }}>
-                      <Fingerprint size={14} />
-                      <span style={{ fontSize: '11px', fontWeight: 700, color: '#94a3b8', letterSpacing: '0.5px', textTransform: 'uppercase' }}>
-                        Cryptographic Verification Signature (SHA-256)
-                      </span>
-                    </div>
 
                     <button
                       type="button"
@@ -1202,26 +1114,25 @@ export const ActivityLogsPage = () => {
                         display: 'inline-flex',
                         alignItems: 'center',
                         gap: '4px',
-                        background: 'rgba(56, 189, 248, 0.1)',
-                        border: '1px solid rgba(56, 189, 248, 0.3)',
-                        color: '#38bdf8',
-                        padding: '3px 8px',
-                        borderRadius: '6px',
+                        background: '#ffffff',
+                        border: '1px solid #cbd5e1',
+                        color: '#0f172a',
+                        padding: '2px 6px',
+                        borderRadius: '4px',
                         fontSize: '11px',
                         fontWeight: 600,
-                        cursor: 'pointer',
-                        transition: 'all 0.15s ease'
+                        cursor: 'pointer'
                       }}
                     >
                       {copiedField === 'imHash' ? (
                         <>
-                          <Check size={11} />
+                          <Check size={11} color="#16a34a" />
                           <span>Copied</span>
                         </>
                       ) : (
                         <>
                           <Copy size={11} />
-                          <span>Copy Hash</span>
+                          <span>Copy</span>
                         </>
                       )}
                     </button>
@@ -1229,14 +1140,11 @@ export const ActivityLogsPage = () => {
 
                   <div
                     style={{
-                      color: '#38bdf8',
+                      color: '#0f172a',
                       fontFamily: 'monospace',
-                      fontSize: '12px',
-                      fontWeight: 700,
-                      wordBreak: 'break-all',
-                      padding: '4px 0',
-                      letterSpacing: '0.4px',
-                      textShadow: '0 0 10px rgba(56, 189, 248, 0.25)'
+                      fontSize: '11.5px',
+                      fontWeight: 600,
+                      wordBreak: 'break-all'
                     }}
                   >
                     {imHash}
@@ -1245,23 +1153,17 @@ export const ActivityLogsPage = () => {
                   <div
                     style={{
                       display: 'flex',
-                      flexWrap: 'wrap',
                       alignItems: 'center',
-                      gap: '8px',
-                      marginTop: '8px',
-                      paddingTop: '8px',
-                      borderTop: '1px solid #1e293b',
+                      gap: '5px',
+                      marginTop: '6px',
+                      paddingTop: '6px',
+                      borderTop: '1px solid #e2e8f0',
                       fontSize: '11px',
                       color: '#64748b'
                     }}
                   >
-                    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', color: '#94a3b8' }}>
-                      <Clock size={11} /> {formattedDate}
-                    </span>
-                    <span style={{ color: '#334155' }}>•</span>
-                    <span style={{ fontFamily: 'monospace', color: '#64748b' }}>
-                      UTC: {timestampIso}
-                    </span>
+                    <Clock size={11} />
+                    <span>{formattedDate}</span>
                   </div>
                 </div>
               </div>
@@ -1270,73 +1172,59 @@ export const ActivityLogsPage = () => {
               <div
                 style={{
                   background: '#f8fafc',
-                  borderTop: '1px solid #e2e8f0',
-                  padding: '14px 24px',
+                  borderTop: '1px solid #f1f5f9',
+                  padding: '12px 22px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'space-between'
                 }}
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11.5px', color: '#64748b', fontWeight: 600 }}>
-                  <ShieldCheck size={15} color="#10b981" />
-                  <span>Certified by VioTrack Audit Engine</span>
-                </div>
+                <button
+                  type="button"
+                  onClick={() => handleCopy(certificateSummary, 'summary')}
+                  style={{
+                    padding: '6px 12px',
+                    borderRadius: '6px',
+                    background: '#ffffff',
+                    color: '#334155',
+                    border: '1px solid #cbd5e1',
+                    fontSize: '12px',
+                    fontWeight: 600,
+                    cursor: 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '5px'
+                  }}
+                >
+                  {copiedField === 'summary' ? (
+                    <>
+                      <Check size={12} color="#16a34a" />
+                      <span>Copied Summary</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy size={12} />
+                      <span>Copy Summary</span>
+                    </>
+                  )}
+                </button>
 
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <button
-                    type="button"
-                    onClick={() => handleCopy(certificateSummary, 'summary')}
-                    style={{
-                      padding: '8px 14px',
-                      borderRadius: '10px',
-                      background: '#ffffff',
-                      color: '#334155',
-                      border: '1px solid #cbd5e1',
-                      fontSize: '12.5px',
-                      fontWeight: 600,
-                      cursor: 'pointer',
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: '5px',
-                      transition: 'all 0.15s ease'
-                    }}
-                    onMouseEnter={(e) => { e.currentTarget.style.background = '#f1f5f9'; }}
-                    onMouseLeave={(e) => { e.currentTarget.style.background = '#ffffff'; }}
-                  >
-                    {copiedField === 'summary' ? (
-                      <>
-                        <Check size={13} color="#16a34a" />
-                        <span>Copied Summary</span>
-                      </>
-                    ) : (
-                      <>
-                        <Copy size={13} />
-                        <span>Copy Summary</span>
-                      </>
-                    )}
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setInspectLog(null)}
-                    style={{
-                      padding: '8px 20px',
-                      borderRadius: '10px',
-                      background: '#0f172a',
-                      color: '#ffffff',
-                      border: 'none',
-                      fontSize: '12.5px',
-                      fontWeight: 700,
-                      cursor: 'pointer',
-                      boxShadow: '0 2px 8px rgba(15, 23, 42, 0.25)',
-                      transition: 'all 0.15s ease'
-                    }}
-                    onMouseEnter={(e) => { e.currentTarget.style.background = '#1e293b'; }}
-                    onMouseLeave={(e) => { e.currentTarget.style.background = '#0f172a'; }}
-                  >
-                    Close Certificate
-                  </button>
-                </div>
+                <button
+                  type="button"
+                  onClick={() => setInspectLog(null)}
+                  style={{
+                    padding: '7px 18px',
+                    borderRadius: '6px',
+                    background: '#0f172a',
+                    color: '#ffffff',
+                    border: 'none',
+                    fontSize: '12.5px',
+                    fontWeight: 600,
+                    cursor: 'pointer'
+                  }}
+                >
+                  Close
+                </button>
               </div>
             </div>
           </div>

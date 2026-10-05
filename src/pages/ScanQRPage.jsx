@@ -868,12 +868,12 @@ export const ScanQRPage = () => {
       {/* 1. Standard App Page Banner Header */}
       <div className="page-banner-header">
         <div className="page-banner-info">
-          <QrCode size={30} color="#ffffff" strokeWidth={2.2} style={{ flexShrink: 0 }} />
+          <QrCode size={26} color="#0f172a" strokeWidth={2.4} style={{ flexShrink: 0 }} />
           <div>
-            <h2 style={{ fontSize: '22px', fontWeight: 800, margin: 0, color: '#ffffff', letterSpacing: '-0.02em' }}>
-              Student QR Scanner & Tracker
+            <h2 style={{ fontSize: '20px', fontWeight: 800, margin: 0, color: '#0f172a', letterSpacing: '-0.02em' }}>
+              Student QR Scanner &amp; Tracker
             </h2>
-            <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: 'rgba(255, 255, 255, 0.85)' }}>
+            <p style={{ margin: '3px 0 0 0', fontSize: '13px', color: '#64748b' }}>
               Scan printed student ID badges using device camera or search via Student ID.
             </p>
           </div>
@@ -981,16 +981,35 @@ export const ScanQRPage = () => {
               </div>
             )}
 
-            {/* Clean Modern Camera Starting-Up Overlay */}
+            {/* Clean Modern High-Tech Camera Starting-Up Overlay */}
             {hasCameraPermission && isStartingCamera && !cameraError && (
               <div className="camera-starting-overlay">
+                {/* Ambient Viewfinder HUD Corner Brackets */}
+                <div className="camera-starting-hud-corner top-left" />
+                <div className="camera-starting-hud-corner top-right" />
+                <div className="camera-starting-hud-corner bottom-left" />
+                <div className="camera-starting-hud-corner bottom-right" />
+
                 <div className="camera-starting-card">
-                  <div className="camera-starting-icon-wrap">
-                    <Loader2 size={24} className="spinner" style={{ animation: 'spin 1.1s linear infinite' }} />
+                  <div className="camera-starting-radar">
+                    <div className="radar-pulse radar-pulse-1" />
+                    <div className="radar-pulse radar-pulse-2" />
+                    <div className="camera-starting-spinner-ring" />
+                    <div className="camera-starting-icon-wrap">
+                      <Camera size={24} className="camera-starting-icon" />
+                    </div>
                   </div>
+
                   <div className="camera-starting-info">
+                    <div className="camera-starting-badge">
+                      <span className="starting-status-dot" />
+                      <span>INITIALIZING SENSOR</span>
+                    </div>
                     <h4 className="camera-starting-title">Starting Camera</h4>
-                    <p className="camera-starting-step">{cameraStartupStep}</p>
+                    <p className="camera-starting-step">{cameraStartupStep || 'Connecting to video sensor...'}</p>
+                    <div className="camera-starting-progress-bar">
+                      <div className="camera-starting-progress-fill" />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1269,42 +1288,74 @@ export const ScanQRPage = () => {
         </div>
       </div>
 
-      {/* 5-Second Swing Loading Modal Overlay */}
+      {/* 5-Second Staged Loading & Verification Modal Overlay */}
       {isProcessingScan && (
         <div className="student-scan-modal-overlay">
-          <div className="student-scan-modal-dialog" style={{ maxWidth: '420px', textAlign: 'center', padding: '34px 24px' }}>
-            <div className="scan-processing-state" style={{ margin: 0, padding: 0 }}>
-              {/* Swing Animation */}
-              <div className="ldio-swing-wrapper">
-                <div className="ldio-swing-orbit">
-                  <div className="ldio-swing-ball ball-1" />
-                  <div className="ldio-swing-ball ball-2" />
+          <div className="student-scan-modal-dialog" style={{ maxWidth: '440px', textAlign: 'center', padding: '32px 28px' }}>
+            <div className="scan-processing-state" style={{ margin: 0, padding: 0, gap: '16px' }}>
+              {/* Matrix Scanner Hub */}
+              <div className="scan-matrix-hub-wrapper">
+                <div className="scan-matrix-pulse ring-1" />
+                <div className="scan-matrix-pulse ring-2" />
+                <div className="scan-matrix-hub">
+                  <QrCode size={36} className="scan-matrix-icon" />
+                  <div className="scan-matrix-laser" />
+                  <div className="scan-matrix-corner top-left" />
+                  <div className="scan-matrix-corner top-right" />
+                  <div className="scan-matrix-corner bottom-left" />
+                  <div className="scan-matrix-corner bottom-right" />
                 </div>
               </div>
 
-              <div style={{ marginTop: '14px' }}>
-                <h3 className="processing-title" style={{ fontSize: '18px', fontWeight: 800, color: '#0f172a' }}>
-                  Scanning & Verifying
-                </h3>
-                <p style={{ fontSize: '12px', color: '#64748b', marginTop: '3px' }}>
+              {/* Title & Substep */}
+              <div className="scan-processing-header">
+                <h3 className="processing-title">Scanning & Verifying</h3>
+                <p className="processing-substep-text">
                   {scanProcessingSubstep || 'Optical code captured from device'}
                 </p>
               </div>
 
-              <div className="processing-step-text" style={{ marginTop: '8px' }}>
-                {scanProcessingStep || 'Scanning visual QR matrix...'}
+              {/* Dynamic Status Pill */}
+              <div className="processing-step-pill">
+                <span className="processing-live-dot" />
+                <span className="processing-step-label">
+                  {scanProcessingStep || 'Scanning visual QR matrix...'}
+                </span>
               </div>
 
-              {/* Dynamic 5s Progress Bar */}
-              <div style={{ width: '100%', maxWidth: '300px', margin: '14px auto 0 auto' }}>
+              {/* 3-Stage Pipeline Indicator */}
+              <div className="scan-pipeline-steps">
+                <div className={`pipeline-step ${scanProgressPercent >= 15 ? 'active' : ''} ${scanProgressPercent > 15 ? 'completed' : ''}`}>
+                  <div className="pipeline-dot" />
+                  <span>Scan Matrix</span>
+                </div>
+                <div className="pipeline-connector" />
+                <div className={`pipeline-step ${scanProgressPercent >= 65 ? 'active' : ''} ${scanProgressPercent > 65 ? 'completed' : ''}`}>
+                  <div className="pipeline-dot" />
+                  <span>Database Match</span>
+                </div>
+                <div className="pipeline-connector" />
+                <div className={`pipeline-step ${scanProgressPercent >= 100 ? 'active completed' : ''}`}>
+                  <div className="pipeline-dot" />
+                  <span>Finalize</span>
+                </div>
+              </div>
+
+              {/* Dynamic Progress Bar */}
+              <div className="scan-progress-wrapper">
                 <div className="scan-progress-bar-container">
                   <div
                     className="scan-progress-bar-fill"
                     style={{ width: `${scanProgressPercent}%` }}
-                  />
+                  >
+                    <div className="scan-progress-shimmer" />
+                  </div>
                 </div>
-                <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginTop: '6px' }}>
-                  <span style={{ fontSize: '11.5px', fontWeight: 700, color: '#2563eb' }}>{scanProgressPercent}%</span>
+                <div className="scan-progress-meta">
+                  <span className="scan-progress-status-label">
+                    {scanProgressPercent >= 100 ? 'Verification Complete' : 'Decrypting Payload'}
+                  </span>
+                  <span className="scan-progress-percentage">{scanProgressPercent}%</span>
                 </div>
               </div>
             </div>
@@ -1336,47 +1387,53 @@ export const ScanQRPage = () => {
             <div className="student-scan-modal-body">
               {/* Verified Student Header Card */}
               <div className="verified-header-card">
-                <img
-                  src={
-                    scannedStudent.image ||
-                    `https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80`
-                  }
-                  alt={`${scannedStudent.fname} ${scannedStudent.lname}`}
-                  className="verified-avatar"
-                />
+                <div className="verified-avatar-wrapper">
+                  <img
+                    src={
+                      scannedStudent.image ||
+                      `https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80`
+                    }
+                    alt={`${scannedStudent.fname} ${scannedStudent.lname}`}
+                    className="verified-avatar"
+                  />
+                  <div className="verified-avatar-badge" title="Identity Verified">
+                    <Check size={11} strokeWidth={3} />
+                  </div>
+                </div>
+
                 <div className="verified-meta">
                   <h2 className="verified-name">
                     {scannedStudent.fname} {scannedStudent.mname ? `${scannedStudent.mname[0]}. ` : ''}{scannedStudent.lname}
                   </h2>
                   <div className="verified-section-tag">
-                    {scannedStudent.grade} - {scannedStudent.section}
+                    {scannedStudent.grade} – {scannedStudent.section}
                   </div>
                   <div className="verified-lrn-row">
-                    <span>Student ID:</span>
+                    <span className="lrn-label">Student ID:</span>
                     <span className="lrn-chip">{scannedStudent.lrn}</span>
-                    <span>• S.Y. {scannedStudent.academicyear || '2026-2027'}</span>
+                    <span className="sy-text">• S.Y. {scannedStudent.academicyear || '2025–2026'}</span>
                   </div>
                 </div>
               </div>
 
               {/* Mini Metrics Grid */}
               <div className="student-mini-metrics">
-                <div className="mini-metric-box">
-                  <div className={`mini-metric-num ${studentRecords.length > 0 ? (studentRecords.length >= 3 ? 'danger' : 'warning') : 'success'}`}>
+                <div className={`mini-metric-box ${studentRecords.length > 0 ? (studentRecords.length >= 3 ? 'danger' : 'warning') : 'success'}`}>
+                  <div className="mini-metric-num">
                     {studentRecords.length}
                   </div>
                   <div className="mini-metric-label">Total Infractions</div>
                 </div>
 
-                <div className="mini-metric-box">
-                  <div className="mini-metric-num warning">
+                <div className="mini-metric-box warning">
+                  <div className="mini-metric-num">
                     {studentRecords.filter(r => r.status === 'Pending').length}
                   </div>
                   <div className="mini-metric-label">Pending Action</div>
                 </div>
 
-                <div className="mini-metric-box">
-                  <div className="mini-metric-num success">
+                <div className="mini-metric-box success">
+                  <div className="mini-metric-num">
                     {studentRecords.filter(r => r.status === 'Resolved').length}
                   </div>
                   <div className="mini-metric-label">Resolved Cases</div>
@@ -1390,22 +1447,29 @@ export const ScanQRPage = () => {
                   <span className="info-sub-val">{scannedStudent.parent_name || 'N/A'}</span>
                   {scannedStudent.parent_contact && (
                     <a href={`tel:${scannedStudent.parent_contact}`} className="info-sub-contact">
-                      <Phone size={12} /> {scannedStudent.parent_contact}
+                      <Phone size={12} />
+                      <span>{scannedStudent.parent_contact}</span>
                     </a>
                   )}
                 </div>
 
                 <div className="info-sub-box">
                   <span className="info-sub-label">Status Flag</span>
-                  <span className="info-sub-val" style={{ color: studentRecords.length >= 3 ? '#dc2626' : studentRecords.length > 0 ? '#d97706' : '#16a34a', display: 'flex', alignItems: 'center', gap: 4 }}>
+                  <div className="status-flag-container">
                     {studentRecords.length >= 3 ? (
-                      <><ShieldAlert size={14} /> High Priority</>
+                      <span className="status-flag-pill danger">
+                        <ShieldAlert size={13} /> High Priority
+                      </span>
                     ) : studentRecords.length > 0 ? (
-                      <><AlertTriangle size={14} /> Active Records</>
+                      <span className="status-flag-pill warning">
+                        <AlertTriangle size={13} /> Active Records
+                      </span>
                     ) : (
-                      <><CheckCircle2 size={14} /> Clean Standing</>
+                      <span className="status-flag-pill success">
+                        <CheckCircle2 size={13} /> Clean Standing
+                      </span>
                     )}
-                  </span>
+                  </div>
                 </div>
               </div>
 
@@ -1413,29 +1477,39 @@ export const ScanQRPage = () => {
               <div className="recent-violations-wrap">
                 <div className="recent-violations-title">
                   <span>Recent Violation History</span>
-                  <span style={{ fontSize: '11.5px', color: '#64748b' }}>{studentRecords.length} records</span>
+                  <span className="history-count-badge">{studentRecords.length} {studentRecords.length === 1 ? 'record' : 'records'}</span>
                 </div>
 
                 {studentRecords.length === 0 ? (
-                  <div style={{ padding: '14px', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '10px', color: '#15803d', fontSize: '12.5px', display: 'flex', alignItems: 'center', gap: 8, fontWeight: 600 }}>
-                    <CheckCircle2 size={16} color="#16a34a" />
-                    Clean disciplinary standing — no active infractions logged.
+                  <div className="clean-standing-box">
+                    <CheckCircle2 size={18} className="clean-standing-icon" />
+                    <span>Clean disciplinary standing — no active infractions logged.</span>
                   </div>
                 ) : (
                   <div className="violations-timeline-list">
-                    {studentRecords.map(r => (
-                      <div key={r.id} className="violation-timeline-item">
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-                          <span className="v-item-title">{r.violation?.title || r.title || 'Violation Incident'}</span>
-                          <span className="v-item-date">
-                            {r.date_reported ? new Date(r.date_reported).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Recent'} • {r.violation?.type || 'Minor'}
+                    {studentRecords.map(r => {
+                      const vType = (r.violation?.type || 'Minor').toLowerCase();
+                      const severityClass = vType === 'major' ? 'severity-major' : vType === 'serious' ? 'severity-serious' : 'severity-minor';
+                      return (
+                        <div key={r.id} className="violation-timeline-item">
+                          <div className="violation-item-main">
+                            <span className="v-item-title">{r.violation?.title || r.title || 'Violation Incident'}</span>
+                            <div className="v-item-meta">
+                              <span className="v-item-date">
+                                {r.date_reported ? new Date(r.date_reported).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : 'Recent'}
+                              </span>
+                              <span className="v-item-dot">•</span>
+                              <span className={`v-severity-pill ${severityClass}`}>
+                                {r.violation?.type || 'Minor'}
+                              </span>
+                            </div>
+                          </div>
+                          <span className={`v-status-badge ${(r.status || 'pending').toLowerCase()}`}>
+                            {r.status || 'Pending'}
                           </span>
                         </div>
-                        <span className={`v-status-badge ${(r.status || 'pending').toLowerCase()}`}>
-                          {r.status || 'Pending'}
-                        </span>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
               </div>
@@ -1443,27 +1517,29 @@ export const ScanQRPage = () => {
 
             {/* Modal Actions */}
             <div className="student-scan-modal-footer">
-              <button
-                type="button"
-                className="verified-btn primary"
-                onClick={() => setIsViolationModalOpen(true)}
-              >
-                <PlusCircle size={15} />
-                <span>Log New Violation</span>
-              </button>
+              <div className="footer-actions-row">
+                <button
+                  type="button"
+                  className="verified-btn primary"
+                  onClick={() => setIsViolationModalOpen(true)}
+                >
+                  <PlusCircle size={15} />
+                  <span>Log New Violation</span>
+                </button>
+
+                <button
+                  type="button"
+                  className="verified-btn secondary"
+                  onClick={() => navigate(`/student-violation/${scannedStudent.id}`)}
+                >
+                  <FileSpreadsheet size={15} />
+                  <span>Full Profile</span>
+                </button>
+              </div>
 
               <button
                 type="button"
-                className="verified-btn secondary"
-                onClick={() => navigate(`/student-violation/${scannedStudent.id}`)}
-              >
-                <FileSpreadsheet size={15} />
-                <span>Full Profile</span>
-              </button>
-
-              <button
-                type="button"
-                className="verified-btn secondary"
+                className="verified-btn tertiary"
                 onClick={handleCloseStudentModal}
                 title="Scan next badge"
               >

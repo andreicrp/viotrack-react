@@ -127,129 +127,352 @@ const INITIAL_ADMINS = [
   { id: 2, fname: 'Maria', lname: 'Santos', email: 'maria.santos@viotrack.edu', role: 'Discipline Officer', image: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&auto=format&fit=crop&q=80' }
 ];
 
-const INITIAL_RECORDS = [
-  {
-    id: 1,
-    student_id: 1,
-    violation_id: 1,
-    reported_by_name: 'Juan Dela Cruz',
-    reported_by_type: 'teacher',
-    date_reported: new Date(Date.now() - 2 * 86400000).toISOString(),
-    status: 'Resolved',
-    approval_status: 'Approved',
-    approved_by: 'Sheryl Gamboa',
-    approved_at: new Date(Date.now() - 2 * 86400000 + 3600000).toISOString(),
-    sanction: 'Verbal Warning',
-    remarks: 'Forgot school necktie and ID lace during morning flag ceremony.',
-    resolution_notes: 'Student complied the following day and signed acknowledgment with adviser.',
-    resolution_date: new Date(Date.now() - 1 * 86400000).toISOString(),
-    sms_notified: true
-  },
-  {
-    id: 2,
-    student_id: 1,
-    violation_id: 2,
-    reported_by_name: 'System Admin',
-    reported_by_type: 'admin',
-    date_reported: new Date(Date.now() - 5 * 3600000).toISOString(),
-    status: 'Pending',
-    approval_status: 'Approved',
-    approved_by: 'System Admin',
-    approved_at: new Date(Date.now() - 5 * 3600000).toISOString(),
-    sanction: '1 Hour Community Service',
-    remarks: 'Arrived 40 minutes late without valid excuse slip from clinic/office.',
-    resolution_notes: '',
-    resolution_date: null,
-    sms_notified: true
-  },
-  {
-    id: 3,
-    student_id: 3,
-    violation_id: 4,
-    reported_by_name: 'Elena Reyes',
-    reported_by_type: 'teacher',
-    date_reported: new Date(Date.now() - 1 * 86400000).toISOString(),
-    status: 'Investigation',
-    approval_status: 'Approved',
-    approved_by: 'Sheryl Gamboa',
-    approved_at: new Date(Date.now() - 1 * 86400000 + 7200000).toISOString(),
-    sanction: 'Parent Conference',
-    remarks: 'Involved in verbal altercation with classmate near hallway lockers.',
-    resolution_notes: 'Meeting with parent scheduled for Friday afternoon.',
-    resolution_date: null,
-    sms_notified: true
-  },
-  {
-    id: 4,
-    student_id: 4,
-    violation_id: 3,
-    reported_by_name: 'Roberto Aquino',
-    reported_by_type: 'teacher',
-    date_reported: new Date(Date.now() - 3 * 86400000).toISOString(),
-    status: 'Resolved',
-    approval_status: 'Approved',
-    approved_by: 'Sheryl Gamboa',
-    approved_at: new Date(Date.now() - 3 * 86400000 + 1800000).toISOString(),
-    sanction: 'Confiscation',
-    remarks: 'Playing mobile games during Chemistry class period.',
-    resolution_notes: 'Device returned to guardian at end of school week.',
-    resolution_date: new Date(Date.now() - 2 * 86400000).toISOString(),
-    sms_notified: true
-  },
-  {
-    id: 5,
-    student_id: 5,
-    violation_id: 5,
-    reported_by_name: 'System Admin',
-    reported_by_type: 'admin',
-    date_reported: new Date(Date.now() - 4 * 86400000).toISOString(),
-    status: 'Pending',
-    approval_status: 'Approved',
-    approved_by: 'System Admin',
-    approved_at: new Date(Date.now() - 4 * 86400000).toISOString(),
-    sanction: 'Restitution',
-    remarks: 'Graffiti tagging on back classroom wooden desk.',
-    resolution_notes: '',
-    resolution_date: null,
-    sms_notified: false
-  },
-  {
-    id: 6,
-    student_id: 2,
-    violation_id: 4,
-    reported_by_name: 'Elena Reyes',
-    reported_by_type: 'teacher',
-    date_reported: new Date(Date.now() - 2 * 3600000).toISOString(),
-    status: 'Under Approval',
-    approval_status: 'Under Approval',
-    approved_by: null,
-    approved_at: null,
-    rejection_reason: null,
-    sanction: '1st Conference & Counseling',
-    remarks: 'Caught loitering and cutting 3rd period English class behind the gym pavilion.',
-    resolution_notes: '',
-    resolution_date: null,
-    sms_notified: true
-  },
-  {
-    id: 7,
-    student_id: 6,
-    violation_id: 1,
-    reported_by_name: 'Roberto Aquino',
-    reported_by_type: 'teacher',
-    date_reported: new Date(Date.now() - 5 * 3600000).toISOString(),
-    status: 'Under Approval',
-    approval_status: 'Under Approval',
-    approved_by: null,
-    approved_at: null,
-    rejection_reason: null,
-    sanction: 'Verbal Warning',
-    remarks: 'No school uniform and unauthorized civilian clothing without clinic permission slip.',
-    resolution_notes: '',
-    resolution_date: null,
-    sms_notified: true
-  }
-];
+const getDynamicInitialRecords = () => {
+  const now = Date.now();
+  const dayMs = 86400000;
+  const hourMs = 3600000;
+
+  return [
+    // --- TODAY'S INCIDENTS ---
+    {
+      id: 101,
+      student_id: 1,
+      violation_id: 2, // Late arrival
+      reported_by_name: 'Juan Dela Cruz',
+      reported_by_type: 'teacher',
+      date_reported: new Date(now - 8 * hourMs).toISOString(),
+      status: 'Pending',
+      approval_status: 'Approved',
+      approved_by: 'System Admin',
+      approved_at: new Date(now - 7 * hourMs).toISOString(),
+      sanction: '1 Hour Community Service',
+      remarks: 'Arrived 25 minutes late during morning period without clinic pass.',
+      resolution_notes: '',
+      resolution_date: null,
+      sms_notified: true
+    },
+    {
+      id: 102,
+      student_id: 4,
+      violation_id: 3, // Mobile gadgets
+      reported_by_name: 'Roberto Aquino',
+      reported_by_type: 'teacher',
+      date_reported: new Date(now - 5 * hourMs).toISOString(),
+      status: 'Pending',
+      approval_status: 'Approved',
+      approved_by: 'System Admin',
+      approved_at: new Date(now - 4 * hourMs).toISOString(),
+      sanction: 'Temporary Confiscation',
+      remarks: 'Using phone during science quiz without instructor permission.',
+      resolution_notes: '',
+      resolution_date: null,
+      sms_notified: true
+    },
+    {
+      id: 103,
+      student_id: 5,
+      violation_id: 1, // Leaving classroom messy
+      reported_by_name: 'Elena Reyes',
+      reported_by_type: 'teacher',
+      date_reported: new Date(now - 2 * hourMs).toISOString(),
+      status: 'Resolved',
+      approval_status: 'Approved',
+      approved_by: 'Sheryl Gamboa',
+      approved_at: new Date(now - 1.5 * hourMs).toISOString(),
+      sanction: 'Classroom Cleanup',
+      remarks: 'Left wrappers and plastic bottles underneath study desk.',
+      resolution_notes: 'Student organized classroom area before dismissal.',
+      resolution_date: new Date(now - 1 * hourMs).toISOString(),
+      sms_notified: true
+    },
+    {
+      id: 104,
+      student_id: 3,
+      violation_id: 6, // Cyberbullying / Serious
+      reported_by_name: 'System Admin',
+      reported_by_type: 'admin',
+      date_reported: new Date(now - 30 * 60000).toISOString(),
+      status: 'Investigation',
+      approval_status: 'Approved',
+      approved_by: 'System Admin',
+      approved_at: new Date(now - 20 * 60000).toISOString(),
+      sanction: 'Faculty-Parent Conference',
+      remarks: 'Posting disrespectful remarks about peers on social group chat.',
+      resolution_notes: '',
+      resolution_date: null,
+      sms_notified: true
+    },
+
+    // --- YESTERDAY (DAY -1) ---
+    {
+      id: 105,
+      student_id: 2,
+      violation_id: 1,
+      reported_by_name: 'Elena Reyes',
+      reported_by_type: 'teacher',
+      date_reported: new Date(now - 1 * dayMs - 4 * hourMs).toISOString(),
+      status: 'Resolved',
+      approval_status: 'Approved',
+      approved_by: 'System Admin',
+      approved_at: new Date(now - 1 * dayMs - 2 * hourMs).toISOString(),
+      sanction: 'Verbal Warning',
+      remarks: 'Improper school uniform during assembly.',
+      resolution_notes: 'Acknowledged and complied with adviser.',
+      resolution_date: new Date(now - 1 * dayMs).toISOString(),
+      sms_notified: true
+    },
+    {
+      id: 106,
+      student_id: 4,
+      violation_id: 6,
+      reported_by_name: 'Juan Dela Cruz',
+      reported_by_type: 'teacher',
+      date_reported: new Date(now - 1 * dayMs - 6 * hourMs).toISOString(),
+      status: 'Pending',
+      approval_status: 'Approved',
+      approved_by: 'Sheryl Gamboa',
+      approved_at: new Date(now - 1 * dayMs - 5 * hourMs).toISOString(),
+      sanction: 'Adviser Consultation',
+      remarks: 'Uncooperative during group classroom lab activity.',
+      resolution_notes: '',
+      resolution_date: null,
+      sms_notified: true
+    },
+
+    // --- DAY -2 ---
+    {
+      id: 107,
+      student_id: 3,
+      violation_id: 7, // Major / Vandalism or Fight
+      reported_by_name: 'System Admin',
+      reported_by_type: 'admin',
+      date_reported: new Date(now - 2 * dayMs - 3 * hourMs).toISOString(),
+      status: 'Investigation',
+      approval_status: 'Approved',
+      approved_by: 'System Admin',
+      approved_at: new Date(now - 2 * dayMs - 2 * hourMs).toISOString(),
+      sanction: 'Guidance Council Hearing',
+      remarks: 'Severe physical scuffle near gymnasium bleachers.',
+      resolution_notes: '',
+      resolution_date: null,
+      sms_notified: true
+    },
+    {
+      id: 108,
+      student_id: 1,
+      violation_id: 1,
+      reported_by_name: 'Roberto Aquino',
+      reported_by_type: 'teacher',
+      date_reported: new Date(now - 2 * dayMs - 5 * hourMs).toISOString(),
+      status: 'Resolved',
+      approval_status: 'Approved',
+      approved_by: 'Sheryl Gamboa',
+      approved_at: new Date(now - 2 * dayMs - 4 * hourMs).toISOString(),
+      sanction: 'Written Reprimand',
+      remarks: 'Loitering in corridors during English period.',
+      resolution_notes: 'Resolved with subject teacher.',
+      resolution_date: new Date(now - 2 * dayMs).toISOString(),
+      sms_notified: true
+    },
+
+    // --- DAY -3 to DAY -7 (Spread across the week) ---
+    {
+      id: 109,
+      student_id: 5,
+      violation_id: 2,
+      reported_by_name: 'Elena Reyes',
+      reported_by_type: 'teacher',
+      date_reported: new Date(now - 3 * dayMs - 4 * hourMs).toISOString(),
+      status: 'Resolved',
+      approval_status: 'Approved',
+      approved_by: 'Sheryl Gamboa',
+      approved_at: new Date(now - 3 * dayMs - 2 * hourMs).toISOString(),
+      sanction: 'Tardiness Slip Issued',
+      remarks: 'Late arrival to morning homeroom.',
+      resolution_notes: 'Presented clinic slip.',
+      resolution_date: new Date(now - 3 * dayMs).toISOString(),
+      sms_notified: true
+    },
+    {
+      id: 110,
+      student_id: 4,
+      violation_id: 1,
+      reported_by_name: 'Juan Dela Cruz',
+      reported_by_type: 'teacher',
+      date_reported: new Date(now - 4 * dayMs - 2 * hourMs).toISOString(),
+      status: 'Resolved',
+      approval_status: 'Approved',
+      approved_by: 'System Admin',
+      approved_at: new Date(now - 4 * dayMs - 1 * hourMs).toISOString(),
+      sanction: 'Verbal Warning',
+      remarks: 'Leaving books and trash on lab table.',
+      resolution_notes: 'Cleaned area.',
+      resolution_date: new Date(now - 4 * dayMs).toISOString(),
+      sms_notified: true
+    },
+    {
+      id: 111,
+      student_id: 3,
+      violation_id: 3,
+      reported_by_name: 'Roberto Aquino',
+      reported_by_type: 'teacher',
+      date_reported: new Date(now - 5 * dayMs - 5 * hourMs).toISOString(),
+      status: 'Pending',
+      approval_status: 'Approved',
+      approved_by: 'System Admin',
+      approved_at: new Date(now - 5 * dayMs - 4 * hourMs).toISOString(),
+      sanction: 'Parent Notification',
+      remarks: 'Earphones worn during lecture recitation.',
+      resolution_notes: '',
+      resolution_date: null,
+      sms_notified: true
+    },
+    {
+      id: 112,
+      student_id: 1,
+      violation_id: 6,
+      reported_by_name: 'Elena Reyes',
+      reported_by_type: 'teacher',
+      date_reported: new Date(now - 6 * dayMs - 3 * hourMs).toISOString(),
+      status: 'Resolved',
+      approval_status: 'Approved',
+      approved_by: 'Sheryl Gamboa',
+      approved_at: new Date(now - 6 * dayMs - 2 * hourMs).toISOString(),
+      sanction: 'Adviser Conference',
+      remarks: 'Verbal dispute in hallway.',
+      resolution_notes: 'Settled via mediation.',
+      resolution_date: new Date(now - 5 * dayMs).toISOString(),
+      sms_notified: true
+    },
+
+    // --- DAY -8 to DAY -25 (Distributed across the month) ---
+    {
+      id: 113,
+      student_id: 4,
+      violation_id: 1,
+      reported_by_name: 'Juan Dela Cruz',
+      reported_by_type: 'teacher',
+      date_reported: new Date(now - 8 * dayMs - 4 * hourMs).toISOString(),
+      status: 'Resolved',
+      approval_status: 'Approved',
+      approved_by: 'System Admin',
+      approved_at: new Date(now - 8 * dayMs - 3 * hourMs).toISOString(),
+      sanction: 'Verbal Warning',
+      remarks: 'Messy classroom desk.',
+      resolution_notes: 'Completed cleanup.',
+      resolution_date: new Date(now - 8 * dayMs).toISOString(),
+      sms_notified: true
+    },
+    {
+      id: 114,
+      student_id: 2,
+      violation_id: 2,
+      reported_by_name: 'Roberto Aquino',
+      reported_by_type: 'teacher',
+      date_reported: new Date(now - 11 * dayMs - 2 * hourMs).toISOString(),
+      status: 'Resolved',
+      approval_status: 'Approved',
+      approved_by: 'Sheryl Gamboa',
+      approved_at: new Date(now - 11 * dayMs - 1 * hourMs).toISOString(),
+      sanction: 'Verbal Warning',
+      remarks: 'Late attendance.',
+      resolution_notes: 'Admitted with pass.',
+      resolution_date: new Date(now - 11 * dayMs).toISOString(),
+      sms_notified: true
+    },
+    {
+      id: 115,
+      student_id: 5,
+      violation_id: 6,
+      reported_by_name: 'Elena Reyes',
+      reported_by_type: 'teacher',
+      date_reported: new Date(now - 14 * dayMs - 4 * hourMs).toISOString(),
+      status: 'Resolved',
+      approval_status: 'Approved',
+      approved_by: 'System Admin',
+      approved_at: new Date(now - 14 * dayMs - 3 * hourMs).toISOString(),
+      sanction: 'Parent Conference',
+      remarks: 'Disrespectful language toward classmate.',
+      resolution_notes: 'Parent attended meeting.',
+      resolution_date: new Date(now - 13 * dayMs).toISOString(),
+      sms_notified: true
+    },
+    {
+      id: 116,
+      student_id: 3,
+      violation_id: 1,
+      reported_by_name: 'Juan Dela Cruz',
+      reported_by_type: 'teacher',
+      date_reported: new Date(now - 18 * dayMs - 2 * hourMs).toISOString(),
+      status: 'Resolved',
+      approval_status: 'Approved',
+      approved_by: 'Sheryl Gamboa',
+      approved_at: new Date(now - 18 * dayMs - 1 * hourMs).toISOString(),
+      sanction: 'Cleanup Duty',
+      remarks: 'Left trash in canteen hallway.',
+      resolution_notes: 'Compliance verified.',
+      resolution_date: new Date(now - 18 * dayMs).toISOString(),
+      sms_notified: true
+    },
+    {
+      id: 117,
+      student_id: 1,
+      violation_id: 3,
+      reported_by_name: 'Roberto Aquino',
+      reported_by_type: 'teacher',
+      date_reported: new Date(now - 22 * dayMs - 5 * hourMs).toISOString(),
+      status: 'Resolved',
+      approval_status: 'Approved',
+      approved_by: 'System Admin',
+      approved_at: new Date(now - 22 * dayMs - 4 * hourMs).toISOString(),
+      sanction: 'Warning Slip',
+      remarks: 'Unauthorized gadget usage during study hour.',
+      resolution_notes: 'Acknowledged by student.',
+      resolution_date: new Date(now - 22 * dayMs).toISOString(),
+      sms_notified: true
+    },
+
+    // --- PENDING / UNDER APPROVAL DEMO INCIDENTS ---
+    {
+      id: 118,
+      student_id: 2,
+      violation_id: 4,
+      reported_by_name: 'Elena Reyes',
+      reported_by_type: 'teacher',
+      date_reported: new Date(now - 2 * hourMs).toISOString(),
+      status: 'Under Approval',
+      approval_status: 'Under Approval',
+      approved_by: null,
+      approved_at: null,
+      rejection_reason: null,
+      sanction: '1st Conference & Counseling',
+      remarks: 'Caught loitering and cutting 3rd period English class behind the gym pavilion.',
+      resolution_notes: '',
+      resolution_date: null,
+      sms_notified: true
+    },
+    {
+      id: 119,
+      student_id: 6,
+      violation_id: 1,
+      reported_by_name: 'Roberto Aquino',
+      reported_by_type: 'teacher',
+      date_reported: new Date(now - 4 * hourMs).toISOString(),
+      status: 'Under Approval',
+      approval_status: 'Under Approval',
+      approved_by: null,
+      approved_at: null,
+      rejection_reason: null,
+      sanction: 'Verbal Warning',
+      remarks: 'No school uniform and unauthorized civilian clothing without clinic permission slip.',
+      resolution_notes: '',
+      resolution_date: null,
+      sms_notified: true
+    }
+  ];
+};
+
+const INITIAL_RECORDS = getDynamicInitialRecords();
 
 const INITIAL_LOGS = [
   { id: 1, user_name: 'System Admin', user_role: 'admin', action: 'Login', details: 'User authenticated from web interface', created_at: new Date(Date.now() - 3600000).toISOString() },
@@ -521,15 +744,20 @@ export const dataService = {
       let list = [];
 
       if (remoteList && remoteList.length > 0) {
-        const remoteLrnMap = new Map(remoteList.map(s => [String(s.lrn || '').toLowerCase(), s]));
+        const remoteLrnMap = new Map(remoteList.map(s => [String(s.student_id || s.lrn || '').toLowerCase(), s]));
         const mergedRemote = remoteList.map(rs => {
-          const ls = localList.find(l => String(l.lrn || '').toLowerCase() === String(rs.lrn || '').toLowerCase() || l.id === rs.id);
-          return ls ? { ...ls, ...rs, password: rs.password || ls.password } : rs;
+          const sid = String(rs.student_id || rs.lrn || '').trim();
+          const normalizedRs = { ...rs, student_id: sid, lrn: sid };
+          const ls = localList.find(l => String(l.student_id || l.lrn || '').toLowerCase() === sid.toLowerCase() || l.id === rs.id);
+          return ls ? { ...ls, ...normalizedRs, password: rs.password || ls.password } : normalizedRs;
         });
-        const extraLocal = localList.filter(ls => ls.lrn && !remoteLrnMap.has(String(ls.lrn).toLowerCase()));
+        const extraLocal = localList.filter(ls => (ls.student_id || ls.lrn) && !remoteLrnMap.has(String(ls.student_id || ls.lrn).toLowerCase()));
         list = [...mergedRemote, ...extraLocal];
       } else {
-        list = localList;
+        list = localList.map(s => {
+          const sid = String(s.student_id || s.lrn || '').trim();
+          return { ...s, student_id: sid, lrn: sid };
+        });
       }
 
       const maleAvatars = [
@@ -547,12 +775,14 @@ export const dataService = {
 
       const initialMap = new Map(INITIAL_STUDENTS.map(init => [init.id, init]));
       const processed = list.map(s => {
-        if (s.image && !s.image.includes('ui-avatars.com')) return s;
-        const seed = initialMap.get(s.id);
-        if (seed?.image) return { ...s, image: seed.image };
-        const pool = (s.gender || '').toLowerCase() === 'female' ? femaleAvatars : maleAvatars;
-        const assignedImage = pool[(s.id || 1) % pool.length];
-        return { ...s, image: assignedImage };
+        const sid = String(s.student_id || s.lrn || '').trim();
+        const base = { ...s, student_id: sid, lrn: sid };
+        if (base.image && !base.image.includes('ui-avatars.com')) return base;
+        const seed = initialMap.get(base.id);
+        if (seed?.image) return { ...base, image: seed.image };
+        const pool = (base.gender || '').toLowerCase() === 'female' ? femaleAvatars : maleAvatars;
+        const assignedImage = pool[(base.id || 1) % pool.length];
+        return { ...base, image: assignedImage };
       });
 
       _cache.data.students = processed;
@@ -565,8 +795,10 @@ export const dataService = {
     startMutation();
     try {
       let result = null;
+      const studentIdVal = String(student.student_id || student.lrn || '').trim();
       const cleanStudent = {
-        lrn: String(student.lrn || '').trim(),
+        student_id: studentIdVal,
+        lrn: studentIdVal,
         fname: String(student.fname || '').trim(),
         mname: String(student.mname || '').trim(),
         lname: String(student.lname || '').trim(),
@@ -585,11 +817,21 @@ export const dataService = {
 
       if (isSupabaseConfigured()) {
         try {
-          const { data, error } = await supabase.from('students').insert([cleanStudent]).select();
-          if (!error && data?.[0]) {
-            result = data[0];
-          } else if (error) {
-            console.error('Supabase addStudent error:', error);
+          // Try inserting with student_id first, fallback to lrn if column hasn't been renamed yet
+          let payload = { ...cleanStudent };
+          let res = await supabase.from('students').insert([payload]).select();
+          if (res.error && (res.error.message?.includes('column') || res.error.code === '42703')) {
+            if (res.error.message?.includes('student_id')) {
+              delete payload.student_id;
+            } else if (res.error.message?.includes('lrn')) {
+              delete payload.lrn;
+            }
+            res = await supabase.from('students').insert([payload]).select();
+          }
+          if (!res.error && res.data?.[0]) {
+            result = { ...res.data[0], student_id: studentIdVal, lrn: studentIdVal };
+          } else if (res.error) {
+            console.error('Supabase addStudent error:', res.error);
           }
         } catch (err) {
           console.warn('Supabase addStudent error:', err);
@@ -603,9 +845,102 @@ export const dataService = {
       }
       invalidateCache('students');
       invalidateCache('records');
-      await this.addActivityLog('Add Student', `Enrolled student ${cleanStudent.fname} ${cleanStudent.lname} (${cleanStudent.lrn || 'No Student ID'}, ${cleanStudent.grade || ''} ${cleanStudent.section || ''})`);
+      await this.addActivityLog('Add Student', `Enrolled student ${cleanStudent.fname} ${cleanStudent.lname} (ID: ${studentIdVal || 'No Student ID'}, ${cleanStudent.grade || ''} ${cleanStudent.section || ''})`);
       broadcastRecordChange('create', 'student', result);
       return result;
+    } finally {
+      endMutation();
+    }
+  },
+
+  async bulkAddStudents(studentsList, onProgress) {
+    if (!Array.isArray(studentsList) || studentsList.length === 0) return { insertedCount: 0, errors: [] };
+    startMutation();
+    try {
+      const CHUNK_SIZE = 100;
+      const cleanStudents = studentsList.map((student, idx) => {
+        const studentIdVal = String(student.student_id || student.lrn || `10928374${Math.floor(1000 + Math.random() * 9000)}`).trim();
+        return {
+          student_id: studentIdVal,
+          lrn: studentIdVal,
+          fname: String(student.fname || 'Student').trim(),
+          mname: String(student.mname || '').trim(),
+          lname: String(student.lname || 'Roster').trim(),
+          email: String(student.email || '').trim().toLowerCase(),
+          grade: String(student.grade || 'Grade 10').trim(),
+          section: String(student.section || 'General').trim(),
+          academicyear: String(student.academicyear || '2025-2026').trim(),
+          gender: String(student.gender || 'Male').trim(),
+          contact: String(student.contact || '').trim(),
+          parent_name: String(student.parent_name || '').trim(),
+          parent_contact: String(student.parent_contact || '').trim(),
+          address: String(student.address || '').trim(),
+          password: String(student.password || 'Viotrack@2026!').trim(),
+          image: String(student.image || '').trim()
+        };
+      });
+
+      let totalInserted = 0;
+      const total = cleanStudents.length;
+
+      // 1. Supabase batch upsert in chunks
+      if (isSupabaseConfigured()) {
+        try {
+          for (let i = 0; i < total; i += CHUNK_SIZE) {
+            const chunk = cleanStudents.slice(i, i + CHUNK_SIZE);
+            let payload = chunk.map(s => ({ ...s }));
+            
+            let res = await supabase.from('students').insert(payload).select();
+            if (res.error && (res.error.message?.includes('column') || res.error.code === '42703')) {
+              if (res.error.message?.includes('student_id')) {
+                payload = payload.map(p => { const { student_id, ...rest } = p; return rest; });
+              } else if (res.error.message?.includes('lrn')) {
+                payload = payload.map(p => { const { lrn, ...rest } = p; return rest; });
+              }
+              res = await supabase.from('students').insert(payload).select();
+            }
+
+            totalInserted += (res.data ? res.data.length : chunk.length);
+            if (onProgress) {
+              onProgress(Math.min(totalInserted, total), total);
+            }
+          }
+        } catch (err) {
+          console.warn('Supabase bulkAddStudents error:', err);
+        }
+      }
+
+      // 2. LocalStorage Sync
+      const current = getStored('students', INITIAL_STUDENTS);
+      const existingIdMap = new Map(current.map(s => [String(s.student_id || s.lrn || '').toLowerCase(), s]));
+      const newItems = [];
+      let nextId = Date.now();
+
+      cleanStudents.forEach(cs => {
+        const key = String(cs.student_id || cs.lrn || '').toLowerCase();
+        if (existingIdMap.has(key)) {
+          const old = existingIdMap.get(key);
+          Object.assign(old, cs);
+        } else {
+          const created = { ...cs, id: nextId++, created_at: new Date().toISOString() };
+          newItems.push(created);
+          existingIdMap.set(key, created);
+        }
+      });
+
+      const updatedAll = [...newItems, ...current];
+      setStored('students', updatedAll);
+
+      invalidateCache('students');
+      invalidateCache('records');
+      await this.addActivityLog('Bulk Import', `Bulk imported and enrolled ${total} student records via CSV`);
+      broadcastRecordChange('create', 'students', { count: total });
+
+      if (onProgress) {
+        onProgress(total, total);
+      }
+
+      return { insertedCount: total, errors: [] };
     } finally {
       endMutation();
     }
@@ -616,7 +951,7 @@ export const dataService = {
     try {
       let result = null;
       const cleanUpdates = {};
-      const allowed = ['lrn', 'fname', 'mname', 'lname', 'email', 'grade', 'section', 'academicyear', 'gender', 'contact', 'parent_name', 'parent_contact', 'address', 'password', 'image'];
+      const allowed = ['student_id', 'lrn', 'fname', 'mname', 'lname', 'email', 'grade', 'section', 'academicyear', 'gender', 'contact', 'parent_name', 'parent_contact', 'address', 'password', 'image'];
       for (const key of allowed) {
         if (updates[key] !== undefined) {
           if (key === 'password' && !String(updates[key]).trim()) {
@@ -625,14 +960,26 @@ export const dataService = {
           cleanUpdates[key] = updates[key];
         }
       }
+      if (updates.student_id && !updates.lrn) cleanUpdates.lrn = updates.student_id;
+      if (updates.lrn && !updates.student_id) cleanUpdates.student_id = updates.lrn;
 
       if (isSupabaseConfigured()) {
         try {
-          const { data, error } = await supabase.from('students').update(cleanUpdates).eq('id', Number(id)).select();
-          if (!error && data?.[0]) {
-            result = data[0];
-          } else if (error) {
-            console.error('Supabase updateStudent error:', error);
+          let payload = { ...cleanUpdates };
+          let res = await supabase.from('students').update(payload).eq('id', Number(id)).select();
+          if (res.error && (res.error.message?.includes('column') || res.error.code === '42703')) {
+            if (res.error.message?.includes('student_id')) {
+              delete payload.student_id;
+            } else if (res.error.message?.includes('lrn')) {
+              delete payload.lrn;
+            }
+            res = await supabase.from('students').update(payload).eq('id', Number(id)).select();
+          }
+          if (!res.error && res.data?.[0]) {
+            const sid = res.data[0].student_id || res.data[0].lrn || cleanUpdates.student_id;
+            result = { ...res.data[0], student_id: sid, lrn: sid };
+          } else if (res.error) {
+            console.error('Supabase updateStudent error:', res.error);
           }
         } catch (err) {
           console.warn('Supabase updateStudent error:', err);
@@ -822,81 +1169,106 @@ export const dataService = {
     }
 
     return executeWithDeduplication('records', async () => {
-      let mappedRecords = null;
+      const [students, violations] = await Promise.all([
+        this.getStudents(),
+        this.getViolations()
+      ]);
+
+      const studentMap = new Map(students.map(s => [Number(s.id), s]));
+      const violationMap = new Map(violations.map(v => [Number(v.id), v]));
+
+      let remoteRecords = [];
       if (isSupabaseConfigured()) {
-        const { data, error } = await supabase
-          .from('records')
-          .select(`
-            *,
-            students (*),
-            violations (*)
-          `)
-          .order('id', { ascending: false });
-        if (!error && data) {
-          mappedRecords = data.map(r => {
-            const isTeacher = (r.reported_by_type === 'teacher');
-            let resolvedApproval = r.approval_status;
-            if (!resolvedApproval) {
-              if (r.status === 'Under Approval' || r.status === 'Rejected') {
-                resolvedApproval = r.status;
-              } else if (r.approved_by) {
-                resolvedApproval = 'Approved';
-              } else if (isTeacher || !r.approved_by) {
-                resolvedApproval = 'Under Approval';
-              } else {
-                resolvedApproval = 'Approved';
-              }
-            }
+        try {
+          const { data, error } = await supabase
+            .from('records')
+            .select(`
+              *,
+              students (*),
+              violations (*)
+            `)
+            .order('id', { ascending: false });
+          if (!error && data) {
+            remoteRecords = data;
+          }
+        } catch (err) {
+          console.warn('Supabase getRecords error:', err);
+        }
+      }
+
+      const freshSeeds = getDynamicInitialRecords();
+      const freshSeedMap = new Map(freshSeeds.map(s => [s.id, s]));
+      
+      let localRecords = getStored('records', null);
+      if (!localRecords || localRecords.length === 0) {
+        localRecords = freshSeeds;
+        setStored('records', localRecords);
+      } else {
+        // Automatically sync mock seed records (IDs 101-119) to dynamic dates while preserving user-logged records
+        localRecords = localRecords.map(r => {
+          if (freshSeedMap.has(r.id)) {
+            const seed = freshSeedMap.get(r.id);
             return {
               ...r,
-              approval_status: resolvedApproval,
-              student: r.students,
-              violation: r.violations
+              date_reported: seed.date_reported,
+              approved_at: seed.approved_at || r.approved_at,
+              resolution_date: seed.resolution_date || r.resolution_date
             };
-          });
-        }
-      }
-
-      if (!mappedRecords) {
-        let records = getStored('records', INITIAL_RECORDS);
-        if (!records.some(r => r.approval_status === 'Under Approval' || r.status === 'Under Approval')) {
-          const underApprovalInitials = INITIAL_RECORDS.filter(r => r.approval_status === 'Under Approval' || r.status === 'Under Approval');
-          if (underApprovalInitials.length > 0) {
-            records = [...underApprovalInitials, ...records];
-            setStored('records', records);
           }
-        }
-
-        const [students, violations] = await Promise.all([
-          this.getStudents(),
-          this.getViolations()
-        ]);
-
-        const studentMap = new Map(students.map(s => [Number(s.id), s]));
-        const violationMap = new Map(violations.map(v => [Number(v.id), v]));
-
-        mappedRecords = records.map(r => {
-          const isTeacher = (r.reported_by_type === 'teacher');
-          let resolvedApproval = r.approval_status;
-          if (!resolvedApproval) {
-            if (r.status === 'Under Approval' || r.status === 'Rejected') {
-              resolvedApproval = r.status;
-            } else if (r.approved_by) {
-              resolvedApproval = 'Approved';
-            } else if (isTeacher || !r.approved_by) {
-              resolvedApproval = 'Under Approval';
-            } else {
-              resolvedApproval = 'Approved';
-            }
-          }
-          return {
-            ...r,
-            approval_status: resolvedApproval,
-            student: studentMap.get(Number(r.student_id)),
-            violation: violationMap.get(Number(r.violation_id))
-          };
+          return r;
         });
+        setStored('records', localRecords);
       }
+
+      // Ensure seed records with Under Approval exist if none are currently under approval
+      const hasAnyUnderApproval = localRecords.some(r => r.approval_status === 'Under Approval' || r.status === 'Under Approval') ||
+        remoteRecords.some(r => r.approval_status === 'Under Approval' || r.status === 'Under Approval');
+
+      if (!hasAnyUnderApproval) {
+        const underApprovalInitials = freshSeeds.filter(r => r.approval_status === 'Under Approval' || r.status === 'Under Approval');
+        if (underApprovalInitials.length > 0) {
+          localRecords = [...underApprovalInitials, ...localRecords];
+          setStored('records', localRecords);
+        }
+      }
+
+      // Merge remote records with any local records not yet in remote
+      const remoteIdSet = new Set(remoteRecords.map(r => Number(r.id)));
+      const extraLocal = localRecords.filter(lr => !remoteIdSet.has(Number(lr.id)));
+      const allRawRecords = [...remoteRecords, ...extraLocal];
+
+      const mappedRecords = allRawRecords.map(r => {
+        const isTeacher = (r.reported_by_type === 'teacher' || (r.reported_by_name && r.reported_by_name !== 'System Admin' && r.reported_by_name !== 'Sheryl Gamboa' && r.reported_by_name !== 'Head Admin'));
+        
+        let resolvedApproval = r.approval_status;
+        if (r.status === 'Under Approval') {
+          resolvedApproval = 'Under Approval';
+        } else if (r.status === 'Rejected') {
+          resolvedApproval = 'Rejected';
+        } else if (resolvedApproval === 'Under Approval') {
+          resolvedApproval = 'Under Approval';
+        } else if (resolvedApproval === 'Rejected') {
+          resolvedApproval = 'Rejected';
+        } else if (!resolvedApproval) {
+          if (r.approved_by) {
+            resolvedApproval = 'Approved';
+          } else if (isTeacher || !r.approved_by) {
+            resolvedApproval = 'Under Approval';
+          } else {
+            resolvedApproval = 'Approved';
+          }
+        }
+
+        const resolvedStudent = r.students || r.student || studentMap.get(Number(r.student_id));
+        const resolvedViolation = r.violations || r.violation || violationMap.get(Number(r.violation_id));
+
+        return {
+          ...r,
+          approval_status: resolvedApproval,
+          student: resolvedStudent,
+          violation: resolvedViolation
+        };
+      });
 
       _cache.data.records = mappedRecords;
       _cache.timestamps.records = Date.now();

@@ -441,6 +441,7 @@ textarea {
   width: 100%;
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-align: center;
@@ -675,8 +676,8 @@ textarea {
 /* ==========================================================================
    Modern Toast Notifications (PC & Mobile Optimized)
    ========================================================================== */
-/* ==========================================================================
-   High-Definition VioTrack Toast Notification System
+/* /* ==========================================================================
+   Clean Capsule Pill Toast Notification System
    ========================================================================== */
 .toast-container {
   position: fixed;
@@ -698,10 +699,10 @@ textarea {
   align-items: center;
   gap: 14px;
   background: #ffffff;
-  border: 1px solid #f1f5f9;
-  border-radius: 14px;
-  padding: 16px 18px 16px 18px;
-  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.08), 0 4px 12px -2px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 9999px;
+  padding: 12px 20px 12px 14px;
+  box-shadow: 0 10px 30px -4px rgba(0, 0, 0, 0.1), 0 4px 12px -2px rgba(0, 0, 0, 0.05);
   overflow: hidden;
   transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.22s ease, box-shadow 0.2s ease;
   box-sizing: border-box;
@@ -751,28 +752,15 @@ textarea {
   }
 }
 
-/* Left vertical accent bar */
-.custom-toast-left-bar {
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 6px;
-  border-top-left-radius: 14px;
-  border-bottom-left-radius: 14px;
-}
-
-/* Solid rounded icon box */
-.custom-toast-icon-box {
-  width: 38px;
-  height: 38px;
-  border-radius: 10px;
+/* Solid rounded circle icon */
+.custom-toast-icon-circle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  box-shadow: 0 4px 10px -2px rgba(0, 0, 0, 0.12);
-  margin-left: 2px;
 }
 
 /* Body & Typography */
@@ -781,37 +769,35 @@ textarea {
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  padding-right: 12px;
+  gap: 1px;
 }
 
 .custom-toast-title {
-  font-size: 15px;
+  font-size: 14.5px;
   font-weight: 700;
-  color: #0f172a;
   letter-spacing: -0.01em;
   line-height: 1.25;
 }
 
 .custom-toast-message {
   font-size: 13px;
-  font-weight: 500;
-  color: #64748b;
-  line-height: 1.4;
+  font-weight: 400;
+  color: #334155;
+  line-height: 1.35;
   word-break: break-word;
 }
 
 .custom-toast-action-row {
-  margin-top: 6px;
+  margin-top: 4px;
   display: flex;
   align-items: center;
   gap: 8px;
 }
 
 .custom-toast-action-btn {
-  font-size: 12px;
+  font-size: 11.5px;
   font-weight: 700;
-  padding: 4px 12px;
+  padding: 3px 10px;
   border-radius: 6px;
   background: #f8fafc;
   border: 1px solid #e2e8f0;
@@ -824,63 +810,27 @@ textarea {
   transform: translateY(-1px);
 }
 
-/* Top-right close button */
+/* Right close button */
 .custom-toast-close {
-  position: absolute;
-  top: 10px;
-  right: 10px;
   background: transparent;
   border: none;
   color: #94a3b8;
   cursor: pointer;
-  width: 24px;
-  height: 24px;
-  border-radius: 6px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: all 0.15s ease;
   flex-shrink: 0;
+  padding: 0;
+  margin-left: 4px;
 }
 
 .custom-toast-close:hover {
+  color: #475569;
   background: #f1f5f9;
-  color: #0f172a;
-}
-
-/* High-definition meter progress bar */
-.custom-toast-progress-track {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 3.5px;
-  background: rgba(0, 0, 0, 0.05);
-  border-bottom-left-radius: 14px;
-  border-bottom-right-radius: 14px;
-  overflow: hidden;
-  pointer-events: none;
-}
-
-.custom-toast-progress-fill {
-  height: 100%;
-  border-top-right-radius: 9999px;
-  border-bottom-right-radius: 9999px;
-  position: relative;
-  transition: width 0.04s linear;
-}
-
-/* Subtle glowing sheen on the leading edge of the meter */
-.custom-toast-progress-fill::after {
-  content: '';
-  position: absolute;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  width: 14px;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.85));
-  border-radius: 9999px;
-  box-shadow: 0 0 6px rgba(255, 255, 255, 0.9);
 }
 
 /* ==========================================================================
@@ -900,37 +850,28 @@ textarea {
   }
 
   .custom-toast {
-    padding: 13px 14px 13px 14px;
-    border-radius: 12px;
-    gap: 12px;
+    padding: 10px 16px 10px 12px;
+    border-radius: 9999px;
+    gap: 10px;
     box-shadow: 0 12px 32px -4px rgba(0, 0, 0, 0.14), 0 4px 10px -2px rgba(0, 0, 0, 0.06);
   }
 
-  .custom-toast-left-bar {
-    border-top-left-radius: 12px;
-    border-bottom-left-radius: 12px;
-    width: 5px;
-  }
-
-  .custom-toast-icon-box {
-    width: 34px;
-    height: 34px;
-    border-radius: 8px;
+  .custom-toast-icon-circle {
+    width: 36px;
+    height: 36px;
   }
 
   .custom-toast-title {
-    font-size: 14px;
+    font-size: 13.5px;
   }
 
   .custom-toast-message {
-    font-size: 12.5px;
+    font-size: 12px;
   }
 
   .custom-toast-close {
-    top: 8px;
-    right: 8px;
-    width: 28px;
-    height: 28px;
+    width: 24px;
+    height: 24px;
   }
 
   .custom-toast.is-entering {
@@ -975,6 +916,7 @@ textarea {
 @media (max-width: 768px) {
   .stats-grid,
   .metric-cards-grid,
+  .dash-stats-grid-4,
   .dash-stats-grid-5 {
     display: grid !important;
     grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
@@ -986,8 +928,8 @@ textarea {
 
   .stats-grid > :last-child:nth-child(odd),
   .metric-cards-grid > :last-child:nth-child(odd),
-  .dash-stats-grid-5 > :last-child:nth-child(odd),
-  .dash-stats-grid-5 .dash-stat-card-clean:last-child {
+  .dash-stats-grid-4 > :last-child:nth-child(odd),
+  .dash-stats-grid-5 > :last-child:nth-child(odd) {
     grid-column: 1 / -1 !important;
     width: 100% !important;
   }
@@ -1565,19 +1507,19 @@ html, body {
 }
 
 /* ==========================================================================
-   Universal Page Banner Header & Action Buttons (Mobile First)
+   Universal Page Banner Header & Action Buttons (Clean Light Style)
    ========================================================================== */
 .page-banner-header {
-  background: linear-gradient(135deg, #07345f 0%, #0b192c 100%);
-  border-radius: 12px;
-  padding: 16px 20px;
-  color: #ffffff;
+  background: transparent;
+  border-radius: 0;
+  padding: 4px 0 10px 0;
+  color: #0f172a;
   display: flex;
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
-  gap: 12px;
-  box-shadow: 0 6px 18px -4px rgba(7, 52, 95, 0.2);
+  gap: 14px;
+  box-shadow: none;
   box-sizing: border-box;
   width: 100%;
 }
@@ -1585,8 +1527,24 @@ html, body {
 .page-banner-info {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 14px;
   min-width: 0;
+}
+
+.page-banner-info h2,
+.page-banner-info h3 {
+  color: #0f172a !important;
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+.page-banner-info p {
+  color: #64748b !important;
+  font-size: 13px;
+  margin: 3px 0 0 0;
+  line-height: 1.4;
 }
 
 .page-banner-actions {
@@ -1608,58 +1566,62 @@ html, body {
 }
 
 .page-banner-btn-secondary {
-  background: rgba(255, 255, 255, 0.12);
-  color: #ffffff;
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  padding: 9px 16px;
-  border-radius: 10px;
+  background: #ffffff;
+  color: #0f172a;
+  border: 1px solid #cbd5e1;
+  padding: 8px 14px;
+  border-radius: 8px;
   font-weight: 600;
   font-size: 13px;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 6px;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+  box-sizing: border-box;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.page-banner-btn-secondary:hover {
+  background: #f8fafc;
+  border-color: #94a3b8;
+  color: #0f172a;
+}
+
+.page-banner-primary-btn {
+  background: #1f2937;
+  color: #ffffff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  box-shadow: 0 2px 6px rgba(31, 41, 55, 0.25);
   transition: all 0.15s ease;
   white-space: nowrap;
   box-sizing: border-box;
 }
 
-.page-banner-btn-secondary:hover {
-  background: rgba(255, 255, 255, 0.22);
-}
-
-.page-banner-primary-btn {
-  background: #ffffff;
-  color: #07345f;
-  border: none;
-  padding: 10px 20px;
-  border-radius: 10px;
-  font-weight: 700;
-  font-size: 13.5px;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
-  transition: transform 0.15s, box-shadow 0.15s;
-  white-space: nowrap;
-  box-sizing: border-box;
-}
-
 .page-banner-primary-btn:hover {
+  background: #111827;
   transform: translateY(-1px);
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 12px rgba(17, 24, 39, 0.35);
 }
 
 @media (max-width: 768px) {
   .page-banner-header {
-    padding: 16px 16px !important;
-    border-radius: 14px !important;
+    padding: 8px 0 !important;
+    border-radius: 0 !important;
     flex-direction: column !important;
     align-items: stretch !important;
-    gap: 14px !important;
+    gap: 12px !important;
   }
 
   .page-banner-info {
@@ -1754,40 +1716,73 @@ html, body {
 /* ==========================================================================
    Student Violation Detail Page Responsive Grid & High Contrast Styles
    ========================================================================== */
-.student-profile-grid {
+.student-profile-hero-layout {
   display: grid;
-  grid-template-columns: 1.2fr 1fr 1.2fr auto;
-  gap: 20px;
-  align-items: stretch;
+  grid-template-columns: minmax(320px, auto) 1fr auto;
+  gap: 24px;
+  align-items: center;
 }
 
-@media (max-width: 1150px) {
-  .student-profile-grid {
-    grid-template-columns: 1fr 1fr !important;
-    gap: 16px !important;
+.student-profile-hero-identity {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding-right: 22px;
+  border-right: 1.5px solid #f1f5f9;
+}
+
+.student-profile-hero-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.student-profile-hero-qr {
+  padding-left: 20px;
+  border-left: 1px solid #f1f5f9;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justifyContent: center;
+}
+
+@media (max-width: 1200px) {
+  .student-profile-hero-layout {
+    grid-template-columns: 1fr auto !important;
+    gap: 18px !important;
   }
-  .student-profile-qr-box {
+  .student-profile-hero-identity {
     grid-column: 1 / -1 !important;
-    justify-self: center !important;
-    max-width: 320px !important;
-    width: 100% !important;
+    border-right: none !important;
+    border-bottom: 1px solid #f1f5f9 !important;
+    padding-right: 0 !important;
+    padding-bottom: 14px !important;
   }
 }
 
 @media (max-width: 768px) {
-  .student-profile-grid {
+  .student-profile-hero-layout {
     grid-template-columns: 1fr !important;
-    gap: 14px !important;
+    gap: 16px !important;
   }
-  .student-profile-identity {
+  .student-profile-hero-identity {
     flex-direction: column !important;
     text-align: center !important;
     align-items: center !important;
+    border-right: none !important;
+    border-bottom: 1px solid #f1f5f9 !important;
+    padding-right: 0 !important;
+    padding-bottom: 14px !important;
   }
-  .student-profile-qr-box {
-    grid-column: 1 !important;
+  .student-profile-hero-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .student-profile-hero-qr {
+    border-left: none !important;
+    border-top: 1px solid #f1f5f9 !important;
+    padding-left: 0 !important;
+    padding-top: 14px !important;
     width: 100% !important;
-    max-width: 100% !important;
   }
   .student-record-toolbar {
     flex-direction: column !important;
@@ -1912,7 +1907,7 @@ html, body {
 @keyframes modalContentPopIn {
   0% {
     opacity: 0;
-    transform: translate3d(0, 12px, 0) scale(0.97);
+    transform: translate3d(0, 10px, 0) scale(0.98);
   }
   100% {
     opacity: 1;
@@ -1923,7 +1918,7 @@ html, body {
 @keyframes dropdownPopSmooth {
   0% {
     opacity: 0;
-    transform: translate3d(0, -6px, 0) scale(0.96);
+    transform: translate3d(0, -6px, 0) scale(0.97);
   }
   100% {
     opacity: 1;
@@ -1932,14 +1927,14 @@ html, body {
 }
 
 .modal-backdrop-smooth {
-  animation: modalBackdropSmooth 0.16s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+  animation: modalBackdropSmooth 0.13s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
   will-change: opacity;
   contain: strict;
   transform: translateZ(0);
 }
 
 .modal-content-smooth {
-  animation: modalContentPopIn 0.18s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+  animation: modalContentPopIn 0.15s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
   transform-origin: center center;
   will-change: transform, opacity;
   transform: translate3d(0, 0, 0);
@@ -1947,12 +1942,12 @@ html, body {
 }
 
 .dropdown-pop-smooth {
-  animation: dropdownPopSmooth 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+  animation: dropdownPopSmooth 0.15s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
   transform-origin: top right;
   will-change: transform, opacity;
 }
 
-/* Hardware-accelerated 60fps scrolling container for modal bodies */
+/* Hardware-accelerated 60-120fps scrolling container for modal bodies */
 .smooth-scroll-container {
   overflow-y: auto !important;
   -webkit-overflow-scrolling: touch;
@@ -1960,6 +1955,53 @@ html, body {
   transform: translate3d(0, 0, 0);
   will-change: scroll-position;
   contain: content;
+}
+
+/* ==========================================================================
+   Zero-Lag Table & Card Render Engine (content-visibility: auto)
+   ========================================================================== */
+.student-table tbody tr,
+.violation-table tbody tr,
+.teachers-table tbody tr,
+.advisers-table tbody tr,
+.activity-table tbody tr,
+.reports-table tbody tr,
+.approval-table tbody tr,
+.data-table tbody tr {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 54px;
+  transition: background-color 0.12s ease, border-color 0.12s ease !important;
+}
+
+.stat-card,
+.analytics-card,
+.filter-card,
+.quick-action-card {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 120px;
+}
+
+/* Button & Interactive Elements - Targeted Low-Overhead Transitions */
+button,
+.btn,
+.btn-primary,
+.btn-secondary,
+.btn-success,
+.btn-danger,
+.filter-btn,
+.action-btn,
+.nav-item,
+.tab-button {
+  transition-property: background-color, border-color, color, box-shadow, transform, opacity !important;
+  transition-duration: 0.14s !important;
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+
+button:active,
+.btn:active,
+.filter-btn:active,
+.action-btn:active {
+  transform: scale(0.98);
 }
 
 

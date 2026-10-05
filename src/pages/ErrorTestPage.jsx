@@ -242,26 +242,12 @@ export function ErrorTestPage() {
       {/* 1. Header Banner */}
       <div className="page-banner-header">
         <div className="page-banner-info">
-          <Bug size={28} color="#ffffff" strokeWidth={2.2} style={{ flexShrink: 0 }} />
+          <Bug size={26} color="#0f172a" strokeWidth={2.4} style={{ flexShrink: 0 }} />
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-              <h2 style={{ fontSize: '21px', fontWeight: 800, margin: 0, color: '#ffffff', letterSpacing: '-0.02em' }}>
-                Error Pages & Boundary Workbench
-              </h2>
-              <span
-                style={{
-                  background: 'rgba(255, 255, 255, 0.2)',
-                  color: '#ffffff',
-                  fontSize: '11.5px',
-                  fontWeight: 700,
-                  padding: '2px 9px',
-                  borderRadius: '20px'
-                }}
-              >
-                QA Test Suite
-              </span>
-            </div>
-            <p style={{ margin: '3px 0 0 0', fontSize: '12.5px', color: 'rgba(255, 255, 255, 0.85)' }}>
+            <h2 style={{ fontSize: '20px', fontWeight: 800, margin: 0, color: '#0f172a', letterSpacing: '-0.02em' }}>
+              Error Pages &amp; Boundary Workbench
+            </h2>
+            <p style={{ margin: '3px 0 0 0', fontSize: '13px', color: '#64748b' }}>
               Interactive test bench to inspect 404, 403, 500 views, and test live React ErrorBoundary recovery.
             </p>
           </div>

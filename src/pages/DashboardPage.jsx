@@ -15,7 +15,6 @@ import {
 import {
   QrCode,
   PlusCircle,
-  Users,
   Calendar as CalendarIcon,
   TrendingUp,
   ShieldCheck,
@@ -136,7 +135,63 @@ export const DashboardPage = () => {
     return (records || []).filter(isApproved);
   }, [records]);
 
-  // 1. Dynamic Metric Calculations & Trend Comparisons
+  // Dynamic Active Time Period Records Filtering
+  const filteredApprovedRecords = useMemo(() => {
+    const nowDay = new Date();
+    
+    if (chartFilter === 'today') {
+      return approvedRecords.filter(r => {
+        const rawDate = r.date_reported || r.created_at;
+        if (!rawDate) return false;
+        const rDate = new Date(rawDate);
+        return (
+          rDate.getFullYear() === nowDay.getFullYear() &&
+          rDate.getMonth() === nowDay.getMonth() &&
+          rDate.getDate() === nowDay.getDate()
+        );
+      });
+    }
+
+    if (chartFilter === 'week') {
+      const sevenDaysAgo = new Date(Date.now() - 7 * 86400000);
+      return approvedRecords.filter(r => {
+        const rawDate = r.date_reported || r.created_at;
+        if (!rawDate) return false;
+        const rDate = new Date(rawDate);
+        return rDate >= sevenDaysAgo;
+      });
+    }
+
+    if (chartFilter === 'custom') {
+      const start = new Date(startDate);
+      start.setHours(0, 0, 0, 0);
+      const end = new Date(endDate);
+      end.setHours(23, 59, 59, 999);
+      return approvedRecords.filter(r => {
+        const rawDate = r.date_reported || r.created_at;
+        if (!rawDate) return false;
+        const rDate = new Date(rawDate);
+        return rDate >= start && rDate <= end;
+      });
+    }
+
+    // Default: 'month' (Active month)
+    const year = calendarMonth.getFullYear();
+    const month = calendarMonth.getMonth();
+    return approvedRecords.filter(r => {
+      const rawDate = r.date_reported || r.created_at;
+      if (!rawDate) return false;
+      const rDate = new Date(rawDate);
+      return rDate.getFullYear() === year && rDate.getMonth() === month;
+    });
+  }, [approvedRecords, chartFilter, startDate, endDate, calendarMonth]);
+
+  // Records used for breakdown widgets (strictly connected to the active time filter)
+  const activeWidgetRecords = useMemo(() => {
+    return filteredApprovedRecords;
+  }, [filteredApprovedRecords]);
+
+  // 1. Dynamic Metric Calculations connected to Active Time Period
   const metrics = useMemo(() => {
     let minor = 0;
     let serious = 0;
@@ -144,13 +199,7 @@ export const DashboardPage = () => {
     let resolved = 0;
     let pending = 0;
 
-    const sevenDaysAgo = new Date(Date.now() - 7 * 86400000);
-    const fourteenDaysAgo = new Date(Date.now() - 14 * 86400000);
-
-    let thisWeekCount = 0;
-    let lastWeekCount = 0;
-
-    approvedRecords.forEach(r => {
+    filteredApprovedRecords.forEach(r => {
       const type = (r.violation?.type || r.type || '').toLowerCase();
       if (type === 'minor') minor++;
       else if (type === 'serious') serious++;
@@ -159,35 +208,28 @@ export const DashboardPage = () => {
       const status = (r.status || '').toLowerCase();
       if (status === 'resolved') resolved++;
       else pending++;
-
-      const rDate = new Date(r.date_reported || r.created_at || Date.now());
-      if (rDate >= sevenDaysAgo) {
-        thisWeekCount++;
-      } else if (rDate >= fourteenDaysAgo && rDate < sevenDaysAgo) {
-        lastWeekCount++;
-      }
     });
 
-    const weeklyDelta = thisWeekCount - lastWeekCount;
-    const resolvedRate = approvedRecords.length > 0 ? Math.round((resolved / approvedRecords.length) * 100) : 100;
+    const totalCount = filteredApprovedRecords.length;
+    const resolvedRate = totalCount > 0 ? Math.round((resolved / totalCount) * 100) : 100;
+
+    const periodLabel = chartFilter === 'today' ? 'Today' : chartFilter === 'week' ? 'This Week' : chartFilter === 'month' ? 'This Month' : 'Custom Period';
 
     return {
       minorCount: minor,
       seriousCount: serious,
       majorCount: major,
       totalStudentsCount: students.length,
-      totalViolationsCount: approvedRecords.length,
+      totalViolationsCount: totalCount,
       resolvedCount: resolved,
       pendingCount: pending,
       resolvedRate,
-      weeklyDelta,
-      thisWeekCount
+      periodLabel
     };
-  }, [approvedRecords, students]);
+  }, [filteredApprovedRecords, students, chartFilter]);
 
   // 2. Real-Time Dynamic Trend Data Aggregation
   const trendData = useMemo(() => {
-    // Helper to get normalized severity
     const getSeverity = (rec) => {
       const type = (rec.violation?.type || rec.type || rec.severity || '').toLowerCase();
       if (type === 'minor' || type === 'serious' || type === 'major') return type;
@@ -195,7 +237,6 @@ export const DashboardPage = () => {
     };
 
     if (chartFilter === 'today') {
-      // 6 continuous time intervals covering the full 24-hour day
       const intervals = [
         { label: '06:00 – 09:00', startH: 6, endH: 9 },
         { label: '09:00 – 12:00', startH: 9, endH: 12 },
@@ -223,7 +264,6 @@ export const DashboardPage = () => {
         todayRecords.forEach(r => {
           const recDate = new Date(r.date_reported || r.created_at || Date.now());
           const h = recDate.getHours();
-          // Fallback early morning (00:00 - 05:59) into the first bracket (06:00 - 09:00)
           const matched = (int.startH === 6 && h < 6) || (h >= int.startH && h < int.endH);
           if (matched) {
             const sev = getSeverity(r);
@@ -237,7 +277,6 @@ export const DashboardPage = () => {
     }
 
     if (chartFilter === 'week') {
-      // Last 7 days
       const days = [];
       for (let i = 6; i >= 0; i--) {
         const d = new Date(Date.now() - i * 86400000);
@@ -325,7 +364,7 @@ export const DashboardPage = () => {
     return days;
   }, [chartFilter, approvedRecords, startDate, endDate, calendarMonth]);
 
-  // Determine max domain for Chart Y-Axis dynamically with nice integer padding
+  // Determine max domain for Chart Y-Axis dynamically
   const chartYDomain = useMemo(() => {
     let max = 0;
     trendData.forEach(d => {
@@ -336,11 +375,10 @@ export const DashboardPage = () => {
     return [0, ceiling];
   }, [trendData, showMinor, showSerious, showMajor]);
 
-  // 3. Dynamic Repeat & High-Risk Students Aggregation
+  // 3. Dynamic Repeat & High-Risk Students Aggregation (Connected to Active Period)
   const repeatStudentsList = useMemo(() => {
     const studentMap = new Map();
 
-    // Map students by ID
     students.forEach(s => {
       studentMap.set(Number(s.id), {
         id: s.id,
@@ -358,8 +396,7 @@ export const DashboardPage = () => {
       });
     });
 
-    // Aggregate approved records
-    approvedRecords.forEach(r => {
+    activeWidgetRecords.forEach(r => {
       const sId = Number(r.student_id || r.student?.id);
       if (!studentMap.has(sId)) {
         if (r.student) {
@@ -397,11 +434,9 @@ export const DashboardPage = () => {
       }
     });
 
-    // Filter students with at least 1 infraction and sort by risk weight
     const offenders = Array.from(studentMap.values())
       .filter(s => s.totalInfractions > 0)
       .sort((a, b) => {
-        // Weighted risk score: Major = 5, Serious = 3, Minor = 1
         const scoreA = a.majorCount * 5 + a.seriousCount * 3 + a.minorCount;
         const scoreB = b.majorCount * 5 + b.seriousCount * 3 + b.minorCount;
         if (scoreB !== scoreA) return scoreB - scoreA;
@@ -427,35 +462,35 @@ export const DashboardPage = () => {
         infractionLabel: statusLabel
       };
     });
-  }, [students, approvedRecords]);
+  }, [students, activeWidgetRecords]);
 
   // Top 5 High-Risk & Repeat Students Slice
   const top5Offenders = useMemo(() => {
     return repeatStudentsList.slice(0, 5);
   }, [repeatStudentsList]);
 
-  // Curated modern color palette for circle violation chart slices (inspired by multi-tone indigo/blue/sky/lavender palette)
+  // Curated modern color palette for circle violation chart slices
   const PIE_COLORS = [
-    '#1e1b4b', // Deep Midnight Indigo
-    '#4338ca', // Rich Indigo
-    '#6366f1', // Vivid Indigo
-    '#3b82f6', // Bright Blue
-    '#2563eb', // Royal Sapphire
-    '#0284c7', // Ocean Sky
-    '#06b6d4', // Vibrant Cyan
-    '#38bdf8', // Light Cyan/Sky
-    '#c084fc', // Soft Pastel Purple
-    '#818cf8'  // Periwinkle Lavender
+    '#1e1b4b',
+    '#4338ca',
+    '#6366f1',
+    '#3b82f6',
+    '#2563eb',
+    '#0284c7',
+    '#06b6d4',
+    '#38bdf8',
+    '#c084fc',
+    '#818cf8'
   ];
 
-  // 4. Dynamic Most Common Violation Types Breakdown (Pie / Distribution)
+  // 4. Dynamic Most Common Violation Types Breakdown (Connected to Active Period)
   const violationDistribution = useMemo(() => {
-    if (!approvedRecords || approvedRecords.length === 0) {
+    if (!activeWidgetRecords || activeWidgetRecords.length === 0) {
       return [];
     }
 
     const counts = {};
-    approvedRecords.forEach(r => {
+    activeWidgetRecords.forEach(r => {
       const title = (r.violation?.title || r.title || 'Other Infraction').trim();
       const sev = (r.violation?.type || r.type || 'Minor').trim();
       if (!counts[title]) {
@@ -465,7 +500,7 @@ export const DashboardPage = () => {
     });
 
     const sorted = Object.values(counts).sort((a, b) => b.value - a.value);
-    const total = approvedRecords.length;
+    const total = activeWidgetRecords.length;
 
     if (sorted.length <= 6) {
       return sorted.map((item, idx) => ({
@@ -496,13 +531,13 @@ export const DashboardPage = () => {
     }
 
     return result;
-  }, [approvedRecords]);
+  }, [activeWidgetRecords]);
 
-  // 4. Dynamic Grade & Section Breakdown
+  // 4. Dynamic Grade & Section Breakdown (Connected to Active Period)
   const sectionBreakdown = useMemo(() => {
     const secMap = new Map();
 
-    approvedRecords.forEach(r => {
+    activeWidgetRecords.forEach(r => {
       const student = r.student || students.find(s => Number(s.id) === Number(r.student_id));
       if (student) {
         const grade = student.grade || 'General';
@@ -516,7 +551,6 @@ export const DashboardPage = () => {
       }
     });
 
-    // If empty, derive sections from student population with 0 counts
     if (secMap.size === 0 && students.length > 0) {
       students.slice(0, 5).forEach(s => {
         const key = `${s.grade || 'Grade 10'}::${s.section || 'Rizal'}`;
@@ -528,21 +562,21 @@ export const DashboardPage = () => {
 
     const list = Array.from(secMap.values()).sort((a, b) => b.count - a.count);
     const maxCount = list.length > 0 && list[0].count > 0 ? list[0].count : 1;
-    const totalCount = approvedRecords.length > 0 ? approvedRecords.length : 1;
+    const totalCount = activeWidgetRecords.length > 0 ? activeWidgetRecords.length : 1;
 
     return list.slice(0, 6).map(item => ({
       ...item,
       pct: `${Math.round((item.count / totalCount) * 100)}%`,
       fillPct: Math.round((item.count / maxCount) * 100)
     }));
-  }, [approvedRecords, students]);
+  }, [activeWidgetRecords, students]);
 
   // 5. Dynamic Disciplinary Insight Generator
   const disciplinaryInsight = useMemo(() => {
-    if (records.length === 0) {
+    if (activeWidgetRecords.length === 0) {
       return {
         title: 'Optimal Disciplinary Standing',
-        text: 'Zero active disciplinary violations currently recorded. School community adherence to campus guidelines is at 100%.'
+        text: 'Zero active disciplinary violations recorded for this period. School community adherence to campus guidelines is at 100%.'
       };
     }
 
@@ -552,22 +586,22 @@ export const DashboardPage = () => {
     if (highRiskCount > 0) {
       return {
         title: 'Priority Guidance Alert',
-        text: `${highRiskCount} student${highRiskCount > 1 ? 's are' : ' is'} classified as High Risk due to multiple infractions or major offenses. Recommended action: Coordinate immediate counseling hearing with Class Advisers.`
+        text: `${highRiskCount} student${highRiskCount > 1 ? 's are' : ' is'} classified as High Risk due to multiple infractions or major offenses in this period. Recommended action: Coordinate counseling hearing with Class Advisers.`
       };
     }
 
     if (topSection) {
       return {
         title: 'Section Focus Opportunity',
-        text: `${topSection.grade} – ${topSection.section} accounts for ${topSection.count} logged incident${topSection.count > 1 ? 's' : ''} (${topSection.pct} of total records). Recommended action: Conduct an advisory orientation with the section head.`
+        text: `${topSection.grade} – ${topSection.section} accounts for ${topSection.count} logged incident${topSection.count > 1 ? 's' : ''} (${topSection.pct} of selected records). Recommended action: Conduct an advisory orientation with the section head.`
       };
     }
 
     return {
       title: 'Disciplinary Status Stable',
-      text: `${metrics.resolvedCount} of ${metrics.totalViolationsCount} incident records (${metrics.resolvedRate}%) have reached full resolution. Campus conduct remains well-monitored.`
+      text: `${metrics.resolvedCount} of ${metrics.totalViolationsCount} incident records (${metrics.resolvedRate}%) have reached resolution. Campus conduct remains well-monitored.`
     };
-  }, [records, sectionBreakdown, repeatStudentsList, metrics]);
+  }, [activeWidgetRecords, sectionBreakdown, repeatStudentsList, metrics]);
 
   // 6. Dynamic School Calendar Grid Generation
   const calendarDays = useMemo(() => {
@@ -746,8 +780,8 @@ export const DashboardPage = () => {
             </div>
             <p className="dash-greeting-subtitle">
               {metrics.totalViolationsCount === 0
-                ? 'Campus conduct is clean today with zero active infractions.'
-                : `Campus overview: ${metrics.thisWeekCount} incident${metrics.thisWeekCount === 1 ? '' : 's'} logged in the last 7 days.`}
+                ? `Campus conduct is clean with zero active infractions recorded for ${metrics.periodLabel.toLowerCase()}.`
+                : `Campus overview: ${metrics.totalViolationsCount} incident${metrics.totalViolationsCount === 1 ? '' : 's'} recorded (${metrics.periodLabel}).`}
             </p>
           </div>
 
@@ -768,7 +802,7 @@ export const DashboardPage = () => {
       </div>
 
       {/* 2. Interactive KPI Metric Cards */}
-      <div className="dash-stats-grid-5" role="region" aria-label="Disciplinary Metrics Overview">
+      <div className="dash-stats-grid-4" role="region" aria-label="Disciplinary Metrics Overview">
         {/* Card 1: Minor Offense */}
         <div
           className={`dash-stat-card-clean card-minor ${activeSeverityFilter === 'minor' ? 'active-filter' : ''}`}
@@ -856,33 +890,7 @@ export const DashboardPage = () => {
           <p className="dash-stat-bottom-text">Guidance council hearings</p>
         </div>
 
-        {/* Card 4: Total Students */}
-        <div
-          className="dash-stat-card-clean card-students"
-          onClick={() => navigate('/students')}
-          title="Click to navigate to Student Management"
-          role="button"
-          tabIndex={0}
-          onKeyDown={(e) => e.key === 'Enter' && navigate('/students')}
-        >
-          <div className="dash-stat-top-part">
-            <div className="dash-stat-icon-circle students" style={{ color: '#2563eb' }}>
-              <Users size={22} strokeWidth={2.4} />
-            </div>
-            <div className="dash-stat-center-info">
-              <span className="dash-stat-title-label">Total Students</span>
-              <div className="dash-stat-number-trend-row">
-                <span className="dash-stat-big-num">{metrics.totalStudentsCount}</span>
-                <span className="dash-stat-trend-tag" style={{ color: '#2563eb' }}>
-                  Enrolled
-                </span>
-              </div>
-            </div>
-          </div>
-          <p className="dash-stat-bottom-text">Across Junior & Senior High</p>
-        </div>
-
-        {/* Card 5: Total Violations & Resolution Rate */}
+        {/* Card 4: Total Violations & Resolution Rate */}
         <div
           className="dash-stat-card-clean card-violations"
           onClick={() => navigate('/violations')}
@@ -893,7 +901,7 @@ export const DashboardPage = () => {
         >
           <div className="dash-stat-top-part">
             <div className="dash-stat-icon-circle violations" style={{ color: '#8b5cf6' }}>
-              <CheckCircle2 size={22} strokeWidth={2.4} />
+              <FileText size={22} strokeWidth={2.4} />
             </div>
             <div className="dash-stat-center-info">
               <span className="dash-stat-title-label">Total Incidents</span>
@@ -911,55 +919,24 @@ export const DashboardPage = () => {
 
       {/* 3. Real Violation Trends & Distribution Section (2 Columns) */}
       <div className="dash-trends-grid">
-        {/* Left Card: Violation Trends & Analytics Area Chart */}
+        {/* Left Card: Violation Trends Area Chart */}
         <div className="dash-trends-card">
           <div className="dash-trends-header">
             <div className="dash-trends-title-left">
               <TrendingUp size={22} color="#0f172a" strokeWidth={2.4} />
               <div>
-                <h2 className="dash-trends-main-title">Violation Trends & Analytics</h2>
-                <p className="dash-trends-sub-title">Live timeline of verified student infractions by severity</p>
+                <h2 className="dash-trends-main-title">Violation Trends</h2>
+                <p className="dash-trends-sub-title">Incidents recorded over time</p>
               </div>
             </div>
 
             <div className="dash-trends-controls-right">
-              {/* Interactive Series Legend */}
-              <div className="dash-trends-legend">
-                <div
-                  className="dash-legend-item"
-                  onClick={() => setShowMinor(!showMinor)}
-                  style={{ opacity: showMinor ? 1 : 0.35 }}
-                  title="Toggle Minor Offenses series"
-                >
-                  <span className="dash-legend-dot minor" />
-                  <span>Minor ({metrics.minorCount})</span>
-                </div>
-                <div
-                  className="dash-legend-item"
-                  onClick={() => setShowSerious(!showSerious)}
-                  style={{ opacity: showSerious ? 1 : 0.35 }}
-                  title="Toggle Serious Offenses series"
-                >
-                  <span className="dash-legend-dot serious" />
-                  <span>Serious ({metrics.seriousCount})</span>
-                </div>
-                <div
-                  className="dash-legend-item"
-                  onClick={() => setShowMajor(!showMajor)}
-                  style={{ opacity: showMajor ? 1 : 0.35 }}
-                  title="Toggle Major Offenses series"
-                >
-                  <span className="dash-legend-dot major" />
-                  <span>Major ({metrics.majorCount})</span>
-                </div>
-              </div>
-
               {/* Segmented Time Range Pills */}
               <div className="dash-segmented-pills">
                 {[
                   { id: 'today', label: 'Today' },
-                  { id: 'week', label: 'This Week' },
-                  { id: 'month', label: 'This Month' },
+                  { id: 'week', label: 'Weekly' },
+                  { id: 'month', label: 'Monthly' },
                   { id: 'custom', label: 'Custom' }
                 ].map(tab => (
                   <button
@@ -1101,6 +1078,37 @@ export const DashboardPage = () => {
                 )}
               </AreaChart>
             </ResponsiveContainer>
+          </div>
+
+          {/* Interactive Series Legend at Bottom */}
+          <div className="dash-trends-legend-bottom">
+            <div
+              className="dash-legend-item"
+              onClick={() => setShowMinor(!showMinor)}
+              style={{ opacity: showMinor ? 1 : 0.35 }}
+              title="Toggle Minor Offenses series"
+            >
+              <span className="dash-legend-dot minor" />
+              <span>Minor</span>
+            </div>
+            <div
+              className="dash-legend-item"
+              onClick={() => setShowSerious(!showSerious)}
+              style={{ opacity: showSerious ? 1 : 0.35 }}
+              title="Toggle Serious Offenses series"
+            >
+              <span className="dash-legend-dot serious" />
+              <span>Serious</span>
+            </div>
+            <div
+              className="dash-legend-item"
+              onClick={() => setShowMajor(!showMajor)}
+              style={{ opacity: showMajor ? 1 : 0.35 }}
+              title="Toggle Major Offenses series"
+            >
+              <span className="dash-legend-dot major" />
+              <span>Major</span>
+            </div>
           </div>
         </div>
 

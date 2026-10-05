@@ -13,7 +13,10 @@ import {
   Search,
   UserPlus,
   FileSpreadsheet,
+  FileText,
   Download,
+  Upload,
+  Plus,
   Trash2,
   Edit3,
   Eye,
@@ -352,27 +355,13 @@ export const StudentsPage = () => {
       {/* Top Banner & Primary Actions */}
       <div className="page-banner-header">
         <div className="page-banner-info">
-          <GraduationCap size={30} color="#ffffff" strokeWidth={2.2} style={{ flexShrink: 0 }} />
+          <Users size={26} color="#0f172a" strokeWidth={2.4} style={{ flexShrink: 0 }} />
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-              <h2 style={{ fontSize: '22px', fontWeight: 800, margin: 0, color: '#ffffff', letterSpacing: '-0.02em' }}>
-                Student Directory
-              </h2>
-              <span
-                style={{
-                  background: 'rgba(255, 255, 255, 0.2)',
-                  color: '#ffffff',
-                  fontSize: '12px',
-                  fontWeight: 700,
-                  padding: '2.5px 10px',
-                  borderRadius: '20px'
-                }}
-              >
-                {students.length} Enrolled {students.length === 1 ? 'Student' : 'Students'}
-              </span>
-            </div>
-            <p style={{ margin: '4px 0 0 0', fontSize: '13px', color: 'rgba(255, 255, 255, 0.85)' }}>
-              Comprehensive student records, grade level and academic strand management, and digital ID badges.
+            <h2 style={{ fontSize: '20px', fontWeight: 800, margin: 0, color: '#0f172a', letterSpacing: '-0.02em' }}>
+              Student Directory
+            </h2>
+            <p style={{ margin: '3px 0 0 0', fontSize: '13px', color: '#64748b' }}>
+              View and manage student records, grades, levels, and academic strand information.
             </p>
           </div>
         </div>
@@ -386,15 +375,15 @@ export const StudentsPage = () => {
                 background: '#dc2626',
                 color: '#ffffff',
                 border: 'none',
-                padding: '9px 16px',
-                borderRadius: '10px',
-                fontWeight: 700,
+                padding: '8px 14px',
+                borderRadius: '8px',
+                fontWeight: 600,
                 fontSize: '13px',
                 cursor: 'pointer',
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: '8px',
-                boxShadow: '0 4px 14px rgba(220, 38, 38, 0.3)'
+                gap: '6px',
+                boxShadow: '0 2px 6px rgba(220, 38, 38, 0.3)'
               }}
             >
               <Trash2 size={15} /> Delete Selected ({selectedIds.length})
@@ -407,7 +396,7 @@ export const StudentsPage = () => {
               className="page-banner-btn-secondary"
               title="Download formatted PDF roster"
             >
-              <Download size={15} /> Export PDF
+              <Upload size={14} strokeWidth={2.2} /> Export PDF
             </button>
 
             <button
@@ -415,7 +404,7 @@ export const StudentsPage = () => {
               className="page-banner-btn-secondary"
               title="Download raw CSV spreadsheet"
             >
-              <FileSpreadsheet size={15} /> Export CSV
+              <FileText size={14} strokeWidth={2.2} /> Export CSV
             </button>
 
             {isAdmin && (
@@ -423,7 +412,7 @@ export const StudentsPage = () => {
                 onClick={() => setIsBulkImportOpen(true)}
                 className="page-banner-btn-secondary"
               >
-                <FileSpreadsheet size={15} /> Import CSV
+                <Upload size={14} strokeWidth={2.2} /> Import CSV
               </button>
             )}
           </div>
@@ -436,7 +425,7 @@ export const StudentsPage = () => {
               }}
               className="page-banner-primary-btn"
             >
-              <UserPlus size={16} strokeWidth={2.5} /> Add Student
+              <Plus size={16} strokeWidth={2.5} /> Add Student
             </button>
           )}
         </div>
@@ -456,33 +445,29 @@ export const StudentsPage = () => {
           onClick={() => { setLevelFilter('all'); setGradeFilter('all'); setStrandFilter('all'); }}
           style={{
             background: '#ffffff',
-            borderRadius: '10px',
-            padding: '12px 14px',
-            border: levelFilter === 'all' && gradeFilter === 'all' && strandFilter === 'all' ? '2px solid #07345f' : '1px solid #e2e8f0',
-            boxShadow: '0 1px 4px rgba(0,0,0,0.02)',
+            borderRadius: '12px',
+            padding: '14px 16px',
+            border: levelFilter === 'all' && gradeFilter === 'all' && strandFilter === 'all' ? '2px solid #07345f' : '1.5px solid #cbd5e1',
+            boxShadow: levelFilter === 'all' && gradeFilter === 'all' && strandFilter === 'all' ? '0 4px 14px rgba(7, 52, 95, 0.10)' : '0 1px 3px rgba(0,0,0,0.02)',
             cursor: 'pointer',
-            transition: 'all 0.2s',
-            position: 'relative',
-            overflow: 'hidden'
+            transition: 'all 0.15s ease',
+            position: 'relative'
           }}
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
-              <div style={{ fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.03em' }}>
-                Total Students
+              <div style={{ fontSize: '11.5px', fontWeight: 800, color: '#07345f', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                TOTAL STUDENTS
               </div>
-              <div style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a', marginTop: '2px' }}>
+              <div style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', margin: '4px 0 2px 0', lineHeight: 1.1 }}>
                 {stats.total}
               </div>
-              <div style={{ fontSize: '10px', color: '#64748b', marginTop: '2px' }}>
+              <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 500 }}>
                 Across all levels & strands
               </div>
             </div>
-            <Users size={20} color="#1f2937" strokeWidth={2} />
+            <Users size={20} color="#07345f" strokeWidth={2} />
           </div>
-          {levelFilter === 'all' && gradeFilter === 'all' && strandFilter === 'all' && (
-            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 2.5, background: '#07345f' }}></div>
-          )}
         </div>
 
         {/* Junior High (G7-10) */}
@@ -490,33 +475,29 @@ export const StudentsPage = () => {
           onClick={() => { setLevelFilter('jhs'); setGradeFilter('all'); setStrandFilter('all'); }}
           style={{
             background: '#ffffff',
-            borderRadius: '10px',
-            padding: '12px 14px',
-            border: levelFilter === 'jhs' ? '2px solid #07345f' : '1px solid #e2e8f0',
-            boxShadow: '0 1px 4px rgba(0,0,0,0.02)',
+            borderRadius: '12px',
+            padding: '14px 16px',
+            border: levelFilter === 'jhs' ? '2px solid #07345f' : '1.5px solid #cbd5e1',
+            boxShadow: levelFilter === 'jhs' ? '0 4px 14px rgba(7, 52, 95, 0.10)' : '0 1px 3px rgba(0,0,0,0.02)',
             cursor: 'pointer',
-            transition: 'all 0.2s',
-            position: 'relative',
-            overflow: 'hidden'
+            transition: 'all 0.15s ease',
+            position: 'relative'
           }}
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
-              <div style={{ fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.03em' }}>
-                Junior High (G7-10)
+              <div style={{ fontSize: '11.5px', fontWeight: 800, color: '#07345f', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                JUNIOR HIGH (G7-10)
               </div>
-              <div style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a', marginTop: '2px' }}>
+              <div style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', margin: '4px 0 2px 0', lineHeight: 1.1 }}>
                 {stats.jhsCount}
               </div>
-              <div style={{ fontSize: '10px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
-                Basic Education Students
+              <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 500 }}>
+                Basic education students
               </div>
             </div>
-            <BookOpen size={20} color="#1f2937" strokeWidth={2} />
+            <BookOpen size={20} color="#07345f" strokeWidth={2} />
           </div>
-          {levelFilter === 'jhs' && (
-            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 2.5, background: '#07345f' }}></div>
-          )}
         </div>
 
         {/* Senior High (G11-12) */}
@@ -524,58 +505,55 @@ export const StudentsPage = () => {
           onClick={() => { setLevelFilter('shs'); setGradeFilter('all'); }}
           style={{
             background: '#ffffff',
-            borderRadius: '10px',
-            padding: '12px 14px',
-            border: levelFilter === 'shs' ? '2px solid #07345f' : '1px solid #e2e8f0',
-            boxShadow: '0 1px 4px rgba(0,0,0,0.02)',
+            borderRadius: '12px',
+            padding: '14px 16px',
+            border: levelFilter === 'shs' ? '2px solid #07345f' : '1.5px solid #cbd5e1',
+            boxShadow: levelFilter === 'shs' ? '0 4px 14px rgba(7, 52, 95, 0.10)' : '0 1px 3px rgba(0,0,0,0.02)',
             cursor: 'pointer',
-            transition: 'all 0.2s',
-            position: 'relative',
-            overflow: 'hidden'
+            transition: 'all 0.15s ease',
+            position: 'relative'
           }}
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
-              <div style={{ fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.03em' }}>
-                Senior High (G11-12)
+              <div style={{ fontSize: '11.5px', fontWeight: 800, color: '#07345f', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                SENIOR HIGH (G11-12)
               </div>
-              <div style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a', marginTop: '2px' }}>
+              <div style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', margin: '4px 0 2px 0', lineHeight: 1.1 }}>
                 {stats.shsCount}
               </div>
-              <div style={{ fontSize: '10px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
-                Specialized Strands & Tracks
+              <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 500 }}>
+                Specialized strands & tracks
               </div>
             </div>
-            <GraduationCap size={20} color="#1f2937" strokeWidth={2} />
+            <GraduationCap size={20} color="#07345f" strokeWidth={2} />
           </div>
-          {levelFilter === 'shs' && (
-            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 2.5, background: '#07345f' }}></div>
-          )}
         </div>
 
         {/* Active Academic Strands */}
         <div
           style={{
             background: '#ffffff',
-            borderRadius: '10px',
-            padding: '12px 14px',
-            border: '1px solid #e2e8f0',
-            boxShadow: '0 1px 4px rgba(0,0,0,0.02)'
+            borderRadius: '12px',
+            padding: '14px 16px',
+            border: '1.5px solid #cbd5e1',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.02)',
+            position: 'relative'
           }}
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
-              <div style={{ fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.03em' }}>
-                Academic Strands
+              <div style={{ fontSize: '11.5px', fontWeight: 800, color: '#07345f', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                ACADEMIC STRANDS
               </div>
-              <div style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a', marginTop: '2px' }}>
+              <div style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', margin: '4px 0 2px 0', lineHeight: 1.1 }}>
                 {stats.uniqueStrands}
               </div>
-              <div style={{ fontSize: '10px', color: '#64748b', marginTop: '2px' }}>
+              <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 500 }}>
                 STEM, ABM, HUMSS, GAS, JHS
               </div>
             </div>
-            <Layers size={20} color="#1f2937" strokeWidth={2} />
+            <Layers size={20} color="#07345f" strokeWidth={2} />
           </div>
         </div>
       </div>
@@ -991,6 +969,8 @@ export const StudentsPage = () => {
                               `https://ui-avatars.com/api/?name=${encodeURIComponent(s.fname + ' ' + s.lname)}&background=07345f&color=fff&size=40`
                             }
                             alt="Student Avatar"
+                            loading="lazy"
+                            decoding="async"
                             style={{
                               width: 40,
                               height: 40,
@@ -1242,6 +1222,8 @@ export const StudentsPage = () => {
                       `https://ui-avatars.com/api/?name=${encodeURIComponent(s.fname + ' ' + s.lname)}&background=07345f&color=fff&size=48`
                     }
                     alt="Student"
+                    loading="lazy"
+                    decoding="async"
                     className="entity-grid-avatar"
                   />
 
@@ -1332,6 +1314,8 @@ export const StudentsPage = () => {
                           `https://ui-avatars.com/api/?name=${encodeURIComponent(s.fname + ' ' + s.lname)}&background=07345f&color=fff&size=38`
                         }
                         alt="Student Avatar"
+                        loading="lazy"
+                        decoding="async"
                         style={{
                           width: 38,
                           height: 38,
