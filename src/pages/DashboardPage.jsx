@@ -281,7 +281,7 @@ export const DashboardPage = () => {
       for (let i = 6; i >= 0; i--) {
         const d = new Date(Date.now() - i * 86400000);
         const dateStr = d.toISOString().split('T')[0];
-        const dayLabel = d.toLocaleDateString('en-US', { weekday: 'short', month: 'numeric', day: 'numeric' });
+        const dayLabel = `${d.getMonth() + 1}/${d.getDate()}`;
 
         let minor = 0, serious = 0, major = 0;
         approvedRecords.forEach(r => {
@@ -985,8 +985,8 @@ export const DashboardPage = () => {
                   fontSize={10}
                   tickLine={false}
                   axisLine={{ stroke: '#e2e8f0' }}
-                  interval={0}
-                  minTickGap={20}
+                  interval={chartFilter === 'month' ? 4 : 0}
+                  minTickGap={chartFilter === 'month' ? 0 : 20}
                 />
                 <YAxis
                   stroke="#94a3b8"
