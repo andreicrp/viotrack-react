@@ -238,12 +238,12 @@ export const DashboardPage = () => {
 
     if (chartFilter === 'today') {
       const intervals = [
-        { label: '06:00 – 09:00', startH: 6, endH: 9 },
-        { label: '09:00 – 12:00', startH: 9, endH: 12 },
-        { label: '12:00 – 15:00', startH: 12, endH: 15 },
-        { label: '15:00 – 18:00', startH: 15, endH: 18 },
-        { label: '18:00 – 21:00', startH: 18, endH: 21 },
-        { label: '21:00 – 24:00', startH: 21, endH: 24 }
+        { label: '6–9am',  startH: 6,  endH: 9  },
+        { label: '9–12pm', startH: 9,  endH: 12 },
+        { label: '12–3pm', startH: 12, endH: 15 },
+        { label: '3–6pm',  startH: 15, endH: 18 },
+        { label: '6–9pm',  startH: 18, endH: 21 },
+        { label: '9–12am', startH: 21, endH: 24 }
       ];
 
       const nowDay = new Date();
@@ -982,11 +982,11 @@ export const DashboardPage = () => {
                 <XAxis
                   dataKey="time"
                   stroke="#94a3b8"
-                  fontSize={10.5}
+                  fontSize={10}
                   tickLine={false}
                   axisLine={{ stroke: '#e2e8f0' }}
-                  interval={chartFilter === 'month' ? 'preserveStartEnd' : 0}
-                  minTickGap={14}
+                  interval={0}
+                  minTickGap={20}
                 />
                 <YAxis
                   stroke="#94a3b8"
