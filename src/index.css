@@ -838,8 +838,8 @@ textarea {
    ========================================================================== */
 @media (max-width: 768px) {
   .toast-container {
-    top: calc(16px + env(safe-area-inset-top, 0px));
-    bottom: auto;
+    bottom: calc(80px + env(safe-area-inset-bottom, 0px));
+    top: auto;
     left: 50%;
     right: auto;
     transform: translateX(-50%);
@@ -875,17 +875,17 @@ textarea {
   }
 
   .custom-toast.is-entering {
-    animation: toastSlideInDown 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    animation: toastSlideInUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   }
 
   .custom-toast.is-exiting {
-    animation: toastSlideOutUp 0.24s cubic-bezier(0.4, 0, 1, 1) forwards;
+    animation: toastSlideOutDown 0.24s cubic-bezier(0.4, 0, 1, 1) forwards;
   }
 
-  @keyframes toastSlideInDown {
+  @keyframes toastSlideInUp {
     0% {
       opacity: 0;
-      transform: translateY(-28px) scale(0.95);
+      transform: translateY(28px) scale(0.95);
     }
     100% {
       opacity: 1;
@@ -893,7 +893,7 @@ textarea {
     }
   }
 
-  @keyframes toastSlideOutUp {
+  @keyframes toastSlideOutDown {
     0% {
       opacity: 1;
       transform: translateY(0) scale(1);
@@ -901,7 +901,7 @@ textarea {
     }
     100% {
       opacity: 0;
-      transform: translateY(-30px) scale(0.92);
+      transform: translateY(30px) scale(0.92);
       max-height: 0;
       padding-top: 0;
       padding-bottom: 0;

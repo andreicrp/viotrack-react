@@ -31,7 +31,10 @@ import {
   Compass,
   CheckCircle2,
   Download,
-  PieChart as PieChartIcon
+  PieChart as PieChartIcon,
+  TrendingDown,
+  RefreshCw,
+  Award
 } from 'lucide-react';
 import { dataService } from '../services/dataService';
 import { useAuth } from '../context/AuthContext';
@@ -63,6 +66,8 @@ export const DashboardPage = () => {
     return lastDay.toISOString().split('T')[0];
   });
   const [isCustomModalOpen, setIsCustomModalOpen] = useState(false);
+  const [selectedPieSlice, setSelectedPieSlice] = useState(null); // for donut drill-down
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   // Severity KPI Selection / Filter
   const [activeSeverityFilter, setActiveSeverityFilter] = useState('all'); // 'all' | 'minor' | 'serious' | 'major' | 'resolved'
@@ -117,9 +122,18 @@ export const DashboardPage = () => {
     };
     window.addEventListener('viotrack_data_updated', handleUpdate);
     window.addEventListener('viotrack_events_updated', handleEventsUpdate);
+
+    // Auto-refresh every 45 seconds
+    const autoRefreshTimer = setInterval(async () => {
+      setIsRefreshing(true);
+      await loadData();
+      setIsRefreshing(false);
+    }, 45000);
+
     return () => {
       window.removeEventListener('viotrack_data_updated', handleUpdate);
       window.removeEventListener('viotrack_events_updated', handleEventsUpdate);
+      clearInterval(autoRefreshTimer);
     };
   }, [loadData]);
 
@@ -363,6 +377,58 @@ export const DashboardPage = () => {
 
     return days;
   }, [chartFilter, approvedRecords, startDate, endDate, calendarMonth]);
+
+  // Last-week metrics for KPI trend arrows
+  const lastWeekMetrics = useMemo(() => {
+    const sevenDaysAgo = new Date(Date.now() - 7 * 86400000);
+    const fourteenDaysAgo = new Date(Date.now() - 14 * 86400000);
+    let minor = 0, serious = 0, major = 0, total = 0;
+    approvedRecords.forEach(r => {
+      const rawDate = r.date_reported || r.created_at;
+      if (!rawDate) return;
+      const rDate = new Date(rawDate);
+      if (rDate >= fourteenDaysAgo && rDate < sevenDaysAgo) {
+        const type = (r.violation?.type || r.type || '').toLowerCase();
+        if (type === 'minor') minor++;
+        else if (type === 'serious') serious++;
+        else if (type === 'major') major++;
+        total++;
+      }
+    });
+    return { minor, serious, major, total };
+  }, [approvedRecords]);
+
+  // Today's violation count for the at-a-glance banner
+  const todayStats = useMemo(() => {
+    const now = new Date();
+    const todayRecords = approvedRecords.filter(r => {
+      const rawDate = r.date_reported || r.created_at;
+      if (!rawDate) return false;
+      const rDate = new Date(rawDate);
+      return rDate.getFullYear() === now.getFullYear() &&
+             rDate.getMonth() === now.getMonth() &&
+             rDate.getDate() === now.getDate();
+    });
+    const pending = approvedRecords.filter(r => (r.status || '').toLowerCase() !== 'resolved').length;
+    return { todayCount: todayRecords.length, pending };
+  }, [approvedRecords]);
+
+  // Top 5 Active Reporters (Teachers)
+  const top5Reporters = useMemo(() => {
+    const map = {};
+    approvedRecords.forEach(r => {
+      const name = r.reported_by || r.teacher_name || r.reporter || 'Unknown';
+      if (!map[name]) map[name] = { name, count: 0, major: 0, serious: 0 };
+      map[name].count++;
+      const sev = (r.violation?.type || r.type || '').toLowerCase();
+      if (sev === 'major') map[name].major++;
+      else if (sev === 'serious') map[name].serious++;
+    });
+    return Object.values(map)
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 5)
+      .map((r, idx) => ({ ...r, rank: idx + 1 }));
+  }, [approvedRecords]);
 
   // Determine max domain for Chart Y-Axis dynamically
   const chartYDomain = useMemo(() => {
@@ -777,16 +843,36 @@ export const DashboardPage = () => {
               <span className="dash-role-pill">
                 {user?.role === 'teacher' ? 'Faculty Teacher' : 'Administrator'}
               </span>
+              {/* Auto-refresh indicator */}
+              <span
+                className={`dash-refresh-indicator ${isRefreshing ? 'spinning' : ''}`}
+                title="Dashboard auto-refreshes every 45 seconds"
+              >
+                <RefreshCw size={13} strokeWidth={2.4} />
+              </span>
             </div>
+            {/* At-a-glance summary sentence */}
             <p className="dash-greeting-subtitle">
-              {metrics.totalViolationsCount === 0
-                ? `Campus conduct is clean with zero active infractions recorded for ${metrics.periodLabel.toLowerCase()}.`
-                : `Campus overview: ${metrics.totalViolationsCount} incident${metrics.totalViolationsCount === 1 ? '' : 's'} recorded (${metrics.periodLabel}).`}
+              {todayStats.todayCount === 0 && todayStats.pending === 0
+                ? 'Campus conduct is clean — no violations recorded today.'
+                : `Today: ${todayStats.todayCount > 0 ? `${todayStats.todayCount} new violation${todayStats.todayCount !== 1 ? 's' : ''}` : 'no new violations'}
+                ${todayStats.pending > 0 ? `, ${todayStats.pending} pending resolution` : ', all resolved'}.`
+              }
             </p>
           </div>
 
           {/* Top Right Controls */}
           <div className="dash-top-actions-right">
+            <button
+              type="button"
+              className="dash-export-pdf-btn"
+              onClick={handleExportPDF}
+              id="exportDashboardPdfBtn"
+              title="Export dashboard summary as PDF"
+            >
+              <Download size={15} strokeWidth={2.4} />
+              <span>Export PDF</span>
+            </button>
             <button
               type="button"
               className="dash-log-violation-btn"
@@ -823,8 +909,14 @@ export const DashboardPage = () => {
               <span className="dash-stat-title-label">Minor Offense</span>
               <div className="dash-stat-number-trend-row">
                 <span className="dash-stat-big-num">{metrics.minorCount}</span>
-                <span className="dash-stat-trend-tag" style={{ color: '#059669' }}>
-                  {metrics.minorCount > 0 ? 'Active logs' : 'Clean'}
+                <span className="dash-stat-trend-tag" style={{ color: '#059669', display: 'flex', alignItems: 'center', gap: 2 }}>
+                  {lastWeekMetrics.minor > 0 ? (
+                    metrics.minorCount > lastWeekMetrics.minor
+                      ? <><TrendingUp size={12}/> +{metrics.minorCount - lastWeekMetrics.minor} vs last wk</>
+                      : metrics.minorCount < lastWeekMetrics.minor
+                        ? <><TrendingDown size={12} color="#10b981"/> -{lastWeekMetrics.minor - metrics.minorCount} vs last wk</>
+                        : 'Same as last wk'
+                  ) : (metrics.minorCount > 0 ? 'Active logs' : 'Clean')}
                 </span>
               </div>
             </div>
@@ -852,8 +944,14 @@ export const DashboardPage = () => {
               <span className="dash-stat-title-label">Serious Offense</span>
               <div className="dash-stat-number-trend-row">
                 <span className="dash-stat-big-num">{metrics.seriousCount}</span>
-                <span className="dash-stat-trend-tag" style={{ color: metrics.seriousCount > 0 ? '#d97706' : '#64748b' }}>
-                  {metrics.seriousCount > 0 ? 'Interventions' : '0 cases'}
+                <span className="dash-stat-trend-tag" style={{ color: metrics.seriousCount > 0 ? '#d97706' : '#64748b', display: 'flex', alignItems: 'center', gap: 2 }}>
+                  {lastWeekMetrics.serious > 0 ? (
+                    metrics.seriousCount > lastWeekMetrics.serious
+                      ? <><TrendingUp size={12} color="#d97706"/> +{metrics.seriousCount - lastWeekMetrics.serious} vs last wk</>
+                      : metrics.seriousCount < lastWeekMetrics.serious
+                        ? <><TrendingDown size={12} color="#10b981"/> -{lastWeekMetrics.serious - metrics.seriousCount} vs last wk</>
+                        : 'Same as last wk'
+                  ) : (metrics.seriousCount > 0 ? 'Interventions' : '0 cases')}
                 </span>
               </div>
             </div>
@@ -881,8 +979,14 @@ export const DashboardPage = () => {
               <span className="dash-stat-title-label">Major Offense</span>
               <div className="dash-stat-number-trend-row">
                 <span className="dash-stat-big-num">{metrics.majorCount}</span>
-                <span className="dash-stat-trend-tag" style={{ color: metrics.majorCount > 0 ? '#dc2626' : '#10b981' }}>
-                  {metrics.majorCount > 0 ? 'Hearing required' : 'None'}
+                <span className="dash-stat-trend-tag" style={{ color: metrics.majorCount > 0 ? '#dc2626' : '#10b981', display: 'flex', alignItems: 'center', gap: 2 }}>
+                  {lastWeekMetrics.major > 0 ? (
+                    metrics.majorCount > lastWeekMetrics.major
+                      ? <><TrendingUp size={12} color="#dc2626"/> +{metrics.majorCount - lastWeekMetrics.major} vs last wk</>
+                      : metrics.majorCount < lastWeekMetrics.major
+                        ? <><TrendingDown size={12} color="#10b981"/> -{lastWeekMetrics.major - metrics.majorCount} vs last wk</>
+                        : 'Same as last wk'
+                  ) : (metrics.majorCount > 0 ? 'Hearing required' : 'None')}
                 </span>
               </div>
             </div>
@@ -1125,15 +1229,35 @@ export const DashboardPage = () => {
           </div>
 
           {violationDistribution.length === 0 ? (
-            <div style={{ height: '220px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', textAlign: 'center' }}>
-              <PieChartIcon size={36} strokeWidth={1.5} style={{ marginBottom: 8, opacity: 0.5 }} />
-              <span style={{ fontSize: '13px', fontWeight: 600 }}>No violation data available</span>
-              <span style={{ fontSize: '11.5px', color: '#cbd5e1' }}>Approved infractions will appear here</span>
+            <div style={{ height: '220px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', textAlign: 'center', gap: 8 }}>
+              {/* Friendly no-data illustration */}
+              <svg width="72" height="72" viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <circle cx="36" cy="36" r="34" fill="#f8fafc" stroke="#e2e8f0" strokeWidth="2"/>
+                <circle cx="36" cy="36" r="22" fill="none" stroke="#e2e8f0" strokeWidth="6" strokeDasharray="10 6"/>
+                <circle cx="36" cy="36" r="10" fill="#f1f5f9"/>
+                <path d="M29 36 Q36 28 43 36" stroke="#cbd5e1" strokeWidth="2" strokeLinecap="round" fill="none"/>
+                <circle cx="31" cy="33" r="2" fill="#cbd5e1"/>
+                <circle cx="41" cy="33" r="2" fill="#cbd5e1"/>
+              </svg>
+              <span style={{ fontSize: '13.5px', fontWeight: 700, color: '#64748b' }}>No violations logged yet</span>
+              <span style={{ fontSize: '11.5px', color: '#94a3b8', maxWidth: 160 }}>Approved infractions will appear as a distribution chart here</span>
             </div>
           ) : (
             <div className="dash-distribution-content">
-              {/* Circle Chart */}
-              <div className="dash-distribution-chart-box">
+              {/* Donut Chart with drill-down */}
+              <div className="dash-distribution-chart-box" style={{ position: 'relative' }}>
+                {selectedPieSlice && (
+                  <div style={{
+                    position: 'absolute', top: '50%', left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    textAlign: 'center', pointerEvents: 'none', zIndex: 2,
+                    maxWidth: 90
+                  }}>
+                    <div style={{ fontSize: 22, fontWeight: 800, color: '#0f172a', lineHeight: 1 }}>{selectedPieSlice.value}</div>
+                    <div style={{ fontSize: 9.5, color: '#64748b', fontWeight: 600, lineHeight: 1.3, marginTop: 2, wordBreak: 'break-word' }}>{selectedPieSlice.name}</div>
+                    <button onClick={() => setSelectedPieSlice(null)} style={{ fontSize: 9, color: '#94a3b8', background: 'none', border: 'none', cursor: 'pointer', marginTop: 3 }}>✕ clear</button>
+                  </div>
+                )}
                 <ResponsiveContainer width="100%" height={250}>
                   <PieChart>
                     <Pie
@@ -1141,18 +1265,21 @@ export const DashboardPage = () => {
                       cx="50%"
                       cy="50%"
                       outerRadius={112}
-                      innerRadius={0}
-                      paddingAngle={0}
+                      innerRadius={52}
+                      paddingAngle={2}
                       dataKey="value"
                       nameKey="name"
                       label={false}
+                      onClick={(entry) => setSelectedPieSlice(prev => prev?.name === entry.name ? null : entry)}
+                      style={{ cursor: 'pointer' }}
                     >
                       {violationDistribution.map((entry, index) => (
                         <Cell
                           key={`dist-cell-${index}`}
                           fill={entry.color}
-                          stroke={entry.color}
-                          strokeWidth={0.5}
+                          stroke={selectedPieSlice?.name === entry.name ? '#0f172a' : entry.color}
+                          strokeWidth={selectedPieSlice?.name === entry.name ? 3 : 0.5}
+                          opacity={selectedPieSlice && selectedPieSlice.name !== entry.name ? 0.4 : 1}
                         />
                       ))}
                     </Pie>
@@ -1283,6 +1410,62 @@ export const DashboardPage = () => {
                     >
                       View
                     </button>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+
+        {/* Column 1b: Top 5 Active Reporters */}
+        <div className="dash-bottom-card">
+          <div className="dash-card-header-clean">
+            <div className="dash-card-header-left">
+              <Award size={20} color="#0f172a" />
+              <div>
+                <h2 className="dash-card-header-title">Top Active Reporters</h2>
+                <p className="dash-card-header-desc">Most diligent violation-reporting faculty this period</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="dash-offenders-list">
+            {top5Reporters.length === 0 ? (
+              <div className="dash-empty-calendar-day" style={{ padding: '24px 16px', textAlign: 'center' }}>
+                <Award size={28} color="#94a3b8" />
+                <span style={{ fontWeight: 600, color: '#64748b', fontSize: '12.5px' }}>No reports submitted yet</span>
+                <span style={{ fontSize: '11px', color: '#94a3b8' }}>Reporter rankings will appear after violations are logged.</span>
+              </div>
+            ) : (
+              top5Reporters.map(rep => (
+                <div key={rep.name} className="dash-offender-row">
+                  <div className="dash-offender-left">
+                    <span className={`dash-rank-badge rank-${rep.rank}`}>#{rep.rank}</span>
+                    <div
+                      style={{
+                        width: 36, height: 36, borderRadius: '50%',
+                        background: `hsl(${(rep.rank * 47) % 360}, 60%, 92%)`,
+                        display: 'flex', alignItems: 'center', justifyContent: 'center',
+                        fontSize: 14, fontWeight: 800,
+                        color: `hsl(${(rep.rank * 47) % 360}, 55%, 35%)`,
+                        flexShrink: 0
+                      }}
+                    >
+                      {rep.name.charAt(0).toUpperCase()}
+                    </div>
+                    <div className="dash-offender-meta">
+                      <span className="dash-offender-name">{rep.name}</span>
+                      <span className="dash-offender-grade">
+                        {rep.major > 0 && <span style={{ color: '#ef4444', fontWeight: 700 }}>{rep.major} major • </span>}
+                        {rep.serious > 0 && <span style={{ color: '#f59e0b', fontWeight: 700 }}>{rep.serious} serious • </span>}
+                        {rep.count} total
+                      </span>
+                    </div>
+                  </div>
+                  <div className="dash-offender-right">
+                    <span className="dash-infraction-pill slate" style={{ background: '#f0f9ff', color: '#0284c7', borderColor: '#bae6fd' }}>
+                      {rep.count} report{rep.count !== 1 ? 's' : ''}
+                    </span>
                   </div>
                 </div>
               ))
