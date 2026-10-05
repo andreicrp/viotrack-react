@@ -1,0 +1,67 @@
+.searchField {
+  position: relative;
+  flex: 1 1 280px;
+  min-width: min(280px, 100%);
+  max-width: var(--search-max-width, 420px);
+}
+
+.input {
+  width: 100%;
+  min-height: 40px;
+  padding: 9px 36px 9px 38px;
+  border: 1px solid var(--vt-color-border);
+  border-radius: var(--vt-radius-control);
+  background: var(--vt-color-surface-muted);
+  color: var(--vt-color-text);
+  font: inherit;
+  font-size: 13px;
+  outline: none;
+  transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.input:focus {
+  border-color: var(--vt-color-brand);
+  background: var(--vt-color-surface);
+  box-shadow: 0 0 0 3px rgb(7 52 95 / 12%);
+}
+
+.input::-webkit-search-cancel-button {
+  appearance: none;
+}
+
+.searchIcon {
+  position: absolute;
+  top: 50%;
+  left: 12px;
+  color: var(--vt-color-text-subtle);
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.clearButton {
+  position: absolute;
+  top: 50%;
+  right: 9px;
+  display: grid;
+  width: 25px;
+  height: 25px;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--vt-color-text-subtle);
+  cursor: pointer;
+  transform: translateY(-50%);
+}
+
+.clearButton:hover,
+.clearButton:focus-visible {
+  background: var(--vt-color-surface-hover);
+  color: var(--vt-color-text);
+}
+
+.clearButton:focus-visible {
+  outline: 2px solid var(--vt-color-brand);
+  outline-offset: 2px;
+}

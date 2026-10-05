@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useDeferredValue, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import { dataService } from '../services/dataService';
 import { AddStudentModal } from '../components/students/AddStudentModal';
 import { StudentIdModal } from '../components/students/StudentIdModal';
@@ -10,7 +10,6 @@ import { useAuth } from '../context/AuthContext';
 import {
   GraduationCap,
   Users,
-  Search,
   UserPlus,
   FileSpreadsheet,
   FileText,
@@ -39,52 +38,32 @@ import { getJsPDF } from '../utils/pdfHelper';
 import { exportToCsv } from '../utils/csvHelper';
 
 import { ViewModeToggle } from '../components/common/ViewModeToggle';
-
-// Helper to detect Strand / Academic Track
-export const getStudentStrand = (student) => {
-  if (student.strand) return student.strand;
-  const sec = (student.section || '').toUpperCase();
-  if (sec.includes('STEM')) return 'STEM';
-  if (sec.includes('HUMSS')) return 'HUMSS';
-  if (sec.includes('ABM')) return 'ABM';
-  if (sec.includes('GAS')) return 'GAS';
-  if (sec.includes('TVL')) return 'TVL';
-  if (sec.includes('ICT')) return 'ICT';
-  if (sec.includes('HE')) return 'HE';
-
-  const gNum = parseInt((student.grade || '').replace(/\D/g, ''), 10);
-  if (gNum >= 11) return 'Academic Track';
-  return 'JHS Core';
-};
-
-export const getGradeNumber = (gradeStr) => {
-  const num = parseInt((gradeStr || '').replace(/\D/g, ''), 10);
-  return isNaN(num) ? 0 : num;
-};
+import { useStudentsQuery } from '../hooks/dataQueries';
+import { DataSearchField } from '../components/common/DataSearchField';
+import { DataTableFrame } from '../components/common/DataTableFrame';
+import { useDataTableState } from '../hooks/useDataTableState';
+import { useStudentTableData } from '../hooks/useStudentTableData';
+import { getGradeNumber, getStudentStrand } from '../utils/studentUtils';
+export { getGradeNumber, getStudentStrand } from '../utils/studentUtils';
 
 export const StudentsPage = () => {
   const { user } = useAuth();
   const { success, error } = useNotification();
-  const [students, setStudents] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { data: students = [], isPending: loading, refetch: refetchStudents } = useStudentsQuery();
   const [viewMode, setViewMode] = useState('list'); // 'list' | 'grid'
+  const {
+    searchTerm, setSearchTerm, deferredSearch,
+    sortField, setSortField, sortOrder, setSortOrder, handleSort,
+    selectedIds, setSelectedIds, entriesPerPage, setEntriesPerPage,
+    currentPage, setCurrentPage
+  } = useDataTableState({ initialSortField: 'grade', initialSortOrder: 'asc' });
 
   // Search & Filters
-  const [searchTerm, setSearchTerm] = useState('');
-  const deferredSearch = useDeferredValue(searchTerm);
   const [yearFilter, setYearFilter] = useState('all');
   const [levelFilter, setLevelFilter] = useState('all'); // 'all' | 'jhs' | 'shs'
   const [gradeFilter, setGradeFilter] = useState('all');
   const [strandFilter, setStrandFilter] = useState('all');
 
-  // Sorting: 'grade' | 'strand' | 'name' | 'lrn' | 'section'
-  const [sortField, setSortField] = useState('grade');
-  const [sortOrder, setSortOrder] = useState('asc'); // 'asc' | 'desc'
-
-  // Pagination & Selection
-  const [selectedIds, setSelectedIds] = useState([]);
-  const [entriesPerPage, setEntriesPerPage] = useState(10);
-  const [currentPage, setCurrentPage] = useState(1);
 
   // Modals
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -95,138 +74,23 @@ export const StudentsPage = () => {
 
   const isAdmin = user?.role === 'admin';
 
-  const loadStudents = useCallback(async (forceRefresh = false) => {
-    setLoading(true);
-    try {
-      const data = await dataService.getStudents(forceRefresh);
-      setStudents(data || []);
-    } catch (err) {
-      error('Failed to load students: ' + err.message);
-    } finally {
-      setLoading(false);
-    }
-  }, [error]);
+  const loadStudents = useCallback(async (_forceRefresh = false) => {
+    const result = await refetchStudents();
+    if (result.error) error('Failed to load students: ' + result.error.message);
+    return result.data || [];
+  }, [error, refetchStudents]);
 
-  useEffect(() => {
-    loadStudents();
-    const handleDataUpdate = () => {
-      loadStudents(true);
-    };
-    window.addEventListener('viotrack_data_updated', handleDataUpdate);
-    return () => {
-      window.removeEventListener('viotrack_data_updated', handleDataUpdate);
-    };
-  }, [loadStudents]);
-
-  // Helper sorting handler
-  const handleSort = (field) => {
-    if (sortField === field) {
-      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortField(field);
-      setSortOrder('asc');
-    }
-  };
-
-  // Statistics calculation - optimized single pass for 10,000+ students
-  const stats = useMemo(() => {
-    const total = students.length;
-    let jhsCount = 0;
-    let shsCount = 0;
-    const strandSet = new Set();
-
-    for (let i = 0; i < total; i++) {
-      const s = students[i];
-      const gNum = getGradeNumber(s.grade);
-      if (gNum >= 7 && gNum <= 10) jhsCount++;
-      else if (gNum >= 11 && gNum <= 12) shsCount++;
-      strandSet.add(getStudentStrand(s));
-    }
-
-    return { total, jhsCount, shsCount, uniqueStrands: strandSet.size };
-  }, [students]);
-
-  // Filtered & Sorted Student List with deferred non-blocking search
-  const filteredAndSortedStudents = useMemo(() => {
-    const query = deferredSearch.toLowerCase().trim();
-    const isAllLevel = levelFilter === 'all';
-    const isAllGrade = gradeFilter === 'all';
-    const isAllStrand = strandFilter === 'all';
-    const targetGrade = gradeFilter.toLowerCase();
-    const targetStrand = strandFilter.toLowerCase();
-
-    // 1. Filter
-    const result = students.filter(s => {
-      const gNum = getGradeNumber(s.grade);
-      const isJhs = gNum >= 7 && gNum <= 10;
-      const isShs = gNum >= 11 && gNum <= 12;
-
-      const matchesLevel =
-        isAllLevel ||
-        (levelFilter === 'jhs' && isJhs) ||
-        (levelFilter === 'shs' && isShs);
-
-      if (!matchesLevel) return false;
-
-      const sGrade = (s.grade || '').toLowerCase();
-      const matchesGrade = isAllGrade || sGrade === targetGrade;
-      if (!matchesGrade) return false;
-
-      const studentStrand = getStudentStrand(s);
-      const matchesStrand = isAllStrand || studentStrand.toLowerCase() === targetStrand;
-      if (!matchesStrand) return false;
-
-      if (!query) return true;
-
-      const fullName = `${s.fname || ''} ${s.mname || ''} ${s.lname || ''}`.toLowerCase();
-      const lrn = (s.lrn || '').toLowerCase();
-      const section = (s.section || '').toLowerCase();
-      const guardian = (s.parent_name || '').toLowerCase();
-      const strand = studentStrand.toLowerCase();
-
-      return (
-        fullName.includes(query) ||
-        lrn.includes(query) ||
-        sGrade.includes(query) ||
-        section.includes(query) ||
-        guardian.includes(query) ||
-        strand.includes(query)
-      );
-    });
-
-    // 2. Sort
-    result.sort((a, b) => {
-      let comparison = 0;
-
-      if (sortField === 'grade') {
-        const gA = getGradeNumber(a.grade);
-        const gB = getGradeNumber(b.grade);
-        comparison = gA - gB;
-        if (comparison === 0) {
-          comparison = (a.section || '').localeCompare(b.section || '');
-        }
-      } else if (sortField === 'strand') {
-        const strandA = getStudentStrand(a);
-        const strandB = getStudentStrand(b);
-        comparison = strandA.localeCompare(strandB);
-        if (comparison === 0) {
-          comparison = getGradeNumber(a.grade) - getGradeNumber(b.grade);
-        }
-      } else if (sortField === 'name') {
-        const nameA = `${a.lname || ''}, ${a.fname || ''}`.toLowerCase();
-        const nameB = `${b.lname || ''}, ${b.fname || ''}`.toLowerCase();
-        comparison = nameA.localeCompare(nameB);
-      } else if (sortField === 'lrn') {
-        comparison = (a.lrn || '').localeCompare(b.lrn || '');
-      } else if (sortField === 'section') {
-        comparison = (a.section || '').localeCompare(b.section || '');
-      }
-
-      return sortOrder === 'asc' ? comparison : -comparison;
-    });
-
-    return result;
-  }, [students, deferredSearch, levelFilter, gradeFilter, strandFilter, sortField, sortOrder]);
+  const { stats, filteredAndSortedStudents, totalPages, paginatedStudents } = useStudentTableData({
+    students,
+    search: deferredSearch,
+    levelFilter,
+    gradeFilter,
+    strandFilter,
+    sortField,
+    sortOrder,
+    currentPage,
+    entriesPerPage
+  });
 
   // Selection
   const handleSelectAll = (e) => {
@@ -334,10 +198,6 @@ export const StudentsPage = () => {
       error('Failed to export CSV: ' + err.message);
     }
   };
-
-  // Pagination
-  const totalPages = Math.ceil(filteredAndSortedStudents.length / entriesPerPage) || 1;
-  const paginatedStudents = filteredAndSortedStudents.slice((currentPage - 1) * entriesPerPage, currentPage * entriesPerPage);
 
   const renderSortIcon = (field) => {
     if (sortField !== field) {
@@ -578,59 +438,17 @@ export const StudentsPage = () => {
           }}
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '14px' }}>
-            {/* Search Input */}
-            <div style={{ position: 'relative', flex: 1, minWidth: '280px', maxWidth: '420px' }}>
-              <Search
-                size={16}
-                style={{
-                  position: 'absolute',
-                  left: '12px',
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  color: '#94a3b8'
-                }}
-              />
-              <input
-                type="text"
-                placeholder="Search by student name, Student ID, grade, strand, or section..."
-                value={searchTerm}
-                onChange={(e) => {
-                  setSearchTerm(e.target.value);
-                  setCurrentPage(1);
-                }}
-                style={{
-                  width: '100%',
-                  padding: '9px 34px 9px 38px',
-                  border: '1px solid #cbd5e1',
-                  borderRadius: '8px',
-                  fontSize: '13px',
-                  color: '#0f172a',
-                  background: '#f8fafc',
-                  outline: 'none',
-                  transition: 'all 0.2s'
-                }}
-                onFocus={(e) => { e.currentTarget.style.borderColor = '#07345f'; e.currentTarget.style.background = '#ffffff'; }}
-                onBlur={(e) => { e.currentTarget.style.borderColor = '#cbd5e1'; e.currentTarget.style.background = '#f8fafc'; }}
-              />
-              {searchTerm && (
-                <button
-                  onClick={() => setSearchTerm('')}
-                  style={{
-                    position: 'absolute',
-                    right: '10px',
-                    top: '50%',
-                    transform: 'translateY(-50%)',
-                    background: 'transparent',
-                    border: 'none',
-                    color: '#94a3b8',
-                    cursor: 'pointer',
-                    padding: 0
-                  }}
-                >
-                  <X size={15} />
-                </button>
-              )}
-            </div>
+            <DataSearchField
+              label="Search students"
+              placeholder="Search by student name, Student ID, grade, strand, or section..."
+              value={searchTerm}
+              onChange={(value) => {
+                setSearchTerm(value);
+                setCurrentPage(1);
+              }}
+              onClear={() => setSearchTerm('')}
+              maxWidth={420}
+            />
 
             {/* Sorting & Filter Selectors */}
             <div className="mobile-filter-grid">
@@ -788,7 +606,7 @@ export const StudentsPage = () => {
         </div>
 
         {/* Student Table (Desktop View) */}
-        <div className={`responsive-table-desktop ${viewMode === 'grid' ? 'force-hidden' : ''}`}>
+        <DataTableFrame label="Students table" className={`responsive-table-desktop ${viewMode === 'grid' ? 'force-hidden' : ''}`}>
           <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
             <thead>
               <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
@@ -1164,7 +982,7 @@ export const StudentsPage = () => {
               )}
             </tbody>
           </table>
-        </div>
+        </DataTableFrame>
 
         {/* Student Cards (Mobile View) */}
         <div className={`responsive-cards-mobile ${viewMode === 'grid' ? 'grid-view' : 'list-view'}`}>

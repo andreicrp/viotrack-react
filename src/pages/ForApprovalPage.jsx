@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback, useDeferredValue } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { dataService } from '../services/dataService';
 import { useNotification } from '../context/NotificationContext';
 import { useAuth } from '../context/AuthContext';
@@ -6,7 +6,6 @@ import {
   ShieldAlert,
   ShieldCheck,
   Clock,
-  Search,
   CheckCircle2,
   AlertTriangle,
   FileText,
@@ -43,30 +42,31 @@ import { exportToCsv } from '../utils/csvHelper';
 import { ViewModeToggle } from '../components/common/ViewModeToggle';
 import { CustomSelect } from '../components/common/CustomSelect';
 import { Modal } from '../components/common/Modal';
+import { useRecordsQuery } from '../hooks/dataQueries';
+import { DataSearchField } from '../components/common/DataSearchField';
+import { useDataTableState } from '../hooks/useDataTableState';
+import { useApprovalTableData } from '../hooks/useApprovalTableData';
+import { getApprovalStatus } from '../utils/approvalUtils';
 
 export const ForApprovalPage = () => {
   const { user } = useAuth();
   const { success, error, info } = useNotification();
 
-  const [records, setRecords] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { data: records = [], isPending: loading, isError: recordsFailed, error: recordsError, refetch: refetchRecords } = useRecordsQuery();
   const [viewMode, setViewMode] = useState('list'); // 'list' | 'grid'
+  const {
+    searchTerm, setSearchTerm, deferredSearch,
+    sortField, setSortField, sortOrder, setSortOrder, handleSort,
+    selectedIds, setSelectedIds, entriesPerPage, setEntriesPerPage,
+    currentPage, setCurrentPage
+  } = useDataTableState({ initialSortField: 'date', initialSortOrder: 'desc' });
 
   // Filter States
-  const [searchTerm, setSearchTerm] = useState('');
   const [approvalFilter, setApprovalFilter] = useState('Under Approval'); // 'Under Approval' | 'Approved' | 'Rejected' | 'all'
   const [severityFilter, setSeverityFilter] = useState('all'); // 'all' | 'minor' | 'serious' | 'major'
   const [gradeFilter, setGradeFilter] = useState('all');
   const [dateFilter, setDateFilter] = useState('all'); // 'all' | 'today' | 'week' | 'month'
 
-  // Sorting
-  const [sortField, setSortField] = useState('date'); // 'date' | 'student' | 'teacher' | 'severity'
-  const [sortOrder, setSortOrder] = useState('desc'); // 'asc' | 'desc'
-
-  // Selection & Pagination
-  const [selectedIds, setSelectedIds] = useState([]);
-  const [entriesPerPage, setEntriesPerPage] = useState(10);
-  const [currentPage, setCurrentPage] = useState(1);
 
   // Modals
   const [inspectRecord, setInspectRecord] = useState(null);
@@ -78,169 +78,28 @@ export const ForApprovalPage = () => {
   const [notifyParentOnApprove, setNotifyParentOnApprove] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
 
-  const loadData = useCallback(async (forceRefresh = false) => {
-    setLoading(true);
-    try {
-      const data = await dataService.getRecords(forceRefresh);
-      setRecords(data || []);
-    } catch (err) {
-      error('Failed to load violation records: ' + err.message);
-    } finally {
-      setLoading(false);
-    }
-  }, [error]);
+  const loadData = useCallback(async (_forceRefresh = false) => {
+    const result = await refetchRecords();
+    if (result.error) error('Failed to load violation records: ' + result.error.message);
+    return result.data || [];
+  }, [error, refetchRecords]);
 
   useEffect(() => {
-    loadData();
-    const handleDataUpdate = () => {
-      loadData(true);
-    };
-    window.addEventListener('viotrack_data_updated', handleDataUpdate);
-    return () => {
-      window.removeEventListener('viotrack_data_updated', handleDataUpdate);
-    };
-  }, [loadData]);
+    if (recordsFailed) error('Failed to load violation records: ' + recordsError.message);
+  }, [recordsFailed, recordsError, error]);
 
-  const getApprovalStatus = (r) => {
-    if (r.status === 'Under Approval' || r.approval_status === 'Under Approval') return 'Under Approval';
-    if (r.status === 'Rejected' || r.approval_status === 'Rejected') return 'Rejected';
-    if (r.reported_by_type === 'teacher' && !r.approved_by && r.status !== 'Resolved') return 'Under Approval';
-    if (r.approval_status === 'Approved') return 'Approved';
-    return r.approval_status || (r.status === 'Under Approval' ? 'Under Approval' : 'Approved');
-  };
-
-  // Metric Analytics
-  const stats = useMemo(() => {
-    let pending = 0;
-    let approved = 0;
-    let rejected = 0;
-    let highSeverity = 0;
-
-    for (const r of records) {
-      const aStat = getApprovalStatus(r);
-      if (aStat === 'Under Approval') {
-        pending++;
-        const sev = (r.violation?.type || '').toLowerCase();
-        if (sev.includes('major') || sev.includes('serious')) highSeverity++;
-      } else if (aStat === 'Approved') {
-        approved++;
-      } else if (aStat === 'Rejected') {
-        rejected++;
-      }
-    }
-
-    return {
-      pending,
-      approved,
-      rejected,
-      highSeverity,
-      total: records.length
-    };
-  }, [records]);
-
-  const deferredSearch = useDeferredValue(searchTerm);
-
-  // Filter & Sort Pipeline
-  const filteredRecords = useMemo(() => {
-    let result = records.filter(r => {
-      const aStat = getApprovalStatus(r);
-
-      // 1. Approval Status Filter
-      if (approvalFilter !== 'all') {
-        if (approvalFilter === 'Under Approval' && aStat !== 'Under Approval') return false;
-        if (approvalFilter === 'Approved' && aStat !== 'Approved') return false;
-        if (approvalFilter === 'Rejected' && aStat !== 'Rejected') return false;
-      }
-
-      // 2. Severity Filter (Fuzzy case-insensitive matching)
-      if (severityFilter !== 'all') {
-        const type = (r.violation?.type || '').toLowerCase();
-        if (!type.includes(severityFilter.toLowerCase())) return false;
-      }
-
-      // 3. Grade Filter
-      if (gradeFilter !== 'all') {
-        const grade = (r.student?.grade || '').toLowerCase();
-        if (!grade.includes(gradeFilter.toLowerCase())) return false;
-      }
-
-      // 4. Date Range Filter
-      if (dateFilter !== 'all') {
-        const recordTime = new Date(r.date_reported || 0).getTime();
-        const now = Date.now();
-        if (dateFilter === 'today') {
-          if (now - recordTime > 86400000) return false;
-        } else if (dateFilter === 'week') {
-          if (now - recordTime > 7 * 86400000) return false;
-        } else if (dateFilter === 'month') {
-          if (now - recordTime > 30 * 86400000) return false;
-        }
-      }
-
-      // 5. Search Query
-      if (deferredSearch.trim()) {
-        const query = deferredSearch.toLowerCase();
-        const studentName = `${r.student?.fname || ''} ${r.student?.lname || ''}`.toLowerCase();
-        const lrn = (r.student?.student_id || r.student?.lrn || '').toLowerCase();
-        const teacher = (r.reported_by_name || '').toLowerCase();
-        const vTitle = (r.violation?.title || '').toLowerCase();
-        const vDesc = (r.violation?.description || '').toLowerCase();
-        const remarks = (r.remarks || '').toLowerCase();
-        return (
-          studentName.includes(query) ||
-          lrn.includes(query) ||
-          teacher.includes(query) ||
-          vTitle.includes(query) ||
-          vDesc.includes(query) ||
-          remarks.includes(query)
-        );
-      }
-
-      return true;
-    });
-
-    // Sorting
-    result.sort((a, b) => {
-      let valA = '';
-      let valB = '';
-
-      if (sortField === 'date') {
-        valA = new Date(a.date_reported || 0).getTime();
-        valB = new Date(b.date_reported || 0).getTime();
-        return sortOrder === 'asc' ? valA - valB : valB - valA;
-      } else if (sortField === 'student') {
-        valA = `${a.student?.fname || ''} ${a.student?.lname || ''}`.toLowerCase();
-        valB = `${b.student?.fname || ''} ${b.student?.lname || ''}`.toLowerCase();
-      } else if (sortField === 'teacher') {
-        valA = (a.reported_by_name || '').toLowerCase();
-        valB = (b.reported_by_name || '').toLowerCase();
-      } else if (sortField === 'severity') {
-        valA = (a.violation?.type || '').toLowerCase();
-        valB = (b.violation?.type || '').toLowerCase();
-      }
-
-      if (valA < valB) return sortOrder === 'asc' ? -1 : 1;
-      if (valA > valB) return sortOrder === 'asc' ? 1 : -1;
-      return 0;
-    });
-
-    return result;
-  }, [records, approvalFilter, severityFilter, gradeFilter, dateFilter, deferredSearch, sortField, sortOrder]);
-
-  const totalPages = Math.ceil(filteredRecords.length / entriesPerPage) || 1;
-  const paginatedRecords = filteredRecords.slice(
-    (currentPage - 1) * entriesPerPage,
-    currentPage * entriesPerPage
-  );
-
-  const handleSort = (field) => {
-    if (sortField === field) {
-      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortField(field);
-      setSortOrder('asc');
-    }
-  };
+  const { stats, filteredRecords, totalPages, paginatedRecords } = useApprovalTableData({
+    records,
+    search: deferredSearch,
+    approvalFilter,
+    severityFilter,
+    gradeFilter,
+    dateFilter,
+    sortField,
+    sortOrder,
+    currentPage,
+    entriesPerPage
+  });
 
   const handleSelectAll = (e) => {
     if (e.target.checked) {
@@ -668,37 +527,14 @@ export const ForApprovalPage = () => {
 
         {/* 3. Search & Secondary Filters Toolbar */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '10px', flexWrap: 'wrap', marginBottom: '16px' }}>
-          
-          {/* Search Input */}
-          <div style={{ position: 'relative', flex: '1 1 240px' }}>
-            <Search size={16} color="#94a3b8" style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)' }} />
-            <input
-              type="text"
-              placeholder="Search student, Student ID, teacher, offense..."
-              value={searchTerm}
-              onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
-              style={{
-                width: '100%',
-                padding: '9px 12px 9px 36px',
-                borderRadius: '10px',
-                border: '1.5px solid #cbd5e1',
-                fontSize: '13.5px',
-                outline: 'none',
-                background: '#f8fafc',
-                transition: 'border-color 0.15s'
-              }}
-              onFocus={(e) => { e.target.style.borderColor = '#07345f'; e.target.style.background = '#fff'; }}
-              onBlur={(e) => { e.target.style.borderColor = '#cbd5e1'; e.target.style.background = '#f8fafc'; }}
-            />
-            {searchTerm && (
-              <button
-                onClick={() => { setSearchTerm(''); setCurrentPage(1); }}
-                style={{ position: 'absolute', right: '10px', top: '50%', transform: 'translateY(-50%)', background: 'transparent', border: 'none', cursor: 'pointer', color: '#94a3b8' }}
-              >
-                <X size={14} />
-              </button>
-            )}
-          </div>
+          <DataSearchField
+            label="Search approval queue"
+            placeholder="Search student, Student ID, teacher, offense..."
+            value={searchTerm}
+            onChange={setSearchTerm}
+            onClear={() => setSearchTerm('')}
+            maxWidth={420}
+          />
 
           {/* Severity, Grade, Date & Pagination Controls */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>

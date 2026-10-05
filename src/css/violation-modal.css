@@ -26,7 +26,7 @@
 
 /* Violation Modal Container */
 .violation-modal {
-    background: #fff;
+    background: var(--vt-color-white);
     border-radius: 12px;
     width: 100%;
     max-width: 600px;
@@ -51,7 +51,7 @@
     align-items: center;
     padding: 20px 24px;
     border-bottom: 1px solid #e5e7eb;
-    background: #fff;
+    background: var(--vt-color-white);
     flex-shrink: 0;
 }
 
@@ -124,7 +124,7 @@
     border-radius: 8px;
     font-size: 14px;
     color: #1f2937;
-    background: #fff;
+    background: var(--vt-color-white);
     transition: all 0.2s;
     font-family: inherit;
     width: 100%;
@@ -195,7 +195,7 @@
 
 .btn-save-violation {
     background: #10b981;
-    color: #fff;
+    color: var(--vt-color-white);
 }
 
 .btn-save-violation:hover {
@@ -204,7 +204,7 @@
 
 .btn-cancel-violation {
     background: #ef4444;
-    color: #fff;
+    color: var(--vt-color-white);
 }
 
 .btn-cancel-violation:hover {

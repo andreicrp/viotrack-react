@@ -1,7 +1,10 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
+import { QueryClientProvider } from '@tanstack/react-query'
 import './index.css'
 import App from './App.jsx'
+import { queryClient } from './query/queryClient.js'
+import { DataQueryBridge } from './query/DataQueryBridge.jsx'
 
 import { runAll43SecurityChecks } from './utils/securityAuditor'
 
@@ -32,6 +35,9 @@ if (typeof navigator !== 'undefined' && 'serviceWorker' in navigator) {
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <App />
+    <QueryClientProvider client={queryClient}>
+      <DataQueryBridge />
+      <App />
+    </QueryClientProvider>
   </StrictMode>,
 )

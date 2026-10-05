@@ -1,0 +1,11 @@
+.frame {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+}
+
+.frame:focus-visible {
+  outline: 2px solid var(--vt-color-brand);
+  outline-offset: 2px;
+}

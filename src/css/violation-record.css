@@ -2,7 +2,7 @@
 
 /* Violation Record Card */
 .violation-record-card {
-    background: #fff;
+    background: var(--vt-color-white);
     border-radius: 12px;
     padding: 24px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.08);
@@ -55,7 +55,7 @@
     border-radius: 6px;
     font-size: 14px;
     color: #374151;
-    background: #fff;
+    background: var(--vt-color-white);
 }
 
 .date-input:focus {
@@ -64,7 +64,7 @@
 }
 
 .btn-export {
-    background: #fff;
+    background: var(--vt-color-white);
     border: 1px solid #e5e7eb;
     color: #374151;
     padding: 6px 14px;
@@ -85,7 +85,7 @@
 
 .btn-add-record {
     background: #3b82f6;
-    color: #fff;
+    color: var(--vt-color-white);
     border: none;
     padding: 6px 14px;
     border-radius: 6px;
@@ -105,7 +105,7 @@
 
 .btn-resolve-selected {
     background: #22c55e;
-    color: #fff;
+    color: var(--vt-color-white);
     border: none;
     padding: 6px 14px;
     border-radius: 6px;
@@ -125,7 +125,7 @@
 
 .btn-delete-selected {
     background: #ef4444;
-    color: #fff;
+    color: var(--vt-color-white);
     border: none;
     padding: 6px 14px;
     border-radius: 6px;
@@ -166,7 +166,7 @@
     border-radius: 6px;
     font-size: 14px;
     color: #374151;
-    background: #fff;
+    background: var(--vt-color-white);
     cursor: pointer;
 }
 
@@ -214,7 +214,7 @@
     color: #6b7280;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    background: #fff;
+    background: var(--vt-color-white);
     white-space: nowrap;
 }
 
@@ -344,7 +344,7 @@
 .btn-status {
     padding: 6px 12px;
     border: 1px solid #e5e7eb;
-    background: #fff;
+    background: var(--vt-color-white);
     border-radius: 6px;
     font-size: 12px;
     font-weight: 500;
@@ -372,7 +372,7 @@
     border-radius: 6px;
     font-size: 12px;
     font-weight: 500;
-    color: #fff;
+    color: var(--vt-color-white);
     cursor: pointer;
     display: inline-flex;
     align-items: center;
@@ -388,7 +388,7 @@
     width: 32px;
     height: 32px;
     border: 1px solid #e5e7eb;
-    background: #fff;
+    background: var(--vt-color-white);
     border-radius: 6px;
     color: #9ca3af;
     cursor: pointer;
@@ -429,7 +429,7 @@
     width: 32px;
     height: 32px;
     border: 1px solid #e5e7eb;
-    background: #fff;
+    background: var(--vt-color-white);
     border-radius: 6px;
     font-size: 13px;
     font-weight: 500;
@@ -453,7 +453,7 @@
 
 .page-btn.active {
     background: #3b82f6;
-    color: #fff;
+    color: var(--vt-color-white);
     border-color: #3b82f6;
 }
 
@@ -481,7 +481,7 @@
 }
 
 .resolution-modal {
-    background: #fff;
+    background: var(--vt-color-white);
     border-radius: 12px;
     width: 100%;
     max-width: 650px;
@@ -504,7 +504,7 @@
     align-items: center;
     padding: 16px 24px;
     border-bottom: 1px solid #e5e7eb;
-    background: #fff;
+    background: var(--vt-color-white);
 }
 
 .resolution-modal-header h2 {
@@ -522,7 +522,7 @@
 
 .btn-print {
     background: #3b82f6;
-    color: #fff;
+    color: var(--vt-color-white);
     border: none;
     padding: 8px 14px;
     border-radius: 6px;
@@ -541,7 +541,7 @@
 
 .btn-pdf {
     background: #ef4444;
-    color: #fff;
+    color: var(--vt-color-white);
     border: none;
     padding: 8px 14px;
     border-radius: 6px;

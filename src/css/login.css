@@ -9,7 +9,7 @@
   margin: 0;
   padding: max(12px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
   box-sizing: border-box;
-  background: radial-gradient(circle at 50% 35%, #ffffff 0%, #edf3f8 100%);
+  background: radial-gradient(circle at 50% 35%, var(--vt-color-white) 0%, #edf3f8 100%);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -77,7 +77,7 @@
   font-size: 30px;
   font-weight: 800;
   letter-spacing: 0.12em;
-  color: #07345F;
+  color: var(--vt-color-brand);
   margin: 0;
   line-height: 1.1;
 }
@@ -86,7 +86,7 @@
   font-family: 'Sora', -apple-system, BlinkMacSystemFont, sans-serif;
   font-size: 13px;
   font-weight: 600;
-  color: #475569;
+  color: var(--vt-color-text-secondary);
   letter-spacing: -0.01em;
   margin: 6px 0 0 0;
   line-height: 1.4;
@@ -107,7 +107,7 @@
 /* Form Card */
 .login-card-modern {
   width: 100%;
-  background: #ffffff;
+  background: var(--vt-color-white);
   border-radius: 20px;
   padding: 20px 20px 18px 20px;
   box-sizing: border-box;
@@ -125,11 +125,11 @@
   width: 100%;
   min-height: 46px;
   padding: 10px 16px;
-  background: #f8fafc;
-  border: 1.5px solid #e2e8f0;
+  background: var(--vt-color-surface-muted);
+  border: 1.5px solid var(--vt-color-border-soft);
   border-radius: 12px;
   font-size: 15px;
-  color: #0f172a;
+  color: var(--vt-color-text);
   font-family: 'Sora', sans-serif;
   font-weight: 600;
   box-sizing: border-box;
@@ -145,13 +145,13 @@
 
 .login-text-input-clean:focus {
   outline: none;
-  background: #ffffff;
+  background: var(--vt-color-white);
   border-color: #0EA5A0;
   box-shadow: 0 0 0 3px rgba(14, 165, 160, 0.15);
 }
 
 .login-text-input-clean::placeholder {
-  color: #94a3b8;
+  color: var(--vt-color-text-subtle);
   font-size: 13.5px;
   font-weight: 400;
 }
@@ -165,7 +165,7 @@
   height: 36px;
   border: none;
   background: transparent;
-  color: #94a3b8;
+  color: var(--vt-color-text-subtle);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -175,7 +175,7 @@
 }
 
 .login-eye-toggle-btn:hover {
-  color: #07345F;
+  color: var(--vt-color-brand);
 }
 
 /* Checkbox & Forgot Password Row */
@@ -192,14 +192,14 @@
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  color: #64748b;
+  color: var(--vt-color-text-muted);
   font-weight: 500;
   cursor: pointer;
   user-select: none;
 }
 
 .login-remember-checkbox-label input {
-  accent-color: #07345F;
+  accent-color: var(--vt-color-brand);
   width: 15px;
   height: 15px;
   border-radius: 4px;
@@ -207,7 +207,7 @@
 }
 
 .login-forgot-password-link {
-  color: #475569;
+  color: var(--vt-color-text-secondary);
   font-weight: 600;
   text-decoration: none;
   transition: color 0.15s ease;
@@ -222,8 +222,8 @@
 .login-submit-btn-primary {
   width: 100%;
   min-height: 46px;
-  background: #07345F;
-  color: #ffffff;
+  background: var(--vt-color-brand);
+  color: var(--vt-color-white);
   border: none;
   border-radius: 12px;
   font-family: 'Sora', sans-serif;
@@ -263,7 +263,7 @@
   gap: 8px;
   margin-top: 14px;
   padding-top: 12px;
-  border-top: 1px solid #f1f5f9;
+  border-top: 1px solid var(--vt-color-surface-hover);
 }
 
 .login-role-chip-btn {
@@ -271,23 +271,23 @@
   font-weight: 600;
   padding: 5px 11px;
   border-radius: 20px;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  color: #475569;
+  background: var(--vt-color-surface-muted);
+  border: 1px solid var(--vt-color-border-soft);
+  color: var(--vt-color-text-secondary);
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
 .login-role-chip-btn.active {
-  background: #07345F;
-  border-color: #07345F;
-  color: #ffffff;
+  background: var(--vt-color-brand);
+  border-color: var(--vt-color-brand);
+  color: var(--vt-color-white);
 }
 
 .login-role-chip-btn:hover:not(.active) {
-  background: #f1f5f9;
-  border-color: #cbd5e1;
-  color: #07345F;
+  background: var(--vt-color-surface-hover);
+  border-color: var(--vt-color-border);
+  color: var(--vt-color-brand);
 }
 
 /* Privacy & Footer Terms */
@@ -295,12 +295,12 @@
   margin-top: 14px;
   text-align: center;
   font-size: 11.5px;
-  color: #64748b;
+  color: var(--vt-color-text-muted);
   line-height: 1.35;
 }
 
 .login-privacy-footer a {
-  color: #07345F;
+  color: var(--vt-color-brand);
   font-weight: 600;
   text-decoration: underline;
   transition: color 0.15s ease;

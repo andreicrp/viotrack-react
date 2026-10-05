@@ -26,7 +26,7 @@
 
 /* Modal */
 .addrecord-modal {
-    background: #fff;
+    background: var(--vt-color-white);
     border-radius: 12px;
     width: 100%;
     max-width: 700px;
@@ -52,7 +52,7 @@
     align-items: center;
     padding: 20px 24px;
     border-bottom: 1px solid #e5e7eb;
-    background: #fff;
+    background: var(--vt-color-white);
     flex-shrink: 0;
 }
 
@@ -155,7 +155,7 @@
     border: 1px solid #e5e7eb;
     border-top: none;
     border-radius: 0 0 8px 8px;
-    background: #fff;
+    background: var(--vt-color-white);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     margin-top: -1px;
 }
@@ -166,7 +166,7 @@
     border-bottom: 1px solid #f0f0f0;
     position: sticky;
     top: 0;
-    background: #fff;
+    background: var(--vt-color-white);
     z-index: 10;
 }
 
@@ -280,7 +280,7 @@
     border: 1px solid #e5e7eb;
     border-top: none;
     border-radius: 0 0 8px 8px;
-    background: #fff;
+    background: var(--vt-color-white);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     margin-top: -1px;
 }
@@ -291,7 +291,7 @@
     border-bottom: 1px solid #f0f0f0;
     position: sticky;
     top: 0;
-    background: #fff;
+    background: var(--vt-color-white);
     z-index: 10;
 }
 
@@ -385,7 +385,7 @@
 
 .btn-add-record {
     background: #14b8a6;
-    color: #fff;
+    color: var(--vt-color-white);
 }
 
 .btn-add-record:hover {
@@ -400,7 +400,7 @@
 
 .btn-cancel-add-record {
     background: #ef4444;
-    color: #fff;
+    color: var(--vt-color-white);
 }
 
 .btn-cancel-add-record:hover {
@@ -458,7 +458,7 @@
 
 /* Add Record Modal Container */
 .addrecord-modal {
-    background: #fff;
+    background: var(--vt-color-white);
     border-radius: 12px;
     width: 100%;
     max-width: 700px;
@@ -483,7 +483,7 @@
     align-items: center;
     padding: 20px 24px;
     border-bottom: 1px solid #e5e7eb;
-    background: #fff;
+    background: var(--vt-color-white);
     flex-shrink: 0;
 }
 
@@ -559,7 +559,7 @@
     padding: 10px 40px 10px 14px;
     border: 1px solid #e5e7eb;
     border-radius: 8px;
-    background: #fff;
+    background: var(--vt-color-white);
     cursor: pointer;
     transition: all 0.2s;
     position: relative;
@@ -613,7 +613,7 @@
 /* Student Dropdown */
 .student-dropdown {
     position: fixed;
-    background: #fff;
+    background: var(--vt-color-white);
     border: 1px solid #e5e7eb;
     border-radius: 8px;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
@@ -633,7 +633,7 @@
     border-bottom: 1px solid #e5e7eb;
     position: sticky;
     top: 0;
-    background: #fff;
+    background: var(--vt-color-white);
     z-index: 1;
 }
 
@@ -729,7 +729,7 @@
     border-radius: 8px;
     font-size: 14px;
     color: #1f2937;
-    background: #fff;
+    background: var(--vt-color-white);
     transition: all 0.2s;
     font-family: inherit;
     width: 100%;
@@ -770,7 +770,7 @@
     border-radius: 8px;
     font-size: 14px;
     color: #1f2937;
-    background: #fff;
+    background: var(--vt-color-white);
     transition: all 0.2s;
     font-family: inherit;
     margin-bottom: 8px;
@@ -825,7 +825,7 @@
     align-items: center;
     gap: 12px;
     padding: 10px 12px;
-    background: #fff;
+    background: var(--vt-color-white);
     border: 1px solid #bfdbfe;
     border-radius: 6px;
     font-size: 13px;
@@ -897,7 +897,7 @@
     align-items: center;
     justify-content: space-between;
     padding: 10px 12px;
-    background: #fff;
+    background: var(--vt-color-white);
     border: 1px solid #bbf7d0;
     border-radius: 6px;
     font-size: 13px;
@@ -961,7 +961,7 @@
 
 .btn-add-record {
     background: #14b8a6;
-    color: #fff;
+    color: var(--vt-color-white);
 }
 
 .btn-add-record:hover {
@@ -975,7 +975,7 @@
 
 .btn-cancel-add-record {
     background: #ef4444;
-    color: #fff;
+    color: var(--vt-color-white);
 }
 
 .btn-cancel-add-record:hover {

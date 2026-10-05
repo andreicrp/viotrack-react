@@ -2,7 +2,7 @@
 
 /* Violation Card */
 .violation-card {
-    background: #fff;
+    background: var(--vt-color-white);
     border-radius: 12px;
     padding: 24px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.08);
@@ -40,7 +40,7 @@
 .btn-import,
 .btn-export,
 .btn-generate-report {
-    background: #fff;
+    background: var(--vt-color-white);
     border: 1px solid #e5e7eb;
     color: #374151;
     padding: 10px 20px;
@@ -63,7 +63,7 @@
 .btn-add-violation {
     background: #6366f1;
     border: none;
-    color: #fff;
+    color: var(--vt-color-white);
     padding: 10px 20px;
     border-radius: 8px;
     font-size: 14px;
@@ -82,7 +82,7 @@
 .btn-delete-selected {
     background: #ef4444;
     border: none;
-    color: #fff;
+    color: var(--vt-color-white);
     padding: 10px 20px;
     border-radius: 8px;
     font-size: 14px;
@@ -119,7 +119,7 @@
 }
 
 .stat-card-violation {
-    background: #fff;
+    background: var(--vt-color-white);
     border: 1px solid #e5e7eb;
     border-radius: 12px;
     padding: 20px;
@@ -337,7 +337,7 @@
 
 .btn-action.btn-delete {
     border: none;
-    color: #fff;
+    color: var(--vt-color-white);
     background: #ef4444;
 }
 
@@ -372,7 +372,7 @@
     height: 36px;
     padding: 8px 12px;
     border: 1px solid #e5e7eb;
-    background: #fff;
+    background: var(--vt-color-white);
     border-radius: 6px;
     font-size: 14px;
     font-weight: 500;
@@ -396,7 +396,7 @@
 
 .page-btn.active {
     background: #6366f1;
-    color: #fff;
+    color: var(--vt-color-white);
     border-color: #6366f1;
 }
 
@@ -424,7 +424,7 @@
 }
 
 .violation-details-modal {
-    background: #fff;
+    background: var(--vt-color-white);
     border-radius: 12px;
     width: 100%;
     max-width: 500px;
@@ -450,7 +450,7 @@
 .violation-details-modal-header h2 {
     font-size: 18px;
     font-weight: 600;
-    color: #fff;
+    color: var(--vt-color-white);
     margin: 0;
 }
 
@@ -459,7 +459,7 @@
     height: 36px;
     border: none;
     background: transparent;
-    color: #fff;
+    color: var(--vt-color-white);
     font-size: 20px;
     cursor: pointer;
     display: flex;
@@ -535,7 +535,7 @@
 
 .violation-details-modal-btn.btn-edit-details {
     background: #6366f1;
-    color: #fff;
+    color: var(--vt-color-white);
 }
 
 .violation-details-modal-btn.btn-edit-details:hover {

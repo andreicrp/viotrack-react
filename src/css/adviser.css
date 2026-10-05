@@ -13,7 +13,7 @@
   background: transparent;
   border-radius: 0;
   padding: 4px 0 10px 0;
-  color: #0f172a;
+  color: var(--vt-color-text);
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -38,7 +38,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #0f172a;
+  color: var(--vt-color-text);
   flex-shrink: 0;
 }
 
@@ -46,14 +46,14 @@
   font-size: 20px;
   font-weight: 800;
   margin: 0;
-  color: #0f172a;
+  color: var(--vt-color-text);
   letter-spacing: -0.02em;
 }
 
 .advisers-banner-desc {
   margin: 3px 0 0 0;
   font-size: 13px;
-  color: #64748b;
+  color: var(--vt-color-text-muted);
   line-height: 1.4;
 }
 
@@ -72,7 +72,7 @@
   padding: 8px 14px;
   background: rgba(255, 255, 255, 0.12);
   border: 1px solid rgba(255, 255, 255, 0.2);
-  color: #ffffff;
+  color: var(--vt-color-white);
   border-radius: 9px;
   font-size: 12.5px;
   font-weight: 600;
@@ -91,9 +91,9 @@
   align-items: center;
   gap: 6px;
   padding: 9px 18px;
-  background: #ffffff;
-  border: 1px solid #ffffff;
-  color: #07345f;
+  background: var(--vt-color-white);
+  border: 1px solid var(--vt-color-white);
+  color: var(--vt-color-brand);
   border-radius: 9px;
   font-size: 13px;
   font-weight: 700;
@@ -104,8 +104,8 @@
 }
 
 .advisers-btn-primary:hover {
-  background: #f8fafc;
-  border-color: #ffffff;
+  background: var(--vt-color-surface-muted);
+  border-color: var(--vt-color-white);
   color: #022044;
   transform: translateY(-1px);
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.22);
@@ -119,8 +119,8 @@
 }
 
 .advisers-stat-card {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
+  background: var(--vt-color-white);
+  border: 1px solid var(--vt-color-border-soft);
   border-radius: 12px;
   padding: 12px 16px;
   display: flex;
@@ -134,14 +134,14 @@
 }
 
 .advisers-stat-card:hover {
-  border-color: #cbd5e1;
+  border-color: var(--vt-color-border);
   transform: translateY(-2px);
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.04);
 }
 
 .advisers-stat-card.active {
-  border-color: #07345f;
-  background: #f8fafc;
+  border-color: var(--vt-color-brand);
+  background: var(--vt-color-surface-muted);
   box-shadow: 0 4px 14px rgba(7, 52, 95, 0.08);
 }
 
@@ -152,13 +152,13 @@
   left: 0;
   width: 4px;
   height: 100%;
-  background: #07345f;
+  background: var(--vt-color-brand);
 }
 
 .advisers-stat-label {
   font-size: 11px;
   font-weight: 700;
-  color: #64748b;
+  color: var(--vt-color-text-muted);
   text-transform: uppercase;
   letter-spacing: 0.03em;
 }
@@ -166,14 +166,14 @@
 .advisers-stat-value {
   font-size: 22px;
   font-weight: 800;
-  color: #0f172a;
+  color: var(--vt-color-text);
   margin: 2px 0 0 0;
   line-height: 1.1;
 }
 
 .advisers-stat-sub {
   font-size: 10.5px;
-  color: #94a3b8;
+  color: var(--vt-color-text-subtle);
   margin-top: 3px;
   font-weight: 500;
 }
@@ -185,16 +185,16 @@
   background: transparent !important;
   border: none !important;
   box-shadow: none !important;
-  color: #07345f;
+  color: var(--vt-color-brand);
   flex-shrink: 0;
 }
 
 /* Toolbar & Filters */
 .advisers-toolbar {
-  background: #ffffff;
+  background: var(--vt-color-white);
   border-radius: 14px;
   padding: 12px 16px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--vt-color-border-soft);
   display: flex;
   gap: 12px;
   flex-wrap: wrap;
@@ -213,11 +213,11 @@
   width: 100%;
   height: 40px;
   padding: 0 34px 0 38px;
-  border: 1.5px solid #cbd5e1;
+  border: 1.5px solid var(--vt-color-border);
   border-radius: 10px;
   font-size: 13px;
-  color: #0f172a;
-  background: #f8fafc;
+  color: var(--vt-color-text);
+  background: var(--vt-color-surface-muted);
   outline: none;
   box-sizing: border-box;
   font-family: inherit;
@@ -226,14 +226,14 @@
 }
 
 .advisers-search-input:focus {
-  background: #ffffff;
-  border-color: #07345f;
+  background: var(--vt-color-white);
+  border-color: var(--vt-color-brand);
   box-shadow: 0 0 0 3px rgba(7, 52, 95, 0.08);
 }
 
 .advisers-tab-group {
   display: inline-flex;
-  background: #f1f5f9;
+  background: var(--vt-color-surface-hover);
   padding: 3px;
   border-radius: 9px;
   gap: 2px;
@@ -244,7 +244,7 @@
   border-radius: 7px;
   border: none;
   background: transparent;
-  color: #64748b;
+  color: var(--vt-color-text-muted);
   font-size: 12.5px;
   font-weight: 600;
   cursor: pointer;
@@ -253,8 +253,8 @@
 }
 
 .advisers-tab-btn.active {
-  background: #ffffff;
-  color: #0f172a;
+  background: var(--vt-color-white);
+  color: var(--vt-color-text);
   box-shadow: 0 1px 4px rgba(15, 23, 42, 0.08);
 }
 
@@ -268,9 +268,9 @@
 }
 
 .adviser-card {
-  background: #ffffff;
+  background: var(--vt-color-white);
   border-radius: 16px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--vt-color-border-soft);
   box-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.04);
   display: flex;
   flex-direction: column;
@@ -281,14 +281,14 @@
 
 .adviser-card:hover {
   transform: translateY(-3px);
-  border-color: #cbd5e1;
+  border-color: var(--vt-color-border);
   box-shadow: 0 14px 28px -4px rgba(15, 23, 42, 0.08);
 }
 
 /* Card Header */
 .adviser-card-header {
   padding: 16px 18px;
-  border-bottom: 1px solid #f1f5f9;
+  border-bottom: 1px solid var(--vt-color-surface-hover);
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
@@ -315,7 +315,7 @@
   height: 100%;
   border-radius: 50%;
   object-fit: cover;
-  border: 2px solid #f1f5f9;
+  border: 2px solid var(--vt-color-surface-hover);
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
 }
 
@@ -327,7 +327,7 @@
   height: 11px;
   border-radius: 50%;
   background: #10b981;
-  border: 2px solid #ffffff;
+  border: 2px solid var(--vt-color-white);
 }
 
 .adviser-teacher-meta {
@@ -338,7 +338,7 @@
 .adviser-teacher-name {
   font-size: 14.5px;
   font-weight: 800;
-  color: #0f172a;
+  color: var(--vt-color-text);
   margin: 0;
   white-space: nowrap;
   overflow: hidden;
@@ -348,7 +348,7 @@
 
 .adviser-teacher-email {
   font-size: 11.5px;
-  color: #64748b;
+  color: var(--vt-color-text-muted);
   margin: 2px 0 0 0;
   display: flex;
   align-items: center;
@@ -362,8 +362,8 @@
   display: inline-block;
   font-size: 10.5px;
   font-weight: 700;
-  color: #475569;
-  background: #f1f5f9;
+  color: var(--vt-color-text-secondary);
+  background: var(--vt-color-surface-hover);
   padding: 1.5px 7px;
   border-radius: 4px;
   margin-top: 4px;
@@ -372,8 +372,8 @@
 /* Grade Section Badge */
 .adviser-section-badge {
   background: #f0f4f8;
-  border: 1px solid #cbd5e1;
-  color: #07345f;
+  border: 1px solid var(--vt-color-border);
+  color: var(--vt-color-brand);
   border-radius: 10px;
   padding: 6px 10px;
   text-align: right;
@@ -403,16 +403,16 @@
 /* Metrics Row */
 .adviser-metrics-bar {
   padding: 10px 18px;
-  background: #f8fafc;
-  border-bottom: 1px solid #f1f5f9;
+  background: var(--vt-color-surface-muted);
+  border-bottom: 1px solid var(--vt-color-surface-hover);
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 8px;
 }
 
 .adviser-metric-box {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
+  background: var(--vt-color-white);
+  border: 1px solid var(--vt-color-border-soft);
   border-radius: 8px;
   padding: 7px 10px;
   display: flex;
@@ -437,7 +437,7 @@
   font-size: 9.5px;
   font-weight: 700;
   text-transform: uppercase;
-  color: #64748b;
+  color: var(--vt-color-text-muted);
 }
 
 .adviser-metric-box.clean .adviser-metric-label {
@@ -451,7 +451,7 @@
 .adviser-metric-value {
   font-size: 12px;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--vt-color-text);
   white-space: nowrap;
 }
 
@@ -478,7 +478,7 @@
   margin-bottom: 8px;
   font-size: 11px;
   font-weight: 700;
-  color: #475569;
+  color: var(--vt-color-text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
@@ -493,8 +493,8 @@
 }
 
 .adviser-roster-item {
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background: var(--vt-color-surface-muted);
+  border: 1px solid var(--vt-color-border-soft);
   border-radius: 8px;
   padding: 6px 10px;
   display: flex;
@@ -505,7 +505,7 @@
 }
 
 .adviser-roster-item:hover {
-  background: #f1f5f9;
+  background: var(--vt-color-surface-hover);
 }
 
 .adviser-student-avatar {
@@ -519,7 +519,7 @@
 .adviser-student-name {
   font-size: 12px;
   font-weight: 600;
-  color: #0f172a;
+  color: var(--vt-color-text);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -527,7 +527,7 @@
 
 .adviser-student-lrn {
   font-size: 9.5px;
-  color: #64748b;
+  color: var(--vt-color-text-muted);
 }
 
 /* Status Chips */
@@ -558,8 +558,8 @@
 /* Card Actions Footer */
 .adviser-card-footer {
   padding: 12px 18px;
-  background: #ffffff;
-  border-top: 1px solid #f1f5f9;
+  background: var(--vt-color-white);
+  border-top: 1px solid var(--vt-color-surface-hover);
   display: flex;
   align-items: center;
   gap: 8px;
@@ -568,8 +568,8 @@
 .adviser-btn-view-roster {
   flex: 1;
   height: 38px;
-  background: #0f172a;
-  color: #ffffff;
+  background: var(--vt-color-text);
+  color: var(--vt-color-white);
   border: none;
   border-radius: 9px;
   font-size: 12.5px;
@@ -592,7 +592,7 @@
 .adviser-btn-remove {
   height: 38px;
   padding: 0 14px;
-  background: #ffffff;
+  background: var(--vt-color-white);
   border: 1px solid #fecaca;
   color: #dc2626;
   border-radius: 9px;

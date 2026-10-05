@@ -55,7 +55,7 @@
 .filter-btn {
     padding: 10px 18px;
     border: 2px solid #e5e7eb;
-    background: #fff;
+    background: var(--vt-color-white);
     border-radius: 10px;
     font-size: 14px;
     font-weight: 600;
@@ -71,7 +71,7 @@
 
 .filter-btn.active {
     background: linear-gradient(135deg, #27367f 0%, #1a2557 100%);
-    color: #fff;
+    color: var(--vt-color-white);
     border-color: #27367f;
     box-shadow: 0 6px 20px rgba(39, 54, 127, 0.3);
 }
@@ -82,7 +82,7 @@
     border-radius: 10px;
     font-size: 14px;
     color: #374151;
-    background: #fff;
+    background: var(--vt-color-white);
     cursor: pointer;
     font-weight: 600;
     transition: all 0.3s;
@@ -103,7 +103,7 @@
 }
 
 .stat-card {
-    background: linear-gradient(135deg, #fff 0%, #f8f9fc 100%);
+    background: linear-gradient(135deg, var(--vt-color-white) 0%, #f8f9fc 100%);
     border-radius: 14px;
     padding: 24px;
     display: flex;
@@ -168,7 +168,7 @@
 
 /* Cards */
 .card {
-    background: linear-gradient(135deg, #fff 0%, #f8f9fc 100%);
+    background: linear-gradient(135deg, var(--vt-color-white) 0%, #f8f9fc 100%);
     border-radius: 14px;
     padding: 28px;
     box-shadow: 0 4px 20px rgba(0,0,0,0.08);
@@ -271,7 +271,7 @@
 }
 
 .offender-item:hover {
-    background: linear-gradient(135deg, #fff 0%, #f9fafb 100%);
+    background: linear-gradient(135deg, var(--vt-color-white) 0%, #f9fafb 100%);
     box-shadow: 0 6px 16px rgba(0,0,0,0.08);
     transform: translateX(4px);
     border-color: #d1d5db;
@@ -284,7 +284,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #fff;
+    color: var(--vt-color-white);
     font-weight: 800;
     font-size: 18px;
     flex-shrink: 0;
@@ -354,7 +354,7 @@
 
 .calendar-grid { 
     margin-bottom: 12px;
-    background: linear-gradient(135deg, #ffffff 0%, #f8f9fc 100%);
+    background: linear-gradient(135deg, var(--vt-color-white) 0%, #f8f9fc 100%);
     padding: 10px;
     border-radius: 10px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.04);
@@ -398,12 +398,12 @@
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     font-weight: 600;
     border: 1px solid transparent;
-    background: #fff;
+    background: var(--vt-color-white);
     box-shadow: 0 1px 2px rgba(0,0,0,0.03);
 }
 
 .calendar-day:hover:not(.empty) { 
-    background: linear-gradient(135deg, #f3f4f6 0%, #fff 100%);
+    background: linear-gradient(135deg, #f3f4f6 0%, var(--vt-color-white) 100%);
     border-color: #bfdbfe;
     transform: translateY(-5px);
     box-shadow: 0 10px 28px rgba(0,0,0,0.12);
@@ -431,7 +431,7 @@
 
 .calendar-day.has-meeting { 
     background: linear-gradient(135deg, #27367f 0%, #1a2557 100%);
-    color: #fff;
+    color: var(--vt-color-white);
     font-weight: 800;
     border-color: #0f1633;
     box-shadow: 0 8px 24px rgba(39, 54, 127, 0.45);
@@ -445,7 +445,7 @@
 .calendar-day.selected {
     background: linear-gradient(135deg, #27367f 0%, #1a2557 100%);
     border-color: #0f1633;
-    color: #fff;
+    color: var(--vt-color-white);
     font-weight: 800;
     box-shadow: 0 10px 28px rgba(39, 54, 127, 0.5);
 }
@@ -454,7 +454,7 @@
 .meeting-panel {
     margin-top: 28px;
     padding: 0;
-    background: linear-gradient(135deg, #fff 0%, #f8f9fc 100%);
+    background: linear-gradient(135deg, var(--vt-color-white) 0%, #f8f9fc 100%);
     border-radius: 16px;
     box-shadow: 0 10px 40px rgba(0,0,0,0.08);
     border: 1px solid #e5e7eb;
@@ -486,7 +486,7 @@
 .meeting-panel-header h4 {
     font-size: 19px;
     font-weight: 800;
-    color: #fff;
+    color: var(--vt-color-white);
     margin: 0;
     letter-spacing: -0.5px;
 }
@@ -539,14 +539,14 @@
     align-items: flex-start;
     gap: 18px;
     padding: 18px;
-    background: linear-gradient(135deg, #f9fafb 0%, #fff 100%);
+    background: linear-gradient(135deg, #f9fafb 0%, var(--vt-color-white) 100%);
     border-radius: 12px;
     border: 2px solid #e5e7eb;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .meeting-item:hover {
-    background: linear-gradient(135deg, #fff 0%, #f0f9ff 100%);
+    background: linear-gradient(135deg, var(--vt-color-white) 0%, #f0f9ff 100%);
     box-shadow: 0 8px 24px rgba(102, 126, 234, 0.15);
     border-color: #bfdbfe;
     transform: translateX(4px);
@@ -643,7 +643,7 @@
     width: 36px;
     height: 36px;
     border: none;
-    background: #fff;
+    background: var(--vt-color-white);
     border-radius: 10px;
     color: #6b7280;
     cursor: pointer;
@@ -658,7 +658,7 @@
 }
 
 .icon-btn:hover {
-    background: linear-gradient(135deg, #f3f4f6 0%, #fff 100%);
+    background: linear-gradient(135deg, #f3f4f6 0%, var(--vt-color-white) 100%);
     color: #1f2937;
     border-color: #d1d5db;
     box-shadow: 0 4px 12px rgba(0,0,0,0.08);
@@ -691,11 +691,11 @@
     border-radius: 12px;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     border: 1px solid #e5e7eb;
-    background: linear-gradient(135deg, #f9fafb 0%, #fff 100%);
+    background: linear-gradient(135deg, #f9fafb 0%, var(--vt-color-white) 100%);
 }
 
 .violation-item:hover { 
-    background: linear-gradient(135deg, #fff 0%, #f3f4f6 100%);
+    background: linear-gradient(135deg, var(--vt-color-white) 0%, #f3f4f6 100%);
     box-shadow: 0 6px 16px rgba(0,0,0,0.08);
     transform: translateX(4px);
     border-color: #d1d5db;
@@ -794,7 +794,7 @@
 .page-btn {
     padding: 10px 14px;
     border: 2px solid #e5e7eb;
-    background: #fff;
+    background: var(--vt-color-white);
     border-radius: 10px;
     font-size: 14px;
     font-weight: 700;
@@ -812,7 +812,7 @@
 }
 
 .page-btn:hover:not(:disabled) { 
-    background: linear-gradient(135deg, #f3f4f6 0%, #fff 100%);
+    background: linear-gradient(135deg, #f3f4f6 0%, var(--vt-color-white) 100%);
     border-color: #27367f;
     color: #27367f;
     box-shadow: 0 4px 12px rgba(39, 54, 127, 0.15);
@@ -825,7 +825,7 @@
 
 .page-btn.active { 
     background: linear-gradient(135deg, #27367f 0%, #1a2557 100%);
-    color: #fff; 
+    color: var(--vt-color-white);
     border-color: #27367f;
     font-weight: 800;
     box-shadow: 0 6px 16px rgba(39, 54, 127, 0.3);

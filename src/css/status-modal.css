@@ -24,7 +24,7 @@
 }
 
 .status-modal {
-  background: #fff !important;
+  background: var(--vt-color-white) !important;
   border-radius: 12px !important;
   width: 100% !important;
   max-width: 500px !important;
@@ -48,7 +48,7 @@
   align-items: center !important;
   padding: 20px 24px !important;
   border-bottom: 1px solid #e5e7eb !important;
-  background: #fff !important;
+  background: var(--vt-color-white) !important;
   flex-shrink: 0 !important;
 }
 
@@ -176,7 +176,7 @@
   border-radius: 10px !important;
   cursor: pointer !important;
   transition: all 0.2s !important;
-  background: #fff !important;
+  background: var(--vt-color-white) !important;
 }
 
 .status-option-input:checked + .status-option-label {
@@ -223,17 +223,17 @@
 
 .status-option-input:checked + .status-option-label .status-option-icon.pending {
   background: #f59e0b !important;
-  color: #fff !important;
+  color: var(--vt-color-white) !important;
 }
 
 .status-option-input:checked + .status-option-label .status-option-icon.resolved {
   background: #10b981 !important;
-  color: #fff !important;
+  color: var(--vt-color-white) !important;
 }
 
 .status-option-input:checked + .status-option-label .status-option-icon.escalated {
   background: #ef4444 !important;
-  color: #fff !important;
+  color: var(--vt-color-white) !important;
 }
 
 .status-option-info {
@@ -275,7 +275,7 @@
   width: 8px !important;
   height: 8px !important;
   border-radius: 50% !important;
-  background: #fff !important;
+  background: var(--vt-color-white) !important;
   opacity: 0 !important;
   transition: opacity 0.2s !important;
 }
@@ -310,7 +310,7 @@
 
 .btn-update-status {
   background: #6366f1 !important;
-  color: #fff !important;
+  color: var(--vt-color-white) !important;
 }
 
 .btn-update-status:hover {
@@ -323,7 +323,7 @@
 }
 
 .btn-cancel-status {
-  background: #fff !important;
+  background: var(--vt-color-white) !important;
   color: #374151 !important;
   border: 1px solid #e5e7eb !important;
 }
