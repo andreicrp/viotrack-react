@@ -33,7 +33,9 @@ import {
   Download,
   PieChart as PieChartIcon,
   TrendingDown,
-  RefreshCw
+  RefreshCw,
+  UsersRound,
+  BarChart3
 } from 'lucide-react';
 import { dataService } from '../services/dataService';
 import { useAuth } from '../context/AuthContext';
@@ -44,16 +46,22 @@ import { CustomDateRangeModal } from '../components/common/CustomDateRangeModal'
 import { getJsPDF } from '../utils/pdfHelper';
 import { exportToCsv } from '../utils/csvHelper';
 
-const DashboardNoViolationsEmptyState = () => (
+const DashboardNoViolationsEmptyState = ({ IconComponent }) => (
   <div style={{ minHeight: 220, width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', textAlign: 'center', gap: 8 }}>
-    <svg width="72" height="72" viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-      <circle cx="36" cy="36" r="34" fill="#f8fafc" stroke="#e2e8f0" strokeWidth="2" />
-      <circle cx="36" cy="36" r="22" fill="none" stroke="#e2e8f0" strokeWidth="6" strokeDasharray="10 6" />
-      <circle cx="36" cy="36" r="10" fill="#f1f5f9" />
-      <path d="M29 36 Q36 28 43 36" stroke="#cbd5e1" strokeWidth="2" strokeLinecap="round" fill="none" />
-      <circle cx="31" cy="33" r="2" fill="#cbd5e1" />
-      <circle cx="41" cy="33" r="2" fill="#cbd5e1" />
-    </svg>
+    {IconComponent ? (
+      <div style={{ width: 72, height: 72, display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%', background: '#f8fafc', border: '2px solid #e2e8f0' }}>
+        <IconComponent size={36} color="#cbd5e1" strokeWidth={1.8} aria-hidden="true" />
+      </div>
+    ) : (
+      <svg width="72" height="72" viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <circle cx="36" cy="36" r="34" fill="#f8fafc" stroke="#e2e8f0" strokeWidth="2" />
+        <circle cx="36" cy="36" r="22" fill="none" stroke="#e2e8f0" strokeWidth="6" strokeDasharray="10 6" />
+        <circle cx="36" cy="36" r="10" fill="#f1f5f9" />
+        <path d="M29 36 Q36 28 43 36" stroke="#cbd5e1" strokeWidth="2" strokeLinecap="round" fill="none" />
+        <circle cx="31" cy="33" r="2" fill="#cbd5e1" />
+        <circle cx="41" cy="33" r="2" fill="#cbd5e1" />
+      </svg>
+    )}
     <span style={{ fontSize: '13.5px', fontWeight: 700, color: '#64748b' }}>No violations logged yet</span>
     <span style={{ fontSize: '11.5px', color: '#94a3b8', maxWidth: 160 }}>Approved infractions will appear as a distribution chart here</span>
   </div>
@@ -1354,7 +1362,7 @@ export const DashboardPage = () => {
           {/* List */}
           <div className="dash-offenders-list">
             {repeatStudentsList.length === 0 ? (
-              <DashboardNoViolationsEmptyState />
+              <DashboardNoViolationsEmptyState IconComponent={UsersRound} />
             ) : (
               top5Offenders.map(st => (
                 <div key={st.id} className="dash-offender-row">
@@ -1408,7 +1416,7 @@ export const DashboardPage = () => {
           </div>
 
           {activeWidgetRecords.length === 0 ? (
-            <DashboardNoViolationsEmptyState />
+            <DashboardNoViolationsEmptyState IconComponent={BarChart3} />
           ) : (
             <>
               {/* Horizontal Bar Breakdown */}
