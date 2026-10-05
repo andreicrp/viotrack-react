@@ -1248,7 +1248,7 @@ export const DashboardPage = () => {
               <div className="dash-distribution-chart-box" style={{ position: 'relative' }}>
                 {selectedPieSlice && (
                   <div style={{
-                    position: 'absolute', top: '50%', left: '50%',
+                    position: 'absolute', top: '67%', left: '50%',
                     transform: 'translate(-50%, -50%)',
                     textAlign: 'center', pointerEvents: 'none', zIndex: 2,
                     maxWidth: 90
@@ -1258,12 +1258,12 @@ export const DashboardPage = () => {
                     <button onClick={() => setSelectedPieSlice(null)} style={{ fontSize: 9, color: '#94a3b8', background: 'none', border: 'none', cursor: 'pointer', marginTop: 3 }}>✕ clear</button>
                   </div>
                 )}
-                <ResponsiveContainer width="100%" height={250}>
+                <ResponsiveContainer width="100%" height={320}>
                   <PieChart>
                     <Pie
                       data={violationDistribution}
                       cx="50%"
-                      cy="50%"
+                      cy="67%"
                       outerRadius={112}
                       innerRadius={52}
                       paddingAngle={2}
