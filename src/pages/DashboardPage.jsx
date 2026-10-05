@@ -33,8 +33,7 @@ import {
   Download,
   PieChart as PieChartIcon,
   TrendingDown,
-  RefreshCw,
-  Award
+  RefreshCw
 } from 'lucide-react';
 import { dataService } from '../services/dataService';
 import { useAuth } from '../context/AuthContext';
@@ -44,6 +43,21 @@ import { SchoolCalendarModal } from '../components/common/SchoolCalendarModal';
 import { CustomDateRangeModal } from '../components/common/CustomDateRangeModal';
 import { getJsPDF } from '../utils/pdfHelper';
 import { exportToCsv } from '../utils/csvHelper';
+
+const DashboardNoViolationsEmptyState = () => (
+  <div style={{ minHeight: 220, width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', textAlign: 'center', gap: 8 }}>
+    <svg width="72" height="72" viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+      <circle cx="36" cy="36" r="34" fill="#f8fafc" stroke="#e2e8f0" strokeWidth="2" />
+      <circle cx="36" cy="36" r="22" fill="none" stroke="#e2e8f0" strokeWidth="6" strokeDasharray="10 6" />
+      <circle cx="36" cy="36" r="10" fill="#f1f5f9" />
+      <path d="M29 36 Q36 28 43 36" stroke="#cbd5e1" strokeWidth="2" strokeLinecap="round" fill="none" />
+      <circle cx="31" cy="33" r="2" fill="#cbd5e1" />
+      <circle cx="41" cy="33" r="2" fill="#cbd5e1" />
+    </svg>
+    <span style={{ fontSize: '13.5px', fontWeight: 700, color: '#64748b' }}>No violations logged yet</span>
+    <span style={{ fontSize: '11.5px', color: '#94a3b8', maxWidth: 160 }}>Approved infractions will appear as a distribution chart here</span>
+  </div>
+);
 
 export const DashboardPage = () => {
   const { user } = useAuth();
@@ -411,23 +425,6 @@ export const DashboardPage = () => {
     });
     const pending = approvedRecords.filter(r => (r.status || '').toLowerCase() !== 'resolved').length;
     return { todayCount: todayRecords.length, pending };
-  }, [approvedRecords]);
-
-  // Top 5 Active Reporters (Teachers)
-  const top5Reporters = useMemo(() => {
-    const map = {};
-    approvedRecords.forEach(r => {
-      const name = r.reported_by || r.teacher_name || r.reporter || 'Unknown';
-      if (!map[name]) map[name] = { name, count: 0, major: 0, serious: 0 };
-      map[name].count++;
-      const sev = (r.violation?.type || r.type || '').toLowerCase();
-      if (sev === 'major') map[name].major++;
-      else if (sev === 'serious') map[name].serious++;
-    });
-    return Object.values(map)
-      .sort((a, b) => b.count - a.count)
-      .slice(0, 5)
-      .map((r, idx) => ({ ...r, rank: idx + 1 }));
   }, [approvedRecords]);
 
   // Determine max domain for Chart Y-Axis dynamically
@@ -1229,19 +1226,7 @@ export const DashboardPage = () => {
           </div>
 
           {violationDistribution.length === 0 ? (
-            <div style={{ height: '220px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', textAlign: 'center', gap: 8 }}>
-              {/* Friendly no-data illustration */}
-              <svg width="72" height="72" viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-                <circle cx="36" cy="36" r="34" fill="#f8fafc" stroke="#e2e8f0" strokeWidth="2"/>
-                <circle cx="36" cy="36" r="22" fill="none" stroke="#e2e8f0" strokeWidth="6" strokeDasharray="10 6"/>
-                <circle cx="36" cy="36" r="10" fill="#f1f5f9"/>
-                <path d="M29 36 Q36 28 43 36" stroke="#cbd5e1" strokeWidth="2" strokeLinecap="round" fill="none"/>
-                <circle cx="31" cy="33" r="2" fill="#cbd5e1"/>
-                <circle cx="41" cy="33" r="2" fill="#cbd5e1"/>
-              </svg>
-              <span style={{ fontSize: '13.5px', fontWeight: 700, color: '#64748b' }}>No violations logged yet</span>
-              <span style={{ fontSize: '11.5px', color: '#94a3b8', maxWidth: 160 }}>Approved infractions will appear as a distribution chart here</span>
-            </div>
+            <DashboardNoViolationsEmptyState />
           ) : (
             <div className="dash-distribution-content">
               {/* Donut Chart with drill-down */}
@@ -1369,15 +1354,7 @@ export const DashboardPage = () => {
           {/* List */}
           <div className="dash-offenders-list">
             {repeatStudentsList.length === 0 ? (
-              <div className="dash-empty-calendar-day" style={{ padding: '24px 16px', textAlign: 'center' }}>
-                <ShieldCheck size={28} color="#10b981" />
-                <span style={{ fontWeight: 600, color: '#0f172a', fontSize: '12.5px' }}>
-                  No Disciplinary Infractions Recorded
-                </span>
-                <span style={{ fontSize: '11px', color: '#64748b' }}>
-                  All enrolled students are in good disciplinary standing.
-                </span>
-              </div>
+              <DashboardNoViolationsEmptyState />
             ) : (
               top5Offenders.map(st => (
                 <div key={st.id} className="dash-offender-row">
@@ -1418,62 +1395,6 @@ export const DashboardPage = () => {
           </div>
         </div>
 
-        {/* Column 1b: Top 5 Active Reporters */}
-        <div className="dash-bottom-card">
-          <div className="dash-card-header-clean">
-            <div className="dash-card-header-left">
-              <Award size={20} color="#0f172a" />
-              <div>
-                <h2 className="dash-card-header-title">Top Active Reporters</h2>
-                <p className="dash-card-header-desc">Most diligent violation-reporting faculty this period</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="dash-offenders-list">
-            {top5Reporters.length === 0 ? (
-              <div className="dash-empty-calendar-day" style={{ padding: '24px 16px', textAlign: 'center' }}>
-                <Award size={28} color="#94a3b8" />
-                <span style={{ fontWeight: 600, color: '#64748b', fontSize: '12.5px' }}>No reports submitted yet</span>
-                <span style={{ fontSize: '11px', color: '#94a3b8' }}>Reporter rankings will appear after violations are logged.</span>
-              </div>
-            ) : (
-              top5Reporters.map(rep => (
-                <div key={rep.name} className="dash-offender-row">
-                  <div className="dash-offender-left">
-                    <span className={`dash-rank-badge rank-${rep.rank}`}>#{rep.rank}</span>
-                    <div
-                      style={{
-                        width: 36, height: 36, borderRadius: '50%',
-                        background: `hsl(${(rep.rank * 47) % 360}, 60%, 92%)`,
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        fontSize: 14, fontWeight: 800,
-                        color: `hsl(${(rep.rank * 47) % 360}, 55%, 35%)`,
-                        flexShrink: 0
-                      }}
-                    >
-                      {rep.name.charAt(0).toUpperCase()}
-                    </div>
-                    <div className="dash-offender-meta">
-                      <span className="dash-offender-name">{rep.name}</span>
-                      <span className="dash-offender-grade">
-                        {rep.major > 0 && <span style={{ color: '#ef4444', fontWeight: 700 }}>{rep.major} major • </span>}
-                        {rep.serious > 0 && <span style={{ color: '#f59e0b', fontWeight: 700 }}>{rep.serious} serious • </span>}
-                        {rep.count} total
-                      </span>
-                    </div>
-                  </div>
-                  <div className="dash-offender-right">
-                    <span className="dash-infraction-pill slate" style={{ background: '#f0f9ff', color: '#0284c7', borderColor: '#bae6fd' }}>
-                      {rep.count} report{rep.count !== 1 ? 's' : ''}
-                    </span>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
-
         {/* Column 2: Violations by Grade & Section */}
         <div className="dash-bottom-card">
           <div className="dash-card-header-clean">
@@ -1486,38 +1407,44 @@ export const DashboardPage = () => {
             </div>
           </div>
 
-          {/* Horizontal Bar Breakdown */}
-          <div className="dash-sections-list">
-            {sectionBreakdown.map((sec) => (
-              <div key={`${sec.grade}-${sec.section}`} className="dash-section-bar-row">
-                <span className="dash-section-tag">{sec.grade}</span>
-                <span className="dash-section-name" title={sec.section}>{sec.section}</span>
-                <div className="dash-section-track">
-                  <div
-                    className="dash-section-fill"
-                    style={{ width: `${sec.fillPct}%` }}
-                  />
+          {activeWidgetRecords.length === 0 ? (
+            <DashboardNoViolationsEmptyState />
+          ) : (
+            <>
+              {/* Horizontal Bar Breakdown */}
+              <div className="dash-sections-list">
+                {sectionBreakdown.map((sec) => (
+                  <div key={`${sec.grade}-${sec.section}`} className="dash-section-bar-row">
+                    <span className="dash-section-tag">{sec.grade}</span>
+                    <span className="dash-section-name" title={sec.section}>{sec.section}</span>
+                    <div className="dash-section-track">
+                      <div
+                        className="dash-section-fill"
+                        style={{ width: `${sec.fillPct}%` }}
+                      />
+                    </div>
+                    <div className="dash-section-count-pct">
+                      <span className="dash-sec-count-num">{sec.count}</span>
+                      <span className="dash-sec-count-pct-sub">({sec.pct})</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Dynamic Insight Callout Box */}
+              <div className="dash-insight-banner">
+                <div className="dash-insight-icon-wrap">
+                  <Lightbulb size={15} color="#ffffff" strokeWidth={2.2} />
                 </div>
-                <div className="dash-section-count-pct">
-                  <span className="dash-sec-count-num">{sec.count}</span>
-                  <span className="dash-sec-count-pct-sub">({sec.pct})</span>
+                <div>
+                  <h4 className="dash-insight-title">{disciplinaryInsight.title}</h4>
+                  <p className="dash-insight-text">
+                    {disciplinaryInsight.text}
+                  </p>
                 </div>
               </div>
-            ))}
-          </div>
-
-          {/* Dynamic Insight Callout Box */}
-          <div className="dash-insight-banner">
-            <div className="dash-insight-icon-wrap">
-              <Lightbulb size={15} color="#ffffff" strokeWidth={2.2} />
-            </div>
-            <div>
-              <h4 className="dash-insight-title">{disciplinaryInsight.title}</h4>
-              <p className="dash-insight-text">
-                {disciplinaryInsight.text}
-              </p>
-            </div>
-          </div>
+            </>
+          )}
         </div>
 
         {/* Column 3: Calendar & Quick Actions */}
