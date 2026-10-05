@@ -11,14 +11,14 @@
 .official-id-card {
   width: 100%;
   max-width: 480px;
-  background: var(--vt-color-white);
+  background: #ffffff;
   border-radius: 14px;
-  border: 1.5px solid var(--vt-color-border);
+  border: 1.5px solid #cbd5e1;
   box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.03);
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  color: var(--vt-color-text);
+  color: #0f172a;
   position: relative;
   font-family: inherit;
   box-sizing: border-box;
@@ -26,7 +26,7 @@
 
 /* Institutional Header Bar */
 .id-header-band {
-  background: var(--vt-color-text);
+  background: #0f172a;
   border-bottom: 3px solid #f59e0b;
   padding: 12px 18px;
   display: flex;
@@ -45,7 +45,7 @@
   font-size: 14.5px;
   font-weight: 800;
   letter-spacing: 0.06em;
-  color: var(--vt-color-white);
+  color: #ffffff;
   text-transform: uppercase;
   line-height: 1.2;
 }
@@ -54,7 +54,7 @@
   font-size: 9.5px;
   font-weight: 700;
   letter-spacing: 0.08em;
-  color: var(--vt-color-border);
+  color: #cbd5e1;
   text-transform: uppercase;
   margin-top: 2px;
 }
@@ -62,7 +62,7 @@
 .id-sy-pill {
   font-size: 11px;
   font-weight: 700;
-  color: var(--vt-color-white);
+  color: #ffffff;
   background: rgba(255, 255, 255, 0.12);
   border: 1px solid rgba(255, 255, 255, 0.22);
   padding: 4px 9px;
@@ -77,7 +77,7 @@
   display: flex;
   flex-direction: column;
   gap: 14px;
-  background: var(--vt-color-white);
+  background: #ffffff;
 }
 
 /* Student Bio Row */
@@ -91,9 +91,9 @@
   width: 90px;
   height: 104px;
   border-radius: 8px;
-  border: 2px solid var(--vt-color-text);
+  border: 2px solid #0f172a;
   overflow: hidden;
-  background: var(--vt-color-border-soft);
+  background: #e2e8f0;
   flex-shrink: 0;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
 }
@@ -116,7 +116,7 @@
 .id-student-name {
   font-size: 16px;
   font-weight: 800;
-  color: var(--vt-color-text);
+  color: #0f172a;
   line-height: 1.25;
   text-transform: uppercase;
   letter-spacing: -0.01em;
@@ -138,13 +138,13 @@
 
 .id-lrn-row {
   font-size: 11.5px;
-  color: var(--vt-color-text-muted);
+  color: #64748b;
   font-weight: 600;
   margin-top: 2px;
 }
 
 .id-lrn-value {
-  color: var(--vt-color-text);
+  color: #0f172a;
   font-family: monospace;
   font-weight: 800;
   letter-spacing: 0.04em;
@@ -153,8 +153,8 @@
 
 /* Verification Panel with Significantly Enlarged QR Code */
 .id-verification-panel {
-  background: var(--vt-color-surface-muted);
-  border: 1.5px solid var(--vt-color-border);
+  background: #f8fafc;
+  border: 1.5px solid #cbd5e1;
   border-radius: 10px;
   padding: 12px 14px;
   display: flex;
@@ -174,7 +174,7 @@
 .id-panel-title {
   font-size: 9.5px;
   font-weight: 800;
-  color: var(--vt-color-text-secondary);
+  color: #475569;
   letter-spacing: 0.05em;
   text-transform: uppercase;
   line-height: 1.2;
@@ -192,13 +192,13 @@
 .id-guardian-contact {
   font-size: 11.5px;
   font-weight: 600;
-  color: var(--vt-color-text);
+  color: #0f172a;
   font-family: monospace;
 }
 
 .id-scan-hint {
   font-size: 10px;
-  color: var(--vt-color-text-muted);
+  color: #64748b;
   font-weight: 600;
   margin-top: 2px;
 }
@@ -207,8 +207,8 @@
 .id-qr-holder {
   width: 135px;
   height: 135px;
-  background: var(--vt-color-white);
-  border: 2px solid var(--vt-color-text);
+  background: #ffffff;
+  border: 2px solid #0f172a;
   border-radius: 8px;
   padding: 6px;
   display: flex;
@@ -229,15 +229,15 @@
 
 /* Official Security Footer */
 .id-card-footer-band {
-  background: var(--vt-color-surface-hover);
-  border-top: 1px solid var(--vt-color-border-soft);
+  background: #f1f5f9;
+  border-top: 1px solid #e2e8f0;
   padding: 7px 16px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   font-size: 9px;
   font-weight: 700;
-  color: var(--vt-color-text-muted);
+  color: #64748b;
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
@@ -275,7 +275,7 @@
     top: 20px;
     width: 400px !important;
     max-width: 400px !important;
-    border: 1.5px solid var(--vt-color-text) !important;
+    border: 1.5px solid #0f172a !important;
     box-shadow: none !important;
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;

@@ -2,7 +2,7 @@
 
 /* Teacher Card */
 .teacher-card {
-    background: var(--vt-color-white);
+    background: #fff;
     border-radius: 12px;
     padding: 24px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.08);
@@ -49,7 +49,7 @@
 
 .btn-primary {
     background: #3b82f6;
-    color: var(--vt-color-white);
+    color: #fff;
 }
 
 .btn-primary:hover {
@@ -58,7 +58,7 @@
 
 .btn-danger {
     background: #ef4444;
-    color: var(--vt-color-white);
+    color: #fff;
 }
 
 .btn-danger:hover {
@@ -66,7 +66,7 @@
 }
 
 .btn-edit {
-    background: var(--vt-color-white);
+    background: #fff;
     border: 1px solid #e5e7eb;
     color: #374151;
     padding: 8px 16px;
@@ -78,7 +78,7 @@
 }
 
 .btn-remove {
-    background: var(--vt-color-white);
+    background: #fff;
     border: 1px solid #e5e7eb;
     color: #374151;
     padding: 8px 16px;
@@ -113,7 +113,7 @@
     border-radius: 6px;
     font-size: 14px;
     color: #374151;
-    background: var(--vt-color-white);
+    background: #fff;
     cursor: pointer;
 }
 
@@ -170,7 +170,7 @@
     color: #6b7280;
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    background: var(--vt-color-white);
+    background: #fff;
     white-space: nowrap;
 }
 
@@ -297,7 +297,7 @@
     width: 36px;
     height: 36px;
     border: 1px solid #e5e7eb;
-    background: var(--vt-color-white);
+    background: #fff;
     border-radius: 6px;
     font-size: 14px;
     font-weight: 500;
@@ -322,7 +322,7 @@
 
 .page-btn.active {
     background: #3b82f6;
-    color: var(--vt-color-white);
+    color: #fff;
     border-color: #3b82f6;
 }
 

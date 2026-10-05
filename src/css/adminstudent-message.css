@@ -23,7 +23,7 @@
     align-items: center;
     gap: 8px;
     padding: 10px 20px;
-    background: var(--vt-color-white);
+    background: #fff;
     border: 1px solid #e5e7eb;
     border-radius: 8px;
     font-size: 14px;
@@ -54,7 +54,7 @@
 .report-modal-card {
     max-width: 700px;
     margin: 0 auto;
-    background: var(--vt-color-white);
+    background: #fff;
     border-radius: 16px;
     box-shadow: 0 2px 12px rgba(0,0,0,0.08);
     border: 1px solid #f0f0f0;
@@ -71,7 +71,7 @@
 .modal-title-section h2 {
     font-size: 24px;
     font-weight: 700;
-    color: var(--vt-color-white);
+    color: #fff;
     margin: 0 0 8px 0;
 }
 
@@ -115,7 +115,7 @@
     border-radius: 8px;
     font-size: 14px;
     color: #374151;
-    background: var(--vt-color-white);
+    background: #fff;
     transition: all 0.2s;
     font-family: 'Sora', sans-serif;
     font-weight: 600;
@@ -191,7 +191,7 @@ textarea.form-control {
 
 .btn-primary {
     background: #3b82f6;
-    color: var(--vt-color-white);
+    color: #fff;
     box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
 }
 
@@ -206,7 +206,7 @@ textarea.form-control {
 }
 
 .btn-secondary {
-    background: var(--vt-color-white);
+    background: #fff;
     color: #374151;
     border: 1px solid #e5e7eb;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);

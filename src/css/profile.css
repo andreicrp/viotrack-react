@@ -13,9 +13,9 @@
    1. HERO PROFILE CARD
    ========================================= */
 .profile-hero-card {
-  background: var(--vt-color-white);
+  background: #ffffff;
   border-radius: 20px;
-  border: 1px solid var(--vt-color-border-soft);
+  border: 1px solid #e2e8f0;
   overflow: hidden;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
   position: relative;
@@ -42,7 +42,7 @@
   background: rgba(255, 255, 255, 0.2);
   padding: 4px 10px;
   border-radius: 20px;
-  color: var(--vt-color-white);
+  color: #ffffff;
   text-transform: uppercase;
   white-space: nowrap;
 }
@@ -96,9 +96,9 @@
   height: 110px;
   border-radius: 50%;
   object-fit: cover;
-  border: 4px solid var(--vt-color-white);
+  border: 4px solid #ffffff;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-  background: var(--vt-color-white);
+  background: #ffffff;
   display: block;
 }
 
@@ -110,8 +110,8 @@
   height: 32px;
   border-radius: 50%;
   background: #27367f;
-  color: var(--vt-color-white);
-  border: 2.5px solid var(--vt-color-white);
+  color: #ffffff;
+  border: 2.5px solid #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -138,7 +138,7 @@
 .profile-name-text {
   font-size: 22px;
   font-weight: 800;
-  color: var(--vt-color-text);
+  color: #0f172a;
   margin: 0;
   letter-spacing: -0.02em;
   line-height: 1.2;
@@ -165,7 +165,7 @@
 
 .profile-meta-item {
   font-size: 12.5px;
-  color: var(--vt-color-text-muted);
+  color: #64748b;
   display: flex;
   align-items: center;
   gap: 4px;
@@ -183,7 +183,7 @@
    ========================================= */
 .profile-tabs-bar {
   display: flex;
-  border-top: 1px solid var(--vt-color-surface-hover);
+  border-top: 1px solid #f1f5f9;
   padding: 0 20px;
   background: #fafbfc;
   overflow-x: auto;
@@ -202,7 +202,7 @@
   padding: 13px 18px;
   font-size: 13px;
   font-weight: 600;
-  color: var(--vt-color-text-muted);
+  color: #64748b;
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -214,7 +214,7 @@
 }
 
 .profile-tab-item:hover {
-  color: var(--vt-color-text);
+  color: #0f172a;
 }
 
 .profile-tab-item.active {
@@ -242,9 +242,9 @@
 }
 
 .profile-card {
-  background: var(--vt-color-white);
+  background: #ffffff;
   border-radius: 16px;
-  border: 1px solid var(--vt-color-border-soft);
+  border: 1px solid #e2e8f0;
   padding: 22px 24px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
   display: flex;
@@ -256,7 +256,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  border-bottom: 1px solid var(--vt-color-surface-hover);
+  border-bottom: 1px solid #f1f5f9;
   padding-bottom: 12px;
 }
 
@@ -281,13 +281,13 @@
   margin: 0;
   font-size: 15.5px;
   font-weight: 800;
-  color: var(--vt-color-text);
+  color: #0f172a;
 }
 
 .profile-card-subtitle {
   margin: 1px 0 0 0;
   font-size: 12px;
-  color: var(--vt-color-text-muted);
+  color: #64748b;
 }
 
 .profile-form-row-2col {
@@ -318,11 +318,11 @@
   width: 100%;
   padding: 10px 12px;
   border-radius: 10px;
-  border: 1.5px solid var(--vt-color-border);
+  border: 1.5px solid #cbd5e1;
   font-size: 13px;
   outline: none;
-  color: var(--vt-color-text);
-  background: var(--vt-color-white);
+  color: #0f172a;
+  background: #ffffff;
   box-sizing: border-box;
   transition: border-color 0.15s, box-shadow 0.15s;
 }
@@ -341,9 +341,9 @@
 }
 
 .profile-input:disabled {
-  background: var(--vt-color-surface-muted);
-  color: var(--vt-color-text-muted);
-  border-color: var(--vt-color-border-soft);
+  background: #f8fafc;
+  color: #64748b;
+  border-color: #e2e8f0;
 }
 
 .profile-input-icon-left {
@@ -351,7 +351,7 @@
   left: 11px;
   top: 50%;
   transform: translateY(-50%);
-  color: var(--vt-color-text-subtle);
+  color: #94a3b8;
   pointer-events: none;
 }
 
@@ -362,7 +362,7 @@
   transform: translateY(-50%);
   background: none;
   border: none;
-  color: var(--vt-color-text-subtle);
+  color: #94a3b8;
   cursor: pointer;
   padding: 4px;
   display: flex;
@@ -381,7 +381,7 @@
   width: 52px;
   height: 52px;
   border-radius: 12px;
-  border: 2px solid var(--vt-color-border-soft);
+  border: 2px solid #e2e8f0;
   overflow: hidden;
   cursor: pointer;
   position: relative;
@@ -409,11 +409,11 @@
 
 /* Upload Drop Area */
 .profile-upload-dropzone {
-  border: 2px dashed var(--vt-color-border);
+  border: 2px dashed #cbd5e1;
   border-radius: 12px;
   padding: 20px 16px;
   text-align: center;
-  background: var(--vt-color-surface-muted);
+  background: #f8fafc;
   cursor: pointer;
   transition: all 0.15s ease;
 }
@@ -427,9 +427,9 @@
 .profile-bottom-actions-bar {
   margin-top: 20px;
   padding: 16px 20px;
-  background: var(--vt-color-white);
+  background: #ffffff;
   border-radius: 16px;
-  border: 1px solid var(--vt-color-border-soft);
+  border: 1px solid #e2e8f0;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
   display: flex;
   justify-content: space-between;
@@ -453,19 +453,19 @@
 }
 
 .profile-action-btn.secondary {
-  background: var(--vt-color-surface-hover);
-  color: var(--vt-color-text-secondary);
-  border: 1px solid var(--vt-color-border);
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #cbd5e1;
 }
 
 .profile-action-btn.secondary:hover {
-  background: var(--vt-color-border-soft);
+  background: #e2e8f0;
   color: #1e293b;
 }
 
 .profile-action-btn.primary {
   background: #27367f;
-  color: var(--vt-color-white);
+  color: #ffffff;
   box-shadow: 0 4px 14px rgba(39, 54, 127, 0.25);
 }
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useDeferredValue, useCallback } from 'react';
 import { dataService } from '../services/dataService';
 import { AddViolationModal } from '../components/violations/AddViolationModal';
 import { BulkViolationModal } from '../components/violations/BulkViolationModal';
@@ -13,6 +13,7 @@ import {
   ShieldAlert,
   ShieldCheck,
   Clock,
+  Search,
   Plus,
   Trash2,
   FileText,
@@ -35,41 +36,31 @@ import {
 import { getJsPDF } from '../utils/pdfHelper';
 import { exportToCsv } from '../utils/csvHelper';
 import { ViewModeToggle } from '../components/common/ViewModeToggle';
-import { useRecordsQuery, dataQueryKeys } from '../hooks/dataQueries';
-import { useQueryClient } from '@tanstack/react-query';
-import { DataSearchField } from '../components/common/DataSearchField';
-import { DataTableFrame } from '../components/common/DataTableFrame';
-import { useDataTableState } from '../hooks/useDataTableState';
-import { useViolationTableData } from '../hooks/useViolationTableData';
-
-const isApprovedRecord = (record) => {
-  if (!record) return false;
-  if (record.approval_status === 'Under Approval' || record.status === 'Under Approval') return false;
-  if (record.approval_status === 'Rejected' || record.status === 'Rejected') return false;
-  return record.approval_status === 'Approved';
-};
 
 export const ViolationsPage = () => {
   const { user } = useAuth();
   const { success, error } = useNotification();
-  const queryClient = useQueryClient();
-  const { data: allRecords = [], isPending: loading, isError: recordsFailed, error: recordsError, refetch: refetchRecords } = useRecordsQuery();
-  const records = useMemo(() => allRecords.filter(isApprovedRecord), [allRecords]);
+  const [records, setRecords] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState('list'); // 'list' | 'grid'
-  const {
-    searchTerm, setSearchTerm, deferredSearch,
-    sortField, setSortField, sortOrder, setSortOrder, handleSort,
-    selectedIds, setSelectedIds, entriesPerPage, setEntriesPerPage,
-    currentPage, setCurrentPage
-  } = useDataTableState({ initialSortField: 'date', initialSortOrder: 'desc' });
 
   // Filters & Search
+  const [searchTerm, setSearchTerm] = useState('');
+  const deferredSearch = useDeferredValue(searchTerm);
   const [yearFilter, setYearFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all'); // 'all' | 'pending' | 'investigation' | '1st conference' | '2nd conference' | '3rd conference' | 'resolved' | 'escalated'
   const [severityFilter, setSeverityFilter] = useState('all'); // 'all' | 'minor' | 'serious' | 'major'
   const [gradeFilter, setGradeFilter] = useState('all');
   const [exportDate, setExportDate] = useState('2026-09-25');
 
+  // Sorting: 'date' | 'name' | 'severity' | 'status' | 'grade'
+  const [sortField, setSortField] = useState('date');
+  const [sortOrder, setSortOrder] = useState('desc'); // 'asc' | 'desc'
+
+  // Pagination & Selection
+  const [selectedIds, setSelectedIds] = useState([]);
+  const [entriesPerPage, setEntriesPerPage] = useState(10);
+  const [currentPage, setCurrentPage] = useState(1);
 
   // Modals
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -80,28 +71,146 @@ export const ViolationsPage = () => {
 
   const isAdmin = user?.role === 'admin';
 
-  const loadRecords = useCallback(async (_forceRefresh = false) => {
-    const result = await refetchRecords();
-    if (result.error) error('Failed to load records: ' + result.error.message);
-    return result.data || [];
-  }, [error, refetchRecords]);
+  const isApproved = (r) => {
+    if (!r) return false;
+    if (r.approval_status === 'Under Approval' || r.status === 'Under Approval') return false;
+    if (r.approval_status === 'Rejected' || r.status === 'Rejected') return false;
+    return r.approval_status === 'Approved';
+  };
+
+  const loadRecords = useCallback(async (forceRefresh = false) => {
+    setLoading(true);
+    try {
+      const data = await dataService.getRecords(forceRefresh);
+      const approvedOnly = (data || []).filter(isApproved);
+      setRecords(approvedOnly);
+    } catch (err) {
+      error('Failed to load records: ' + err.message);
+    } finally {
+      setLoading(false);
+    }
+  }, [error]);
 
   useEffect(() => {
-    if (recordsFailed) error('Failed to load records: ' + recordsError.message);
-  }, [recordsFailed, recordsError, error]);
+    loadRecords();
+    const handleDataUpdate = () => {
+      loadRecords(true);
+    };
+    window.addEventListener('viotrack_data_updated', handleDataUpdate);
+    return () => {
+      window.removeEventListener('viotrack_data_updated', handleDataUpdate);
+    };
+  }, [loadRecords]);
 
-  const { stats, filteredAndSortedRecords, totalPages, paginatedRecords } = useViolationTableData({
-    records,
-    search: deferredSearch,
-    statusFilter,
-    severityFilter,
-    gradeFilter,
-    yearFilter,
-    sortField,
-    sortOrder,
-    currentPage,
-    entriesPerPage
-  });
+  // Metric Analytics - optimized single-pass calculation
+  const stats = useMemo(() => {
+    const total = records.length;
+    let pending = 0;
+    let investigation = 0;
+    let resolved = 0;
+    let majorCount = 0;
+
+    for (let i = 0; i < total; i++) {
+      const r = records[i];
+      const st = (r.status || '').toLowerCase();
+      if (st === 'pending') pending++;
+      else if (st === 'investigation') investigation++;
+      else if (st === 'resolved') resolved++;
+
+      if ((r.violation?.type || '').toLowerCase() === 'major') {
+        majorCount++;
+      }
+    }
+
+    return { total, pending, investigation, resolved, majorCount };
+  }, [records]);
+
+  // Sorting Helper
+  const handleSort = (field) => {
+    if (sortField === field) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortOrder('asc');
+    }
+  };
+
+  // Filtered and Sorted Records with deferred search
+  const filteredAndSortedRecords = useMemo(() => {
+    const query = deferredSearch.toLowerCase().trim();
+    const isAllStatus = statusFilter === 'all';
+    const isAllSeverity = severityFilter === 'all';
+    const isAllGrade = gradeFilter === 'all';
+    const isAllYear = yearFilter === 'all';
+    const targetStatus = statusFilter.toLowerCase();
+    const targetSeverity = severityFilter.toLowerCase();
+    const targetGrade = gradeFilter.toLowerCase();
+
+    // 1. Filter
+    const result = records.filter(r => {
+      const status = (r.status || '').toLowerCase();
+      if (!isAllStatus && status !== targetStatus) return false;
+
+      const vType = (r.violation?.type || '').toLowerCase();
+      if (!isAllSeverity && vType !== targetSeverity) return false;
+
+      const student = r.student || {};
+      const sGrade = (student.grade || '').toLowerCase();
+      if (!isAllGrade && sGrade !== targetGrade) return false;
+
+      if (!isAllYear) {
+        const itemYear = new Date(r.date_reported || r.created_at).getFullYear().toString();
+        if (itemYear !== yearFilter) return false;
+      }
+
+      if (!query) return true;
+
+      const sName = `${student.fname || ''} ${student.lname || ''}`.toLowerCase();
+      const sLrn = (student.lrn || '').toLowerCase();
+      const sSection = (student.section || '').toLowerCase();
+      const vTitle = (r.violation?.title || '').toLowerCase();
+
+      return (
+        sName.includes(query) ||
+        sLrn.includes(query) ||
+        sGrade.includes(query) ||
+        sSection.includes(query) ||
+        vTitle.includes(query) ||
+        vType.includes(query) ||
+        status.includes(query)
+      );
+    });
+
+    // 2. Sort
+    result.sort((a, b) => {
+      let comparison = 0;
+
+      if (sortField === 'date') {
+        const timeA = new Date(a.date_reported || 0).getTime();
+        const timeB = new Date(b.date_reported || 0).getTime();
+        comparison = timeA - timeB;
+      } else if (sortField === 'name') {
+        const nameA = `${a.student?.lname || ''}, ${a.student?.fname || ''}`.toLowerCase();
+        const nameB = `${b.student?.lname || ''}, ${b.student?.fname || ''}`.toLowerCase();
+        comparison = nameA.localeCompare(nameB);
+      } else if (sortField === 'severity') {
+        const severityRank = { major: 3, serious: 2, minor: 1 };
+        const rankA = severityRank[(a.violation?.type || '').toLowerCase()] || 0;
+        const rankB = severityRank[(b.violation?.type || '').toLowerCase()] || 0;
+        comparison = rankA - rankB;
+      } else if (sortField === 'status') {
+        comparison = (a.status || '').localeCompare(b.status || '');
+      } else if (sortField === 'grade') {
+        const numA = parseInt((a.student?.grade || '').replace(/\D/g, ''), 10) || 0;
+        const numB = parseInt((b.student?.grade || '').replace(/\D/g, ''), 10) || 0;
+        comparison = numA - numB;
+      }
+
+      return sortOrder === 'asc' ? comparison : -comparison;
+    });
+
+    return result;
+  }, [records, deferredSearch, statusFilter, severityFilter, gradeFilter, sortField, sortOrder]);
 
   // Bulk Selection Handlers
   const handleSelectAll = (e) => {
@@ -122,7 +231,7 @@ export const ViolationsPage = () => {
     if (window.confirm(`Are you sure you want to delete ${selectedIds.length} selected record(s)?`)) {
       const idsToDelete = [...selectedIds];
       setSelectedIds([]);
-      queryClient.setQueryData(dataQueryKeys.records, (previous = []) => previous.filter(r => !idsToDelete.includes(r.id)));
+      setRecords(prev => prev.filter(r => !idsToDelete.includes(r.id)));
       success(`Successfully deleted ${idsToDelete.length} records.`);
       try {
         for (const id of idsToDelete) {
@@ -138,7 +247,7 @@ export const ViolationsPage = () => {
   const handleResolveSelected = async () => {
     const idsToResolve = [...selectedIds];
     setSelectedIds([]);
-    queryClient.setQueryData(dataQueryKeys.records, (previous = []) => previous.map(r => idsToResolve.includes(r.id) ? { ...r, status: 'Resolved' } : r));
+    setRecords(prev => prev.map(r => idsToResolve.includes(r.id) ? { ...r, status: 'Resolved' } : r));
     success(`Marked ${idsToResolve.length} records as Resolved.`);
     try {
       for (const id of idsToResolve) {
@@ -155,7 +264,7 @@ export const ViolationsPage = () => {
 
   const handleDeleteSingle = async (id) => {
     if (window.confirm('Are you sure you want to delete this violation record?')) {
-      queryClient.setQueryData(dataQueryKeys.records, (previous = []) => previous.filter(r => r.id !== id));
+      setRecords(prev => prev.filter(r => r.id !== id));
       setSelectedIds(prev => prev.filter(x => x !== id));
       success('Violation record deleted successfully.');
       try {
@@ -168,7 +277,7 @@ export const ViolationsPage = () => {
   };
 
   const handleStatusUpdated = async (recordId, newStatus) => {
-    queryClient.setQueryData(dataQueryKeys.records, (previous = []) => previous.map(r => r.id === recordId ? { ...r, status: newStatus } : r));
+    setRecords(prev => prev.map(r => r.id === recordId ? { ...r, status: newStatus } : r));
     success(`Status updated successfully to "${newStatus}"!`);
     try {
       await dataService.updateRecordStatus(recordId, { status: newStatus });
@@ -243,6 +352,10 @@ export const ViolationsPage = () => {
       error('Failed to export CSV: ' + err.message);
     }
   };
+
+  // Pagination
+  const totalPages = Math.ceil(filteredAndSortedRecords.length / entriesPerPage) || 1;
+  const paginatedRecords = filteredAndSortedRecords.slice((currentPage - 1) * entriesPerPage, currentPage * entriesPerPage);
 
   const renderSortIcon = (field) => {
     if (sortField !== field) {
@@ -514,17 +627,59 @@ export const ViolationsPage = () => {
           }}
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '14px' }}>
-            <DataSearchField
-              label="Search violation records"
-              placeholder="Search by student name, ID, offense title, or status..."
-              value={searchTerm}
-              onChange={(value) => {
-                setSearchTerm(value);
-                setCurrentPage(1);
-              }}
-              onClear={() => setSearchTerm('')}
-              maxWidth={400}
-            />
+            {/* Search Input */}
+            <div style={{ position: 'relative', flex: 1, minWidth: '280px', maxWidth: '400px' }}>
+              <Search
+                size={16}
+                style={{
+                  position: 'absolute',
+                  left: '12px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  color: '#94a3b8'
+                }}
+              />
+              <input
+                type="text"
+                placeholder="Search by student name, ID, offense title, or status..."
+                value={searchTerm}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value);
+                  setCurrentPage(1);
+                }}
+                style={{
+                  width: '100%',
+                  padding: '9px 34px 9px 38px',
+                  border: '1px solid #cbd5e1',
+                  borderRadius: '8px',
+                  fontSize: '13px',
+                  color: '#0f172a',
+                  background: '#f8fafc',
+                  outline: 'none',
+                  transition: 'all 0.2s'
+                }}
+                onFocus={(e) => { e.currentTarget.style.borderColor = '#07345f'; e.currentTarget.style.background = '#ffffff'; }}
+                onBlur={(e) => { e.currentTarget.style.borderColor = '#cbd5e1'; e.currentTarget.style.background = '#f8fafc'; }}
+              />
+              {searchTerm && (
+                <button
+                  onClick={() => setSearchTerm('')}
+                  style={{
+                    position: 'absolute',
+                    right: '10px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'transparent',
+                    border: 'none',
+                    color: '#94a3b8',
+                    cursor: 'pointer',
+                    padding: 0
+                  }}
+                >
+                  <X size={15} />
+                </button>
+              )}
+            </div>
 
             {/* Sorting & Filter Controls */}
             <div className="mobile-filter-grid">
@@ -710,7 +865,7 @@ export const ViolationsPage = () => {
         </div>
 
         {/* Incidents Table (Desktop View) */}
-        <DataTableFrame label="Violation records table" className={`responsive-table-desktop ${viewMode === 'grid' ? 'force-hidden' : ''}`}>
+        <div className={`responsive-table-desktop ${viewMode === 'grid' ? 'force-hidden' : ''}`}>
           <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
             <thead>
               <tr style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
@@ -1093,7 +1248,7 @@ export const ViolationsPage = () => {
               )}
             </tbody>
           </table>
-        </DataTableFrame>
+        </div>
 
         {/* Incidents Cards (Mobile View) */}
         <div className={`responsive-cards-mobile ${viewMode === 'grid' ? 'grid-view' : 'list-view'}`}>
@@ -1485,7 +1640,7 @@ export const ViolationsPage = () => {
           onClose={() => setSelectedRecordForResolution(null)}
           record={selectedRecordForResolution}
           onUpdated={(updated) => {
-            queryClient.setQueryData(dataQueryKeys.records, (previous = []) => previous.map(r => r.id === updated.id ? { ...r, ...updated } : r));
+            setRecords(records.map(r => r.id === updated.id ? { ...r, ...updated } : r));
           }}
         />
       )}

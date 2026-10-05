@@ -9,6 +9,7 @@ import { SplashScreen } from './components/common/SplashScreen';
 import { ErrorBoundary } from './components/common/ErrorBoundary';
 import { CookieConsentBanner } from './components/legal/CookieConsentBanner';
 import { ScreenLockModal } from './components/common/ScreenLockModal';
+import { dataService } from './services/dataService';
 
 // Lazy Loaded Route Pages for Optimal Code-Splitting & Speed
 const DashboardPage = lazy(() => import('./pages/DashboardPage').then(m => ({ default: m.DashboardPage || m.default })));
@@ -83,6 +84,9 @@ export function App() {
   });
 
   useEffect(() => {
+    // Warm multi-tier cache in the background on startup
+    dataService.warmCache();
+
     if (Capacitor.isNativePlatform()) {
       const configureStatusBar = async () => {
         try {

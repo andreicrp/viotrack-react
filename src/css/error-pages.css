@@ -19,7 +19,7 @@
   min-height: 100vh;
   min-height: 100dvh;
   width: 100%;
-  background: radial-gradient(circle at 50% 35%, var(--vt-color-white) 0%, #edf3f8 100%);
+  background: radial-gradient(circle at 50% 35%, #ffffff 0%, #edf3f8 100%);
   position: fixed;
   inset: 0;
   overflow-y: auto;
@@ -53,9 +53,9 @@
 
 /* Central Card */
 .error-card {
-  background: var(--vt-color-white);
+  background: #ffffff;
   border-radius: 20px;
-  border: 1px solid var(--vt-color-border-soft);
+  border: 1px solid #e2e8f0;
   box-shadow: 0 10px 30px -5px rgba(7, 52, 95, 0.07), 0 2px 6px rgba(0, 0, 0, 0.02);
   max-width: 560px;
   width: 100%;
@@ -84,7 +84,7 @@
 .error-brand-logo span {
   font-size: 16px;
   font-weight: 800;
-  color: var(--vt-color-brand);
+  color: #07345f;
   letter-spacing: -0.02em;
 }
 
@@ -139,7 +139,7 @@
 
 .error-icon-wrapper.icon-404 {
   background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
-  color: var(--vt-color-brand);
+  color: #07345f;
   border: 1px solid #bfdbfe;
   box-shadow: 0 8px 24px -4px rgba(7, 52, 95, 0.12);
 }
@@ -169,8 +169,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--vt-color-white);
-  border: 2px solid var(--vt-color-white);
+  background: #ffffff;
+  border: 2px solid #ffffff;
   box-shadow: 0 2px 6px rgba(0,0,0,0.12);
 }
 
@@ -184,7 +184,7 @@
 }
 
 .error-big-code.code-404 {
-  background: linear-gradient(135deg, var(--vt-color-brand) 0%, #1e40af 100%);
+  background: linear-gradient(135deg, #07345f 0%, #1e40af 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -207,14 +207,14 @@
 .error-title {
   font-size: 21px;
   font-weight: 800;
-  color: var(--vt-color-text);
+  color: #0f172a;
   margin: 0 0 8px 0;
   letter-spacing: -0.02em;
 }
 
 .error-description {
   font-size: 13.5px;
-  color: var(--vt-color-text-muted);
+  color: #64748b;
   line-height: 1.6;
   margin: 0 0 24px 0;
 }
@@ -232,8 +232,8 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: var(--vt-color-text);
-  color: var(--vt-color-white);
+  background: #0f172a;
+  color: #ffffff;
   padding: 10.5px 20px;
   border-radius: 10px;
   font-size: 13px;
@@ -255,28 +255,28 @@
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  background: var(--vt-color-surface-muted);
+  background: #f8fafc;
   color: #334155;
   padding: 10.5px 18px;
   border-radius: 10px;
   font-size: 13px;
   font-weight: 700;
-  border: 1.5px solid var(--vt-color-border);
+  border: 1.5px solid #cbd5e1;
   cursor: pointer;
   text-decoration: none;
   transition: all 0.2s ease;
 }
 
 .error-btn-secondary:hover {
-  background: var(--vt-color-surface-hover);
-  border-color: var(--vt-color-text-subtle);
-  color: var(--vt-color-text);
+  background: #f1f5f9;
+  border-color: #94a3b8;
+  color: #0f172a;
   transform: translateY(-1px);
 }
 
 /* Quick Navigation Links */
 .error-quick-links {
-  border-top: 1px solid var(--vt-color-surface-hover);
+  border-top: 1px solid #f1f5f9;
   padding-top: 18px;
   margin-top: 18px;
   text-align: left;
@@ -285,7 +285,7 @@
 .error-quick-title {
   font-size: 11px;
   font-weight: 700;
-  color: var(--vt-color-text-subtle);
+  color: #94a3b8;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   margin-bottom: 10px;
@@ -305,8 +305,8 @@
   align-items: center;
   gap: 7px;
   padding: 8px 10px;
-  background: var(--vt-color-surface-muted);
-  border: 1px solid var(--vt-color-border-soft);
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
   border-radius: 8px;
   color: #334155;
   text-decoration: none;
@@ -318,7 +318,7 @@
 .error-link-chip:hover {
   background: #eff6ff;
   border-color: #bfdbfe;
-  color: var(--vt-color-brand);
+  color: #07345f;
   transform: translateY(-1px);
 }
 
@@ -326,14 +326,14 @@
 .error-tech-details {
   margin-top: 18px;
   text-align: left;
-  border-top: 1px solid var(--vt-color-surface-hover);
+  border-top: 1px solid #f1f5f9;
   padding-top: 14px;
 }
 
 .error-details-summary {
   font-size: 11.5px;
   font-weight: 600;
-  color: var(--vt-color-text-muted);
+  color: #64748b;
   cursor: pointer;
   user-select: none;
   display: flex;
@@ -342,12 +342,12 @@
 }
 
 .error-details-summary:hover {
-  color: var(--vt-color-brand);
+  color: #07345f;
 }
 
 .error-stack-box {
-  background: var(--vt-color-text);
-  color: var(--vt-color-border-soft);
+  background: #0f172a;
+  color: #e2e8f0;
   padding: 10px 12px;
   border-radius: 8px;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;

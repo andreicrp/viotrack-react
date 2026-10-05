@@ -24,7 +24,7 @@
 
 /* Filter Modal Container */
 .filter-modal {
-    background: var(--vt-color-white);
+    background: #fff;
     border-radius: 8px;
     width: 90%;
     max-width: 500px;
@@ -79,7 +79,7 @@
 /* Filter Modal Body */
 .filter-modal-body {
     padding: 24px;
-    background: var(--vt-color-white);
+    background: #fff;
 }
 
 /* Filter Group */
@@ -114,7 +114,7 @@
     border-radius: 4px;
     font-size: 14px;
     color: #333;
-    background: var(--vt-color-white);
+    background: #fff;
     cursor: pointer;
     transition: all 0.2s;
     -webkit-appearance: none;
@@ -129,7 +129,7 @@
 
 .filter-select option {
     color: #333;
-    background: var(--vt-color-white);
+    background: #fff;
     padding: 8px;
 }
 
@@ -163,7 +163,7 @@
 /* Filter Button */
 .btn-filter {
     background: #14b8a6;
-    color: var(--vt-color-white);
+    color: #fff;
     border: none;
     padding: 11px 24px;
     border-radius: 4px;
@@ -188,7 +188,7 @@
 /* Close Filter Button */
 .btn-close-filter {
     background: #ef4444;
-    color: var(--vt-color-white);
+    color: #fff;
     border: none;
     padding: 11px 24px;
     border-radius: 4px;
@@ -214,7 +214,7 @@
 .filter-btn-main {
     background: #14b8a6;
     border: none;
-    color: var(--vt-color-white);
+    color: #fff;
     padding: 10px 20px;
     border-radius: 4px;
     font-size: 14px;
@@ -271,7 +271,7 @@
 
 /* Filter Modal Container */
 .filter-modal {
-    background: var(--vt-color-white);
+    background: #fff;
     border-radius: 12px;
     width: 90%;
     max-width: 500px;
@@ -353,7 +353,7 @@
     border-radius: 8px;
     font-size: 14px;
     color: #374151;
-    background: var(--vt-color-white);
+    background: #fff;
     cursor: pointer;
     transition: all 0.2s;
     -webkit-appearance: none;
@@ -368,7 +368,7 @@
 
 .filter-select option {
     color: #374151;
-    background: var(--vt-color-white);
+    background: #fff;
     padding: 8px;
 }
 
@@ -400,7 +400,7 @@
 /* Filter Button */
 .btn-filter {
     background: #14b8a6;
-    color: var(--vt-color-white);
+    color: #fff;
     border: none;
     padding: 12px 24px;
     border-radius: 8px;
@@ -424,7 +424,7 @@
 /* Close Filter Button */
 .btn-close-filter {
     background: #ef4444;
-    color: var(--vt-color-white);
+    color: #fff;
     border: none;
     padding: 12px 24px;
     border-radius: 8px;
@@ -449,7 +449,7 @@
 .filter-btn-main {
     background: #14b8a6;
     border: none;
-    color: var(--vt-color-white);
+    color: #fff;
     padding: 10px 20px;
     border-radius: 8px;
     font-size: 14px;

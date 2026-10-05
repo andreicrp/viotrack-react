@@ -12,7 +12,7 @@
 /* Tabs Navigation Header */
 .legal-tabs-nav {
   display: flex;
-  background: var(--vt-color-surface-hover);
+  background: #f1f5f9;
   padding: 6px;
   border-radius: 12px;
   gap: 6px;
@@ -29,7 +29,7 @@
   padding: 9px 12px;
   border: none;
   background: transparent;
-  color: var(--vt-color-text-muted);
+  color: #64748b;
   font-size: 13px;
   font-weight: 700;
   border-radius: 8px;
@@ -39,7 +39,7 @@
 }
 
 .legal-tab-btn:hover {
-  color: var(--vt-color-text);
+  color: #0f172a;
   background: rgba(255, 255, 255, 0.6);
 }
 
@@ -49,8 +49,8 @@
 }
 
 .legal-tab-btn.active {
-  background: var(--vt-color-white);
-  color: var(--vt-color-brand);
+  background: #ffffff;
+  color: #07345f;
   box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08);
 }
 
@@ -78,8 +78,8 @@
   display: flex;
   align-items: flex-start;
   gap: 14px;
-  background: var(--vt-color-surface-muted);
-  border: 1px solid var(--vt-color-border-soft);
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
   border-radius: 12px;
   padding: 14px 16px;
 }
@@ -88,7 +88,7 @@
   width: 44px;
   height: 44px;
   border-radius: 10px;
-  background: var(--vt-color-white);
+  background: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -99,14 +99,14 @@
 .legal-hero-heading {
   font-size: 15px;
   font-weight: 800;
-  color: var(--vt-color-text);
+  color: #0f172a;
   margin: 0 0 3px 0;
   letter-spacing: -0.01em;
 }
 
 .legal-hero-sub {
   font-size: 12.5px;
-  color: var(--vt-color-text-muted);
+  color: #64748b;
   margin: 0;
   line-height: 1.45;
 }
@@ -121,14 +121,14 @@
 .legal-section-title {
   font-size: 13.5px;
   font-weight: 800;
-  color: var(--vt-color-text);
+  color: #0f172a;
   margin: 0;
 }
 
 .legal-text {
   font-size: 12.5px;
   line-height: 1.6;
-  color: var(--vt-color-text-secondary);
+  color: #475569;
   margin: 0;
 }
 
@@ -139,12 +139,12 @@
   flex-direction: column;
   gap: 6px;
   font-size: 12.5px;
-  color: var(--vt-color-text-secondary);
+  color: #475569;
   line-height: 1.5;
 }
 
 .legal-list strong {
-  color: var(--vt-color-text);
+  color: #0f172a;
 }
 
 /* Notice box */
@@ -163,7 +163,7 @@
 
 /* Storage Table */
 .legal-table-wrap {
-  border: 1px solid var(--vt-color-border-soft);
+  border: 1px solid #e2e8f0;
   border-radius: 8px;
   overflow: hidden;
   margin-top: 4px;
@@ -177,26 +177,26 @@
 }
 
 .legal-table th {
-  background: var(--vt-color-surface-muted);
-  color: var(--vt-color-text-secondary);
+  background: #f8fafc;
+  color: #475569;
   font-weight: 700;
   padding: 8px 12px;
-  border-bottom: 1px solid var(--vt-color-border-soft);
+  border-bottom: 1px solid #e2e8f0;
 }
 
 .legal-table td {
   padding: 8px 12px;
-  border-bottom: 1px solid var(--vt-color-surface-hover);
+  border-bottom: 1px solid #f1f5f9;
   color: #334155;
 }
 
 .legal-table code {
-  background: var(--vt-color-surface-hover);
+  background: #f1f5f9;
   padding: 2px 5px;
   border-radius: 4px;
   font-family: monospace;
   font-size: 11px;
-  color: var(--vt-color-brand);
+  color: #07345f;
 }
 
 /* DPO Card */
@@ -235,8 +235,8 @@
 /* Modal Footer */
 .legal-modal-footer {
   padding: 12px 20px;
-  background: var(--vt-color-surface-muted);
-  border-top: 1px solid var(--vt-color-border-soft);
+  background: #f8fafc;
+  border-top: 1px solid #e2e8f0;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -249,14 +249,14 @@
   align-items: center;
   gap: 6px;
   font-size: 11.5px;
-  color: var(--vt-color-text-muted);
+  color: #64748b;
 }
 
 .legal-btn-close {
   padding: 8px 18px;
   border-radius: 8px;
-  background: var(--vt-color-brand);
-  color: var(--vt-color-white);
+  background: #07345f;
+  color: #ffffff;
   font-size: 13px;
   font-weight: 700;
   border: none;
@@ -265,7 +265,7 @@
 }
 
 .legal-btn-close:hover {
-  background: var(--vt-color-text);
+  background: #0f172a;
   box-shadow: 0 2px 6px rgba(15, 23, 42, 0.2);
 }
 

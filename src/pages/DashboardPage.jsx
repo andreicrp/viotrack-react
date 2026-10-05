@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   AreaChart,
@@ -45,7 +45,6 @@ import { SchoolCalendarModal } from '../components/common/SchoolCalendarModal';
 import { CustomDateRangeModal } from '../components/common/CustomDateRangeModal';
 import { getJsPDF } from '../utils/pdfHelper';
 import { exportToCsv } from '../utils/csvHelper';
-import { useDashboardDataQuery } from '../hooks/dataQueries';
 
 const DashboardNoViolationsEmptyState = ({ IconComponent }) => (
   <div style={{ minHeight: 220, width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', textAlign: 'center', gap: 8 }}>
@@ -90,6 +89,7 @@ export const DashboardPage = () => {
   });
   const [isCustomModalOpen, setIsCustomModalOpen] = useState(false);
   const [selectedPieSlice, setSelectedPieSlice] = useState(null); // for donut drill-down
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   // Severity KPI Selection / Filter
   const [activeSeverityFilter, setActiveSeverityFilter] = useState('all'); // 'all' | 'minor' | 'serious' | 'major' | 'resolved'
@@ -99,12 +99,11 @@ export const DashboardPage = () => {
   const [showSerious, setShowSerious] = useState(true);
   const [showMajor, setShowMajor] = useState(true);
 
-  // Server/offline data is cached and refreshed by TanStack Query.
-  const { data: dashboardData, isPending: loading, isFetching, refetch: loadData } = useDashboardDataQuery();
-  const students = dashboardData?.students || [];
-  const records = dashboardData?.records || [];
-  const schoolEvents = dashboardData?.schoolEvents || [];
-  const isRefreshing = isFetching && !loading;
+  // Data States
+  const [students, setStudents] = useState([]);
+  const [records, setRecords] = useState([]);
+  const [schoolEvents, setSchoolEvents] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   // Calendar State
   const [selectedCalendarDate, setSelectedCalendarDate] = useState(now.getDate());
@@ -113,6 +112,52 @@ export const DashboardPage = () => {
   // Modals
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isCalendarModalOpen, setIsCalendarModalOpen] = useState(false);
+
+  const loadData = useCallback(async () => {
+    setLoading(true);
+    try {
+      const [sData, rData, eData] = await Promise.all([
+        dataService.getStudents(),
+        dataService.getRecords(),
+        dataService.getSchoolEvents()
+      ]);
+      setStudents(sData || []);
+      setRecords(rData || []);
+      setSchoolEvents(eData || []);
+    } catch (err) {
+      console.error('Error loading dashboard data:', err);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadData();
+    const handleUpdate = () => loadData();
+    const handleEventsUpdate = async () => {
+      try {
+        const eData = await dataService.getSchoolEvents();
+        setSchoolEvents(eData || []);
+      } catch (err) {
+        console.error(err);
+      }
+    };
+    window.addEventListener('viotrack_data_updated', handleUpdate);
+    window.addEventListener('viotrack_events_updated', handleEventsUpdate);
+
+    // Auto-refresh every 45 seconds
+    const autoRefreshTimer = setInterval(async () => {
+      setIsRefreshing(true);
+      await loadData();
+      setIsRefreshing(false);
+    }, 45000);
+
+    return () => {
+      window.removeEventListener('viotrack_data_updated', handleUpdate);
+      window.removeEventListener('viotrack_events_updated', handleEventsUpdate);
+      clearInterval(autoRefreshTimer);
+    };
+  }, [loadData]);
 
   // Helper: check if a record is officially approved (exclude under approval / rejected)
   const isApproved = (r) => {

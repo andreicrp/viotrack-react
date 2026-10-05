@@ -18,7 +18,7 @@
 }
 
 .student-stats-single .stat-card {
-    background: var(--vt-color-white);
+    background: #fff;
     border-radius: 12px;
     padding: 20px 24px;
     display: flex;
@@ -39,12 +39,12 @@
 }
 
 .stat-card-large .stat-value {
-    color: var(--vt-color-white);
+    color: #fff;
 }
 
 .stat-card-large .stat-icon {
     background: rgba(255, 255, 255, 0.2);
-    color: var(--vt-color-white);
+    color: #fff;
 }
 
 .stat-info {
@@ -111,7 +111,7 @@
 .btn-primary-main {
     background: #3b82f6 !important;
     border: none !important;
-    color: var(--vt-color-white) !important;
+    color: #fff !important;
     padding: 12px 24px !important;
     border-radius: 8px !important;
     font-size: 14px !important;
@@ -132,7 +132,7 @@
 }
 
 .btn-action-quick {
-    background: var(--vt-color-white) !important;
+    background: #fff !important;
     border: 1px solid #e5e7eb !important;
     color: #374151 !important;
     padding: 10px 18px !important;
@@ -154,7 +154,7 @@
 
 /* Student Card */
 .student-card {
-    background: var(--vt-color-white);
+    background: #fff;
     border-radius: 12px;
     padding: 24px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.08);
@@ -180,7 +180,7 @@
 }
 
 .btn-export {
-    background: var(--vt-color-white);
+    background: #fff;
     border: 1px solid #e5e7eb;
     color: #374151;
     padding: 10px 20px;
@@ -197,7 +197,7 @@
 .btn-primary {
     background: #6366f1;
     border: none;
-    color: var(--vt-color-white);
+    color: #fff;
     padding: 10px 20px;
     border-radius: 8px;
     font-size: 14px;
@@ -216,7 +216,7 @@
 .btn-success {
     background: #10b981;
     border: none;
-    color: var(--vt-color-white);
+    color: #fff;
     padding: 10px 20px;
     border-radius: 8px;
     font-size: 14px;
@@ -234,7 +234,7 @@
 .btn-delete-selected {
     background: #ef4444;
     border: none;
-    color: var(--vt-color-white);
+    color: #fff;
     padding: 10px 20px;
     border-radius: 8px;
     font-size: 14px;
@@ -316,7 +316,7 @@
 .filter-btn {
     padding: 10px 20px;
     border: 1px solid #e5e7eb;
-    background: var(--vt-color-white);
+    background: #fff;
     border-radius: 8px;
     font-size: 14px;
     font-weight: 500;
@@ -333,7 +333,7 @@
 
 .filter-btn.active {
     background: #6366f1;
-    color: var(--vt-color-white);
+    color: #fff;
     border-color: #6366f1;
 }
 
@@ -678,7 +678,7 @@
     cursor: pointer;
     transition: all 0.2s;
     border: 1px solid #e5e7eb;
-    background: var(--vt-color-white);
+    background: #fff;
     color: #374151;
     display: inline-flex;
     align-items: center;
@@ -752,7 +752,7 @@
 .page-btn {
     padding: 8px 16px;
     border: 1px solid #e5e7eb;
-    background: var(--vt-color-white);
+    background: #fff;
     border-radius: 8px;
     font-size: 14px;
     font-weight: 500;
@@ -774,7 +774,7 @@
 
 .page-btn.active {
     background: #6366f1;
-    color: var(--vt-color-white);
+    color: #fff;
     border-color: #6366f1;
 }
 

@@ -25,7 +25,7 @@
 
 /* Import Modal Container */
 .import-student-modal {
-    background: var(--vt-color-white);
+    background: #fff;
     border-radius: 12px;
     width: 100%;
     max-width: 600px;
@@ -49,7 +49,7 @@
     align-items: center;
     padding: 20px 24px;
     border-bottom: 1px solid #e5e7eb;
-    background: var(--vt-color-white);
+    background: #fff;
     flex-shrink: 0;
 }
 
@@ -151,7 +151,7 @@
 
 .btn-download-template {
     background: #10b981;
-    color: var(--vt-color-white);
+    color: #fff;
     border: none;
     padding: 10px 20px;
     border-radius: 8px;
@@ -380,7 +380,7 @@
 
 .btn-import-students {
     background: #f59e0b;
-    color: var(--vt-color-white);
+    color: #fff;
 }
 
 .btn-import-students:hover {
@@ -393,7 +393,7 @@
 }
 
 .btn-cancel-import {
-    background: var(--vt-color-white);
+    background: #fff;
     color: #374151;
     border: 1px solid #e5e7eb;
 }
