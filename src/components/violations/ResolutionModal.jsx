@@ -1246,6 +1246,8 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
     </div>
   );
 
+  if (!isOpen || !record || user?.role === 'teacher') return null;
+
   return (
     <div
       className="modal-backdrop-smooth"

@@ -71,6 +71,7 @@ const DashboardNoViolationsEmptyState = ({ IconComponent }) => (
 
 export const DashboardPage = () => {
   const { user } = useAuth();
+  const isAdmin = user?.role === 'admin';
   const { success, info } = useNotification();
   const navigate = useNavigate();
 
@@ -1614,15 +1615,17 @@ export const DashboardPage = () => {
                 <span>Manage Students</span>
               </button>
 
-              <button
-                type="button"
-                className="dash-quick-action-btn"
-                onClick={handlePrintData}
-                title="Print report data"
-              >
-                <Printer size={18} color="#0f172a" />
-                <span>Print Data</span>
-              </button>
+              {isAdmin && (
+                <button
+                  type="button"
+                  className="dash-quick-action-btn"
+                  onClick={handlePrintData}
+                  title="Print report data"
+                >
+                  <Printer size={18} color="#0f172a" />
+                  <span>Print Data</span>
+                </button>
+              )}
 
               <button
                 type="button"
@@ -1680,13 +1683,15 @@ export const DashboardPage = () => {
       />
 
       {/* Print Data Analytics Modal */}
-      <PrintDataModal
-        isOpen={isPrintModalOpen}
-        onClose={() => setIsPrintModalOpen(false)}
-        records={records}
-        students={students}
-        teachers={[]}
-      />
+      {isAdmin && isPrintModalOpen && (
+        <PrintDataModal
+          isOpen={isPrintModalOpen}
+          onClose={() => setIsPrintModalOpen(false)}
+          records={records}
+          students={students}
+          teachers={[]}
+        />
+      )}
     </div>
   );
 };

@@ -1700,6 +1700,8 @@ export const PrintDataModal = ({ isOpen, onClose, records = [], students = [], t
     return { pathData, color: item.color, name: item.name, value: item.value };
   });
 
+  if (!isOpen || user?.role === 'teacher') return null;
+
   return (
     <div
       className="modal-backdrop-smooth"

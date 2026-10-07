@@ -1165,31 +1165,33 @@ export const ViolationsPage = () => {
                             </button>
                           )}
 
-                          <button
-                            type="button"
-                            onClick={() => setSummonsTargetRecord(rec)}
-                            style={{
-                              background: '#f8fafc',
-                              border: '1px solid #cbd5e1',
-                              color: '#0f172a',
-                              padding: '6px 10px',
-                              borderRadius: '7px',
-                              fontSize: '12px',
-                              fontWeight: 600,
-                              cursor: 'pointer',
-                              display: 'inline-flex',
-                              alignItems: 'center',
-                              gap: '4px',
-                              transition: 'all 0.15s'
-                            }}
-                            onMouseOver={(e) => { e.currentTarget.style.background = '#e2e8f0'; }}
-                            onMouseOut={(e) => { e.currentTarget.style.background = '#f8fafc'; }}
-                            title="Generate Printable Parent Summons Notice"
-                          >
-                            <FileText size={12} color="#0f172a" strokeWidth={2} /> Summons
-                          </button>
+                          {isAdmin && (
+                            <button
+                              type="button"
+                              onClick={() => setSummonsTargetRecord(rec)}
+                              style={{
+                                background: '#f8fafc',
+                                border: '1px solid #cbd5e1',
+                                color: '#0f172a',
+                                padding: '6px 10px',
+                                borderRadius: '7px',
+                                fontSize: '12px',
+                                fontWeight: 600,
+                                cursor: 'pointer',
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '4px',
+                                transition: 'all 0.15s'
+                              }}
+                              onMouseOver={(e) => { e.currentTarget.style.background = '#e2e8f0'; }}
+                              onMouseOut={(e) => { e.currentTarget.style.background = '#f8fafc'; }}
+                              title="Generate Printable Parent Summons Notice"
+                            >
+                              <FileText size={12} color="#0f172a" strokeWidth={2} /> Summons
+                            </button>
+                          )}
 
-                          {isResolved && (
+                          {isAdmin && isResolved && (
                             <button
                               type="button"
                               onClick={() => setSelectedRecordForResolution(rec)}
@@ -1316,15 +1318,17 @@ export const ViolationsPage = () => {
 
                   {/* Actions Row */}
                   <div className="entity-grid-actions">
-                    <button
-                      type="button"
-                      onClick={() => setSummonsTargetRecord(rec)}
-                      className="entity-grid-btn"
-                      title="Generate Parent Summons Notice"
-                      style={{ color: '#0f172a', borderColor: '#cbd5e1', background: '#f8fafc' }}
-                    >
-                      <FileText size={11} strokeWidth={2.2} /> Summons
-                    </button>
+                    {isAdmin && (
+                      <button
+                        type="button"
+                        onClick={() => setSummonsTargetRecord(rec)}
+                        className="entity-grid-btn"
+                        title="Generate Parent Summons Notice"
+                        style={{ color: '#0f172a', borderColor: '#cbd5e1', background: '#f8fafc' }}
+                      >
+                        <FileText size={11} strokeWidth={2.2} /> Summons
+                      </button>
+                    )}
                     {isAdmin && (
                       <button
                         type="button"
@@ -1335,7 +1339,7 @@ export const ViolationsPage = () => {
                         <Flag size={11} strokeWidth={2.2} /> Status
                       </button>
                     )}
-                    {isResolved && (
+                    {isAdmin && isResolved && (
                       <button
                         type="button"
                         onClick={() => setSelectedRecordForResolution(rec)}
@@ -1445,26 +1449,28 @@ export const ViolationsPage = () => {
                     </div>
 
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      <button
-                        type="button"
-                        onClick={() => setSummonsTargetRecord(rec)}
-                        style={{
-                          background: '#f8fafc',
-                          border: '1px solid #cbd5e1',
-                          color: '#0f172a',
-                          padding: '5px 9px',
-                          borderRadius: '6px',
-                          fontSize: '11.5px',
-                          fontWeight: 600,
-                          cursor: 'pointer',
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: '4px'
-                        }}
-                        title="Generate Parent Summons Notice"
-                      >
-                        <FileText size={11} color="#0f172a" strokeWidth={2} /> Summons
-                      </button>
+                      {isAdmin && (
+                        <button
+                          type="button"
+                          onClick={() => setSummonsTargetRecord(rec)}
+                          style={{
+                            background: '#f8fafc',
+                            border: '1px solid #cbd5e1',
+                            color: '#0f172a',
+                            padding: '5px 9px',
+                            borderRadius: '6px',
+                            fontSize: '11.5px',
+                            fontWeight: 600,
+                            cursor: 'pointer',
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '4px'
+                          }}
+                          title="Generate Parent Summons Notice"
+                        >
+                          <FileText size={11} color="#0f172a" strokeWidth={2} /> Summons
+                        </button>
+                      )}
 
                       {isAdmin && (
                         <button
@@ -1488,7 +1494,7 @@ export const ViolationsPage = () => {
                         </button>
                       )}
 
-                      {isResolved && (
+                      {isAdmin && isResolved && (
                         <button
                           type="button"
                           onClick={() => setSelectedRecordForResolution(rec)}
@@ -1664,7 +1670,7 @@ export const ViolationsPage = () => {
       />
 
       {/* Resolution / Doc Proof Modal */}
-      {selectedRecordForResolution && (
+      {isAdmin && selectedRecordForResolution && (
         <ResolutionModal
           isOpen={!!selectedRecordForResolution}
           onClose={() => setSelectedRecordForResolution(null)}
@@ -1676,7 +1682,7 @@ export const ViolationsPage = () => {
       )}
 
       {/* Parent Summons Modal */}
-      {summonsTargetRecord && (
+      {isAdmin && summonsTargetRecord && (
         <ParentSummonsModal
           isOpen={!!summonsTargetRecord}
           onClose={() => setSummonsTargetRecord(null)}

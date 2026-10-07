@@ -33,12 +33,14 @@ import {
   Maximize2
 } from 'lucide-react';
 import { useNotification } from '../../context/NotificationContext';
+import { useAuth } from '../../context/AuthContext';
 import { dataService } from '../../services/dataService';
 import { lockBodyScroll, unlockBodyScroll } from '../../utils/scrollLock';
 import { CustomDatePicker } from '../common/CustomDatePicker';
 import { CustomTimePicker } from '../common/CustomTimePicker';
 
 export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }) => {
+  const { user } = useAuth();
   const { success, error, info } = useNotification();
   const printRef = useRef(null);
 
@@ -1025,6 +1027,8 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
       </div>
     </div>
   );
+
+  if (!isOpen || user?.role === 'teacher') return null;
 
   return (
     <div
