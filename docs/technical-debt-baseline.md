@@ -113,3 +113,7 @@ The build from `/home/ubuntu/viotrack-react` emits the 2,230.37 kB `vendor-react
 ## Baseline after the 2026-10-08 modal-title commit
 
 Latest main is [`7bf1a21ea92d187907f0e5f7624a1fb9a1fa94f3`](https://github.com/andreicrp/viotrack-react/commit/7bf1a21ea92d187907f0e5f7624a1fb9a1fa94f3). It changes three modal heading labels only; no service, test, or dependency files changed. On a clean detached checkout, **4 tests passed**, lint passed with **370 warnings and 0 errors**, and the build passed with a 281.82 kB `vendor-react` chunk. As documented above, the matching `/viotrack-react` checkout path yields the same 2,230.37 kB chunk and size advisory on both clean main and the PR branch. Main still has no service tests or typecheck script. The open PR's four GitHub checks were successful before this rebase.
+
+## Baseline after the 2026-10-08 mobile filter-drawer fix
+
+Latest main is [`fadfa69173e65e0dbac0f2f794a116918b879c94`](https://github.com/andreicrp/viotrack-react/commit/fadfa69173e65e0dbac0f2f794a116918b879c94). It changes only filter-drawer interaction in three modal components; data-service and test files are unchanged. On a clean detached checkout, **4 tests passed**, lint passed with **371 warnings and 0 errors**, and the standard-path build passed (281.82 kB `vendor-react`). From the PR-matching `/viotrack-react` path, clean main again produced the same 2,230.37 kB vendor chunk and advisory recorded above. Main still has no service tests or typecheck script.
