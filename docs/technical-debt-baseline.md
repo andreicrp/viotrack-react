@@ -163,3 +163,11 @@ The existing split service now mirrors the main commit's student-read retry, sch
 | `npm run build` | Passed. | Passed. |
 
 For the comparable checkout path, both clean main and the PR emitted `vendor-react-Wu-iWA7h.js` at 2,663.31 kB and `pdf.worker.min-CjEcRF4W.mjs` at 1,264.34 kB, with the same chunk-size advisory. The PR adds no bundle-size change beyond latest main.
+
+## Baseline after the 2026-10-08 StudentsPage state fix
+
+Latest main is [`3fc25e628b70eee70fb5acb4406c25c7440fd4c4`](https://github.com/andreicrp/viotrack-react/commit/3fc25e628b70eee70fb5acb4406c25c7440fd4c4). This commit adds the missing `studentForViewModal` state variable in `src/pages/StudentsPage.jsx`; it does not change data-service modules, tests, or dependencies, so no service code changes were needed in this run.
+
+On a clean checkout of latest main, `npm test -- --reporter=verbose` passed (4 tests in 1 file), `npm run lint -- --quiet` passed (372 warnings, 0 errors), and `npm run build` passed (282.23 kB `vendor-react` from the detached checkout path). Main still has no typecheck script. A matching-path build of clean main emitted the same `vendor-react` chunk (2,663.31 kB) and bundled PDF worker (1,264.34 kB) as the rebased PR.
+
+After rebasing the existing PR onto `3fc25e6`, all 21 tests, the JSDoc typecheck, lint (371 warnings, 0 errors), and build passed. This commit only prompted a baseline/report refresh; the data-service implementation was already current and remains unchanged.
