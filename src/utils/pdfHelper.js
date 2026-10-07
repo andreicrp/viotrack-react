@@ -5,11 +5,33 @@
 
 // PDF Exporter
 export async function getJsPDF(options = {}) {
-  const [{ default: jsPDF }] = await Promise.all([
+  const [jsPdfModule, autoTableModule] = await Promise.all([
     import('jspdf'),
     import('jspdf-autotable')
   ]);
-  return new jsPDF(options);
+
+  const jsPDF = jsPdfModule.jsPDF || jsPdfModule.default;
+  const autoTable = autoTableModule.default || autoTableModule.autoTable;
+
+  if (typeof autoTableModule.applyPlugin === 'function') {
+    try {
+      autoTableModule.applyPlugin(jsPdfModule);
+    } catch {
+      try {
+        autoTableModule.applyPlugin(jsPDF);
+      } catch {}
+    }
+  }
+
+  const doc = new jsPDF(options);
+
+  if (typeof doc.autoTable !== 'function' && typeof autoTable === 'function') {
+    doc.autoTable = function (tableOptions) {
+      return autoTable(this, tableOptions);
+    };
+  }
+
+  return doc;
 }
 
 // PDF Text & Table Extractor
