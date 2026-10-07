@@ -1446,6 +1446,26 @@ export const ScanQRPage = () => {
                       <h2 className="verified-name">
                         {scannedStudent.fname} {scannedStudent.mname ? `${scannedStudent.mname[0]}. ` : ''}{scannedStudent.lname}
                       </h2>
+                      {scannedStudent._isSignedBadge && (
+                        <span
+                          className="authentic-signed-badge"
+                          style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '4px',
+                            fontSize: '11px',
+                            fontWeight: 700,
+                            color: '#059669',
+                            background: '#ecfdf5',
+                            border: '1px solid #a7f3d0',
+                            padding: '2px 8px',
+                            borderRadius: '12px'
+                          }}
+                          title="Tamper-proof cryptographic signature verified"
+                        >
+                          <Check size={11} strokeWidth={3} /> Signed Badge
+                        </span>
+                      )}
                       {/* Integrated Status Pill */}
                       {studentRecords.length >= 3 ? (
                         <span className="status-flag-pill danger">

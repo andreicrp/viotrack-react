@@ -7,6 +7,8 @@ import { StatusModal } from '../components/violations/StatusModal';
 import { ParentSummonsModal } from '../components/violations/ParentSummonsModal';
 import { CustomDatePicker } from '../components/common/CustomDatePicker';
 import { CustomSelect } from '../components/common/CustomSelect';
+import { SkeletonTable, SkeletonCardGrid } from '../components/common/SkeletonLoader';
+import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
 import { useNotification } from '../context/NotificationContext';
 import { useAuth } from '../context/AuthContext';
 import {
@@ -39,10 +41,22 @@ import { ViewModeToggle } from '../components/common/ViewModeToggle';
 
 export const ViolationsPage = () => {
   const { user } = useAuth();
-  const { success, error } = useNotification();
+  const { success, error, undo } = useNotification();
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState('list'); // 'list' | 'grid'
+
+  // Keyboard navigation shortcuts: '/' to search, 'N' for new violation, 'Esc' to close modals
+  useKeyboardShortcuts({
+    onNew: () => setIsAddModalOpen(true),
+    onEscape: () => {
+      setIsAddModalOpen(false);
+      setIsBulkModalOpen(false);
+      setRecordForStatusChange(null);
+      setSelectedRecordForResolution(null);
+      setSummonsTargetRecord(null);
+    }
+  });
 
   // Filters & Search
   const [searchTerm, setSearchTerm] = useState('');
@@ -262,29 +276,58 @@ export const ViolationsPage = () => {
     }
   };
 
-  const handleDeleteSingle = async (id) => {
-    if (window.confirm('Are you sure you want to delete this violation record?')) {
-      setRecords(prev => prev.filter(r => r.id !== id));
-      setSelectedIds(prev => prev.filter(x => x !== id));
-      success('Violation record deleted successfully.');
-      try {
-        await dataService.deleteRecord(id);
-      } catch (err) {
-        error('Delete sync error: ' + err.message);
-        loadRecords(true);
+  const handleDeleteSingle = (id) => {
+    const backupRecord = records.find(r => r.id === id);
+    if (!backupRecord) return;
+
+    // Optimistically remove from view
+    setRecords(prev => prev.filter(r => r.id !== id));
+    setSelectedIds(prev => prev.filter(x => x !== id));
+
+    let isUndone = false;
+    undo(`Violation record for ${backupRecord.student?.fname || 'Student'} deleted.`, () => {
+      isUndone = true;
+      setRecords(prev => [backupRecord, ...prev]);
+      success('Record deletion undone.');
+    }, 5000);
+
+    setTimeout(async () => {
+      if (!isUndone) {
+        try {
+          await dataService.deleteRecord(id);
+        } catch (err) {
+          error('Delete sync error: ' + err.message);
+          loadRecords(true);
+        }
       }
-    }
+    }, 5200);
   };
 
-  const handleStatusUpdated = async (recordId, newStatus) => {
+  const handleStatusUpdated = (recordId, newStatus) => {
+    const prevRecord = records.find(r => r.id === recordId);
+    const oldStatus = prevRecord?.status || 'Pending';
+    if (oldStatus === newStatus) return;
+
     setRecords(prev => prev.map(r => r.id === recordId ? { ...r, status: newStatus } : r));
-    success(`Status updated successfully to "${newStatus}"!`);
-    try {
-      await dataService.updateRecordStatus(recordId, { status: newStatus });
-    } catch (err) {
-      error('Failed to sync status update: ' + err.message);
-      loadRecords(true);
-    }
+
+    let isUndone = false;
+    undo(`Status updated to "${newStatus}".`, () => {
+      isUndone = true;
+      setRecords(prev => prev.map(r => r.id === recordId ? { ...r, status: oldStatus } : r));
+      dataService.updateRecordStatus(recordId, { status: oldStatus });
+      success(`Reverted status back to "${oldStatus}".`);
+    }, 5000);
+
+    setTimeout(async () => {
+      if (!isUndone) {
+        try {
+          await dataService.updateRecordStatus(recordId, { status: newStatus });
+        } catch (err) {
+          error('Failed to sync status update: ' + err.message);
+          loadRecords(true);
+        }
+      }
+    }, 5200);
   };
 
   // PDF Export
@@ -1009,14 +1052,31 @@ export const ViolationsPage = () => {
 
             <tbody>
               {loading ? (
-                <tr>
-                  <td colSpan={8} style={{ textAlign: 'center', padding: '50px 20px', color: '#64748b' }}>
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
-                      <ShieldAlert size={28} color="#94a3b8" />
-                      <span style={{ fontSize: '14px', fontWeight: 500 }}>Loading incident registry...</span>
-                    </div>
-                  </td>
-                </tr>
+                Array.from({ length: entriesPerPage > 10 ? 8 : entriesPerPage }).map((_, rIdx) => (
+                  <tr key={`skel-row-${rIdx}`}>
+                    <td style={{ padding: '14px 18px' }}><div className="skeleton-pulse" style={{ width: '18px', height: '18px', borderRadius: '4px' }} /></td>
+                    <td style={{ padding: '14px 18px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <div className="skeleton-pulse" style={{ width: '34px', height: '34px', borderRadius: '50%' }} />
+                        <div style={{ flex: 1 }}>
+                          <div className="skeleton-pulse" style={{ width: '130px', height: '14px', borderRadius: '4px', marginBottom: '4px' }} />
+                          <div className="skeleton-pulse" style={{ width: '85px', height: '11px', borderRadius: '4px' }} />
+                        </div>
+                      </div>
+                    </td>
+                    <td style={{ padding: '14px 18px' }}><div className="skeleton-pulse" style={{ width: '90px', height: '13px', borderRadius: '4px' }} /></td>
+                    <td style={{ padding: '14px 18px' }}><div className="skeleton-pulse" style={{ width: '120px', height: '13px', borderRadius: '4px' }} /></td>
+                    <td style={{ padding: '14px 18px' }}><div className="skeleton-pulse" style={{ width: '65px', height: '22px', borderRadius: '12px' }} /></td>
+                    <td style={{ padding: '14px 18px' }}><div className="skeleton-pulse" style={{ width: '80px', height: '13px', borderRadius: '4px' }} /></td>
+                    <td style={{ padding: '14px 18px' }}><div className="skeleton-pulse" style={{ width: '85px', height: '22px', borderRadius: '12px' }} /></td>
+                    <td style={{ padding: '14px 18px', textAlign: 'right' }}>
+                      <div style={{ display: 'flex', gap: '6px', justifyContent: 'flex-end' }}>
+                        <div className="skeleton-pulse" style={{ width: '28px', height: '28px', borderRadius: '6px' }} />
+                        <div className="skeleton-pulse" style={{ width: '28px', height: '28px', borderRadius: '6px' }} />
+                      </div>
+                    </td>
+                  </tr>
+                ))
               ) : paginatedRecords.length === 0 ? (
                 <tr>
                   <td colSpan={8} style={{ textAlign: 'center', padding: '50px 20px', color: '#64748b' }}>
@@ -1255,9 +1315,8 @@ export const ViolationsPage = () => {
         {/* Incidents Cards (Mobile View) */}
         <div className={`responsive-cards-mobile ${viewMode === 'grid' ? 'grid-view' : 'list-view'}`}>
           {loading ? (
-            <div style={{ textAlign: 'center', padding: '40px 20px', color: '#64748b', gridColumn: '1 / -1' }}>
-              <ShieldAlert size={28} color="#94a3b8" />
-              <div style={{ fontSize: '14px', fontWeight: 500, marginTop: '8px' }}>Loading incident registry...</div>
+            <div style={{ gridColumn: '1 / -1', width: '100%' }}>
+              <SkeletonCardGrid cards={6} />
             </div>
           ) : paginatedRecords.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '40px 20px', color: '#64748b', gridColumn: '1 / -1' }}>

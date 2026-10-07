@@ -26,12 +26,17 @@ import {
 import { dataService } from '../services/dataService';
 import { useAuth } from '../context/AuthContext';
 import { useNotification } from '../context/NotificationContext';
+import { SkeletonList } from '../components/common/SkeletonLoader';
+import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
 import '../css/notifications.css';
 
 export const NotificationsPage = () => {
   const { user } = useAuth();
   const { success, error, info } = useNotification();
   const navigate = useNavigate();
+
+  // Keyboard navigation shortcuts
+  useKeyboardShortcuts();
 
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('all'); // 'all' | 'approvals' | 'sms' | 'conduct' | 'system'
@@ -475,9 +480,8 @@ export const NotificationsPage = () => {
           {/* Notifications Feed List */}
           <div className="notif-list-container">
             {loading ? (
-              <div className="notif-empty-state">
-                <div className="notif-loading-spinner" />
-                <p className="notif-empty-title">Loading Notifications...</p>
+              <div style={{ padding: '8px 0' }}>
+                <SkeletonList items={5} />
               </div>
             ) : filteredNotifications.length === 0 ? (
               <div className="notif-empty-state">

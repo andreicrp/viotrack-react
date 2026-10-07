@@ -39,6 +39,8 @@ import { getJsPDF } from '../utils/pdfHelper';
 import { exportToCsv } from '../utils/csvHelper';
 
 import { ViewModeToggle } from '../components/common/ViewModeToggle';
+import { SkeletonTable, SkeletonCardGrid } from '../components/common/SkeletonLoader';
+import { useKeyboardShortcuts } from '../hooks/useKeyboardShortcuts';
 
 // Helper to detect Strand / Academic Track
 export const getStudentStrand = (student) => {
@@ -64,10 +66,21 @@ export const getGradeNumber = (gradeStr) => {
 
 export const StudentsPage = () => {
   const { user } = useAuth();
-  const { success, error } = useNotification();
+  const { success, error, undo } = useNotification();
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState('list'); // 'list' | 'grid'
+
+  // Keyboard navigation shortcuts
+  useKeyboardShortcuts({
+    onEscape: () => {
+      setIsAddModalOpen(false);
+      setIsBulkImportOpen(false);
+      setStudentForId(null);
+      setViewStudentData(null);
+      setEditStudentData(null);
+    }
+  });
 
   // Search & Filters
   const [searchTerm, setSearchTerm] = useState('');
@@ -957,14 +970,30 @@ export const StudentsPage = () => {
 
             <tbody>
               {loading ? (
-                <tr>
-                  <td colSpan={7} style={{ textAlign: 'center', padding: '50px 20px', color: '#64748b' }}>
-                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
-                      <Users size={28} color="#94a3b8" />
-                      <span style={{ fontSize: '14px', fontWeight: 500 }}>Loading student directory...</span>
-                    </div>
-                  </td>
-                </tr>
+                Array.from({ length: entriesPerPage > 10 ? 8 : entriesPerPage }).map((_, rIdx) => (
+                  <tr key={`skel-student-${rIdx}`}>
+                    <td style={{ padding: '14px 18px' }}><div className="skeleton-pulse" style={{ width: '18px', height: '18px', borderRadius: '4px' }} /></td>
+                    <td style={{ padding: '14px 18px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <div className="skeleton-pulse" style={{ width: '34px', height: '34px', borderRadius: '50%' }} />
+                        <div style={{ flex: 1 }}>
+                          <div className="skeleton-pulse" style={{ width: '140px', height: '14px', borderRadius: '4px', marginBottom: '4px' }} />
+                          <div className="skeleton-pulse" style={{ width: '90px', height: '11px', borderRadius: '4px' }} />
+                        </div>
+                      </div>
+                    </td>
+                    <td style={{ padding: '14px 18px' }}><div className="skeleton-pulse" style={{ width: '100px', height: '13px', borderRadius: '4px' }} /></td>
+                    <td style={{ padding: '14px 18px' }}><div className="skeleton-pulse" style={{ width: '80px', height: '22px', borderRadius: '12px' }} /></td>
+                    <td style={{ padding: '14px 18px' }}><div className="skeleton-pulse" style={{ width: '90px', height: '13px', borderRadius: '4px' }} /></td>
+                    <td style={{ padding: '14px 18px' }}><div className="skeleton-pulse" style={{ width: '85px', height: '22px', borderRadius: '12px' }} /></td>
+                    <td style={{ padding: '14px 18px', textAlign: 'right' }}>
+                      <div style={{ display: 'flex', gap: '6px', justifyContent: 'flex-end' }}>
+                        <div className="skeleton-pulse" style={{ width: '28px', height: '28px', borderRadius: '6px' }} />
+                        <div className="skeleton-pulse" style={{ width: '28px', height: '28px', borderRadius: '6px' }} />
+                      </div>
+                    </td>
+                  </tr>
+                ))
               ) : paginatedStudents.length === 0 ? (
                 <tr>
                   <td colSpan={7} style={{ textAlign: 'center', padding: '50px 20px', color: '#64748b' }}>
@@ -1213,9 +1242,8 @@ export const StudentsPage = () => {
         {/* Student Cards (Mobile View) */}
         <div className={`responsive-cards-mobile ${viewMode === 'grid' ? 'grid-view' : 'list-view'}`}>
           {loading ? (
-            <div style={{ textAlign: 'center', padding: '40px 20px', color: '#64748b', gridColumn: '1 / -1' }}>
-              <Users size={28} color="#94a3b8" />
-              <div style={{ fontSize: '14px', fontWeight: 500, marginTop: '8px' }}>Loading student directory...</div>
+            <div style={{ gridColumn: '1 / -1', width: '100%' }}>
+              <SkeletonCardGrid cards={6} />
             </div>
           ) : paginatedStudents.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '40px 20px', color: '#64748b', gridColumn: '1 / -1' }}>

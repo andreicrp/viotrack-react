@@ -266,9 +266,20 @@ export const NotificationProvider = ({ children }) => {
   const error = (msg, duration, options) => addToast(msg, 'error', duration, options);
   const warning = (msg, duration, options) => addToast(msg, 'warning', duration, options);
   const info = (msg, duration, options) => addToast(msg, 'info', duration, options);
+  
+  // Convenient Undo Action Toast: shows 5s toast with Undo button
+  const undo = (message, onUndo, duration = 5000) => {
+    return addToast(message, 'info', duration, {
+      title: 'Action Completed',
+      action: {
+        label: '↶ Undo',
+        onClick: onUndo
+      }
+    });
+  };
 
   return (
-    <NotificationContext.Provider value={{ addToast, success, error, warning, info }}>
+    <NotificationContext.Provider value={{ addToast, success, error, warning, info, undo }}>
       {children}
       <div className="toast-container" role="region" aria-label="Notifications" aria-live="polite">
         {toasts.map((toast) => (

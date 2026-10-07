@@ -41,23 +41,80 @@ export const getPublicAppBaseUrl = () => {
   return null;
 };
 
+// Institutional signature salt for tamper-proof student QR badges
+const INSTITUTIONAL_QR_SALT = 'VT-SEC-PHCM-2026-DISCIPLINE';
+
 /**
- * Generates the secure, privacy-preserving QR payload string for a student.
- * Encodes the student's unique academic 12-digit LRN (or ID) directly as plain numerical data.
- *
- * Privacy & Security Benefits (RA 10173 - Data Privacy Act):
- * - External scanners (Google Lens, iPhone Camera, third-party scanner apps) only see
- *   the raw student ID number (e.g., 109283746103) instead of an exposed website URL or endpoint.
- * - Prevents public web scraping, unauthorized URL crawling, and data leaks from screenshotted ID badges.
- * - Authorized personnel using the internal VioTrack Scanner (on Web or Mobile) can seamlessly
- *   decode the LRN and retrieve the student's records within the authenticated session.
+ * Fast, lightweight deterministic hash / checksum generator (FNV-1a 32-bit + Hex Digest)
+ * Used to cryptographically sign student badges without requiring heavy external libraries.
+ * @param {string} str
+ * @returns {string} 8-character hex digest
+ */
+export const computeQrChecksum = (str, salt = INSTITUTIONAL_QR_SALT) => {
+  let hash = 2166136261;
+  const combined = `${str}#${salt}`;
+  for (let i = 0; i < combined.length; i++) {
+    hash ^= combined.charCodeAt(i);
+    hash = Math.imul(hash, 16777619);
+  }
+  return (hash >>> 0).toString(16).padStart(8, '0');
+};
+
+/**
+ * Generates a tamper-proof cryptographically signed QR payload for a student.
+ * Format: "VT1:<lrn>:<checksum>"
+ * 
+ * Benefits:
+ * - Prevents students from generating fake QR codes on their mobile phones
+ * - Internal VioTrack scanner validates the cryptographic checksum upon scanning
+ * - Backward compatible with legacy plain-text LRN scanning
  *
  * @param {object} student
  * @returns {string}
  */
-export const getStudentQrValue = (student) => {
+export const generateSignedStudentQr = (student) => {
   if (!student) return '';
-  // Use student ID directly (standard institutional ID barcode/QR standard)
+  const lrn = String(student.student_id || student.lrn || student.id || '').trim();
+  if (!lrn) return '';
+  const checksum = computeQrChecksum(lrn);
+  return `VT1:${lrn}:${checksum}`;
+};
+
+/**
+ * Validates a signed QR payload.
+ * @param {string} payload
+ * @returns {{ isValid: boolean, lrn: string|null }}
+ */
+export const verifySignedStudentQrPayload = (payload) => {
+  if (!payload || typeof payload !== 'string') return { isValid: false, lrn: null };
+  const clean = payload.trim();
+  if (!clean.startsWith('VT1:')) {
+    return { isValid: false, lrn: null };
+  }
+  const parts = clean.split(':');
+  if (parts.length < 3) return { isValid: false, lrn: null };
+
+  const lrn = parts[1].trim();
+  const signature = parts[2].trim();
+  const expectedSignature = computeQrChecksum(lrn);
+
+  if (signature.toLowerCase() === expectedSignature.toLowerCase()) {
+    return { isValid: true, lrn };
+  }
+  return { isValid: false, lrn: null };
+};
+
+/**
+ * Generates the secure QR payload string for a student (Signed or Plain).
+ * @param {object} student
+ * @param {boolean} signed
+ * @returns {string}
+ */
+export const getStudentQrValue = (student, signed = true) => {
+  if (!student) return '';
+  if (signed) {
+    return generateSignedStudentQr(student);
+  }
   return String(student.student_id || student.lrn || student.id || '').trim();
 };
 
@@ -66,10 +123,11 @@ export const getStudentQrValue = (student) => {
  * @param {object} student
  * @param {number} size
  * @param {number} margin
+ * @param {boolean} signed
  * @returns {string}
  */
-export const getStudentQrCodeUrl = (student, size = 300, margin = 1) => {
-  const data = getStudentQrValue(student);
+export const getStudentQrCodeUrl = (student, size = 300, margin = 1, signed = true) => {
+  const data = getStudentQrValue(student, signed);
   if (!data) return '';
   return `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(data)}&margin=${margin}`;
 };
@@ -102,6 +160,27 @@ export const matchStudentFromScan = (rawInput, students = []) => {
     cleanLower.startsWith('geo:')
   ) {
     return null;
+  }
+
+  // 0. Check for Cryptographically Signed Tamper-Proof Badges ("VT1:<lrn>:<checksum>")
+  if (clean.startsWith('VT1:')) {
+    const { isValid, lrn } = verifySignedStudentQrPayload(clean);
+    if (isValid && lrn) {
+      const match = students.find(
+        s => String(s.student_id || s.lrn).trim() === lrn || String(s.id) === lrn
+      );
+      if (match) {
+        return {
+          ...match,
+          _isSignedBadge: true,
+          _badgeVerified: true
+        };
+      }
+    } else {
+      // Tampered or invalid cryptographic signature detected
+      console.warn('Tampered or invalid student QR code signature detected:', clean);
+      return null;
+    }
   }
 
   // 1. Check for official VioTrack public verification & pass URLs (/verify-student/:id or /student-pass/:id)

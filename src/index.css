@@ -2004,5 +2004,212 @@ button:active,
   transform: scale(0.98);
 }
 
+/* ==========================================================================
+   Skeleton Shimmer Pulse Animation & Layouts
+   ========================================================================== */
+@keyframes skeleton-shimmer {
+  0% {
+    background-color: #f1f5f9;
+  }
+  50% {
+    background-color: #e2e8f0;
+  }
+  100% {
+    background-color: #f1f5f9;
+  }
+}
+
+.skeleton-pulse {
+  background-color: #f1f5f9;
+  animation: skeleton-shimmer 1.5s ease-in-out infinite;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.skeleton-table-wrapper {
+  width: 100%;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.skeleton-table {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.skeleton-table-row {
+  display: flex;
+  align-items: center;
+  padding: 14px 18px;
+  border-bottom: 1px solid #f1f5f9;
+  gap: 16px;
+}
+
+.skeleton-table-row.header {
+  background: #f8fafc;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.skeleton-table-cell {
+  flex: 1;
+  display: flex;
+  align-items: center;
+}
+
+.skeleton-card-item {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 18px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.skeleton-list-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.skeleton-list-item {
+  display: flex;
+  gap: 14px;
+  padding: 16px;
+  background: #ffffff;
+  border: 1px solid #f1f5f9;
+  border-radius: 12px;
+  align-items: center;
+}
+
+/* ==========================================================================
+   Custom Toast Action / Undo Row Styles
+   ========================================================================== */
+.custom-toast-action-row {
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.custom-toast-action-btn {
+  background: #ffffff !important;
+  border: 1.5px solid currentColor !important;
+  border-radius: 6px !important;
+  font-size: 12px !important;
+  font-weight: 700 !important;
+  padding: 4px 10px !important;
+  cursor: pointer !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important;
+  transition: all 0.15s ease !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+}
+
+.custom-toast-action-btn:hover {
+  filter: brightness(0.95);
+  transform: translateY(-1px);
+}
+
+/* ==========================================================================
+   High-Contrast Print Stylesheet (@media print)
+   Optimized for School Laser & Dot-Matrix Printers (Crisp 100% Black on White)
+   ========================================================================== */
+@media print {
+  /* Hide non-printable elements */
+  nav,
+  aside,
+  header,
+  .sidebar,
+  .top-navbar,
+  .btn,
+  .action-btn,
+  .filter-bar,
+  .pagination,
+  .cookie-banner,
+  .toast-container,
+  .modal-backdrop-smooth,
+  .no-print,
+  [data-no-print] {
+    display: none !important;
+  }
+
+  /* Reset layout and page canvas */
+  body,
+  html,
+  #root,
+  .main-content,
+  .app-container {
+    background: #ffffff !important;
+    color: #000000 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    font-size: 11pt !important;
+    line-height: 1.4 !important;
+    box-shadow: none !important;
+  }
+
+  /* Ensure high-contrast text and crisp borders */
+  h1, h2, h3, h4, h5, h6, p, span, th, td {
+    color: #000000 !important;
+    text-shadow: none !important;
+  }
+
+  /* Optimize tables for clean paper borders */
+  table,
+  .data-table,
+  .student-table,
+  .violation-table,
+  .summary-table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    border: 1.5px solid #000000 !important;
+    margin-top: 10px !important;
+    margin-bottom: 10px !important;
+  }
+
+  th,
+  td {
+    border: 1px solid #333333 !important;
+    padding: 6px 10px !important;
+    background: #ffffff !important;
+  }
+
+  th {
+    background-color: #f1f5f9 !important;
+    font-weight: bold !important;
+    border-bottom: 2px solid #000000 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Prevent awkward page breaks in the middle of table rows or cards */
+  tr,
+  .printable-card,
+  .incident-slip,
+  .summons-letter {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+
+  /* Remove bulky drop shadows and rounded radius artifacts */
+  * {
+    box-shadow: none !important;
+    filter: none !important;
+  }
+
+  /* Official DepEd / School Print Header Formatting */
+  .print-header {
+    display: block !important;
+    text-align: center;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #000000;
+    padding-bottom: 12px;
+  }
+}
+
+
 
 
