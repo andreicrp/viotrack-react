@@ -745,8 +745,8 @@ export const ScanQRPage = () => {
         playScanErrorSound();
         error('Invalid QR Code: Unrecognized student ID or badge');
 
-        // Allow user to see the invalid notice briefly, then dismiss & re-arm scanner
-        await new Promise(r => setTimeout(r, 1200));
+        // Show invalid notice for 3 seconds then automatically dismiss & re-arm scanner
+        await new Promise(r => setTimeout(r, 3000));
 
         setIsProcessingScan(false);
         setScanProcessingStep('');
@@ -1300,8 +1300,19 @@ export const ScanQRPage = () => {
 
       {/* Staged Loading & Verification Modal Overlay */}
       {isProcessingScan && (
-        <div className="student-scan-modal-overlay">
-          <div className="student-scan-modal-dialog" style={{ maxWidth: '420px', textAlign: 'center', padding: '28px 24px' }}>
+        <div
+          className="student-scan-modal-overlay"
+          onClick={() => {
+            if (scanProcessingStep.includes('Invalid')) {
+              setIsProcessingScan(false);
+              setScanProcessingStep('');
+              setScanProcessingSubstep('');
+              setScanProgressPercent(0);
+              isScanningLockedRef.current = false;
+            }
+          }}
+        >
+          <div className="student-scan-modal-dialog" style={{ maxWidth: '420px', textAlign: 'center', padding: '28px 24px' }} onClick={(e) => e.stopPropagation()}>
             <div className="scan-processing-state" style={{ margin: 0, padding: 0, gap: '14px' }}>
               {/* Matrix Scanner Hub */}
               <div className="scan-matrix-hub-wrapper">
