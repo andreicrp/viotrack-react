@@ -250,3 +250,10 @@ Clean latest main passed **4 existing tests**, lint (**389 warnings, 0 errors**)
 Latest main is [`bf8e19139186030f8800ec8379c0e8f7d324e33a`](https://github.com/andreicrp/viotrack-react/commit/bf8e19139186030f8800ec8379c0e8f7d324e33a). It changes only `src/pages/NotificationsPage.jsx` to remove a redundant four-card statistics row; it does not touch data-service code, tests, or dependencies.
 
 Clean latest main passed **4 existing tests**, lint (**389 warnings, 0 errors**), and build (2,662.97 kB `vendor-react`, 1,264.34 kB PDF worker, with the established chunk-size advisory). Main has no typecheck script. After rebasing the existing PR onto `bf8e191`, **24 tests passed**, typecheck passed, lint passed (**388 warnings, 0 errors**), and build passed. Matching-path main and PR assets are identical; the bundle advisory is unchanged.
+
+
+## Baseline after the 2026-10-08 UI/security feature commit
+
+Latest main is [`d488024cbf2f5d16d18b1b25e2b8dd960e174f21`](https://github.com/andreicrp/viotrack-react/commit/d488024cbf2f5d16d18b1b25e2b8dd960e174f21). It adds skeleton loaders and keyboard shortcuts and updates notification undo, print styling, QR signing, and inactivity-lock UI across presentation/context/util files. The commit does not change `src/services`, service tests, or package dependencies; no service-module port was needed.
+
+Clean latest main passed **4 existing tests**, lint (**393 warnings, 0 errors**), and build (2,662.97 kB `vendor-react`, 1,264.34 kB PDF worker, with the established chunk-size advisory). Main has no typecheck script. After rebasing the existing PR onto `d488024`, **24 tests passed**, `npm run typecheck` passed, lint passed (**392 warnings, 0 errors**), and build passed. Matching-path main and PR builds emitted identical PDF helper, PDF worker, and vendor React assets; bundle size is unchanged.
