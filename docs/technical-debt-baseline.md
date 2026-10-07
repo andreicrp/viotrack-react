@@ -278,3 +278,10 @@ Clean latest main passed **4 existing tests**, lint (**395 warnings, 0 errors**)
 Latest main is [`981723c4aa2425d80e747cc2ff13f984065da93f`](https://github.com/andreicrp/viotrack-react/commit/981723c4aa2425d80e747cc2ff13f984065da93f). It updates only `README.md` with documentation for signed QR badges, scanner feedback, skeleton loaders, undo toasts, and keyboard shortcuts; service and dependency files are unchanged.
 
 Clean latest main passed **4 existing tests**, lint (**395 warnings, 0 errors**), and build (2,663.93 kB `vendor-react`, 1,264.34 kB PDF worker, with the established chunk-size advisory). Main has no typecheck script. After rebasing the existing PR onto `981723c`, **24 tests passed**, typecheck passed, lint passed (**394 warnings, 0 errors**), and build passed. Matching-path main and PR assets are identical; no bundle change was introduced.
+
+
+## Baseline after the 2026-10-08 modal safe-area and header fix
+
+Latest main is [`d95e767d1f7e611246c2ffc1742bf8b00f30a92a`](https://github.com/andreicrp/viotrack-react/commit/d95e767d1f7e611246c2ffc1742bf8b00f30a92a). It updates the mobile headers and safe-area padding in the Print Data, Parent Summons, and Resolution modals. The commit does not touch data-service code, tests, or dependencies.
+
+Clean latest main passed **4 existing tests**, lint (**395 warnings, 0 errors**), and build (2,663.93 kB `vendor-react`, 1,264.34 kB PDF worker, with the established chunk-size advisory). Main has no typecheck script. After rebasing the existing PR onto `d95e767`, **24 tests passed**, typecheck passed, lint passed (**394 warnings, 0 errors**), and build passed. Matching-path clean-main and PR builds emitted identical PDF helper, PDF worker, and vendor React assets; the chunk advisory remains unchanged.
