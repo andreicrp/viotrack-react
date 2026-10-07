@@ -145,8 +145,8 @@ export const buildPrintReportHtml = ({
     return `${linePath} L ${lastX} ${chartH} L ${firstX} ${chartH} Z`;
   };
 
-  // Chunk records for clean pagination
-  const RECORDS_PER_PAGE = 24;
+  // Chunk records for clean pagination (fits up to 30 rows comfortably on Letter/A4/Legal)
+  const RECORDS_PER_PAGE = 30;
 
   let recordPages = [];
   if (includeRecordsTable && records && records.length > 0) {
@@ -166,7 +166,7 @@ export const buildPrintReportHtml = ({
   <title>${reportTitle} - ${dateRangeLabel}</title>
   <style>
     @page {
-      size: letter portrait;
+      size: portrait;
       margin: 8mm 10mm 8mm 10mm;
     }
     * {
@@ -1092,8 +1092,8 @@ export const PrintDataModal = ({ isOpen, onClose, records = [], students = [], t
     return buckets;
   }, [filteredRecords, periodPreset]);
 
-  // Multi-Page Chunking for Records
-  const RECORDS_PER_PAGE = 24;
+  // Multi-Page Chunking for Records (fits up to 30 rows on Letter/A4/Legal)
+  const RECORDS_PER_PAGE = 30;
 
   const recordPages = useMemo(() => {
     if (!includeRecordsTable || !filteredRecords || filteredRecords.length === 0) return [];
