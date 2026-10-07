@@ -61,3 +61,9 @@ The existing PR was rebased onto `71109d2` (no second branch or PR). The latest 
 | `npm run build` | Passed. In the repository checkout path the known `includes('react')` matcher emits the same >800 kB advisory; see the build-path note above. |
 
 A clean `npm ci` on latest main already reported one high-severity dependency advisory; the updated branch reports the same count. No automatic dependency audit fix was applied because it is outside this PR's scope.
+
+## Baseline recheck after the 2026-10-08 PrintDataModal commit
+
+Latest main is [`e4927d6b3eef5f9c185dd2cdb06fa3c37bbd9463`](https://github.com/andreicrp/viotrack-react/commit/e4927d6b3eef5f9c185dd2cdb06fa3c37bbd9463). The commit changes only `src/components/admin/PrintDataModal.jsx`; `dataService.js`, the data-service modules, test files, and package scripts are unchanged. A clean detached checkout on this commit confirmed the baseline remains **1 test file, 4 tests passed** with `npm test -- --reporter=verbose`. Therefore this event requires no additional data-service source changes; the existing PR branch was rebased to current main.
+
+On the same clean `e4927d6` checkout, `npm run lint -- --quiet` passed with **367 warnings and 0 errors**, and `npm run build` passed. The main-checkout build produced a 281.82 kB `vendor-react` chunk without a size advisory because the detached worktree path does not contain `react`; the PR worktree build has the previously documented path-sensitive advisory. Main still has no `typecheck` script.
