@@ -36,6 +36,7 @@ import { useNotification } from '../../context/NotificationContext';
 import { useAuth } from '../../context/AuthContext';
 import { dataService } from '../../services/dataService';
 import { lockBodyScroll, unlockBodyScroll } from '../../utils/scrollLock';
+import { printOrShareDocument } from '../../utils/mobilePrintHelper';
 import { CustomDatePicker } from '../common/CustomDatePicker';
 import { CustomTimePicker } from '../common/CustomTimePicker';
 
@@ -441,13 +442,194 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
     setSelectedViolationIds(studentViolations.map(v => v.id));
   };
 
-  // 1. Direct Print Functionality
-  const handlePrint = () => {
-    const printContent = printRef.current;
-    if (!printContent) return;
+  // High Quality PDF Generation
+  const generateSummonsPdfDoc = async () => {
+    const { default: jsPDF } = await import('jspdf');
+    await import('jspdf-autotable');
 
-    const win = window.open('', '', 'width=900,height=1000');
-    win.document.write(`
+    const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+
+    // Header Banner
+    doc.setFillColor(15, 23, 42); // #0f172a
+    doc.rect(0, 0, 210, 26, 'F');
+
+    doc.setTextColor(255, 255, 255);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(12);
+    doc.text('UNIVERSITY OF PERPETUAL HELP SYSTEM MANILA', 105, 11, { align: 'center' });
+    doc.setFontSize(8.5);
+    doc.setFont('helvetica', 'normal');
+    doc.text('1240 V. Concepcion St., Sampaloc, Manila | Office of the Prefect of Discipline', 105, 17, { align: 'center' });
+    doc.text('VIOTRACK DISCIPLINARY & STUDENT WELFARE MANAGEMENT SYSTEM', 105, 22, { align: 'center' });
+
+    // Letter Meta
+    doc.setTextColor(15, 23, 42);
+    doc.setFontSize(8.5);
+    doc.text(`Reference No: ${referenceNo}`, 14, 34);
+    doc.text(`Date Issued: ${currentDateFormatted}`, 196, 34, { align: 'right' });
+
+    // Title
+    doc.setFontSize(13);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(15, 23, 42);
+    doc.text('OFFICIAL PARENT / GUARDIAN CONFERENCE NOTICE', 105, 43, { align: 'center' });
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(100, 116, 139);
+    doc.text('(Mandatory Disciplinary Consultation)', 105, 48, { align: 'center' });
+
+    // Recipient Block
+    doc.setTextColor(15, 23, 42);
+    doc.setFontSize(9.5);
+    doc.setFont('helvetica', 'bold');
+    doc.text(`TO: ${parentName.toUpperCase()}`, 14, 57);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Parent / Legal Guardian of: ${studentFullName}`, 14, 62);
+    doc.text(`Grade & Section: ${activeStudent.grade || 'Grade 10'} - ${activeStudent.section || 'General'} | Student ID: ${activeStudent.student_id || activeStudent.lrn || 'N/A'}`, 14, 67);
+
+    // Body Text
+    doc.setFontSize(9.5);
+    doc.text('Dear Parent / Guardian,', 14, 76);
+
+    let currentY = 82;
+
+    if (activeViolations.length === 1) {
+      const v = activeViolations[0];
+      const vTitle = v.violation?.title || v.offense || 'Disciplinary Infraction';
+      const vType = v.violation?.type || v.severity || 'Minor';
+      const intro = `This is to formally notify you that your child/ward, ${studentFullName}, has been reported for a disciplinary infraction concerning "${vTitle}" (${vType} Offense) under the Student Code of Conduct.`;
+      const splitIntro = doc.splitTextToSize(intro, 182);
+      doc.text(splitIntro, 14, currentY);
+      currentY += (splitIntro.length * 5) + 3;
+    } else {
+      const intro = `This is to formally notify you that your child/ward, ${studentFullName}, has been reported for ${activeViolations.length} cumulative disciplinary infractions under the Student Code of Conduct as itemized below:`;
+      const splitIntro = doc.splitTextToSize(intro, 182);
+      doc.text(splitIntro, 14, currentY);
+      currentY += (splitIntro.length * 5) + 3;
+
+      // AutoTable for Multiple Violations
+      doc.autoTable({
+        startY: currentY,
+        margin: { left: 14, right: 14 },
+        head: [['#', 'Infraction / Violation Description', 'Offense Level', 'Date Reported', 'Status']],
+        body: activeViolations.map((v, i) => [
+          i + 1,
+          v.violation?.title || v.offense || 'Disciplinary Infraction',
+          v.violation?.type || v.severity || 'Minor',
+          v.date_reported ? new Date(v.date_reported).toLocaleDateString() : 'Recorded',
+          v.status || 'Pending'
+        ]),
+        theme: 'grid',
+        headStyles: { fillColor: [15, 23, 42], textColor: [255, 255, 255], fontSize: 8, fontStyle: 'bold' },
+        bodyStyles: { fontSize: 8, textColor: [30, 41, 59] },
+        alternateRowStyles: { fillColor: [248, 250, 252] },
+        columnStyles: {
+          0: { cellWidth: 8, halign: 'center' },
+          1: { cellWidth: 72 },
+          2: { cellWidth: 32 },
+          3: { cellWidth: 34 },
+          4: { cellWidth: 36 }
+        }
+      });
+
+      currentY = doc.lastAutoTable.finalY + 5;
+    }
+
+    const body2 = 'In line with our commitment to maintaining a safe, disciplined, and nurturing environment, we request your presence for an official case conference to discuss this matter and formulate corrective interventions:';
+    const splitBody2 = doc.splitTextToSize(body2, 182);
+    doc.text(splitBody2, 14, currentY);
+    currentY += (splitBody2.length * 5) + 4;
+
+    // Conference Details Box
+    doc.setFillColor(248, 250, 252);
+    doc.setDrawColor(203, 213, 225);
+    doc.roundedRect(14, currentY, 182, 34, 2, 2, 'FD');
+
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(15, 23, 42);
+    doc.text('SCHEDULED CONFERENCE DETAILS:', 20, currentY + 7);
+
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Designated Date:', 20, currentY + 13);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`${formattedConfDate}`, 55, currentY + 13);
+
+    doc.setFont('helvetica', 'bold');
+    doc.text('Designated Time:', 20, currentY + 19);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`${conferenceTime} (Please arrive 10 minutes early)`, 55, currentY + 19);
+
+    doc.setFont('helvetica', 'bold');
+    doc.text('Designated Venue:', 20, currentY + 25);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`${venue}`, 55, currentY + 25);
+
+    doc.setFont('helvetica', 'bold');
+    doc.text('Presiding Officer:', 20, currentY + 31);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`${signatory1Name} (${signatory1Title})`, 55, currentY + 31);
+
+    currentY += 40;
+
+    // Remarks / Instructions
+    doc.setFontSize(8.5);
+    doc.setTextColor(71, 85, 105);
+    const rem = `Important Notice: ${customRemarks}`;
+    const splitRem = doc.splitTextToSize(rem, 182);
+    doc.text(splitRem, 14, currentY);
+    currentY += (splitRem.length * 4.5) + 4;
+
+    // Closing
+    doc.setTextColor(15, 23, 42);
+    doc.setFontSize(9);
+    doc.text('Your immediate presence and cooperation are vital to addressing this matter promptly for your child\'s holistic guidance.', 14, currentY);
+    currentY += 6;
+    doc.text('Sincerely in student development,', 14, currentY);
+    currentY += 16;
+
+    // Signatures
+    doc.setFont('helvetica', 'bold');
+    doc.text(signatory1Name, 14, currentY);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8.5);
+    doc.text(signatory1Title, 14, currentY + 4);
+
+    if (includeSignatory2) {
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(9);
+      doc.text(signatory2Name, 130, currentY);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8.5);
+      doc.text(signatory2Title, 130, currentY + 4);
+    }
+
+    // Tear-off slip
+    const tearOffY = Math.max(currentY + 22, 230);
+    doc.setLineDashPattern([2, 2], 0);
+    doc.setDrawColor(148, 163, 184);
+    doc.line(14, tearOffY, 196, tearOffY);
+    doc.setLineDashPattern([], 0);
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(9);
+    doc.text('ACKNOWLEDGEMENT & CONFIRMATION SLIP (Please sign and return to Office of Discipline)', 105, tearOffY + 6, { align: 'center' });
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8.5);
+    const viosSummary = activeViolations.map(v => v.violation?.title || v.offense || 'Infraction').join(', ');
+    doc.text(`I hereby acknowledge receipt of the Parent Summons for ${studentFullName} (Ref: ${referenceNo}) regarding [${viosSummary}] on scheduled date ${formattedConfDate} at ${conferenceTime}.`, 14, tearOffY + 12, { maxWidth: 182 });
+
+    doc.text('Parent / Guardian Signature over Printed Name: __________________________   Date Received: ____________', 14, tearOffY + 24);
+    doc.text('Contact Number: __________________________________   Will Attend: [  ] YES   [  ] NO (Reason: __________________)', 14, tearOffY + 30);
+
+    return doc;
+  };
+
+  // 1. Direct Print & Mobile Native Share Functionality
+  const handlePrint = async () => {
+    const printContent = printRef.current;
+    const html = printContent ? `
       <!DOCTYPE html>
       <html>
         <head>
@@ -470,198 +652,25 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
           ${printContent.innerHTML}
         </body>
       </html>
-    `);
-    win.document.close();
-    win.focus();
-    setTimeout(() => {
-      win.print();
-      win.close();
-    }, 300);
-    success('Print dialog opened.');
+    ` : '';
+
+    await printOrShareDocument({
+      title: `${studentLastName || 'Student'} - Official Parent Summons Notice`,
+      filename: `Parent_Summons_${studentFullName.replace(/\s+/g, '_')}_${referenceNo}.pdf`,
+      htmlContent: html,
+      generatePdfBlob: generateSummonsPdfDoc,
+      onStatus: (st) => {
+        if (st.type === 'success') success(st.message);
+        else if (st.type === 'info') info(st.message);
+        else if (st.type === 'error') error(st.message);
+      }
+    });
   };
 
   // 2. High Quality PDF Generation
   const handleDownloadPDF = async () => {
     try {
-      const { default: jsPDF } = await import('jspdf');
-      await import('jspdf-autotable');
-
-      const doc = new jsPDF({ unit: 'mm', format: 'a4' });
-
-      // Header Banner
-      doc.setFillColor(15, 23, 42); // #0f172a
-      doc.rect(0, 0, 210, 26, 'F');
-
-      doc.setTextColor(255, 255, 255);
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(12);
-      doc.text('UNIVERSITY OF PERPETUAL HELP SYSTEM MANILA', 105, 11, { align: 'center' });
-      doc.setFontSize(8.5);
-      doc.setFont('helvetica', 'normal');
-      doc.text('1240 V. Concepcion St., Sampaloc, Manila | Office of the Prefect of Discipline', 105, 17, { align: 'center' });
-      doc.text('VIOTRACK DISCIPLINARY & STUDENT WELFARE MANAGEMENT SYSTEM', 105, 22, { align: 'center' });
-
-      // Letter Meta
-      doc.setTextColor(15, 23, 42);
-      doc.setFontSize(8.5);
-      doc.text(`Reference No: ${referenceNo}`, 14, 34);
-      doc.text(`Date Issued: ${currentDateFormatted}`, 196, 34, { align: 'right' });
-
-      // Title
-      doc.setFontSize(13);
-      doc.setFont('helvetica', 'bold');
-      doc.setTextColor(15, 23, 42);
-      doc.text('OFFICIAL PARENT / GUARDIAN CONFERENCE NOTICE', 105, 43, { align: 'center' });
-      doc.setFontSize(9);
-      doc.setFont('helvetica', 'normal');
-      doc.setTextColor(100, 116, 139);
-      doc.text('(Mandatory Disciplinary Consultation)', 105, 48, { align: 'center' });
-
-      // Recipient Block
-      doc.setTextColor(15, 23, 42);
-      doc.setFontSize(9.5);
-      doc.setFont('helvetica', 'bold');
-      doc.text(`TO: ${parentName.toUpperCase()}`, 14, 57);
-      doc.setFont('helvetica', 'normal');
-      doc.text(`Parent / Legal Guardian of: ${studentFullName}`, 14, 62);
-      doc.text(`Grade & Section: ${activeStudent.grade || 'Grade 10'} - ${activeStudent.section || 'General'} | Student ID: ${activeStudent.student_id || activeStudent.lrn || 'N/A'}`, 14, 67);
-
-      // Body Text
-      doc.setFontSize(9.5);
-      doc.text('Dear Parent / Guardian,', 14, 76);
-
-      let currentY = 82;
-
-      if (activeViolations.length === 1) {
-        const v = activeViolations[0];
-        const vTitle = v.violation?.title || v.offense || 'Disciplinary Infraction';
-        const vType = v.violation?.type || v.severity || 'Minor';
-        const intro = `This is to formally notify you that your child/ward, ${studentFullName}, has been reported for a disciplinary infraction concerning "${vTitle}" (${vType} Offense) under the Student Code of Conduct.`;
-        const splitIntro = doc.splitTextToSize(intro, 182);
-        doc.text(splitIntro, 14, currentY);
-        currentY += (splitIntro.length * 5) + 3;
-      } else {
-        const intro = `This is to formally notify you that your child/ward, ${studentFullName}, has been reported for ${activeViolations.length} cumulative disciplinary infractions under the Student Code of Conduct as itemized below:`;
-        const splitIntro = doc.splitTextToSize(intro, 182);
-        doc.text(splitIntro, 14, currentY);
-        currentY += (splitIntro.length * 5) + 3;
-
-        // AutoTable for Multiple Violations
-        doc.autoTable({
-          startY: currentY,
-          margin: { left: 14, right: 14 },
-          head: [['#', 'Infraction / Violation Description', 'Offense Level', 'Date Reported', 'Status']],
-          body: activeViolations.map((v, i) => [
-            i + 1,
-            v.violation?.title || v.offense || 'Disciplinary Infraction',
-            v.violation?.type || v.severity || 'Minor',
-            v.date_reported ? new Date(v.date_reported).toLocaleDateString() : 'Recorded',
-            v.status || 'Pending'
-          ]),
-          theme: 'grid',
-          headStyles: { fillColor: [15, 23, 42], textColor: [255, 255, 255], fontSize: 8, fontStyle: 'bold' },
-          bodyStyles: { fontSize: 8, textColor: [30, 41, 59] },
-          alternateRowStyles: { fillColor: [248, 250, 252] },
-          columnStyles: {
-            0: { cellWidth: 8, halign: 'center' },
-            1: { cellWidth: 72 },
-            2: { cellWidth: 32 },
-            3: { cellWidth: 34 },
-            4: { cellWidth: 36 }
-          }
-        });
-
-        currentY = doc.lastAutoTable.finalY + 5;
-      }
-
-      const body2 = 'In line with our commitment to maintaining a safe, disciplined, and nurturing environment, we request your presence for an official case conference to discuss this matter and formulate corrective interventions:';
-      const splitBody2 = doc.splitTextToSize(body2, 182);
-      doc.text(splitBody2, 14, currentY);
-      currentY += (splitBody2.length * 5) + 4;
-
-      // Conference Details Box
-      doc.setFillColor(248, 250, 252);
-      doc.setDrawColor(203, 213, 225);
-      doc.roundedRect(14, currentY, 182, 34, 2, 2, 'FD');
-
-      doc.setFont('helvetica', 'bold');
-      doc.setTextColor(15, 23, 42);
-      doc.text('SCHEDULED CONFERENCE DETAILS:', 20, currentY + 7);
-
-      doc.setFontSize(9);
-      doc.setFont('helvetica', 'bold');
-      doc.text('Designated Date:', 20, currentY + 13);
-      doc.setFont('helvetica', 'normal');
-      doc.text(`${formattedConfDate}`, 55, currentY + 13);
-
-      doc.setFont('helvetica', 'bold');
-      doc.text('Designated Time:', 20, currentY + 19);
-      doc.setFont('helvetica', 'normal');
-      doc.text(`${conferenceTime} (Please arrive 10 minutes early)`, 55, currentY + 19);
-
-      doc.setFont('helvetica', 'bold');
-      doc.text('Designated Venue:', 20, currentY + 25);
-      doc.setFont('helvetica', 'normal');
-      doc.text(`${venue}`, 55, currentY + 25);
-
-      doc.setFont('helvetica', 'bold');
-      doc.text('Presiding Officer:', 20, currentY + 31);
-      doc.setFont('helvetica', 'normal');
-      doc.text(`${signatory1Name} (${signatory1Title})`, 55, currentY + 31);
-
-      currentY += 40;
-
-      // Remarks / Instructions
-      doc.setFontSize(8.5);
-      doc.setTextColor(71, 85, 105);
-      const rem = `Important Notice: ${customRemarks}`;
-      const splitRem = doc.splitTextToSize(rem, 182);
-      doc.text(splitRem, 14, currentY);
-      currentY += (splitRem.length * 4.5) + 4;
-
-      // Closing
-      doc.setTextColor(15, 23, 42);
-      doc.setFontSize(9);
-      doc.text('Your immediate presence and cooperation are vital to addressing this matter promptly for your child\'s holistic guidance.', 14, currentY);
-      currentY += 6;
-      doc.text('Sincerely in student development,', 14, currentY);
-      currentY += 16;
-
-      // Signatures
-      doc.setFont('helvetica', 'bold');
-      doc.text(signatory1Name, 14, currentY);
-      doc.setFont('helvetica', 'normal');
-      doc.setFontSize(8.5);
-      doc.text(signatory1Title, 14, currentY + 4);
-
-      if (includeSignatory2) {
-        doc.setFont('helvetica', 'bold');
-        doc.setFontSize(9);
-        doc.text(signatory2Name, 130, currentY);
-        doc.setFont('helvetica', 'normal');
-        doc.setFontSize(8.5);
-        doc.text(signatory2Title, 130, currentY + 4);
-      }
-
-      // Tear-off slip
-      const tearOffY = Math.max(currentY + 22, 230);
-      doc.setLineDashPattern([2, 2], 0);
-      doc.setDrawColor(148, 163, 184);
-      doc.line(14, tearOffY, 196, tearOffY);
-      doc.setLineDashPattern([], 0);
-
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(9);
-      doc.text('ACKNOWLEDGEMENT & CONFIRMATION SLIP (Please sign and return to Office of Discipline)', 105, tearOffY + 6, { align: 'center' });
-
-      doc.setFont('helvetica', 'normal');
-      doc.setFontSize(8.5);
-      const viosSummary = activeViolations.map(v => v.violation?.title || v.offense || 'Infraction').join(', ');
-      doc.text(`I hereby acknowledge receipt of the Parent Summons for ${studentFullName} (Ref: ${referenceNo}) regarding [${viosSummary}] on scheduled date ${formattedConfDate} at ${conferenceTime}.`, 14, tearOffY + 12, { maxWidth: 182 });
-
-      doc.text('Parent / Guardian Signature over Printed Name: __________________________   Date Received: ____________', 14, tearOffY + 24);
-      doc.text('Contact Number: __________________________________   Will Attend: [  ] YES   [  ] NO (Reason: __________________)', 14, tearOffY + 30);
-
+      const doc = await generateSummonsPdfDoc();
       doc.save(`Parent_Summons_${studentFullName.replace(/\s+/g, '_')}_${referenceNo}.pdf`);
       success('Parent Summons Letter PDF successfully generated and downloaded!');
     } catch (err) {

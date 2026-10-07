@@ -3,6 +3,7 @@ import { dataService } from '../../services/dataService';
 import { useNotification } from '../../context/NotificationContext';
 import { useAuth } from '../../context/AuthContext';
 import { lockBodyScroll, unlockBodyScroll } from '../../utils/scrollLock';
+import { printOrShareDocument } from '../../utils/mobilePrintHelper';
 import { 
   CheckCircle2, 
   ShieldCheck, 
@@ -801,134 +802,139 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
   };
 
   // High Quality Client-Side PDF Generation
+  const generateResolutionPdfDoc = async () => {
+    const { default: jsPDF } = await import('jspdf');
+    await import('jspdf-autotable');
+
+    const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+
+    // Header Banner
+    doc.setFillColor(15, 23, 42);
+    doc.rect(0, 0, 210, 26, 'F');
+
+    doc.setTextColor(255, 255, 255);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(12);
+    doc.text('UNIVERSITY OF PERPETUAL HELP SYSTEM MANILA', 105, 11, { align: 'center' });
+    doc.setFontSize(8.5);
+    doc.setFont('helvetica', 'normal');
+    doc.text('1240 V. Concepcion St., Sampaloc, Manila | Office of the Prefect of Discipline', 105, 17, { align: 'center' });
+    doc.text('VIOTRACK DISCIPLINARY & STUDENT WELFARE MANAGEMENT SYSTEM', 105, 22, { align: 'center' });
+
+    // Metadata Bar
+    doc.setTextColor(15, 23, 42);
+    doc.setFontSize(8.5);
+    doc.text(`Control No: ${controlNumber}`, 14, 34);
+    doc.text(`Date Issued: ${currentDateFormatted}`, 196, 34, { align: 'right' });
+
+    // Title
+    doc.setFontSize(13);
+    doc.setFont('helvetica', 'bold');
+    doc.text('CERTIFICATE OF DISCIPLINARY RESOLUTION & CLEARANCE', 105, 43, { align: 'center' });
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(100, 116, 139);
+    doc.text('(Official Restorative Intervention & Case Disposition)', 105, 48, { align: 'center' });
+
+    // Recipient / Student Information Box
+    doc.autoTable({
+      startY: 54,
+      margin: { left: 14, right: 14 },
+      head: [['Student Details & Case Record Information', '']],
+      body: [
+        ['Student Name:', studentFullName],
+        ['Student ID:', record.student?.student_id || record.student?.lrn || 'N/A'],
+        ['Grade & Section:', `Grade ${record.student?.grade || '10'} - ${record.student?.section || 'General'}`],
+        ['Incident Reference:', `Incident #${record.id} (Date: ${incidentDateFormatted})`],
+        ['Infraction / Violation:', `${record.violation?.title || record.offense || 'General Infraction'} (${record.violation?.type || record.severity || 'Minor'} Offense)`],
+        ['Final Case Status:', status.toUpperCase()]
+      ],
+      theme: 'plain',
+      headStyles: { fillColor: [15, 23, 42], textColor: [255, 255, 255], fontSize: 8.5, fontStyle: 'bold' },
+      bodyStyles: { fontSize: 8.5, textColor: [30, 41, 59] },
+      columnStyles: {
+        0: { cellWidth: 55, fontStyle: 'bold', textColor: [15, 23, 42] },
+        1: { cellWidth: 127 }
+      }
+    });
+
+    let currentY = doc.lastAutoTable.finalY + 8;
+
+    // Formal Statement
+    doc.setTextColor(15, 23, 42);
+    doc.setFontSize(9.5);
+    const statement = 'This is to formally certify that the disciplinary case for the student referenced above has undergone evaluation and due process in accordance with the Student Code of Conduct and Institutional Guidelines of University of Perpetual Help System Manila. Assigned corrective measures and restorative guidance counseling have been completed.';
+    const splitStatement = doc.splitTextToSize(statement, 182);
+    doc.text(splitStatement, 14, currentY);
+    currentY += (splitStatement.length * 5) + 6;
+
+    // Resolution & Sanctions Box
+    doc.setFillColor(248, 250, 252);
+    doc.setDrawColor(203, 213, 225);
+    doc.roundedRect(14, currentY, 182, 38, 2, 2, 'FD');
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(9);
+    doc.text('ASSIGNED SANCTION & REMEDIATION COMPLETED:', 20, currentY + 7);
+    doc.setFont('helvetica', 'normal');
+    doc.text(sanction || 'Verbal Warning, Guided Reflection & Standard Compliance Counseling Completed.', 20, currentY + 13);
+
+    doc.setFont('helvetica', 'bold');
+    doc.text('COUNSELING OUTCOMES & OFFICIAL NOTES:', 20, currentY + 22);
+    doc.setFont('helvetica', 'normal');
+    const sNotes = resolutionNotes || 'Student acknowledged infraction, agreed to code of conduct compliance, and successfully fulfilled assigned restorative tasks.';
+    const splitNotes = doc.splitTextToSize(sNotes, 170);
+    doc.text(splitNotes, 20, currentY + 28);
+
+    currentY += 46;
+
+    // Clearance declaration
+    doc.setFontSize(9);
+    doc.setTextColor(15, 23, 42);
+    const clearanceText = status === 'Resolved'
+      ? 'With the full satisfaction of assigned restorative measures, the student is hereby issued official disciplinary clearance for the aforementioned incident.'
+      : 'This case is currently being monitored in accordance with prescribed guidance follow-up timelines.';
+    doc.text(clearanceText, 14, currentY);
+    currentY += 16;
+
+    // Signatures
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(9);
+    doc.text(officerName, 14, currentY);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8.5);
+    doc.text(officerTitle, 14, currentY + 4);
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(9);
+    doc.text('Class Adviser / Counselor', 80, currentY);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8.5);
+    doc.text('Guidance & Counseling Office', 80, currentY + 4);
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(9);
+    doc.text('Parent / Legal Guardian', 148, currentY);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8.5);
+    doc.text('Conforme & Acknowledged', 148, currentY + 4);
+
+    // Security Footer
+    const tearOffY = Math.max(currentY + 24, 252);
+    doc.setDrawColor(203, 213, 225);
+    doc.line(14, tearOffY, 196, tearOffY);
+
+    doc.setFontSize(8);
+    doc.setTextColor(100, 116, 139);
+    doc.text(`SECURITY VERIFICATION CODE: ${securityHash}   |   SYSTEM ARCHIVE: VIOTRACK INSTITUTIONAL RECORD`, 105, tearOffY + 5, { align: 'center' });
+    doc.text('Official institutional clearance certificate issued by the Office of the Prefect of Discipline.', 105, tearOffY + 10, { align: 'center' });
+
+    return doc;
+  };
+
   const handleDownloadPDF = async () => {
     try {
-      const { default: jsPDF } = await import('jspdf');
-      await import('jspdf-autotable');
-
-      const doc = new jsPDF({ unit: 'mm', format: 'a4' });
-
-      // Header Banner
-      doc.setFillColor(15, 23, 42);
-      doc.rect(0, 0, 210, 26, 'F');
-
-      doc.setTextColor(255, 255, 255);
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(12);
-      doc.text('UNIVERSITY OF PERPETUAL HELP SYSTEM MANILA', 105, 11, { align: 'center' });
-      doc.setFontSize(8.5);
-      doc.setFont('helvetica', 'normal');
-      doc.text('1240 V. Concepcion St., Sampaloc, Manila | Office of the Prefect of Discipline', 105, 17, { align: 'center' });
-      doc.text('VIOTRACK DISCIPLINARY & STUDENT WELFARE MANAGEMENT SYSTEM', 105, 22, { align: 'center' });
-
-      // Metadata Bar
-      doc.setTextColor(15, 23, 42);
-      doc.setFontSize(8.5);
-      doc.text(`Control No: ${controlNumber}`, 14, 34);
-      doc.text(`Date Issued: ${currentDateFormatted}`, 196, 34, { align: 'right' });
-
-      // Title
-      doc.setFontSize(13);
-      doc.setFont('helvetica', 'bold');
-      doc.text('CERTIFICATE OF DISCIPLINARY RESOLUTION & CLEARANCE', 105, 43, { align: 'center' });
-      doc.setFontSize(9);
-      doc.setFont('helvetica', 'normal');
-      doc.setTextColor(100, 116, 139);
-      doc.text('(Official Restorative Intervention & Case Disposition)', 105, 48, { align: 'center' });
-
-      // Recipient / Student Information Box
-      doc.autoTable({
-        startY: 54,
-        margin: { left: 14, right: 14 },
-        head: [['Student Details & Case Record Information', '']],
-        body: [
-          ['Student Name:', studentFullName],
-          ['Student ID:', record.student?.student_id || record.student?.lrn || 'N/A'],
-          ['Grade & Section:', `Grade ${record.student?.grade || '10'} - ${record.student?.section || 'General'}`],
-          ['Incident Reference:', `Incident #${record.id} (Date: ${incidentDateFormatted})`],
-          ['Infraction / Violation:', `${record.violation?.title || record.offense || 'General Infraction'} (${record.violation?.type || record.severity || 'Minor'} Offense)`],
-          ['Final Case Status:', status.toUpperCase()]
-        ],
-        theme: 'plain',
-        headStyles: { fillColor: [15, 23, 42], textColor: [255, 255, 255], fontSize: 8.5, fontStyle: 'bold' },
-        bodyStyles: { fontSize: 8.5, textColor: [30, 41, 59] },
-        columnStyles: {
-          0: { cellWidth: 55, fontStyle: 'bold', textColor: [15, 23, 42] },
-          1: { cellWidth: 127 }
-        }
-      });
-
-      let currentY = doc.lastAutoTable.finalY + 8;
-
-      // Formal Statement
-      doc.setTextColor(15, 23, 42);
-      doc.setFontSize(9.5);
-      const statement = 'This is to formally certify that the disciplinary case for the student referenced above has undergone evaluation and due process in accordance with the Student Code of Conduct and Institutional Guidelines of University of Perpetual Help System Manila. Assigned corrective measures and restorative guidance counseling have been completed.';
-      const splitStatement = doc.splitTextToSize(statement, 182);
-      doc.text(splitStatement, 14, currentY);
-      currentY += (splitStatement.length * 5) + 6;
-
-      // Resolution & Sanctions Box
-      doc.setFillColor(248, 250, 252);
-      doc.setDrawColor(203, 213, 225);
-      doc.roundedRect(14, currentY, 182, 38, 2, 2, 'FD');
-
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(9);
-      doc.text('ASSIGNED SANCTION & REMEDIATION COMPLETED:', 20, currentY + 7);
-      doc.setFont('helvetica', 'normal');
-      doc.text(sanction || 'Verbal Warning, Guided Reflection & Standard Compliance Counseling Completed.', 20, currentY + 13);
-
-      doc.setFont('helvetica', 'bold');
-      doc.text('COUNSELING OUTCOMES & OFFICIAL NOTES:', 20, currentY + 22);
-      doc.setFont('helvetica', 'normal');
-      const sNotes = resolutionNotes || 'Student acknowledged infraction, agreed to code of conduct compliance, and successfully fulfilled assigned restorative tasks.';
-      const splitNotes = doc.splitTextToSize(sNotes, 170);
-      doc.text(splitNotes, 20, currentY + 28);
-
-      currentY += 46;
-
-      // Clearance declaration
-      doc.setFontSize(9);
-      doc.setTextColor(15, 23, 42);
-      const clearanceText = status === 'Resolved'
-        ? 'With the full satisfaction of assigned restorative measures, the student is hereby issued official disciplinary clearance for the aforementioned incident.'
-        : 'This case is currently being monitored in accordance with prescribed guidance follow-up timelines.';
-      doc.text(clearanceText, 14, currentY);
-      currentY += 16;
-
-      // Signatures
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(9);
-      doc.text(officerName, 14, currentY);
-      doc.setFont('helvetica', 'normal');
-      doc.setFontSize(8.5);
-      doc.text(officerTitle, 14, currentY + 4);
-
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(9);
-      doc.text('Class Adviser / Counselor', 80, currentY);
-      doc.setFont('helvetica', 'normal');
-      doc.setFontSize(8.5);
-      doc.text('Guidance & Counseling Office', 80, currentY + 4);
-
-      doc.setFont('helvetica', 'bold');
-      doc.setFontSize(9);
-      doc.text('Parent / Legal Guardian', 148, currentY);
-      doc.setFont('helvetica', 'normal');
-      doc.setFontSize(8.5);
-      doc.text('Conforme & Acknowledged', 148, currentY + 4);
-
-      // Security Footer
-      const tearOffY = Math.max(currentY + 24, 252);
-      doc.setDrawColor(203, 213, 225);
-      doc.line(14, tearOffY, 196, tearOffY);
-
-      doc.setFontSize(8);
-      doc.setTextColor(100, 116, 139);
-      doc.text(`SECURITY VERIFICATION CODE: ${securityHash}   |   SYSTEM ARCHIVE: VIOTRACK INSTITUTIONAL RECORD`, 105, tearOffY + 5, { align: 'center' });
-      doc.text('Official institutional clearance certificate issued by the Office of the Prefect of Discipline.', 105, tearOffY + 10, { align: 'center' });
-
+      const doc = await generateResolutionPdfDoc();
       doc.save(`Disciplinary_Resolution_Certificate_${studentFullName.replace(/\s+/g, '_')}_${record.id}.pdf`);
       success('Case Resolution PDF Certificate successfully downloaded!');
     } catch (err) {
@@ -936,16 +942,32 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
     }
   };
 
-  const handlePrintResolutionCertificate = () => {
-    const html = buildCertificateHtml({
-      record,
-      status,
-      sanction,
-      resolutionNotes,
-      officerName,
-      officerTitle
-    });
-    printCertificateDocument(html);
+  const handlePrintResolutionCertificate = async () => {
+    try {
+      const html = buildCertificateHtml({
+        record,
+        status,
+        sanction,
+        resolutionNotes,
+        officerName,
+        officerTitle
+      });
+
+      await printOrShareDocument({
+        title: `${studentLastName || 'Student'} - Disciplinary Case Resolution Certificate`,
+        filename: `Disciplinary_Resolution_${studentFullName.replace(/\s+/g, '_')}_${record.id}.pdf`,
+        htmlContent: html,
+        generatePdfBlob: generateResolutionPdfDoc,
+        onStatus: (st) => {
+          if (st.type === 'success') success(st.message);
+          else if (st.type === 'info') info(st.message);
+          else if (st.type === 'error') error(st.message);
+        }
+      });
+    } catch (err) {
+      console.error('Print / Share error:', err);
+      error('Failed to print document: ' + err.message);
+    }
   };
 
   const studentName = `${record.student?.fname || ''} ${record.student?.lname || ''}`.trim();

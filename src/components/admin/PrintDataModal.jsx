@@ -2,6 +2,7 @@ import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useNotification } from '../../context/NotificationContext';
 import { lockBodyScroll, unlockBodyScroll } from '../../utils/scrollLock';
+import { printOrShareDocument } from '../../utils/mobilePrintHelper';
 import { CustomDatePicker } from '../common/CustomDatePicker';
 import {
   Printer,
@@ -1321,7 +1322,7 @@ export const PrintDataModal = ({ isOpen, onClose, records = [], students = [], t
     }
   };
 
-  const handlePrint = () => {
+  const handlePrint = async () => {
     try {
       const html = buildPrintReportHtml({
         records: filteredRecords,
@@ -1341,26 +1342,19 @@ export const PrintDataModal = ({ isOpen, onClose, records = [], students = [], t
         currentDateFormatted
       });
 
-      printReportDocument(html);
-      success('Multi-page institutional report sent to printer');
+      await printOrShareDocument({
+        title: `${reportTitle} - ${dateRangeLabel}`,
+        filename: `Disciplinary_Analytics_Report_${dateRangeLabel.replace(/\s+/g, '_')}.html`,
+        htmlContent: html,
+        onStatus: (st) => {
+          if (st.type === 'success') success(st.message);
+          else if (st.type === 'info') info(st.message);
+          else if (st.type === 'error') error(st.message);
+        }
+      });
     } catch (err) {
       console.error('Print generation error:', err);
-      try {
-        const printContent = printRef.current;
-        if (printContent) {
-          const win = window.open('', '_blank', 'width=950,height=1000');
-          if (win) {
-            win.document.open();
-            win.document.write(`<!DOCTYPE html><html><head><title>${reportTitle}</title><style>@page{size:letter portrait;margin:10mm;}body{margin:0;font-family:sans-serif;}</style></head><body>${printContent.innerHTML}</body></html>`);
-            win.document.close();
-            win.focus();
-            setTimeout(() => { win.print(); }, 300);
-            success('Print dialog opened.');
-          }
-        }
-      } catch (fallbackErr) {
-        console.error('Fallback print error:', fallbackErr);
-      }
+      error('Failed to print report: ' + err.message);
     }
   };
 
