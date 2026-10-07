@@ -213,3 +213,12 @@ The immediately preceding main commit, [`310ee8e`](https://github.com/andreicrp/
 | `npm run build` | Passed; 2,662.97 kB `vendor-react`, 1,264.34 kB PDF worker, with the existing >800 kB advisory. |
 
 After rebasing the existing PR onto `08012d3`, the complete suite passed (**24 tests across 2 files**), `npm run typecheck` passed, lint passed (**388 warnings, 0 errors**), and build passed. Clean main and PR matching-path builds emitted the same `vendor-react` (2,662.97 kB), PDF worker (1,264.34 kB), and PDF helper (7.07 kB) assets; the chunk-size advisory is baseline-equivalent.
+
+
+## Baseline after the 2026-10-08 Student Identified modal redesign
+
+Latest main is [`2503ca6bb9ca7cb200b0aa6b5f273a574bb513e3`](https://github.com/andreicrp/viotrack-react/commit/2503ca6bb9ca7cb200b0aa6b5f273a574bb513e3). It changes only `src/pages/ScanQRPage.jsx` and `src/css/scan-qr.css` to redesign the verified-student modal; no data-service, test, or dependency files changed, so no service-source port was needed.
+
+On a clean detached checkout of latest main, **4 existing tests passed**, lint passed (**390 warnings, 0 errors**), and build passed (2,662.97 kB `vendor-react`, 1,264.34 kB PDF worker, with the established >800 kB advisory). Main has no typecheck script.
+
+After rebasing the existing PR onto `2503ca6`, **24 tests passed**, `npm run typecheck` passed, lint passed (**389 warnings, 0 errors**), and build passed. The matching-path clean-main and PR builds emitted identical PDF helper (7.07 kB), PDF worker (1,264.34 kB), and `vendor-react` (2,662.97 kB) assets; the chunk-size advisory is baseline-equivalent.
