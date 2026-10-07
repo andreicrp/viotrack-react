@@ -711,7 +711,7 @@ export const BackupRestoreModal = ({ isOpen, onClose }) => {
 
           {/* TAB 3: SCHEDULE SETTINGS */}
           {activeTab === 'schedule' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', minHeight: '280px', paddingBottom: '30px' }}>
               <div style={{ background: '#f8fafc', border: '1.5px solid #e2e8f0', borderRadius: '18px', padding: '24px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px', paddingBottom: '16px', borderBottom: '1px solid #e2e8f0' }}>
                   <div>

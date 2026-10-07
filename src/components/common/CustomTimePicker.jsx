@@ -6,11 +6,11 @@ const MINUTES = ['00', '05', '10', '15', '20', '25', '30', '35', '40', '45', '50
 const PERIODS = ['AM', 'PM'];
 
 const PRESETS = [
-  { label: '12:00 AM (Midnight)', value: '00:00' },
-  { label: '06:00 AM (Early Morning)', value: '06:00' },
-  { label: '12:00 PM (Noon)', value: '12:00' },
-  { label: '06:00 PM (Evening)', value: '18:00' },
-  { label: '11:59 PM (End of Day)', value: '23:59' }
+  { label: '12:00 AM', value: '00:00' },
+  { label: '06:00 AM', value: '06:00' },
+  { label: '08:00 AM', value: '08:00' },
+  { label: '12:00 PM', value: '12:00' },
+  { label: '06:00 PM', value: '18:00' }
 ];
 
 export const CustomTimePicker = ({
@@ -21,7 +21,9 @@ export const CustomTimePicker = ({
   style = {}
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [openUpward, setOpenUpward] = useState(false);
   const containerRef = useRef(null);
+  const popoverRef = useRef(null);
 
   // Convert 24-hr 'HH:MM' string to 12-hr parts
   const { hour12, minute, period, displayLabel } = useMemo(() => {
@@ -49,6 +51,20 @@ export const CustomTimePicker = ({
       displayLabel: `${h12Str}:${mStr} ${p}`
     };
   }, [value]);
+
+  // Determine smart placement (upward vs downward)
+  useEffect(() => {
+    if (isOpen && containerRef.current) {
+      const rect = containerRef.current.getBoundingClientRect();
+      const spaceBelow = window.innerHeight - rect.bottom;
+      // If less than 280px available below, flip upward
+      if (spaceBelow < 280) {
+        setOpenUpward(true);
+      } else {
+        setOpenUpward(false);
+      }
+    }
+  }, [isOpen]);
 
   // Close when clicking outside
   useEffect(() => {
@@ -114,7 +130,7 @@ export const CustomTimePicker = ({
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
-          padding: '10px 14px',
+          padding: '9px 14px',
           background: '#ffffff',
           border: isOpen ? '1.5px solid #07345f' : '1.5px solid #cbd5e1',
           borderRadius: '10px',
@@ -123,16 +139,16 @@ export const CustomTimePicker = ({
           color: '#0f172a',
           cursor: disabled ? 'not-allowed' : 'pointer',
           outline: 'none',
-          boxShadow: isOpen ? '0 0 0 3px rgba(7, 52, 95, 0.12)' : '0 1px 2px rgba(0,0,0,0.03)',
+          boxShadow: isOpen ? '0 0 0 3px rgba(7, 52, 95, 0.12)' : 'none',
           transition: 'all 0.15s ease'
         }}
       >
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <Clock size={16} color="#07345f" strokeWidth={2.2} />
+          <Clock size={15} color="#07345f" strokeWidth={2.2} />
           <span>{displayLabel}</span>
         </div>
         <ChevronDown
-          size={15}
+          size={14}
           color="#64748b"
           style={{
             transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)',
@@ -144,21 +160,23 @@ export const CustomTimePicker = ({
       {/* Popover Dropdown Card */}
       {isOpen && (
         <div
+          ref={popoverRef}
           style={{
             position: 'absolute',
-            top: 'calc(100% + 6px)',
+            ...(openUpward
+              ? { bottom: 'calc(100% + 6px)' }
+              : { top: 'calc(100% + 6px)' }),
             left: 0,
-            zIndex: 99999,
-            width: '280px',
+            zIndex: 999999,
+            width: '260px',
             background: '#ffffff',
-            borderRadius: '16px',
-            border: '1px solid #e2e8f0',
-            boxShadow: '0 20px 40px -10px rgba(0, 0, 0, 0.18), 0 0 0 1px rgba(0,0,0,0.04)',
-            padding: '12px',
+            borderRadius: '14px',
+            border: '1.5px solid #cbd5e1',
+            boxShadow: '0 16px 36px -8px rgba(0, 0, 0, 0.22), 0 0 0 1px rgba(0,0,0,0.05)',
+            padding: '10px',
             display: 'flex',
             flexDirection: 'column',
-            gap: '10px',
-            animation: 'fadeInTimePicker 0.15s cubic-bezier(0.16, 1, 0.3, 1)'
+            gap: '8px'
           }}
         >
           {/* Header Preview Banner */}
@@ -166,17 +184,17 @@ export const CustomTimePicker = ({
             style={{
               background: '#f8fafc',
               border: '1px solid #e2e8f0',
-              borderRadius: '10px',
-              padding: '8px 12px',
+              borderRadius: '8px',
+              padding: '6px 10px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between'
             }}
           >
-            <span style={{ fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+            <span style={{ fontSize: '10.5px', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.03em' }}>
               Selected Time
             </span>
-            <span style={{ fontSize: '14px', fontWeight: 800, color: '#07345f' }}>
+            <span style={{ fontSize: '13px', fontWeight: 800, color: '#07345f' }}>
               {displayLabel}
             </span>
           </div>
@@ -187,12 +205,12 @@ export const CustomTimePicker = ({
               display: 'grid',
               gridTemplateColumns: '1fr 1fr 1fr',
               gap: '6px',
-              height: '180px'
+              height: '120px'
             }}
           >
             {/* Hours Column */}
             <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-              <div style={{ fontSize: '10.5px', fontWeight: 700, color: '#64748b', textAlign: 'center', marginBottom: '4px' }}>
+              <div style={{ fontSize: '10px', fontWeight: 800, color: '#64748b', textAlign: 'center', marginBottom: '3px' }}>
                 HOUR
               </div>
               <div
@@ -200,11 +218,12 @@ export const CustomTimePicker = ({
                   flex: 1,
                   overflowY: 'auto',
                   border: '1px solid #e2e8f0',
-                  borderRadius: '8px',
+                  borderRadius: '6px',
                   padding: '2px',
                   display: 'flex',
                   flexDirection: 'column',
-                  gap: '2px'
+                  gap: '1px',
+                  background: '#fcfcfc'
                 }}
               >
                 {HOURS.map((h) => {
@@ -215,16 +234,16 @@ export const CustomTimePicker = ({
                       type="button"
                       onClick={() => handleSelectHour(h)}
                       style={{
-                        padding: '6px 0',
+                        padding: '4px 0',
                         border: 'none',
-                        borderRadius: '6px',
+                        borderRadius: '4px',
                         background: isSelected ? '#07345f' : 'transparent',
                         color: isSelected ? '#ffffff' : '#1e293b',
-                        fontSize: '12px',
+                        fontSize: '11.5px',
                         fontWeight: isSelected ? 800 : 600,
                         cursor: 'pointer',
                         textAlign: 'center',
-                        transition: 'background 0.12s'
+                        lineHeight: 1.2
                       }}
                       onMouseOver={(e) => {
                         if (!isSelected) e.currentTarget.style.background = '#f1f5f9';
@@ -242,7 +261,7 @@ export const CustomTimePicker = ({
 
             {/* Minutes Column */}
             <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-              <div style={{ fontSize: '10.5px', fontWeight: 700, color: '#64748b', textAlign: 'center', marginBottom: '4px' }}>
+              <div style={{ fontSize: '10px', fontWeight: 800, color: '#64748b', textAlign: 'center', marginBottom: '3px' }}>
                 MIN
               </div>
               <div
@@ -250,11 +269,12 @@ export const CustomTimePicker = ({
                   flex: 1,
                   overflowY: 'auto',
                   border: '1px solid #e2e8f0',
-                  borderRadius: '8px',
+                  borderRadius: '6px',
                   padding: '2px',
                   display: 'flex',
                   flexDirection: 'column',
-                  gap: '2px'
+                  gap: '1px',
+                  background: '#fcfcfc'
                 }}
               >
                 {MINUTES.map((m) => {
@@ -265,16 +285,16 @@ export const CustomTimePicker = ({
                       type="button"
                       onClick={() => handleSelectMinute(m)}
                       style={{
-                        padding: '6px 0',
+                        padding: '4px 0',
                         border: 'none',
-                        borderRadius: '6px',
+                        borderRadius: '4px',
                         background: isSelected ? '#07345f' : 'transparent',
                         color: isSelected ? '#ffffff' : '#1e293b',
-                        fontSize: '12px',
+                        fontSize: '11.5px',
                         fontWeight: isSelected ? 800 : 600,
                         cursor: 'pointer',
                         textAlign: 'center',
-                        transition: 'background 0.12s'
+                        lineHeight: 1.2
                       }}
                       onMouseOver={(e) => {
                         if (!isSelected) e.currentTarget.style.background = '#f1f5f9';
@@ -292,19 +312,20 @@ export const CustomTimePicker = ({
 
             {/* Period Column */}
             <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-              <div style={{ fontSize: '10.5px', fontWeight: 700, color: '#64748b', textAlign: 'center', marginBottom: '4px' }}>
+              <div style={{ fontSize: '10px', fontWeight: 800, color: '#64748b', textAlign: 'center', marginBottom: '3px' }}>
                 AM / PM
               </div>
               <div
                 style={{
                   flex: 1,
                   border: '1px solid #e2e8f0',
-                  borderRadius: '8px',
-                  padding: '4px',
+                  borderRadius: '6px',
+                  padding: '3px',
                   display: 'flex',
                   flexDirection: 'column',
                   gap: '4px',
-                  justifyContent: 'center'
+                  justifyContent: 'center',
+                  background: '#fcfcfc'
                 }}
               >
                 {PERIODS.map((p) => {
@@ -315,22 +336,22 @@ export const CustomTimePicker = ({
                       type="button"
                       onClick={() => handleSelectPeriod(p)}
                       style={{
-                        padding: '12px 0',
+                        padding: '8px 0',
                         border: 'none',
-                        borderRadius: '6px',
-                        background: isSelected ? '#07345f' : '#f8fafc',
+                        borderRadius: '5px',
+                        background: isSelected ? '#07345f' : '#ffffff',
                         color: isSelected ? '#ffffff' : '#1e293b',
-                        fontSize: '12.5px',
+                        fontSize: '11.5px',
                         fontWeight: 800,
                         cursor: 'pointer',
                         textAlign: 'center',
-                        transition: 'all 0.15s ease'
+                        boxShadow: isSelected ? 'none' : '0 1px 2px rgba(0,0,0,0.05)'
                       }}
                       onMouseOver={(e) => {
                         if (!isSelected) e.currentTarget.style.background = '#e2e8f0';
                       }}
                       onMouseOut={(e) => {
-                        if (!isSelected) e.currentTarget.style.background = '#f8fafc';
+                        if (!isSelected) e.currentTarget.style.background = '#ffffff';
                       }}
                     >
                       {p}
@@ -342,9 +363,9 @@ export const CustomTimePicker = ({
           </div>
 
           {/* Quick Presets Menu */}
-          <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: '8px' }}>
-            <div style={{ fontSize: '10.5px', fontWeight: 700, color: '#94a3b8', marginBottom: '4px', textTransform: 'uppercase' }}>
-              Quick Presets
+          <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: '6px' }}>
+            <div style={{ fontSize: '10px', fontWeight: 800, color: '#94a3b8', marginBottom: '4px', textTransform: 'uppercase' }}>
+              Presets
             </div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
               {PRESETS.map((preset) => (
@@ -353,20 +374,19 @@ export const CustomTimePicker = ({
                   type="button"
                   onClick={() => handlePreset(preset.value)}
                   style={{
-                    padding: '3px 8px',
-                    fontSize: '11px',
-                    fontWeight: 600,
-                    borderRadius: '6px',
+                    padding: '2px 6px',
+                    fontSize: '10.5px',
+                    fontWeight: 700,
+                    borderRadius: '5px',
                     border: '1px solid #e2e8f0',
                     background: '#f8fafc',
                     color: '#334155',
-                    cursor: 'pointer',
-                    transition: 'all 0.12s'
+                    cursor: 'pointer'
                   }}
                   onMouseOver={(e) => { e.currentTarget.style.background = '#07345f'; e.currentTarget.style.color = '#fff'; }}
                   onMouseOut={(e) => { e.currentTarget.style.background = '#f8fafc'; e.currentTarget.style.color = '#334155'; }}
                 >
-                  {preset.label.split(' ')[0]} {preset.label.split(' ')[1]}
+                  {preset.label}
                 </button>
               ))}
             </div>
@@ -377,13 +397,12 @@ export const CustomTimePicker = ({
             type="button"
             onClick={() => setIsOpen(false)}
             style={{
-              marginTop: '2px',
-              padding: '8px',
+              padding: '6px',
               border: 'none',
-              borderRadius: '8px',
+              borderRadius: '6px',
               background: '#0f172a',
               color: '#ffffff',
-              fontSize: '12px',
+              fontSize: '11.5px',
               fontWeight: 700,
               cursor: 'pointer',
               display: 'flex',
@@ -392,7 +411,7 @@ export const CustomTimePicker = ({
               gap: '4px'
             }}
           >
-            <Check size={14} /> Done
+            <Check size={13} /> Done
           </button>
         </div>
       )}
