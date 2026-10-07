@@ -29,7 +29,15 @@ export const studentsMethods = {
         if (isSupabaseConfigured()) {
           try {
             const { data, error } = await supabase.from('students').select('*').order('lname', { ascending: true });
-            if (!error && data) remoteList = data;
+            if (!error && Array.isArray(data)) {
+              remoteList = data;
+            } else {
+              // Retry without ordering when the database schema does not support `lname` ordering.
+              const fallback = await supabase.from('students').select('*');
+              if (!fallback.error && Array.isArray(fallback.data)) {
+                remoteList = fallback.data;
+              }
+            }
           } catch (e) {
             console.warn('Supabase getStudents notice:', e);
           }
@@ -54,6 +62,11 @@ export const studentsMethods = {
       });
     },
 
+  /**
+   * Add a student, retrying inserts after removing unsupported schema columns.
+   * @param {import('./types').StudentInput} student Student values to normalize and add.
+   * @returns {Promise<import('./types').Student>} The resulting student record.
+   */
   async addStudent(student) {
       startMutation();
       try {
@@ -82,21 +95,27 @@ export const studentsMethods = {
 
         if (isSupabaseConfigured()) {
           try {
-            // Try inserting with student_id first, then remove any unsupported schema columns.
             let payload = { ...cleanStudent };
             let res = await supabase.from('students').insert([payload]).select();
-            if (res.error && (res.error.message?.includes('column') || res.error.code === '42703')) {
-              if (res.error.message?.includes('student_id')) delete payload.student_id;
-              if (res.error.message?.includes('lrn')) delete payload.lrn;
-              if (res.error.message?.includes('track')) delete payload.track;
-              if (res.error.message?.includes('strand')) delete payload.strand;
-              if (res.error.message?.includes('academicyear')) delete payload.academicyear;
-              res = await supabase.from('students').insert([payload]).select();
+            if (res.error) {
+              // Optional fields vary across deployed student-table schemas.
+              const pruned = { ...payload };
+              delete pruned.track;
+              delete pruned.strand;
+              delete pruned.academicyear;
+              res = await supabase.from('students').insert([pruned]).select();
+              if (res.error && res.error.message?.includes('student_id')) {
+                delete pruned.student_id;
+                res = await supabase.from('students').insert([pruned]).select();
+              } else if (res.error && res.error.message?.includes('lrn')) {
+                delete pruned.lrn;
+                res = await supabase.from('students').insert([pruned]).select();
+              }
             }
             if (!res.error && res.data?.[0]) {
               result = { ...res.data[0], ...cleanStudent, student_id: studentIdVal, lrn: studentIdVal };
             } else if (res.error) {
-              console.error('Supabase addStudent error:', res.error);
+              console.warn('Supabase addStudent fallback to local store:', res.error);
             }
           } catch (err) {
             console.warn('Supabase addStudent error:', err);
@@ -118,6 +137,12 @@ export const studentsMethods = {
       }
     },
 
+  /**
+   * Add roster rows in chunks and synchronize the local student cache.
+   * @param {import('./types').StudentInput[]} studentsList Student rows to import.
+   * @param {(current: number, total: number) => void} [onProgress] Optional progress callback.
+   * @returns {Promise<import('./types').BulkStudentImportResult>} Aggregate import result.
+   */
   async bulkAddStudents(studentsList, onProgress) {
       if (!Array.isArray(studentsList) || studentsList.length === 0) return { insertedCount: 0, errors: [] };
       startMutation();
@@ -159,18 +184,11 @@ export const studentsMethods = {
               let payload = chunk.map(s => ({ ...s }));
 
               let res = await supabase.from('students').insert(payload).select();
-                if (res.error && (res.error.message?.includes('column') || res.error.code === '42703')) {
-                  if (res.error.message?.includes('student_id')) {
-                    payload = payload.map(p => { const { student_id, ...rest } = p; return rest; });
-                  } else if (res.error.message?.includes('lrn')) {
-                    payload = payload.map(p => { const { lrn, ...rest } = p; return rest; });
-                  }
-                  if (res.error.message?.includes('track')) {
-                    payload = payload.map(p => { const { track, ...rest } = p; return rest; });
-                  }
-                  if (res.error.message?.includes('strand')) {
-                    payload = payload.map(p => { const { strand, ...rest } = p; return rest; });
-                  }
+                if (res.error) {
+                  payload = payload.map(p => {
+                    const { track, strand, academicyear, ...rest } = p;
+                    return rest;
+                  });
                   res = await supabase.from('students').insert(payload).select();
               }
 
@@ -207,7 +225,7 @@ export const studentsMethods = {
 
         invalidateCache('students');
         invalidateCache('records');
-        await this.addActivityLog('Bulk Import', `Bulk imported and enrolled ${total} student records via CSV`);
+        await this.addActivityLog('Bulk Import', `Bulk imported and enrolled ${total} student records`);
         broadcastRecordChange('create', 'students', { count: total });
 
         if (onProgress) {
@@ -220,6 +238,12 @@ export const studentsMethods = {
       }
     },
 
+  /**
+   * Update a student by database id, student_id, or LRN with schema-compatible retries.
+   * @param {string | number} id Database id or student identifier.
+   * @param {Partial<import('./types').StudentInput>} updates Fields to update.
+   * @returns {Promise<import('./types').Student>} The updated student record.
+   */
   async updateStudent(id, updates) {
       startMutation();
       try {
@@ -247,25 +271,28 @@ export const studentsMethods = {
             if (hasNumericId) {
               res = await supabase.from('students').update(payload).eq('id', numericId).select();
             } else {
-              res = await supabase.from('students').update(payload).or(`student_id.eq.${id},lrn.eq.${id}`).select();
+              res = await supabase.from('students').update(payload).eq('student_id', id).select();
+              if (res.error || !res.data?.length) {
+                res = await supabase.from('students').update(payload).eq('lrn', id).select();
+              }
             }
-            if (res.error && (res.error.message?.includes('column') || res.error.code === '42703')) {
-              if (res.error.message?.includes('student_id')) delete payload.student_id;
-              if (res.error.message?.includes('lrn')) delete payload.lrn;
-              if (res.error.message?.includes('track')) delete payload.track;
-              if (res.error.message?.includes('strand')) delete payload.strand;
-              if (res.error.message?.includes('academicyear')) delete payload.academicyear;
+            if (res.error) {
+              const pruned = { ...payload };
+              delete pruned.track;
+              delete pruned.strand;
+              delete pruned.academicyear;
               if (hasNumericId) {
-                res = await supabase.from('students').update(payload).eq('id', numericId).select();
+                res = await supabase.from('students').update(pruned).eq('id', numericId).select();
               } else {
-                res = await supabase.from('students').update(payload).or(`student_id.eq.${id},lrn.eq.${id}`).select();
+                res = await supabase.from('students').update(pruned).eq('student_id', id).select();
+                if (res.error || !res.data?.length) {
+                  res = await supabase.from('students').update(pruned).eq('lrn', id).select();
+                }
               }
             }
             if (!res.error && res.data?.[0]) {
               const sid = res.data[0].student_id || res.data[0].lrn || cleanUpdates.student_id || id;
               result = { ...res.data[0], ...cleanUpdates, student_id: sid, lrn: sid };
-            } else if (res.error) {
-              console.error('Supabase updateStudent error:', res.error);
             }
           } catch (err) {
             console.warn('Supabase updateStudent error:', err);
@@ -301,6 +328,11 @@ export const studentsMethods = {
       }
     },
 
+  /**
+   * Delete a student by database id, student_id, or LRN.
+   * @param {string | number} id Database id or student identifier.
+   * @returns {Promise<boolean>} Whether the local deletion completed.
+   */
   async deleteStudent(id) {
       startMutation();
       try {
@@ -308,11 +340,12 @@ export const studentsMethods = {
           try {
             const numericId = Number(id);
             if (!isNaN(numericId) && numericId > 0) {
-              const { error } = await supabase.from('students').delete().eq('id', numericId);
-              if (error) console.error('Supabase deleteStudent error:', error);
+              await supabase.from('students').delete().eq('id', numericId);
             } else {
-              const { error } = await supabase.from('students').delete().or(`student_id.eq.${id},lrn.eq.${id}`);
-              if (error) console.error('Supabase deleteStudent error:', error);
+              const firstAttempt = await supabase.from('students').delete().eq('student_id', id);
+              if (firstAttempt.error) {
+                await supabase.from('students').delete().eq('lrn', id);
+              }
             }
           } catch (err) {
             console.warn('Supabase deleteStudent error:', err);

@@ -150,3 +150,16 @@ A clean build of `e530612` from `/tmp/viotrack-react-main-baseline` emitted `ven
 Latest main is [`b85322fb78d97f9c7656eef3ba5611a35278588e`](https://github.com/andreicrp/viotrack-react/commit/b85322fb78d97f9c7656eef3ba5611a35278588e). It changes the monolithic student-service methods and `pdfHelper.js`; no test or dependency files changed in this commit. New service behavior includes an unordered student-read retry if `order('lname')` fails, schema-resilient student inserts/updates/deletes, `student_id`-then-`lrn` lookup fallback for writes, and a generic bulk-import audit message. The PDF worker now resolves to a locally bundled worker URL, with CDN fallback.
 
 Before applying this service change to the existing PR, a clean detached checkout of `b85322f` passed **4 tests** (the existing CSV/security/SMS suite), lint with **372 warnings and 0 errors**, and build (282.23 kB `vendor-react`). Main still has no typecheck script or service-specific tests. `npm ci --ignore-scripts` reports the single existing high-severity audit advisory. These are the pre-port baseline results; the PR will carry the schema and PDF worker behavior into its extracted module/tests without duplicating a branch or PR.
+
+### Student schema fallback port verification (b85322f)
+
+The existing split service now mirrors the main commit's student-read retry, schema-pruned single/bulk inserts, student_id-to-LRN update/delete fallbacks, generic bulk-import audit message, and bundled PDF worker behavior (the `pdfHelper.js` change is inherited from main). Added regressions exercise each data-service fallback.
+
+| Check | PR result after port | Clean-main baseline |
+| --- | --- | --- |
+| `npm test -- --reporter=verbose` | Passed: 21 tests across 2 files. | 4 tests across 1 file. |
+| `npm run typecheck` | Passed. | No typecheck script on main. |
+| `npm run lint -- --quiet` | 0 errors, 371 warnings. | 0 errors, 372 warnings. |
+| `npm run build` | Passed. | Passed. |
+
+For the comparable checkout path, both clean main and the PR emitted `vendor-react-Wu-iWA7h.js` at 2,663.31 kB and `pdf.worker.min-CjEcRF4W.mjs` at 1,264.34 kB, with the same chunk-size advisory. The PR adds no bundle-size change beyond latest main.
