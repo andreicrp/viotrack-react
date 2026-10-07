@@ -236,3 +236,10 @@ Clean latest main passed **4 existing tests**, lint (**389 warnings, 0 errors**)
 Latest main is [`b8a09116dd71eeb5224f586c80250d09ad5953cf`](https://github.com/andreicrp/viotrack-react/commit/b8a09116dd71eeb5224f586c80250d09ad5953cf). It updates `qrHelper.js` and `ScanQRPage.jsx` to reject unrelated QR payloads and improve invalid-scan status. No data-service, dependency, or test files changed; no service-module port was needed.
 
 Clean latest main passed **4 existing tests**, lint (**389 warnings, 0 errors**), and build (2,662.97 kB `vendor-react`, 1,264.34 kB PDF worker, with the existing chunk-size advisory). Main has no typecheck script. After rebasing the existing PR onto `b8a0911`, **24 tests passed**, `npm run typecheck` passed, lint passed (**388 warnings, 0 errors**), and build passed. Matching-path main and PR builds emitted the same PDF helper, PDF worker, and vendor React assets; the advisory is baseline-equivalent.
+
+
+## Baseline after the 2026-10-08 invalid-QR notice commit
+
+Latest main is [`1b8938c57ef480e721373697d6fabd01797ad08d`](https://github.com/andreicrp/viotrack-react/commit/1b8938c57ef480e721373697d6fabd01797ad08d). It updates only `ScanQRPage.jsx` to show the invalid-QR notice for three seconds before dismissal; service, dependency, and test files are unchanged.
+
+Clean latest main passed **4 existing tests**, lint (**389 warnings, 0 errors**), and build (2,662.97 kB `vendor-react`, 1,264.34 kB PDF worker, with the existing chunk-size advisory). Main has no typecheck script. After rebasing the existing PR onto `1b8938c`, **24 tests passed**, typecheck passed, lint passed (**388 warnings, 0 errors**), and build passed. Matching-path clean-main and PR assets are identical; no bundle-size change was introduced.
