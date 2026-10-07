@@ -1527,10 +1527,10 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
             width: 50px;
             height: 50px;
             border-radius: 16px;
-            background: #c28b38;
+            background: #07345f;
             color: #ffffff;
             border: none;
-            box-shadow: 0 8px 24px rgba(194, 139, 56, 0.45);
+            box-shadow: 0 8px 24px rgba(7, 52, 95, 0.45);
             align-items: center;
             justify-content: center;
             cursor: pointer;
@@ -2069,7 +2069,7 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
           onClick={() => setIsMobileDrawerOpen(true)}
           title="Edit Resolution Details"
         >
-          <Edit3 size={20} strokeWidth={2.4} />
+          <SlidersHorizontal size={20} strokeWidth={2.4} />
         </button>
 
         {/* Mobile Edit Drawer Sheet */}
