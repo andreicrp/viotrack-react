@@ -20,7 +20,8 @@ import {
   ChevronDown,
   Check,
   X,
-  FlipHorizontal
+  FlipHorizontal,
+  UserCheck
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { dataService } from '../services/dataService';
