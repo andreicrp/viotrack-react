@@ -243,3 +243,10 @@ Clean latest main passed **4 existing tests**, lint (**389 warnings, 0 errors**)
 Latest main is [`1b8938c57ef480e721373697d6fabd01797ad08d`](https://github.com/andreicrp/viotrack-react/commit/1b8938c57ef480e721373697d6fabd01797ad08d). It updates only `ScanQRPage.jsx` to show the invalid-QR notice for three seconds before dismissal; service, dependency, and test files are unchanged.
 
 Clean latest main passed **4 existing tests**, lint (**389 warnings, 0 errors**), and build (2,662.97 kB `vendor-react`, 1,264.34 kB PDF worker, with the existing chunk-size advisory). Main has no typecheck script. After rebasing the existing PR onto `1b8938c`, **24 tests passed**, typecheck passed, lint passed (**388 warnings, 0 errors**), and build passed. Matching-path clean-main and PR assets are identical; no bundle-size change was introduced.
+
+
+## Baseline after the 2026-10-08 notification stat-card refactor
+
+Latest main is [`bf8e19139186030f8800ec8379c0e8f7d324e33a`](https://github.com/andreicrp/viotrack-react/commit/bf8e19139186030f8800ec8379c0e8f7d324e33a). It changes only `src/pages/NotificationsPage.jsx` to remove a redundant four-card statistics row; it does not touch data-service code, tests, or dependencies.
+
+Clean latest main passed **4 existing tests**, lint (**389 warnings, 0 errors**), and build (2,662.97 kB `vendor-react`, 1,264.34 kB PDF worker, with the established chunk-size advisory). Main has no typecheck script. After rebasing the existing PR onto `bf8e191`, **24 tests passed**, typecheck passed, lint passed (**388 warnings, 0 errors**), and build passed. Matching-path main and PR assets are identical; the bundle advisory is unchanged.
