@@ -90,8 +90,8 @@ export const StudentsPage = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [studentToEdit, setStudentToEdit] = useState(null);
   const [studentForIdCard, setStudentForIdCard] = useState(null);
-  const [studentForViewModal, setStudentForViewModal] = useState(null);
   const [isBulkImportOpen, setIsBulkImportOpen] = useState(false);
+  const [bulkImportFormat, setBulkImportFormat] = useState('all'); // 'all' | 'pdf' | 'csv'
 
   const isAdmin = user?.role === 'admin';
 
@@ -418,26 +418,43 @@ export const StudentsPage = () => {
             <button
               onClick={handleExportStudents}
               className="page-banner-btn-secondary"
-              title="Download formatted PDF roster"
+              title="Download formatted PDF student roster"
             >
-              <Upload size={14} strokeWidth={2.2} /> Export PDF
+              <Download size={14} strokeWidth={2.2} /> Export PDF
             </button>
 
             <button
               onClick={handleExportCsv}
               className="page-banner-btn-secondary"
-              title="Download raw CSV spreadsheet"
+              title="Download CSV spreadsheet"
             >
-              <FileText size={14} strokeWidth={2.2} /> Export CSV
+              <FileSpreadsheet size={14} strokeWidth={2.2} /> Export CSV
             </button>
 
             {isAdmin && (
-              <button
-                onClick={() => setIsBulkImportOpen(true)}
-                className="page-banner-btn-secondary"
-              >
-                <Upload size={14} strokeWidth={2.2} /> Import CSV
-              </button>
+              <>
+                <button
+                  onClick={() => {
+                    setBulkImportFormat('pdf');
+                    setIsBulkImportOpen(true);
+                  }}
+                  className="page-banner-btn-secondary"
+                  title="Import students from PDF document"
+                >
+                  <Upload size={14} strokeWidth={2.2} /> Import PDF
+                </button>
+
+                <button
+                  onClick={() => {
+                    setBulkImportFormat('csv');
+                    setIsBulkImportOpen(true);
+                  }}
+                  className="page-banner-btn-secondary"
+                  title="Import students from CSV spreadsheet"
+                >
+                  <Upload size={14} strokeWidth={2.2} /> Import CSV
+                </button>
+              </>
             )}
           </div>
 
@@ -1621,11 +1638,12 @@ export const StudentsPage = () => {
         />
       )}
 
-      {/* Bulk CSV Import Modal */}
+      {/* Bulk CSV / PDF Import Modal */}
       <BulkImportModal
         isOpen={isBulkImportOpen}
         onClose={() => setIsBulkImportOpen(false)}
         onImported={loadStudents}
+        initialFormat={bulkImportFormat}
       />
     </div>
   );
