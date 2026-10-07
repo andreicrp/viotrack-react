@@ -88,6 +88,12 @@ export function App() {
     // Warm multi-tier cache in the background on startup
     dataService.warmCache();
 
+    // Check automated backup schedule
+    dataService.checkAndRunScheduledBackup();
+    const backupInterval = setInterval(() => {
+      dataService.checkAndRunScheduledBackup();
+    }, 60 * 60 * 1000); // Check hourly
+
     if (Capacitor.isNativePlatform()) {
       const configureStatusBar = async () => {
         try {
@@ -100,6 +106,8 @@ export function App() {
       };
       configureStatusBar();
     }
+
+    return () => clearInterval(backupInterval);
   }, []);
 
   return (
