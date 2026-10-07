@@ -257,3 +257,10 @@ Clean latest main passed **4 existing tests**, lint (**389 warnings, 0 errors**)
 Latest main is [`d488024cbf2f5d16d18b1b25e2b8dd960e174f21`](https://github.com/andreicrp/viotrack-react/commit/d488024cbf2f5d16d18b1b25e2b8dd960e174f21). It adds skeleton loaders and keyboard shortcuts and updates notification undo, print styling, QR signing, and inactivity-lock UI across presentation/context/util files. The commit does not change `src/services`, service tests, or package dependencies; no service-module port was needed.
 
 Clean latest main passed **4 existing tests**, lint (**393 warnings, 0 errors**), and build (2,662.97 kB `vendor-react`, 1,264.34 kB PDF worker, with the established chunk-size advisory). Main has no typecheck script. After rebasing the existing PR onto `d488024`, **24 tests passed**, `npm run typecheck` passed, lint passed (**392 warnings, 0 errors**), and build passed. Matching-path main and PR builds emitted identical PDF helper, PDF worker, and vendor React assets; bundle size is unchanged.
+
+
+## Baseline after the 2026-10-08 scanner feedback commit
+
+Latest main is [`07c2342f3fc210a2955ecd0b78013f0d906c8c7f`](https://github.com/andreicrp/viotrack-react/commit/07c2342f3fc210a2955ecd0b78013f0d906c8c7f). It adds configurable scanner audio/haptic feedback in `scannerFeedback.js` and updates QR scanner UI/CSS. It does not change data-service code, service tests, or dependencies; no service port was needed.
+
+Clean latest main passed **4 existing tests**, lint (**395 warnings, 0 errors**), and build (2,663.93 kB `vendor-react`, 1,264.34 kB PDF worker, with the existing >800 kB advisory). Main has no typecheck script. After rebasing the existing PR onto `07c2342`, **24 tests passed**, `npm run typecheck` passed, lint passed (**394 warnings, 0 errors**), and build passed. Clean-main and PR matching-path builds emitted identical PDF helper, PDF worker, and vendor React assets.
