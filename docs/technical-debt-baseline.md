@@ -95,3 +95,7 @@ Latest main is [`d8c96f6667bbfebb947a5d09d6b6cdf6644603fb`](https://github.com/a
 - Main has no `typecheck` script. `npm ci` reports the existing single high-severity advisory.
 
 This baseline updates the prior `513dd67` record; the PR branch will rebase onto `d8c96f6` before the live-data behavior is ported.
+
+## Baseline after the 2026-10-08 modal hook-order fix
+
+Latest main is [`533469b219c97f95e2b306529fef93d89c9f90fa`](https://github.com/andreicrp/viotrack-react/commit/533469b219c97f95e2b306529fef93d89c9f90fa). It changes only the two modal files and corrects the transient hook-order errors recorded for `d8c96f6`. On a clean detached checkout, the current-main baseline is **4 tests passed**, lint **368 warnings / 0 errors**, and build passed (281.82 kB `vendor-react`). Main still has no data-service tests and no `typecheck` script. The live-data refactor remains isolated to service modules and tests.
