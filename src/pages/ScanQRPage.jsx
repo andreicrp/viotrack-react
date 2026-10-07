@@ -1369,6 +1369,9 @@ export const ScanQRPage = () => {
           <div className="student-scan-modal-dialog" onClick={(e) => e.stopPropagation()}>
             <div className="student-scan-modal-header">
               <div className="student-scan-modal-title-group">
+                <div className="modal-header-icon-badge">
+                  <UserCheck size={18} />
+                </div>
                 <div>
                   <h3 className="student-scan-modal-title">Student Identified</h3>
                   <p className="student-scan-modal-subtitle">Official Student Conduct Summary</p>
@@ -1380,100 +1383,105 @@ export const ScanQRPage = () => {
                 onClick={handleCloseStudentModal}
                 aria-label="Close modal"
               >
-                <X size={18} />
+                <X size={17} />
               </button>
             </div>
 
             <div className="student-scan-modal-body">
-              {/* Verified Student Header Card */}
+              {/* Unified Student Hero Card */}
               <div className="verified-header-card">
-                <div className="verified-avatar-wrapper">
-                  <img
-                    src={
-                      scannedStudent.image ||
-                      `https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80`
-                    }
-                    alt={`${scannedStudent.fname} ${scannedStudent.lname}`}
-                    className="verified-avatar"
-                  />
-                  <div className="verified-avatar-badge" title="Identity Verified">
-                    <Check size={11} strokeWidth={3} />
+                <div className="verified-hero-main">
+                  <div className="verified-avatar-wrapper">
+                    <img
+                      src={
+                        scannedStudent.image ||
+                        `https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80`
+                      }
+                      alt={`${scannedStudent.fname} ${scannedStudent.lname}`}
+                      className="verified-avatar"
+                    />
+                    <div className="verified-avatar-badge" title="Identity Verified">
+                      <Check size={10} strokeWidth={3} />
+                    </div>
                   </div>
-                </div>
 
-                <div className="verified-meta">
-                  <h2 className="verified-name">
-                    {scannedStudent.fname} {scannedStudent.mname ? `${scannedStudent.mname[0]}. ` : ''}{scannedStudent.lname}
-                  </h2>
-                  <div className="verified-section-tag">
-                    {scannedStudent.grade} – {scannedStudent.section}
-                  </div>
-                  <div className="verified-lrn-row">
-                    <span className="lrn-label">Student ID:</span>
-                    <span className="lrn-chip">{scannedStudent.lrn}</span>
-                    <span className="sy-text">• S.Y. {scannedStudent.academicyear || '2025–2026'}</span>
-                  </div>
-                </div>
-              </div>
+                  <div className="verified-meta">
+                    <div className="verified-name-row">
+                      <h2 className="verified-name">
+                        {scannedStudent.fname} {scannedStudent.mname ? `${scannedStudent.mname[0]}. ` : ''}{scannedStudent.lname}
+                      </h2>
+                      {/* Integrated Status Pill */}
+                      {studentRecords.length >= 3 ? (
+                        <span className="status-flag-pill danger">
+                          <ShieldAlert size={12} /> High Priority
+                        </span>
+                      ) : studentRecords.length > 0 ? (
+                        <span className="status-flag-pill warning">
+                          <AlertTriangle size={12} /> Active Records
+                        </span>
+                      ) : (
+                        <span className="status-flag-pill success">
+                          <CheckCircle2 size={12} /> Clean Standing
+                        </span>
+                      )}
+                    </div>
 
-              {/* Mini Metrics Grid */}
-              <div className="student-mini-metrics">
-                <div className={`mini-metric-box ${studentRecords.length > 0 ? (studentRecords.length >= 3 ? 'danger' : 'warning') : 'success'}`}>
-                  <div className="mini-metric-num">
-                    {studentRecords.length}
-                  </div>
-                  <div className="mini-metric-label">Total Infractions</div>
-                </div>
-
-                <div className="mini-metric-box warning">
-                  <div className="mini-metric-num">
-                    {studentRecords.filter(r => r.status === 'Pending').length}
-                  </div>
-                  <div className="mini-metric-label">Pending Action</div>
-                </div>
-
-                <div className="mini-metric-box success">
-                  <div className="mini-metric-num">
-                    {studentRecords.filter(r => r.status === 'Resolved').length}
-                  </div>
-                  <div className="mini-metric-label">Resolved Cases</div>
-                </div>
-              </div>
-
-              {/* Guardian & Contact Info */}
-              <div className="student-info-grid">
-                <div className="info-sub-box">
-                  <span className="info-sub-label">Parent / Guardian</span>
-                  <span className="info-sub-val">{scannedStudent.parent_name || 'N/A'}</span>
-                  {scannedStudent.parent_contact && (
-                    <a href={`tel:${scannedStudent.parent_contact}`} className="info-sub-contact">
-                      <Phone size={12} />
-                      <span>{scannedStudent.parent_contact}</span>
-                    </a>
-                  )}
-                </div>
-
-                <div className="info-sub-box">
-                  <span className="info-sub-label">Status Flag</span>
-                  <div className="status-flag-container">
-                    {studentRecords.length >= 3 ? (
-                      <span className="status-flag-pill danger">
-                        <ShieldAlert size={13} /> High Priority
+                    <div className="verified-details-row">
+                      <span className="verified-section-tag">
+                        {scannedStudent.grade} – {scannedStudent.section}
                       </span>
-                    ) : studentRecords.length > 0 ? (
-                      <span className="status-flag-pill warning">
-                        <AlertTriangle size={13} /> Active Records
+                      <span className="verified-dot">•</span>
+                      <span className="lrn-chip" title="Learner Reference Number">
+                        ID: {scannedStudent.lrn}
                       </span>
-                    ) : (
-                      <span className="status-flag-pill success">
-                        <CheckCircle2 size={13} /> Clean Standing
-                      </span>
+                      {scannedStudent.academicyear && (
+                        <>
+                          <span className="verified-dot">•</span>
+                          <span className="sy-text">S.Y. {scannedStudent.academicyear}</span>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Integrated Guardian Sub-Bar */}
+                {scannedStudent.parent_name && (
+                  <div className="verified-guardian-strip">
+                    <span className="guardian-strip-label">Guardian:</span>
+                    <span className="guardian-strip-name">{scannedStudent.parent_name}</span>
+                    {scannedStudent.parent_contact && (
+                      <a href={`tel:${scannedStudent.parent_contact}`} className="guardian-strip-phone" title="Call Guardian">
+                        <Phone size={11} />
+                        <span>{scannedStudent.parent_contact}</span>
+                      </a>
                     )}
                   </div>
+                )}
+              </div>
+
+              {/* Streamlined Stats Strip */}
+              <div className="student-stats-strip">
+                <div className={`stat-strip-item ${studentRecords.length > 0 ? (studentRecords.length >= 3 ? 'danger' : 'warning') : 'success'}`}>
+                  <span className="stat-strip-num">{studentRecords.length}</span>
+                  <span className="stat-strip-label">Total Infractions</span>
+                </div>
+
+                <div className="stat-strip-divider" />
+
+                <div className="stat-strip-item warning">
+                  <span className="stat-strip-num">{studentRecords.filter(r => r.status === 'Pending').length}</span>
+                  <span className="stat-strip-label">Pending Action</span>
+                </div>
+
+                <div className="stat-strip-divider" />
+
+                <div className="stat-strip-item success">
+                  <span className="stat-strip-num">{studentRecords.filter(r => r.status === 'Resolved').length}</span>
+                  <span className="stat-strip-label">Resolved</span>
                 </div>
               </div>
 
-              {/* Recent Violations Timeline */}
+              {/* Recent Violations Section */}
               <div className="recent-violations-wrap">
                 <div className="recent-violations-title">
                   <span>Recent Violation History</span>
@@ -1482,7 +1490,7 @@ export const ScanQRPage = () => {
 
                 {studentRecords.length === 0 ? (
                   <div className="clean-standing-box">
-                    <CheckCircle2 size={18} className="clean-standing-icon" />
+                    <CheckCircle2 size={16} className="clean-standing-icon" />
                     <span>Clean disciplinary standing — no active infractions logged.</span>
                   </div>
                 ) : (
@@ -1515,7 +1523,7 @@ export const ScanQRPage = () => {
               </div>
             </div>
 
-            {/* Modal Actions */}
+            {/* Modal Actions Footer */}
             <div className="student-scan-modal-footer">
               <div className="footer-actions-row">
                 <button
@@ -1524,7 +1532,7 @@ export const ScanQRPage = () => {
                   onClick={() => setIsViolationModalOpen(true)}
                 >
                   <PlusCircle size={15} />
-                  <span>Log New Violation</span>
+                  <span>Log Violation</span>
                 </button>
 
                 <button
@@ -1543,8 +1551,8 @@ export const ScanQRPage = () => {
                 onClick={handleCloseStudentModal}
                 title="Scan next badge"
               >
-                <RefreshCw size={14} />
-                <span>Scan Next</span>
+                <RefreshCw size={13} />
+                <span>Scan Next Badge</span>
               </button>
             </div>
           </div>

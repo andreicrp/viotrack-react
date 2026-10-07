@@ -1337,7 +1337,9 @@ div[id*="reader"] video {
 .student-scan-modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(15, 23, 42, 0.68);
+  background: rgba(15, 23, 42, 0.72);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1349,12 +1351,12 @@ div[id*="reader"] video {
 
 .student-scan-modal-dialog {
   width: 100%;
-  max-width: 520px;
+  max-width: 460px;
   max-height: 90vh;
   background: #ffffff;
-  border-radius: 20px;
-  border: 1.5px solid #cbd5e1;
-  box-shadow: 0 25px 60px -15px rgba(7, 52, 95, 0.35);
+  border-radius: 18px;
+  border: 1px solid #cbd5e1;
+  box-shadow: 0 25px 60px -15px rgba(7, 52, 95, 0.35), 0 0 0 1px rgba(0, 0, 0, 0.04);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -1367,7 +1369,7 @@ div[id*="reader"] video {
 @keyframes modalScaleUp {
   from {
     opacity: 0;
-    transform: scale(0.94) translateY(12px);
+    transform: scale(0.95) translateY(10px);
   }
   to {
     opacity: 1;
@@ -1379,19 +1381,32 @@ div[id*="reader"] video {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 20px;
+  padding: 13px 18px;
   background: #ffffff;
-  border-bottom: 1.5px solid #f1f5f9;
+  border-bottom: 1px solid #f1f5f9;
 }
 
 .student-scan-modal-title-group {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
+}
+
+.modal-header-icon-badge {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: #eff6ff;
+  color: #2563eb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 1px solid #dbeafe;
 }
 
 .student-scan-modal-title {
-  font-size: 17px;
+  font-size: 15.5px;
   font-weight: 800;
   color: #07345f;
   margin: 0;
@@ -1400,15 +1415,15 @@ div[id*="reader"] video {
 }
 
 .student-scan-modal-subtitle {
-  font-size: 12px;
+  font-size: 11px;
   color: #64748b;
-  margin: 2px 0 0 0;
+  margin: 1px 0 0 0;
 }
 
 .student-scan-modal-close-btn {
-  width: 32px;
-  height: 32px;
-  border-radius: 8px;
+  width: 30px;
+  height: 30px;
+  border-radius: 7px;
   border: 1px solid #e2e8f0;
   background: #f8fafc;
   color: #64748b;
@@ -1426,23 +1441,29 @@ div[id*="reader"] video {
 }
 
 .student-scan-modal-body {
-  padding: 18px 20px;
+  padding: 14px 18px;
   overflow-y: auto;
   overscroll-behavior: contain;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 11px;
 }
 
-/* Verified Student Card */
+/* Unified Verified Student Hero Card */
 .verified-header-card {
   display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+}
+
+.verified-hero-main {
+  display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 16px;
-  background: linear-gradient(135deg, #f8fafc 0%, #f0f7ff 100%);
-  border: 1.5px solid #cbd5e1;
-  border-radius: 14px;
+  gap: 12px;
 }
 
 .verified-avatar-wrapper {
@@ -1451,21 +1472,21 @@ div[id*="reader"] video {
 }
 
 .verified-avatar {
-  width: 70px;
-  height: 70px;
-  border-radius: 14px;
+  width: 52px;
+  height: 52px;
+  border-radius: 11px;
   object-fit: cover;
-  border: 2.5px solid #07345f;
-  box-shadow: 0 4px 14px rgba(7, 52, 95, 0.18);
+  border: 2px solid #07345f;
+  box-shadow: 0 3px 10px rgba(7, 52, 95, 0.15);
   display: block;
 }
 
 .verified-avatar-badge {
   position: absolute;
-  bottom: -4px;
-  right: -4px;
-  width: 20px;
-  height: 20px;
+  bottom: -3px;
+  right: -3px;
+  width: 17px;
+  height: 17px;
   border-radius: 50%;
   background: #16a34a;
   color: #ffffff;
@@ -1473,19 +1494,27 @@ div[id*="reader"] video {
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 6px rgba(22, 163, 74, 0.35);
+  box-shadow: 0 2px 4px rgba(22, 163, 74, 0.35);
 }
 
 .verified-meta {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 2px;
   min-width: 0;
 }
 
+.verified-name-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
 .verified-name {
-  font-size: 18px;
+  font-size: 15.5px;
   font-weight: 800;
   color: #07345f;
   margin: 0;
@@ -1495,35 +1524,33 @@ div[id*="reader"] video {
   text-overflow: ellipsis;
 }
 
+.verified-details-row {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: #64748b;
+  flex-wrap: wrap;
+  margin-top: 1px;
+}
+
 .verified-section-tag {
-  font-size: 12.5px;
   font-weight: 700;
   color: #2563eb;
 }
 
-.verified-lrn-row {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 11.5px;
-  color: #64748b;
-  margin-top: 3px;
-  flex-wrap: wrap;
-}
-
-.lrn-label {
-  font-weight: 600;
-  color: #64748b;
+.verified-dot {
+  color: #cbd5e1;
 }
 
 .lrn-chip {
   font-family: monospace;
-  font-size: 11.5px;
+  font-size: 10.5px;
   font-weight: 700;
   background: #ffffff;
-  border: 1.5px solid #cbd5e1;
-  padding: 1px 7px;
-  border-radius: 6px;
+  border: 1px solid #cbd5e1;
+  padding: 0.5px 5px;
+  border-radius: 4px;
   color: #07345f;
 }
 
@@ -1532,115 +1559,61 @@ div[id*="reader"] video {
   color: #64748b;
 }
 
-/* Mini Metrics Grid */
-.student-mini-metrics {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-}
-
-.mini-metric-box {
-  background: #ffffff;
-  border: 1.5px solid #cbd5e1;
-  border-radius: 12px;
-  padding: 12px 8px;
-  text-align: center;
-  transition: all 0.2s ease;
-}
-
-.mini-metric-box:hover {
-  border-color: #94a3b8;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
-}
-
-.mini-metric-num {
-  font-size: 22px;
-  font-weight: 800;
-  color: #07345f;
-  line-height: 1.1;
-}
-
-.mini-metric-box.danger .mini-metric-num {
-  color: #dc2626;
-}
-
-.mini-metric-box.warning .mini-metric-num {
-  color: #a16207;
-}
-
-.mini-metric-box.success .mini-metric-num {
-  color: #15803d;
-}
-
-.mini-metric-label {
-  font-size: 10.5px;
-  font-weight: 700;
-  color: #64748b;
-  margin-top: 4px;
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
-}
-
-/* Guardian & Info Block */
-.student-info-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
-
-.info-sub-box {
-  background: #ffffff;
-  border: 1.5px solid #cbd5e1;
-  border-radius: 12px;
-  padding: 12px 14px;
+/* Integrated Guardian Strip */
+.verified-guardian-strip {
   display: flex;
-  flex-direction: column;
-  gap: 3px;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 9px;
+  background: #ffffff;
+  border-radius: 7px;
+  border: 1px solid #e2e8f0;
+  font-size: 11.5px;
+  flex-wrap: wrap;
 }
 
-.info-sub-label {
-  font-size: 10.5px;
+.guardian-strip-label {
   font-weight: 700;
   color: #64748b;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  font-size: 9.5px;
+  letter-spacing: 0.03em;
 }
 
-.info-sub-val {
-  font-size: 13.5px;
+.guardian-strip-name {
   font-weight: 700;
-  color: #07345f;
+  color: #0f172a;
 }
 
-.info-sub-contact {
-  font-size: 12px;
+.guardian-strip-phone {
+  margin-left: auto;
+  font-size: 11px;
   color: #2563eb;
   display: inline-flex;
   align-items: center;
-  gap: 5px;
+  gap: 4px;
   text-decoration: none;
-  margin-top: 2px;
   font-weight: 700;
-  padding: 2px 0;
-  transition: color 0.15s ease;
+  background: #eff6ff;
+  border: 1px solid #dbeafe;
+  padding: 1px 6px;
+  border-radius: 5px;
+  transition: all 0.12s ease;
 }
 
-.info-sub-contact:hover {
-  color: #1d4ed8;
-  text-decoration: underline;
+.guardian-strip-phone:hover {
+  background: #2563eb;
+  color: #ffffff;
 }
 
-.status-flag-container {
-  margin-top: 2px;
-}
-
+/* Status Flag Pill */
 .status-flag-pill {
   display: inline-flex;
   align-items: center;
-  gap: 5px;
-  font-size: 11.5px;
-  font-weight: 700;
-  padding: 3px 10px;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 800;
+  padding: 2px 7px;
   border-radius: 9999px;
   text-transform: uppercase;
   letter-spacing: 0.02em;
@@ -1664,17 +1637,72 @@ div[id*="reader"] video {
   border: 1px solid #bbf7d0;
 }
 
+/* Streamlined Stats Strip */
+.student-stats-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 8px 6px;
+}
+
+.stat-strip-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  text-align: center;
+}
+
+.stat-strip-num {
+  font-size: 17px;
+  font-weight: 800;
+  color: #07345f;
+  line-height: 1.1;
+}
+
+.stat-strip-item.danger .stat-strip-num {
+  color: #dc2626;
+}
+
+.stat-strip-item.warning .stat-strip-num {
+  color: #a16207;
+}
+
+.stat-strip-item.success .stat-strip-num {
+  color: #15803d;
+}
+
+.stat-strip-label {
+  font-size: 9.5px;
+  font-weight: 700;
+  color: #64748b;
+  margin-top: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.stat-strip-divider {
+  width: 1px;
+  height: 22px;
+  background: #e2e8f0;
+  flex-shrink: 0;
+}
+
 /* Violation Timeline In Panel */
 .recent-violations-wrap {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 }
 
 .recent-violations-title {
-  font-size: 11.5px;
+  font-size: 10.5px;
   font-weight: 800;
-  color: #475569;
+  color: #64748b;
   text-transform: uppercase;
   letter-spacing: 0.04em;
   display: flex;
@@ -1683,25 +1711,25 @@ div[id*="reader"] video {
 }
 
 .history-count-badge {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
   background: #eff6ff;
   color: #2563eb;
   border: 1px solid #bfdbfe;
-  padding: 1.5px 8px;
+  padding: 1px 6px;
   border-radius: 9999px;
 }
 
 .clean-standing-box {
-  padding: 14px 16px;
+  padding: 10px 12px;
   background: #f0fdf4;
-  border: 1.5px solid #bbf7d0;
-  border-radius: 12px;
+  border: 1px solid #bbf7d0;
+  border-radius: 9px;
   color: #15803d;
-  font-size: 12.5px;
+  font-size: 11.5px;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   font-weight: 600;
 }
 
@@ -1713,52 +1741,52 @@ div[id*="reader"] video {
 .violations-timeline-list {
   display: flex;
   flex-direction: column;
-  gap: 7px;
-  max-height: 185px;
+  gap: 5px;
+  max-height: 130px;
   overflow-y: auto;
-  padding-right: 4px;
+  padding-right: 2px;
 }
 
 .violations-timeline-list::-webkit-scrollbar {
-  width: 5px;
+  width: 4px;
 }
 
 .violations-timeline-list::-webkit-scrollbar-track {
   background: #f1f5f9;
-  border-radius: 10px;
+  border-radius: 8px;
 }
 
 .violations-timeline-list::-webkit-scrollbar-thumb {
   background: #cbd5e1;
-  border-radius: 10px;
+  border-radius: 8px;
 }
 
 .violation-timeline-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 14px;
-  border-radius: 10px;
+  padding: 7px 11px;
+  border-radius: 8px;
   background: #ffffff;
-  border: 1.5px solid #cbd5e1;
-  gap: 10px;
-  transition: all 0.15s ease;
+  border: 1px solid #e2e8f0;
+  gap: 8px;
+  transition: all 0.12s ease;
 }
 
 .violation-timeline-item:hover {
-  border-color: #94a3b8;
+  border-color: #cbd5e1;
   background: #f8fafc;
 }
 
 .violation-item-main {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 2px;
   min-width: 0;
 }
 
 .v-item-title {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
   color: #07345f;
   white-space: nowrap;
@@ -1769,8 +1797,8 @@ div[id*="reader"] video {
 .v-item-meta {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 11.5px;
+  gap: 5px;
+  font-size: 10.5px;
   color: #64748b;
 }
 
@@ -1783,10 +1811,10 @@ div[id*="reader"] video {
 }
 
 .v-severity-pill {
-  font-size: 10.5px;
+  font-size: 9.5px;
   font-weight: 700;
-  padding: 1px 7px;
-  border-radius: 6px;
+  padding: 0.5px 5px;
+  border-radius: 4px;
   text-transform: uppercase;
   letter-spacing: 0.02em;
 }
@@ -1810,15 +1838,15 @@ div[id*="reader"] video {
 }
 
 .v-status-badge {
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 700;
-  padding: 3px 9px;
-  border-radius: 6px;
+  padding: 2px 7px;
+  border-radius: 5px;
   text-transform: uppercase;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.02em;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 3px;
   flex-shrink: 0;
 }
 
@@ -1849,17 +1877,18 @@ div[id*="reader"] video {
 
 /* Modal Footer Actions */
 .student-scan-modal-footer {
-  padding: 14px 20px;
-  background: #f8fafc;
-  border-top: 1.5px solid #f1f5f9;
+  padding: 11px 18px;
+  background: #ffffff;
+  border-top: 1px solid #f1f5f9;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 7px;
 }
 
 .footer-actions-row {
-  display: flex;
-  gap: 10px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
   width: 100%;
 }
 
@@ -1867,11 +1896,11 @@ div[id*="reader"] video {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 7px;
-  padding: 10px 16px;
-  font-size: 13px;
+  gap: 6px;
+  padding: 9px 12px;
+  font-size: 12.5px;
   font-weight: 700;
-  border-radius: 10px;
+  border-radius: 9px;
   cursor: pointer;
   transition: all 0.15s ease;
   border: none;
@@ -1879,14 +1908,10 @@ div[id*="reader"] video {
   white-space: nowrap;
 }
 
-.footer-actions-row .verified-btn {
-  flex: 1;
-}
-
 .verified-btn.primary {
   background: #07345f;
   color: #ffffff;
-  box-shadow: 0 4px 12px rgba(7, 52, 95, 0.22);
+  box-shadow: 0 3px 10px rgba(7, 52, 95, 0.2);
 }
 
 .verified-btn.primary:hover {
@@ -1897,25 +1922,26 @@ div[id*="reader"] video {
 .verified-btn.secondary {
   background: #ffffff;
   color: #07345f;
-  border: 1.5px solid #cbd5e1;
+  border: 1px solid #cbd5e1;
 }
 
 .verified-btn.secondary:hover {
-  background: #f1f5f9;
+  background: #f8fafc;
   border-color: #94a3b8;
 }
 
 .verified-btn.tertiary {
   width: 100%;
-  background: #ffffff;
+  background: #f8fafc;
   color: #475569;
-  border: 1.5px solid #cbd5e1;
+  border: 1px solid #e2e8f0;
+  padding: 7px 12px;
+  font-size: 11.5px;
 }
 
 .verified-btn.tertiary:hover {
   background: #f1f5f9;
-  color: #07345f;
-  border-color: #94a3b8;
+  color: #0f172a;
 }
 
 /* ==========================================================================
@@ -2539,6 +2565,71 @@ div[id*="reader"] video {
     height: 160px;
     border-radius: 12px;
   }
+
+  /* Student Identified Modal Mobile Optimizations */
+  .student-scan-modal-overlay {
+    padding: 10px;
+    align-items: flex-end;
+  }
+
+  .student-scan-modal-dialog {
+    max-width: 100%;
+    max-height: 88vh;
+    border-radius: 16px;
+  }
+
+  .student-scan-modal-header {
+    padding: 12px 14px;
+  }
+
+  .student-scan-modal-body {
+    padding: 12px 14px;
+    gap: 10px;
+  }
+
+  .verified-header-card {
+    padding: 10px;
+  }
+
+  .verified-avatar {
+    width: 46px;
+    height: 46px;
+    border-radius: 10px;
+  }
+
+  .verified-name {
+    font-size: 14.5px;
+  }
+
+  .verified-guardian-strip {
+    font-size: 11px;
+    padding: 4px 8px;
+  }
+
+  .student-stats-strip {
+    padding: 6px 4px;
+  }
+
+  .stat-strip-num {
+    font-size: 15.5px;
+  }
+
+  .stat-strip-label {
+    font-size: 9px;
+  }
+
+  .violations-timeline-list {
+    max-height: 115px;
+  }
+
+  .student-scan-modal-footer {
+    padding: 10px 14px;
+  }
+
+  .verified-btn {
+    padding: 8.5px 10px;
+    font-size: 12px;
+  }
 }
 
 @media (max-width: 360px) {
@@ -2553,5 +2644,14 @@ div[id*="reader"] video {
     gap: 4px;
     min-height: 38px;
   }
+
+  .verified-name {
+    font-size: 13.5px;
+  }
+
+  .verified-details-row {
+    font-size: 10px;
+  }
 }
+
 
