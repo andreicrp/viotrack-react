@@ -531,11 +531,18 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  // Reset zoom, pan, and drawer state ONLY when modal is newly opened
   useEffect(() => {
     if (isOpen) {
       setZoom(1);
       setPan({ x: 0, y: 0 });
       setIsMobileDrawerOpen(false);
+    }
+  }, [isOpen]);
+
+  // Update paper height when content or options change (without closing drawer or resetting zoom)
+  useEffect(() => {
+    if (isOpen) {
       const timer = setTimeout(() => {
         if (printRef.current) {
           setPaperHeight(printRef.current.offsetHeight || 900);

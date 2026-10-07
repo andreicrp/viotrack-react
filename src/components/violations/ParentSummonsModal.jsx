@@ -326,6 +326,15 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
     zoom
   ]);
 
+  // Reset zoom, pan, and drawer state ONLY when modal is newly opened
+  useEffect(() => {
+    if (isOpen) {
+      setZoom(1);
+      setPan({ x: 0, y: 0 });
+      setIsMobileDrawerOpen(false);
+    }
+  }, [isOpen]);
+
   // Load all student violations & advisers
   useEffect(() => {
     if (!isOpen) return;
