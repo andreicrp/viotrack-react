@@ -1120,15 +1120,44 @@ export const PrintDataModal = ({ isOpen, onClose, records = [], students = [], t
   const baseScale = isMobile ? Math.min(1, Math.max(0.38, (viewportWidth - 24) / 680)) : 1;
   const effectiveScale = Number((baseScale * zoom).toFixed(3));
 
-  // Mouse & Touch Handlers
+  // Live Zoom & Pan State Refs to prevent stutter & eliminate React re-render bottlenecks during dragging
+  const zoomRef = useRef(zoom);
+  const panRef = useRef(pan);
+  const effectiveScaleRef = useRef(effectiveScale);
+  const rafIdRef = useRef(null);
+  const isPinchingRef = useRef(false);
+
+  useEffect(() => {
+    zoomRef.current = zoom;
+    effectiveScaleRef.current = effectiveScale;
+  }, [zoom, effectiveScale]);
+
+  useEffect(() => {
+    panRef.current = pan;
+  }, [pan]);
+
+  const applyLiveTransform = (currentPanX, currentPanY, currentScale) => {
+    if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current);
+    rafIdRef.current = requestAnimationFrame(() => {
+      if (printRef.current) {
+        printRef.current.style.transform = `scale(${currentScale}) translate3d(${currentPanX}px, ${currentPanY}px, 0)`;
+      }
+    });
+  };
+
+  // Mouse Handlers (Desktop)
   const handleMouseDown = (e) => {
-    if (e.button !== 0 || e.target.closest('button, input, textarea, select, a')) return;
+    if (e.button !== 0 || e.target.closest('button, input, textarea, select, a, [role="button"]')) return;
     setIsDragging(true);
+    if (printRef.current) {
+      printRef.current.style.transition = 'none';
+      printRef.current.style.willChange = 'transform';
+    }
     dragStartRef.current = {
       x: e.clientX,
       y: e.clientY,
-      initialPanX: pan.x,
-      initialPanY: pan.y
+      initialPanX: panRef.current.x,
+      initialPanY: panRef.current.y
     };
   };
 
@@ -1136,18 +1165,26 @@ export const PrintDataModal = ({ isOpen, onClose, records = [], students = [], t
     if (!isDragging) return;
     const deltaX = e.clientX - dragStartRef.current.x;
     const deltaY = e.clientY - dragStartRef.current.y;
-    setPan({
-      x: dragStartRef.current.initialPanX + deltaX,
-      y: dragStartRef.current.initialPanY + deltaY
-    });
+    const newX = dragStartRef.current.initialPanX + deltaX;
+    const newY = dragStartRef.current.initialPanY + deltaY;
+    panRef.current = { x: newX, y: newY };
+    applyLiveTransform(newX, newY, effectiveScaleRef.current);
   };
 
   const handleMouseUp = () => {
-    if (isDragging) setIsDragging(false);
+    if (isDragging) {
+      setIsDragging(false);
+      setPan({ ...panRef.current });
+      if (printRef.current) {
+        printRef.current.style.transition = 'transform 0.12s cubic-bezier(0.2, 0, 0, 1)';
+        printRef.current.style.willChange = 'auto';
+      }
+    }
   };
 
+  // Touch Handlers (Mobile)
   const handleTouchStart = (e) => {
-    if (e.target.closest('button, input, textarea, select, a')) return;
+    if (e.target.closest('button, input, textarea, select, a, [role="button"]')) return;
 
     if (e.touches.length === 2) {
       const dist = Math.hypot(
@@ -1155,53 +1192,103 @@ export const PrintDataModal = ({ isOpen, onClose, records = [], students = [], t
         e.touches[0].clientY - e.touches[1].clientY
       );
       pinchDistanceRef.current = dist;
-      pinchStartZoomRef.current = zoom;
+      pinchStartZoomRef.current = zoomRef.current;
+      isPinchingRef.current = true;
       setIsDragging(false);
+      if (printRef.current) {
+        printRef.current.style.transition = 'none';
+        printRef.current.style.willChange = 'transform';
+      }
     } else if (e.touches.length === 1) {
+      isPinchingRef.current = false;
+      const touch = e.touches[0];
       const now = Date.now();
-      if (now - lastTapTimeRef.current < 300) {
-        setZoom((prev) => (prev > 1.05 ? 1 : 1.4));
+
+      // Double-tap zoom toggle
+      if (
+        now - lastTapTimeRef.current < 280 &&
+        dragStartRef.current.tapX !== undefined &&
+        Math.hypot(touch.clientX - dragStartRef.current.tapX, touch.clientY - dragStartRef.current.tapY) < 25
+      ) {
+        const nextZoom = zoomRef.current > 1.05 ? 1 : 1.35;
+        setZoom(nextZoom);
         setPan({ x: 0, y: 0 });
+        panRef.current = { x: 0, y: 0 };
         lastTapTimeRef.current = 0;
         return;
       }
       lastTapTimeRef.current = now;
 
-      const touch = e.touches[0];
       setIsDragging(true);
+      if (printRef.current) {
+        printRef.current.style.transition = 'none';
+        printRef.current.style.willChange = 'transform';
+      }
       dragStartRef.current = {
         x: touch.clientX,
         y: touch.clientY,
-        initialPanX: pan.x,
-        initialPanY: pan.y
+        tapX: touch.clientX,
+        tapY: touch.clientY,
+        initialPanX: panRef.current.x,
+        initialPanY: panRef.current.y
       };
     }
   };
 
   const handleTouchMove = (e) => {
-    if (e.touches.length === 2 && pinchDistanceRef.current !== null) {
-      e.preventDefault();
+    if (e.touches.length === 2 && pinchDistanceRef.current && isPinchingRef.current) {
       const currentDist = Math.hypot(
         e.touches[0].clientX - e.touches[1].clientX,
         e.touches[0].clientY - e.touches[1].clientY
       );
-      const ratio = currentDist / pinchDistanceRef.current;
-      const targetZoom = Math.min(2.5, Math.max(0.6, pinchStartZoomRef.current * ratio));
-      setZoom(Number(targetZoom.toFixed(2)));
-    } else if (e.touches.length === 1 && isDragging) {
+      if (currentDist > 0 && pinchDistanceRef.current > 0) {
+        const ratio = currentDist / pinchDistanceRef.current;
+        const targetZoom = Math.min(2.5, Math.max(0.6, Math.round(pinchStartZoomRef.current * ratio * 100) / 100));
+        zoomRef.current = targetZoom;
+        const currentScale = Number((baseScale * targetZoom).toFixed(3));
+        effectiveScaleRef.current = currentScale;
+        applyLiveTransform(panRef.current.x, panRef.current.y, currentScale);
+      }
+    } else if (e.touches.length === 1 && isDragging && !isPinchingRef.current) {
       const touch = e.touches[0];
       const deltaX = touch.clientX - dragStartRef.current.x;
       const deltaY = touch.clientY - dragStartRef.current.y;
-      setPan({
-        x: dragStartRef.current.initialPanX + deltaX,
-        y: dragStartRef.current.initialPanY + deltaY
-      });
+      const newX = dragStartRef.current.initialPanX + deltaX;
+      const newY = dragStartRef.current.initialPanY + deltaY;
+      panRef.current = { x: newX, y: newY };
+      applyLiveTransform(newX, newY, effectiveScaleRef.current);
     }
   };
 
   const handleTouchEnd = (e) => {
-    if (e.touches.length < 2) pinchDistanceRef.current = null;
-    if (e.touches.length === 0) setIsDragging(false);
+    if (e.touches.length < 2) {
+      if (isPinchingRef.current) {
+        setZoom(zoomRef.current);
+      }
+      pinchDistanceRef.current = null;
+      isPinchingRef.current = false;
+    }
+    if (e.touches.length === 1) {
+      const touch = e.touches[0];
+      setIsDragging(true);
+      dragStartRef.current = {
+        x: touch.clientX,
+        y: touch.clientY,
+        tapX: touch.clientX,
+        tapY: touch.clientY,
+        initialPanX: panRef.current.x,
+        initialPanY: panRef.current.y
+      };
+    } else if (e.touches.length === 0) {
+      if (isDragging) {
+        setIsDragging(false);
+        setPan({ ...panRef.current });
+      }
+      if (printRef.current) {
+        printRef.current.style.transition = 'transform 0.12s cubic-bezier(0.2, 0, 0, 1)';
+        printRef.current.style.willChange = 'auto';
+      }
+    }
   };
 
   const handleZoomIn = () => setZoom((prev) => Math.min(2.5, Number((prev + 0.15).toFixed(2))));
@@ -1209,6 +1296,13 @@ export const PrintDataModal = ({ isOpen, onClose, records = [], students = [], t
   const handleResetView = () => {
     setZoom(1);
     setPan({ x: 0, y: 0 });
+    panRef.current = { x: 0, y: 0 };
+    zoomRef.current = 1;
+    effectiveScaleRef.current = baseScale;
+    if (printRef.current) {
+      printRef.current.style.transition = 'transform 0.2s cubic-bezier(0.2, 0, 0, 1)';
+      printRef.current.style.transform = `scale(${baseScale}) translate3d(0px, 0px, 0)`;
+    }
   };
 
   const handlePrint = () => {
@@ -1840,7 +1934,9 @@ export const PrintDataModal = ({ isOpen, onClose, records = [], students = [], t
             flex: 1 !important;
             display: flex !important;
             align-items: flex-start !important;
-            touch-action: pan-x pan-y pinch-zoom !important;
+            touch-action: pan-y !important;
+            user-select: none !important;
+            -webkit-user-select: none !important;
           }
 
           .pdm-canvas-toolbar {
@@ -2168,7 +2264,7 @@ export const PrintDataModal = ({ isOpen, onClose, records = [], students = [], t
                   maxWidth: '680px',
                   transform: `scale(${effectiveScale}) translate3d(${pan.x}px, ${pan.y}px, 0)`,
                   transformOrigin: 'top center',
-                  transition: isDragging ? 'none' : 'transform 0.12s cubic-bezier(0.2, 0, 0, 1)',
+                  transition: isDragging || isPinchingRef.current ? 'none' : 'transform 0.12s cubic-bezier(0.2, 0, 0, 1)',
                   marginBottom: isMobile && paperHeight ? `-${paperHeight * (1 - effectiveScale)}px` : '0px'
                 }}
               >
@@ -2177,10 +2273,8 @@ export const PrintDataModal = ({ isOpen, onClose, records = [], students = [], t
                   ref={page1Ref}
                   className="pdm-preview-paper"
                   style={{
-                    cursor: isDragging ? 'grabbing' : 'grab'
+                    cursor: isDragging ? 'grabbing' : 'default'
                   }}
-                  onMouseDown={handleMouseDown}
-                  onTouchStart={handleTouchStart}
                 >
                   {/* Official Letterhead */}
                   <div style={{ textAlign: 'center', borderBottom: '2px solid #07345f', paddingBottom: '8px', marginBottom: '8px' }}>
@@ -2487,10 +2581,8 @@ export const PrintDataModal = ({ isOpen, onClose, records = [], students = [], t
                         ref={pIdx === 0 ? page2Ref : null}
                         className="pdm-preview-paper"
                         style={{
-                          cursor: isDragging ? 'grabbing' : 'grab'
+                          cursor: isDragging ? 'grabbing' : 'default'
                         }}
-                        onMouseDown={handleMouseDown}
-                        onTouchStart={handleTouchStart}
                       >
                         {/* Full Official Letterhead on Page 2+ */}
                         <div style={{ textAlign: 'center', borderBottom: '2px solid #07345f', paddingBottom: '8px', marginBottom: '8px' }}>
