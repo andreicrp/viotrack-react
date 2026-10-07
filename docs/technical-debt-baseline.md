@@ -197,3 +197,19 @@ Latest main [`95fc1bfbfe5e2b848a8fe9ec053add9170f08794`](https://github.com/andr
 ## Baseline after the 2026-10-08 CustomTimePicker placement fix
 
 Latest main is [`2f6c3300d7feb7b68d527e39f6914469001c2660`](https://github.com/andreicrp/viotrack-react/commit/2f6c3300d7feb7b68d527e39f6914469001c2660). It only adjusts picker popover placement and compact layout; service files are unchanged and the stored `HH:mm` contract remains intact. Clean main passed **4 tests**, lint (**388 warnings, 0 errors**), and build. The PR after rebase passed **24 tests**, typecheck, lint (**387 warnings, 0 errors**), and build. Matching-path builds on clean main and the PR are identical: `pdfHelper-DQXIWwx-.js` (7.07 kB), `pdf.worker.min-CjEcRF4W.mjs` (1,264.34 kB), and `vendor-react-df0RWb2s.js` (2,662.96 kB), with the same existing chunk-size advisory.
+
+
+## Baseline after the 2026-10-08 CustomTimePicker scroll and portal commits
+
+Latest main is [`08012d32bdf542f9f9d0e1f48ee8b80c935931c4`](https://github.com/andreicrp/viotrack-react/commit/08012d32bdf542f9f9d0e1f48ee8b80c935931c4). It changes only `src/components/common/CustomTimePicker.jsx`, adding constrained popover scrolling and rendering the picker via a React portal outside modal scroll containers. The `onChange` contract remains 24-hour `HH:mm`; no data-service, test, or dependency files changed, so no additional service implementation was needed.
+
+The immediately preceding main commit, [`310ee8e`](https://github.com/andreicrp/viotrack-react/commit/310ee8e), also changed only the picker layout/auto-scroll. A clean checkout there passed **4 tests**, lint (**387 warnings, 0 errors**), and build. On latest clean main `08012d3`, the baseline is:
+
+| Command | Result on clean latest main |
+| --- | --- |
+| `npm test -- --reporter=verbose` | Passed: 1 file, 4 existing CSV/security/SMS tests. |
+| `npm run typecheck` | Not available on main; provided by this PR. |
+| `npm run lint -- --quiet` | Passed: 0 errors, 389 warnings. |
+| `npm run build` | Passed; 2,662.97 kB `vendor-react`, 1,264.34 kB PDF worker, with the existing >800 kB advisory. |
+
+After rebasing the existing PR onto `08012d3`, the complete suite passed (**24 tests across 2 files**), `npm run typecheck` passed, lint passed (**388 warnings, 0 errors**), and build passed. Clean main and PR matching-path builds emitted the same `vendor-react` (2,662.97 kB), PDF worker (1,264.34 kB), and PDF helper (7.07 kB) assets; the chunk-size advisory is baseline-equivalent.
