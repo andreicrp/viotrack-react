@@ -285,3 +285,10 @@ Clean latest main passed **4 existing tests**, lint (**395 warnings, 0 errors**)
 Latest main is [`d95e767d1f7e611246c2ffc1742bf8b00f30a92a`](https://github.com/andreicrp/viotrack-react/commit/d95e767d1f7e611246c2ffc1742bf8b00f30a92a). It updates the mobile headers and safe-area padding in the Print Data, Parent Summons, and Resolution modals. The commit does not touch data-service code, tests, or dependencies.
 
 Clean latest main passed **4 existing tests**, lint (**395 warnings, 0 errors**), and build (2,663.93 kB `vendor-react`, 1,264.34 kB PDF worker, with the established chunk-size advisory). Main has no typecheck script. After rebasing the existing PR onto `d95e767`, **24 tests passed**, typecheck passed, lint passed (**394 warnings, 0 errors**), and build passed. Matching-path clean-main and PR builds emitted identical PDF helper, PDF worker, and vendor React assets; the chunk advisory remains unchanged.
+
+
+## Baseline after the 2026-10-08 universal mobile print/share commit
+
+Latest main is [`46b39fbb0e581e68314fb9240691d45b7a641b18`](https://github.com/andreicrp/viotrack-react/commit/46b39fbb0e581e68314fb9240691d45b7a641b18). It adds `mobilePrintHelper.js` and wires it into the Print Data, Parent Summons, and Resolution modals. No data-service or dependency files changed.
+
+Clean latest main passed **4 existing tests**, lint (**395 warnings, 0 errors**), and build (2,663.93 kB `vendor-react`, 1,264.34 kB PDF worker, with the established chunk-size advisory). Main has no typecheck script. After rebasing the existing PR onto `46b39fb`, **24 tests passed**, typecheck passed, lint passed (**394 warnings, 0 errors**), and build passed. Matching-path clean-main and PR builds emitted identical PDF helper, PDF worker, and vendor React assets.
