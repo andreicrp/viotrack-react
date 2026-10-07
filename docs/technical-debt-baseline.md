@@ -121,3 +121,7 @@ Latest main is [`fadfa69173e65e0dbac0f2f794a116918b879c94`](https://github.com/a
 ## Baseline after the 2026-10-08 document-footer layout commit
 
 Latest main is [`e3d4b62edaad8a0e87e7507e6e81e6091a879a7e`](https://github.com/andreicrp/viotrack-react/commit/e3d4b62edaad8a0e87e7507e6e81e6091a879a7e). It changes print-document footer layout in the three modal components only; it does not touch data-service, tests, or dependencies. On a clean detached checkout, **4 tests passed**, lint passed with **371 warnings and 0 errors**, and the standard-path build passed (281.82 kB `vendor-react`). The same commit built from a path containing `viotrack-react` again produced 2,230.37 kB with the already documented chunk advisory. The existing PR checks were all successful before the rebase.
+
+## Baseline after the 2026-10-08 RBAC UI commit
+
+Latest main is [`3831e350536cf230ff0d963c198dcb0fb7c036c4`](https://github.com/andreicrp/viotrack-react/commit/3831e350536cf230ff0d963c198dcb0fb7c036c4). It updates RBAC visibility in modal/page components only; no service, test, or dependency files changed. On clean main, **4 tests passed**, lint passed with **370 warnings and 0 errors**, and the standard-path build passed (281.82 kB `vendor-react`). The matching checkout path again produced the 2,230.37 kB chunk/advisory documented above. PR #1 had all four checks successful before this baseline refresh.
