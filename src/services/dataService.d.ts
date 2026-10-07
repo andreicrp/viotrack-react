@@ -1,4 +1,4 @@
-import type { IncidentRecord, IncidentPageOptions, PageResult, Student, StudentPageOptions, Teacher, ViolationType } from './dataService/types';
+import type { BackupScheduleSettings, IncidentRecord, IncidentPageOptions, PageResult, Student, StudentPageOptions, Teacher, ViolationType } from './dataService/types';
 
 export interface DataService {
   getStudents(forceRefresh?: boolean): Promise<Student[]>;
@@ -8,6 +8,9 @@ export interface DataService {
   getViolations(forceRefresh?: boolean): Promise<ViolationType[]>;
   getTeachers(forceRefresh?: boolean): Promise<Teacher[]>;
   getSchoolEvents(forceRefresh?: boolean): Promise<unknown[]>;
+  getBackupScheduleSettings(): BackupScheduleSettings;
+  saveBackupScheduleSettings(settings: BackupScheduleSettings): boolean;
+  checkAndRunScheduledBackup(): Promise<boolean>;
   invalidateCache(key?: string): void;
   [method: string]: unknown;
 }

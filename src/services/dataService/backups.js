@@ -124,6 +124,9 @@ export const backupsMethods = {
       return true;
     },
 
+  /**
+   * @returns {import('./types').BackupScheduleSettings}
+   */
   getBackupScheduleSettings() {
       try {
         const saved = localStorage.getItem('viotrack_backup_schedule');
@@ -138,6 +141,10 @@ export const backupsMethods = {
       }
     },
 
+  /**
+   * @param {import('./types').BackupScheduleSettings} settings
+   * @returns {boolean}
+   */
   saveBackupScheduleSettings(settings) {
       try {
         localStorage.setItem('viotrack_backup_schedule', JSON.stringify(settings));
@@ -146,6 +153,34 @@ export const backupsMethods = {
         return false;
       }
     },
+
+  /**
+   * Create a snapshot when the enabled daily or weekly interval has elapsed.
+   * @returns {Promise<boolean>} Whether a scheduled snapshot was created.
+   */
+  async checkAndRunScheduledBackup() {
+    try {
+      const settings = this.getBackupScheduleSettings();
+      if (!settings.auto_backup_enabled) return false;
+
+      const now = Date.now();
+      const lastRun = settings.last_run ? new Date(settings.last_run).getTime() : 0;
+      const intervalMs = settings.frequency === 'weekly'
+        ? 7 * 24 * 60 * 60 * 1000
+        : 24 * 60 * 60 * 1000;
+
+      if (now - lastRun >= intervalMs) {
+        console.log('[AutoBackup] Triggering scheduled database snapshot...');
+        await this.createDatabaseBackup(`scheduled_${settings.frequency || 'daily'}`);
+        settings.last_run = new Date(now).toISOString();
+        this.saveBackupScheduleSettings(settings);
+        return true;
+      }
+    } catch (err) {
+      console.warn('[AutoBackup] Background check error:', err);
+    }
+    return false;
+  },
 
   resetAllData() {
       try {
