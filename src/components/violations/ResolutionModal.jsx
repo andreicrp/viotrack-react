@@ -545,16 +545,6 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
     }
   }, [isOpen, record, status, sanction, resolutionNotes, officerName, officerTitle]);
 
-  if (!record || !isOpen) return null;
-
-  const studentFullName = `${record.student?.fname || ''} ${record.student?.mname ? record.student.mname + ' ' : ''}${record.student?.lname || ''}`.trim().toUpperCase() || 'STUDENT RECORD';
-  const currentDateFormatted = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
-  const incidentDateFormatted = record.date_reported 
-    ? new Date(record.date_reported).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
-    : currentDateFormatted;
-  const controlNumber = `PHCM-OPD-CLR-2026-${String(record.id || 1).padStart(5, '0')}`;
-  const securityHash = `SHA256:7D9A4C${String(record.id || 1).padStart(4, '0')}E83B10928`;
-
   const isMobile = viewportWidth <= 768;
   const baseScale = isMobile ? Math.min(1, Math.max(0.38, (viewportWidth - 24) / 680)) : 1;
   const effectiveScale = Number((baseScale * zoom).toFixed(3));
@@ -583,6 +573,16 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
       }
     });
   };
+
+  if (!record || !isOpen) return null;
+
+  const studentFullName = `${record.student?.fname || ''} ${record.student?.mname ? record.student.mname + ' ' : ''}${record.student?.lname || ''}`.trim().toUpperCase() || 'STUDENT RECORD';
+  const currentDateFormatted = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+  const incidentDateFormatted = record.date_reported 
+    ? new Date(record.date_reported).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })
+    : currentDateFormatted;
+  const controlNumber = `PHCM-OPD-CLR-2026-${String(record.id || 1).padStart(5, '0')}`;
+  const securityHash = `SHA256:7D9A4C${String(record.id || 1).padStart(4, '0')}E83B10928`;
 
   // Mouse Handlers (Desktop)
   const handleMouseDown = (e) => {

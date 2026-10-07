@@ -49,6 +49,15 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
   const [viewportWidth, setViewportWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1000);
   const [paperHeight, setPaperHeight] = useState(920);
 
+  // Canvas Pan & Zoom states (Interactive layout)
+  const [zoom, setZoom] = useState(1);
+  const [pan, setPan] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const dragStartRef = useRef({ x: 0, y: 0, initialPanX: 0, initialPanY: 0 });
+  const pinchDistanceRef = useRef(null);
+  const pinchStartZoomRef = useRef(1);
+  const lastTapTimeRef = useRef(0);
+
   const isMobile = viewportWidth <= 768;
   const baseScale = isMobile ? Math.min(1, Math.max(0.38, (viewportWidth - 24) / 680)) : 1;
   const effectiveScale = Number((baseScale * zoom).toFixed(3));
