@@ -306,3 +306,10 @@ Clean latest main passed **4 existing tests**, lint (**395 warnings, 0 errors**)
 Latest main is [`695c3cc92cc38b76b1505403117a7ed47ae682d3`](https://github.com/andreicrp/viotrack-react/commit/695c3cc92cc38b76b1505403117a7ed47ae682d3). It adds `@capacitor/share` and `@capacitor/filesystem` and updates mobile print/CSV share utilities and Android Gradle integration; no data-service files changed.
 
 Clean latest main passed **4 existing tests**, lint (**395 warnings, 0 errors**), and build (2,663.93 kB `vendor-react`, 1,264.34 kB PDF worker, with the established chunk-size advisory). After rebasing the existing PR, **24 tests passed**, typecheck passed, lint passed (**394 warnings, 0 errors**), and build passed. The lockfile conflict was resolved by retaining main's Capacitor dependency graph and adding the PR's JSDoc/test tooling; no existing package versions changed and 38 dev-only lock entries were added. The PR's `vendor-react` output is **2,673.86 kB** (gzip 791.60 kB), **9.93 kB** above clean main (gzip +3.13 kB); PDF worker size is unchanged. This build-size delta is recorded for follow-up review rather than described as identical.
+
+
+## Baseline after the 2026-10-08 Android FileProvider fix
+
+Latest main is [`7d6cfe03a0eea377d8807a9c245704eb8b193d5a`](https://github.com/andreicrp/viotrack-react/commit/7d6cfe03a0eea377d8807a9c245704eb8b193d5a). It updates Android FileProvider paths and the mobile print helper's share-file handling; no data-service or dependency files changed.
+
+After reinstalling the clean-main lockfile with `npm ci` (the initial attempt used stale `node_modules` and could not resolve `@capacitor/share`), clean main passed **4 tests**, lint (**395 warnings, 0 errors**), and build (**2,673.86 kB** `vendor-react`, gzip 791.60 kB; PDF worker 1,264.34 kB). The rebased PR passed **24 tests**, `npm run typecheck`, lint (**394 warnings, 0 errors**), and build with the same matching bundle sizes. Compared with the previous main baseline at `695c3cc`, the earlier +9.93 kB apparent PR delta is no longer present against `7d6cfe0`; current main and PR outputs match.
