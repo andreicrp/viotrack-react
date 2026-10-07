@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import { Clock, ChevronDown, Check } from 'lucide-react';
 
 const HOURS = ['12', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11'];
@@ -23,7 +24,7 @@ export const CustomTimePicker = ({
   style = {}
 }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [openUpward, setOpenUpward] = useState(false);
+  const [popoverCoords, setPopoverCoords] = useState({ top: 0, left: 0 });
   const containerRef = useRef(null);
   const popoverRef = useRef(null);
   const hourListRef = useRef(null);
@@ -56,24 +57,48 @@ export const CustomTimePicker = ({
     };
   }, [value, placeholder]);
 
-  // Determine smart placement (upward vs downward)
-  useEffect(() => {
-    if (isOpen && containerRef.current) {
-      const rect = containerRef.current.getBoundingClientRect();
-      const spaceBelow = window.innerHeight - rect.bottom;
-      // If less than 290px available below, flip upward
-      if (spaceBelow < 290 && rect.top > 290) {
-        setOpenUpward(true);
-      } else {
-        setOpenUpward(false);
-      }
+  // Calculate fixed screen coordinates for portal overlay
+  const updateCoords = () => {
+    if (!containerRef.current) return;
+    const rect = containerRef.current.getBoundingClientRect();
+    const popoverWidth = 260;
+    const popoverHeight = 280;
+
+    const spaceBelow = window.innerHeight - rect.bottom;
+    const showUpward = spaceBelow < popoverHeight && rect.top > popoverHeight;
+
+    const top = showUpward ? rect.top - popoverHeight - 6 : rect.bottom + 6;
+
+    let left = rect.left;
+    if (align === 'right' || rect.left + popoverWidth > window.innerWidth - 12) {
+      left = rect.right - popoverWidth;
     }
-  }, [isOpen]);
+
+    // Safety margins within window
+    if (left < 10) left = 10;
+    if (left + popoverWidth > window.innerWidth - 10) {
+      left = window.innerWidth - popoverWidth - 10;
+    }
+
+    setPopoverCoords({ top, left });
+  };
+
+  useEffect(() => {
+    if (isOpen) {
+      updateCoords();
+      window.addEventListener('resize', updateCoords);
+      window.addEventListener('scroll', updateCoords, true);
+      return () => {
+        window.removeEventListener('resize', updateCoords);
+        window.removeEventListener('scroll', updateCoords, true);
+      };
+    }
+  }, [isOpen, align]);
 
   // Auto-scroll selected hour/min into view on open
   useEffect(() => {
     if (isOpen) {
-      setTimeout(() => {
+      const timer = setTimeout(() => {
         if (hourListRef.current) {
           const selectedHourEl = hourListRef.current.querySelector('[data-selected="true"]');
           if (selectedHourEl) {
@@ -86,14 +111,18 @@ export const CustomTimePicker = ({
             selectedMinEl.scrollIntoView({ block: 'nearest', behavior: 'auto' });
           }
         }
-      }, 50);
+      }, 30);
+      return () => clearTimeout(timer);
     }
   }, [isOpen, hour12, minute]);
 
   // Close when clicking outside
   useEffect(() => {
     const handleClickOutside = (e) => {
-      if (containerRef.current && !containerRef.current.contains(e.target)) {
+      if (
+        containerRef.current && !containerRef.current.contains(e.target) &&
+        popoverRef.current && !popoverRef.current.contains(e.target)
+      ) {
         setIsOpen(false);
       }
     };
@@ -182,22 +211,20 @@ export const CustomTimePicker = ({
         />
       </button>
 
-      {/* Popover Dropdown Card */}
-      {isOpen && (
+      {/* Popover Dropdown Card rendered in Portal to float outside modal overflow */}
+      {isOpen && typeof document !== 'undefined' && createPortal(
         <div
           ref={popoverRef}
           style={{
-            position: 'absolute',
-            ...(openUpward
-              ? { bottom: 'calc(100% + 6px)' }
-              : { top: 'calc(100% + 6px)' }),
-            ...(align === 'right' ? { right: 0 } : { left: 0 }),
-            zIndex: 999999,
+            position: 'fixed',
+            top: `${popoverCoords.top}px`,
+            left: `${popoverCoords.left}px`,
+            zIndex: 9999999,
             width: '260px',
             background: '#ffffff',
             borderRadius: '14px',
             border: '1.5px solid #cbd5e1',
-            boxShadow: '0 20px 40px -10px rgba(0, 0, 0, 0.28), 0 0 0 1px rgba(0,0,0,0.06)',
+            boxShadow: '0 20px 45px -10px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(0,0,0,0.08)',
             padding: '10px',
             display: 'flex',
             flexDirection: 'column',
@@ -529,9 +556,11 @@ export const CustomTimePicker = ({
           >
             <Check size={13} /> Done
           </button>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
 };
+
 
