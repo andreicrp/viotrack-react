@@ -1,4 +1,4 @@
-import { INITIAL_VIOLATIONS, INITIAL_RECORDS, getDynamicInitialRecords } from './fixtures.js';
+import { INITIAL_VIOLATIONS, INITIAL_RECORDS } from './fixtures.js';
 import { supabase, isSupabaseConfigured, broadcastRecordChange, startMutation, endMutation, CACHE_CONFIG, _cache, executeWithDeduplication, invalidateCache, getStored, setStored } from './shared.js';
 
 export const violationsMethods = {
@@ -161,7 +161,7 @@ export const violationsMethods = {
         const studentMap = new Map(students.map(s => [Number(s.id), s]));
         const violationMap = new Map(violations.map(v => [Number(v.id), v]));
 
-        let remoteRecords = [];
+        let remoteRecords = null;
         if (isSupabaseConfigured()) {
           try {
             const { data, error } = await supabase
@@ -180,46 +180,9 @@ export const violationsMethods = {
           }
         }
 
-        const freshSeeds = getDynamicInitialRecords();
-        const freshSeedMap = new Map(freshSeeds.map(s => [s.id, s]));
-
-        let localRecords = getStored('records', null);
-        if (!localRecords || localRecords.length === 0) {
-          localRecords = freshSeeds;
-          setStored('records', localRecords);
-        } else {
-          // Automatically sync mock seed records (IDs 101-119) to dynamic dates while preserving user-logged records
-          localRecords = localRecords.map(r => {
-            if (freshSeedMap.has(r.id)) {
-              const seed = freshSeedMap.get(r.id);
-              return {
-                ...r,
-                date_reported: seed.date_reported,
-                approved_at: seed.approved_at || r.approved_at,
-                resolution_date: seed.resolution_date || r.resolution_date
-              };
-            }
-            return r;
-          });
-          setStored('records', localRecords);
-        }
-
-        // Ensure seed records with Under Approval exist if none are currently under approval
-        const hasAnyUnderApproval = localRecords.some(r => r.approval_status === 'Under Approval' || r.status === 'Under Approval') ||
-          remoteRecords.some(r => r.approval_status === 'Under Approval' || r.status === 'Under Approval');
-
-        if (!hasAnyUnderApproval) {
-          const underApprovalInitials = freshSeeds.filter(r => r.approval_status === 'Under Approval' || r.status === 'Under Approval');
-          if (underApprovalInitials.length > 0) {
-            localRecords = [...underApprovalInitials, ...localRecords];
-            setStored('records', localRecords);
-          }
-        }
-
-        // Merge remote records with any local records not yet in remote
-        const remoteIdSet = new Set(remoteRecords.map(r => Number(r.id)));
-        const extraLocal = localRecords.filter(lr => !remoteIdSet.has(Number(lr.id)));
-        const allRawRecords = [...remoteRecords, ...extraLocal];
+        const allRawRecords = (isSupabaseConfigured() && remoteRecords !== null)
+          ? remoteRecords
+          : getStored('records', []);
 
         const mappedRecords = allRawRecords.map(r => {
           const isTeacher = (r.reported_by_type === 'teacher' || (r.reported_by_name && r.reported_by_name !== 'System Admin' && r.reported_by_name !== 'Sheryl Gamboa' && r.reported_by_name !== 'Head Admin'));

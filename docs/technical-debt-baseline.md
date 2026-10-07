@@ -103,3 +103,9 @@ Latest main is [`533469b219c97f95e2b306529fef93d89c9f90fa`](https://github.com/a
 ## Baseline after the 2026-10-08 modal FAB styling commit
 
 Latest main is [`f925642f2bdcb2eacf169f35226e367f031db2de`](https://github.com/andreicrp/viotrack-react/commit/f925642f2bdcb2eacf169f35226e367f031db2de). It changes only `ParentSummonsModal.jsx` and `ResolutionModal.jsx`; data-service code and tests are unchanged. On the clean detached latest-main checkout, **4 existing tests passed**, lint passed with **370 warnings and 0 errors**, and the build passed (281.82 kB `vendor-react`). The hook-order errors from intermediate `d8c96f6` were resolved by `533469b`; current main is lint-clean apart from its existing warnings. Main still has no service tests or typecheck script.
+
+## Live-data port and regression results on `f925642`
+
+The split service modules now match the live-read/fallback behavior from current main. The full suite passes **16 tests across 2 files** (12 service tests plus the original 4 utility tests), including checks for empty offline data, legacy demo-cache cleanup, authoritative successful-empty reads, non-merged teacher/admin live rows, pagination metadata, and existing student CRUD behavior. `npm run typecheck` passes. Lint passes with **369 warnings and 0 errors**, one fewer warning than clean main (370/0). The production build passes.
+
+The build from `/home/ubuntu/viotrack-react` emits the 2,230.37 kB `vendor-react` chunk-size advisory; a clean latest-main build from `/tmp/viotrack-react-main-baseline` produced the exact same vendor chunk size/hash and advisory. This is the previously identified path-sensitive Vite chunk matcher, not a refactor regression. From a checkout path without `react` in its name, clean main reports a 281.82 kB `vendor-react` chunk. `npm ci` continues to report the repository's existing high-severity audit advisory.
