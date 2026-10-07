@@ -4,7 +4,7 @@
  */
 
 import { sanitizeCsvCell, sanitizeText } from './security';
-import { isMobileDevice } from './mobilePrintHelper';
+import { shareOrSaveNativeFile } from './mobilePrintHelper';
 
 export const exportToCsv = async (filename, headers, rows) => {
   try {
@@ -23,44 +23,12 @@ export const exportToCsv = async (filename, headers, rows) => {
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const fname = filename.endsWith('.csv') ? filename : `${filename}.csv`;
 
-    // 1. Mobile & APK Native Share Flow (Google Sheets, Excel, Drive, Files)
-    if (isMobileDevice() && typeof navigator !== 'undefined' && navigator.share && navigator.canShare) {
-      try {
-        const file = new File([blob], fname, { type: 'text/csv' });
-        if (navigator.canShare({ files: [file] })) {
-          await navigator.share({
-            files: [file],
-            title: fname,
-            text: `Viotrack Data Export: ${fname}`
-          });
-          return true;
-        }
-      } catch (shareErr) {
-        if (shareErr.name === 'AbortError') {
-          // User closed/cancelled the share tray
-          return true;
-        }
-        console.warn('Native mobile share failed, falling back to download link:', shareErr);
-      }
-    }
-
-    // 2. Desktop Browser Direct Download
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.setAttribute('download', fname);
-    link.target = '_self';
-    link.style.display = 'none';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-
-    // Give mobile browsers time to stream before revoking
-    setTimeout(() => {
-      URL.revokeObjectURL(url);
-    }, 4000);
-
-    return true;
+    return await shareOrSaveNativeFile({
+      filename: fname,
+      blob: blob,
+      title: fname,
+      mimeType: 'text/csv'
+    });
   } catch (err) {
     console.error('Failed to export CSV:', err);
     throw err;
@@ -73,37 +41,12 @@ export const downloadSampleCsv = async (filename, content) => {
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const fname = filename.endsWith('.csv') ? filename : `${filename}.csv`;
 
-    if (isMobileDevice() && typeof navigator !== 'undefined' && navigator.share && navigator.canShare) {
-      try {
-        const file = new File([blob], fname, { type: 'text/csv' });
-        if (navigator.canShare({ files: [file] })) {
-          await navigator.share({
-            files: [file],
-            title: fname,
-            text: `Viotrack Sample Template: ${fname}`
-          });
-          return true;
-        }
-      } catch (shareErr) {
-        if (shareErr.name === 'AbortError') return true;
-      }
-    }
-
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.setAttribute('download', fname);
-    link.target = '_self';
-    link.style.display = 'none';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-
-    setTimeout(() => {
-      URL.revokeObjectURL(url);
-    }, 4000);
-
-    return true;
+    return await shareOrSaveNativeFile({
+      filename: fname,
+      blob: blob,
+      title: fname,
+      mimeType: 'text/csv'
+    });
   } catch (err) {
     console.error('Failed to download sample CSV:', err);
     throw err;

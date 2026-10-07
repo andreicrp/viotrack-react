@@ -1,9 +1,19 @@
 /**
  * Universal Mobile Print & Native Share Helper for Viotrack
- * Optimized for Android APK, WebViews, PWA, and Desktop Browsers.
+ * Optimized with Capacitor Native Plugins (@capacitor/share & @capacitor/filesystem)
+ * for 100% reliable Android APK execution, plus Web/Desktop fallbacks.
  */
 
+import { Capacitor } from '@capacitor/core';
+import { Share } from '@capacitor/share';
+import { Filesystem, Directory } from '@capacitor/filesystem';
+
+export const isNativeApp = () => {
+  return typeof Capacitor !== 'undefined' && Capacitor.isNativePlatform && Capacitor.isNativePlatform();
+};
+
 export const isMobileDevice = () => {
+  if (isNativeApp()) return true;
   if (typeof window === 'undefined') return false;
   const userAgent = navigator.userAgent || navigator.vendor || window.opera || '';
   const isTouch = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
@@ -13,27 +23,104 @@ export const isMobileDevice = () => {
 };
 
 /**
- * Checks if the browser / WebView environment supports Web Share with Files (PDF)
+ * Converts Blob to pure Base64 string (without the data URL prefix)
  */
-export const canShareFiles = () => {
-  if (typeof navigator === 'undefined' || !navigator.share || !navigator.canShare) return false;
-  try {
-    const testFile = new File(['test'], 'test.txt', { type: 'text/plain' });
-    return navigator.canShare({ files: [testFile] });
-  } catch {
-    return false;
+export async function blobToBase64(blob) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const res = reader.result;
+      if (typeof res === 'string') {
+        const parts = res.split(',');
+        resolve(parts[1] || parts[0]);
+      } else {
+        resolve('');
+      }
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+}
+
+/**
+ * Shares or saves any file natively via Capacitor or Web Share
+ */
+export async function shareOrSaveNativeFile({
+  filename,
+  blob,
+  title = 'Viotrack Export',
+  mimeType = 'application/octet-stream'
+}) {
+  // 1. Capacitor Native APK Execution (100% Reliable Android Native Share Tray)
+  if (isNativeApp()) {
+    try {
+      const base64Data = await blobToBase64(blob);
+      const writeResult = await Filesystem.writeFile({
+        path: filename,
+        data: base64Data,
+        directory: Directory.Cache,
+        recursive: true
+      });
+
+      if (writeResult && writeResult.uri) {
+        await Share.share({
+          title: title,
+          text: title,
+          url: writeResult.uri,
+          dialogTitle: title
+        });
+        return true;
+      }
+    } catch (err) {
+      if (err?.message?.includes('canceled') || err?.message?.includes('cancelled') || err?.name === 'AbortError') {
+        return true;
+      }
+      console.warn('Capacitor native share failed, falling back to Web Share / Download:', err);
+    }
   }
-};
+
+  // 2. Mobile Web Share API Execution (Mobile Chrome / Safari)
+  if (typeof navigator !== 'undefined' && navigator.share && navigator.canShare) {
+    try {
+      const file = new File([blob], filename, { type: mimeType });
+      if (navigator.canShare({ files: [file] })) {
+        await navigator.share({
+          files: [file],
+          title: title,
+          text: title
+        });
+        return true;
+      }
+    } catch (shareErr) {
+      if (shareErr.name === 'AbortError') return true;
+      console.warn('Web share failed, falling back to standard download link:', shareErr);
+    }
+  }
+
+  // 3. Desktop / Browser Download Fallback
+  try {
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', filename);
+    link.target = '_self';
+    link.style.display = 'none';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    setTimeout(() => {
+      URL.revokeObjectURL(url);
+    }, 4000);
+    return true;
+  } catch (err) {
+    console.error('Download link error:', err);
+    throw err;
+  }
+}
 
 /**
  * Universal document print or native share dispatcher
- * 
- * @param {Object} options
- * @param {string} options.title - Document title (e.g. "Parent Summons - Mendoza")
- * @param {string} options.filename - PDF filename (e.g. "Parent_Summons_Mendoza.pdf")
- * @param {string} options.htmlContent - HTML document for desktop iframe printing
- * @param {Function} options.generatePdfBlob - Async function returning a Blob or jsPDF instance
- * @param {Function} [options.onStatus] - Optional status message callback
  */
 export async function printOrShareDocument({
   title = 'Viotrack Document',
@@ -42,13 +129,14 @@ export async function printOrShareDocument({
   generatePdfBlob,
   onStatus = () => {}
 }) {
+  const isNative = isNativeApp();
   const isMobile = isMobileDevice();
 
-  // 1. Mobile & APK Flow: Native Share / Android Print Spooler
-  if (isMobile) {
+  // 1. Native APK or Mobile Flow: Generate high-res PDF and trigger Android Print / Share Intent
+  if (isNative || isMobile) {
     if (typeof generatePdfBlob === 'function') {
       try {
-        onStatus?.({ type: 'info', message: 'Preparing document for mobile print / share...' });
+        onStatus?.({ type: 'info', message: 'Generating document...' });
         const pdfOutput = await generatePdfBlob();
         
         let blob;
@@ -61,41 +149,21 @@ export async function printOrShareDocument({
         }
 
         if (blob) {
-          const pdfFile = new File([blob], filename, { type: 'application/pdf' });
+          const success = await shareOrSaveNativeFile({
+            filename: filename.endsWith('.pdf') ? filename : `${filename}.pdf`,
+            blob: blob,
+            title: title,
+            mimeType: 'application/pdf'
+          });
 
-          // If Android Web Share API supports file sharing:
-          if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
-            await navigator.share({
-              files: [pdfFile],
-              title: title,
-              text: `Official Viotrack Document: ${title}`
-            });
-            onStatus?.({ type: 'success', message: 'Document sent to system share / print.' });
+          if (success) {
+            onStatus?.({ type: 'success', message: 'Document sent to system print / share.' });
             return;
           }
-
-          // Fallback on mobile: Trigger automatic PDF download / open in native viewer
-          const fileUrl = URL.createObjectURL(blob);
-          const tempLink = document.createElement('a');
-          tempLink.href = fileUrl;
-          tempLink.download = filename;
-          tempLink.target = '_blank';
-          document.body.appendChild(tempLink);
-          tempLink.click();
-          setTimeout(() => {
-            tempLink.remove();
-            URL.revokeObjectURL(fileUrl);
-          }, 4000);
-
-          onStatus?.({ type: 'success', message: 'PDF downloaded. Open in your phone viewer to print.' });
-          return;
         }
       } catch (err) {
-        if (err.name === 'AbortError') {
-          // User cancelled the share dialog
-          return;
-        }
-        console.warn('Native mobile share failed, falling back to direct print:', err);
+        if (err.name === 'AbortError') return;
+        console.warn('Mobile print/share error:', err);
       }
     }
   }
@@ -147,7 +215,7 @@ export async function printOrShareDocument({
     }
   }
 
-  // 3. Ultimate Fallback: Direct PDF generator download if provided
+  // 3. Fallback: Direct PDF generator save
   if (typeof generatePdfBlob === 'function') {
     try {
       const pdfOutput = await generatePdfBlob();
