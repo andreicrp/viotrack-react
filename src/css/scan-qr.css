@@ -382,8 +382,10 @@
 .feedback-settings-popover {
   position: absolute;
   top: calc(100% + 8px);
-  right: 0;
+  left: 0;
+  right: auto;
   width: 280px;
+  max-width: calc(100vw - 32px);
   background: #ffffff;
   border-radius: 14px;
   border: 1px solid #cbd5e1;
@@ -2835,6 +2837,29 @@ div[id*="reader"] video {
   .scanner-card {
     padding: 12px;
     gap: 12px;
+  }
+
+  .scanner-header-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .feedback-settings-popover {
+    left: 0 !important;
+    right: auto !important;
+    width: min(280px, calc(100vw - 32px)) !important;
+    max-width: calc(100vw - 32px) !important;
+    box-sizing: border-box !important;
+  }
+
+  .custom-camera-dropdown-container {
+    max-width: 170px;
+  }
+
+  .custom-camera-menu-dropdown {
+    right: 0 !important;
+    left: auto !important;
+    max-width: calc(100vw - 32px) !important;
   }
 
   .scanner-viewport-wrapper {
