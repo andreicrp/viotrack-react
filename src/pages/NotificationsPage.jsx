@@ -410,50 +410,7 @@ export const NotificationsPage = () => {
         </div>
       </div>
 
-      {/* 2. Key Stats Summary Bar */}
-      <div className="notif-metrics-bar">
-        <div className="notif-metric-card" onClick={() => { setActiveTab('approvals'); setFilterUnreadOnly(false); }}>
-          <div className="notif-metric-icon-wrap amber">
-            <Clock size={18} strokeWidth={2.4} />
-          </div>
-          <div className="notif-metric-content">
-            <span className="notif-metric-label">Pending Approval</span>
-            <span className="notif-metric-num">{tabCounts.approvals}</span>
-          </div>
-        </div>
-
-        <div className="notif-metric-card" onClick={() => { setActiveTab('conduct'); setFilterUnreadOnly(false); }}>
-          <div className="notif-metric-icon-wrap red">
-            <ShieldAlert size={18} strokeWidth={2.4} />
-          </div>
-          <div className="notif-metric-content">
-            <span className="notif-metric-label">Conduct Alerts</span>
-            <span className="notif-metric-num">{tabCounts.conduct}</span>
-          </div>
-        </div>
-
-        <div className="notif-metric-card" onClick={() => { setActiveTab('sms'); setFilterUnreadOnly(false); }}>
-          <div className="notif-metric-icon-wrap blue">
-            <MessageSquare size={18} strokeWidth={2.4} />
-          </div>
-          <div className="notif-metric-content">
-            <span className="notif-metric-label">Parent SMS Alerts</span>
-            <span className="notif-metric-num">{tabCounts.sms}</span>
-          </div>
-        </div>
-
-        <div className="notif-metric-card" onClick={() => { setActiveTab('system'); setFilterUnreadOnly(false); }}>
-          <div className="notif-metric-icon-wrap slate">
-            <Info size={18} strokeWidth={2.4} />
-          </div>
-          <div className="notif-metric-content">
-            <span className="notif-metric-label">System Notices</span>
-            <span className="notif-metric-num">{tabCounts.system}</span>
-          </div>
-        </div>
-      </div>
-
-      {/* 3. Main Content & Insights Layout Grid */}
+      {/* 2. Main Content & Insights Layout Grid */}
       <div className="notif-page-layout-grid">
         {/* Left / Main Column: Controls + Feed */}
         <div className="notif-main-col">
