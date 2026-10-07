@@ -140,3 +140,13 @@ A clean detached checkout installed from the updated lockfile with `npm ci --ign
 | `npm run build` | Passed; 282.23 kB `vendor-react` from the detached checkout path. |
 
 PR #1's four GitHub checks were successful before rebasing onto this commit. The latest main also adds the `pdfjs-dist` runtime dependency; keep it while resolving the PR's separate JSDoc/test tooling changes.
+
+### Matching-path build comparison after the PDF dependency
+
+A clean build of `e530612` from `/tmp/viotrack-react-main-baseline` emitted `vendor-react-Wu-iWA7h.js` at **2,663.31 kB** with the existing >800 kB advisory. The rebased PR build from `/home/ubuntu/viotrack-react` emitted the same asset filename and size. Thus the PDF dependency/base change increases the path-matched vendor bundle relative to earlier main, but the PR adds no further bundle-size delta; the detached checkout path without `react` in its name reports 282.23 kB on clean main.
+
+## Baseline after the 2026-10-08 student schema-fallback/PDF worker commit
+
+Latest main is [`b85322fb78d97f9c7656eef3ba5611a35278588e`](https://github.com/andreicrp/viotrack-react/commit/b85322fb78d97f9c7656eef3ba5611a35278588e). It changes the monolithic student-service methods and `pdfHelper.js`; no test or dependency files changed in this commit. New service behavior includes an unordered student-read retry if `order('lname')` fails, schema-resilient student inserts/updates/deletes, `student_id`-then-`lrn` lookup fallback for writes, and a generic bulk-import audit message. The PDF worker now resolves to a locally bundled worker URL, with CDN fallback.
+
+Before applying this service change to the existing PR, a clean detached checkout of `b85322f` passed **4 tests** (the existing CSV/security/SMS suite), lint with **372 warnings and 0 errors**, and build (282.23 kB `vendor-react`). Main still has no typecheck script or service-specific tests. `npm ci --ignore-scripts` reports the single existing high-severity audit advisory. These are the pre-port baseline results; the PR will carry the schema and PDF worker behavior into its extracted module/tests without duplicating a branch or PR.
