@@ -21,7 +21,13 @@ import {
   Check,
   X,
   FlipHorizontal,
-  UserCheck
+  UserCheck,
+  Volume2,
+  VolumeX,
+  Volume1,
+  Vibrate,
+  Sliders,
+  Sparkles
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { dataService } from '../services/dataService';
@@ -29,8 +35,13 @@ import { AddViolationModal } from '../components/violations/AddViolationModal';
 import { useNotification } from '../context/NotificationContext';
 import { Html5Qrcode } from 'html5-qrcode';
 import { matchStudentFromScan } from '../utils/qrHelper';
-import successAudioSrc from '../assets/sound_effects/success.mp3';
-import errorAudioSrc from '../assets/sound_effects/error.mp3';
+import {
+  playSuccessChime,
+  playErrorBuzz,
+  getFeedbackSettings,
+  saveFeedbackSettings,
+  triggerHapticFeedback
+} from '../utils/scannerFeedback';
 
 export const ScanQRPage = () => {
   const [searchParams] = useSearchParams();
@@ -40,6 +51,11 @@ export const ScanQRPage = () => {
 
   const queryStudentId = searchParams.get('id') || searchParams.get('student_id');
   const queryLrn = searchParams.get('lrn');
+
+  // Scanner Feedback States (Audio & Haptics)
+  const [feedbackConfig, setFeedbackConfig] = useState(getFeedbackSettings);
+  const [isFeedbackMenuOpen, setIsFeedbackMenuOpen] = useState(false);
+  const feedbackMenuRef = useRef(null);
 
   // Scanner States
   const [hasCameraPermission, setHasCameraPermission] = useState(() => {
@@ -100,76 +116,31 @@ export const ScanQRPage = () => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [scannedStudent, isViolationModalOpen]);
 
-  // Play official success.mp3 sound effect when QR is scanned successfully
+  // Close feedback dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (feedbackMenuRef.current && !feedbackMenuRef.current.contains(e.target)) {
+        setIsFeedbackMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleUpdateFeedback = (updates) => {
+    const next = { ...feedbackConfig, ...updates };
+    setFeedbackConfig(next);
+    saveFeedbackSettings(next);
+  };
+
+  // Play high chime & haptic feedback when QR is scanned successfully
   const playScanSuccessSound = () => {
-    try {
-      const audio = new Audio(successAudioSrc || '/sound_effects/success.mp3');
-      audio.volume = 0.9;
-      const playPromise = audio.play();
-      if (playPromise !== undefined) {
-        playPromise.catch(() => {
-          playFallbackBeep();
-        });
-      }
-    } catch {
-      playFallbackBeep();
-    }
+    playSuccessChime(feedbackConfig.volume);
   };
 
-  // Play official error.mp3 sound effect when QR scan fails / is invalid
+  // Play double buzz & heavy haptic feedback when QR scan fails / is invalid
   const playScanErrorSound = () => {
-    try {
-      const audio = new Audio(errorAudioSrc || '/sound_effects/error.mp3');
-      audio.volume = 0.9;
-      const playPromise = audio.play();
-      if (playPromise !== undefined) {
-        playPromise.catch(() => {
-          playFallbackErrorTone();
-        });
-      }
-    } catch {
-      playFallbackErrorTone();
-    }
-  };
-
-  const playFallbackBeep = () => {
-    try {
-      const AudioCtx = window.AudioContext || window.webkitAudioContext;
-      if (!AudioCtx) return;
-      const audioCtx = new AudioCtx();
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(987.77, audioCtx.currentTime); // B5 note
-      gain.gain.setValueAtTime(0.25, audioCtx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.2);
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
-      osc.start();
-      osc.stop(audioCtx.currentTime + 0.2);
-    } catch (e) {
-      // AudioContext blocked
-    }
-  };
-
-  const playFallbackErrorTone = () => {
-    try {
-      const AudioCtx = window.AudioContext || window.webkitAudioContext;
-      if (!AudioCtx) return;
-      const audioCtx = new AudioCtx();
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      osc.type = 'sawtooth';
-      osc.frequency.setValueAtTime(220, audioCtx.currentTime); // A3 low buzz
-      gain.gain.setValueAtTime(0.25, audioCtx.currentTime);
-      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
-      osc.start();
-      osc.stop(audioCtx.currentTime + 0.3);
-    } catch (e) {
-      // AudioContext blocked
-    }
+    playErrorBuzz(feedbackConfig.volume);
   };
 
   // Load all students list initially
@@ -901,77 +872,195 @@ export const ScanQRPage = () => {
               Live Camera Feed
             </h3>
 
-            {/* Custom Modern Camera Device Picker Dropdown */}
-            {availableCameras.length > 0 ? (
-              <div className="custom-camera-dropdown-container" ref={cameraDropdownRef}>
+            <div className="scanner-header-actions" style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
+              {/* Sound & Haptic Feedback Settings Dropdown */}
+              <div className="custom-feedback-dropdown-container" ref={feedbackMenuRef} style={{ position: 'relative' }}>
                 <button
                   type="button"
-                  className={`custom-camera-trigger ${isCameraDropdownOpen ? 'active' : ''}`}
-                  onClick={() => setIsCameraDropdownOpen(prev => !prev)}
-                  aria-haspopup="listbox"
-                  aria-expanded={isCameraDropdownOpen}
-                  title="Switch Camera Device"
+                  className={`feedback-settings-trigger ${isFeedbackMenuOpen ? 'active' : ''} ${!feedbackConfig.soundEnabled && !feedbackConfig.hapticEnabled ? 'muted' : ''}`}
+                  onClick={() => setIsFeedbackMenuOpen(prev => !prev)}
+                  title="Audio & Haptic Feedback Settings"
+                  aria-label="Audio & Haptic Feedback Settings"
                 >
-                  <div className="custom-camera-trigger-left">
-                    <span className="camera-trigger-indicator" />
-                    <span className="custom-camera-trigger-text">
-                      {activeCameraLabel}
-                    </span>
-                  </div>
-                  <ChevronDown
-                    size={14}
-                    className={`custom-camera-trigger-chevron ${isCameraDropdownOpen ? 'open' : ''}`}
-                  />
+                  {feedbackConfig.soundEnabled ? (
+                    <Volume2 size={15} color="#07345f" />
+                  ) : (
+                    <VolumeX size={15} color="#94a3b8" />
+                  )}
+                  <span className="feedback-trigger-label">Feedback</span>
+                  {feedbackConfig.hapticEnabled && (
+                    <span className="haptic-dot-indicator" title="Vibration Enabled" />
+                  )}
                 </button>
 
-                {isCameraDropdownOpen && (
-                  <div className="custom-camera-menu-dropdown" role="listbox">
-                    <div className="custom-camera-menu-title">
-                      <span>Detected Video Devices</span>
-                      <span className="custom-camera-count-badge">{availableCameras.length}</span>
+                {isFeedbackMenuOpen && (
+                  <div className="feedback-settings-popover" role="dialog">
+                    <div className="feedback-popover-header">
+                      <span className="feedback-popover-title">Scanner Feedback</span>
+                      <span className="feedback-popover-tag">Audio &amp; Haptics</span>
                     </div>
 
-                    <div className="custom-camera-options-list">
-                      {availableCameras.map((cam, idx) => {
-                        const isSelected = cam.id === (activeCamera?.id || selectedCameraId || availableCameras[0]?.id);
-                        return (
-                          <button
-                            key={cam.id}
-                            type="button"
-                            className={`custom-camera-menu-option ${isSelected ? 'selected' : ''}`}
-                            onClick={() => handleSelectCamera(cam.id)}
-                            role="option"
-                            aria-selected={isSelected}
-                          >
-                            <div className="custom-camera-option-meta">
-                              <div className={`camera-option-icon-wrap ${isSelected ? 'selected' : ''}`}>
-                                <Camera size={13} />
-                              </div>
-                              <div className="camera-option-details">
-                                <span className="camera-option-label-text">
-                                  {cam.label || `Camera Device #${idx + 1}`}
-                                </span>
-                                {isSelected && (
-                                  <span className="camera-option-connected-tag">Active Stream</span>
-                                )}
-                              </div>
-                            </div>
+                    <div className="feedback-popover-body">
+                      {/* Audio Chimes Toggle */}
+                      <div className="feedback-toggle-row">
+                        <div className="feedback-toggle-info">
+                          <div className="feedback-toggle-title">
+                            <Volume2 size={14} /> Sound Chimes
+                          </div>
+                          <span className="feedback-toggle-desc">High Chime / Double Buzz</span>
+                        </div>
+                        <label className="feedback-switch">
+                          <input
+                            type="checkbox"
+                            checked={feedbackConfig.soundEnabled}
+                            onChange={(e) => handleUpdateFeedback({ soundEnabled: e.target.checked })}
+                          />
+                          <span className="feedback-slider" />
+                        </label>
+                      </div>
 
-                            {isSelected && (
-                              <Check size={15} className="camera-option-check-icon" />
-                            )}
+                      {/* Volume Slider (if sound enabled) */}
+                      {feedbackConfig.soundEnabled && (
+                        <div className="feedback-volume-row">
+                          <div className="feedback-volume-labels">
+                            <span className="feedback-volume-title">Volume Level</span>
+                            <span className="feedback-volume-value">{Math.round(feedbackConfig.volume * 100)}%</span>
+                          </div>
+                          <input
+                            type="range"
+                            min="0.1"
+                            max="1"
+                            step="0.05"
+                            value={feedbackConfig.volume}
+                            onChange={(e) => handleUpdateFeedback({ volume: parseFloat(e.target.value) })}
+                            className="feedback-volume-range"
+                          />
+                        </div>
+                      )}
+
+                      {/* Haptic Vibration Toggle */}
+                      <div className="feedback-toggle-row">
+                        <div className="feedback-toggle-info">
+                          <div className="feedback-toggle-title">
+                            <Vibrate size={14} /> Vibration / Haptics
+                          </div>
+                          <span className="feedback-toggle-desc">Tactile mobile buzz</span>
+                        </div>
+                        <label className="feedback-switch">
+                          <input
+                            type="checkbox"
+                            checked={feedbackConfig.hapticEnabled}
+                            onChange={(e) => handleUpdateFeedback({ hapticEnabled: e.target.checked })}
+                          />
+                          <span className="feedback-slider" />
+                        </label>
+                      </div>
+
+                      {/* Live Audio Test Buttons */}
+                      <div className="feedback-test-actions">
+                        <span className="feedback-test-heading">Test Feedback Profiles</span>
+                        <div className="feedback-test-buttons-grid">
+                          <button
+                            type="button"
+                            className="feedback-test-btn success"
+                            onClick={() => {
+                              playSuccessChime(feedbackConfig.volume);
+                              triggerHapticFeedback('success');
+                            }}
+                            title="Test Authentic Student High Chime"
+                          >
+                            <Sparkles size={13} /> High Chime (Success)
                           </button>
-                        );
-                      })}
+                          <button
+                            type="button"
+                            className="feedback-test-btn error"
+                            onClick={() => {
+                              playErrorBuzz(feedbackConfig.volume);
+                              triggerHapticFeedback('error');
+                            }}
+                            title="Test Invalid / Tampered QR Buzz"
+                          >
+                            <AlertTriangle size={13} /> Double Buzz (Invalid)
+                          </button>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 )}
               </div>
-            ) : (
-              <span className="camera-facing-label">
-                {cameraFacing === 'environment' ? 'Rear Camera' : 'Front Camera'}
-              </span>
-            )}
+
+              {/* Custom Modern Camera Device Picker Dropdown */}
+              {availableCameras.length > 0 ? (
+                <div className="custom-camera-dropdown-container" ref={cameraDropdownRef}>
+                  <button
+                    type="button"
+                    className={`custom-camera-trigger ${isCameraDropdownOpen ? 'active' : ''}`}
+                    onClick={() => setIsCameraDropdownOpen(prev => !prev)}
+                    aria-haspopup="listbox"
+                    aria-expanded={isCameraDropdownOpen}
+                    title="Switch Camera Device"
+                  >
+                    <div className="custom-camera-trigger-left">
+                      <span className="camera-trigger-indicator" />
+                      <span className="custom-camera-trigger-text">
+                        {activeCameraLabel}
+                      </span>
+                    </div>
+                    <ChevronDown
+                      size={14}
+                      className={`custom-camera-trigger-chevron ${isCameraDropdownOpen ? 'open' : ''}`}
+                    />
+                  </button>
+
+                  {isCameraDropdownOpen && (
+                    <div className="custom-camera-menu-dropdown" role="listbox">
+                      <div className="custom-camera-menu-title">
+                        <span>Detected Video Devices</span>
+                        <span className="custom-camera-count-badge">{availableCameras.length}</span>
+                      </div>
+
+                      <div className="custom-camera-options-list">
+                        {availableCameras.map((cam, idx) => {
+                          const isSelected = cam.id === (activeCamera?.id || selectedCameraId || availableCameras[0]?.id);
+                          return (
+                            <button
+                              key={cam.id}
+                              type="button"
+                              className={`custom-camera-menu-option ${isSelected ? 'selected' : ''}`}
+                              onClick={() => handleSelectCamera(cam.id)}
+                              role="option"
+                              aria-selected={isSelected}
+                            >
+                              <div className="custom-camera-option-meta">
+                                <div className={`camera-option-icon-wrap ${isSelected ? 'selected' : ''}`}>
+                                  <Camera size={13} />
+                                </div>
+                                <div className="camera-option-details">
+                                  <span className="camera-option-label-text">
+                                    {cam.label || `Camera Device #${idx + 1}`}
+                                  </span>
+                                  {isSelected && (
+                                    <span className="camera-option-connected-tag">Active Stream</span>
+                                  )}
+                                </div>
+                              </div>
+
+                              {isSelected && (
+                                <Check size={15} className="camera-option-check-icon" />
+                              )}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <span className="camera-facing-label">
+                  {cameraFacing === 'environment' ? 'Rear Camera' : 'Front Camera'}
+                </span>
+              )}
+            </div>
           </div>
 
           {/* Video Viewport Container */}
