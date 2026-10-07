@@ -1,3 +1,14 @@
+# Environment Variables
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# Keystores and Certificates
+*.keystore
+*.jks
+android/app/viotrack-release-key.keystore
+
 # Logs
 logs
 *.log
@@ -7,6 +18,7 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Build outputs
 node_modules
 dist
 dist-ssr
@@ -23,4 +35,3 @@ dist-ssr
 *.sln
 *.sw?
 ~$*
-

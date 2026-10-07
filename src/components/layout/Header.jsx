@@ -121,6 +121,11 @@ export const Header = ({ onToggleSidebar }) => {
     navigate('/for-approval');
   };
 
+  const handleNavigateToNotifications = () => {
+    setShowNotifDropdown(false);
+    navigate('/notifications');
+  };
+
   return (
     <header className="main-header">
       <div className="header-left">
@@ -196,9 +201,9 @@ export const Header = ({ onToggleSidebar }) => {
                 <button
                   type="button"
                   className="header-notif-view-all-link"
-                  onClick={handleNavigateToApproval}
+                  onClick={handleNavigateToNotifications}
                 >
-                  View All
+                  Notification Center
                 </button>
               </div>
 
@@ -282,9 +287,9 @@ export const Header = ({ onToggleSidebar }) => {
                 <button
                   type="button"
                   className="header-notif-footer-btn"
-                  onClick={handleNavigateToApproval}
+                  onClick={handleNavigateToNotifications}
                 >
-                  <span>Go to To Approve Page</span>
+                  <span>Open Full Notification Center</span>
                   <ChevronRight size={15} />
                 </button>
               </div>

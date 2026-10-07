@@ -9,6 +9,7 @@ import {
   Briefcase,
   Settings,
   UserCircle2,
+  Bell,
   LogOut,
   ChevronDown,
   X

@@ -1316,6 +1316,15 @@ export const ViolationsPage = () => {
 
                   {/* Actions Row */}
                   <div className="entity-grid-actions">
+                    <button
+                      type="button"
+                      onClick={() => setSummonsTargetRecord(rec)}
+                      className="entity-grid-btn"
+                      title="Generate Parent Summons Notice"
+                      style={{ color: '#0f172a', borderColor: '#cbd5e1', background: '#f8fafc' }}
+                    >
+                      <FileText size={11} strokeWidth={2.2} /> Summons
+                    </button>
                     {isAdmin && (
                       <button
                         type="button"
@@ -1436,6 +1445,27 @@ export const ViolationsPage = () => {
                     </div>
 
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <button
+                        type="button"
+                        onClick={() => setSummonsTargetRecord(rec)}
+                        style={{
+                          background: '#f8fafc',
+                          border: '1px solid #cbd5e1',
+                          color: '#0f172a',
+                          padding: '5px 9px',
+                          borderRadius: '6px',
+                          fontSize: '11.5px',
+                          fontWeight: 600,
+                          cursor: 'pointer',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '4px'
+                        }}
+                        title="Generate Parent Summons Notice"
+                      >
+                        <FileText size={11} color="#0f172a" strokeWidth={2} /> Summons
+                      </button>
+
                       {isAdmin && (
                         <button
                           type="button"

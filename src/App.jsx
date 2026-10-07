@@ -26,6 +26,7 @@ const AdminUsersPage = lazy(() => import('./pages/AdminUsersPage').then(m => ({ 
 const ForApprovalPage = lazy(() => import('./pages/ForApprovalPage').then(m => ({ default: m.ForApprovalPage || m.default })));
 const ActivityLogsPage = lazy(() => import('./pages/ActivityLogsPage').then(m => ({ default: m.ActivityLogsPage || m.default })));
 const ProfilePage = lazy(() => import('./pages/ProfilePage').then(m => ({ default: m.ProfilePage || m.default })));
+const NotificationsPage = lazy(() => import('./pages/NotificationsPage').then(m => ({ default: m.NotificationsPage || m.default })));
 const LoginPage = lazy(() => import('./pages/LoginPage').then(m => ({ default: m.LoginPage || m.default })));
 const VerifyStudentPage = lazy(() => import('./pages/VerifyStudentPage').then(m => ({ default: m.VerifyStudentPage || m.default })));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage').then(m => ({ default: m.NotFoundPage || m.default })));
@@ -145,6 +146,7 @@ export function App() {
                   <Route path="my-class" element={<MyClassPage />} />
                   <Route path="adviserview-student/:id" element={<MyClassPage />} />
                   <Route path="profile" element={<ProfilePage />} />
+                  <Route path="notifications" element={<NotificationsPage />} />
 
                   {/* Strict Admin RBAC Protected Routes */}
                   <Route 

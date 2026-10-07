@@ -804,6 +804,8 @@ export const dataService = {
         lname: String(student.lname || '').trim(),
         email: String(student.email || '').trim().toLowerCase(),
         grade: String(student.grade || '').trim(),
+        track: String(student.track || '').trim(),
+        strand: String(student.strand || '').trim(),
         section: String(student.section || '').trim(),
         academicyear: String(student.academicyear || '2025-2026').trim(),
         gender: String(student.gender || 'Male').trim(),
@@ -817,19 +819,19 @@ export const dataService = {
 
       if (isSupabaseConfigured()) {
         try {
-          // Try inserting with student_id first, fallback to lrn if column hasn't been renamed yet
+          // Try inserting with student_id first, fallback to lrn or remove unrecognised columns
           let payload = { ...cleanStudent };
           let res = await supabase.from('students').insert([payload]).select();
           if (res.error && (res.error.message?.includes('column') || res.error.code === '42703')) {
-            if (res.error.message?.includes('student_id')) {
-              delete payload.student_id;
-            } else if (res.error.message?.includes('lrn')) {
-              delete payload.lrn;
-            }
+            if (res.error.message?.includes('student_id')) delete payload.student_id;
+            if (res.error.message?.includes('lrn')) delete payload.lrn;
+            if (res.error.message?.includes('track')) delete payload.track;
+            if (res.error.message?.includes('strand')) delete payload.strand;
+            if (res.error.message?.includes('academicyear')) delete payload.academicyear;
             res = await supabase.from('students').insert([payload]).select();
           }
           if (!res.error && res.data?.[0]) {
-            result = { ...res.data[0], student_id: studentIdVal, lrn: studentIdVal };
+            result = { ...res.data[0], ...cleanStudent, student_id: studentIdVal, lrn: studentIdVal };
           } else if (res.error) {
             console.error('Supabase addStudent error:', res.error);
           }
@@ -868,6 +870,8 @@ export const dataService = {
           lname: String(student.lname || 'Roster').trim(),
           email: String(student.email || '').trim().toLowerCase(),
           grade: String(student.grade || 'Grade 10').trim(),
+          track: String(student.track || 'JHS').trim(),
+          strand: String(student.strand || 'JHS').trim(),
           section: String(student.section || 'General').trim(),
           academicyear: String(student.academicyear || '2025-2026').trim(),
           gender: String(student.gender || 'Male').trim(),
@@ -896,6 +900,12 @@ export const dataService = {
                 payload = payload.map(p => { const { student_id, ...rest } = p; return rest; });
               } else if (res.error.message?.includes('lrn')) {
                 payload = payload.map(p => { const { lrn, ...rest } = p; return rest; });
+              }
+              if (res.error.message?.includes('track')) {
+                payload = payload.map(p => { const { track, ...rest } = p; return rest; });
+              }
+              if (res.error.message?.includes('strand')) {
+                payload = payload.map(p => { const { strand, ...rest } = p; return rest; });
               }
               res = await supabase.from('students').insert(payload).select();
             }
@@ -951,7 +961,7 @@ export const dataService = {
     try {
       let result = null;
       const cleanUpdates = {};
-      const allowed = ['student_id', 'lrn', 'fname', 'mname', 'lname', 'email', 'grade', 'section', 'academicyear', 'gender', 'contact', 'parent_name', 'parent_contact', 'address', 'password', 'image'];
+      const allowed = ['student_id', 'lrn', 'fname', 'mname', 'lname', 'email', 'grade', 'track', 'strand', 'section', 'academicyear', 'gender', 'contact', 'parent_name', 'parent_contact', 'address', 'password', 'image'];
       for (const key of allowed) {
         if (updates[key] !== undefined) {
           if (key === 'password' && !String(updates[key]).trim()) {
@@ -966,18 +976,33 @@ export const dataService = {
       if (isSupabaseConfigured()) {
         try {
           let payload = { ...cleanUpdates };
-          let res = await supabase.from('students').update(payload).eq('id', Number(id)).select();
-          if (res.error && (res.error.message?.includes('column') || res.error.code === '42703')) {
-            if (res.error.message?.includes('student_id')) {
-              delete payload.student_id;
-            } else if (res.error.message?.includes('lrn')) {
-              delete payload.lrn;
-            }
-            res = await supabase.from('students').update(payload).eq('id', Number(id)).select();
+          const numericId = Number(id);
+          const hasNumericId = !isNaN(numericId) && numericId > 0;
+
+          let res;
+          if (hasNumericId) {
+            res = await supabase.from('students').update(payload).eq('id', numericId).select();
+          } else {
+            res = await supabase.from('students').update(payload).or(`student_id.eq.${id},lrn.eq.${id}`).select();
           }
+
+          if (res.error && (res.error.message?.includes('column') || res.error.code === '42703')) {
+            if (res.error.message?.includes('student_id')) delete payload.student_id;
+            if (res.error.message?.includes('lrn')) delete payload.lrn;
+            if (res.error.message?.includes('track')) delete payload.track;
+            if (res.error.message?.includes('strand')) delete payload.strand;
+            if (res.error.message?.includes('academicyear')) delete payload.academicyear;
+
+            if (hasNumericId) {
+              res = await supabase.from('students').update(payload).eq('id', numericId).select();
+            } else {
+              res = await supabase.from('students').update(payload).or(`student_id.eq.${id},lrn.eq.${id}`).select();
+            }
+          }
+
           if (!res.error && res.data?.[0]) {
-            const sid = res.data[0].student_id || res.data[0].lrn || cleanUpdates.student_id;
-            result = { ...res.data[0], student_id: sid, lrn: sid };
+            const sid = res.data[0].student_id || res.data[0].lrn || cleanUpdates.student_id || id;
+            result = { ...res.data[0], ...cleanUpdates, student_id: sid, lrn: sid };
           } else if (res.error) {
             console.error('Supabase updateStudent error:', res.error);
           }
@@ -985,16 +1010,34 @@ export const dataService = {
           console.warn('Supabase updateStudent error:', err);
         }
       }
+
       const current = getStored('students', INITIAL_STUDENTS);
-      const updated = current.map(s => (s.id === Number(id) ? { ...s, ...cleanUpdates } : s));
+      const targetLrn = updates.lrn || updates.student_id;
+      const updated = current.map(s => {
+        const isMatch =
+          String(s.id) === String(id) ||
+          String(s.student_id) === String(id) ||
+          String(s.lrn) === String(id) ||
+          (targetLrn && (String(s.lrn) === String(targetLrn) || String(s.student_id) === String(targetLrn)));
+        return isMatch ? { ...s, ...cleanUpdates } : s;
+      });
       setStored('students', updated);
-      if (!result) result = updated.find(s => s.id === Number(id));
+
+      if (!result) {
+        result = updated.find(s =>
+          String(s.id) === String(id) ||
+          String(s.student_id) === String(id) ||
+          String(s.lrn) === String(id) ||
+          (targetLrn && (String(s.lrn) === String(targetLrn) || String(s.student_id) === String(targetLrn)))
+        );
+      }
+
       invalidateCache('students');
       invalidateCache('records');
       const name = updates.fname || updates.lname ? `${updates.fname || ''} ${updates.lname || ''}`.trim() : `ID #${id}`;
       await this.addActivityLog('Update Student', `Updated profile information for student ${name}`);
-      broadcastRecordChange('update', 'student', result);
-      return result;
+      broadcastRecordChange('update', 'student', result || { id, ...cleanUpdates });
+      return result || { id, ...cleanUpdates };
     } finally {
       endMutation();
     }
@@ -1005,16 +1048,22 @@ export const dataService = {
     try {
       if (isSupabaseConfigured()) {
         try {
-          const { error } = await supabase.from('students').delete().eq('id', Number(id));
-          if (error) console.error('Supabase deleteStudent error:', error);
+          const numericId = Number(id);
+          if (!isNaN(numericId) && numericId > 0) {
+            const { error } = await supabase.from('students').delete().eq('id', numericId);
+            if (error) console.error('Supabase deleteStudent error:', error);
+          } else {
+            const { error } = await supabase.from('students').delete().or(`student_id.eq.${id},lrn.eq.${id}`);
+            if (error) console.error('Supabase deleteStudent error:', error);
+          }
         } catch (err) {
           console.warn('Supabase deleteStudent error:', err);
         }
       }
       const current = getStored('students', INITIAL_STUDENTS);
-      const target = current.find(s => s.id === Number(id));
+      const target = current.find(s => String(s.id) === String(id) || String(s.student_id) === String(id) || String(s.lrn) === String(id));
       const name = target ? `${target.fname} ${target.lname}` : `ID #${id}`;
-      const updated = current.filter(s => s.id !== Number(id));
+      const updated = current.filter(s => String(s.id) !== String(id) && String(s.student_id) !== String(id) && String(s.lrn) !== String(id));
       setStored('students', updated);
       invalidateCache('students');
       invalidateCache('records');

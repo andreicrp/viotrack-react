@@ -6,6 +6,31 @@ import { UserPlus, Upload, Camera, Trash2, Image as ImageIcon, Check, ShieldChec
 import CustomSelect from '../common/CustomSelect';
 import { SectionSelect } from '../common/SectionSelect';
 
+const isJHSGrade = (gradeStr) => {
+  const num = parseInt((gradeStr || '').replace(/\D/g, ''), 10);
+  return num >= 7 && num <= 10;
+};
+
+const TRACK_OPTIONS = [
+  { value: 'Academic Track', label: 'Academic Track' },
+  { value: 'Technical-Vocational-Livelihood (TVL)', label: 'Technical-Vocational-Livelihood (TVL)' },
+  { value: 'Sports Track', label: 'Sports Track' },
+  { value: 'Arts & Design Track', label: 'Arts & Design Track' }
+];
+
+const STRAND_OPTIONS = [
+  { value: 'STEM', label: 'STEM - Science, Tech, Engineering & Math' },
+  { value: 'ABM', label: 'ABM - Accountancy, Business & Management' },
+  { value: 'HUMSS', label: 'HUMSS - Humanities & Social Sciences' },
+  { value: 'GAS', label: 'GAS - General Academic Strand' },
+  { value: 'TVL - ICT', label: 'TVL - ICT (Computer Systems / Programming)' },
+  { value: 'TVL - HE', label: 'TVL - Home Economics (Cookery / Tourism)' },
+  { value: 'TVL - IA', label: 'TVL - Industrial Arts (SMAW / Automotive)' },
+  { value: 'TVL - AFA', label: 'TVL - Agri-Fishery Arts' },
+  { value: 'Sports', label: 'Sports Track' },
+  { value: 'Arts & Design', label: 'Arts & Design Track' }
+];
+
 export const AddStudentModal = ({ isOpen, onClose, studentToEdit = null, onSaved }) => {
   const { success, error } = useNotification();
   const [loading, setLoading] = useState(false);
@@ -18,6 +43,8 @@ export const AddStudentModal = ({ isOpen, onClose, studentToEdit = null, onSaved
     mname: '',
     lname: '',
     grade: 'Grade 10',
+    track: 'JHS',
+    strand: 'JHS',
     section: 'Rizal',
     academicyear: '2025-2026',
     gender: 'Male',
@@ -42,14 +69,18 @@ export const AddStudentModal = ({ isOpen, onClose, studentToEdit = null, onSaved
   useEffect(() => {
     setPhotoFile(null);
     if (studentToEdit) {
+      const g = studentToEdit.grade || 'Grade 10';
+      const isJHS = isJHSGrade(g);
       setFormData({
-        lrn: studentToEdit.lrn || '',
+        lrn: String(studentToEdit.student_id || studentToEdit.lrn || ''),
         fname: studentToEdit.fname || '',
         mname: studentToEdit.mname || '',
         lname: studentToEdit.lname || '',
-        grade: studentToEdit.grade || 'Grade 10',
+        grade: g,
+        track: isJHS ? 'JHS' : (studentToEdit.track || 'Academic Track'),
+        strand: isJHS ? 'JHS' : (studentToEdit.strand || 'STEM'),
         section: studentToEdit.section || 'Rizal',
-        academicyear: studentToEdit.academicyear || '2025-2026',
+        academicyear: studentToEdit.academicyear || studentToEdit.academic_year || '2025-2026',
         gender: studentToEdit.gender || 'Male',
         contact: studentToEdit.contact || '',
         parent_name: studentToEdit.parent_name || '',
@@ -64,6 +95,8 @@ export const AddStudentModal = ({ isOpen, onClose, studentToEdit = null, onSaved
         mname: '',
         lname: '',
         grade: 'Grade 10',
+        track: 'JHS',
+        strand: 'JHS',
         section: 'Rizal',
         academicyear: '2025-2026',
         gender: 'Male',
@@ -75,6 +108,32 @@ export const AddStudentModal = ({ isOpen, onClose, studentToEdit = null, onSaved
       });
     }
   }, [studentToEdit, isOpen]);
+
+  const handleGradeChange = (newGrade) => {
+    const isJHS = isJHSGrade(newGrade);
+    setFormData(prev => ({
+      ...prev,
+      grade: newGrade,
+      track: isJHS ? 'JHS' : (prev.track === 'JHS' || !prev.track ? 'Academic Track' : prev.track),
+      strand: isJHS ? 'JHS' : (prev.strand === 'JHS' || !prev.strand ? 'STEM' : prev.strand)
+    }));
+  };
+
+  const handleTrackChange = (newTrack) => {
+    let defaultStrand = formData.strand;
+    if (newTrack.includes('TVL')) {
+      if (!formData.strand || !formData.strand.startsWith('TVL')) defaultStrand = 'TVL - ICT';
+    } else if (newTrack.includes('Sports')) {
+      defaultStrand = 'Sports';
+    } else if (newTrack.includes('Arts')) {
+      defaultStrand = 'Arts & Design';
+    } else {
+      if (formData.strand?.startsWith('TVL') || formData.strand === 'Sports' || formData.strand === 'Arts & Design' || formData.strand === 'JHS') {
+        defaultStrand = 'STEM';
+      }
+    }
+    setFormData(prev => ({ ...prev, track: newTrack, strand: defaultStrand }));
+  };
 
   // Image Upload Handler
   const handleFileChange = (e) => {
@@ -149,7 +208,11 @@ export const AddStudentModal = ({ isOpen, onClose, studentToEdit = null, onSaved
       }
 
       if (studentToEdit) {
-        const updated = await dataService.updateStudent(studentToEdit.id, {
+        const studentId = studentToEdit.id !== undefined && studentToEdit.id !== null
+          ? studentToEdit.id
+          : (studentToEdit.student_id || studentToEdit.lrn);
+
+        const updated = await dataService.updateStudent(studentId, {
           ...formData,
           image: finalImageUrl
         });
@@ -255,6 +318,8 @@ export const AddStudentModal = ({ isOpen, onClose, studentToEdit = null, onSaved
                   <span>•</span>
                   <span>{formData.grade} – {formData.section || 'Section'}</span>
                   <span>•</span>
+                  <span>{isJHSGrade(formData.grade) ? 'JHS' : (formData.strand || 'SHS')}</span>
+                  <span>•</span>
                   <span>SY {formData.academicyear}</span>
                 </div>
               </div>
@@ -317,7 +382,9 @@ export const AddStudentModal = ({ isOpen, onClose, studentToEdit = null, onSaved
               <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#0f172a' }} />
               1. Academic Placement
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' }}>
+            
+            {/* Row 1: Student ID, Grade Level, Class Section */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px', marginBottom: '12px' }}>
               <div className="form-group">
                 <label className="form-label" style={{ fontSize: '12.5px', fontWeight: 700, color: '#1e293b', marginBottom: '5px', display: 'block' }}>
                   Student ID <span style={{ color: '#ef4444' }}>*</span>
@@ -340,7 +407,7 @@ export const AddStudentModal = ({ isOpen, onClose, studentToEdit = null, onSaved
                 </label>
                 <CustomSelect
                   value={formData.grade}
-                  onChange={(e) => setFormData({ ...formData, grade: e.target.value })}
+                  onChange={(e) => handleGradeChange(e.target.value)}
                   options={[
                     { value: 'Grade 7', label: 'Grade 7' },
                     { value: 'Grade 8', label: 'Grade 8' },
@@ -365,6 +432,63 @@ export const AddStudentModal = ({ isOpen, onClose, studentToEdit = null, onSaved
                   placeholder="Select or type section name..."
                   required
                 />
+              </div>
+            </div>
+
+            {/* Row 2: Academic Track & Academic Strand */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' }}>
+              <div className="form-group">
+                <label className="form-label" style={{ fontSize: '12.5px', fontWeight: 700, color: '#1e293b', marginBottom: '5px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <span>Academic Track <span style={{ color: '#ef4444' }}>*</span></span>
+                  {isJHSGrade(formData.grade) && (
+                    <span style={{ fontSize: '10px', fontWeight: 700, color: '#0369a1', background: '#eff6ff', padding: '1px 6px', borderRadius: '4px', border: '1px solid #bfdbfe' }}>
+                      Auto (JHS)
+                    </span>
+                  )}
+                </label>
+                {isJHSGrade(formData.grade) ? (
+                  <input
+                    type="text"
+                    className="form-control"
+                    value="JHS"
+                    disabled
+                    readOnly
+                    style={{ height: '40px', borderRadius: '9px', border: '1.5px solid #cbd5e1', padding: '0 12px', fontSize: '13px', width: '100%', boxSizing: 'border-box', background: '#f8fafc', color: '#475569', fontWeight: 700, cursor: 'not-allowed' }}
+                  />
+                ) : (
+                  <CustomSelect
+                    value={formData.track}
+                    onChange={(e) => handleTrackChange(e.target.value)}
+                    options={TRACK_OPTIONS}
+                  />
+                )}
+              </div>
+
+              <div className="form-group">
+                <label className="form-label" style={{ fontSize: '12.5px', fontWeight: 700, color: '#1e293b', marginBottom: '5px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <span>Academic Strand <span style={{ color: '#ef4444' }}>*</span></span>
+                  {isJHSGrade(formData.grade) && (
+                    <span style={{ fontSize: '10px', fontWeight: 700, color: '#0369a1', background: '#eff6ff', padding: '1px 6px', borderRadius: '4px', border: '1px solid #bfdbfe' }}>
+                      Auto (JHS)
+                    </span>
+                  )}
+                </label>
+                {isJHSGrade(formData.grade) ? (
+                  <input
+                    type="text"
+                    className="form-control"
+                    value="JHS"
+                    disabled
+                    readOnly
+                    style={{ height: '40px', borderRadius: '9px', border: '1.5px solid #cbd5e1', padding: '0 12px', fontSize: '13px', width: '100%', boxSizing: 'border-box', background: '#f8fafc', color: '#475569', fontWeight: 700, cursor: 'not-allowed' }}
+                  />
+                ) : (
+                  <CustomSelect
+                    value={formData.strand}
+                    onChange={(e) => setFormData(prev => ({ ...prev, strand: e.target.value }))}
+                    options={STRAND_OPTIONS}
+                  />
+                )}
               </div>
             </div>
           </div>

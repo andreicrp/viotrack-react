@@ -11,7 +11,7 @@ export const smsService = {
   },
 
   async sendSMS({ recipientNumber, recipientName, studentName, violationTitle, customMessage = null }) {
-    const apiToken = import.meta.env.VITE_IPROGSMS_API_TOKEN || 'pt6f83e98e7618ee2d99981fb2f13510ec294def36';
+    const apiToken = import.meta.env.VITE_IPROGSMS_API_TOKEN || '';
     const apiEndpoint = import.meta.env.VITE_IPROGSMS_ENDPOINT || 'https://sms.iprogtech.com/api/v1/sms_messages';
     const senderName = import.meta.env.VITE_IPROGSMS_SENDER_NAME || 'PHCM VioTrack';
 

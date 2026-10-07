@@ -35,7 +35,8 @@ import {
   TrendingDown,
   RefreshCw,
   UsersRound,
-  BarChart3
+  BarChart3,
+  Printer
 } from 'lucide-react';
 import { dataService } from '../services/dataService';
 import { useAuth } from '../context/AuthContext';
@@ -43,6 +44,7 @@ import { useNotification } from '../context/NotificationContext';
 import { AddViolationModal } from '../components/violations/AddViolationModal';
 import { SchoolCalendarModal } from '../components/common/SchoolCalendarModal';
 import { CustomDateRangeModal } from '../components/common/CustomDateRangeModal';
+import { PrintDataModal } from '../components/admin/PrintDataModal';
 import { getJsPDF } from '../utils/pdfHelper';
 import { exportToCsv } from '../utils/csvHelper';
 
@@ -112,6 +114,7 @@ export const DashboardPage = () => {
   // Modals
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isCalendarModalOpen, setIsCalendarModalOpen] = useState(false);
+  const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
 
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -273,14 +276,14 @@ export const DashboardPage = () => {
     };
 
     if (chartFilter === 'today') {
-      const intervals = [
-        { label: '6–9am',  startH: 6,  endH: 9  },
-        { label: '9–12pm', startH: 9,  endH: 12 },
-        { label: '12–3pm', startH: 12, endH: 15 },
-        { label: '3–6pm',  startH: 15, endH: 18 },
-        { label: '6–9pm',  startH: 18, endH: 21 },
-        { label: '9–12am', startH: 21, endH: 24 }
-      ];
+      const intervals = [];
+      for (let h = 6; h <= 23; h++) {
+        let label = '';
+        if (h === 12) label = '12pm';
+        else if (h < 12) label = `${h}am`;
+        else label = `${h - 12}pm`;
+        intervals.push({ label, startH: h });
+      }
 
       const nowDay = new Date();
       const isRecordToday = (r) => {
@@ -300,7 +303,9 @@ export const DashboardPage = () => {
         todayRecords.forEach(r => {
           const recDate = new Date(r.date_reported || r.created_at || Date.now());
           const h = recDate.getHours();
-          const matched = (int.startH === 6 && h < 6) || (h >= int.startH && h < int.endH);
+          const matched =
+            (int.startH === 6 && h < 6) ||
+            (h === int.startH);
           if (matched) {
             const sev = getSeverity(r);
             if (sev === 'minor') minor++;
@@ -834,6 +839,11 @@ export const DashboardPage = () => {
     }
   };
 
+  // Open Customizable Print Data Modal
+  const handlePrintData = () => {
+    setIsPrintModalOpen(true);
+  };
+
   return (
     <div className="dashboard-root">
       {/* 1. Header Section */}
@@ -845,9 +855,6 @@ export const DashboardPage = () => {
               <h1 className="dash-greeting-title">
                 Hi, {user?.name || 'System Admin'}
               </h1>
-              <span className="dash-role-pill">
-                {user?.role === 'teacher' ? 'Faculty Teacher' : 'Administrator'}
-              </span>
               {/* Auto-refresh indicator */}
               <span
                 className={`dash-refresh-indicator ${isRefreshing ? 'spinning' : ''}`}
@@ -1094,8 +1101,8 @@ export const DashboardPage = () => {
                   fontSize={10}
                   tickLine={false}
                   axisLine={{ stroke: '#e2e8f0' }}
-                  interval={chartFilter === 'month' ? 4 : 0}
-                  minTickGap={chartFilter === 'month' ? 0 : 20}
+                  interval={chartFilter === 'month' ? 4 : chartFilter === 'today' ? 'preserveStartEnd' : 0}
+                  minTickGap={chartFilter === 'month' ? 0 : 16}
                 />
                 <YAxis
                   stroke="#94a3b8"
@@ -1240,25 +1247,28 @@ export const DashboardPage = () => {
               {/* Donut Chart with drill-down */}
               <div className="dash-distribution-chart-box" style={{ position: 'relative' }}>
                 {selectedPieSlice && (
-                  <div style={{
-                    position: 'absolute', top: '67%', left: '50%',
-                    transform: 'translate(-50%, -50%)',
-                    textAlign: 'center', pointerEvents: 'none', zIndex: 2,
-                    maxWidth: 90
-                  }}>
-                    <div style={{ fontSize: 22, fontWeight: 800, color: '#0f172a', lineHeight: 1 }}>{selectedPieSlice.value}</div>
-                    <div style={{ fontSize: 9.5, color: '#64748b', fontWeight: 600, lineHeight: 1.3, marginTop: 2, wordBreak: 'break-word' }}>{selectedPieSlice.name}</div>
-                    <button onClick={() => setSelectedPieSlice(null)} style={{ fontSize: 9, color: '#94a3b8', background: 'none', border: 'none', cursor: 'pointer', marginTop: 3 }}>✕ clear</button>
+                  <div className="dash-pie-center-label" title={selectedPieSlice.name}>
+                    <span className="dash-pie-center-value">{selectedPieSlice.value}</span>
+                    <span className="dash-pie-center-name">{selectedPieSlice.name}</span>
+                    <button
+                      type="button"
+                      className="dash-pie-center-clear"
+                      onClick={() => setSelectedPieSlice(null)}
+                      aria-label="Clear selection"
+                      title="Clear selection"
+                    >
+                      &#10005;
+                    </button>
                   </div>
                 )}
-                <ResponsiveContainer width="100%" height={320}>
+                <ResponsiveContainer width="100%" height={250}>
                   <PieChart>
                     <Pie
                       data={violationDistribution}
                       cx="50%"
-                      cy="67%"
-                      outerRadius={112}
-                      innerRadius={52}
+                      cy="50%"
+                      outerRadius={92}
+                      innerRadius={50}
                       paddingAngle={2}
                       dataKey="value"
                       nameKey="name"
@@ -1277,20 +1287,13 @@ export const DashboardPage = () => {
                       ))}
                     </Pie>
                     <Tooltip
-                      position={{ x: 0, y: 0 }}
+                      wrapperClassName="dash-pie-tooltip-wrap"
+                      wrapperStyle={{ pointerEvents: 'none', zIndex: 100 }}
                       content={({ active, payload }) => {
                         if (active && payload && payload.length) {
                           const data = payload[0].payload;
                           return (
-                            <div style={{
-                              background: '#ffffff',
-                              borderRadius: '10px',
-                              padding: '10px 14px',
-                              border: '1px solid #e2e8f0',
-                              boxShadow: '0 8px 24px rgba(0, 0, 0, 0.08)',
-                              fontSize: '12px',
-                              minWidth: '150px'
-                            }}>
+                            <div className="dash-pie-tooltip-box">
                               <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 800, color: '#0f172a', marginBottom: '4px' }}>
                                 <span style={{ width: 8, height: 8, borderRadius: '50%', background: data.color }} />
                                 <span>{data.name}</span>
@@ -1614,11 +1617,11 @@ export const DashboardPage = () => {
               <button
                 type="button"
                 className="dash-quick-action-btn"
-                onClick={() => navigate('/violations')}
-                title="Review all disciplinary violation records"
+                onClick={handlePrintData}
+                title="Print report data"
               >
-                <ShieldCheck size={18} color="#0f172a" />
-                <span>Discipline Logs</span>
+                <Printer size={18} color="#0f172a" />
+                <span>Print Data</span>
               </button>
 
               <button
@@ -1674,6 +1677,15 @@ export const DashboardPage = () => {
           setChartFilter('custom');
           success(`Date range applied: ${newStart} to ${newEnd}`);
         }}
+      />
+
+      {/* Print Data Analytics Modal */}
+      <PrintDataModal
+        isOpen={isPrintModalOpen}
+        onClose={() => setIsPrintModalOpen(false)}
+        records={records}
+        students={students}
+        teachers={[]}
       />
     </div>
   );

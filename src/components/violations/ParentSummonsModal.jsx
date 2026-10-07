@@ -25,7 +25,12 @@ import {
   ZoomIn,
   ZoomOut,
   RotateCcw,
-  Move
+  Move,
+  ArrowLeft,
+  ChevronLeft,
+  SlidersHorizontal,
+  Check,
+  Maximize2
 } from 'lucide-react';
 import { useNotification } from '../../context/NotificationContext';
 import { dataService } from '../../services/dataService';
@@ -36,13 +41,22 @@ import { CustomTimePicker } from '../common/CustomTimePicker';
 export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }) => {
   const { success, error, info } = useNotification();
   const printRef = useRef(null);
-  const [mobileTab, setMobileTab] = useState('form'); // 'form' | 'preview'
 
-  // Canvas Pan & Zoom states (Google Sheets style interactive layout)
+  // Mobile Drawer Toggle
+  const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
+
+  // Viewport and Paper Measurements for Perfect Mobile Scaling
+  const [viewportWidth, setViewportWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1000);
+  const [paperHeight, setPaperHeight] = useState(920);
+
+  // Canvas Pan & Zoom states (Interactive layout)
   const [zoom, setZoom] = useState(1);
   const [pan, setPan] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const dragStartRef = useRef({ x: 0, y: 0, initialPanX: 0, initialPanY: 0 });
+  const pinchDistanceRef = useRef(null);
+  const pinchStartZoomRef = useRef(1);
+  const lastTapTimeRef = useRef(0);
 
   const handleMouseDown = (e) => {
     if (e.button !== 0 || e.target.closest('button, input, textarea, select, a')) return;
@@ -69,8 +83,29 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
     if (isDragging) setIsDragging(false);
   };
 
+  // Multi-Touch Pinch-to-Zoom & Drag Support for Mobile
   const handleTouchStart = (e) => {
-    if (e.touches.length === 1 && !e.target.closest('button, input, textarea, select, a')) {
+    if (e.target.closest('button, input, textarea, select, a')) return;
+
+    if (e.touches.length === 2) {
+      const dist = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
+      pinchDistanceRef.current = dist;
+      pinchStartZoomRef.current = zoom;
+      setIsDragging(false);
+    } else if (e.touches.length === 1) {
+      // Double tap to toggle zoom
+      const now = Date.now();
+      if (now - lastTapTimeRef.current < 300) {
+        setZoom(prev => (prev > 1.05 ? 1 : 1.4));
+        setPan({ x: 0, y: 0 });
+        lastTapTimeRef.current = 0;
+        return;
+      }
+      lastTapTimeRef.current = now;
+
       const touch = e.touches[0];
       setIsDragging(true);
       dragStartRef.current = {
@@ -83,26 +118,41 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
   };
 
   const handleTouchMove = (e) => {
-    if (!isDragging || e.touches.length !== 1) return;
-    const touch = e.touches[0];
-    const deltaX = touch.clientX - dragStartRef.current.x;
-    const deltaY = touch.clientY - dragStartRef.current.y;
-    setPan({
-      x: dragStartRef.current.initialPanX + deltaX,
-      y: dragStartRef.current.initialPanY + deltaY
-    });
+    if (e.touches.length === 2 && pinchDistanceRef.current) {
+      if (e.cancelable) e.preventDefault();
+      const currentDist = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
+      const ratio = currentDist / pinchDistanceRef.current;
+      const nextZoom = Math.min(2.5, Math.max(0.6, Number((pinchStartZoomRef.current * ratio).toFixed(2))));
+      setZoom(nextZoom);
+    } else if (isDragging && e.touches.length === 1) {
+      const touch = e.touches[0];
+      const deltaX = touch.clientX - dragStartRef.current.x;
+      const deltaY = touch.clientY - dragStartRef.current.y;
+      setPan({
+        x: dragStartRef.current.initialPanX + deltaX,
+        y: dragStartRef.current.initialPanY + deltaY
+      });
+    }
   };
 
-  const handleTouchEnd = () => {
-    if (isDragging) setIsDragging(false);
+  const handleTouchEnd = (e) => {
+    if (e.touches.length < 2) {
+      pinchDistanceRef.current = null;
+    }
+    if (e.touches.length === 0) {
+      setIsDragging(false);
+    }
   };
 
   const handleZoomIn = () => {
-    setZoom((prev) => Math.min(1.8, Number((prev + 0.1).toFixed(1))));
+    setZoom((prev) => Math.min(2.2, Number((prev + 0.15).toFixed(2))));
   };
 
   const handleZoomOut = () => {
-    setZoom((prev) => Math.max(0.6, Number((prev - 0.1).toFixed(1))));
+    setZoom((prev) => Math.max(0.6, Number((prev - 0.15).toFixed(2))));
   };
 
   const handleResetView = () => {
@@ -112,6 +162,7 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
 
   // Extract initial details from record or student
   const activeStudent = student || record?.student || {};
+  const studentLastName = activeStudent.lname || (activeStudent.name ? activeStudent.name.split(' ').pop() : 'STUDENT');
   const studentFullName = (activeStudent.fname && activeStudent.lname)
     ? `${activeStudent.fname} ${activeStudent.lname}`
     : (activeStudent.name || record?.student_name || 'Student');
@@ -147,6 +198,39 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
   );
   const [isSendingSms, setIsSendingSms] = useState(false);
 
+  // Resize and measurement listener
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const measureLayout = () => {
+      setViewportWidth(window.innerWidth);
+      if (printRef.current) {
+        setPaperHeight(printRef.current.offsetHeight || printRef.current.scrollHeight || 920);
+      }
+    };
+
+    measureLayout();
+    window.addEventListener('resize', measureLayout);
+    const timer = setTimeout(measureLayout, 120);
+
+    return () => {
+      window.removeEventListener('resize', measureLayout);
+      clearTimeout(timer);
+    };
+  }, [
+    isOpen,
+    parentName,
+    conferenceDate,
+    conferenceTime,
+    venue,
+    signatory1Name,
+    signatory2Name,
+    includeSignatory2,
+    customRemarks,
+    selectedViolationIds.length,
+    zoom
+  ]);
+
   // Load all student violations & advisers
   useEffect(() => {
     if (!isOpen) return;
@@ -180,21 +264,19 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
           if (matched.length > 0) {
             setStudentViolations(matched);
             if (record?.id) {
-              setSelectedViolationIds(prev => prev.length > 0 ? prev : [record.id]);
+              setSelectedViolationIds([record.id]);
             } else {
-              setSelectedViolationIds(prev => prev.length > 0 ? prev : matched.map(m => m.id));
+              setSelectedViolationIds(matched.map(m => m.id));
             }
           }
         }
 
-        // Auto-match adviser for Signatory 2 if available
-        if (Array.isArray(allAdvisers) && activeStudent.grade && activeStudent.section) {
-          const matchedAdviser = allAdvisers.find(a =>
-            a.grade === activeStudent.grade &&
-            (a.section === activeStudent.section || a.section_name === activeStudent.section)
+        if (Array.isArray(allAdvisers) && activeStudent.section) {
+          const matchedAdv = allAdvisers.find(
+            a => a.class_section?.toLowerCase() === activeStudent.section?.toLowerCase()
           );
-          if (matchedAdviser) {
-            const advName = matchedAdviser.name || `${matchedAdviser.fname || ''} ${matchedAdviser.lname || ''}`.trim();
+          if (matchedAdv?.teacher) {
+            const advName = `${matchedAdv.teacher.fname || ''} ${matchedAdv.teacher.lname || ''}`.trim();
             if (advName) {
               setSignatory2Name(advName);
               setSignatory2Title(`Class Adviser - ${activeStudent.grade} ${activeStudent.section}`);
@@ -292,7 +374,7 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
     success('Print dialog opened.');
   };
 
-  // 2. High Quality PDF Generation (Lazy loaded on-demand for maximum 60fps performance)
+  // 2. High Quality PDF Generation
   const handleDownloadPDF = async () => {
     try {
       const { default: jsPDF } = await import('jspdf');
@@ -490,7 +572,6 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
     setIsSendingSms(true);
     try {
       const viosList = activeViolations.map(v => v.violation?.title || v.offense || 'Infraction').join(', ');
-      const msg = `[PHCM VIOTRACK] Notice of Disciplinary Conference for ${studentFullName} regarding (${viosList}). Please attend meeting on ${formattedConfDate} at ${conferenceTime} (${venue}). Ref: ${referenceNo}. Office of Discipline.`;
       await dataService.sendSMS(defaultParentContact, parentName, studentFullName, `Parent Summons - ${viosList}`);
       success(`SMS summons alert dispatched to parent (${defaultParentContact}).`);
     } catch (err) {
@@ -500,6 +581,353 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
     }
   };
 
+  // Scale Calculation: Preserves fixed 680px A4 geometry across phones & tablets
+  const isMobile = viewportWidth <= 768;
+  const baseWidth = 680;
+  const autoScale = isMobile ? Math.min(1, Math.max(0.42, (viewportWidth - 28) / baseWidth)) : 1;
+  const effectiveScale = autoScale * zoom;
+
+  // Render Left Column / Drawer Form Content
+  const renderFormContent = () => (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      {/* 1. Summons Basic Parameters */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #e2e8f0', paddingBottom: '6px' }}>
+          <span style={{ fontSize: '11px', fontWeight: 800, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            1. Conference Schedule &amp; Recipient
+          </span>
+        </div>
+
+        {/* Guardian Name */}
+        <div>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '12px', fontWeight: 700, color: '#334155', marginBottom: '4px' }}>
+            <User size={13} color="#0f172a" /> Parent / Guardian Name
+          </label>
+          <input
+            type="text"
+            value={parentName}
+            onChange={(e) => setParentName(e.target.value)}
+            style={{
+              width: '100%',
+              padding: '7px 11px',
+              borderRadius: '8px',
+              border: '1.5px solid #cbd5e1',
+              fontSize: '12.5px',
+              background: '#ffffff',
+              boxSizing: 'border-box'
+            }}
+          />
+        </div>
+
+        {/* Conference Date & Time (Row) */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+          <div>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '11.5px', fontWeight: 700, color: '#334155', marginBottom: '4px' }}>
+              <Calendar size={12} color="#0f172a" /> Date
+            </label>
+            <CustomDatePicker
+              value={conferenceDate}
+              onChange={(val) => setConferenceDate(val)}
+              placeholder="Select Date"
+            />
+          </div>
+
+          <div>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '11.5px', fontWeight: 700, color: '#334155', marginBottom: '4px' }}>
+              <Clock size={12} color="#0f172a" /> Time
+            </label>
+            <CustomTimePicker
+              value={conferenceTime}
+              onChange={(val) => setConferenceTime(val)}
+              placeholder="Select Time"
+              align="right"
+            />
+          </div>
+        </div>
+
+        {/* Venue */}
+        <div>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '12px', fontWeight: 700, color: '#334155', marginBottom: '4px' }}>
+            <MapPin size={13} color="#0f172a" /> Designated Venue
+          </label>
+          <input
+            type="text"
+            value={venue}
+            onChange={(e) => setVenue(e.target.value)}
+            style={{
+              width: '100%',
+              padding: '7px 11px',
+              borderRadius: '8px',
+              border: '1.5px solid #cbd5e1',
+              fontSize: '12.5px',
+              background: '#ffffff',
+              boxSizing: 'border-box'
+            }}
+          />
+        </div>
+      </div>
+
+      {/* 2. Multi-Violation Bundling Section */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '12px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <span style={{ fontSize: '11px', fontWeight: 800, color: '#0f172a', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '5px' }}>
+            <Layers size={13} color="#0f172a" /> Included Violations ({activeViolations.length})
+          </span>
+          {studentViolations.length > 1 && (
+            <button
+              type="button"
+              onClick={selectAllViolations}
+              style={{ background: 'none', border: 'none', color: '#2563eb', fontSize: '11px', fontWeight: 700, cursor: 'pointer', padding: 0 }}
+            >
+              Select All ({studentViolations.length})
+            </button>
+          )}
+        </div>
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', maxHeight: '140px', overflowY: 'auto' }}>
+          {studentViolations.map((v) => {
+            const isChecked = selectedViolationIds.includes(v.id);
+            const title = v.violation?.title || v.offense || 'Disciplinary Infraction';
+            const sev = v.violation?.type || v.severity || 'Minor';
+            const isMajor = sev.toLowerCase().includes('major');
+            const isSerious = sev.toLowerCase().includes('serious');
+
+            const badgeBg = isMajor ? '#fee2e2' : (isSerious ? '#fef9c3' : '#dcfce7');
+            const badgeColor = isMajor ? '#dc2626' : (isSerious ? '#a16207' : '#15803d');
+            const badgeBorder = isMajor ? '#fecaca' : (isSerious ? '#fde047' : '#bbf7d0');
+
+            return (
+              <div
+                key={v.id}
+                onClick={() => toggleSelectViolation(v.id)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: '8px',
+                  padding: '6px 8px',
+                  borderRadius: '6px',
+                  background: isChecked ? '#f8fafc' : '#ffffff',
+                  border: isChecked ? '1.5px solid #93c5fd' : '1px solid #e2e8f0',
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease'
+                }}
+              >
+                <input
+                  type="checkbox"
+                  checked={isChecked}
+                  onChange={() => {}}
+                  style={{ marginTop: '2px', accentColor: '#0f172a', cursor: 'pointer' }}
+                />
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ fontSize: '11.5px', fontWeight: 700, color: '#0f172a', lineHeight: 1.3 }}>
+                    {title}
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '2px' }}>
+                    <span
+                      style={{
+                        background: badgeBg,
+                        color: badgeColor,
+                        border: `1px solid ${badgeBorder}`,
+                        fontSize: '9.5px',
+                        fontWeight: 800,
+                        padding: '1px 5px',
+                        borderRadius: '4px',
+                        textTransform: 'uppercase'
+                      }}
+                    >
+                      {sev}
+                    </span>
+                    <span style={{ fontSize: '10.5px', color: '#64748b' }}>
+                      {v.date_reported ? new Date(v.date_reported).toLocaleDateString([], { month: 'short', day: 'numeric' }) : 'Recorded'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* 3. Editable Signatories */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #e2e8f0', paddingBottom: '6px' }}>
+          <span style={{ fontSize: '11px', fontWeight: 800, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+            2. Authorized Signatories
+          </span>
+          <span style={{ fontSize: '10px', color: '#16a34a', fontWeight: 700 }}>
+            Fully Editable
+          </span>
+        </div>
+
+        {/* Signatory 1 (Left - Prefect) */}
+        <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '10px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+          <span style={{ fontSize: '11px', fontWeight: 700, color: '#0f172a' }}>
+            Signatory 1 (Left - Prefect / Discipline Head)
+          </span>
+          <div>
+            <input
+              type="text"
+              value={signatory1Name}
+              placeholder="Signatory 1 Name (e.g. Sheryl Gamboa)"
+              onChange={(e) => setSignatory1Name(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '6px 9px',
+                borderRadius: '6px',
+                border: '1px solid #cbd5e1',
+                fontSize: '12px',
+                fontWeight: 600,
+                marginBottom: '4px',
+                boxSizing: 'border-box'
+              }}
+            />
+            <input
+              type="text"
+              value={signatory1Title}
+              placeholder="Designation (e.g. Prefect of Discipline)"
+              onChange={(e) => setSignatory1Title(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '5px 9px',
+                borderRadius: '6px',
+                border: '1px solid #cbd5e1',
+                fontSize: '11.5px',
+                boxSizing: 'border-box'
+              }}
+            />
+          </div>
+        </div>
+
+        {/* Signatory 2 (Right - Class Adviser / Dept Head) */}
+        <div
+          style={{
+            background: '#ffffff',
+            border: includeSignatory2 ? '1px solid #e2e8f0' : '1px dashed #cbd5e1',
+            borderRadius: '10px',
+            padding: '10px',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '6px',
+            opacity: includeSignatory2 ? 1 : 0.7,
+            transition: 'all 0.15s ease'
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', fontWeight: 700, color: '#0f172a', cursor: 'pointer' }}>
+              <input
+                type="checkbox"
+                checked={includeSignatory2}
+                onChange={(e) => setIncludeSignatory2(e.target.checked)}
+                style={{ accentColor: '#0f172a', cursor: 'pointer' }}
+              />
+              <span>Signatory 2 (Adviser / Head)</span>
+            </label>
+            <span style={{ fontSize: '10px', fontWeight: 800, color: includeSignatory2 ? '#16a34a' : '#64748b' }}>
+              {includeSignatory2 ? 'Included' : 'Removed'}
+            </span>
+          </div>
+
+          {includeSignatory2 ? (
+            <div>
+              <input
+                type="text"
+                value={signatory2Name}
+                placeholder="Signatory 2 Name (e.g. Class Adviser)"
+                onChange={(e) => setSignatory2Name(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '6px 9px',
+                  borderRadius: '6px',
+                  border: '1px solid #cbd5e1',
+                  fontSize: '12px',
+                  fontWeight: 600,
+                  marginBottom: '4px',
+                  boxSizing: 'border-box'
+                }}
+              />
+              <input
+                type="text"
+                value={signatory2Title}
+                placeholder="Designation (e.g. Department Head)"
+                onChange={(e) => setSignatory2Title(e.target.value)}
+                style={{
+                  width: '100%',
+                  padding: '5px 9px',
+                  borderRadius: '6px',
+                  border: '1px solid #cbd5e1',
+                  fontSize: '11.5px',
+                  boxSizing: 'border-box'
+                }}
+              />
+            </div>
+          ) : (
+            <span style={{ fontSize: '11px', color: '#64748b', fontStyle: 'italic', padding: '4px 0' }}>
+              Second signatory line removed from notice.
+            </span>
+          )}
+        </div>
+      </div>
+
+      {/* 4. Custom Notes */}
+      <div>
+        <label style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '12px', fontWeight: 700, color: '#334155', marginBottom: '4px' }}>
+          <MessageSquare size={13} color="#0f172a" /> Meeting Agenda &amp; Notes
+        </label>
+        <textarea
+          rows={2}
+          value={customRemarks}
+          onChange={(e) => setCustomRemarks(e.target.value)}
+          style={{
+            width: '100%',
+            padding: '7px 11px',
+            borderRadius: '8px',
+            border: '1.5px solid #cbd5e1',
+            fontSize: '12px',
+            background: '#ffffff',
+            resize: 'vertical',
+            minHeight: '55px',
+            maxHeight: '90px',
+            boxSizing: 'border-box'
+          }}
+        />
+      </div>
+
+      {/* Quick SMS Trigger inside Drawer */}
+      <div style={{ marginTop: 'auto', paddingTop: '6px' }}>
+        <button
+          type="button"
+          onClick={handleSendSummonsSMS}
+          disabled={isSendingSms}
+          style={{
+            width: '100%',
+            padding: '9px 12px',
+            borderRadius: '10px',
+            background: '#ffffff',
+            color: '#0f172a',
+            border: '1.5px solid #cbd5e1',
+            fontSize: '12px',
+            fontWeight: 700,
+            cursor: isSendingSms ? 'not-allowed' : 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '6px',
+            boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+            transition: 'all 0.15s ease'
+          }}
+        >
+          <Send size={13} color="#0f172a" />
+          <span>{isSendingSms ? 'Dispatching...' : 'Send SMS Notice to Parent'}</span>
+        </button>
+        {defaultParentContact && defaultParentContact !== 'N/A' && (
+          <span style={{ fontSize: '10.5px', color: '#64748b', textAlign: 'center', display: 'block', marginTop: '4px' }}>
+            Target: {defaultParentContact}
+          </span>
+        )}
+      </div>
+    </div>
+  );
+
   return (
     <div
       className="modal-backdrop-smooth"
@@ -507,7 +935,7 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
         position: 'fixed',
         inset: 0,
         zIndex: 9999,
-        background: 'rgba(15, 23, 42, 0.75)',
+        background: 'rgba(15, 23, 42, 0.65)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -536,33 +964,36 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
         }
         .psm-right {
           flex: 1;
-          padding: 16px 20px 32px;
-          background: #cbd5e1;
-          overflow: auto;
+          padding: 20px 24px 36px;
+          background: #eef2f6;
+          overflow-y: auto;
+          overflow-x: hidden;
           display: flex;
           flex-direction: column;
           align-items: center;
           position: relative;
           user-select: none;
+          touch-action: pan-y;
         }
         .psm-canvas-toolbar {
           position: sticky;
           top: 0;
           z-index: 10;
-          margin-bottom: 14px;
+          margin-bottom: 16px;
           display: flex;
           align-items: center;
           justify-content: space-between;
-          background: rgba(255, 255, 255, 0.95);
-          backdrop-filter: blur(8px);
-          padding: 6px 14px;
+          background: rgba(255, 255, 255, 0.94);
+          backdrop-filter: blur(12px);
+          padding: 6px 16px;
           border-radius: 9999px;
           border: 1px solid #cbd5e1;
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
           gap: 10px;
           max-width: 680px;
           width: 100%;
           box-sizing: border-box;
+          color: #0f172a;
         }
         .psm-canvas-tools-group {
           display: flex;
@@ -574,7 +1005,7 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
           align-items: center;
           justify-content: center;
           gap: 4px;
-          padding: 4px 8px;
+          padding: 4px 9px;
           border-radius: 6px;
           font-size: 11.5px;
           font-weight: 700;
@@ -596,162 +1027,155 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
           min-width: 42px;
           text-align: center;
         }
-        .psm-mobile-tabs {
-          display: none;
-        }
+
+        /* Fixed Geometry Authentic A4 Sheet with Light-Theme Elevation */
         .psm-preview-paper {
-          width: 100%;
-          max-width: 680px;
-          margin: 0 auto;
-          background: #ffffff;
-          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
-          border-radius: 12px;
-          padding: 32px 36px;
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Inter', sans-serif;
-          color: #0f172a;
-          line-height: 1.55;
-          box-sizing: border-box;
-          transform: translate3d(0, 0, 0);
-          contain: layout paint;
+          width: 680px !important;
+          min-width: 680px !important;
+          max-width: 680px !important;
+          background: #ffffff !important;
+          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.10), 0 1px 4px rgba(0, 0, 0, 0.05) !important;
+          border-radius: 12px !important;
+          border: 1px solid #cbd5e1 !important;
+          padding: 36px 40px !important;
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Inter', sans-serif !important;
+          color: #0f172a !important;
+          line-height: 1.55 !important;
+          box-sizing: border-box !important;
+          touch-action: none;
         }
         .psm-letterhead {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          gap: 14px;
-          margin-bottom: 4px;
+          display: flex !important;
+          align-items: center !important;
+          justify-content: space-between !important;
+          gap: 14px !important;
+          margin-bottom: 4px !important;
         }
         .psm-univ-text {
-          flex: 1;
-          text-align: center;
+          flex: 1 !important;
+          text-align: center !important;
         }
         .psm-univ-logo {
-          width: 46px;
-          height: 46px;
-          object-fit: contain;
-          flex-shrink: 0;
+          width: 50px !important;
+          height: 50px !important;
+          object-fit: contain !important;
+          flex-shrink: 0 !important;
         }
         .psm-univ-title {
-          margin: 0 0 2px 0;
-          font-size: 15.5px;
-          font-weight: 800;
-          color: #0f172a;
-          letter-spacing: 0.01em;
-          font-family: inherit;
+          margin: 0 0 2px 0 !important;
+          font-size: 15.5px !important;
+          font-weight: 800 !important;
+          color: #0f172a !important;
+          letter-spacing: 0.01em !important;
         }
         .psm-univ-sub {
-          font-size: 11px;
-          color: #475569;
-          font-weight: 600;
-          display: block;
-          font-family: inherit;
-          margin-bottom: 2px;
+          font-size: 11px !important;
+          color: #475569 !important;
+          font-weight: 600 !important;
+          display: block !important;
+          margin-bottom: 2px !important;
         }
         .psm-univ-tag {
-          font-size: 9.5px;
-          color: #64748b;
-          font-weight: 700;
-          letter-spacing: 0.5px;
-          display: block;
-          text-transform: uppercase;
-          font-family: inherit;
+          font-size: 9.5px !important;
+          color: #64748b !important;
+          font-weight: 700 !important;
+          letter-spacing: 0.5px !important;
+          display: block !important;
+          text-transform: uppercase !important;
         }
         .psm-meta-row {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          font-size: 12px;
-          color: #64748b;
-          margin-bottom: 16px;
-          font-family: inherit;
+          display: flex !important;
+          justify-content: space-between !important;
+          align-items: center !important;
+          font-size: 12px !important;
+          color: #64748b !important;
+          margin-bottom: 16px !important;
         }
         .psm-notice-title {
-          margin: 0 0 4px 0;
-          font-size: 15px;
-          font-weight: 800;
-          color: #0f172a;
-          text-transform: uppercase;
-          letter-spacing: 0.5px;
-          font-family: inherit;
+          margin: 0 0 4px 0 !important;
+          font-size: 15px !important;
+          font-weight: 800 !important;
+          color: #0f172a !important;
+          text-transform: uppercase !important;
+          letter-spacing: 0.5px !important;
         }
         .psm-notice-sub {
-          font-size: 11px;
-          color: #dc2626;
-          font-weight: 800;
-          letter-spacing: 0.5px;
-          font-family: inherit;
+          font-size: 11px !important;
+          color: #dc2626 !important;
+          font-weight: 800 !important;
+          letter-spacing: 0.5px !important;
         }
         .psm-recipient-box {
-          font-size: 12.5px;
-          margin-bottom: 16px;
-          background: #f8fafc;
-          padding: 12px 16px;
-          border-radius: 8px;
-          border: 1px solid #e2e8f0;
-          line-height: 1.55;
-          color: #1e293b;
+          font-size: 12.5px !important;
+          margin-bottom: 16px !important;
+          background: #f8fafc !important;
+          padding: 12px 16px !important;
+          border-radius: 8px !important;
+          border: 1px solid #e2e8f0 !important;
+          line-height: 1.55 !important;
+          color: #1e293b !important;
         }
         .psm-letter-text {
-          font-size: 12.5px;
-          color: #1e293b;
-          text-align: left;
-          margin-bottom: 16px;
-          line-height: 1.6;
+          font-size: 12.5px !important;
+          color: #1e293b !important;
+          text-align: left !important;
+          margin-bottom: 16px !important;
+          line-height: 1.6 !important;
         }
         .psm-conf-card {
-          background: #f8fafc;
-          border: 1.5px solid #cbd5e1;
-          border-radius: 10px;
-          padding: 14px 18px;
-          margin-bottom: 16px;
+          background: #f8fafc !important;
+          border: 1.5px solid #cbd5e1 !important;
+          border-radius: 10px !important;
+          padding: 14px 18px !important;
+          margin-bottom: 16px !important;
         }
         .psm-conf-grid {
-          display: grid;
-          grid-template-columns: 140px 1fr;
-          gap: 8px;
-          row-gap: 8px;
-          font-size: 12.5px;
-          line-height: 1.45;
+          display: grid !important;
+          grid-template-columns: 140px 1fr !important;
+          gap: 8px !important;
+          row-gap: 8px !important;
+          font-size: 12.5px !important;
+          line-height: 1.45 !important;
         }
         .psm-conf-item {
-          display: contents;
+          display: contents !important;
         }
         .psm-conf-item strong {
-          color: #0f172a;
-          font-weight: 700;
+          color: #0f172a !important;
+          font-weight: 700 !important;
         }
         .psm-conf-item span {
-          color: #0f172a;
-          font-weight: 700;
+          color: #0f172a !important;
+          font-weight: 700 !important;
         }
         .psm-note-text {
-          font-size: 11.5px;
-          color: #475569;
-          font-style: italic;
-          line-height: 1.5;
-          margin: 0 0 18px 0;
+          font-size: 11.5px !important;
+          color: #475569 !important;
+          font-style: italic !important;
+          line-height: 1.5 !important;
+          margin: 0 0 18px 0 !important;
         }
         .psm-signatures-row {
-          margin-top: 24px;
-          display: flex;
-          justify-content: space-between;
-          gap: 20px;
+          margin-top: 24px !important;
+          display: flex !important;
+          justify-content: space-between !important;
+          gap: 20px !important;
         }
         .psm-sig-line {
-          border-top: 1.5px solid #0f172a;
-          width: 210px;
-          padding-top: 4px;
+          border-top: 1.5px solid #0f172a !important;
+          width: 210px !important;
+          padding-top: 4px !important;
         }
         .psm-return-slip {
-          margin-top: 22px;
-          border-top: 2px dashed #cbd5e1;
-          padding-top: 14px;
-          font-size: 10.5px;
+          margin-top: 22px !important;
+          border-top: 2px dashed #cbd5e1 !important;
+          padding-top: 14px !important;
+          font-size: 11px !important;
         }
         .psm-slip-sign-row {
-          display: flex;
-          justify-content: space-between;
-          margin-top: 14px;
+          display: flex !important;
+          justify-content: space-between !important;
+          margin-top: 14px !important;
         }
         .psm-footer {
           background: #ffffff;
@@ -805,174 +1229,197 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
           background: #1e293b;
         }
 
+        /* Mobile Viewer Floating Action Controls */
+        .psm-mobile-zoom-pill {
+          display: none;
+        }
+        .psm-mobile-fab {
+          display: none;
+        }
+        .psm-mobile-drawer {
+          display: none;
+        }
+
+        /* Clean Light Mode Mobile Document Viewer (<= 768px) */
         @media (max-width: 768px) {
           .modal-backdrop-smooth {
-            padding: 8px !important;
+            padding: 0 !important;
+            background: #f1f5f9 !important;
           }
           .psm-dialog {
-            height: 98vh !important;
-            max-height: 98vh !important;
-            border-radius: 14px !important;
-            margin: 0 !important;
+            width: 100vw !important;
+            height: 100dvh !important;
+            max-height: 100dvh !important;
+            border-radius: 0 !important;
+            border: none !important;
+            background: #f1f5f9 !important;
+          }
+
+          /* Clean Light Mode Header Bar */
+          .psm-header-desktop {
+            background: #ffffff !important;
+            color: #0f172a !important;
+            border-bottom: 1px solid #e2e8f0 !important;
+            padding: 10px 14px !important;
+            min-height: 52px !important;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+          }
+          .psm-header-title {
+            color: #0f172a !important;
+            font-size: 13.5px !important;
+            font-weight: 800 !important;
+            letter-spacing: -0.01em !important;
+            font-family: inherit !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
           }
           .psm-header-sub {
             display: none !important;
           }
-          .psm-mobile-tabs {
-            display: flex;
-            padding: 6px 10px;
-            background: #f1f5f9;
-            border-bottom: 1px solid #e2e8f0;
-            gap: 6px;
+
+          /* Left column is hidden on mobile and moved to slide-up drawer */
+          .psm-left {
+            display: none !important;
           }
-          .psm-mobile-tab-btn {
-            flex: 1;
-            padding: 8px 10px;
+
+          /* Right column becomes light mode document canvas */
+          .psm-right {
+            padding: 14px 10px 90px !important;
+            background: #eef2f6 !important;
+            width: 100% !important;
+            min-height: 0 !important;
+            flex: 1 !important;
+            display: flex !important;
+            align-items: flex-start !important;
+            touch-action: pan-x pan-y pinch-zoom !important;
+          }
+
+          .psm-canvas-toolbar {
+            display: none !important;
+          }
+
+          .psm-footer {
+            display: none !important;
+          }
+
+          /* Floating Mobile Touch Zoom Controls */
+          .psm-mobile-zoom-pill {
+            display: flex;
+            position: fixed;
+            bottom: 22px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.95);
+            color: #0f172a;
+            border: 1.5px solid #cbd5e1;
+            padding: 5px 8px;
+            border-radius: 9999px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+            align-items: center;
+            gap: 6px;
             font-size: 12px;
             font-weight: 700;
-            border-radius: 8px;
-            border: 1px solid transparent;
-            background: transparent;
-            color: #64748b;
+            backdrop-filter: blur(12px);
+          }
+          .psm-mobile-zoom-btn {
+            background: #f1f5f9;
+            border: 1px solid #cbd5e1;
+            color: #334155;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.15s ease;
+          }
+          .psm-mobile-zoom-btn:active {
+            background: #e2e8f0;
+            transform: scale(0.92);
+          }
+          .psm-mobile-zoom-indicator {
+            font-size: 11.5px;
+            font-weight: 800;
+            color: #0f172a;
+            font-family: monospace;
+            padding: 0 4px;
             cursor: pointer;
           }
-          .psm-mobile-tab-btn.active {
-            background: #ffffff;
-            color: #0f172a;
-            border-color: #cbd5e1;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+
+          .psm-mobile-fab {
+            display: flex;
+            position: fixed;
+            bottom: 20px;
+            right: 16px;
+            z-index: 1001;
+            width: 50px;
+            height: 50px;
+            border-radius: 16px;
+            background: #c28b38;
+            color: #ffffff;
+            border: none;
+            box-shadow: 0 8px 24px rgba(194, 139, 56, 0.45);
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.15s ease;
           }
-          .psm-body {
+          .psm-mobile-fab:active {
+            transform: scale(0.92);
+          }
+
+          /* Mobile Slide-Up Edit Drawer */
+          .psm-mobile-drawer {
+            display: flex;
             flex-direction: column;
+            position: fixed;
+            inset: 0;
+            z-index: 1050;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(4px);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s ease;
           }
-          .psm-left {
-            width: 100% !important;
-            border-right: none !important;
-            padding: 12px !important;
-            gap: 12px !important;
+          .psm-mobile-drawer.open {
+            opacity: 1;
+            pointer-events: auto;
           }
-          .psm-right {
-            width: 100% !important;
-            padding: 10px 8px !important;
+          .psm-mobile-drawer-content {
+            margin-top: auto;
+            max-height: 86vh;
+            background: #ffffff;
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transform: translateY(100%);
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 -10px 40px rgba(0,0,0,0.25);
           }
-          .psm-left.hidden,
-          .psm-right.hidden {
-            display: none !important;
+          .psm-mobile-drawer.open .psm-mobile-drawer-content {
+            transform: translateY(0);
           }
-          .psm-preview-paper {
-            padding: 18px 14px !important;
-            border-radius: 10px !important;
-            box-shadow: 0 1px 6px rgba(0,0,0,0.05) !important;
+          .psm-drawer-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #f8fafc;
           }
-          .psm-letterhead {
-            display: flex !important;
-            flex-direction: row !important;
-            align-items: center !important;
-            justify-content: space-between !important;
-            gap: 6px !important;
-            margin-bottom: 6px !important;
-          }
-          .psm-univ-text {
-            flex: 1 !important;
-            text-align: center !important;
-          }
-          .psm-univ-logo {
-            width: 34px !important;
-            height: 34px !important;
-            flex-shrink: 0 !important;
-            margin: 0 !important;
-          }
-          .psm-univ-title {
-            font-size: 11.5px !important;
-            line-height: 1.25 !important;
-            text-align: center !important;
-          }
-          .psm-univ-sub {
-            font-size: 8.5px !important;
-            line-height: 1.3 !important;
-            text-align: center !important;
-          }
-          .psm-univ-tag {
-            font-size: 7.5px !important;
-            text-align: center !important;
-          }
-          .psm-meta-row {
-            display: flex !important;
-            justify-content: space-between !important;
-            font-size: 10.5px !important;
-            margin-bottom: 12px !important;
-          }
-          .psm-notice-title {
-            font-size: 12.5px !important;
-          }
-          .psm-notice-sub {
-            font-size: 9.5px !important;
-          }
-          .psm-recipient-box {
-            font-size: 11px !important;
-            padding: 10px 12px !important;
-            margin-bottom: 12px !important;
-            line-height: 1.45 !important;
-          }
-          .psm-letter-text {
-            font-size: 11.5px !important;
-            line-height: 1.55 !important;
-            margin-bottom: 12px !important;
-          }
-          .psm-conf-card {
-            padding: 10px 12px !important;
-            margin-bottom: 12px !important;
-          }
-          .psm-conf-grid {
-            display: grid !important;
-            grid-template-columns: 115px 1fr !important;
-            gap: 6px !important;
-            row-gap: 6px !important;
-            font-size: 11px !important;
-            line-height: 1.4 !important;
-          }
-          .psm-note-text {
-            font-size: 10.5px !important;
-            margin-bottom: 14px !important;
-          }
-          .psm-signatures-row {
-            display: flex !important;
-            justify-content: space-between !important;
-            gap: 10px !important;
-            margin-top: 16px !important;
-          }
-          .psm-sig-line {
-            width: 140px !important;
-          }
-          .psm-return-slip {
-            font-size: 9.5px !important;
-            margin-top: 14px !important;
-            padding-top: 10px !important;
-          }
-          .psm-slip-sign-row {
-            flex-direction: column !important;
-            gap: 8px !important;
-            margin-top: 10px !important;
-          }
-          .psm-footer {
-            padding: 10px 12px !important;
-            flex-direction: column !important;
-            gap: 8px !important;
-          }
-          .psm-footer-text {
-            display: none !important;
-          }
-          .psm-footer-actions {
-            width: 100% !important;
-            display: grid !important;
-            grid-template-columns: 1fr 1fr !important;
-            gap: 8px !important;
-          }
-          .psm-btn-download {
-            grid-column: span 2 !important;
+          .psm-drawer-body {
+            padding: 18px 20px;
+            overflow-y: auto;
+            flex: 1;
           }
         }
       `}</style>
+
       <div
         className="modal-content-smooth psm-dialog"
         style={{
@@ -992,464 +1439,164 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Modal Header */}
+        {/* Header Bar: Only Print & Close on the right */}
         <div
+          className="psm-header-desktop"
           style={{
             background: '#ffffff',
             color: '#0f172a',
-            padding: '16px 24px',
+            padding: '12px 20px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
             borderBottom: '1px solid #e2e8f0',
-            flexShrink: 0
+            flexShrink: 0,
+            gap: '12px'
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <FileText size={22} color="#0f172a" style={{ flexShrink: 0 }} />
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <h3 className="psm-header-title" style={{ margin: 0, fontSize: '16px', fontWeight: 800, color: '#0f172a' }}>
-                  Parent Summons Letter
+          {/* Left: Back Arrow + Document Title Badge */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0, flex: 1 }}>
+            <button
+              type="button"
+              onClick={onClose}
+              style={{
+                background: '#f8fafc',
+                border: '1px solid #cbd5e1',
+                color: '#334155',
+                cursor: 'pointer',
+                width: '34px',
+                height: '34px',
+                borderRadius: '8px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+                transition: 'all 0.15s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = '#e2e8f0';
+                e.currentTarget.style.color = '#0f172a';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = '#f8fafc';
+                e.currentTarget.style.color = '#334155';
+              }}
+              title="Close viewer"
+            >
+              <ChevronLeft size={19} strokeWidth={2.4} />
+            </button>
+
+            <div style={{ minWidth: 0, flex: 1 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <FileText size={15} color="#07345f" style={{ flexShrink: 0 }} />
+                <h3 className="psm-header-title" style={{ margin: 0, fontSize: '14.5px', fontWeight: 800, color: '#0f172a' }}>
+                  {studentLastName} — Parent Summons Notice
                 </h3>
-                {activeViolations.length > 1 && (
-                  <span
-                    style={{
-                      background: '#f8fafc',
-                      color: '#475569',
-                      fontSize: '11px',
-                      fontWeight: 700,
-                      padding: '2px 8px',
-                      borderRadius: '6px',
-                      border: '1px solid #cbd5e1'
-                    }}
-                  >
-                    {activeViolations.length} Violations Selected
-                  </span>
-                )}
               </div>
-              <span className="psm-header-sub" style={{ fontSize: '12px', color: '#64748b', display: 'block', marginTop: '2px' }}>
-                Generate and print a formal conference notice for the student's guardian.
+              <span className="psm-header-sub" style={{ fontSize: '11.5px', color: '#64748b', display: 'block', marginTop: '1px' }}>
+                Official disciplinary conference notice letter for parent / guardian.
               </span>
             </div>
           </div>
 
-          <button
-            type="button"
-            onClick={onClose}
-            style={{
-              background: '#f8fafc',
-              border: '1px solid #e2e8f0',
-              color: '#64748b',
-              cursor: 'pointer',
-              width: '32px',
-              height: '32px',
-              borderRadius: '8px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              transition: 'all 0.15s ease'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = '#e2e8f0';
-              e.currentTarget.style.color = '#0f172a';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = '#f8fafc';
-              e.currentTarget.style.color = '#64748b';
-            }}
-          >
-            <X size={16} />
-          </button>
+          {/* Right: Only Print Button + Close Button */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
+            {/* Print Button */}
+            <button
+              type="button"
+              onClick={handlePrint}
+              style={{
+                background: '#0f172a',
+                border: '1px solid #0f172a',
+                color: '#ffffff',
+                cursor: 'pointer',
+                padding: '0 14px',
+                height: '34px',
+                borderRadius: '8px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                fontSize: '12.5px',
+                fontWeight: 700,
+                boxShadow: '0 1px 3px rgba(15, 23, 42, 0.15)',
+                transition: 'all 0.15s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = '#1e293b';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = '#0f172a';
+              }}
+              title="Print Summons Letter"
+            >
+              <Printer size={15} />
+              <span>Print</span>
+            </button>
+
+            {/* Close Button */}
+            <button
+              type="button"
+              onClick={onClose}
+              style={{
+                background: '#f8fafc',
+                border: '1px solid #cbd5e1',
+                color: '#64748b',
+                cursor: 'pointer',
+                width: '34px',
+                height: '34px',
+                borderRadius: '8px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                transition: 'all 0.15s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = '#fee2e2';
+                e.currentTarget.style.borderColor = '#fca5a5';
+                e.currentTarget.style.color = '#dc2626';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = '#f8fafc';
+                e.currentTarget.style.borderColor = '#cbd5e1';
+                e.currentTarget.style.color = '#64748b';
+              }}
+              title="Close modal"
+            >
+              <X size={16} />
+            </button>
+          </div>
         </div>
 
-        {/* Mobile Tab Switcher — only visible on small screens */}
-        <div className="psm-mobile-tabs">
-          <button
-            type="button"
-            className={`psm-mobile-tab-btn ${mobileTab === 'form' ? 'active' : ''}`}
-            onClick={() => setMobileTab('form')}
-          >
-            ✏️ Edit Form
-          </button>
-          <button
-            type="button"
-            className={`psm-mobile-tab-btn ${mobileTab === 'preview' ? 'active' : ''}`}
-            onClick={() => setMobileTab('preview')}
-          >
-            📄 Letter Preview
-          </button>
-        </div>
-
-        {/* Modal Body: 2-Column Split (stacks on mobile via CSS) */}
+        {/* Modal Body */}
         <div className="psm-body">
           
-          {/* Left Column: Form Parameters */}
-          <div className={`psm-left smooth-scroll-container${mobileTab === 'preview' ? ' hidden' : ''}`}>
-            {/* 1. Summons Basic Parameters */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #e2e8f0', paddingBottom: '6px' }}>
-                <span style={{ fontSize: '11px', fontWeight: 800, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                  1. Conference Schedule &amp; Recipient
-                </span>
-              </div>
-
-              {/* Guardian Name */}
-              <div>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '12px', fontWeight: 700, color: '#334155', marginBottom: '4px' }}>
-                  <User size={13} color="#0f172a" /> Parent / Guardian Name
-                </label>
-                <input
-                  type="text"
-                  value={parentName}
-                  onChange={(e) => setParentName(e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '7px 11px',
-                    borderRadius: '8px',
-                    border: '1.5px solid #cbd5e1',
-                    fontSize: '12.5px',
-                    background: '#ffffff',
-                    boxSizing: 'border-box'
-                  }}
-                />
-              </div>
-
-              {/* Conference Date & Time (Row) */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
-                <div>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '11.5px', fontWeight: 700, color: '#334155', marginBottom: '4px' }}>
-                    <Calendar size={12} color="#0f172a" /> Date
-                  </label>
-                  <CustomDatePicker
-                    value={conferenceDate}
-                    onChange={(val) => setConferenceDate(val)}
-                    placeholder="Select Date"
-                  />
-                </div>
-
-                <div>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '11.5px', fontWeight: 700, color: '#334155', marginBottom: '4px' }}>
-                    <Clock size={12} color="#0f172a" /> Time
-                  </label>
-                  <CustomTimePicker
-                    value={conferenceTime}
-                    onChange={(val) => setConferenceTime(val)}
-                    placeholder="Select Time"
-                    align="right"
-                  />
-                </div>
-              </div>
-
-              {/* Venue */}
-              <div>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '12px', fontWeight: 700, color: '#334155', marginBottom: '4px' }}>
-                  <MapPin size={13} color="#0f172a" /> Designated Venue
-                </label>
-                <input
-                  type="text"
-                  value={venue}
-                  onChange={(e) => setVenue(e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '7px 11px',
-                    borderRadius: '8px',
-                    border: '1.5px solid #cbd5e1',
-                    fontSize: '12.5px',
-                    background: '#ffffff',
-                    boxSizing: 'border-box'
-                  }}
-                />
-              </div>
-            </div>
-
-            {/* 2. Multi-Violation Bundling Section */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '12px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <span style={{ fontSize: '11px', fontWeight: 800, color: '#0f172a', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '5px' }}>
-                  <Layers size={13} color="#0f172a" /> Included Violations ({activeViolations.length})
-                </span>
-                {studentViolations.length > 1 && (
-                  <button
-                    type="button"
-                    onClick={selectAllViolations}
-                    style={{ background: 'none', border: 'none', color: '#2563eb', fontSize: '11px', fontWeight: 700, cursor: 'pointer', padding: 0 }}
-                  >
-                    Select All ({studentViolations.length})
-                  </button>
-                )}
-              </div>
-
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', maxHeight: '140px', overflowY: 'auto' }}>
-                {studentViolations.map((v) => {
-                  const isChecked = selectedViolationIds.includes(v.id);
-                  const title = v.violation?.title || v.offense || 'Disciplinary Infraction';
-                  const sev = v.violation?.type || v.severity || 'Minor';
-                  const isMinor = sev.toLowerCase().includes('minor');
-                  const isMajor = sev.toLowerCase().includes('major');
-                  const isSerious = sev.toLowerCase().includes('serious');
-
-                  const badgeBg = isMajor ? '#fee2e2' : (isSerious ? '#fef9c3' : '#dcfce7');
-                  const badgeColor = isMajor ? '#dc2626' : (isSerious ? '#a16207' : '#15803d');
-                  const badgeBorder = isMajor ? '#fecaca' : (isSerious ? '#fde047' : '#bbf7d0');
-
-                  return (
-                    <div
-                      key={v.id}
-                      onClick={() => toggleSelectViolation(v.id)}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'flex-start',
-                        gap: '8px',
-                        padding: '6px 8px',
-                        borderRadius: '6px',
-                        background: isChecked ? '#f8fafc' : '#ffffff',
-                        border: isChecked ? '1.5px solid #93c5fd' : '1px solid #e2e8f0',
-                        cursor: 'pointer',
-                        transition: 'all 0.15s ease'
-                      }}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={isChecked}
-                        onChange={() => {}}
-                        style={{ marginTop: '2px', accentColor: '#0f172a', cursor: 'pointer' }}
-                      />
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontSize: '11.5px', fontWeight: 700, color: '#0f172a', lineHeight: 1.3 }}>
-                          {title}
-                        </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '2px' }}>
-                          <span
-                            style={{
-                              background: badgeBg,
-                              color: badgeColor,
-                              border: `1px solid ${badgeBorder}`,
-                              fontSize: '9.5px',
-                              fontWeight: 800,
-                              padding: '1px 5px',
-                              borderRadius: '4px',
-                              textTransform: 'uppercase'
-                            }}
-                          >
-                            {sev}
-                          </span>
-                          <span style={{ fontSize: '10.5px', color: '#64748b' }}>
-                            {v.date_reported ? new Date(v.date_reported).toLocaleDateString([], { month: 'short', day: 'numeric' }) : 'Recorded'}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* 3. Editable Signatories & Authorities Section */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #e2e8f0', paddingBottom: '6px' }}>
-                <span style={{ fontSize: '11px', fontWeight: 800, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                  2. Authorized Signatories
-                </span>
-                <span style={{ fontSize: '10px', color: '#16a34a', fontWeight: 700 }}>
-                  Fully Editable
-                </span>
-              </div>
-
-              {/* Signatory 1 (Left - Prefect) */}
-              <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '10px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
-                <span style={{ fontSize: '11px', fontWeight: 700, color: '#0f172a' }}>
-                  Signatory 1 (Left - Prefect / Discipline Head)
-                </span>
-                <div>
-                  <input
-                    type="text"
-                    value={signatory1Name}
-                    placeholder="Signatory 1 Name (e.g. Sheryl Gamboa)"
-                    onChange={(e) => setSignatory1Name(e.target.value)}
-                    style={{
-                      width: '100%',
-                      padding: '6px 9px',
-                      borderRadius: '6px',
-                      border: '1px solid #cbd5e1',
-                      fontSize: '12px',
-                      fontWeight: 600,
-                      marginBottom: '4px',
-                      boxSizing: 'border-box'
-                    }}
-                  />
-                  <input
-                    type="text"
-                    value={signatory1Title}
-                    placeholder="Designation (e.g. Prefect of Discipline)"
-                    onChange={(e) => setSignatory1Title(e.target.value)}
-                    style={{
-                      width: '100%',
-                      padding: '5px 9px',
-                      borderRadius: '6px',
-                      border: '1px solid #cbd5e1',
-                      fontSize: '11.5px',
-                      boxSizing: 'border-box'
-                    }}
-                  />
-                </div>
-              </div>
-
-              {/* Signatory 2 (Right - Class Adviser / Dept Head) */}
-              <div
-                style={{
-                  background: '#ffffff',
-                  border: includeSignatory2 ? '1px solid #e2e8f0' : '1px dashed #cbd5e1',
-                  borderRadius: '10px',
-                  padding: '10px',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '6px',
-                  opacity: includeSignatory2 ? 1 : 0.7,
-                  transition: 'all 0.15s ease'
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', fontWeight: 700, color: '#0f172a', cursor: 'pointer' }}>
-                    <input
-                      type="checkbox"
-                      checked={includeSignatory2}
-                      onChange={(e) => setIncludeSignatory2(e.target.checked)}
-                      style={{ accentColor: '#0f172a', cursor: 'pointer' }}
-                    />
-                    <span>Signatory 2 (Adviser / Head)</span>
-                  </label>
-                  <span style={{ fontSize: '10px', fontWeight: 800, color: includeSignatory2 ? '#16a34a' : '#64748b' }}>
-                    {includeSignatory2 ? 'Included' : 'Removed'}
-                  </span>
-                </div>
-
-                {includeSignatory2 ? (
-                  <div>
-                    <input
-                      type="text"
-                      value={signatory2Name}
-                      placeholder="Signatory 2 Name (e.g. Class Adviser / Adviser Name)"
-                      onChange={(e) => setSignatory2Name(e.target.value)}
-                      style={{
-                        width: '100%',
-                        padding: '6px 9px',
-                        borderRadius: '6px',
-                        border: '1px solid #cbd5e1',
-                        fontSize: '12px',
-                        fontWeight: 600,
-                        marginBottom: '4px',
-                        boxSizing: 'border-box'
-                      }}
-                    />
-                    <input
-                      type="text"
-                      value={signatory2Title}
-                      placeholder="Designation (e.g. Department Head / Class Adviser)"
-                      onChange={(e) => setSignatory2Title(e.target.value)}
-                      style={{
-                        width: '100%',
-                        padding: '5px 9px',
-                        borderRadius: '6px',
-                        border: '1px solid #cbd5e1',
-                        fontSize: '11.5px',
-                        boxSizing: 'border-box'
-                      }}
-                    />
-                  </div>
-                ) : (
-                  <span style={{ fontSize: '11px', color: '#64748b', fontStyle: 'italic', padding: '4px 0' }}>
-                    Second signatory line removed from notice.
-                  </span>
-                )}
-              </div>
-            </div>
-
-            {/* 4. Custom Notes */}
-            <div>
-              <label style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '12px', fontWeight: 700, color: '#334155', marginBottom: '4px' }}>
-                <MessageSquare size={13} color="#0f172a" /> Meeting Agenda &amp; Notes
-              </label>
-              <textarea
-                rows={2}
-                value={customRemarks}
-                onChange={(e) => setCustomRemarks(e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '7px 11px',
-                  borderRadius: '8px',
-                  border: '1.5px solid #cbd5e1',
-                  fontSize: '12px',
-                  background: '#ffffff',
-                  resize: 'vertical',
-                  minHeight: '55px',
-                  maxHeight: '90px',
-                  boxSizing: 'border-box'
-                }}
-              />
-            </div>
-
-            {/* Quick SMS Trigger */}
-            <div style={{ marginTop: 'auto', paddingTop: '6px' }}>
-              <button
-                type="button"
-                onClick={handleSendSummonsSMS}
-                disabled={isSendingSms}
-                style={{
-                  width: '100%',
-                  padding: '9px 12px',
-                  borderRadius: '10px',
-                  background: '#ffffff',
-                  color: '#0f172a',
-                  border: '1.5px solid #cbd5e1',
-                  fontSize: '12px',
-                  fontWeight: 700,
-                  cursor: isSendingSms ? 'not-allowed' : 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '6px',
-                  boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
-                  transition: 'all 0.15s ease'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = '#f1f5f9';
-                  e.currentTarget.style.borderColor = '#94a3b8';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = '#ffffff';
-                  e.currentTarget.style.borderColor = '#cbd5e1';
-                }}
-              >
-                <Send size={13} color="#0f172a" />
-                <span>{isSendingSms ? 'Dispatching...' : 'Send SMS Notice to Parent'}</span>
-              </button>
-              {defaultParentContact && defaultParentContact !== 'N/A' && (
-                <span style={{ fontSize: '10.5px', color: '#64748b', textAlign: 'center', display: 'block', marginTop: '4px' }}>
-                  Target: {defaultParentContact}
-                </span>
-              )}
-            </div>
+          {/* Left Column: Form Parameters (Desktop) */}
+          <div className="psm-left smooth-scroll-container">
+            {renderFormContent()}
           </div>
 
           {/* Right Column: Printable Letter Document Preview */}
           <div
-            className={`psm-right smooth-scroll-container${mobileTab === 'form' ? ' hidden' : ''}`}
+            className="psm-right smooth-scroll-container"
+            onMouseDown={handleMouseDown}
+            onTouchStart={handleTouchStart}
             onMouseMove={handleMouseMove}
             onMouseUp={handleMouseUp}
             onMouseLeave={handleMouseUp}
             onTouchMove={handleTouchMove}
             onTouchEnd={handleTouchEnd}
             style={{
-              cursor: isDragging ? 'grabbing' : 'default'
+              cursor: isDragging ? 'grabbing' : 'default',
+              userSelect: 'none',
+              WebkitUserSelect: 'none'
             }}
           >
-            {/* Canvas Control Toolbar (Google Sheets Print Style) */}
+            {/* Canvas Control Toolbar (Desktop interactive toolbar) */}
             <div className="psm-canvas-toolbar">
               <div className="psm-canvas-tools-group">
                 <Move size={13} color="#64748b" />
-                <span style={{ fontSize: '11px', fontWeight: 700, color: '#475569' }}>
-                  {isDragging ? 'Dragging layout...' : 'Drag paper to reposition'}
+                <span style={{ fontSize: '11px', fontWeight: 700, color: '#334155' }}>
+                  {isDragging ? 'Dragging layout...' : 'Official A4 Document'}
                 </span>
               </div>
               <div className="psm-canvas-tools-group">
@@ -1482,186 +1629,205 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
               </div>
             </div>
 
+            {/* Proportional Scaling Container: Maintains pristine 680px A4 geometry */}
             <div
-              ref={printRef}
-              className="psm-preview-paper"
               style={{
-                transform: `translate3d(${pan.x}px, ${pan.y}px, 0) scale(${zoom})`,
-                transformOrigin: 'top center',
-                transition: isDragging ? 'none' : 'transform 0.12s cubic-bezier(0.2, 0, 0, 1)',
-                cursor: isDragging ? 'grabbing' : 'grab'
+                width: '100%',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'flex-start'
               }}
-              onMouseDown={handleMouseDown}
-              onTouchStart={handleTouchStart}
             >
-              {/* Official Letterhead */}
-              <div style={{ textAlign: 'center', borderBottom: '2px solid #0f172a', paddingBottom: '14px', marginBottom: '16px' }}>
-                <div className="psm-letterhead">
-                  <img
-                    src="/images/phcm-logo.png"
-                    alt="PHCM Logo Left"
-                    className="psm-univ-logo"
-                    onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                  />
-                  <div className="psm-univ-text">
-                    <h2 className="psm-univ-title">
-                      UNIVERSITY OF PERPETUAL HELP SYSTEM MANILA
-                    </h2>
-                    <span className="psm-univ-sub">
-                      1240 V. Concepcion St., Sampaloc, Manila | Office of the Prefect of Discipline
-                    </span>
-                    <span className="psm-univ-tag">
-                      VIOTRACK DISCIPLINARY &amp; STUDENT WELFARE MANAGEMENT SYSTEM
+              <div
+                style={{
+                  width: '680px',
+                  minWidth: '680px',
+                  maxWidth: '680px',
+                  transform: `scale(${effectiveScale}) translate3d(${pan.x}px, ${pan.y}px, 0)`,
+                  transformOrigin: 'top center',
+                  transition: isDragging ? 'none' : 'transform 0.12s cubic-bezier(0.2, 0, 0, 1)',
+                  marginBottom: isMobile && paperHeight ? `-${paperHeight * (1 - effectiveScale)}px` : '0px'
+                }}
+              >
+                <div
+                  ref={printRef}
+                  className="psm-preview-paper"
+                  style={{
+                    cursor: isDragging ? 'grabbing' : 'grab'
+                  }}
+                  onMouseDown={handleMouseDown}
+                  onTouchStart={handleTouchStart}
+                >
+                  {/* Official Letterhead */}
+                  <div style={{ textAlign: 'center', borderBottom: '2px solid #0f172a', paddingBottom: '14px', marginBottom: '16px' }}>
+                    <div className="psm-letterhead">
+                      <img
+                        src="/images/phcm-logo.png"
+                        alt="PHCM Logo Left"
+                        className="psm-univ-logo"
+                        onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                      />
+                      <div className="psm-univ-text">
+                        <h2 className="psm-univ-title">
+                          UNIVERSITY OF PERPETUAL HELP SYSTEM MANILA
+                        </h2>
+                        <span className="psm-univ-sub">
+                          1240 V. Concepcion St., Sampaloc, Manila | Office of the Prefect of Discipline
+                        </span>
+                        <span className="psm-univ-tag">
+                          VIOTRACK DISCIPLINARY &amp; STUDENT WELFARE MANAGEMENT SYSTEM
+                        </span>
+                      </div>
+                      <img
+                        src="/images/phcm-seal.png"
+                        alt="PHCM University Seal"
+                        className="psm-univ-logo"
+                        onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Reference & Date */}
+                  <div className="psm-meta-row">
+                    <span>Reference No: <strong style={{ color: '#0f172a', fontFamily: 'monospace' }}>{referenceNo}</strong></span>
+                    <span>Date Issued: <strong style={{ color: '#0f172a' }}>{currentDateFormatted}</strong></span>
+                  </div>
+
+                  {/* Notice Heading */}
+                  <div style={{ textAlign: 'center', margin: '14px 0 16px' }}>
+                    <h3 className="psm-notice-title">
+                      OFFICIAL PARENT / GUARDIAN CONFERENCE NOTICE
+                    </h3>
+                    <span className="psm-notice-sub">
+                      (MANDATORY DISCIPLINARY APPEARANCE)
                     </span>
                   </div>
-                  <img
-                    src="/images/phcm-seal.png"
-                    alt="PHCM University Seal"
-                    className="psm-univ-logo"
-                    onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                  />
-                </div>
-              </div>
 
-              {/* Reference & Date */}
-              <div className="psm-meta-row">
-                <span>Reference No: <strong style={{ color: '#0f172a', fontFamily: 'monospace' }}>{referenceNo}</strong></span>
-                <span>Date Issued: <strong style={{ color: '#0f172a' }}>{currentDateFormatted}</strong></span>
-              </div>
+                  {/* Recipient */}
+                  <div className="psm-recipient-box">
+                    <div><strong>TO:</strong> {parentName.toUpperCase()}</div>
+                    <div><strong>Parent / Legal Guardian of:</strong> {studentFullName}</div>
+                    <div><strong>Grade &amp; Section:</strong> {activeStudent.grade || 'Grade 10'} - {activeStudent.section || 'General'} | <strong>Student ID:</strong> {activeStudent.student_id || activeStudent.lrn || 'N/A'}</div>
+                  </div>
 
-              {/* Notice Heading */}
-              <div style={{ textAlign: 'center', margin: '14px 0 16px' }}>
-                <h3 className="psm-notice-title">
-                  OFFICIAL PARENT / GUARDIAN CONFERENCE NOTICE
-                </h3>
-                <span className="psm-notice-sub">
-                  (MANDATORY DISCIPLINARY APPEARANCE)
-                </span>
-              </div>
+                  {/* Letter Body: Dynamically handles 1 or multiple violations */}
+                  <div className="psm-letter-text">
+                    <p style={{ margin: '0 0 8px 0' }}>Dear Mr. / Mrs. / Ms. <strong>{parentName}</strong>,</p>
 
-              {/* Recipient */}
-              <div className="psm-recipient-box">
-                <div><strong>TO:</strong> {parentName.toUpperCase()}</div>
-                <div><strong>Parent / Legal Guardian of:</strong> {studentFullName}</div>
-                <div><strong>Grade &amp; Section:</strong> {activeStudent.grade || 'Grade 10'} - {activeStudent.section || 'General'} | <strong>Student ID:</strong> {activeStudent.student_id || activeStudent.lrn || 'N/A'}</div>
-              </div>
+                    {activeViolations.length === 1 ? (
+                      <p style={{ margin: '0 0 8px 0' }}>
+                        This is to formally inform you that your child/ward, <strong>{studentFullName}</strong>, has been reported for a disciplinary infraction regarding <strong>&quot;{activeViolations[0].violation?.title || activeViolations[0].offense || 'Disciplinary Infraction'}&quot;</strong> (classified as a <strong>{activeViolations[0].violation?.type || activeViolations[0].severity || 'Minor'} Offense</strong> under the Student Code of Conduct).
+                      </p>
+                    ) : (
+                      <div>
+                        <p style={{ margin: '0 0 8px 0' }}>
+                          This is to formally inform you that your child/ward, <strong>{studentFullName}</strong>, has been reported for <strong>{activeViolations.length} cumulative disciplinary infractions</strong> under the Student Code of Conduct as itemized in the summary table below:
+                        </p>
 
-              {/* Letter Body: Dynamically handles 1 or multiple violations */}
-              <div className="psm-letter-text">
-                <p style={{ margin: '0 0 8px 0' }}>Dear Mr. / Mrs. / Ms. <strong>{parentName}</strong>,</p>
-
-                {activeViolations.length === 1 ? (
-                  <p style={{ margin: '0 0 8px 0' }}>
-                    This is to formally inform you that your child/ward, <strong>{studentFullName}</strong>, has been reported for a disciplinary infraction regarding <strong>&quot;{activeViolations[0].violation?.title || activeViolations[0].offense || 'Disciplinary Infraction'}&quot;</strong> (classified as a <strong>{activeViolations[0].violation?.type || activeViolations[0].severity || 'Minor'} Offense</strong> under the Student Code of Conduct).
-                  </p>
-                ) : (
-                  <div>
-                    <p style={{ margin: '0 0 8px 0' }}>
-                      This is to formally inform you that your child/ward, <strong>{studentFullName}</strong>, has been reported for <strong>{activeViolations.length} cumulative disciplinary infractions</strong> under the Student Code of Conduct as itemized in the summary table below:
-                    </p>
-
-                    {/* Multi-Infractions Table */}
-                    <div style={{ width: '100%', overflowX: 'auto' }}>
-                      <table style={{ width: '100%', borderCollapse: 'collapse', margin: '12px 0 14px', fontSize: '11.5px', border: '1px solid #cbd5e1' }}>
-                        <thead>
-                          <tr style={{ background: '#f1f5f9' }}>
-                            <th style={{ padding: '8px 6px', border: '1px solid #cbd5e1', width: '32px', textAlign: 'center', background: '#f1f5f9', color: '#0f172a', fontWeight: 800, fontSize: '11px', textTransform: 'uppercase' }}>#</th>
-                            <th style={{ padding: '8px 10px', border: '1px solid #cbd5e1', textAlign: 'left', background: '#f1f5f9', color: '#0f172a', fontWeight: 800, fontSize: '11px', textTransform: 'uppercase' }}>Infraction / Violation Description</th>
-                            <th style={{ padding: '8px 8px', border: '1px solid #cbd5e1', width: '100px', textAlign: 'center', background: '#f1f5f9', color: '#0f172a', fontWeight: 800, fontSize: '11px', textTransform: 'uppercase' }}>Offense Level</th>
-                            <th style={{ padding: '8px 8px', border: '1px solid #cbd5e1', width: '95px', textAlign: 'center', background: '#f1f5f9', color: '#0f172a', fontWeight: 800, fontSize: '11px', textTransform: 'uppercase' }}>Date Reported</th>
-                            <th style={{ padding: '8px 8px', border: '1px solid #cbd5e1', width: '80px', textAlign: 'center', background: '#f1f5f9', color: '#0f172a', fontWeight: 800, fontSize: '11px', textTransform: 'uppercase' }}>Status</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {activeViolations.map((v, idx) => {
-                            const vTitle = v.violation?.title || v.offense || 'Infraction';
-                            const vSev = v.violation?.type || v.severity || 'Minor';
-                            const vDate = v.date_reported ? new Date(v.date_reported).toLocaleDateString() : 'Recorded';
-                            const vStatus = v.status || 'Pending';
-
-                            return (
-                              <tr key={v.id || idx} style={{ background: idx % 2 === 0 ? '#ffffff' : '#f8fafc' }}>
-                                <td style={{ padding: '7px 6px', border: '1px solid #e2e8f0', textAlign: 'center', fontWeight: 700, color: '#0f172a' }}>{idx + 1}</td>
-                                <td style={{ padding: '7px 10px', border: '1px solid #e2e8f0', fontWeight: 600, color: '#0f172a' }}>{vTitle}</td>
-                                <td style={{ padding: '7px 8px', border: '1px solid #e2e8f0', textAlign: 'center', fontWeight: 700, color: '#0f172a' }}>{vSev}</td>
-                                <td style={{ padding: '7px 8px', border: '1px solid #e2e8f0', textAlign: 'center', color: '#475569' }}>{vDate}</td>
-                                <td style={{ padding: '7px 8px', border: '1px solid #e2e8f0', textAlign: 'center', color: '#0f172a', fontWeight: 600 }}>{vStatus}</td>
+                        {/* Multi-Infractions Table */}
+                        <div style={{ width: '100%', overflowX: 'auto' }}>
+                          <table style={{ width: '100%', borderCollapse: 'collapse', margin: '12px 0 14px', fontSize: '11.5px', border: '1px solid #cbd5e1' }}>
+                            <thead>
+                              <tr style={{ background: '#f1f5f9' }}>
+                                <th style={{ padding: '8px 6px', border: '1px solid #cbd5e1', width: '32px', textAlign: 'center', background: '#f1f5f9', color: '#0f172a', fontWeight: 800, fontSize: '11px', textTransform: 'uppercase' }}>#</th>
+                                <th style={{ padding: '8px 10px', border: '1px solid #cbd5e1', textAlign: 'left', background: '#f1f5f9', color: '#0f172a', fontWeight: 800, fontSize: '11px', textTransform: 'uppercase' }}>Infraction / Violation Description</th>
+                                <th style={{ padding: '8px 8px', border: '1px solid #cbd5e1', width: '100px', textAlign: 'center', background: '#f1f5f9', color: '#0f172a', fontWeight: 800, fontSize: '11px', textTransform: 'uppercase' }}>Offense Level</th>
+                                <th style={{ padding: '8px 8px', border: '1px solid #cbd5e1', width: '95px', textAlign: 'center', background: '#f1f5f9', color: '#0f172a', fontWeight: 800, fontSize: '11px', textTransform: 'uppercase' }}>Date Reported</th>
+                                <th style={{ padding: '8px 8px', border: '1px solid #cbd5e1', width: '80px', textAlign: 'center', background: '#f1f5f9', color: '#0f172a', fontWeight: 800, fontSize: '11px', textTransform: 'uppercase' }}>Status</th>
                               </tr>
-                            );
-                          })}
-                        </tbody>
-                      </table>
+                            </thead>
+                            <tbody>
+                              {activeViolations.map((v, idx) => {
+                                const vTitle = v.violation?.title || v.offense || 'Infraction';
+                                const vSev = v.violation?.type || v.severity || 'Minor';
+                                const vDate = v.date_reported ? new Date(v.date_reported).toLocaleDateString() : 'Recorded';
+                                const vStatus = v.status || 'Pending';
+
+                                return (
+                                  <tr key={v.id || idx} style={{ background: idx % 2 === 0 ? '#ffffff' : '#f8fafc' }}>
+                                    <td style={{ padding: '7px 6px', border: '1px solid #e2e8f0', textAlign: 'center', fontWeight: 700, color: '#0f172a' }}>{idx + 1}</td>
+                                    <td style={{ padding: '7px 10px', border: '1px solid #e2e8f0', fontWeight: 600, color: '#0f172a' }}>{vTitle}</td>
+                                    <td style={{ padding: '7px 8px', border: '1px solid #e2e8f0', textAlign: 'center', fontWeight: 700, color: '#0f172a' }}>{vSev}</td>
+                                    <td style={{ padding: '7px 8px', border: '1px solid #e2e8f0', textAlign: 'center', color: '#475569' }}>{vDate}</td>
+                                    <td style={{ padding: '7px 8px', border: '1px solid #e2e8f0', textAlign: 'center', color: '#0f172a', fontWeight: 600 }}>{vStatus}</td>
+                                  </tr>
+                                );
+                              })}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    )}
+
+                    <p style={{ margin: '0 0 8px 0' }}>
+                      In line with our mutual goal to nurture positive student character, accountability, and academic success, you are cordially requested to attend an in-person case conference scheduled as follows:
+                    </p>
+                  </div>
+
+                  {/* Conference Details Card */}
+                  <div className="psm-conf-card">
+                    <div className="psm-conf-grid">
+                      <div className="psm-conf-item">
+                        <strong>Conference Date:</strong>
+                        <span>{formattedConfDate}</span>
+                      </div>
+
+                      <div className="psm-conf-item">
+                        <strong>Designated Time:</strong>
+                        <span>{conferenceTime} (Please arrive 10 minutes prior)</span>
+                      </div>
+
+                      <div className="psm-conf-item">
+                        <strong>Designated Venue:</strong>
+                        <span>{venue}</span>
+                      </div>
+
+                      <div className="psm-conf-item">
+                        <strong>Presiding Officer:</strong>
+                        <span>{signatory1Name} ({signatory1Title})</span>
+                      </div>
                     </div>
                   </div>
-                )}
 
-                <p style={{ margin: '0 0 8px 0' }}>
-                  In line with our mutual goal to nurture positive student character, accountability, and academic success, you are cordially requested to attend an in-person case conference scheduled as follows:
-                </p>
-              </div>
+                  {/* Remarks */}
+                  <p className="psm-note-text">
+                    <strong>Note:</strong> {customRemarks}
+                  </p>
 
-              {/* Conference Details Card */}
-              <div className="psm-conf-card">
-                <div className="psm-conf-grid">
-                  <div className="psm-conf-item">
-                    <strong>Conference Date:</strong>
-                    <span>{formattedConfDate}</span>
+                  {/* Signatures */}
+                  <div className="psm-signatures-row">
+                    <div>
+                      <div style={{ height: '24px' }} />
+                      <div className="psm-sig-line">
+                        <strong style={{ fontSize: '12px', display: 'block', color: '#0f172a' }}>{signatory1Name}</strong>
+                        <span style={{ fontSize: '10.5px', color: '#64748b', display: 'block' }}>{signatory1Title}</span>
+                      </div>
+                    </div>
+
+                    {includeSignatory2 && (
+                      <div>
+                        <div style={{ height: '24px' }} />
+                        <div className="psm-sig-line">
+                          <strong style={{ fontSize: '12px', display: 'block', color: '#0f172a' }}>{signatory2Name}</strong>
+                          <span style={{ fontSize: '10.5px', color: '#64748b', display: 'block' }}>{signatory2Title}</span>
+                        </div>
+                      </div>
+                    )}
                   </div>
 
-                  <div className="psm-conf-item">
-                    <strong>Designated Time:</strong>
-                    <span>{conferenceTime} (Please arrive 10 minutes prior)</span>
-                  </div>
-
-                  <div className="psm-conf-item">
-                    <strong>Designated Venue:</strong>
-                    <span>{venue}</span>
-                  </div>
-
-                  <div className="psm-conf-item">
-                    <strong>Presiding Officer:</strong>
-                    <span>{signatory1Name} ({signatory1Title})</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Remarks */}
-              <p className="psm-note-text">
-                <strong>Note:</strong> {customRemarks}
-              </p>
-
-              {/* Signatures: Fully Editable Live */}
-              <div className="psm-signatures-row">
-                <div>
-                  <div style={{ height: '24px' }} />
-                  <div className="psm-sig-line">
-                    <strong style={{ fontSize: '12px', display: 'block', color: '#0f172a' }}>{signatory1Name}</strong>
-                    <span style={{ fontSize: '10.5px', color: '#64748b', display: 'block' }}>{signatory1Title}</span>
-                  </div>
-                </div>
-
-                {includeSignatory2 && (
-                  <div>
-                    <div style={{ height: '24px' }} />
-                    <div className="psm-sig-line">
-                      <strong style={{ fontSize: '12px', display: 'block', color: '#0f172a' }}>{signatory2Name}</strong>
-                      <span style={{ fontSize: '10.5px', color: '#64748b', display: 'block' }}>{signatory2Title}</span>
+                  {/* Return Slip */}
+                  <div className="psm-return-slip">
+                    <div style={{ textAlign: 'center', fontWeight: 800, marginBottom: '5px', letterSpacing: '0.4px', textTransform: 'uppercase' }}>
+                      ACKNOWLEDGEMENT &amp; CONFIRMATION RETURN SLIP
+                    </div>
+                    <p style={{ margin: '0 0 8px 0', lineHeight: 1.4 }}>
+                      I acknowledge receipt of the conference notice for <strong>{studentFullName}</strong> (Ref: {referenceNo}) regarding <strong>[{activeViolations.map(v => v.violation?.title || v.offense || 'Infraction').join(', ')}]</strong> for the scheduled date of <strong>{formattedConfDate}</strong> at <strong>{conferenceTime}</strong>.
+                    </p>
+                    <div className="psm-slip-sign-row">
+                      <span>Parent/Guardian Signature: _________________________</span>
+                      <span>Date Signed: _______________</span>
                     </div>
                   </div>
-                )}
-              </div>
-
-              {/* Return Slip */}
-              <div className="psm-return-slip">
-                <div style={{ textAlign: 'center', fontWeight: 800, marginBottom: '5px', letterSpacing: '0.4px', textTransform: 'uppercase' }}>
-                  ACKNOWLEDGEMENT &amp; CONFIRMATION RETURN SLIP
-                </div>
-                <p style={{ margin: '0 0 8px 0', lineHeight: 1.4 }}>
-                  I acknowledge receipt of the conference notice for <strong>{studentFullName}</strong> (Ref: {referenceNo}) regarding <strong>[{activeViolations.map(v => v.violation?.title || v.offense || 'Infraction').join(', ')}]</strong> for the scheduled date of <strong>{formattedConfDate}</strong> at <strong>{conferenceTime}</strong>.
-                </p>
-                <div className="psm-slip-sign-row">
-                  <span>Parent/Guardian Signature: _________________________</span>
-                  <span>Date Signed: _______________</span>
                 </div>
               </div>
             </div>
@@ -1669,9 +1835,9 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
 
         </div>
 
-        {/* Modal Footer Controls */}
+        {/* Modal Footer Controls (Desktop) */}
         <div className="psm-footer">
-          <span className="psm-footer-text">
+          <span className="psm-footer-text" style={{ fontSize: '12.5px', color: '#64748b' }}>
             {activeViolations.length} infraction{activeViolations.length > 1 ? 's' : ''} bundled into this official conference notice.
           </span>
 
@@ -1701,6 +1867,98 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
               <Download size={15} />
               <span>Download PDF</span>
             </button>
+          </div>
+        </div>
+
+        {/* Mobile Floating Zoom & Drag Pill Toolbar */}
+        <div className="psm-mobile-zoom-pill">
+          <button
+            type="button"
+            className="psm-mobile-zoom-btn"
+            onClick={handleZoomOut}
+            title="Zoom Out"
+          >
+            <ZoomOut size={14} />
+          </button>
+
+          <span
+            className="psm-mobile-zoom-indicator"
+            onClick={handleResetView}
+            title="Tap to Reset Zoom"
+          >
+            {Math.round(zoom * 100)}%
+          </span>
+
+          <button
+            type="button"
+            className="psm-mobile-zoom-btn"
+            onClick={handleZoomIn}
+            title="Zoom In"
+          >
+            <ZoomIn size={14} />
+          </button>
+
+          <button
+            type="button"
+            className="psm-mobile-zoom-btn"
+            onClick={handleResetView}
+            style={{ marginLeft: '2px' }}
+            title="Fit to Screen"
+          >
+            <RotateCcw size={13} />
+          </button>
+        </div>
+
+        {/* Mobile Floating Action Button (FAB) - Edit Parameters */}
+        <button
+          type="button"
+          className="psm-mobile-fab"
+          onClick={() => setIsMobileDrawerOpen(true)}
+          title="Edit Summons Details"
+        >
+          <Edit3 size={20} strokeWidth={2.4} />
+        </button>
+
+        {/* Mobile Edit Drawer Sheet */}
+        <div
+          className={`psm-mobile-drawer ${isMobileDrawerOpen ? 'open' : ''}`}
+          onClick={() => setIsMobileDrawerOpen(false)}
+        >
+          <div
+            className="psm-mobile-drawer-content"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="psm-drawer-header">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <SlidersHorizontal size={18} color="#0f172a" />
+                <h4 style={{ margin: 0, fontSize: '15px', fontWeight: 800, color: '#0f172a' }}>
+                  Edit Summons Details
+                </h4>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsMobileDrawerOpen(false)}
+                style={{
+                  background: '#0f172a',
+                  color: '#ffffff',
+                  border: 'none',
+                  borderRadius: '8px',
+                  padding: '6px 14px',
+                  fontSize: '12px',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px'
+                }}
+              >
+                <Check size={14} /> Done
+              </button>
+            </div>
+
+            <div className="psm-drawer-body">
+              {renderFormContent()}
+            </div>
           </div>
         </div>
 

@@ -146,14 +146,33 @@ export const StudentsPage = () => {
     return { total, jhsCount, shsCount, uniqueStrands: strandSet.size };
   }, [students]);
 
+  // Dynamic School Year Options
+  const schoolYearOptions = useMemo(() => {
+    const yearsSet = new Set(['2026-2027', '2025-2026', '2024-2025']);
+    (students || []).forEach(s => {
+      const y = (s.academicyear || s.academic_year || s.school_year || '').trim();
+      if (y) {
+        const cleaned = y.replace(/^s\.?y\.?\s*/i, '').trim();
+        if (cleaned) yearsSet.add(cleaned);
+      }
+    });
+    const sorted = Array.from(yearsSet).sort((a, b) => b.localeCompare(a));
+    return [
+      { value: 'all', label: 'All School Years' },
+      ...sorted.map(yr => ({ value: yr, label: `S.Y. ${yr}` }))
+    ];
+  }, [students]);
+
   // Filtered & Sorted Student List with deferred non-blocking search
   const filteredAndSortedStudents = useMemo(() => {
     const query = deferredSearch.toLowerCase().trim();
     const isAllLevel = levelFilter === 'all';
     const isAllGrade = gradeFilter === 'all';
     const isAllStrand = strandFilter === 'all';
+    const isAllYear = yearFilter === 'all';
     const targetGrade = gradeFilter.toLowerCase();
     const targetStrand = strandFilter.toLowerCase();
+    const targetYear = yearFilter.toLowerCase().replace(/[^0-9-]/g, '');
 
     // 1. Filter
     const result = students.filter(s => {
@@ -171,6 +190,11 @@ export const StudentsPage = () => {
       const sGrade = (s.grade || '').toLowerCase();
       const matchesGrade = isAllGrade || sGrade === targetGrade;
       if (!matchesGrade) return false;
+
+      const sYear = String(s.academicyear || s.academic_year || s.school_year || '2025-2026').trim();
+      const sYearClean = sYear.toLowerCase().replace(/[^0-9-]/g, '');
+      const matchesYear = isAllYear || sYearClean === targetYear || sYear.toLowerCase().includes(yearFilter.toLowerCase());
+      if (!matchesYear) return false;
 
       const studentStrand = getStudentStrand(s);
       const matchesStrand = isAllStrand || studentStrand.toLowerCase() === targetStrand;
@@ -226,7 +250,7 @@ export const StudentsPage = () => {
     });
 
     return result;
-  }, [students, deferredSearch, levelFilter, gradeFilter, strandFilter, sortField, sortOrder]);
+  }, [students, deferredSearch, levelFilter, gradeFilter, strandFilter, yearFilter, sortField, sortOrder]);
 
   // Selection
   const handleSelectAll = (e) => {
@@ -665,12 +689,7 @@ export const StudentsPage = () => {
                     setYearFilter(e.target.value);
                     setCurrentPage(1);
                   }}
-                  options={[
-                    { value: 'all', label: 'All School Years' },
-                    { value: '2026-2027', label: 'S.Y. 2026-2027' },
-                    { value: '2025-2026', label: 'S.Y. 2025-2026' },
-                    { value: '2024-2025', label: 'S.Y. 2024-2025' }
-                  ]}
+                  options={schoolYearOptions}
                 />
               </div>
 
@@ -737,9 +756,15 @@ export const StudentsPage = () => {
           </div>
 
           {/* Quick Active Filters Feedback */}
-          {(searchTerm || levelFilter !== 'all' || gradeFilter !== 'all' || strandFilter !== 'all') && (
+          {(searchTerm || levelFilter !== 'all' || gradeFilter !== 'all' || strandFilter !== 'all' || yearFilter !== 'all') && (
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
               <span style={{ fontSize: '12px', color: '#64748b' }}>Active Filters:</span>
+              {yearFilter !== 'all' && (
+                <span style={{ background: '#f0fdf4', color: '#15803d', fontSize: '11px', fontWeight: 600, padding: '2px 8px', borderRadius: '6px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                  S.Y.: {yearFilter}
+                  <X size={12} style={{ cursor: 'pointer' }} onClick={() => setYearFilter('all')} />
+                </span>
+              )}
               {levelFilter !== 'all' && (
                 <span style={{ background: '#f0f4f8', color: '#07345f', fontSize: '11px', fontWeight: 600, padding: '2px 8px', borderRadius: '6px', display: 'flex', alignItems: 'center', gap: '4px' }}>
                   Level: {levelFilter.toUpperCase()}
@@ -767,6 +792,7 @@ export const StudentsPage = () => {
               <button
                 onClick={() => {
                   setSearchTerm('');
+                  setYearFilter('all');
                   setLevelFilter('all');
                   setGradeFilter('all');
                   setStrandFilter('all');
@@ -1575,9 +1601,15 @@ export const StudentsPage = () => {
       {/* Add / Edit Student Modal */}
       <AddStudentModal
         isOpen={isAddModalOpen}
-        onClose={() => setIsAddModalOpen(false)}
+        onClose={() => {
+          setIsAddModalOpen(false);
+          setStudentToEdit(null);
+        }}
         studentToEdit={studentToEdit}
-        onSaved={loadStudents}
+        onSaved={() => {
+          loadStudents(true);
+          setStudentToEdit(null);
+        }}
       />
 
       {/* ID Badge Modal with QR code */}

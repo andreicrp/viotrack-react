@@ -22,7 +22,14 @@ import {
   FileText,
   Shield,
   Layers,
-  Building
+  Building,
+  ZoomIn,
+  ZoomOut,
+  RotateCcw,
+  Move,
+  ChevronLeft,
+  SlidersHorizontal,
+  Edit3
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
@@ -473,6 +480,7 @@ export const printCertificateDocument = (htmlContent) => {
 export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
   const { user } = useAuth();
   const { success, error } = useNotification();
+  const printRef = useRef(null);
   
   const [status, setStatus] = useState(record?.status || 'Resolved');
   const [sanction, setSanction] = useState(record?.sanction || '');
@@ -480,8 +488,22 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
   const [officerName, setOfficerName] = useState(user?.name || user?.email?.split('@')[0] || 'Sheryl B. Gamboa, LPT');
   const [officerTitle, setOfficerTitle] = useState('Prefect of Discipline');
   const [loading, setLoading] = useState(false);
-  const [mobileTab, setMobileTab] = useState('form'); // 'form' | 'preview'
-  const printRef = useRef(null);
+
+  // Mobile Drawer Toggle
+  const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
+
+  // Viewport and Paper Measurements for Perfect Mobile Scaling
+  const [viewportWidth, setViewportWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1000);
+  const [paperHeight, setPaperHeight] = useState(900);
+
+  // Canvas Pan & Zoom states
+  const [zoom, setZoom] = useState(1);
+  const [pan, setPan] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const dragStartRef = useRef({ x: 0, y: 0, initialPanX: 0, initialPanY: 0 });
+  const pinchDistanceRef = useRef(null);
+  const pinchStartZoomRef = useRef(1);
+  const lastTapTimeRef = useRef(0);
 
   // Sync state when record changes or modal opens
   useEffect(() => {
@@ -498,6 +520,31 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
     return () => unlockBodyScroll();
   }, [isOpen]);
 
+  useEffect(() => {
+    const handleResize = () => {
+      setViewportWidth(window.innerWidth);
+      if (printRef.current) {
+        setPaperHeight(printRef.current.offsetHeight || 900);
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  useEffect(() => {
+    if (isOpen) {
+      setZoom(1);
+      setPan({ x: 0, y: 0 });
+      setIsMobileDrawerOpen(false);
+      const timer = setTimeout(() => {
+        if (printRef.current) {
+          setPaperHeight(printRef.current.offsetHeight || 900);
+        }
+      }, 150);
+      return () => clearTimeout(timer);
+    }
+  }, [isOpen, record, status, sanction, resolutionNotes, officerName, officerTitle]);
+
   if (!record || !isOpen) return null;
 
   const studentFullName = `${record.student?.fname || ''} ${record.student?.mname ? record.student.mname + ' ' : ''}${record.student?.lname || ''}`.trim().toUpperCase() || 'STUDENT RECORD';
@@ -507,6 +554,112 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
     : currentDateFormatted;
   const controlNumber = `PHCM-OPD-CLR-2026-${String(record.id || 1).padStart(5, '0')}`;
   const securityHash = `SHA256:7D9A4C${String(record.id || 1).padStart(4, '0')}E83B10928`;
+
+  const isMobile = viewportWidth <= 768;
+  const baseScale = isMobile ? Math.min(1, Math.max(0.38, (viewportWidth - 24) / 680)) : 1;
+  const effectiveScale = Number((baseScale * zoom).toFixed(3));
+
+  const handleMouseDown = (e) => {
+    if (e.button !== 0 || e.target.closest('button, input, textarea, select, a')) return;
+    setIsDragging(true);
+    dragStartRef.current = {
+      x: e.clientX,
+      y: e.clientY,
+      initialPanX: pan.x,
+      initialPanY: pan.y
+    };
+  };
+
+  const handleMouseMove = (e) => {
+    if (!isDragging) return;
+    const deltaX = e.clientX - dragStartRef.current.x;
+    const deltaY = e.clientY - dragStartRef.current.y;
+    setPan({
+      x: dragStartRef.current.initialPanX + deltaX,
+      y: dragStartRef.current.initialPanY + deltaY
+    });
+  };
+
+  const handleMouseUp = () => {
+    if (isDragging) setIsDragging(false);
+  };
+
+  // Multi-Touch Pinch-to-Zoom & Drag Support for Mobile
+  const handleTouchStart = (e) => {
+    if (e.target.closest('button, input, textarea, select, a')) return;
+
+    if (e.touches.length === 2) {
+      const dist = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
+      pinchDistanceRef.current = dist;
+      pinchStartZoomRef.current = zoom;
+      setIsDragging(false);
+    } else if (e.touches.length === 1) {
+      // Double tap to toggle zoom
+      const now = Date.now();
+      if (now - lastTapTimeRef.current < 300) {
+        setZoom(prev => (prev > 1.05 ? 1 : 1.4));
+        setPan({ x: 0, y: 0 });
+        lastTapTimeRef.current = 0;
+        return;
+      }
+      lastTapTimeRef.current = now;
+
+      const touch = e.touches[0];
+      setIsDragging(true);
+      dragStartRef.current = {
+        x: touch.clientX,
+        y: touch.clientY,
+        initialPanX: pan.x,
+        initialPanY: pan.y
+      };
+    }
+  };
+
+  const handleTouchMove = (e) => {
+    if (e.touches.length === 2 && pinchDistanceRef.current) {
+      if (e.cancelable) e.preventDefault();
+      const currentDist = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
+      const ratio = currentDist / pinchDistanceRef.current;
+      const nextZoom = Math.min(2.5, Math.max(0.6, Number((pinchStartZoomRef.current * ratio).toFixed(2))));
+      setZoom(nextZoom);
+    } else if (isDragging && e.touches.length === 1) {
+      const touch = e.touches[0];
+      const deltaX = touch.clientX - dragStartRef.current.x;
+      const deltaY = touch.clientY - dragStartRef.current.y;
+      setPan({
+        x: dragStartRef.current.initialPanX + deltaX,
+        y: dragStartRef.current.initialPanY + deltaY
+      });
+    }
+  };
+
+  const handleTouchEnd = (e) => {
+    if (e.touches.length < 2) {
+      pinchDistanceRef.current = null;
+    }
+    if (e.touches.length === 0) {
+      setIsDragging(false);
+    }
+  };
+
+  const handleZoomIn = () => {
+    setZoom((prev) => Math.min(2.2, Number((prev + 0.15).toFixed(2))));
+  };
+
+  const handleZoomOut = () => {
+    setZoom((prev) => Math.max(0.6, Number((prev - 0.15).toFixed(2))));
+  };
+
+  const handleResetView = () => {
+    setZoom(1);
+    setPan({ x: 0, y: 0 });
+  };
 
   const handleSubmit = async (e) => {
     if (e) e.preventDefault();
@@ -713,6 +866,287 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
 
   const severityStyle = getSeverityStyle(record.violation?.type);
 
+  // Shared form content for both desktop sidebar and mobile slide-up drawer
+  const renderFormContent = () => (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+      {/* Student & Incident Bio Card */}
+      <div
+        style={{
+          background: '#ffffff',
+          border: '1.5px solid #e2e8f0',
+          borderRadius: '12px',
+          padding: '12px 14px',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.03)',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '8px'
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <img
+            src={avatarUrl}
+            alt={studentName}
+            style={{
+              width: '40px',
+              height: '40px',
+              borderRadius: '8px',
+              objectFit: 'cover',
+              border: '1.5px solid #cbd5e1',
+              flexShrink: 0
+            }}
+            onError={(e) => {
+              e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(studentName || 'Student')}&background=0f172a&color=fff&size=100&bold=true`;
+            }}
+          />
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontSize: '13.5px', fontWeight: 800, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              {studentName}
+            </div>
+            <div style={{ fontSize: '11px', color: '#64748b' }}>
+              Student ID: <span style={{ fontFamily: 'monospace', fontWeight: 700, color: '#0f172a' }}>{record.student?.student_id || record.student?.lrn || 'N/A'}</span>
+            </div>
+          </div>
+        </div>
+
+        <div
+          style={{
+            background: '#f8fafc',
+            border: '1px solid #e2e8f0',
+            borderRadius: '6px',
+            padding: '6px 10px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '6px'
+          }}
+        >
+          <span style={{ fontSize: '11.5px', fontWeight: 700, color: '#0f172a', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            {record.violation?.title || record.offense || 'Infraction'}
+          </span>
+          <span
+            style={{
+              fontSize: '9.5px',
+              fontWeight: 800,
+              textTransform: 'uppercase',
+              padding: '2px 6px',
+              borderRadius: '4px',
+              background: severityStyle.bg,
+              border: `1px solid ${severityStyle.border}`,
+              color: severityStyle.color,
+              flexShrink: 0
+            }}
+          >
+            {record.violation?.type || record.severity || 'Minor'}
+          </span>
+        </div>
+      </div>
+
+      {/* 1. Case Resolution Status */}
+      <div>
+        <label style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '11.5px', fontWeight: 800, color: '#0f172a', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '6px' }}>
+          <Shield size={12} color="#0f172a" /> Resolution Status
+        </label>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px' }}>
+          {Object.entries(STATUS_CONFIG).map(([key, cfg]) => {
+            const isSelected = status === key;
+            const IconComponent = cfg.icon;
+            return (
+              <button
+                key={key}
+                type="button"
+                onClick={() => setStatus(key)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  padding: '7px 9px',
+                  borderRadius: '8px',
+                  border: isSelected ? `2px solid ${cfg.color}` : '1.5px solid #e2e8f0',
+                  background: isSelected ? cfg.bg : '#ffffff',
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease',
+                  boxShadow: isSelected ? `0 2px 6px ${cfg.color}20` : 'none',
+                  textAlign: 'left'
+                }}
+              >
+                <IconComponent size={13} color={isSelected ? cfg.color : '#64748b'} />
+                <span style={{ fontSize: '11px', fontWeight: isSelected ? 800 : 600, color: isSelected ? cfg.color : '#334155' }}>
+                  {key === 'Resolved' ? 'Resolved' : key === 'Investigation' ? 'Investigating' : key}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* 2. Sanction / Remediation Completed */}
+      <div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '11.5px', fontWeight: 800, color: '#0f172a', textTransform: 'uppercase', letterSpacing: '0.04em', margin: 0 }}>
+            <Award size={12} color="#0f172a" /> Fulfilled Sanction
+          </label>
+          <span style={{ fontSize: '10px', color: '#64748b' }}>Click presets</span>
+        </div>
+        <input
+          type="text"
+          value={sanction}
+          onChange={(e) => setSanction(e.target.value)}
+          placeholder="e.g. Verbal warning, 1-hour campus reflection"
+          style={{
+            width: '100%',
+            height: '36px',
+            borderRadius: '7px',
+            fontSize: '12px',
+            border: '1.5px solid #cbd5e1',
+            padding: '0 10px',
+            marginBottom: '6px',
+            boxSizing: 'border-box',
+            background: '#ffffff'
+          }}
+        />
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+          {SANCTION_PRESETS.map((p, idx) => (
+            <button
+              key={idx}
+              type="button"
+              onClick={() => handleApplyPreset(p)}
+              style={{
+                background: sanction === p ? '#0f172a' : '#ffffff',
+                color: sanction === p ? '#ffffff' : '#475569',
+                border: '1px solid',
+                borderColor: sanction === p ? '#0f172a' : '#cbd5e1',
+                borderRadius: '5px',
+                padding: '3px 7px',
+                fontSize: '10px',
+                fontWeight: 600,
+                cursor: 'pointer',
+                transition: 'all 0.12s ease'
+              }}
+            >
+              + {p}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* 3. Resolution Notes / Outcomes */}
+      <div>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '11.5px', fontWeight: 800, color: '#0f172a', textTransform: 'uppercase', letterSpacing: '0.04em', margin: 0 }}>
+            <FileText size={12} color="#0f172a" /> Resolution Summary
+          </label>
+          <span style={{ fontSize: '10px', color: '#64748b' }}>Official Record</span>
+        </div>
+        <textarea
+          rows={3}
+          value={resolutionNotes}
+          onChange={(e) => setResolutionNotes(e.target.value)}
+          placeholder="Document student reflection, counseling outcomes, or guardian agreements..."
+          style={{
+            width: '100%',
+            borderRadius: '7px',
+            fontSize: '12px',
+            padding: '8px 10px',
+            border: '1.5px solid #cbd5e1',
+            boxSizing: 'border-box',
+            lineHeight: 1.4,
+            marginBottom: '6px',
+            resize: 'vertical',
+            minHeight: '55px',
+            maxHeight: '95px',
+            background: '#ffffff'
+          }}
+        />
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+          {NOTE_SNIPPETS.map((snip, idx) => (
+            <button
+              key={idx}
+              type="button"
+              onClick={() => handleAppendSnippet(snip)}
+              style={{
+                background: '#ffffff',
+                color: '#475569',
+                border: '1px dashed #cbd5e1',
+                borderRadius: '5px',
+                padding: '3px 6px',
+                fontSize: '10px',
+                fontWeight: 500,
+                cursor: 'pointer',
+                transition: 'all 0.12s ease',
+                textAlign: 'left'
+              }}
+            >
+              + {snip.length > 32 ? snip.substring(0, 32) + '...' : snip}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* 4. Presiding Officer Signatory */}
+      <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '10px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+        <span style={{ fontSize: '11px', fontWeight: 700, color: '#0f172a' }}>
+          Presiding Officer Signatory
+        </span>
+        <input
+          type="text"
+          value={officerName}
+          placeholder="Officer Name (e.g. Sheryl B. Gamboa, LPT)"
+          onChange={(e) => setOfficerName(e.target.value)}
+          style={{
+            width: '100%',
+            padding: '6px 9px',
+            borderRadius: '6px',
+            border: '1px solid #cbd5e1',
+            fontSize: '12px',
+            fontWeight: 600,
+            boxSizing: 'border-box'
+          }}
+        />
+        <input
+          type="text"
+          value={officerTitle}
+          placeholder="Designation (e.g. Prefect of Discipline)"
+          onChange={(e) => setOfficerTitle(e.target.value)}
+          style={{
+            width: '100%',
+            padding: '5px 9px',
+            borderRadius: '6px',
+            border: '1px solid #cbd5e1',
+            fontSize: '11.5px',
+            boxSizing: 'border-box'
+          }}
+        />
+      </div>
+
+      {/* Save Button (prominent in mobile drawer) */}
+      <button
+        type="button"
+        className="res-drawer-save-btn"
+        onClick={handleSubmit}
+        disabled={loading}
+        style={{
+          marginTop: '4px',
+          padding: '10px 16px',
+          borderRadius: '8px',
+          fontSize: '13px',
+          fontWeight: 800,
+          border: 'none',
+          background: status === 'Resolved' ? '#10b981' : '#0f172a',
+          color: '#ffffff',
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '6px',
+          boxShadow: status === 'Resolved' ? '0 4px 12px rgba(16, 185, 129, 0.3)' : '0 4px 12px rgba(15, 23, 42, 0.25)'
+        }}
+      >
+        <Check size={15} strokeWidth={2.5} />
+        {loading ? 'Saving...' : 'Save & Finalize Resolution'}
+      </button>
+    </div>
+  );
+
   return (
     <div
       className="modal-backdrop-smooth"
@@ -720,7 +1154,7 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
         position: 'fixed',
         inset: 0,
         zIndex: 9999,
-        background: 'rgba(15, 23, 42, 0.75)',
+        background: 'rgba(15, 23, 42, 0.65)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -728,6 +1162,7 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
         transform: 'translateZ(0)',
         contain: 'strict'
       }}
+      onClick={onClose}
     >
       <style>{`
         .res-body {
@@ -735,6 +1170,7 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
           flex: 1;
           min-height: 0;
           overflow: hidden;
+          background: #ffffff;
         }
         .res-left {
           width: 380px;
@@ -750,19 +1186,19 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
         .res-right {
           flex: 1;
           padding: 24px 20px;
-          background: #e2e8f0;
+          background: #eef2f6;
           overflow-y: auto;
-          display: block;
-        }
-        .res-mobile-tabs {
-          display: none;
+          overflow-x: hidden;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          position: relative;
         }
         .res-preview-paper {
           width: 100%;
           max-width: 680px;
-          margin: 0 auto;
           background: #ffffff;
-          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+          box-shadow: 0 10px 30px rgba(0, 0, 0, 0.10);
           border-radius: 12px;
           padding: 32px 36px;
           font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Inter', sans-serif;
@@ -771,6 +1207,7 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
           box-sizing: border-box;
           transform: translate3d(0, 0, 0);
           contain: layout paint;
+          user-select: none;
         }
         .res-letterhead {
           display: flex;
@@ -789,10 +1226,56 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
           object-fit: contain;
           flex-shrink: 0;
         }
+        .res-canvas-toolbar {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          width: 100%;
+          max-width: 680px;
+          margin-bottom: 12px;
+          padding: 6px 12px;
+          background: #ffffff;
+          border: 1px solid #e2e8f0;
+          border-radius: 10px;
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+        .res-canvas-tools-group {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+        }
+        .res-canvas-btn {
+          background: #f8fafc;
+          border: 1px solid #cbd5e1;
+          color: #334155;
+          padding: 4px 8px;
+          border-radius: 6px;
+          font-size: 11px;
+          font-weight: 700;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          transition: all 0.15s ease;
+        }
+        .res-canvas-btn:hover {
+          background: #e2e8f0;
+          color: #0f172a;
+        }
+        .res-canvas-badge {
+          background: #f1f5f9;
+          color: #0f172a;
+          border: 1px solid #cbd5e1;
+          padding: 3px 8px;
+          border-radius: 6px;
+          font-size: 11px;
+          font-weight: 800;
+          font-family: monospace;
+        }
         .res-footer {
           background: #ffffff;
           border-top: 1px solid #e2e8f0;
-          padding: 14px 24px;
+          padding: 12px 24px;
           display: flex;
           align-items: center;
           justify-content: space-between;
@@ -824,95 +1307,193 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
           background: #f1f5f9;
         }
 
+        /* Mobile Viewer Floating Action Controls */
+        .res-mobile-zoom-pill {
+          display: none;
+        }
+        .res-mobile-fab {
+          display: none;
+        }
+        .res-mobile-drawer {
+          display: none;
+        }
+
+        /* Clean Light Mode Mobile Document Viewer (<= 768px) */
         @media (max-width: 768px) {
           .modal-backdrop-smooth {
-            padding: 8px !important;
+            padding: 0 !important;
+            background: #f1f5f9 !important;
           }
           .res-dialog {
-            height: 98vh !important;
-            max-height: 98vh !important;
-            border-radius: 14px !important;
-            margin: 0 !important;
+            width: 100vw !important;
+            height: 100dvh !important;
+            max-height: 100dvh !important;
+            border-radius: 0 !important;
+            border: none !important;
+            background: #f1f5f9 !important;
+          }
+
+          /* Clean Light Mode Header Bar */
+          .res-header-desktop {
+            background: #ffffff !important;
+            color: #0f172a !important;
+            border-bottom: 1px solid #e2e8f0 !important;
+            padding: 10px 14px !important;
+            min-height: 52px !important;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+          }
+          .res-header-title {
+            color: #0f172a !important;
+            font-size: 13.5px !important;
+            font-weight: 800 !important;
+            letter-spacing: -0.01em !important;
+            font-family: inherit !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
           }
           .res-header-sub {
             display: none !important;
           }
-          .res-mobile-tabs {
-            display: flex;
-            padding: 6px 10px;
-            background: #f1f5f9;
-            border-bottom: 1px solid #e2e8f0;
-            gap: 6px;
+
+          /* Left column is hidden on mobile and moved to slide-up drawer */
+          .res-left {
+            display: none !important;
           }
-          .res-mobile-tab-btn {
-            flex: 1;
-            padding: 8px 10px;
+
+          /* Right column becomes light mode document canvas */
+          .res-right {
+            padding: 14px 10px 90px !important;
+            background: #eef2f6 !important;
+            width: 100% !important;
+            min-height: 0 !important;
+            flex: 1 !important;
+            display: flex !important;
+            align-items: flex-start !important;
+            touch-action: pan-x pan-y pinch-zoom !important;
+          }
+
+          .res-canvas-toolbar {
+            display: none !important;
+          }
+
+          .res-footer {
+            display: none !important;
+          }
+
+          /* Floating Mobile Touch Zoom Controls */
+          .res-mobile-zoom-pill {
+            display: flex;
+            position: fixed;
+            bottom: 22px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.95);
+            color: #0f172a;
+            border: 1.5px solid #cbd5e1;
+            padding: 5px 8px;
+            border-radius: 9999px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+            align-items: center;
+            gap: 6px;
             font-size: 12px;
             font-weight: 700;
-            border-radius: 8px;
-            border: 1px solid transparent;
-            background: transparent;
-            color: #64748b;
+            backdrop-filter: blur(12px);
+          }
+          .res-mobile-zoom-btn {
+            background: #f1f5f9;
+            border: 1px solid #cbd5e1;
+            color: #334155;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.15s ease;
+          }
+          .res-mobile-zoom-btn:active {
+            background: #e2e8f0;
+            transform: scale(0.92);
+          }
+          .res-mobile-zoom-indicator {
+            font-size: 11.5px;
+            font-weight: 800;
+            color: #0f172a;
+            font-family: monospace;
+            padding: 0 4px;
             cursor: pointer;
           }
-          .res-mobile-tab-btn.active {
-            background: #ffffff;
-            color: #0f172a;
-            border-color: #cbd5e1;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+
+          .res-mobile-fab {
+            display: flex;
+            position: fixed;
+            bottom: 20px;
+            right: 16px;
+            z-index: 1001;
+            width: 50px;
+            height: 50px;
+            border-radius: 16px;
+            background: #c28b38;
+            color: #ffffff;
+            border: none;
+            box-shadow: 0 8px 24px rgba(194, 139, 56, 0.45);
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.15s ease;
           }
-          .res-body {
+          .res-mobile-fab:active {
+            transform: scale(0.92);
+          }
+
+          /* Mobile Slide-Up Edit Drawer */
+          .res-mobile-drawer {
+            display: flex;
             flex-direction: column;
+            position: fixed;
+            inset: 0;
+            z-index: 1050;
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(4px);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s ease;
           }
-          .res-left {
-            width: 100% !important;
-            border-right: none !important;
-            padding: 12px !important;
-            gap: 12px !important;
+          .res-mobile-drawer.open {
+            opacity: 1;
+            pointer-events: auto;
           }
-          .res-right {
-            width: 100% !important;
-            padding: 10px 8px !important;
+          .res-mobile-drawer-content {
+            margin-top: auto;
+            max-height: 86vh;
+            background: #ffffff;
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transform: translateY(100%);
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 -10px 40px rgba(0,0,0,0.25);
           }
-          .res-left.hidden,
-          .res-right.hidden {
-            display: none !important;
+          .res-mobile-drawer.open .res-mobile-drawer-content {
+            transform: translateY(0);
           }
-          .res-preview-paper {
-            padding: 18px 14px !important;
-            border-radius: 10px !important;
-            box-shadow: 0 1px 6px rgba(0,0,0,0.05) !important;
+          .res-drawer-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #f8fafc;
           }
-          .res-letterhead {
-            display: flex !important;
-            flex-direction: row !important;
-            align-items: center !important;
-            justify-content: space-between !important;
-            gap: 6px !important;
-            margin-bottom: 6px !important;
-          }
-          .res-univ-logo {
-            width: 34px !important;
-            height: 34px !important;
-            flex-shrink: 0 !important;
-            margin: 0 !important;
-          }
-          .res-footer {
-            padding: 10px 12px !important;
-            flex-direction: column !important;
-            gap: 8px !important;
-          }
-          .res-footer-text {
-            display: none !important;
-          }
-          .res-footer-actions {
-            width: 100% !important;
-            display: grid !important;
-            grid-template-columns: 1fr 1fr !important;
-            gap: 8px !important;
-          }
-          .res-btn-submit {
-            grid-column: span 2 !important;
+          .res-drawer-body {
+            padding: 18px 20px;
+            overflow-y: auto;
+            flex: 1;
           }
         }
       `}</style>
@@ -933,573 +1514,384 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
           transform: 'translate3d(0, 0, 0)',
           contain: 'layout paint'
         }}
+        onClick={(e) => e.stopPropagation()}
       >
-        {/* Modal Header */}
+        {/* Header Bar: Only Print & Close on the right */}
         <div
+          className="res-header-desktop"
           style={{
             background: '#ffffff',
             color: '#0f172a',
-            padding: '16px 24px',
+            padding: '12px 20px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
             borderBottom: '1px solid #e2e8f0',
-            flexShrink: 0
+            flexShrink: 0,
+            gap: '12px'
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <ShieldCheck size={22} color="#0f172a" style={{ flexShrink: 0 }} />
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 800, color: '#0f172a' }}>
-                  Case Resolution &amp; Certificate
+          {/* Left: Back Arrow + Document Title Badge */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0, flex: 1 }}>
+            <button
+              type="button"
+              onClick={onClose}
+              style={{
+                background: '#f8fafc',
+                border: '1px solid #cbd5e1',
+                color: '#334155',
+                cursor: 'pointer',
+                width: '34px',
+                height: '34px',
+                borderRadius: '8px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+                transition: 'all 0.15s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = '#e2e8f0';
+                e.currentTarget.style.color = '#0f172a';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = '#f8fafc';
+                e.currentTarget.style.color = '#334155';
+              }}
+              title="Close viewer"
+            >
+              <ChevronLeft size={19} strokeWidth={2.4} />
+            </button>
+
+            <div style={{ minWidth: 0, flex: 1 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                <FileCheck2 size={15} color="#07345f" style={{ flexShrink: 0 }} />
+                <h3 className="res-header-title" style={{ margin: 0, fontSize: '14.5px', fontWeight: 800, color: '#0f172a' }}>
+                  {studentName || 'Student'} — Case Resolution &amp; Clearance Doc Proof
                 </h3>
-                <span
-                  style={{
-                    background: '#f8fafc',
-                    color: '#475569',
-                    fontSize: '11px',
-                    fontWeight: 700,
-                    padding: '2px 8px',
-                    borderRadius: '6px',
-                    border: '1px solid #cbd5e1'
-                  }}
-                >
-                  Incident #{record.id}
-                </span>
               </div>
-              <span className="res-header-sub" style={{ fontSize: '12px', color: '#64748b', display: 'block', marginTop: '2px' }}>
-                {studentFullName} — {record.student?.grade || 'Grade 10'} - {record.student?.section || 'General'}
+              <span className="res-header-sub" style={{ fontSize: '11.5px', color: '#64748b', display: 'block', marginTop: '1px' }}>
+                Incident #{record.id} • Official Institutional Certificate of Disciplinary Resolution
               </span>
             </div>
           </div>
 
-          <button
-            type="button"
-            onClick={onClose}
-            style={{
-              background: '#f8fafc',
-              border: '1px solid #e2e8f0',
-              color: '#64748b',
-              cursor: 'pointer',
-              width: '32px',
-              height: '32px',
-              borderRadius: '8px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              transition: 'all 0.15s ease'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.background = '#e2e8f0';
-              e.currentTarget.style.color = '#0f172a';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.background = '#f8fafc';
-              e.currentTarget.style.color = '#64748b';
-            }}
-          >
-            <X size={16} />
-          </button>
-        </div>
+          {/* Right: Only Print Button + Close Button */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
+            <button
+              type="button"
+              onClick={handlePrintResolutionCertificate}
+              style={{
+                background: '#0f172a',
+                border: '1px solid #0f172a',
+                color: '#ffffff',
+                cursor: 'pointer',
+                padding: '0 14px',
+                height: '34px',
+                borderRadius: '8px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                fontSize: '12.5px',
+                fontWeight: 700,
+                boxShadow: '0 1px 3px rgba(15, 23, 42, 0.15)',
+                transition: 'all 0.15s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = '#1e293b';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = '#0f172a';
+              }}
+              title="Print Resolution Document"
+            >
+              <Printer size={15} />
+              <span>Print</span>
+            </button>
 
-        {/* Mobile Tab Switcher */}
-        <div className="res-mobile-tabs">
-          <button
-            type="button"
-            className={`res-mobile-tab-btn ${mobileTab === 'form' ? 'active' : ''}`}
-            onClick={() => setMobileTab('form')}
-          >
-            ✏️ Edit Resolution Form
-          </button>
-          <button
-            type="button"
-            className={`res-mobile-tab-btn ${mobileTab === 'preview' ? 'active' : ''}`}
-            onClick={() => setMobileTab('preview')}
-          >
-            📄 Doc Proof Preview
-          </button>
+            <button
+              type="button"
+              onClick={onClose}
+              style={{
+                background: '#f8fafc',
+                border: '1px solid #cbd5e1',
+                color: '#64748b',
+                cursor: 'pointer',
+                width: '34px',
+                height: '34px',
+                borderRadius: '8px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                transition: 'all 0.15s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = '#fee2e2';
+                e.currentTarget.style.borderColor = '#fca5a5';
+                e.currentTarget.style.color = '#dc2626';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = '#f8fafc';
+                e.currentTarget.style.borderColor = '#cbd5e1';
+                e.currentTarget.style.color = '#64748b';
+              }}
+              title="Close"
+            >
+              <X size={16} />
+            </button>
+          </div>
         </div>
 
         {/* Modal Body: 2-Column Split */}
         <div className="res-body">
           
-          {/* Left Column: Form Parameters */}
-          <div className={`res-left smooth-scroll-container${mobileTab === 'preview' ? ' hidden' : ''}`}>
-            {/* Student & Incident Bio Card */}
-            <div
-              style={{
-                background: '#ffffff',
-                border: '1.5px solid #e2e8f0',
-                borderRadius: '12px',
-                padding: '12px 14px',
-                boxShadow: '0 1px 3px rgba(0,0,0,0.03)',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '8px'
-              }}
-            >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                <img
-                  src={avatarUrl}
-                  alt={studentName}
-                  style={{
-                    width: '40px',
-                    height: '40px',
-                    borderRadius: '8px',
-                    objectFit: 'cover',
-                    border: '1.5px solid #cbd5e1',
-                    flexShrink: 0
-                  }}
-                  onError={(e) => {
-                    e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(studentName || 'Student')}&background=0f172a&color=fff&size=100&bold=true`;
-                  }}
-                />
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: '13.5px', fontWeight: 800, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                    {studentName}
-                  </div>
-                  <div style={{ fontSize: '11px', color: '#64748b' }}>
-                    Student ID: <span style={{ fontFamily: 'monospace', fontWeight: 700, color: '#0f172a' }}>{record.student?.student_id || record.student?.lrn || 'N/A'}</span>
-                  </div>
-                </div>
-              </div>
-
-              <div
-                style={{
-                  background: '#f8fafc',
-                  border: '1px solid #e2e8f0',
-                  borderRadius: '6px',
-                  padding: '6px 10px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  gap: '6px'
-                }}
-              >
-                <span style={{ fontSize: '11.5px', fontWeight: 700, color: '#0f172a', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                  {record.violation?.title || record.offense || 'Infraction'}
-                </span>
-                <span
-                  style={{
-                    fontSize: '9.5px',
-                    fontWeight: 800,
-                    textTransform: 'uppercase',
-                    padding: '2px 6px',
-                    borderRadius: '4px',
-                    background: severityStyle.bg,
-                    border: `1px solid ${severityStyle.border}`,
-                    color: severityStyle.color,
-                    flexShrink: 0
-                  }}
-                >
-                  {record.violation?.type || record.severity || 'Minor'}
-                </span>
-              </div>
-            </div>
-
-            {/* 1. Case Resolution Status */}
-            <div>
-              <label style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '11.5px', fontWeight: 800, color: '#0f172a', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '6px' }}>
-                <Shield size={12} color="#0f172a" /> Resolution Status
-              </label>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px' }}>
-                {Object.entries(STATUS_CONFIG).map(([key, cfg]) => {
-                  const isSelected = status === key;
-                  const IconComponent = cfg.icon;
-                  return (
-                    <button
-                      key={key}
-                      type="button"
-                      onClick={() => setStatus(key)}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '6px',
-                        padding: '7px 9px',
-                        borderRadius: '8px',
-                        border: isSelected ? `2px solid ${cfg.color}` : '1.5px solid #e2e8f0',
-                        background: isSelected ? cfg.bg : '#ffffff',
-                        cursor: 'pointer',
-                        transition: 'all 0.15s ease',
-                        boxShadow: isSelected ? `0 2px 6px ${cfg.color}20` : 'none',
-                        textAlign: 'left'
-                      }}
-                    >
-                      <IconComponent size={13} color={isSelected ? cfg.color : '#64748b'} />
-                      <span style={{ fontSize: '11px', fontWeight: isSelected ? 800 : 600, color: isSelected ? cfg.color : '#334155' }}>
-                        {key === 'Resolved' ? 'Resolved' : key === 'Investigation' ? 'Investigating' : key}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* 2. Sanction / Remediation Completed */}
-            <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '11.5px', fontWeight: 800, color: '#0f172a', textTransform: 'uppercase', letterSpacing: '0.04em', margin: 0 }}>
-                  <Award size={12} color="#0f172a" /> Fulfilled Sanction
-                </label>
-                <span style={{ fontSize: '10px', color: '#64748b' }}>Click presets</span>
-              </div>
-              <input
-                type="text"
-                value={sanction}
-                onChange={(e) => setSanction(e.target.value)}
-                placeholder="e.g. Verbal warning, 1-hour campus reflection"
-                style={{
-                  width: '100%',
-                  height: '36px',
-                  borderRadius: '7px',
-                  fontSize: '12px',
-                  border: '1.5px solid #cbd5e1',
-                  padding: '0 10px',
-                  marginBottom: '6px',
-                  boxSizing: 'border-box',
-                  background: '#ffffff'
-                }}
-              />
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
-                {SANCTION_PRESETS.map((p, idx) => (
-                  <button
-                    key={idx}
-                    type="button"
-                    onClick={() => handleApplyPreset(p)}
-                    style={{
-                      background: sanction === p ? '#0f172a' : '#ffffff',
-                      color: sanction === p ? '#ffffff' : '#475569',
-                      border: '1px solid',
-                      borderColor: sanction === p ? '#0f172a' : '#cbd5e1',
-                      borderRadius: '5px',
-                      padding: '3px 7px',
-                      fontSize: '10px',
-                      fontWeight: 600,
-                      cursor: 'pointer',
-                      transition: 'all 0.12s ease'
-                    }}
-                  >
-                    + {p}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* 3. Resolution Notes / Outcomes */}
-            <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-                <label style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '11.5px', fontWeight: 800, color: '#0f172a', textTransform: 'uppercase', letterSpacing: '0.04em', margin: 0 }}>
-                  <FileText size={12} color="#0f172a" /> Resolution Summary
-                </label>
-                <span style={{ fontSize: '10px', color: '#64748b' }}>Official Record</span>
-              </div>
-              <textarea
-                rows={3}
-                value={resolutionNotes}
-                onChange={(e) => setResolutionNotes(e.target.value)}
-                placeholder="Document student reflection, counseling outcomes, or guardian agreements..."
-                style={{
-                  width: '100%',
-                  borderRadius: '7px',
-                  fontSize: '12px',
-                  padding: '8px 10px',
-                  border: '1.5px solid #cbd5e1',
-                  boxSizing: 'border-box',
-                  lineHeight: 1.4,
-                  marginBottom: '6px',
-                  resize: 'vertical',
-                  minHeight: '55px',
-                  maxHeight: '95px',
-                  background: '#ffffff'
-                }}
-              />
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
-                {NOTE_SNIPPETS.map((snip, idx) => (
-                  <button
-                    key={idx}
-                    type="button"
-                    onClick={() => handleAppendSnippet(snip)}
-                    style={{
-                      background: '#ffffff',
-                      color: '#475569',
-                      border: '1px dashed #cbd5e1',
-                      borderRadius: '5px',
-                      padding: '3px 6px',
-                      fontSize: '10px',
-                      fontWeight: 500,
-                      cursor: 'pointer',
-                      transition: 'all 0.12s ease',
-                      textAlign: 'left'
-                    }}
-                  >
-                    + {snip.length > 32 ? snip.substring(0, 32) + '...' : snip}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* 4. Presiding Officer Signatory */}
-            <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '10px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
-              <span style={{ fontSize: '11px', fontWeight: 700, color: '#0f172a' }}>
-                Presiding Officer Signatory
-              </span>
-              <input
-                type="text"
-                value={officerName}
-                placeholder="Officer Name (e.g. Sheryl B. Gamboa, LPT)"
-                onChange={(e) => setOfficerName(e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '6px 9px',
-                  borderRadius: '6px',
-                  border: '1px solid #cbd5e1',
-                  fontSize: '12px',
-                  fontWeight: 600,
-                  boxSizing: 'border-box'
-                }}
-              />
-              <input
-                type="text"
-                value={officerTitle}
-                placeholder="Designation (e.g. Prefect of Discipline)"
-                onChange={(e) => setOfficerTitle(e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '5px 9px',
-                  borderRadius: '6px',
-                  border: '1px solid #cbd5e1',
-                  fontSize: '11.5px',
-                  boxSizing: 'border-box'
-                }}
-              />
-            </div>
+          {/* Left Column: Form Parameters (Desktop) */}
+          <div className="res-left smooth-scroll-container">
+            {renderFormContent()}
           </div>
 
           {/* Right Column: Live Document Proof / Certificate Preview */}
           <div
-            className={`res-right smooth-scroll-container${mobileTab === 'form' ? ' hidden' : ''}`}
+            className="res-right smooth-scroll-container"
+            onMouseDown={handleMouseDown}
+            onTouchStart={handleTouchStart}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp}
+            onMouseLeave={handleMouseUp}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+            style={{
+              cursor: isDragging ? 'grabbing' : 'default',
+              userSelect: 'none',
+              WebkitUserSelect: 'none'
+            }}
           >
-            {/* Top Toolbar Actions */}
-            <div style={{ maxWidth: '680px', margin: '0 auto 14px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <FileCheck2 size={15} color="#07345f" />
-                <span style={{ fontSize: '11px', fontWeight: 800, color: '#07345f', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                  Live Document Proof Preview
+            {/* Desktop Canvas Toolbar */}
+            <div className="res-canvas-toolbar">
+              <div className="res-canvas-tools-group">
+                <Move size={13} color="#64748b" />
+                <span style={{ fontSize: '11px', fontWeight: 700, color: '#334155' }}>
+                  {isDragging ? 'Dragging layout...' : 'Official Certificate Document'}
                 </span>
               </div>
-
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <div className="res-canvas-tools-group">
                 <button
                   type="button"
-                  onClick={handleDownloadPDF}
-                  style={{
-                    background: '#07345f',
-                    color: '#ffffff',
-                    border: 'none',
-                    borderRadius: '8px',
-                    padding: '6px 12px',
-                    fontSize: '11.5px',
-                    fontWeight: 700,
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '5px',
-                    cursor: 'pointer',
-                    boxShadow: '0 2px 6px rgba(7, 52, 95, 0.25)',
-                    transition: 'all 0.15s ease'
-                  }}
-                  onMouseEnter={(e) => e.currentTarget.style.background = '#0a4a87'}
-                  onMouseLeave={(e) => e.currentTarget.style.background = '#07345f'}
+                  className="res-canvas-btn"
+                  onClick={handleZoomOut}
+                  title="Zoom Out"
                 >
-                  <Download size={13} strokeWidth={2.5} /> Download PDF
+                  <ZoomOut size={13} />
                 </button>
-
+                <span className="res-canvas-badge">{Math.round(zoom * 100)}%</span>
                 <button
                   type="button"
-                  onClick={handlePrintResolutionCertificate}
-                  style={{
-                    background: '#ffffff',
-                    color: '#07345f',
-                    border: '1.5px solid #07345f',
-                    borderRadius: '8px',
-                    padding: '6px 12px',
-                    fontSize: '11.5px',
-                    fontWeight: 700,
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '5px',
-                    cursor: 'pointer',
-                    transition: 'all 0.15s ease'
-                  }}
-                  onMouseEnter={(e) => e.currentTarget.style.background = '#f1f5f9'}
-                  onMouseLeave={(e) => e.currentTarget.style.background = '#ffffff'}
+                  className="res-canvas-btn"
+                  onClick={handleZoomIn}
+                  title="Zoom In"
                 >
-                  <Printer size={13} strokeWidth={2.2} /> Print Document
+                  <ZoomIn size={13} />
+                </button>
+                <button
+                  type="button"
+                  className="res-canvas-btn"
+                  onClick={handleResetView}
+                  title="Reset Position & Zoom"
+                >
+                  <RotateCcw size={12} />
+                  <span>Reset</span>
                 </button>
               </div>
             </div>
 
-            {/* Live Paper Document Preview Sheet */}
+            {/* Proportional Scaling Container */}
             <div
-              ref={printRef}
-              className="res-preview-paper"
+              style={{
+                width: '100%',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'flex-start'
+              }}
             >
-              {/* Official Letterhead */}
-              <div style={{ textAlign: 'center', borderBottom: '2px solid #07345f', paddingBottom: '14px', marginBottom: '14px' }}>
-                <div className="res-letterhead">
-                  <img
-                    src="/images/phcm-logo.png"
-                    alt="PHCM Logo Left"
-                    className="res-univ-logo"
-                    onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                  />
-                  <div className="res-univ-text">
-                    <div style={{ fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.8px', color: '#334155', fontFamily: 'inherit' }}>
-                      Republic of the Philippines
-                    </div>
-                    <h2 style={{ margin: '2px 0', fontSize: '15.5px', fontWeight: 800, color: '#07345f', letterSpacing: '0.01em', fontFamily: 'inherit' }}>
-                      UNIVERSITY OF PERPETUAL HELP SYSTEM MANILA
-                    </h2>
-                    <span style={{ fontSize: '10.5px', color: '#475569', display: 'block', fontFamily: 'inherit' }}>
-                      1240 V. Concepcion St., Sampaloc, Manila | Office of the Prefect of Discipline
-                    </span>
-                    <span style={{ fontSize: '9px', color: '#64748b', fontWeight: 700, letterSpacing: '0.5px', display: 'block', textTransform: 'uppercase', fontFamily: 'inherit' }}>
-                      VIOTRACK DISCIPLINARY &amp; STUDENT WELFARE MANAGEMENT SYSTEM
-                    </span>
-                  </div>
-                  <img
-                    src="/images/phcm-seal.png"
-                    alt="PHCM University Seal"
-                    className="res-univ-logo"
-                    onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                  />
-                </div>
-              </div>
-
-              {/* Reference & Metadata */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '11px', color: '#64748b', marginBottom: '12px', fontFamily: 'inherit', borderBottom: '1px dotted #cbd5e1', paddingBottom: '4px', flexWrap: 'wrap', gap: '4px' }}>
-                <span>Control No: <strong style={{ color: '#0f172a', fontFamily: 'monospace' }}>{controlNumber}</strong></span>
-                <span>Date Issued: <strong style={{ color: '#0f172a' }}>{currentDateFormatted}</strong></span>
-                <span>Status: <strong style={{ color: status === 'Resolved' ? '#15803d' : '#07345f', textTransform: 'uppercase' }}>{status}</strong></span>
-              </div>
-
-              {/* Document Certificate Title */}
-              <div style={{ textAlign: 'center', margin: '12px 0 14px' }}>
-                <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 800, color: '#07345f', textTransform: 'uppercase', letterSpacing: '0.5px', textDecoration: 'underline', fontFamily: 'inherit' }}>
-                  CERTIFICATE OF DISCIPLINARY RESOLUTION &amp; CLEARANCE
-                </h3>
-                <span style={{ fontSize: '10px', color: '#64748b', fontStyle: 'italic', display: 'block', marginTop: '2px' }}>
-                  Official Institutional Notice of Restorative Counseling &amp; Infraction Remediation
-                </span>
-              </div>
-
-              {/* Student & Case Information Table */}
-              <div style={{ width: '100%', overflowX: 'auto' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', margin: '10px 0 14px', fontSize: '11.5px', border: '1px solid #cbd5e1' }}>
-                  <tbody>
-                    <tr style={{ background: '#f8fafc' }}>
-                      <td style={{ padding: '6px 10px', border: '1px solid #cbd5e1', width: '32%', fontWeight: 700, color: '#07345f' }}>Student Full Name:</td>
-                      <td style={{ padding: '6px 10px', border: '1px solid #cbd5e1', fontWeight: 800, color: '#0f172a' }}>{studentFullName}</td>
-                    </tr>
-                    <tr>
-                      <td style={{ padding: '6px 10px', border: '1px solid #cbd5e1', fontWeight: 700, color: '#07345f' }}>Student ID / Level:</td>
-                      <td style={{ padding: '6px 10px', border: '1px solid #cbd5e1', color: '#0f172a' }}>{record.student?.student_id || record.student?.lrn || 'N/A'} &nbsp;|&nbsp; Grade {record.student?.grade || '10'} - {record.student?.section || 'General'}</td>
-                    </tr>
-                    <tr style={{ background: '#f8fafc' }}>
-                      <td style={{ padding: '6px 10px', border: '1px solid #cbd5e1', fontWeight: 700, color: '#07345f' }}>Incident Reference:</td>
-                      <td style={{ padding: '6px 10px', border: '1px solid #cbd5e1', color: '#0f172a' }}>Incident #{record.id} &nbsp;(Date Reported: {incidentDateFormatted})</td>
-                    </tr>
-                    <tr>
-                      <td style={{ padding: '6px 10px', border: '1px solid #cbd5e1', fontWeight: 700, color: '#07345f' }}>Infraction / Violation:</td>
-                      <td style={{ padding: '6px 10px', border: '1px solid #cbd5e1', color: '#0f172a' }}><strong>{record.violation?.title || record.offense || 'General Infraction'}</strong> ({record.violation?.type || record.severity || 'Minor'} Offense)</td>
-                    </tr>
-                    <tr style={{ background: '#f8fafc' }}>
-                      <td style={{ padding: '6px 10px', border: '1px solid #cbd5e1', fontWeight: 700, color: '#07345f' }}>Final Disposition:</td>
-                      <td style={{ padding: '6px 10px', border: '1px solid #cbd5e1', fontWeight: 800, color: status === 'Resolved' ? '#15803d' : '#07345f', textTransform: 'uppercase' }}>{status}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-
-              {/* Body Text */}
-              <div style={{ fontSize: '12px', color: '#1e293b', textAlign: 'left', marginBottom: '12px', lineHeight: 1.55 }}>
-                <p style={{ margin: '0 0 8px 0' }}>
-                  <strong>TO WHOM IT MAY CONCERN:</strong><br />
-                  This is to certify that the disciplinary case for the student referenced above has undergone formal evaluation and due process in accordance with the Student Code of Conduct and Institutional Guidelines of University of Perpetual Help System Manila. Restorative guidance counseling and corrective remediation measures have been formally administered.
-                </p>
-              </div>
-
-              {/* Assigned Sanction & Outcomes Box */}
               <div
                 style={{
-                  background: '#f8fafc',
-                  border: '1.5px solid #cbd5e1',
-                  borderRadius: '6px',
-                  padding: '10px 14px',
-                  marginBottom: '12px',
-                  fontSize: '11.5px'
+                  width: '680px',
+                  minWidth: '680px',
+                  maxWidth: '680px',
+                  transform: `scale(${effectiveScale}) translate3d(${pan.x}px, ${pan.y}px, 0)`,
+                  transformOrigin: 'top center',
+                  transition: isDragging ? 'none' : 'transform 0.12s cubic-bezier(0.2, 0, 0, 1)',
+                  marginBottom: isMobile && paperHeight ? `-${paperHeight * (1 - effectiveScale)}px` : '0px'
                 }}
               >
-                <div style={{ fontSize: '10px', fontWeight: 800, color: '#07345f', textTransform: 'uppercase', letterSpacing: '0.4px', marginBottom: '3px' }}>
-                  ASSIGNED SANCTION &amp; CORRECTIVE MEASURES FULFILLED:
-                </div>
-                <div style={{ color: '#0f172a', fontWeight: 600, marginBottom: '6px' }}>
-                  {sanction || 'Verbal Warning, Guided Reflection & Standard Compliance Counseling Completed.'}
-                </div>
-
-                {resolutionNotes && (
-                  <>
-                    <div style={{ fontSize: '10px', fontWeight: 800, color: '#07345f', textTransform: 'uppercase', letterSpacing: '0.4px', marginTop: '6px', marginBottom: '3px' }}>
-                      COUNSELING OUTCOMES &amp; OFFICIAL FINDINGS:
+                {/* Live Paper Document Preview Sheet */}
+                <div
+                  ref={printRef}
+                  className="res-preview-paper"
+                  style={{
+                    cursor: isDragging ? 'grabbing' : 'grab'
+                  }}
+                  onMouseDown={handleMouseDown}
+                  onTouchStart={handleTouchStart}
+                >
+                  {/* Official Letterhead */}
+                  <div style={{ textAlign: 'center', borderBottom: '2px solid #07345f', paddingBottom: '14px', marginBottom: '14px' }}>
+                    <div className="res-letterhead">
+                      <img
+                        src="/images/phcm-logo.png"
+                        alt="PHCM Logo Left"
+                        className="res-univ-logo"
+                        onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                      />
+                      <div className="res-univ-text">
+                        <div style={{ fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.8px', color: '#334155', fontFamily: 'inherit' }}>
+                          Republic of the Philippines
+                        </div>
+                        <h2 style={{ margin: '2px 0', fontSize: '15.5px', fontWeight: 800, color: '#07345f', letterSpacing: '0.01em', fontFamily: 'inherit' }}>
+                          UNIVERSITY OF PERPETUAL HELP SYSTEM MANILA
+                        </h2>
+                        <span style={{ fontSize: '10.5px', color: '#475569', display: 'block', fontFamily: 'inherit' }}>
+                          1240 V. Concepcion St., Sampaloc, Manila | Office of the Prefect of Discipline
+                        </span>
+                        <span style={{ fontSize: '9px', color: '#64748b', fontWeight: 700, letterSpacing: '0.5px', display: 'block', textTransform: 'uppercase', fontFamily: 'inherit' }}>
+                          VIOTRACK DISCIPLINARY &amp; STUDENT WELFARE MANAGEMENT SYSTEM
+                        </span>
+                      </div>
+                      <img
+                        src="/images/phcm-seal.png"
+                        alt="PHCM University Seal"
+                        className="res-univ-logo"
+                        onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                      />
                     </div>
-                    <div style={{ color: '#334155', fontStyle: 'italic' }}>
-                      &quot;{resolutionNotes}&quot;
+                  </div>
+
+                  {/* Reference & Metadata */}
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '11px', color: '#64748b', marginBottom: '12px', fontFamily: 'inherit', borderBottom: '1px dotted #cbd5e1', paddingBottom: '4px', flexWrap: 'wrap', gap: '4px' }}>
+                    <span>Control No: <strong style={{ color: '#0f172a', fontFamily: 'monospace' }}>{controlNumber}</strong></span>
+                    <span>Date Issued: <strong style={{ color: '#0f172a' }}>{currentDateFormatted}</strong></span>
+                    <span>Status: <strong style={{ color: status === 'Resolved' ? '#15803d' : '#07345f', textTransform: 'uppercase' }}>{status}</strong></span>
+                  </div>
+
+                  {/* Document Certificate Title */}
+                  <div style={{ textAlign: 'center', margin: '12px 0 14px' }}>
+                    <h3 style={{ margin: 0, fontSize: '14px', fontWeight: 800, color: '#07345f', textTransform: 'uppercase', letterSpacing: '0.5px', textDecoration: 'underline', fontFamily: 'inherit' }}>
+                      CERTIFICATE OF DISCIPLINARY RESOLUTION &amp; CLEARANCE
+                    </h3>
+                    <span style={{ fontSize: '10px', color: '#64748b', fontStyle: 'italic', display: 'block', marginTop: '2px' }}>
+                      Official Institutional Notice of Restorative Counseling &amp; Infraction Remediation
+                    </span>
+                  </div>
+
+                  {/* Student & Case Information Table */}
+                  <div style={{ width: '100%', overflowX: 'auto' }}>
+                    <table style={{ width: '100%', borderCollapse: 'collapse', margin: '10px 0 14px', fontSize: '11.5px', border: '1px solid #cbd5e1' }}>
+                      <tbody>
+                        <tr style={{ background: '#f8fafc' }}>
+                          <td style={{ padding: '6px 10px', border: '1px solid #cbd5e1', width: '32%', fontWeight: 700, color: '#07345f' }}>Student Full Name:</td>
+                          <td style={{ padding: '6px 10px', border: '1px solid #cbd5e1', fontWeight: 800, color: '#0f172a' }}>{studentFullName}</td>
+                        </tr>
+                        <tr>
+                          <td style={{ padding: '6px 10px', border: '1px solid #cbd5e1', fontWeight: 700, color: '#07345f' }}>Student ID / Level:</td>
+                          <td style={{ padding: '6px 10px', border: '1px solid #cbd5e1', color: '#0f172a' }}>{record.student?.student_id || record.student?.lrn || 'N/A'} &nbsp;|&nbsp; Grade {record.student?.grade || '10'} - {record.student?.section || 'General'}</td>
+                        </tr>
+                        <tr style={{ background: '#f8fafc' }}>
+                          <td style={{ padding: '6px 10px', border: '1px solid #cbd5e1', fontWeight: 700, color: '#07345f' }}>Incident Reference:</td>
+                          <td style={{ padding: '6px 10px', border: '1px solid #cbd5e1', color: '#0f172a' }}>Incident #{record.id} &nbsp;(Date Reported: {incidentDateFormatted})</td>
+                        </tr>
+                        <tr>
+                          <td style={{ padding: '6px 10px', border: '1px solid #cbd5e1', fontWeight: 700, color: '#07345f' }}>Infraction / Violation:</td>
+                          <td style={{ padding: '6px 10px', border: '1px solid #cbd5e1', color: '#0f172a' }}><strong>{record.violation?.title || record.offense || 'General Infraction'}</strong> ({record.violation?.type || record.severity || 'Minor'} Offense)</td>
+                        </tr>
+                        <tr style={{ background: '#f8fafc' }}>
+                          <td style={{ padding: '6px 10px', border: '1px solid #cbd5e1', fontWeight: 700, color: '#07345f' }}>Final Disposition:</td>
+                          <td style={{ padding: '6px 10px', border: '1px solid #cbd5e1', fontWeight: 800, color: status === 'Resolved' ? '#15803d' : '#07345f', textTransform: 'uppercase' }}>{status}</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+
+                  {/* Body Text */}
+                  <div style={{ fontSize: '12px', color: '#1e293b', textAlign: 'left', marginBottom: '12px', lineHeight: 1.55 }}>
+                    <p style={{ margin: '0 0 8px 0' }}>
+                      <strong>TO WHOM IT MAY CONCERN:</strong><br />
+                      This is to certify that the disciplinary case for the student referenced above has undergone formal evaluation and due process in accordance with the Student Code of Conduct and Institutional Guidelines of University of Perpetual Help System Manila. Restorative guidance counseling and corrective remediation measures have been formally administered.
+                    </p>
+                  </div>
+
+                  {/* Assigned Sanction & Outcomes Box */}
+                  <div
+                    style={{
+                      background: '#f8fafc',
+                      border: '1.5px solid #cbd5e1',
+                      borderRadius: '6px',
+                      padding: '10px 14px',
+                      marginBottom: '12px',
+                      fontSize: '11.5px'
+                    }}
+                  >
+                    <div style={{ fontSize: '10px', fontWeight: 800, color: '#07345f', textTransform: 'uppercase', letterSpacing: '0.4px', marginBottom: '3px' }}>
+                      ASSIGNED SANCTION &amp; CORRECTIVE MEASURES FULFILLED:
                     </div>
-                  </>
-                )}
-              </div>
+                    <div style={{ color: '#0f172a', fontWeight: 600, marginBottom: '6px' }}>
+                      {sanction || 'Verbal Warning, Guided Reflection & Standard Compliance Counseling Completed.'}
+                    </div>
 
-              <p style={{ fontSize: '11.5px', color: '#1e293b', textAlign: 'left', margin: '0 0 16px 0', lineHeight: 1.55 }}>
-                {status === 'Resolved'
-                  ? 'With the full satisfaction of assigned restorative measures, the student is hereby issued official disciplinary clearance for the aforementioned incident. The student in good standing may proceed with standard academic and co-curricular entitlements.'
-                  : 'This case is currently being monitored in accordance with prescribed guidance follow-up timelines.'}
-              </p>
-
-              {/* Signatories */}
-              <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'space-between', textAlign: 'center', gap: '10px', flexWrap: 'wrap' }}>
-                <div style={{ flex: 1, minWidth: '130px', maxWidth: '180px' }}>
-                  <div style={{ height: '24px' }} />
-                  <div style={{ borderTop: '1.5px solid #0f172a', paddingTop: '4px' }}>
-                    <strong style={{ fontSize: '11.5px', display: 'block', color: '#0f172a' }}>{officerName}</strong>
-                    <span style={{ fontSize: '10px', color: '#64748b', display: 'block' }}>{officerTitle}</span>
+                    {resolutionNotes && (
+                      <>
+                        <div style={{ fontSize: '10px', fontWeight: 800, color: '#07345f', textTransform: 'uppercase', letterSpacing: '0.4px', marginTop: '6px', marginBottom: '3px' }}>
+                          COUNSELING OUTCOMES &amp; OFFICIAL FINDINGS:
+                        </div>
+                        <div style={{ color: '#334155', fontStyle: 'italic' }}>
+                          &quot;{resolutionNotes}&quot;
+                        </div>
+                      </>
+                    )}
                   </div>
-                </div>
 
-                <div style={{ flex: 1, minWidth: '130px', maxWidth: '180px' }}>
-                  <div style={{ height: '24px' }} />
-                  <div style={{ borderTop: '1.5px solid #0f172a', paddingTop: '4px' }}>
-                    <strong style={{ fontSize: '11.5px', display: 'block', color: '#0f172a' }}>Class Adviser / Counselor</strong>
-                    <span style={{ fontSize: '10px', color: '#64748b', display: 'block' }}>Guidance &amp; Counseling Office</span>
+                  <p style={{ fontSize: '11.5px', color: '#1e293b', textAlign: 'left', margin: '0 0 16px 0', lineHeight: 1.55 }}>
+                    {status === 'Resolved'
+                      ? 'With the full satisfaction of assigned restorative measures, the student is hereby issued official disciplinary clearance for the aforementioned incident. The student in good standing may proceed with standard academic and co-curricular entitlements.'
+                      : 'This case is currently being monitored in accordance with prescribed guidance follow-up timelines.'}
+                  </p>
+
+                  {/* Signatories */}
+                  <div style={{ marginTop: '20px', display: 'flex', justifyContent: 'space-between', textAlign: 'center', gap: '10px', flexWrap: 'wrap' }}>
+                    <div style={{ flex: 1, minWidth: '130px', maxWidth: '180px' }}>
+                      <div style={{ height: '24px' }} />
+                      <div style={{ borderTop: '1.5px solid #0f172a', paddingTop: '4px' }}>
+                        <strong style={{ fontSize: '11.5px', display: 'block', color: '#0f172a' }}>{officerName}</strong>
+                        <span style={{ fontSize: '10px', color: '#64748b', display: 'block' }}>{officerTitle}</span>
+                      </div>
+                    </div>
+
+                    <div style={{ flex: 1, minWidth: '130px', maxWidth: '180px' }}>
+                      <div style={{ height: '24px' }} />
+                      <div style={{ borderTop: '1.5px solid #0f172a', paddingTop: '4px' }}>
+                        <strong style={{ fontSize: '11.5px', display: 'block', color: '#0f172a' }}>Class Adviser / Counselor</strong>
+                        <span style={{ fontSize: '10px', color: '#64748b', display: 'block' }}>Guidance &amp; Counseling Office</span>
+                      </div>
+                    </div>
+
+                    <div style={{ flex: 1, minWidth: '130px', maxWidth: '180px' }}>
+                      <div style={{ height: '24px' }} />
+                      <div style={{ borderTop: '1.5px solid #0f172a', paddingTop: '4px' }}>
+                        <strong style={{ fontSize: '11.5px', display: 'block', color: '#0f172a' }}>Parent / Legal Guardian</strong>
+                        <span style={{ fontSize: '10px', color: '#64748b', display: 'block' }}>Conforme &amp; Acknowledged</span>
+                      </div>
+                    </div>
                   </div>
-                </div>
 
-                <div style={{ flex: 1, minWidth: '130px', maxWidth: '180px' }}>
-                  <div style={{ height: '24px' }} />
-                  <div style={{ borderTop: '1.5px solid #0f172a', paddingTop: '4px' }}>
-                    <strong style={{ fontSize: '11.5px', display: 'block', color: '#0f172a' }}>Parent / Legal Guardian</strong>
-                    <span style={{ fontSize: '10px', color: '#64748b', display: 'block' }}>Conforme &amp; Acknowledged</span>
+                  {/* Security Footnote */}
+                  <div style={{ marginTop: '20px', borderTop: '1px solid #cbd5e1', paddingTop: '8px', fontSize: '9px', color: '#64748b' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px', flexWrap: 'wrap', gap: '4px' }}>
+                      <span>SECURITY CODE: <strong style={{ color: '#0f172a', fontFamily: 'monospace' }}>{securityHash}</strong></span>
+                      <span>SYSTEM ARCHIVE: VIOTRACK INSTITUTIONAL RECORD</span>
+                    </div>
+                    <div>
+                      Official institutional clearance issued by the Office of the Prefect of Discipline under Philippine Data Privacy Act of 2012.
+                    </div>
                   </div>
-                </div>
-              </div>
-
-              {/* Security Footnote */}
-              <div style={{ marginTop: '20px', borderTop: '1px solid #cbd5e1', paddingTop: '8px', fontSize: '9px', color: '#64748b' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px', flexWrap: 'wrap', gap: '4px' }}>
-                  <span>SECURITY CODE: <strong style={{ color: '#0f172a', fontFamily: 'monospace' }}>{securityHash}</strong></span>
-                  <span>SYSTEM ARCHIVE: VIOTRACK INSTITUTIONAL RECORD</span>
-                </div>
-                <div>
-                  Official institutional clearance issued by the Office of the Prefect of Discipline under Philippine Data Privacy Act of 2012.
                 </div>
               </div>
             </div>
@@ -1507,10 +1899,10 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
 
         </div>
 
-        {/* Modal Footer Controls */}
+        {/* Modal Footer Controls (Desktop) */}
         <div className="res-footer">
           <span className="res-footer-text" style={{ fontSize: '12px', color: '#64748b' }}>
-            Saving this resolution affirms restorative guidance intervention and closes Incident #{record.id}.
+            Saving this resolution affirms restorative guidance intervention and updates Incident #{record.id}.
           </span>
 
           <div className="res-footer-actions">
@@ -1537,6 +1929,98 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
               <Check size={14} strokeWidth={2.4} />
               {loading ? 'Saving...' : 'Save & Finalize Resolution'}
             </button>
+          </div>
+        </div>
+
+        {/* Mobile Floating Zoom & Drag Pill Toolbar */}
+        <div className="res-mobile-zoom-pill">
+          <button
+            type="button"
+            className="res-mobile-zoom-btn"
+            onClick={handleZoomOut}
+            title="Zoom Out"
+          >
+            <ZoomOut size={14} />
+          </button>
+
+          <span
+            className="res-mobile-zoom-indicator"
+            onClick={handleResetView}
+            title="Tap to Reset Zoom"
+          >
+            {Math.round(zoom * 100)}%
+          </span>
+
+          <button
+            type="button"
+            className="res-mobile-zoom-btn"
+            onClick={handleZoomIn}
+            title="Zoom In"
+          >
+            <ZoomIn size={14} />
+          </button>
+
+          <button
+            type="button"
+            className="res-mobile-zoom-btn"
+            onClick={handleResetView}
+            style={{ marginLeft: '2px' }}
+            title="Fit to Screen"
+          >
+            <RotateCcw size={13} />
+          </button>
+        </div>
+
+        {/* Mobile Floating Action Button (FAB) - Edit Parameters */}
+        <button
+          type="button"
+          className="res-mobile-fab"
+          onClick={() => setIsMobileDrawerOpen(true)}
+          title="Edit Resolution Details"
+        >
+          <Edit3 size={20} strokeWidth={2.4} />
+        </button>
+
+        {/* Mobile Edit Drawer Sheet */}
+        <div
+          className={`res-mobile-drawer ${isMobileDrawerOpen ? 'open' : ''}`}
+          onClick={() => setIsMobileDrawerOpen(false)}
+        >
+          <div
+            className="res-mobile-drawer-content"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="res-drawer-header">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <SlidersHorizontal size={18} color="#0f172a" />
+                <h4 style={{ margin: 0, fontSize: '15px', fontWeight: 800, color: '#0f172a' }}>
+                  Edit Resolution Details
+                </h4>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsMobileDrawerOpen(false)}
+                style={{
+                  background: '#0f172a',
+                  color: '#ffffff',
+                  border: 'none',
+                  borderRadius: '8px',
+                  padding: '6px 14px',
+                  fontSize: '12px',
+                  fontWeight: 700,
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '4px'
+                }}
+              >
+                <Check size={14} /> Done
+              </button>
+            </div>
+
+            <div className="res-drawer-body">
+              {renderFormContent()}
+            </div>
           </div>
         </div>
 

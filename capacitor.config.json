@@ -6,14 +6,7 @@
     "androidScheme": "https"
   },
   "android": {
-    "allowMixedContent": false,
-    "buildOptions": {
-      "keystorePath": "viotrack-release-key.keystore",
-      "keystorePassword": "viotrack123",
-      "keystoreAlias": "viotrack",
-      "keystoreAliasPassword": "viotrack123",
-      "releaseType": "APK"
-    }
+    "allowMixedContent": false
   },
   "plugins": {
     "SplashScreen": {

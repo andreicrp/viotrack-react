@@ -57,12 +57,8 @@ A modern, responsive, full-featured **Student Violation Tracking and Monitoring 
 
 ### 🖨️ Export & Reporting
 - Executive PDF dashboard summary report (`jspdf` + `jspdf-autotable`)
-- CSV export for violations, students, and teachers
+- CSV export for violations, students, and teachers with formula injection protection
 - Printable Student ID badge cards
-
-### 👤 User Profile
-- Editable user profile with avatar selection
-- Password change and account settings
 
 ---
 
@@ -75,10 +71,9 @@ A modern, responsive, full-featured **Student Violation Tracking and Monitoring 
 | **Styling** | Vanilla CSS (no Tailwind), Lucide React icons |
 | **Backend** | Supabase (PostgreSQL + Auth + Realtime) or built-in offline mock data engine |
 | **Mobile** | Capacitor 8 (Android APK with native splash screen & status bar) |
-| **PDF** | jsPDF + jsPDF-autotable |
+| **Testing & CI** | Vitest, oxlint, GitHub Actions |
+| **PDF & CSV** | jsPDF + jsPDF-autotable, CSV security sanitization |
 | **QR** | html5-qrcode |
-| **Linting** | oxlint |
-| **Accessibility** | WCAG AA compliant contrast ratios, semantic HTML, skip navigation, ARIA landmarks |
 
 ---
 
@@ -86,7 +81,7 @@ A modern, responsive, full-featured **Student Violation Tracking and Monitoring 
 
 ### Prerequisites
 
-- [Node.js](https://nodejs.org/) 18+
+- [Node.js](https://nodejs.org/) 18+ (Node 20+ recommended)
 - npm 9+
 
 ### 1. Install Dependencies
@@ -96,7 +91,30 @@ cd Viotrack_React
 npm install
 ```
 
-### 2. Start the Development Server
+### 2. Configure Environment Variables
+
+Copy `.env.example` to `.env`:
+
+```bash
+cp .env.example .env
+```
+
+Configure your secrets and endpoints in `.env`:
+
+```env
+# Supabase Database Configuration
+VITE_SUPABASE_URL=https://your-project-id.supabase.co
+VITE_SUPABASE_ANON_KEY=your-supabase-anon-key
+
+# iProgSMS Gateway Configuration
+VITE_IPROGSMS_API_TOKEN=your-iprogsms-api-token
+VITE_IPROGSMS_ENDPOINT=https://sms.iprogtech.com/api/v1/sms_messages
+VITE_IPROGSMS_SENDER_NAME=PHCM VioTrack
+```
+
+> ⚠️ **Security Notice**: `.env` and `*.keystore` files are excluded in `.gitignore`. Never commit API tokens, passwords, or release keystores to source control.
+
+### 3. Start the Development Server
 
 ```bash
 npm run dev
@@ -104,19 +122,34 @@ npm run dev
 
 The app will be available at `http://localhost:5173`.
 
-### 3. Connect Your Supabase Project (Optional)
+---
+
+## 🧪 Testing & Linting
+
+```bash
+# Run unit tests (Vitest)
+npm test
+
+# Run linter (oxlint)
+npm run lint
+
+# Run production build
+npm run build
+```
+
+Continuous Integration is pre-configured via GitHub Actions in [`.github/workflows/ci.yml`](.github/workflows/ci.yml).
+
+---
+
+## 🗄️ Supabase Setup (Optional)
 
 1. Create a project at [supabase.com](https://supabase.com).
 2. Open your Supabase project's **SQL Editor**.
 3. Copy the entire contents of [`src/lib/supabase-schema.sql`](src/lib/supabase-schema.sql) and click **Run**.
-4. In `Viotrack_React/.env`, update your credentials:
-   ```env
-   VITE_SUPABASE_URL=https://your-project-id.supabase.co
-   VITE_SUPABASE_ANON_KEY=your-anon-key-here
-   ```
-5. Restart your dev server.
+4. Update your `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` in `.env`.
+5. Restart your development server.
 
-> **Note:** If left with default placeholders, the application runs on a built-in reactive offline storage engine with full mock seed data — all features work immediately without any backend setup!
+> **Note:** If Supabase keys are left blank, the application automatically runs on its built-in reactive offline storage engine with full mock seed data — all features work immediately without external dependencies!
 
 ---
 
@@ -129,12 +162,15 @@ npm run cap:sync
 # Open in Android Studio
 npm run cap:open
 
-# Build release APK directly
+# Build release APK
 npm run build:apk
 
 # Build debug APK
 npm run build:debug
 ```
+
+### Android Signing Security:
+- Release keystores (`*.keystore`, `*.jks`) and passwords must be stored locally in `gradle.properties` or CI secrets, not committed into repository JSON files.
 
 ---
 
@@ -153,19 +189,13 @@ Log in using the **1-click Quick Access** buttons on the login screen, or with t
 
 ```
 src/
-├── components/
-│   ├── admin/          # Admin user management modals
-│   ├── common/         # Shared components (Modal, SplashScreen, DatePicker, etc.)
-│   ├── layout/         # Sidebar, Header, Layout shell
-│   ├── students/       # Student CRUD modals, bulk import, ID card
-│   ├── teachers/       # Teacher CRUD modals, bulk import
-│   └── violations/     # Violation modals, resolution, filters
-├── context/            # AuthContext, NotificationContext (toast system)
+├── components/         # Modular UI components (modals, selects, layouts)
+├── context/            # AuthContext, NotificationContext
 ├── css/                # Component-level stylesheets
-├── lib/                # Supabase client & schema
-├── pages/              # Route-level page components (17 pages)
-├── services/           # Data service layer (Supabase + offline mock engine)
-└── utils/              # CSV helpers and utilities
+├── lib/                # Supabase client & database schema
+├── pages/              # Route-level page components
+├── services/           # Data & SMS services
+└── utils/              # Security, CSV helpers, and unit tests
 ```
 
 ---
