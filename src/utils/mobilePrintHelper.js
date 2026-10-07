@@ -67,6 +67,7 @@ export async function shareOrSaveNativeFile({
           title: title,
           text: title,
           url: writeResult.uri,
+          files: [writeResult.uri],
           dialogTitle: title
         });
         return true;
