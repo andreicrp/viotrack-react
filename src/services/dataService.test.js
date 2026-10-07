@@ -54,4 +54,47 @@ describe('dataService offline behavior', () => {
     expect(result.hasNextPage).toBe(result.totalPages > 1);
     expect(result.hasPrevPage).toBe(false);
   });
+
+  it('updates and deletes students when addressed by LRN', async () => {
+    const [student] = await dataService.getStudents(true);
+    const result = await dataService.updateStudent(student.lrn, {
+      fname: 'Updated Learner',
+      track: 'JHS',
+      strand: 'STEM'
+    });
+
+    expect(result.fname).toBe('Updated Learner');
+    expect(result.track).toBe('JHS');
+    expect(result.strand).toBe('STEM');
+
+    const updatedStudents = await dataService.getStudents(true);
+    expect(updatedStudents.find((item) => item.lrn === student.lrn)?.fname).toBe('Updated Learner');
+
+    await dataService.deleteStudent(student.lrn);
+    const remainingStudents = await dataService.getStudents(true);
+    expect(remainingStudents.some((item) => item.lrn === student.lrn)).toBe(false);
+  });
+
+  it('supports track and strand on adds and assigns defaults on bulk import', async () => {
+    const added = await dataService.addStudent({
+      student_id: 'BASELINE-ADD-1',
+      fname: 'New',
+      lname: 'Student',
+      track: 'SHS',
+      strand: 'STEM'
+    });
+
+    expect(added.track).toBe('SHS');
+    expect(added.strand).toBe('STEM');
+
+    await dataService.bulkAddStudents([{
+      student_id: 'BASELINE-BULK-1',
+      fname: 'Bulk',
+      lname: 'Student'
+    }]);
+    const students = await dataService.getStudents(true);
+    const bulkAdded = students.find((item) => item.student_id === 'BASELINE-BULK-1');
+    expect(bulkAdded.track).toBe('JHS');
+    expect(bulkAdded.strand).toBe('JHS');
+  });
 });
