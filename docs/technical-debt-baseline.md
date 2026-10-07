@@ -84,3 +84,14 @@ Latest main is [`513dd67adb8c35590753ae787b81b5cd73c8f2b3`](https://github.com/a
 | `npm run build` | Passed (281.82 kB `vendor-react`; no path-sensitive size advisory in the detached checkout). |
 
 `npm ci` reports one high-severity npm advisory, consistent with prior main baselines. The PR follow-up must preserve latest main's empty seed fallbacks, legacy student/record-cache cleanup, successful-empty-query semantics, and removal of mock merge behavior while keeping the characterization tests deterministic without demo fixtures.
+
+## Baseline after the 2026-10-08 modal gesture commit
+
+Latest main is [`d8c96f6667bbfebb947a5d09d6b6cdf6644603fb`](https://github.com/andreicrp/viotrack-react/commit/d8c96f6667bbfebb947a5d09d6b6cdf6644603fb). It changes only `ParentSummonsModal.jsx` and `ResolutionModal.jsx`; no service or test files changed. In a clean detached checkout on this commit:
+
+- `npm test -- --reporter=verbose`: **4 passed** (1 file); current main still has no data-service tests.
+- `npm run lint -- --quiet`: **failed with 7 `react-hooks/rules-of-hooks` errors** (plus 371 warnings), all in `src/components/violations/ResolutionModal.jsx` around lines 563–576, where hooks are reached only on some render paths. These are present on clean main and outside this data-service PR's scope.
+- `npm run build`: passed (281.82 kB `vendor-react`; no path-sensitive size advisory in the detached checkout).
+- Main has no `typecheck` script. `npm ci` reports the existing single high-severity advisory.
+
+This baseline updates the prior `513dd67` record; the PR branch will rebase onto `d8c96f6` before the live-data behavior is ported.
