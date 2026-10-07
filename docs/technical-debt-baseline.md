@@ -264,3 +264,10 @@ Clean latest main passed **4 existing tests**, lint (**393 warnings, 0 errors**)
 Latest main is [`07c2342f3fc210a2955ecd0b78013f0d906c8c7f`](https://github.com/andreicrp/viotrack-react/commit/07c2342f3fc210a2955ecd0b78013f0d906c8c7f). It adds configurable scanner audio/haptic feedback in `scannerFeedback.js` and updates QR scanner UI/CSS. It does not change data-service code, service tests, or dependencies; no service port was needed.
 
 Clean latest main passed **4 existing tests**, lint (**395 warnings, 0 errors**), and build (2,663.93 kB `vendor-react`, 1,264.34 kB PDF worker, with the existing >800 kB advisory). Main has no typecheck script. After rebasing the existing PR onto `07c2342`, **24 tests passed**, `npm run typecheck` passed, lint passed (**394 warnings, 0 errors**), and build passed. Clean-main and PR matching-path builds emitted identical PDF helper, PDF worker, and vendor React assets.
+
+
+## Baseline after the 2026-10-08 scanner popover responsive fix
+
+Latest main is [`df0891571fa62aad1af8144718f0e19e412777d7`](https://github.com/andreicrp/viotrack-react/commit/df0891571fa62aad1af8144718f0e19e412777d7). It adjusts only `src/css/scan-qr.css` for feedback-popover positioning and mobile bounds; service, test, and dependency files are unchanged.
+
+Clean latest main passed **4 existing tests**, lint (**395 warnings, 0 errors**), and build (2,663.93 kB `vendor-react`, 1,264.34 kB PDF worker, with the established chunk-size advisory). Main has no typecheck script. After rebasing the existing PR onto `df08915`, **24 tests passed**, typecheck passed, lint passed (**394 warnings, 0 errors**), and build passed. Matching-path clean-main and PR builds emitted identical PDF helper, PDF worker, and vendor React assets; the advisory is baseline-equivalent.
