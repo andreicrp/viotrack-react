@@ -1365,19 +1365,23 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
             background: #ffffff !important;
             color: #0f172a !important;
             border-bottom: 1px solid #e2e8f0 !important;
-            padding: 10px 14px !important;
-            min-height: 52px !important;
+            padding: max(8px, env(safe-area-inset-top, 8px)) 10px 8px 10px !important;
+            min-height: 48px !important;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+            gap: 6px !important;
+            box-sizing: border-box !important;
           }
           .psm-header-title {
             color: #0f172a !important;
-            font-size: 13.5px !important;
+            font-size: 13px !important;
             font-weight: 800 !important;
             letter-spacing: -0.01em !important;
             font-family: inherit !important;
             white-space: nowrap !important;
             overflow: hidden !important;
             text-overflow: ellipsis !important;
+            max-width: 100% !important;
+            min-width: 0 !important;
           }
           .psm-header-sub {
             display: none !important;
@@ -1560,7 +1564,7 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
           }}
         >
           {/* Left: Back Arrow + Document Title Badge */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0, flex: 1 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0, flex: 1, overflow: 'hidden' }}>
             <button
               type="button"
               onClick={onClose}
@@ -1569,8 +1573,8 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
                 border: '1px solid #cbd5e1',
                 color: '#334155',
                 cursor: 'pointer',
-                width: '34px',
-                height: '34px',
+                width: '32px',
+                height: '32px',
                 borderRadius: '8px',
                 display: 'flex',
                 alignItems: 'center',
@@ -1588,24 +1592,24 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
               }}
               title="Close viewer"
             >
-              <ChevronLeft size={19} strokeWidth={2.4} />
+              <ChevronLeft size={18} strokeWidth={2.4} />
             </button>
 
-            <div style={{ minWidth: 0, flex: 1 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <FileText size={15} color="#07345f" style={{ flexShrink: 0 }} />
-                <h3 className="psm-header-title" style={{ margin: 0, fontSize: '14.5px', fontWeight: 800, color: '#0f172a' }}>
+            <div style={{ minWidth: 0, flex: 1, overflow: 'hidden' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '5px', minWidth: 0, overflow: 'hidden' }}>
+                <FileText size={14} color="#07345f" style={{ flexShrink: 0 }} />
+                <h3 className="psm-header-title" style={{ margin: 0, fontSize: '13.5px', fontWeight: 800, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', minWidth: 0, flex: 1 }}>
                   {studentLastName ? `${studentLastName} - Parent Summon` : 'Parent Summon'}
                 </h3>
               </div>
-              <span className="psm-header-sub" style={{ fontSize: '11.5px', color: '#64748b', display: 'block', marginTop: '1px' }}>
+              <span className="psm-header-sub" style={{ fontSize: '11px', color: '#64748b', display: 'block', marginTop: '1px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                 Official disciplinary conference notice letter for parent / guardian.
               </span>
             </div>
           </div>
 
           {/* Right: Only Print Button + Close Button */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
             {/* Print Button */}
             <button
               type="button"
@@ -1615,13 +1619,13 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
                 border: '1px solid #0f172a',
                 color: '#ffffff',
                 cursor: 'pointer',
-                padding: '0 14px',
-                height: '34px',
+                padding: '0 10px',
+                height: '32px',
                 borderRadius: '8px',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '6px',
-                fontSize: '12.5px',
+                gap: '5px',
+                fontSize: '12px',
                 fontWeight: 700,
                 boxShadow: '0 1px 3px rgba(15, 23, 42, 0.15)',
                 transition: 'all 0.15s ease'
@@ -1634,7 +1638,7 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
               }}
               title="Print Summons Letter"
             >
-              <Printer size={15} />
+              <Printer size={14} />
               <span>Print</span>
             </button>
 
@@ -1647,8 +1651,8 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
                 border: '1px solid #cbd5e1',
                 color: '#64748b',
                 cursor: 'pointer',
-                width: '34px',
-                height: '34px',
+                width: '32px',
+                height: '32px',
                 borderRadius: '8px',
                 display: 'flex',
                 alignItems: 'center',
@@ -1667,7 +1671,7 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
               }}
               title="Close modal"
             >
-              <X size={16} />
+              <X size={15} />
             </button>
           </div>
         </div>

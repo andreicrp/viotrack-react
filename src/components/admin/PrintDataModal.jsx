@@ -1923,19 +1923,23 @@ export const PrintDataModal = ({ isOpen, onClose, records = [], students = [], t
             background: #ffffff !important;
             color: #0f172a !important;
             border-bottom: 1px solid #e2e8f0 !important;
-            padding: 10px 14px !important;
-            min-height: 52px !important;
+            padding: max(8px, env(safe-area-inset-top, 8px)) 10px 8px 10px !important;
+            min-height: 48px !important;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04) !important;
+            gap: 6px !important;
+            box-sizing: border-box !important;
           }
           .pdm-header-title {
             color: #0f172a !important;
-            font-size: 13.5px !important;
+            font-size: 13px !important;
             font-weight: 800 !important;
             letter-spacing: -0.01em !important;
             font-family: inherit !important;
             white-space: nowrap !important;
             overflow: hidden !important;
             text-overflow: ellipsis !important;
+            max-width: 100% !important;
+            min-width: 0 !important;
           }
           .pdm-header-sub {
             display: none !important;
@@ -2114,7 +2118,7 @@ export const PrintDataModal = ({ isOpen, onClose, records = [], students = [], t
           }}
         >
           {/* Left: Back Arrow + Document Title Badge */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0, flex: 1 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0, flex: 1, overflow: 'hidden' }}>
             <button
               type="button"
               onClick={onClose}
@@ -2123,8 +2127,8 @@ export const PrintDataModal = ({ isOpen, onClose, records = [], students = [], t
                 border: '1px solid #cbd5e1',
                 color: '#334155',
                 cursor: 'pointer',
-                width: '34px',
-                height: '34px',
+                width: '32px',
+                height: '32px',
                 borderRadius: '8px',
                 display: 'flex',
                 alignItems: 'center',
@@ -2134,24 +2138,24 @@ export const PrintDataModal = ({ isOpen, onClose, records = [], students = [], t
               }}
               title="Close print preview"
             >
-              <ChevronLeft size={19} strokeWidth={2.4} />
+              <ChevronLeft size={18} strokeWidth={2.4} />
             </button>
 
-            <div style={{ minWidth: 0, flex: 1 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <BarChart2 size={15} color="#07345f" style={{ flexShrink: 0 }} />
-                <h3 className="pdm-header-title" style={{ margin: 0, fontSize: '14.5px', fontWeight: 800, color: '#0f172a' }}>
+            <div style={{ minWidth: 0, flex: 1, overflow: 'hidden' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '5px', minWidth: 0, overflow: 'hidden' }}>
+                <BarChart2 size={14} color="#07345f" style={{ flexShrink: 0 }} />
+                <h3 className="pdm-header-title" style={{ margin: 0, fontSize: '13.5px', fontWeight: 800, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', minWidth: 0, flex: 1 }}>
                   Disciplinary Analytics
                 </h3>
               </div>
-              <span className="pdm-header-sub" style={{ fontSize: '11.5px', color: '#64748b', display: 'block', marginTop: '1px' }}>
+              <span className="pdm-header-sub" style={{ fontSize: '11px', color: '#64748b', display: 'block', marginTop: '1px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                 {dateRangeLabel} &bull; {metrics.total} Incidents logged &bull; {recordPages.length > 0 ? 'Multi-page itemized record distribution' : 'Executive single-sheet summary'}
               </span>
             </div>
           </div>
 
           {/* Right: Print Button + Close Button */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
             <button
               type="button"
               onClick={handlePrint}
@@ -2160,20 +2164,20 @@ export const PrintDataModal = ({ isOpen, onClose, records = [], students = [], t
                 border: '1px solid #07345f',
                 color: '#ffffff',
                 cursor: 'pointer',
-                padding: '0 14px',
-                height: '34px',
+                padding: '0 10px',
+                height: '32px',
                 borderRadius: '8px',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '6px',
-                fontSize: '12.5px',
+                gap: '5px',
+                fontSize: '12px',
                 fontWeight: 700,
                 boxShadow: '0 1px 3px rgba(7, 52, 95, 0.25)',
                 transition: 'all 0.15s ease'
               }}
               title="Print Multi-Page Document"
             >
-              <Printer size={15} />
+              <Printer size={14} />
               <span>Print ({totalPages}p)</span>
             </button>
 
@@ -2185,17 +2189,27 @@ export const PrintDataModal = ({ isOpen, onClose, records = [], students = [], t
                 border: '1px solid #cbd5e1',
                 color: '#64748b',
                 cursor: 'pointer',
-                width: '34px',
-                height: '34px',
+                width: '32px',
+                height: '32px',
                 borderRadius: '8px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 transition: 'all 0.15s ease'
               }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = '#fee2e2';
+                e.currentTarget.style.borderColor = '#fca5a5';
+                e.currentTarget.style.color = '#dc2626';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = '#f8fafc';
+                e.currentTarget.style.borderColor = '#cbd5e1';
+                e.currentTarget.style.color = '#64748b';
+              }}
               title="Close"
             >
-              <X size={16} />
+              <X size={15} />
             </button>
           </div>
         </div>
