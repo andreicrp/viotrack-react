@@ -271,3 +271,10 @@ Clean latest main passed **4 existing tests**, lint (**395 warnings, 0 errors**)
 Latest main is [`df0891571fa62aad1af8144718f0e19e412777d7`](https://github.com/andreicrp/viotrack-react/commit/df0891571fa62aad1af8144718f0e19e412777d7). It adjusts only `src/css/scan-qr.css` for feedback-popover positioning and mobile bounds; service, test, and dependency files are unchanged.
 
 Clean latest main passed **4 existing tests**, lint (**395 warnings, 0 errors**), and build (2,663.93 kB `vendor-react`, 1,264.34 kB PDF worker, with the established chunk-size advisory). Main has no typecheck script. After rebasing the existing PR onto `df08915`, **24 tests passed**, typecheck passed, lint passed (**394 warnings, 0 errors**), and build passed. Matching-path clean-main and PR builds emitted identical PDF helper, PDF worker, and vendor React assets; the advisory is baseline-equivalent.
+
+
+## Baseline after the 2026-10-08 README feature documentation commit
+
+Latest main is [`981723c4aa2425d80e747cc2ff13f984065da93f`](https://github.com/andreicrp/viotrack-react/commit/981723c4aa2425d80e747cc2ff13f984065da93f). It updates only `README.md` with documentation for signed QR badges, scanner feedback, skeleton loaders, undo toasts, and keyboard shortcuts; service and dependency files are unchanged.
+
+Clean latest main passed **4 existing tests**, lint (**395 warnings, 0 errors**), and build (2,663.93 kB `vendor-react`, 1,264.34 kB PDF worker, with the established chunk-size advisory). Main has no typecheck script. After rebasing the existing PR onto `981723c`, **24 tests passed**, typecheck passed, lint passed (**394 warnings, 0 errors**), and build passed. Matching-path main and PR assets are identical; no bundle change was introduced.
