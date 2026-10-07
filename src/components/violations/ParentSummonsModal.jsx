@@ -49,23 +49,48 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
   const [viewportWidth, setViewportWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1000);
   const [paperHeight, setPaperHeight] = useState(920);
 
-  // Canvas Pan & Zoom states (Interactive layout)
-  const [zoom, setZoom] = useState(1);
-  const [pan, setPan] = useState({ x: 0, y: 0 });
-  const [isDragging, setIsDragging] = useState(false);
-  const dragStartRef = useRef({ x: 0, y: 0, initialPanX: 0, initialPanY: 0 });
-  const pinchDistanceRef = useRef(null);
-  const pinchStartZoomRef = useRef(1);
-  const lastTapTimeRef = useRef(0);
+  const isMobile = viewportWidth <= 768;
+  const baseScale = isMobile ? Math.min(1, Math.max(0.38, (viewportWidth - 24) / 680)) : 1;
+  const effectiveScale = Number((baseScale * zoom).toFixed(3));
 
+  // Live Zoom & Pan State Refs to prevent stutter & eliminate React re-render bottlenecks during dragging
+  const zoomRef = useRef(zoom);
+  const panRef = useRef(pan);
+  const effectiveScaleRef = useRef(effectiveScale);
+  const rafIdRef = useRef(null);
+  const isPinchingRef = useRef(false);
+
+  useEffect(() => {
+    zoomRef.current = zoom;
+    effectiveScaleRef.current = effectiveScale;
+  }, [zoom, effectiveScale]);
+
+  useEffect(() => {
+    panRef.current = pan;
+  }, [pan]);
+
+  const applyLiveTransform = (currentPanX, currentPanY, currentScale) => {
+    if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current);
+    rafIdRef.current = requestAnimationFrame(() => {
+      if (printRef.current) {
+        printRef.current.style.transform = `scale(${currentScale}) translate3d(${currentPanX}px, ${currentPanY}px, 0)`;
+      }
+    });
+  };
+
+  // Mouse Handlers (Desktop)
   const handleMouseDown = (e) => {
-    if (e.button !== 0 || e.target.closest('button, input, textarea, select, a')) return;
+    if (e.button !== 0 || e.target.closest('button, input, textarea, select, a, [role="button"]')) return;
     setIsDragging(true);
+    if (printRef.current) {
+      printRef.current.style.transition = 'none';
+      printRef.current.style.willChange = 'transform';
+    }
     dragStartRef.current = {
       x: e.clientX,
       y: e.clientY,
-      initialPanX: pan.x,
-      initialPanY: pan.y
+      initialPanX: panRef.current.x,
+      initialPanY: panRef.current.y
     };
   };
 
@@ -73,19 +98,26 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
     if (!isDragging) return;
     const deltaX = e.clientX - dragStartRef.current.x;
     const deltaY = e.clientY - dragStartRef.current.y;
-    setPan({
-      x: dragStartRef.current.initialPanX + deltaX,
-      y: dragStartRef.current.initialPanY + deltaY
-    });
+    const newX = dragStartRef.current.initialPanX + deltaX;
+    const newY = dragStartRef.current.initialPanY + deltaY;
+    panRef.current = { x: newX, y: newY };
+    applyLiveTransform(newX, newY, effectiveScaleRef.current);
   };
 
   const handleMouseUp = () => {
-    if (isDragging) setIsDragging(false);
+    if (isDragging) {
+      setIsDragging(false);
+      setPan({ ...panRef.current });
+      if (printRef.current) {
+        printRef.current.style.transition = 'transform 0.12s cubic-bezier(0.2, 0, 0, 1)';
+        printRef.current.style.willChange = 'auto';
+      }
+    }
   };
 
-  // Multi-Touch Pinch-to-Zoom & Drag Support for Mobile
+  // Touch Handlers (Mobile)
   const handleTouchStart = (e) => {
-    if (e.target.closest('button, input, textarea, select, a')) return;
+    if (e.target.closest('button, input, textarea, select, a, [role="button"]')) return;
 
     if (e.touches.length === 2) {
       const dist = Math.hypot(
@@ -93,71 +125,125 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
         e.touches[0].clientY - e.touches[1].clientY
       );
       pinchDistanceRef.current = dist;
-      pinchStartZoomRef.current = zoom;
+      pinchStartZoomRef.current = zoomRef.current;
+      isPinchingRef.current = true;
       setIsDragging(false);
+      if (printRef.current) {
+        printRef.current.style.transition = 'none';
+        printRef.current.style.willChange = 'transform';
+      }
     } else if (e.touches.length === 1) {
-      // Double tap to toggle zoom
+      isPinchingRef.current = false;
+      const touch = e.touches[0];
       const now = Date.now();
-      if (now - lastTapTimeRef.current < 300) {
-        setZoom(prev => (prev > 1.05 ? 1 : 1.4));
+
+      // Double-tap zoom toggle
+      if (
+        now - lastTapTimeRef.current < 280 &&
+        dragStartRef.current.tapX !== undefined &&
+        Math.hypot(touch.clientX - dragStartRef.current.tapX, touch.clientY - dragStartRef.current.tapY) < 25
+      ) {
+        const nextZoom = zoomRef.current > 1.05 ? 1 : 1.35;
+        setZoom(nextZoom);
         setPan({ x: 0, y: 0 });
+        panRef.current = { x: 0, y: 0 };
         lastTapTimeRef.current = 0;
         return;
       }
       lastTapTimeRef.current = now;
 
-      const touch = e.touches[0];
       setIsDragging(true);
+      if (printRef.current) {
+        printRef.current.style.transition = 'none';
+        printRef.current.style.willChange = 'transform';
+      }
       dragStartRef.current = {
         x: touch.clientX,
         y: touch.clientY,
-        initialPanX: pan.x,
-        initialPanY: pan.y
+        tapX: touch.clientX,
+        tapY: touch.clientY,
+        initialPanX: panRef.current.x,
+        initialPanY: panRef.current.y
       };
     }
   };
 
   const handleTouchMove = (e) => {
-    if (e.touches.length === 2 && pinchDistanceRef.current) {
-      if (e.cancelable) e.preventDefault();
+    if (e.touches.length === 2 && pinchDistanceRef.current && isPinchingRef.current) {
       const currentDist = Math.hypot(
         e.touches[0].clientX - e.touches[1].clientX,
         e.touches[0].clientY - e.touches[1].clientY
       );
-      const ratio = currentDist / pinchDistanceRef.current;
-      const nextZoom = Math.min(2.5, Math.max(0.6, Number((pinchStartZoomRef.current * ratio).toFixed(2))));
-      setZoom(nextZoom);
-    } else if (isDragging && e.touches.length === 1) {
+      if (currentDist > 0 && pinchDistanceRef.current > 0) {
+        const ratio = currentDist / pinchDistanceRef.current;
+        const targetZoom = Math.min(2.5, Math.max(0.6, Math.round(pinchStartZoomRef.current * ratio * 100) / 100));
+        zoomRef.current = targetZoom;
+        const currentScale = Number((baseScale * targetZoom).toFixed(3));
+        effectiveScaleRef.current = currentScale;
+        applyLiveTransform(panRef.current.x, panRef.current.y, currentScale);
+      }
+    } else if (e.touches.length === 1 && isDragging && !isPinchingRef.current) {
       const touch = e.touches[0];
       const deltaX = touch.clientX - dragStartRef.current.x;
       const deltaY = touch.clientY - dragStartRef.current.y;
-      setPan({
-        x: dragStartRef.current.initialPanX + deltaX,
-        y: dragStartRef.current.initialPanY + deltaY
-      });
+      const newX = dragStartRef.current.initialPanX + deltaX;
+      const newY = dragStartRef.current.initialPanY + deltaY;
+      panRef.current = { x: newX, y: newY };
+      applyLiveTransform(newX, newY, effectiveScaleRef.current);
     }
   };
 
   const handleTouchEnd = (e) => {
     if (e.touches.length < 2) {
+      if (isPinchingRef.current) {
+        setZoom(zoomRef.current);
+      }
       pinchDistanceRef.current = null;
+      isPinchingRef.current = false;
     }
-    if (e.touches.length === 0) {
-      setIsDragging(false);
+    if (e.touches.length === 1) {
+      const touch = e.touches[0];
+      setIsDragging(true);
+      dragStartRef.current = {
+        x: touch.clientX,
+        y: touch.clientY,
+        tapX: touch.clientX,
+        tapY: touch.clientY,
+        initialPanX: panRef.current.x,
+        initialPanY: panRef.current.y
+      };
+    } else if (e.touches.length === 0) {
+      if (isDragging) {
+        setIsDragging(false);
+        setPan({ ...panRef.current });
+      }
+      if (printRef.current) {
+        printRef.current.style.transition = 'transform 0.12s cubic-bezier(0.2, 0, 0, 1)';
+        printRef.current.style.willChange = 'auto';
+      }
     }
   };
 
   const handleZoomIn = () => {
-    setZoom((prev) => Math.min(2.2, Number((prev + 0.15).toFixed(2))));
+    const nextZoom = Math.min(2.5, Math.round((zoomRef.current + 0.15) * 100) / 100);
+    setZoom(nextZoom);
   };
 
   const handleZoomOut = () => {
-    setZoom((prev) => Math.max(0.6, Number((prev - 0.15).toFixed(2))));
+    const nextZoom = Math.max(0.6, Math.round((zoomRef.current - 0.15) * 100) / 100);
+    setZoom(nextZoom);
   };
 
   const handleResetView = () => {
     setZoom(1);
     setPan({ x: 0, y: 0 });
+    panRef.current = { x: 0, y: 0 };
+    zoomRef.current = 1;
+    if (printRef.current) {
+      const currentScale = Number((baseScale * 1).toFixed(3));
+      effectiveScaleRef.current = currentScale;
+      printRef.current.style.transform = `scale(${currentScale}) translate3d(0px, 0px, 0)`;
+    }
   };
 
   // Extract initial details from record or student
@@ -347,7 +433,7 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
         <head>
           <title>Official Parent Summons - ${studentFullName}</title>
           <style>
-            @page { size: A4 portrait; margin: 15mm; }
+            @page { size: portrait; margin: 12mm 15mm; }
             body { font-family: 'Times New Roman', Times, serif; color: #1e293b; line-height: 1.5; margin: 0; padding: 20px; font-size: 13px; }
             .header-tbl { width: 100%; border-bottom: 2px solid #0f172a; padding-bottom: 12px; margin-bottom: 18px; }
             .ref-no { font-family: monospace; font-size: 11px; color: #64748b; }
@@ -580,12 +666,6 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
       setIsSendingSms(false);
     }
   };
-
-  // Scale Calculation: Preserves fixed 680px A4 geometry across phones & tablets
-  const isMobile = viewportWidth <= 768;
-  const baseWidth = 680;
-  const autoScale = isMobile ? Math.min(1, Math.max(0.42, (viewportWidth - 28) / baseWidth)) : 1;
-  const effectiveScale = autoScale * zoom;
 
   // Render Left Column / Drawer Form Content
   const renderFormContent = () => (
@@ -1639,6 +1719,7 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
               }}
             >
               <div
+                ref={printRef}
                 style={{
                   width: '680px',
                   minWidth: '680px',
@@ -1650,7 +1731,6 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
                 }}
               >
                 <div
-                  ref={printRef}
                   className="psm-preview-paper"
                   style={{
                     cursor: isDragging ? 'grabbing' : 'grab'
