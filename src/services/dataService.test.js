@@ -2,19 +2,38 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const supabaseState = vi.hoisted(() => ({
   configured: false,
-  responses: {}
+  responses: {},
+  calls: []
 }));
 
 vi.mock('../lib/supabase.js', () => ({
   isSupabaseConfigured: () => supabaseState.configured,
   supabase: {
     from(table) {
-      const response = supabaseState.responses[table] || { data: null, error: null };
+      let operation = 'select';
+      let payload;
+      let ordering;
+      const filters = [];
+      const copyPayload = (value) => Array.isArray(value)
+        ? value.map((item) => ({ ...item }))
+        : value && typeof value === 'object' ? { ...value } : value;
       const query = {
         select: () => query,
-        order: () => query,
+        order: (column, options) => { ordering = { column, options }; return query; },
         limit: () => query,
-        then: (resolve, reject) => Promise.resolve(response).then(resolve, reject)
+        insert: (values) => { operation = 'insert'; payload = values; return query; },
+        update: (values) => { operation = 'update'; payload = values; return query; },
+        delete: () => { operation = 'delete'; return query; },
+        eq: (column, value) => { filters.push([column, value]); return query; },
+        or: (expression) => { filters.push(['or', expression]); return query; },
+        then: (resolve, reject) => {
+          supabaseState.calls.push({ table, operation, payload: copyPayload(payload), ordering, filters: [...filters] });
+          const configuredResponse = supabaseState.responses[table];
+          const response = Array.isArray(configuredResponse)
+            ? configuredResponse.shift() || { data: null, error: null }
+            : configuredResponse || { data: null, error: null };
+          return Promise.resolve(response).then(resolve, reject);
+        }
       };
       return query;
     }
@@ -29,6 +48,7 @@ describe('dataService data sources', () => {
     sessionStorage.clear();
     supabaseState.configured = false;
     supabaseState.responses = {};
+    supabaseState.calls = [];
     dataService.invalidateCache();
   });
 
@@ -91,6 +111,121 @@ describe('dataService data sources', () => {
     ]));
 
     expect(await dataService.getStudents(true)).toEqual([]);
+  });
+
+  it('retries the student read without ordering when the lname column is unsupported', async () => {
+    supabaseState.configured = true;
+    supabaseState.responses.students = [
+      { data: null, error: { message: 'column lname does not exist' } },
+      { data: [{ id: 8, student_id: 'REMOTE-8', fname: 'Remote', lname: 'Learner' }], error: null }
+    ];
+
+    const students = await dataService.getStudents(true);
+    const readCalls = supabaseState.calls.filter((call) => call.table === 'students');
+
+    expect(students[0]).toMatchObject({ student_id: 'REMOTE-8', lrn: 'REMOTE-8' });
+    expect(readCalls).toHaveLength(2);
+    expect(readCalls[0].ordering).toEqual({ column: 'lname', options: { ascending: true } });
+    expect(readCalls[1].ordering).toBeUndefined();
+  });
+
+  it('retries student inserts without optional columns and then without an unsupported student_id', async () => {
+    supabaseState.configured = true;
+    supabaseState.responses.students = [
+      { data: null, error: { message: 'schema rejected insert' } },
+      { data: null, error: { message: 'column student_id does not exist' } },
+      { data: [{ id: 21 }], error: null }
+    ];
+
+    const student = await dataService.addStudent({
+      student_id: 'SCHEMA-21',
+      fname: 'Schema',
+      lname: 'Student',
+      track: 'SHS',
+      strand: 'STEM',
+      academicyear: '2026-2027'
+    });
+    const inserts = supabaseState.calls.filter((call) => call.table === 'students' && call.operation === 'insert');
+
+    expect(inserts).toHaveLength(3);
+    expect(inserts[0].payload[0]).toMatchObject({ student_id: 'SCHEMA-21', track: 'SHS', strand: 'STEM', academicyear: '2026-2027' });
+    expect(inserts[1].payload[0]).not.toHaveProperty('track');
+    expect(inserts[1].payload[0]).not.toHaveProperty('strand');
+    expect(inserts[1].payload[0]).not.toHaveProperty('academicyear');
+    expect(inserts[1].payload[0]).toHaveProperty('student_id', 'SCHEMA-21');
+    expect(inserts[2].payload[0]).not.toHaveProperty('student_id');
+    expect(student).toMatchObject({ student_id: 'SCHEMA-21', lrn: 'SCHEMA-21', fname: 'Schema' });
+  });
+
+  it('retries bulk student inserts after removing schema-optional roster columns', async () => {
+    supabaseState.configured = true;
+    supabaseState.responses.students = [
+      { data: null, error: { message: 'schema rejected roster columns' } },
+      { data: [{ id: 31 }], error: null }
+    ];
+
+    const result = await dataService.bulkAddStudents([{
+      student_id: 'BULK-SCHEMA-31',
+      fname: 'Bulk',
+      lname: 'Learner',
+      track: 'SHS',
+      strand: 'HUMSS',
+      academicyear: '2026-2027'
+    }]);
+    const inserts = supabaseState.calls.filter((call) => call.table === 'students' && call.operation === 'insert');
+
+    expect(result.insertedCount).toBe(1);
+    expect(inserts).toHaveLength(2);
+    expect(inserts[0].payload[0]).toHaveProperty('academicyear', '2026-2027');
+    expect(inserts[1].payload[0]).not.toHaveProperty('track');
+    expect(inserts[1].payload[0]).not.toHaveProperty('strand');
+    expect(inserts[1].payload[0]).not.toHaveProperty('academicyear');
+  });
+
+  it('falls back from student_id to LRN and prunes optional columns when updating', async () => {
+    supabaseState.configured = true;
+    supabaseState.responses.students = [
+      { data: [], error: null },
+      { data: null, error: { message: 'column track does not exist' } },
+      { data: [], error: null },
+      { data: [{ id: 41, student_id: 'LRN-41' }], error: null }
+    ];
+    localStorage.setItem('viotrack_students', JSON.stringify([
+      { id: 41, student_id: 'LRN-41', lrn: 'LRN-41', fname: 'Before', lname: 'Update' }
+    ]));
+
+    const result = await dataService.updateStudent('LRN-41', { fname: 'After', track: 'SHS' });
+    const updates = supabaseState.calls.filter((call) => call.table === 'students' && call.operation === 'update');
+
+    expect(updates).toHaveLength(4);
+    expect(updates.map((call) => call.filters[0])).toEqual([
+      ['student_id', 'LRN-41'],
+      ['lrn', 'LRN-41'],
+      ['student_id', 'LRN-41'],
+      ['lrn', 'LRN-41']
+    ]);
+    expect(updates[0].payload).toHaveProperty('track', 'SHS');
+    expect(updates[2].payload).not.toHaveProperty('track');
+    expect(result).toMatchObject({ student_id: 'LRN-41', lrn: 'LRN-41', track: 'SHS' });
+  });
+
+  it('retries non-numeric student deletion by LRN when student_id deletion errors', async () => {
+    supabaseState.configured = true;
+    supabaseState.responses.students = [
+      { data: null, error: { message: 'column student_id does not exist' } },
+      { data: null, error: null }
+    ];
+    localStorage.setItem('viotrack_students', JSON.stringify([
+      { id: 51, student_id: 'LRN-51', lrn: 'LRN-51', fname: 'Delete', lname: 'Me' }
+    ]));
+
+    expect(await dataService.deleteStudent('LRN-51')).toBe(true);
+    const deletes = supabaseState.calls.filter((call) => call.table === 'students' && call.operation === 'delete');
+
+    expect(deletes).toHaveLength(2);
+    expect(deletes[0].filters).toEqual([['student_id', 'LRN-51']]);
+    expect(deletes[1].filters).toEqual([['lrn', 'LRN-51']]);
+    expect(JSON.parse(localStorage.getItem('viotrack_students'))).toEqual([]);
   });
 
   it('uses live teacher and admin rows without merging local-only rows', async () => {

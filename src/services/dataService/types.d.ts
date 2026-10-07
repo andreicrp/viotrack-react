@@ -15,6 +15,33 @@ export interface Student {
   [key: string]: unknown;
 }
 
+export interface StudentInput {
+  student_id?: string | number;
+  lrn?: string | number;
+  fname?: string;
+  mname?: string;
+  lname?: string;
+  email?: string;
+  grade?: string;
+  track?: string;
+  strand?: string;
+  section?: string;
+  academicyear?: string;
+  gender?: string;
+  contact?: string;
+  parent_name?: string;
+  parent_contact?: string;
+  address?: string;
+  password?: string;
+  image?: string;
+  [key: string]: unknown;
+}
+
+export interface BulkStudentImportResult {
+  insertedCount: number;
+  errors: unknown[];
+}
+
 export interface Teacher {
   id: number | string;
   fname: string;
