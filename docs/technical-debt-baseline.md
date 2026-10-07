@@ -125,3 +125,18 @@ Latest main is [`e3d4b62edaad8a0e87e7507e6e81e6091a879a7e`](https://github.com/a
 ## Baseline after the 2026-10-08 RBAC UI commit
 
 Latest main is [`3831e350536cf230ff0d963c198dcb0fb7c036c4`](https://github.com/andreicrp/viotrack-react/commit/3831e350536cf230ff0d963c198dcb0fb7c036c4). It updates RBAC visibility in modal/page components only; no service, test, or dependency files changed. On clean main, **4 tests passed**, lint passed with **370 warnings and 0 errors**, and the standard-path build passed (281.82 kB `vendor-react`). The matching checkout path again produced the 2,230.37 kB chunk/advisory documented above. PR #1 had all four checks successful before this baseline refresh.
+
+## Baseline after the 2026-10-08 Student Directory PDF import/export commit
+
+Latest main is [`e530612c88619b8d7ac0a5297a9ff3e4ad1b8da1`](https://github.com/andreicrp/viotrack-react/commit/e530612c88619b8d7ac0a5297a9ff3e4ad1b8da1). It adds `pdfjs-dist` and changes Student Directory import/export UI plus `pdfHelper.js`; it does not modify data-service modules, tests, or service declarations. PDF import produces the existing student fields, adds the same `lrn`/year/image values used by CSV import, then calls the existing `dataService.bulkAddStudents` API, so no service contract change is needed.
+
+A clean detached checkout installed from the updated lockfile with `npm ci --ignore-scripts` and reported the existing single high-severity npm advisory. Baseline checks on `e530612`:
+
+| Command | Result on clean latest main |
+| --- | --- |
+| `npm test -- --reporter=verbose` | Passed: 1 file, 4 existing CSV/security/SMS tests. |
+| `npm run typecheck` | Not available on main; this PR provides the focused typecheck. |
+| `npm run lint -- --quiet` | Passed: 0 errors, 373 warnings. |
+| `npm run build` | Passed; 282.23 kB `vendor-react` from the detached checkout path. |
+
+PR #1's four GitHub checks were successful before rebasing onto this commit. The latest main also adds the `pdfjs-dist` runtime dependency; keep it while resolving the PR's separate JSDoc/test tooling changes.
