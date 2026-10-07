@@ -695,57 +695,64 @@ export const ScanQRPage = () => {
     });
   };
 
-  // 5-Second Staged Swing Loading & Verification Sequence
+  // Accurate Staged Verification Sequence
   const processScanWithAnimation = async (rawInput) => {
     setIsProcessingScan(true);
-    setScanProgressPercent(15);
+    setScanProgressPercent(25);
     setScanProcessingStep('Scanning visual QR matrix...');
     setScanProcessingSubstep('Optical code captured from device');
-    const startTime = Date.now();
 
     try {
+      // 1. Fetch active students
       const students = allStudents.length > 0 ? allStudents : await dataService.getStudents();
+      
+      // 2. Perform strict verification
       const matched = matchStudentFromScan(rawInput, students);
 
-      // Stage 1 (0 -> 1800ms): Scanning visual matrix
-      const elapsed1 = Date.now() - startTime;
-      if (elapsed1 < 1800) {
-        await new Promise(r => setTimeout(r, 1800 - elapsed1));
-      }
-
-      // Stage 2 (1800ms -> 3600ms): Database matching
-      setScanProgressPercent(65);
-      setScanProcessingStep('QR Matrix Verified! Locating student record...');
-      setScanProcessingSubstep('Querying conduct database & disciplinary files');
-
-      const elapsed2 = Date.now() - startTime;
-      if (elapsed2 < 3600) {
-        await new Promise(r => setTimeout(r, 3600 - elapsed2));
-      }
-
-      // Stage 3 (3600ms -> 5000ms): Profile preparation
-      setScanProgressPercent(100);
-      setScanProcessingStep('Student Profile Found! Finalizing summary...');
-      setScanProcessingSubstep('Preparing verified conduct report');
-
-      const finalElapsed = Date.now() - startTime;
-      if (finalElapsed < 5000) {
-        await new Promise(r => setTimeout(r, 5000 - finalElapsed));
-      }
-
-      setIsProcessingScan(false);
-      setScanProcessingStep('');
-      setScanProcessingSubstep('');
-      setScanProgressPercent(0);
+      // Brief animation for optical matrix scan
+      await new Promise(r => setTimeout(r, 350));
 
       if (matched) {
+        // Stage 2: Database matching successful
+        setScanProgressPercent(70);
+        setScanProcessingStep('QR Code Verified! Locating student record...');
+        setScanProcessingSubstep(`Student: ${matched.fname} ${matched.lname} (${matched.lrn || matched.id})`);
+
+        await new Promise(r => setTimeout(r, 450));
+
+        // Stage 3: Complete
+        setScanProgressPercent(100);
+        setScanProcessingStep('Student Record Verified!');
+        setScanProcessingSubstep('Loading disciplinary summary...');
+
+        await new Promise(r => setTimeout(r, 250));
+
+        setIsProcessingScan(false);
+        setScanProcessingStep('');
+        setScanProcessingSubstep('');
+        setScanProgressPercent(0);
+
         playScanSuccessSound();
         setScannedStudent(matched);
         loadStudentRecords(matched.id);
-        success(`Student Identified: ${matched.fname} ${matched.lname} (${matched.lrn})`);
+        success(`Student Identified: ${matched.fname} ${matched.lname} (${matched.lrn || matched.id})`);
       } else {
+        // Invalid / Foreign QR Code
+        setScanProgressPercent(100);
+        setScanProcessingStep('Invalid / Unrecognized QR Code');
+        setScanProcessingSubstep('No registered student record matches this QR payload');
+
         playScanErrorSound();
-        error('Invalid QR Code');
+        error('Invalid QR Code: Unrecognized student ID or badge');
+
+        // Allow user to see the invalid notice briefly, then dismiss & re-arm scanner
+        await new Promise(r => setTimeout(r, 1200));
+
+        setIsProcessingScan(false);
+        setScanProcessingStep('');
+        setScanProcessingSubstep('');
+        setScanProgressPercent(0);
+        isScanningLockedRef.current = false;
       }
     } catch (err) {
       setIsProcessingScan(false);
@@ -753,9 +760,11 @@ export const ScanQRPage = () => {
       setScanProcessingSubstep('');
       setScanProgressPercent(0);
       playScanErrorSound();
-      error('Invalid QR Code');
+      error('Invalid QR Code: Scan processing failed');
+      isScanningLockedRef.current = false;
     }
   };
+
 
   // Upload QR Image File with Multi-Engine Fallback
   const handleFileUpload = async (e) => {
@@ -1289,36 +1298,48 @@ export const ScanQRPage = () => {
         </div>
       </div>
 
-      {/* 5-Second Staged Loading & Verification Modal Overlay */}
+      {/* Staged Loading & Verification Modal Overlay */}
       {isProcessingScan && (
         <div className="student-scan-modal-overlay">
-          <div className="student-scan-modal-dialog" style={{ maxWidth: '440px', textAlign: 'center', padding: '32px 28px' }}>
-            <div className="scan-processing-state" style={{ margin: 0, padding: 0, gap: '16px' }}>
+          <div className="student-scan-modal-dialog" style={{ maxWidth: '420px', textAlign: 'center', padding: '28px 24px' }}>
+            <div className="scan-processing-state" style={{ margin: 0, padding: 0, gap: '14px' }}>
               {/* Matrix Scanner Hub */}
               <div className="scan-matrix-hub-wrapper">
-                <div className="scan-matrix-pulse ring-1" />
-                <div className="scan-matrix-pulse ring-2" />
-                <div className="scan-matrix-hub">
-                  <QrCode size={36} className="scan-matrix-icon" />
-                  <div className="scan-matrix-laser" />
-                  <div className="scan-matrix-corner top-left" />
-                  <div className="scan-matrix-corner top-right" />
-                  <div className="scan-matrix-corner bottom-left" />
-                  <div className="scan-matrix-corner bottom-right" />
+                <div className={`scan-matrix-pulse ring-1 ${scanProcessingStep.includes('Invalid') ? 'error-pulse' : ''}`} />
+                <div className={`scan-matrix-pulse ring-2 ${scanProcessingStep.includes('Invalid') ? 'error-pulse' : ''}`} />
+                <div className="scan-matrix-hub" style={scanProcessingStep.includes('Invalid') ? { borderColor: '#ef4444', background: '#fef2f2' } : {}}>
+                  {scanProcessingStep.includes('Invalid') ? (
+                    <AlertTriangle size={34} color="#dc2626" />
+                  ) : (
+                    <QrCode size={34} className="scan-matrix-icon" />
+                  )}
+                  {!scanProcessingStep.includes('Invalid') && <div className="scan-matrix-laser" />}
+                  <div className="scan-matrix-corner top-left" style={scanProcessingStep.includes('Invalid') ? { borderColor: '#ef4444' } : {}} />
+                  <div className="scan-matrix-corner top-right" style={scanProcessingStep.includes('Invalid') ? { borderColor: '#ef4444' } : {}} />
+                  <div className="scan-matrix-corner bottom-left" style={scanProcessingStep.includes('Invalid') ? { borderColor: '#ef4444' } : {}} />
+                  <div className="scan-matrix-corner bottom-right" style={scanProcessingStep.includes('Invalid') ? { borderColor: '#ef4444' } : {}} />
                 </div>
               </div>
 
               {/* Title & Substep */}
               <div className="scan-processing-header">
-                <h3 className="processing-title">Scanning & Verifying</h3>
-                <p className="processing-substep-text">
+                <h3 className="processing-title" style={scanProcessingStep.includes('Invalid') ? { color: '#dc2626' } : {}}>
+                  {scanProcessingStep.includes('Invalid') ? 'Unrecognized QR Code' : 'Scanning & Verifying'}
+                </h3>
+                <p className="processing-substep-text" style={scanProcessingStep.includes('Invalid') ? { color: '#ef4444' } : {}}>
                   {scanProcessingSubstep || 'Optical code captured from device'}
                 </p>
               </div>
 
               {/* Dynamic Status Pill */}
-              <div className="processing-step-pill">
-                <span className="processing-live-dot" />
+              <div
+                className="processing-step-pill"
+                style={scanProcessingStep.includes('Invalid') ? { background: '#fee2e2', borderColor: '#fca5a5', color: '#dc2626' } : {}}
+              >
+                <span
+                  className="processing-live-dot"
+                  style={scanProcessingStep.includes('Invalid') ? { background: '#ef4444', boxShadow: '0 0 8px #ef4444' } : {}}
+                />
                 <span className="processing-step-label">
                   {scanProcessingStep || 'Scanning visual QR matrix...'}
                 </span>
@@ -1326,19 +1347,19 @@ export const ScanQRPage = () => {
 
               {/* 3-Stage Pipeline Indicator */}
               <div className="scan-pipeline-steps">
-                <div className={`pipeline-step ${scanProgressPercent >= 15 ? 'active' : ''} ${scanProgressPercent > 15 ? 'completed' : ''}`}>
-                  <div className="pipeline-dot" />
+                <div className={`pipeline-step ${scanProgressPercent >= 25 ? 'active' : ''} ${scanProgressPercent > 25 && !scanProcessingStep.includes('Invalid') ? 'completed' : ''}`}>
+                  <div className="pipeline-dot" style={scanProcessingStep.includes('Invalid') ? { background: '#ef4444' } : {}} />
                   <span>Scan Matrix</span>
                 </div>
                 <div className="pipeline-connector" />
-                <div className={`pipeline-step ${scanProgressPercent >= 65 ? 'active' : ''} ${scanProgressPercent > 65 ? 'completed' : ''}`}>
-                  <div className="pipeline-dot" />
+                <div className={`pipeline-step ${scanProgressPercent >= 70 ? 'active' : ''} ${scanProgressPercent > 70 && !scanProcessingStep.includes('Invalid') ? 'completed' : ''}`}>
+                  <div className="pipeline-dot" style={scanProcessingStep.includes('Invalid') ? { background: '#ef4444' } : {}} />
                   <span>Database Match</span>
                 </div>
                 <div className="pipeline-connector" />
-                <div className={`pipeline-step ${scanProgressPercent >= 100 ? 'active completed' : ''}`}>
-                  <div className="pipeline-dot" />
-                  <span>Finalize</span>
+                <div className={`pipeline-step ${scanProgressPercent >= 100 ? (scanProcessingStep.includes('Invalid') ? 'active error' : 'active completed') : ''}`}>
+                  <div className="pipeline-dot" style={scanProcessingStep.includes('Invalid') ? { background: '#ef4444' } : {}} />
+                  <span>{scanProcessingStep.includes('Invalid') ? 'Rejected' : 'Finalize'}</span>
                 </div>
               </div>
 
@@ -1347,14 +1368,17 @@ export const ScanQRPage = () => {
                 <div className="scan-progress-bar-container">
                   <div
                     className="scan-progress-bar-fill"
-                    style={{ width: `${scanProgressPercent}%` }}
+                    style={{
+                      width: `${scanProgressPercent}%`,
+                      background: scanProcessingStep.includes('Invalid') ? '#ef4444' : undefined
+                    }}
                   >
-                    <div className="scan-progress-shimmer" />
+                    {!scanProcessingStep.includes('Invalid') && <div className="scan-progress-shimmer" />}
                   </div>
                 </div>
                 <div className="scan-progress-meta">
-                  <span className="scan-progress-status-label">
-                    {scanProgressPercent >= 100 ? 'Verification Complete' : 'Decrypting Payload'}
+                  <span className="scan-progress-status-label" style={scanProcessingStep.includes('Invalid') ? { color: '#ef4444' } : {}}>
+                    {scanProcessingStep.includes('Invalid') ? 'Validation Failed' : scanProgressPercent >= 100 ? 'Verification Complete' : 'Decrypting Payload'}
                   </span>
                   <span className="scan-progress-percentage">{scanProgressPercent}%</span>
                 </div>

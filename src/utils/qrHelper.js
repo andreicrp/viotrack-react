@@ -75,8 +75,9 @@ export const getStudentQrCodeUrl = (student, size = 300, margin = 1) => {
 };
 
 /**
- * Robust matcher for finding a student from any scanned QR code payload
- * (supports public URLs, localhost URLs, query parameters, custom prefixes, JSON, or direct Student IDs).
+ * Strict & Robust matcher for finding a student from a scanned QR code payload.
+ * Accurately validates genuine student badges while rejecting foreign/arbitrary QR codes
+ * (Wi-Fi codes, YouTube URLs, barcodes, vCards, unrelated links).
  *
  * @param {string} rawInput
  * @param {Array<object>} students
@@ -90,81 +91,126 @@ export const matchStudentFromScan = (rawInput, students = []) => {
     clean = decodeURIComponent(clean);
   } catch {}
 
-  // 1. Check for /verify-student/:id or /student-pass/:id (Public Pass Verification URLs)
+  const cleanLower = clean.toLowerCase();
+
+  // Explicitly reject common non-student QR payloads
+  if (
+    cleanLower.startsWith('wifi:') ||
+    cleanLower.startsWith('begin:vcard') ||
+    cleanLower.startsWith('matmsg:') ||
+    cleanLower.startsWith('smsto:') ||
+    cleanLower.startsWith('geo:')
+  ) {
+    return null;
+  }
+
+  // 1. Check for official VioTrack public verification & pass URLs (/verify-student/:id or /student-pass/:id)
   if (clean.includes('/verify-student/') || clean.includes('/student-pass/')) {
     const parts = clean.includes('/verify-student/')
       ? clean.split('/verify-student/')[1]
       : clean.split('/student-pass/')[1];
     const sid = (parts || '').split('?')[0].split('#')[0].trim();
-    const match = students.find(s => String(s.id) === String(sid) || String(s.student_id || s.lrn).trim() === String(sid));
-    if (match) return match;
+    if (sid) {
+      const match = students.find(
+        s => String(s.id) === sid || String(s.student_id || s.lrn).trim() === sid
+      );
+      if (match) return match;
+    }
   }
 
-  // 2. Check for /student-violation/:id or /adminstudentviolation/:id
+  // 2. Check for official VioTrack violation report URLs (/student-violation/:id or /adminstudentviolation/:id)
   if (clean.includes('/student-violation/') || clean.includes('/adminstudentviolation/')) {
     const parts = clean.includes('/student-violation/')
       ? clean.split('/student-violation/')[1]
       : clean.split('/adminstudentviolation/')[1];
     const sid = (parts || '').split('?')[0].split('#')[0].trim();
-    const match = students.find(s => String(s.id) === String(sid) || String(s.student_id || s.lrn).trim() === String(sid));
-    if (match) return match;
-  }
-
-  // 3. Query string parameters ?id= or ?student_id= or ?lrn=
-  if (clean.includes('id=') || clean.includes('student_id=') || clean.includes('lrn=')) {
-    try {
-      const queryString = clean.includes('?') ? clean.split('?')[1] : clean;
-      const urlParams = new URLSearchParams(queryString);
-      const sid = urlParams.get('id') || urlParams.get('student_id');
-      const lrn = urlParams.get('lrn');
-      if (sid) {
-        const match = students.find(s => String(s.id) === String(sid) || String(s.student_id || s.lrn) === String(sid));
-        if (match) return match;
-      }
-      if (lrn) {
-        const match = students.find(s => String(s.student_id || s.lrn).trim() === String(lrn).trim());
-        if (match) return match;
-      }
-    } catch {}
-  }
-
-  // 4. Custom formatted prefixes e.g. "VIOTRACK-STUDENT:109283746101" or "VIOTRACK:109283746101"
-  if (clean.toUpperCase().includes('VIOTRACK')) {
-    const stripped = clean.replace(/^.*VIOTRACK[^:]*:\s*/i, '').trim();
-    if (stripped) {
-      const match = students.find(s => String(s.student_id || s.lrn).trim() === stripped || String(s.id) === stripped);
+    if (sid) {
+      const match = students.find(
+        s => String(s.id) === sid || String(s.student_id || s.lrn).trim() === sid
+      );
       if (match) return match;
     }
   }
 
-  // 5. JSON formats
-  if (clean.startsWith('{') && clean.endsWith('}')) {
+  // 3. Query string parameters ?id= or ?student_id= or ?lrn= (Only if parameter is explicitly provided)
+  if (clean.includes('id=') || clean.includes('student_id=') || clean.includes('lrn=')) {
     try {
-      const parsed = JSON.parse(clean);
-      const lrnCandidate = parsed.student_id || parsed.lrn || parsed.LRN || parsed.uli || parsed.ULI || parsed.id;
-      const nameCandidate = parsed.name || parsed.Name || parsed.student_name;
-      if (lrnCandidate) {
-        const match = students.find(s => String(s.student_id || s.lrn).trim() === String(lrnCandidate).trim() || String(s.id) === String(lrnCandidate).trim());
+      const queryString = clean.includes('?') ? clean.split('?')[1] : clean;
+      const urlParams = new URLSearchParams(queryString);
+      const sid = (urlParams.get('id') || urlParams.get('student_id') || '').trim();
+      const lrn = (urlParams.get('lrn') || '').trim();
+
+      if (sid) {
+        const match = students.find(
+          s => String(s.id) === sid || String(s.student_id || s.lrn).trim() === sid
+        );
         if (match) return match;
       }
-      if (nameCandidate) {
-        const match = students.find(s => `${s.fname} ${s.lname}`.toLowerCase().includes(String(nameCandidate).toLowerCase()));
+      if (lrn) {
+        const match = students.find(
+          s => String(s.student_id || s.lrn).trim() === lrn
+        );
         if (match) return match;
       }
     } catch {}
   }
 
-  // 6. Direct numeric ID, 12-digit Student ID, or Name matching
-  return students.find(
-    s => {
-      const sid = String(s.student_id || s.lrn || '').trim();
-      return (
-        sid === clean ||
-        String(s.id) === clean ||
-        sid.includes(clean) ||
-        clean.includes(sid) ||
-        `${s.fname} ${s.lname}`.toLowerCase().includes(clean.toLowerCase())
+  // 4. Custom formatted institutional prefixes e.g. "VIOTRACK-STUDENT:109283746101" or "VIOTRACK:109283746101"
+  if (clean.toUpperCase().includes('VIOTRACK')) {
+    const stripped = clean.replace(/^.*VIOTRACK[^:]*:\s*/i, '').trim();
+    if (stripped) {
+      const match = students.find(
+        s => String(s.student_id || s.lrn).trim() === stripped || String(s.id) === stripped
       );
+      if (match) return match;
     }
-  ) || null;
+  }
+
+  // 5. JSON formats (e.g., {"student_id": "109283746106"})
+  if (clean.startsWith('{') && clean.endsWith('}')) {
+    try {
+      const parsed = JSON.parse(clean);
+      const lrnCandidate = String(parsed.student_id || parsed.lrn || parsed.LRN || parsed.uli || parsed.ULI || parsed.id || '').trim();
+      const nameCandidate = String(parsed.name || parsed.Name || parsed.student_name || '').trim().toLowerCase();
+
+      if (lrnCandidate) {
+        const match = students.find(
+          s => String(s.student_id || s.lrn).trim() === lrnCandidate || String(s.id) === lrnCandidate
+        );
+        if (match) return match;
+      }
+      if (nameCandidate) {
+        const match = students.find(
+          s => `${s.fname} ${s.lname}`.toLowerCase() === nameCandidate
+        );
+        if (match) return match;
+      }
+    } catch {}
+  }
+
+  // If the scanned payload is an unrelated arbitrary URL (e.g. google.com, youtube.com, etc.), reject it
+  if (cleanLower.startsWith('http://') || cleanLower.startsWith('https://')) {
+    return null;
+  }
+
+  // 6. Direct Exact Identification matching (LRN, Student ID, or Exact Name)
+  // Strict exact match prevents arbitrary numbers/letters from matching
+  const exactMatch = students.find(s => {
+    const sLrn = String(s.lrn || '').trim();
+    const sStudentId = String(s.student_id || '').trim();
+    const sId = String(s.id || '').trim();
+    const sFullName = `${s.fname || ''} ${s.lname || ''}`.trim().toLowerCase();
+
+    return (
+      (sLrn && sLrn === clean) ||
+      (sStudentId && sStudentId === clean) ||
+      (sId && sId === clean) ||
+      (sFullName && sFullName === cleanLower)
+    );
+  });
+
+  if (exactMatch) return exactMatch;
+
+  return null;
 };
+
