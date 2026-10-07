@@ -292,3 +292,10 @@ Clean latest main passed **4 existing tests**, lint (**395 warnings, 0 errors**)
 Latest main is [`46b39fbb0e581e68314fb9240691d45b7a641b18`](https://github.com/andreicrp/viotrack-react/commit/46b39fbb0e581e68314fb9240691d45b7a641b18). It adds `mobilePrintHelper.js` and wires it into the Print Data, Parent Summons, and Resolution modals. No data-service or dependency files changed.
 
 Clean latest main passed **4 existing tests**, lint (**395 warnings, 0 errors**), and build (2,663.93 kB `vendor-react`, 1,264.34 kB PDF worker, with the established chunk-size advisory). Main has no typecheck script. After rebasing the existing PR onto `46b39fb`, **24 tests passed**, typecheck passed, lint passed (**394 warnings, 0 errors**), and build passed. Matching-path clean-main and PR builds emitted identical PDF helper, PDF worker, and vendor React assets.
+
+
+## Baseline after the 2026-10-08 CSV native-share commit
+
+Latest main is [`6e8ec9f06689a9dfdcd839c02ca83e5ed7002342`](https://github.com/andreicrp/viotrack-react/commit/6e8ec9f06689a9dfdcd839c02ca83e5ed7002342). It updates `csvHelper.js` to support native mobile sharing for CSV exports; no data-service, test, or dependency files changed.
+
+Clean latest main passed **4 existing tests**, lint (**395 warnings, 0 errors**), and build (2,663.93 kB `vendor-react`, 1,264.34 kB PDF worker, with the established chunk-size advisory). Main has no typecheck script. After rebasing the existing PR onto `6e8ec9f`, **24 tests passed**, typecheck passed, lint passed (**394 warnings, 0 errors**), and build passed. Matching-path clean-main and PR builds emitted identical vendor React/PDF worker assets; the chunk-size advisory is unchanged.
