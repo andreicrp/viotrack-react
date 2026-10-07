@@ -22,6 +22,8 @@ import {
 import { dataService } from '../../services/dataService';
 import { useNotification } from '../../context/NotificationContext';
 import { lockBodyScroll, unlockBodyScroll } from '../../utils/scrollLock';
+import { CustomTimePicker } from './CustomTimePicker';
+import { CustomSelect } from './CustomSelect';
 
 export const BackupRestoreModal = ({ isOpen, onClose }) => {
   const { success, error, info } = useNotification();
@@ -733,25 +735,23 @@ export const BackupRestoreModal = ({ isOpen, onClose }) => {
                     <label style={{ display: 'block', fontSize: '12.5px', fontWeight: 700, color: '#334155', marginBottom: '6px' }}>
                       Backup Frequency
                     </label>
-                    <select
+                    <CustomSelect
                       value={schedule.frequency}
-                      onChange={(e) => setSchedule(s => ({ ...s, frequency: e.target.value }))}
-                      style={{ width: '100%', padding: '10px 14px', borderRadius: '10px', border: '1.5px solid #cbd5e1', fontSize: '13px', background: '#ffffff' }}
-                    >
-                      <option value="daily">Daily (Every 24 Hours)</option>
-                      <option value="weekly">Weekly (Every Sunday)</option>
-                    </select>
+                      onChange={(val) => setSchedule(s => ({ ...s, frequency: val }))}
+                      options={[
+                        { value: 'daily', label: 'Daily (Every 24 Hours)' },
+                        { value: 'weekly', label: 'Weekly (Every Sunday)' }
+                      ]}
+                    />
                   </div>
 
                   <div>
                     <label style={{ display: 'block', fontSize: '12.5px', fontWeight: 700, color: '#334155', marginBottom: '6px' }}>
                       Scheduled Trigger Time
                     </label>
-                    <input
-                      type="time"
+                    <CustomTimePicker
                       value={schedule.time || '00:00'}
-                      onChange={(e) => setSchedule(s => ({ ...s, time: e.target.value }))}
-                      style={{ width: '100%', padding: '9px 14px', borderRadius: '10px', border: '1.5px solid #cbd5e1', fontSize: '13px', background: '#ffffff' }}
+                      onChange={(val) => setSchedule(s => ({ ...s, time: val }))}
                     />
                   </div>
                 </div>
