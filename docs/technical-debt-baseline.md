@@ -117,3 +117,7 @@ Latest main is [`7bf1a21ea92d187907f0e5f7624a1fb9a1fa94f3`](https://github.com/a
 ## Baseline after the 2026-10-08 mobile filter-drawer fix
 
 Latest main is [`fadfa69173e65e0dbac0f2f794a116918b879c94`](https://github.com/andreicrp/viotrack-react/commit/fadfa69173e65e0dbac0f2f794a116918b879c94). It changes only filter-drawer interaction in three modal components; data-service and test files are unchanged. On a clean detached checkout, **4 tests passed**, lint passed with **371 warnings and 0 errors**, and the standard-path build passed (281.82 kB `vendor-react`). From the PR-matching `/viotrack-react` path, clean main again produced the same 2,230.37 kB vendor chunk and advisory recorded above. Main still has no service tests or typecheck script.
+
+## Baseline after the 2026-10-08 document-footer layout commit
+
+Latest main is [`e3d4b62edaad8a0e87e7507e6e81e6091a879a7e`](https://github.com/andreicrp/viotrack-react/commit/e3d4b62edaad8a0e87e7507e6e81e6091a879a7e). It changes print-document footer layout in the three modal components only; it does not touch data-service, tests, or dependencies. On a clean detached checkout, **4 tests passed**, lint passed with **371 warnings and 0 errors**, and the standard-path build passed (281.82 kB `vendor-react`). The same commit built from a path containing `viotrack-react` again produced 2,230.37 kB with the already documented chunk advisory. The existing PR checks were all successful before the rebase.
