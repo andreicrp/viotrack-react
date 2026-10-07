@@ -1,64 +1,60 @@
 # 🛡️ VIOTRACK: A Student Violation Tracking and Monitoring System Using QR Code and Dashboard
 
-A modern, responsive, full-featured **Student Violation Tracking and Monitoring System Using QR Code and Dashboard** built with **React 19**, **Vite 8**, and **Supabase**. Designed for schools in the Philippines with QR code scanning, live analytics, geolocation tracking, and SMS alerts via iProgTech.
+A modern, responsive, full-featured **Student Violation Tracking and Monitoring System Using QR Code and Dashboard** built with **React 19**, **Vite 8**, and **Supabase**. Designed for Philippine basic and secondary educational institutions with cryptographically signed QR badge scanning, live analytics, audio/haptic feedback, automated parent summons, geolocation tracking, and SMS alerts.
 
 ---
 
-## ✨ Features
+## ✨ Key Features & Capabilities
 
-### 📊 Analytics Dashboard
-- Real-time KPI stat cards (Minor, Serious, Major offenses, total students & violations)
-- Interactive violation trends area chart with toggleable severity series & date filters (Today / Week / Month / Custom Range)
-- Repeat & high-risk students leaderboard with infraction badges
-- Section breakdown by grade level with horizontal bar visualization
-- Integrated school calendar with color-coded event dots and upcoming events panel
-- Executive PDF summary report export
+### 📊 Disciplinary Analytics Dashboard
+- Real-time KPI summary cards (Minor, Serious, Major offenses, active sanctions, resolved cases).
+- Interactive violation trends area chart with toggleable severity series & date filters (Today / Week / Month / Custom Range).
+- Repeat & high-risk students leaderboard with infraction count badges.
+- Grade level and strand breakdown with horizontal bar visualizations.
+- Integrated school calendar with color-coded event markers and upcoming events panel.
+- Executive PDF dashboard summary export (`jspdf` + `jspdf-autotable`).
 
-### ⚠️ Violation Records & Resolution
-- Full-page violation log with multi-criteria filtering (Student name, LRN, offense type, status, severity, grade level)
-- Table view and Grid/Card view toggle with responsive layouts
-- Single & bulk incident logging with custom sanctions
-- Resolution modal with case clearance notes and celebration confetti animation
-- CSV export for violation records
+### 📷 Live QR Scanner & Tamper-Proof Badges
+- **Cryptographically Signed QR Protocol (`VT1:<lrn>:<checksum>`)**: Protects against forged QR codes generated on mobile phones.
+- **Audio & Haptic Feedback Engine**:
+  - 🔔 **Ascending High Chime (`C6 → E6 → B6`)** + Subtle tactile vibration on **Success / Authentic Badge**.
+  - ⚠️ **Double Low Buzz (`220Hz / 180Hz`)** + Heavy double vibration on **Invalid / Tampered QR**.
+  - Interactive **Feedback Settings Popover** to adjust volume, mute chimes, toggle haptics, and test profiles.
+- **Real-Time Camera Scanner (`html5-qrcode`)**: High-framerate optical matrix detection with front/rear camera switcher.
+- **Image File Upload Decoder**: Multi-engine canvas preprocessing for low-contrast or rotated photos.
+- **1-Click Violation Logging & Student History Modal**: Instant access to infraction logs from scan results.
 
-### 📋 Violation Types Management
-- Complete CRUD for violation categories (Minor / Serious / Major)
-- Sortable, searchable list with table and grid view modes
-- Bulk import via CSV with preview and validation
+### ⚠️ Violation Records & Case Management
+- Filterable violation registry (Student name, LRN, offense category, status, severity, grade, date).
+- Dual view modes: **Table View** and **Grid/Card View** with responsive mobile layout.
+- **Action Undo Toast Notifications**: 5-second countdown with `↶ Undo` button before permanently committing record updates or deletions.
+- Official Parent Summons form generator with scheduled conference details.
+- Case resolution modal with clearance notes and celebration confetti.
+- CSV and PDF incident report exports.
 
-### 🎓 Student Directory & ID Generation
-- Searchable student roster with photo avatars, parent/guardian info, and emergency contacts
-- Printable official Student ID cards with dynamic QR codes
-- CSV bulk student roster import with column mapping preview
-- Individual student violation detail page with complete infraction history
+### 🎓 Student Directory & ID Card Generation
+- Searchable student roster with photo avatars, parent/guardian contacts, and emergency info.
+- Printable official Student ID cards with dynamic signed QR codes.
+- Bulk student roster import via CSV with validation and duplicate prevention.
+- Individual student violation detail page with complete infraction history and status tracking.
 
-### 📷 Live QR Scanner & LRN Lookup
-- Real-time in-browser camera QR code scanner (`html5-qrcode`) for rapid student identification
-- Instant violation history lookup and 1-click violation recording from scan results
-- Manual LRN search fallback
+### ⌨️ Keyboard Navigation Shortcuts
+- **`/`**: Automatically focuses and selects the search bar on any page.
+- **`Esc`**: Closes active modals, drawers, or clears search focus.
+- **`N`**: Instantly opens the "Add Violation" modal on the Violations page.
 
-### 👨‍🏫 Adviser / My Class Portal
-- Dedicated portal for class advisers to monitor their assigned section's conduct and roster
-- Section-specific violation statistics and student list
+### 💀 Skeleton Loading Placeholders
+- Smooth animated shimmer pulse placeholders for tables, cards, feeds, and profiles, eliminating jarring screen flashes.
 
-### 👥 Faculty & Adviser Management
-- Full CRUD for teaching staff with department, position, and contact info
-- Adviser assignment to Grade 7–12 sections
-- Bulk teacher import via CSV
+### 🖨️ High-Contrast Print Stylesheet (`@media print`)
+- Ink-saving, pure black-and-white print styles for violation summary slips, data reports, and conference letters, optimized for school laser and dot-matrix printers.
 
-### 🛡️ Admin Users & Access Control
-- Role-based access (Super Admin / Discipline Officer / Faculty Teacher)
-- Admin user management with role assignment
-- Protected routes with 403 Forbidden handling
-
-### 📝 Activity Audit Trail
-- Comprehensive timestamped audit logging for all security and data changes
-- Filterable activity log with user, action type, and timestamp columns
-
-### 🖨️ Export & Reporting
-- Executive PDF dashboard summary report (`jspdf` + `jspdf-autotable`)
-- CSV export for violations, students, and teachers with formula injection protection
-- Printable Student ID badge cards
+### 🔒 Enterprise Security & Access Control
+- **Inactivity Workstation Lock**: Automatic screen lock after idle periods with PIN/password re-authentication.
+- **Role-Based Access Control (RBAC)**: Super Admin, Prefect of Discipline, and Teacher/Adviser permissions.
+- Protected routes with custom 403 Forbidden and 404 handler pages.
+- CSV Formula Injection (`=`, `+`, `-`, `@`) sanitization.
+- Timestamped activity audit trail logging all security and data modifications.
 
 ---
 
@@ -67,42 +63,38 @@ A modern, responsive, full-featured **Student Violation Tracking and Monitoring 
 | Layer | Technology |
 |---|---|
 | **Frontend** | React 19, React Router 7, Recharts |
-| **Build** | Vite 8, Route-level code splitting via `React.lazy` |
-| **Styling** | Vanilla CSS (no Tailwind), Lucide React icons |
-| **Backend** | Supabase (PostgreSQL + Auth + Realtime) or built-in offline mock data engine |
+| **Build Tool** | Vite 8, Route-level code splitting via `React.lazy` |
+| **Styling** | Vanilla CSS (Zero Tailwind), Lucide React icons |
+| **Backend & Auth** | Supabase (PostgreSQL + RLS + Realtime) or built-in offline mock data engine |
+| **Audio & Haptics** | Web Audio API Synthesizer + HTML5 Audio + Navigator Vibration API |
 | **Mobile** | Capacitor 8 (Android APK with native splash screen & status bar) |
-| **Testing & CI** | Vitest, oxlint, GitHub Actions |
+| **Testing & Linting** | Vitest, oxlint, GitHub Actions CI |
 | **PDF & CSV** | jsPDF + jsPDF-autotable, CSV security sanitization |
-| **QR** | html5-qrcode |
+| **QR Engine** | html5-qrcode, cryptographic FNV-1a checksum verification |
 
 ---
 
 ## 🚀 Getting Started
 
 ### Prerequisites
-
 - [Node.js](https://nodejs.org/) 18+ (Node 20+ recommended)
 - npm 9+
 
 ### 1. Install Dependencies
-
 ```bash
 cd Viotrack_React
 npm install
 ```
 
 ### 2. Configure Environment Variables
-
 Copy `.env.example` to `.env`:
-
 ```bash
 cp .env.example .env
 ```
 
-Configure your secrets and endpoints in `.env`:
-
+Configure your secrets in `.env`:
 ```env
-# Supabase Database Configuration
+# Supabase Database Configuration (Optional - runs on offline engine if empty)
 VITE_SUPABASE_URL=https://your-project-id.supabase.co
 VITE_SUPABASE_ANON_KEY=your-supabase-anon-key
 
@@ -112,19 +104,17 @@ VITE_IPROGSMS_ENDPOINT=https://sms.iprogtech.com/api/v1/sms_messages
 VITE_IPROGSMS_SENDER_NAME=PHCM VioTrack
 ```
 
-> ⚠️ **Security Notice**: `.env` and `*.keystore` files are excluded in `.gitignore`. Never commit API tokens, passwords, or release keystores to source control.
+> ⚠️ **Security Notice**: `.env` and `*.keystore` files are strictly excluded in `.gitignore`. Never commit API tokens, passwords, or release keystores to source control.
 
 ### 3. Start the Development Server
-
 ```bash
 npm run dev
 ```
-
 The app will be available at `http://localhost:5173`.
 
 ---
 
-## 🧪 Testing & Linting
+## 🧪 Testing & Build
 
 ```bash
 # Run unit tests (Vitest)
@@ -133,23 +123,9 @@ npm test
 # Run linter (oxlint)
 npm run lint
 
-# Run production build
+# Run production build (Vite)
 npm run build
 ```
-
-Continuous Integration is pre-configured via GitHub Actions in [`.github/workflows/ci.yml`](.github/workflows/ci.yml).
-
----
-
-## 🗄️ Supabase Setup (Optional)
-
-1. Create a project at [supabase.com](https://supabase.com).
-2. Open your Supabase project's **SQL Editor**.
-3. Copy the entire contents of [`src/lib/supabase-schema.sql`](src/lib/supabase-schema.sql) and click **Run**.
-4. Update your `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` in `.env`.
-5. Restart your development server.
-
-> **Note:** If Supabase keys are left blank, the application automatically runs on its built-in reactive offline storage engine with full mock seed data — all features work immediately without external dependencies!
 
 ---
 
@@ -169,19 +145,16 @@ npm run build:apk
 npm run build:debug
 ```
 
-### Android Signing Security:
-- Release keystores (`*.keystore`, `*.jks`) and passwords must be stored locally in `gradle.properties` or CI secrets, not committed into repository JSON files.
-
 ---
 
 ## 🔑 Demo Access Accounts
 
-Log in using the **1-click Quick Access** buttons on the login screen, or with these demo profiles:
+Log in using the **1-Click Quick Access** buttons on the login screen, or with these demo profiles:
 
-| Role | Email | Access |
-|---|---|---|
-| **Admin** | `admin@viotrack.edu` | Full administrative privileges |
-| **Teacher / Adviser** | `juan.delacruz@viotrack.edu` | Class Adviser for Grade 10 – Rizal |
+| Role | Email | Password | Access |
+|---|---|---|---|
+| **Admin** | `admin@viotrack.edu` | `admin123` | Full administrative & prefect privileges |
+| **Teacher / Adviser** | `juan.delacruz@viotrack.edu` | `teacher123` | Class Adviser for Grade 10 – Rizal |
 
 ---
 
@@ -189,17 +162,23 @@ Log in using the **1-click Quick Access** buttons on the login screen, or with t
 
 ```
 src/
-├── components/         # Modular UI components (modals, selects, layouts)
-├── context/            # AuthContext, NotificationContext
-├── css/                # Component-level stylesheets
-├── lib/                # Supabase client & database schema
-├── pages/              # Route-level page components
-├── services/           # Data & SMS services
-└── utils/              # Security, CSV helpers, and unit tests
+├── assets/             # Audio sound effects & graphic assets
+├── components/         # Modular UI components (violations, students, admin, layout)
+│   ├── common/         # SkeletonLoader, ScreenLockModal, CustomDatePicker, CustomSelect
+│   ├── layout/         # Top navbar, sidebar navigation, responsive wrappers
+│   ├── students/       # AddStudentModal, StudentIdModal, BulkImportModal
+│   └── violations/     # AddViolationModal, StatusModal, ResolutionModal, ParentSummonsModal
+├── context/            # AuthContext (Inactivity Lock), NotificationContext (Undo Toasts)
+├── css/                # Responsive stylesheets (dashboard, scan-qr, violations, print)
+├── hooks/              # useKeyboardShortcuts
+├── lib/                # Supabase client & SQL schema
+├── pages/              # Route-level pages (Dashboard, ScanQR, Violations, Students, Notifications)
+├── services/           # DataService, SMSService, caching & backup routines
+└── utils/              # qrHelper, scannerFeedback, pdfHelper, csvHelper, security
 ```
 
 ---
 
 ## 📄 License
 
-This project is proprietary software. All rights reserved.
+This project is proprietary software developed for educational institutions. All rights reserved.
