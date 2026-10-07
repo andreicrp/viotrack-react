@@ -44,6 +44,7 @@ import { dataService } from './dataService.js';
 
 describe('dataService data sources', () => {
   beforeEach(() => {
+    vi.restoreAllMocks();
     localStorage.clear();
     sessionStorage.clear();
     supabaseState.configured = false;
@@ -331,5 +332,47 @@ describe('dataService data sources', () => {
     const bulkAdded = students.find((item) => item.student_id === 'BASELINE-BULK-1');
     expect(bulkAdded.track).toBe('JHS');
     expect(bulkAdded.strand).toBe('JHS');
+  });
+
+  it('does not create a scheduled backup when automatic backups are disabled', async () => {
+    localStorage.setItem('viotrack_backup_schedule', JSON.stringify({
+      auto_backup_enabled: false,
+      frequency: 'daily',
+      time: '00:00',
+      last_run: new Date(Date.now() - 8 * 24 * 60 * 60 * 1000).toISOString()
+    }));
+    const createBackup = vi.spyOn(dataService, 'createDatabaseBackup').mockResolvedValue({});
+
+    expect(await dataService.checkAndRunScheduledBackup()).toBe(false);
+    expect(createBackup).not.toHaveBeenCalled();
+  });
+
+  it('creates and timestamps a due daily backup', async () => {
+    const previousRun = new Date(Date.now() - 25 * 60 * 60 * 1000).toISOString();
+    localStorage.setItem('viotrack_backup_schedule', JSON.stringify({
+      auto_backup_enabled: true,
+      frequency: 'daily',
+      time: '00:00',
+      last_run: previousRun
+    }));
+    const createBackup = vi.spyOn(dataService, 'createDatabaseBackup').mockResolvedValue({});
+
+    expect(await dataService.checkAndRunScheduledBackup()).toBe(true);
+    expect(createBackup).toHaveBeenCalledWith('scheduled_daily');
+    const updatedSettings = JSON.parse(localStorage.getItem('viotrack_backup_schedule'));
+    expect(Date.parse(updatedSettings.last_run)).toBeGreaterThan(Date.parse(previousRun));
+  });
+
+  it('does not create a weekly backup before seven days have elapsed', async () => {
+    localStorage.setItem('viotrack_backup_schedule', JSON.stringify({
+      auto_backup_enabled: true,
+      frequency: 'weekly',
+      time: '00:00',
+      last_run: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000).toISOString()
+    }));
+    const createBackup = vi.spyOn(dataService, 'createDatabaseBackup').mockResolvedValue({});
+
+    expect(await dataService.checkAndRunScheduledBackup()).toBe(false);
+    expect(createBackup).not.toHaveBeenCalled();
   });
 });

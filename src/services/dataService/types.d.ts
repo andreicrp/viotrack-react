@@ -42,6 +42,13 @@ export interface BulkStudentImportResult {
   errors: unknown[];
 }
 
+export interface BackupScheduleSettings {
+  auto_backup_enabled: boolean;
+  frequency: 'daily' | 'weekly';
+  time: string;
+  last_run?: string | null;
+}
+
 export interface Teacher {
   id: number | string;
   fname: string;

@@ -6,6 +6,7 @@
  * @typedef {import('./types').Student} Student
  * @typedef {import('./types').StudentInput} StudentInput
  * @typedef {import('./types').BulkStudentImportResult} BulkStudentImportResult
+ * @typedef {import('./types').BackupScheduleSettings} BackupScheduleSettings
  * @typedef {import('./types').Teacher} Teacher
  * @typedef {import('./types').ViolationType} ViolationType
  * @typedef {import('./types').IncidentRecord} IncidentRecord
