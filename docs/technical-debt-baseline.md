@@ -171,3 +171,9 @@ Latest main is [`3fc25e628b70eee70fb5acb4406c25c7440fd4c4`](https://github.com/a
 On a clean checkout of latest main, `npm test -- --reporter=verbose` passed (4 tests in 1 file), `npm run lint -- --quiet` passed (372 warnings, 0 errors), and `npm run build` passed (282.23 kB `vendor-react` from the detached checkout path). Main still has no typecheck script. A matching-path build of clean main emitted the same `vendor-react` chunk (2,663.31 kB) and bundled PDF worker (1,264.34 kB) as the rebased PR.
 
 After rebasing the existing PR onto `3fc25e6`, all 21 tests, the JSDoc typecheck, lint (371 warnings, 0 errors), and build passed. This commit only prompted a baseline/report refresh; the data-service implementation was already current and remains unchanged.
+
+## Baseline after the 2026-10-08 jsPDF autoTable plugin fix
+
+Latest main is [`754cee6d61c2025115366baed09eab4f90faac35`](https://github.com/andreicrp/viotrack-react/commit/754cee6d61c2025115366baed09eab4f90faac35). It changes only `src/utils/pdfHelper.js`, attaching the autoTable plugin/wrapper to dynamically created jsPDF instances; no data-service or test files changed, so no service-code changes were needed.
+
+A clean latest-main checkout passed **4 existing tests**, lint (**372 warnings, 0 errors**), and build; main still has no typecheck script. After rebasing the existing PR onto `754cee6`, **21 tests passed**, the JSDoc typecheck passed, lint had **371 warnings and 0 errors**, and build passed. Clean main and the PR generated identical matching-path outputs: `pdfHelper-DsOVNyvJ.js` (3.93 kB), `pdf.worker.min-CjEcRF4W.mjs` (1,264.34 kB), and `vendor-react-Wu-iWA7h.js` (2,663.31 kB); the existing chunk-size advisory is baseline-equivalent.
