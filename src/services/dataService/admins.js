@@ -27,20 +27,9 @@ export const adminsMethods = {
           }
         }
 
-        const localList = getStored('admins', INITIAL_ADMINS);
-        let list = [];
-
-        if (remoteList && remoteList.length > 0) {
-          const remoteEmailMap = new Map(remoteList.map(a => [String(a.email || '').toLowerCase(), a]));
-          const mergedRemote = remoteList.map(ra => {
-            const la = localList.find(l => String(l.email || '').toLowerCase() === String(ra.email || '').toLowerCase() || l.id === ra.id);
-            return la ? { ...la, ...ra, password: ra.password || la.password } : ra;
-          });
-          const extraLocal = localList.filter(la => la.email && !remoteEmailMap.has(String(la.email).toLowerCase()));
-          list = [...mergedRemote, ...extraLocal];
-        } else {
-          list = localList;
-        }
+        const list = (isSupabaseConfigured() && remoteList !== null)
+          ? remoteList
+          : getStored('admins', []);
 
         _cache.data.admins = list;
         _cache.timestamps.admins = Date.now();

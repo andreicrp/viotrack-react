@@ -37,24 +37,18 @@ export const eventsMethods = {
       }
 
       return executeWithDeduplication('school_events', async () => {
-        let list = null;
+        let remoteList = null;
         if (isSupabaseConfigured()) {
           try {
             const { data, error } = await supabase.from('school_events').select('*').order('date', { ascending: true });
-            if (!error && data && data.length > 0) list = data;
+            if (!error && data) remoteList = data;
           } catch (err) {
             console.warn('Supabase getSchoolEvents error:', err);
           }
         }
-        if (!list) {
-          const current = getStored('school_events', null);
-          if (!current || current.length === 0) {
-            setStored('school_events', INITIAL_SCHOOL_EVENTS);
-            list = INITIAL_SCHOOL_EVENTS;
-          } else {
-            list = current;
-          }
-        }
+        const list = (isSupabaseConfigured() && remoteList !== null)
+          ? remoteList
+          : getStored('school_events', []);
         _cache.data.school_events = list;
         _cache.timestamps.school_events = Date.now();
         return list;

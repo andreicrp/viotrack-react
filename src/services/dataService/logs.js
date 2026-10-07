@@ -11,22 +11,19 @@ export const logsMethods = {
         return cached;
       }
 
-      if (!forceRefresh && cached && cacheAge < CACHE_CONFIG.STALE_TTL) {
-        this.getActivityLogs(true).catch(() => {});
-        return cached;
-      }
-
       return executeWithDeduplication('activity_logs', async () => {
-        let list = null;
+        let remoteList = null;
         if (isSupabaseConfigured()) {
           try {
             const { data, error } = await supabase.from('activity_logs').select('*').order('id', { ascending: false }).limit(100);
-            if (!error && data && data.length > 0) list = data;
+            if (!error && data) remoteList = data;
           } catch (err) {
             console.warn('Supabase getActivityLogs error:', err);
           }
         }
-        if (!list) list = getStored('activity_logs', INITIAL_LOGS);
+        const list = (isSupabaseConfigured() && remoteList !== null)
+          ? remoteList
+          : getStored('activity_logs', []);
         _cache.data.activity_logs = list;
         _cache.timestamps.activity_logs = Date.now();
         return list;

@@ -32,20 +32,9 @@ export const teachersMethods = {
           }
         }
 
-        const localList = getStored('teachers', INITIAL_TEACHERS);
-        let list = [];
-
-        if (remoteList && remoteList.length > 0) {
-          const remoteEmailMap = new Map(remoteList.map(t => [String(t.email || '').toLowerCase(), t]));
-          const mergedRemote = remoteList.map(rt => {
-            const lt = localList.find(l => String(l.email || '').toLowerCase() === String(rt.email || '').toLowerCase() || l.id === rt.id);
-            return lt ? { ...lt, ...rt, password: rt.password || lt.password } : rt;
-          });
-          const extraLocal = localList.filter(lt => lt.email && !remoteEmailMap.has(String(lt.email).toLowerCase()));
-          list = [...mergedRemote, ...extraLocal];
-        } else {
-          list = localList;
-        }
+        const list = (isSupabaseConfigured() && remoteList !== null)
+          ? remoteList
+          : getStored('teachers', []);
 
         _cache.data.teachers = list;
         _cache.timestamps.teachers = Date.now();

@@ -29,55 +29,23 @@ export const studentsMethods = {
         if (isSupabaseConfigured()) {
           try {
             const { data, error } = await supabase.from('students').select('*').order('lname', { ascending: true });
-            if (!error && data && data.length > 0) remoteList = data;
+            if (!error && data) remoteList = data;
           } catch (e) {
             console.warn('Supabase getStudents notice:', e);
           }
         }
 
-        const localList = getStored('students', INITIAL_STUDENTS);
-        let list = [];
-
-        if (remoteList && remoteList.length > 0) {
-          const remoteLrnMap = new Map(remoteList.map(s => [String(s.student_id || s.lrn || '').toLowerCase(), s]));
-          const mergedRemote = remoteList.map(rs => {
-            const sid = String(rs.student_id || rs.lrn || '').trim();
-            const normalizedRs = { ...rs, student_id: sid, lrn: sid };
-            const ls = localList.find(l => String(l.student_id || l.lrn || '').toLowerCase() === sid.toLowerCase() || l.id === rs.id);
-            return ls ? { ...ls, ...normalizedRs, password: rs.password || ls.password } : normalizedRs;
-          });
-          const extraLocal = localList.filter(ls => (ls.student_id || ls.lrn) && !remoteLrnMap.has(String(ls.student_id || ls.lrn).toLowerCase()));
-          list = [...mergedRemote, ...extraLocal];
-        } else {
-          list = localList.map(s => {
-            const sid = String(s.student_id || s.lrn || '').trim();
-            return { ...s, student_id: sid, lrn: sid };
-          });
-        }
-
-        const maleAvatars = [
-          'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150&auto=format&fit=crop&q=80',
-          'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
-          'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80',
-          'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=150&auto=format&fit=crop&q=80'
-        ];
-        const femaleAvatars = [
-          'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&auto=format&fit=crop&q=80',
-          'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80',
-          'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
-          'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&auto=format&fit=crop&q=80'
-        ];
-
-        const initialMap = new Map(INITIAL_STUDENTS.map(init => [init.id, init]));
+        const list = (isSupabaseConfigured() && remoteList !== null)
+          ? remoteList
+          : getStored('students', []);
         const processed = list.map(s => {
           const sid = String(s.student_id || s.lrn || '').trim();
-          const base = { ...s, student_id: sid, lrn: sid };
-          if (base.image && !base.image.includes('ui-avatars.com')) return base;
-          const seed = initialMap.get(base.id);
-          if (seed?.image) return { ...base, image: seed.image };
-          const pool = (base.gender || '').toLowerCase() === 'female' ? femaleAvatars : maleAvatars;
-          const assignedImage = pool[(base.id || 1) % pool.length];
-          return { ...base, image: assignedImage };
+          return {
+            ...s,
+            student_id: sid,
+            lrn: sid,
+            image: s.image || `https://ui-avatars.com/api/?name=${encodeURIComponent((s.fname || '') + ' ' + (s.lname || ''))}&background=07345f&color=fff&bold=true`
+          };
         });
 
         _cache.data.students = processed;
