@@ -246,3 +246,209 @@ export function parseStudentRosterFromPdfLines(rawLines) {
 
   return candidates;
 }
+
+// Teacher Roster PDF Parser
+export function parseTeacherRosterFromPdfLines(rawLines) {
+  if (!Array.isArray(rawLines) || rawLines.length === 0) return [];
+
+  const candidates = [];
+  const EMAIL_REGEX = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b/;
+  const PHONE_REGEX = /\b(09\d{9}|\+639\d{9})\b/;
+
+  for (const lineTokens of rawLines) {
+    const joined = lineTokens.join(' ');
+    
+    // Skip headers
+    if (
+      joined.toLowerCase().includes('university of perpetual help') ||
+      joined.toLowerCase().includes('viotrack') ||
+      joined.toLowerCase().includes('faculty directory') ||
+      joined.toLowerCase().includes('academic rank') ||
+      (joined.toLowerCase().includes('email') && joined.toLowerCase().includes('department'))
+    ) {
+      continue;
+    }
+
+    let fname = '';
+    let mname = '';
+    let lname = '';
+    let email = '';
+    let contact = '09181112233';
+    let department = 'Academic Faculty';
+    let position = 'Teacher I';
+    let specialization = 'General Education';
+    let gender = 'Male';
+
+    // Email
+    const emailMatch = joined.match(EMAIL_REGEX);
+    if (emailMatch) email = emailMatch[0];
+
+    // Phone
+    const phoneMatch = joined.match(PHONE_REGEX);
+    if (phoneMatch) contact = phoneMatch[0];
+
+    // Gender
+    if (/\b(Female|F)\b/i.test(joined)) gender = 'Female';
+    else if (/\b(Male|M)\b/i.test(joined)) gender = 'Male';
+
+    // Department
+    if (/Science/i.test(joined)) department = 'Science Department';
+    else if (/Math/i.test(joined)) department = 'Mathematics Department';
+    else if (/English/i.test(joined)) department = 'English Department';
+    else if (/Social/i.test(joined) || /Filipino/i.test(joined)) department = 'Social Studies';
+    else if (/MAPEH/i.test(joined)) department = 'MAPEH Department';
+    else if (/ICT|Tech/i.test(joined)) department = 'TVL / ICT Department';
+
+    // Names
+    const cleanTokens = lineTokens.filter(t => 
+      !EMAIL_REGEX.test(t) && 
+      !PHONE_REGEX.test(t) && 
+      !/^\d+$/.test(t) &&
+      !['Male', 'Female', 'Teacher', 'Master', 'Adviser'].includes(t)
+    );
+
+    if (cleanTokens.length >= 2) {
+      fname = cleanTokens[0];
+      lname = cleanTokens[cleanTokens.length - 1];
+      if (cleanTokens.length > 2) {
+        mname = cleanTokens.slice(1, -1).join(' ');
+      }
+    } else if (cleanTokens.length === 1) {
+      fname = cleanTokens[0];
+      lname = 'Educator';
+    }
+
+    if (fname) {
+      if (!email) {
+        email = `${fname.toLowerCase()}.${lname.toLowerCase()}@viotrack.edu`;
+      }
+      candidates.push({
+        fname,
+        mname,
+        lname,
+        email,
+        contact,
+        department,
+        position,
+        specialization,
+        gender
+      });
+    }
+  }
+
+  return candidates;
+}
+
+// Admin Roster PDF Parser
+export function parseAdminRosterFromPdfLines(rawLines) {
+  if (!Array.isArray(rawLines) || rawLines.length === 0) return [];
+
+  const candidates = [];
+  const EMAIL_REGEX = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b/;
+  const PHONE_REGEX = /\b(09\d{9}|\+639\d{9})\b/;
+
+  for (const lineTokens of rawLines) {
+    const joined = lineTokens.join(' ');
+    
+    // Skip headers
+    if (
+      joined.toLowerCase().includes('university of perpetual help') ||
+      joined.toLowerCase().includes('viotrack') ||
+      joined.toLowerCase().includes('administrators registry') ||
+      (joined.toLowerCase().includes('email') && joined.toLowerCase().includes('role'))
+    ) {
+      continue;
+    }
+
+    let fname = '';
+    let lname = '';
+    let email = '';
+    let contact = '09171112233';
+    let role = 'Admin';
+    let status = 'Active';
+
+    const emailMatch = joined.match(EMAIL_REGEX);
+    if (emailMatch) email = emailMatch[0];
+
+    const phoneMatch = joined.match(PHONE_REGEX);
+    if (phoneMatch) contact = phoneMatch[0];
+
+    if (/Super/i.test(joined)) role = 'Super Admin';
+    else if (/Discipline/i.test(joined)) role = 'Discipline Officer';
+    else if (/Staff/i.test(joined)) role = 'Admin Staff';
+
+    const cleanTokens = lineTokens.filter(t => 
+      !EMAIL_REGEX.test(t) && 
+      !PHONE_REGEX.test(t) && 
+      !/^\d+$/.test(t) &&
+      !['Admin', 'Super', 'Active', 'Officer'].includes(t)
+    );
+
+    if (cleanTokens.length >= 2) {
+      fname = cleanTokens[0];
+      lname = cleanTokens[cleanTokens.length - 1];
+    } else if (cleanTokens.length === 1) {
+      fname = cleanTokens[0];
+      lname = 'Admin';
+    }
+
+    if (fname) {
+      if (!email) email = `${fname.toLowerCase()}.${lname.toLowerCase()}@viotrack.edu`;
+      candidates.push({
+        fname,
+        lname,
+        email,
+        contact,
+        role,
+        status
+      });
+    }
+  }
+
+  return candidates;
+}
+
+// Violation Types PDF Parser
+export function parseViolationRosterFromPdfLines(rawLines) {
+  if (!Array.isArray(rawLines) || rawLines.length === 0) return [];
+
+  const candidates = [];
+
+  for (const lineTokens of rawLines) {
+    const joined = lineTokens.join(' ');
+    
+    // Skip headers
+    if (
+      joined.toLowerCase().includes('university of perpetual help') ||
+      joined.toLowerCase().includes('viotrack') ||
+      joined.toLowerCase().includes('violation catalog') ||
+      (joined.toLowerCase().includes('severity') && joined.toLowerCase().includes('title'))
+    ) {
+      continue;
+    }
+
+    let type = 'Minor';
+    if (/\b(Major|Severe|Critical)\b/i.test(joined)) type = 'Major';
+    else if (/\b(Serious|Medium)\b/i.test(joined)) type = 'Major';
+    else if (/\b(Minor|Light)\b/i.test(joined)) type = 'Minor';
+
+    const cleanTokens = lineTokens.filter(t => 
+      !/^\d+$/.test(t) && 
+      !['Major', 'Minor', 'Severity', 'Default', 'Sanction'].includes(t)
+    );
+
+    if (cleanTokens.length >= 1) {
+      const title = cleanTokens.join(' ');
+      if (title.length >= 4) {
+        candidates.push({
+          title,
+          type,
+          description: `Infraction classified under ${type} violations policy.`,
+          default_sanction: type === 'Major' ? 'Parent Summon & Written Reprimand' : 'Verbal Warning & Counseling'
+        });
+      }
+    }
+  }
+
+  return candidates;
+}

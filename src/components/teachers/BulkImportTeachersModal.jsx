@@ -1,9 +1,26 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { Modal } from '../common/Modal';
 import { dataService } from '../../services/dataService';
 import { useNotification } from '../../context/NotificationContext';
-import { FileSpreadsheet, Upload, Download } from 'lucide-react';
+import {
+  FileSpreadsheet,
+  Upload,
+  Download,
+  CheckCircle2,
+  AlertTriangle,
+  Layers,
+  Sparkles,
+  Eye,
+  RefreshCw,
+  XCircle,
+  FileCheck,
+  FileText,
+  File,
+  FileType,
+  GraduationCap
+} from 'lucide-react';
 import { parseCsvString, readFileAsText, downloadSampleCsv } from '../../utils/csvHelper';
+import { extractTextFromPdf, parseTeacherRosterFromPdfLines } from '../../utils/pdfHelper';
 
 const SAMPLE_TEACHERS_CSV = `First Name,Middle Name,Last Name,Email,Contact,Department,Specialization,Gender
 Manuel,L.,Quezon,manuel.quezon@viotrack.edu,09181112233,Social Studies,Philippine History,Male
@@ -25,23 +42,71 @@ const FEMALE_AVATARS = [
   'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=150&auto=format&fit=crop&q=80'
 ];
 
-export const BulkImportTeachersModal = ({ isOpen, onClose, onImported }) => {
+export const BulkImportTeachersModal = ({ isOpen, onClose, onImported, initialFormat = 'all' }) => {
   const { success, error, info } = useNotification();
+  const [activeTab, setActiveTab] = useState(initialFormat === 'pdf' ? 'pdf' : 'csv');
   const [csvText, setCsvText] = useState('');
+  const [pdfParsedTeachers, setPdfParsedTeachers] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [parsingPdf, setParsingPdf] = useState(false);
   const [fileName, setFileName] = useState('');
+  const [fileType, setFileType] = useState(initialFormat === 'pdf' ? 'pdf' : 'csv');
   const fileInputRef = useRef(null);
+
+  useEffect(() => {
+    if (isOpen) {
+      setActiveTab(initialFormat === 'pdf' ? 'pdf' : 'csv');
+      setFileType(initialFormat === 'pdf' ? 'pdf' : 'csv');
+      setFileName('');
+      setCsvText('');
+      setPdfParsedTeachers([]);
+    }
+  }, [isOpen, initialFormat]);
 
   const handleFileUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    const isPdf = file.name.toLowerCase().endsWith('.pdf') || file.type === 'application/pdf';
+
     try {
-      const text = await readFileAsText(file);
-      setCsvText(text);
-      setFileName(file.name);
-      info(`Loaded ${file.name} successfully!`);
+      if (isPdf) {
+        setParsingPdf(true);
+        setFileName(file.name);
+        setFileType('pdf');
+        setActiveTab('pdf');
+
+        info(`Parsing faculty roster PDF: ${file.name}...`);
+        const { rawLines } = await extractTextFromPdf(file);
+        const parsed = parseTeacherRosterFromPdfLines(rawLines);
+
+        if (parsed.length === 0) {
+          error('Could not detect faculty rows in this PDF. Please check document formatting.');
+        } else {
+          const withAvatars = parsed.map((t, i) => {
+            const isFem = (t.gender || '').toLowerCase().startsWith('f');
+            const avatars = isFem ? FEMALE_AVATARS : MALE_AVATARS;
+            return {
+              ...t,
+              image: avatars[(i + Math.floor(Math.random() * 4)) % avatars.length]
+            };
+          });
+          setPdfParsedTeachers(withAvatars);
+          success(`Extracted ${withAvatars.length} faculty candidate records from PDF!`);
+        }
+      } else {
+        const text = await readFileAsText(file);
+        setCsvText(text);
+        setFileName(file.name);
+        setFileType('csv');
+        setActiveTab('csv');
+        info(`Loaded CSV spreadsheet: ${file.name}`);
+      }
     } catch (err) {
-      error('Failed to read file: ' + err.message);
+      error(`Failed to process ${isPdf ? 'PDF' : 'CSV'} file: ` + err.message);
+    } finally {
+      setParsingPdf(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
     }
   };
 
@@ -50,29 +115,22 @@ export const BulkImportTeachersModal = ({ isOpen, onClose, onImported }) => {
     success('Downloaded faculty import template CSV!');
   };
 
-  const handleParseAndUpload = async () => {
-    if (!csvText.trim()) {
-      error('Please upload a CSV file or paste faculty rows.');
-      return;
-    }
-
-    setLoading(true);
+  // Parsed CSV Candidate Rows
+  const parsedCsvTeachers = useMemo(() => {
+    if (!csvText.trim()) return [];
     try {
       const rows = parseCsvString(csvText);
-      if (rows.length === 0) throw new Error('No valid rows found.');
+      if (rows.length === 0) return [];
 
       const firstRow = rows[0];
       const hasHeader = firstRow.some(col => 
-        ['first name', 'fname', 'name', 'email', 'teacher', 'faculty'].includes(col.toLowerCase())
+        ['first name', 'fname', 'name', 'email', 'teacher', 'faculty'].includes(col.toLowerCase().trim())
       );
       const dataRows = hasHeader ? rows.slice(1) : rows;
 
-      if (dataRows.length === 0) throw new Error('No faculty rows to import.');
-
-      let count = 0;
-      for (let i = 0; i < dataRows.length; i++) {
-        const parts = dataRows[i];
-        if (parts.length >= 2 && parts.some(p => p.trim())) {
+      return dataRows
+        .filter(parts => parts.length >= 2 && parts.some(p => p.trim()))
+        .map((parts, i) => {
           const fname = parts[0]?.trim() || 'Faculty';
           const mname = parts[1]?.trim() || '';
           const lname = parts[2]?.trim() || 'Educator';
@@ -86,25 +144,47 @@ export const BulkImportTeachersModal = ({ isOpen, onClose, onImported }) => {
           const avatars = isFem ? FEMALE_AVATARS : MALE_AVATARS;
           const assignedImage = avatars[(i + Math.floor(Math.random() * 4)) % avatars.length];
 
-          await dataService.addTeacher({
+          return {
             fname,
             mname,
             lname,
             email,
             contact,
             department,
+            position: 'Teacher I',
             specialization,
             gender: isFem ? 'Female' : 'Male',
             image: assignedImage
-          });
-          count++;
-        }
+          };
+        });
+    } catch {
+      return [];
+    }
+  }, [csvText]);
+
+  const activeCandidateList = fileType === 'pdf' && pdfParsedTeachers.length > 0
+    ? pdfParsedTeachers
+    : parsedCsvTeachers;
+
+  const handleParseAndUpload = async () => {
+    if (activeCandidateList.length === 0) {
+      error(`No valid faculty records found in ${fileType.toUpperCase()}.`);
+      return;
+    }
+
+    setLoading(true);
+    try {
+      let count = 0;
+      for (const t of activeCandidateList) {
+        await dataService.addTeacher(t);
+        count++;
       }
 
-      success(`Successfully imported ${count} faculty members!`);
+      success(`Successfully enrolled ${count} faculty members from ${fileType.toUpperCase()}!`);
       onImported?.();
       onClose();
       setCsvText('');
+      setPdfParsedTeachers([]);
       setFileName('');
     } catch (err) {
       error('Import failed: ' + err.message);
@@ -114,160 +194,212 @@ export const BulkImportTeachersModal = ({ isOpen, onClose, onImported }) => {
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Import Faculty Roster via CSV" icon={FileSpreadsheet} maxWidth="660px">
-      <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '14px', padding: '16px 20px', maxHeight: '74vh', overflowY: 'auto' }}>
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title={`Bulk Faculty Import (${activeTab.toUpperCase()})`}
+      icon={GraduationCap}
+      maxWidth="740px"
+    >
+      <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '14px', padding: '16px 22px', maxHeight: '76vh', overflowY: 'auto' }}>
         
-        {/* Format Info & Template Download */}
-        <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '12px 14px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
-            <div style={{ flex: 1, minWidth: '200px' }}>
-              <strong style={{ fontSize: '12.5px', color: '#0f172a', display: 'block' }}>Required Column Headers:</strong>
-              <code style={{ fontSize: '11px', color: '#475569', background: '#f1f5f9', padding: '2px 6px', borderRadius: '4px', display: 'inline-block', marginTop: '2px', wordBreak: 'break-word' }}>
-                First Name, Middle Name, Last Name, Email, Contact, Department, Specialization, Gender
-              </code>
+        {/* Format Selector Tabs */}
+        <div style={{ display: 'flex', gap: '8px', background: '#f1f5f9', padding: '4px', borderRadius: '10px' }}>
+          <button
+            type="button"
+            onClick={() => setActiveTab('csv')}
+            style={{
+              flex: 1,
+              padding: '8px 12px',
+              border: 'none',
+              borderRadius: '7px',
+              fontSize: '12.5px',
+              fontWeight: 700,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '6px',
+              cursor: 'pointer',
+              background: activeTab === 'csv' ? '#ffffff' : 'transparent',
+              color: activeTab === 'csv' ? '#07345f' : '#64748b',
+              boxShadow: activeTab === 'csv' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+              transition: 'all 0.2s ease'
+            }}
+          >
+            <FileSpreadsheet size={15} color={activeTab === 'csv' ? '#07345f' : '#64748b'} />
+            CSV / Spreadsheet File
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab('pdf')}
+            style={{
+              flex: 1,
+              padding: '8px 12px',
+              border: 'none',
+              borderRadius: '7px',
+              fontSize: '12.5px',
+              fontWeight: 700,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '6px',
+              cursor: 'pointer',
+              background: activeTab === 'pdf' ? '#ffffff' : 'transparent',
+              color: activeTab === 'pdf' ? '#07345f' : '#64748b',
+              boxShadow: activeTab === 'pdf' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+              transition: 'all 0.2s ease'
+            }}
+          >
+            <FileType size={15} color={activeTab === 'pdf' ? '#07345f' : '#64748b'} />
+            PDF Faculty Roster Document
+          </button>
+        </div>
+
+        {/* Drag & Drop Upload Zone */}
+        <input
+          type="file"
+          ref={fileInputRef}
+          accept={activeTab === 'pdf' ? '.pdf,application/pdf' : '.csv,text/csv'}
+          onChange={handleFileUpload}
+          style={{ display: 'none' }}
+        />
+
+        <div
+          onClick={() => fileInputRef.current?.click()}
+          style={{
+            border: '2px dashed #cbd5e1',
+            borderRadius: '12px',
+            padding: '24px 20px',
+            textAlign: 'center',
+            cursor: 'pointer',
+            background: fileName ? '#f0fdf4' : '#fafafa',
+            borderColor: fileName ? '#22c55e' : '#cbd5e1',
+            transition: 'all 0.2s'
+          }}
+        >
+          {parsingPdf ? (
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+              <RefreshCw size={32} color="#07345f" className="animate-spin" />
+              <div style={{ fontSize: '13px', fontWeight: 700, color: '#07345f' }}>Analyzing PDF Faculty Roster...</div>
             </div>
+          ) : fileName ? (
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
+              <FileCheck size={32} color="#16a34a" />
+              <span style={{ fontSize: '13px', fontWeight: 700, color: '#16a34a' }}>{fileName}</span>
+              <span style={{ fontSize: '11px', color: '#64748b' }}>Click to choose a different file</span>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
+              <Upload size={28} color="#07345f" />
+              <div style={{ fontSize: '13px', fontWeight: 700, color: '#1e293b' }}>
+                Click to upload {activeTab === 'pdf' ? 'PDF Faculty Roster (.pdf)' : 'Faculty CSV (.csv)'}
+              </div>
+              <div style={{ fontSize: '11px', color: '#64748b' }}>
+                {activeTab === 'pdf' ? 'Supports Faculty Directories and institutional assignment PDFs' : 'Standard comma-delimited faculty format'}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Template download for CSV */}
+        {activeTab === 'csv' && (
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#f8fafc', padding: '10px 14px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+            <span style={{ fontSize: '12px', color: '#475569' }}>Download standard CSV format with sample data</span>
             <button
               type="button"
               onClick={handleDownloadTemplate}
               style={{
                 background: '#ffffff',
                 border: '1px solid #cbd5e1',
-                color: '#0f172a',
+                padding: '5px 12px',
+                borderRadius: '6px',
                 fontSize: '11.5px',
                 fontWeight: 600,
-                padding: '6px 12px',
-                borderRadius: '6px',
+                cursor: 'pointer',
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: '6px',
-                cursor: 'pointer',
-                flexShrink: 0
+                gap: '6px'
               }}
             >
               <Download size={13} /> Sample CSV
             </button>
           </div>
-        </div>
+        )}
 
-        {/* File Upload Box */}
-        <div
-          onClick={() => fileInputRef.current?.click()}
-          style={{
-            border: '2px dashed #cbd5e1',
-            borderRadius: '10px',
-            padding: '16px 14px',
-            textAlign: 'center',
-            cursor: 'pointer',
-            background: fileName ? '#f0fdf4' : '#fafafa',
-            borderColor: fileName ? '#86efac' : '#cbd5e1',
-            transition: 'all 0.15s ease'
-          }}
-        >
-          <input
-            type="file"
-            ref={fileInputRef}
-            accept=".csv,text/csv,text/plain"
-            style={{ display: 'none' }}
-            onChange={handleFileUpload}
-          />
-          <Upload size={24} color={fileName ? '#16a34a' : '#64748b'} style={{ margin: '0 auto 6px auto', display: 'block' }} />
-          <div style={{ fontSize: '13px', fontWeight: 700, color: '#0f172a' }}>
-            {fileName ? `Loaded: ${fileName}` : 'Tap or Drag & Drop to Upload Faculty CSV'}
+        {/* Candidate Preview */}
+        {activeCandidateList.length > 0 && (
+          <div style={{ border: '1px solid #e2e8f0', borderRadius: '10px', overflow: 'hidden' }}>
+            <div style={{ background: '#f8fafc', padding: '10px 14px', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '12.5px', fontWeight: 700, color: '#0f172a' }}>
+                Detected Faculty Candidates ({activeCandidateList.length})
+              </span>
+              <span style={{ fontSize: '11px', color: '#16a34a', fontWeight: 600 }}>Ready to Import</span>
+            </div>
+            <div style={{ maxHeight: '180px', overflowY: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '11.5px' }}>
+                <thead style={{ background: '#f1f5f9', position: 'sticky', top: 0 }}>
+                  <tr>
+                    <th style={{ padding: '6px 10px', textAlign: 'left', color: '#475569' }}>Name</th>
+                    <th style={{ padding: '6px 10px', textAlign: 'left', color: '#475569' }}>Department</th>
+                    <th style={{ padding: '6px 10px', textAlign: 'left', color: '#475569' }}>Email</th>
+                    <th style={{ padding: '6px 10px', textAlign: 'left', color: '#475569' }}>Contact</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {activeCandidateList.map((t, idx) => (
+                    <tr key={idx} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                      <td style={{ padding: '6px 10px', fontWeight: 600 }}>{t.fname} {t.lname}</td>
+                      <td style={{ padding: '6px 10px', color: '#475569' }}>{t.department}</td>
+                      <td style={{ padding: '6px 10px', color: '#475569' }}>{t.email}</td>
+                      <td style={{ padding: '6px 10px', color: '#475569' }}>{t.contact}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
-          <div style={{ fontSize: '11.5px', color: '#64748b', marginTop: '2px' }}>
-            Supports .csv and UTF-8 comma-separated text files
-          </div>
-        </div>
+        )}
 
-        {/* Paste Area */}
-        <div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-            <label style={{ fontSize: '12px', fontWeight: 700, color: '#334155' }}>
-              Or Paste CSV Data Directly:
-            </label>
-            <button
-              type="button"
-              onClick={() => {
-                setCsvText(SAMPLE_TEACHERS_CSV);
-                setFileName('');
-              }}
-              style={{
-                background: 'transparent',
-                border: 'none',
-                color: '#0f172a',
-                fontSize: '11px',
-                fontWeight: 700,
-                textDecoration: 'underline',
-                cursor: 'pointer'
-              }}
-            >
-              Load Sample Text
-            </button>
-          </div>
-          <textarea
-            className="form-control"
-            rows={5}
+        {/* Footer Actions */}
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '8px' }}>
+          <button
+            type="button"
+            onClick={onClose}
             style={{
-              width: '100%',
-              boxSizing: 'border-box',
-              fontFamily: 'monospace',
-              fontSize: '11.5px',
-              lineHeight: 1.4,
+              padding: '9px 18px',
               borderRadius: '8px',
               border: '1px solid #cbd5e1',
-              padding: '8px 10px',
-              color: '#0f172a',
               background: '#ffffff',
-              outline: 'none'
+              fontSize: '13px',
+              fontWeight: 600,
+              cursor: 'pointer'
             }}
-            placeholder="First Name,Middle Name,Last Name,Email,Contact,Department,Specialization,Gender..."
-            value={csvText}
-            onChange={(e) => setCsvText(e.target.value)}
-          />
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={handleParseAndUpload}
+            disabled={loading || activeCandidateList.length === 0}
+            style={{
+              padding: '9px 20px',
+              borderRadius: '8px',
+              border: 'none',
+              background: loading || activeCandidateList.length === 0 ? '#94a3b8' : '#07345f',
+              color: '#ffffff',
+              fontSize: '13px',
+              fontWeight: 700,
+              cursor: loading || activeCandidateList.length === 0 ? 'not-allowed' : 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px'
+            }}
+          >
+            {loading ? <RefreshCw size={14} className="animate-spin" /> : <Upload size={14} />}
+            Import {activeCandidateList.length > 0 ? `${activeCandidateList.length} Faculty` : 'Roster'}
+          </button>
         </div>
-      </div>
-
-      <div className="modal-footer" style={{ borderTop: '1px solid #e2e8f0', padding: '12px 20px', display: 'flex', justifyContent: 'flex-end', gap: '8px', background: '#f8fafc' }}>
-        <button
-          type="button"
-          className="btn btn-secondary"
-          onClick={onClose}
-          disabled={loading}
-          style={{
-            borderRadius: '8px',
-            padding: '8px 16px',
-            fontWeight: 600,
-            fontSize: '12.5px',
-            background: '#ffffff',
-            border: '1px solid #cbd5e1',
-            color: '#0f172a',
-            cursor: 'pointer'
-          }}
-        >
-          Cancel
-        </button>
-        <button
-          type="button"
-          style={{
-            background: '#0f172a',
-            color: '#ffffff',
-            borderRadius: '8px',
-            padding: '8px 18px',
-            fontSize: '12.5px',
-            fontWeight: 700,
-            border: 'none',
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '6px',
-            cursor: loading ? 'not-allowed' : 'pointer',
-            boxShadow: '0 2px 8px rgba(15, 23, 42, 0.2)'
-          }}
-          onClick={handleParseAndUpload}
-          disabled={loading}
-        >
-          <Upload size={14} />
-          {loading ? 'Processing Import...' : 'Import Faculty'}
-        </button>
       </div>
     </Modal>
   );

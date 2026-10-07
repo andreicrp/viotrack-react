@@ -5,11 +5,13 @@ import { Modal } from '../components/common/Modal';
 import { lockBodyScroll, unlockBodyScroll } from '../utils/scrollLock';
 import CustomSelect from '../components/common/CustomSelect';
 import { ViewModeToggle } from '../components/common/ViewModeToggle';
+import { BulkImportViolationsModal } from '../components/violations/BulkImportViolationsModal';
 import {
   FolderOpen,
   Plus,
   FileSpreadsheet,
   Upload,
+  Download,
   Search,
   Trash2,
   Edit3,
@@ -60,9 +62,9 @@ export const ViolationTypesPage = () => {
     default_sanction: ''
   });
 
-  // Modal for Import CSV
+  // Modal for Import CSV / PDF
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
-  const [importCsvText, setImportCsvText] = useState('');
+  const [bulkImportFormat, setBulkImportFormat] = useState('all'); // 'all' | 'pdf' | 'csv'
 
   useEffect(() => {
     loadViolations();
@@ -396,13 +398,37 @@ export const ViolationTypesPage = () => {
             <button
               onClick={handleExport}
               className="page-banner-btn-secondary"
+              title="Download formatted PDF violation offenses catalog"
             >
-              <Upload size={14} strokeWidth={2.2} /> Export PDF
+              <Download size={14} strokeWidth={2.2} /> Export PDF
             </button>
 
             <button
-              onClick={() => setIsImportModalOpen(true)}
+              onClick={handleExportCsv}
               className="page-banner-btn-secondary"
+              title="Download CSV spreadsheet"
+            >
+              <FileSpreadsheet size={14} strokeWidth={2.2} /> Export CSV
+            </button>
+
+            <button
+              onClick={() => {
+                setBulkImportFormat('pdf');
+                setIsImportModalOpen(true);
+              }}
+              className="page-banner-btn-secondary"
+              title="Import violation types from PDF policy handbook"
+            >
+              <Upload size={14} strokeWidth={2.2} /> Import PDF
+            </button>
+
+            <button
+              onClick={() => {
+                setBulkImportFormat('csv');
+                setIsImportModalOpen(true);
+              }}
+              className="page-banner-btn-secondary"
+              title="Import violation types from CSV spreadsheet"
             >
               <Upload size={14} strokeWidth={2.2} /> Import CSV
             </button>
@@ -1591,93 +1617,13 @@ export const ViolationTypesPage = () => {
 
 
       {/* Import CSV Modal */}
-      <Modal
+      {/* Bulk Import Violations Modal */}
+      <BulkImportViolationsModal
         isOpen={isImportModalOpen}
         onClose={() => setIsImportModalOpen(false)}
-        title="Import Violation Offenses via CSV"
-        icon={Upload}
-        maxWidth="640px"
-      >
-        <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-          <div style={{ background: '#f8faff', border: '1px solid #dbeafe', borderRadius: '10px', padding: '12px 14px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
-              <div>
-                <strong style={{ fontSize: '13px', color: '#1e3a8a', display: 'block' }}>Expected Format:</strong>
-                <code style={{ fontSize: '11px', color: '#3b82f6' }}>Title, Severity (Minor/Serious/Major), Description, Default Sanction</code>
-              </div>
-              <button
-                type="button"
-                onClick={() => {
-                  const sample = `Title,Severity,Description,Default Sanction\n"Dress Code Violation",Minor,"Not wearing prescribed school uniform or ID","Verbal Warning"\n"Gambling on Campus",Serious,"Engaging in card games or betting on campus grounds","1-Day Suspension & Parent Conference"\n"Vandalism of School Property",Major,"Defacing school walls, fixtures, or desks","3-Day Suspension & Restitution"`;
-                  downloadSampleCsv('Viotrack_Violation_Types_Template.csv', sample);
-                  success('Downloaded sample CSV template!');
-                }}
-                style={{
-                  background: '#ffffff',
-                  border: '1px solid #bfdbfe',
-                  color: '#2563eb',
-                  fontSize: '11.5px',
-                  fontWeight: 700,
-                  padding: '5px 10px',
-                  borderRadius: '6px',
-                  cursor: 'pointer',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '4px'
-                }}
-              >
-                <FileDown size={13} /> Download Template
-              </button>
-            </div>
-          </div>
-
-          <div>
-            <label style={{ fontSize: '12.5px', fontWeight: 700, color: '#334155', display: 'block', marginBottom: '6px' }}>
-              Upload File or Paste CSV:
-            </label>
-            <input
-              type="file"
-              accept=".csv,text/csv,text/plain"
-              onChange={async (e) => {
-                const file = e.target.files?.[0];
-                if (file) {
-                  const text = await readFileAsText(file);
-                  setImportCsvText(text);
-                  info(`Loaded ${file.name}`);
-                }
-              }}
-              style={{ fontSize: '12px', marginBottom: '8px' }}
-            />
-          </div>
-
-          <textarea
-            rows={6}
-            placeholder={`"Cheating in Exams", Major, "Unauthorized materials during exam", "Grade of 0 & Suspension"\n"No ID Card", Minor, "Failure to wear school ID card", "Warning"`}
-            value={importCsvText}
-            onChange={(e) => setImportCsvText(e.target.value)}
-            style={{ width: '100%', padding: '10px 12px', borderRadius: '8px', border: '1.5px solid #cbd5e1', fontSize: '12px', fontFamily: 'monospace' }}
-          />
-        </div>
-
-        <div className="modal-footer" style={{ display: 'flex', justifyContent: 'flex-end', gap: 10, padding: '14px 20px', borderTop: '1px solid #e5e7eb' }}>
-          <button
-            type="button"
-            className="btn btn-secondary"
-            onClick={() => setIsImportModalOpen(false)}
-            style={{ padding: '8px 16px', borderRadius: 8, background: '#f3f4f6', border: 'none', cursor: 'pointer', fontWeight: 600 }}
-          >
-            Cancel
-          </button>
-          <button
-            type="button"
-            onClick={handleImportCsv}
-            className="btn btn-primary"
-            style={{ padding: '8px 20px', borderRadius: 8, background: '#07345f', color: '#fff', border: 'none', cursor: 'pointer', fontWeight: 700 }}
-          >
-            Import Rows
-          </button>
-        </div>
-      </Modal>
+        onImported={loadViolations}
+        initialFormat={bulkImportFormat}
+      />
     </div>
   );
 };

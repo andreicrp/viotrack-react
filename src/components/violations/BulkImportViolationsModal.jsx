@@ -10,28 +10,22 @@ import {
   RefreshCw,
   FileCheck,
   FileType,
-  ShieldAlert
+  AlertTriangle
 } from 'lucide-react';
 import { parseCsvString, readFileAsText, downloadSampleCsv } from '../../utils/csvHelper';
-import { extractTextFromPdf, parseAdminRosterFromPdfLines } from '../../utils/pdfHelper';
+import { extractTextFromPdf, parseViolationRosterFromPdfLines } from '../../utils/pdfHelper';
 
-const SAMPLE_ADMINS_CSV = `First Name,Last Name,Email,Role,Contact,Status
-Andres,Bonifacio,andres.bonifacio@viotrack.edu,Super Admin,09171112233,Active
-Emilio,Jacinto,emilio.jacinto@viotrack.edu,Discipline Officer,09172223344,Active
-Teresa,Magbanua,teresa.magbanua@viotrack.edu,Admin Staff,09173334455,Active`;
+const SAMPLE_VIOLATIONS_CSV = `Title,Type,Description,Default Sanction
+Cheating during exams,Major,Dishonesty during examinations or academic submissions.,Parent Summon & Written Reprimand
+Vandalism of school property,Major,Defacing walls, desks, or university facilities.,Parent Summon & Community Service
+Uniform not worn properly,Minor,Student did not follow the required uniform guidelines.,Verbal Warning & Counseling
+Tardiness / Late to class,Minor,Arriving at class after the designated grace period.,Verbal Warning & Student Reflection`;
 
-const ADMIN_AVATARS = [
-  'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80',
-  'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80'
-];
-
-export const BulkImportAdminsModal = ({ isOpen, onClose, onImported, initialFormat = 'all' }) => {
+export const BulkImportViolationsModal = ({ isOpen, onClose, onImported, initialFormat = 'all' }) => {
   const { success, error, info } = useNotification();
   const [activeTab, setActiveTab] = useState(initialFormat === 'pdf' ? 'pdf' : 'csv');
   const [csvText, setCsvText] = useState('');
-  const [pdfParsedAdmins, setPdfParsedAdmins] = useState([]);
+  const [pdfParsedViolations, setPdfParsedViolations] = useState([]);
   const [loading, setLoading] = useState(false);
   const [parsingPdf, setParsingPdf] = useState(false);
   const [fileName, setFileName] = useState('');
@@ -44,7 +38,7 @@ export const BulkImportAdminsModal = ({ isOpen, onClose, onImported, initialForm
       setFileType(initialFormat === 'pdf' ? 'pdf' : 'csv');
       setFileName('');
       setCsvText('');
-      setPdfParsedAdmins([]);
+      setPdfParsedViolations([]);
     }
   }, [isOpen, initialFormat]);
 
@@ -61,19 +55,15 @@ export const BulkImportAdminsModal = ({ isOpen, onClose, onImported, initialForm
         setFileType('pdf');
         setActiveTab('pdf');
 
-        info(`Parsing admin directory PDF: ${file.name}...`);
+        info(`Parsing violation policy PDF: ${file.name}...`);
         const { rawLines } = await extractTextFromPdf(file);
-        const parsed = parseAdminRosterFromPdfLines(rawLines);
+        const parsed = parseViolationRosterFromPdfLines(rawLines);
 
         if (parsed.length === 0) {
-          error('Could not detect admin rows in this PDF. Please check document formatting.');
+          error('Could not detect violation catalog rows in this PDF. Please check document formatting.');
         } else {
-          const withAvatars = parsed.map((a, i) => ({
-            ...a,
-            image: ADMIN_AVATARS[i % ADMIN_AVATARS.length]
-          }));
-          setPdfParsedAdmins(withAvatars);
-          success(`Extracted ${withAvatars.length} administrator candidate records from PDF!`);
+          setPdfParsedViolations(parsed);
+          success(`Extracted ${parsed.length} violation policy entries from PDF!`);
         }
       } else {
         const text = await readFileAsText(file);
@@ -92,11 +82,11 @@ export const BulkImportAdminsModal = ({ isOpen, onClose, onImported, initialForm
   };
 
   const handleDownloadTemplate = () => {
-    downloadSampleCsv('Viotrack_Administrators_Template.csv', SAMPLE_ADMINS_CSV);
-    success('Downloaded administrator import template CSV!');
+    downloadSampleCsv('Viotrack_Violation_Types_Template.csv', SAMPLE_VIOLATIONS_CSV);
+    success('Downloaded violation types import template CSV!');
   };
 
-  const parsedCsvAdmins = useMemo(() => {
+  const parsedCsvViolations = useMemo(() => {
     if (!csvText.trim()) return [];
     try {
       const rows = parseCsvString(csvText);
@@ -104,28 +94,23 @@ export const BulkImportAdminsModal = ({ isOpen, onClose, onImported, initialForm
 
       const firstRow = rows[0];
       const hasHeader = firstRow.some(col => 
-        ['first name', 'fname', 'name', 'email', 'role', 'admin'].includes(col.toLowerCase().trim())
+        ['title', 'type', 'severity', 'description', 'sanction', 'violation'].includes(col.toLowerCase().trim())
       );
       const dataRows = hasHeader ? rows.slice(1) : rows;
 
       return dataRows
         .filter(parts => parts.length >= 2 && parts.some(p => p.trim()))
-        .map((parts, i) => {
-          const fname = parts[0]?.trim() || 'Admin';
-          const lname = parts[1]?.trim() || 'User';
-          const email = parts[2]?.trim() || `${fname.toLowerCase()}.${lname.toLowerCase()}@viotrack.edu`;
-          const role = parts[3]?.trim() || 'Admin';
-          const contact = parts[4]?.trim() || '09171112233';
-          const status = parts[5]?.trim() || 'Active';
+        .map(parts => {
+          const title = parts[0]?.trim() || 'General Infraction';
+          const type = (parts[1]?.trim()?.toLowerCase() === 'major' || parts[1]?.trim()?.toLowerCase() === 'critical') ? 'Major' : 'Minor';
+          const description = parts[2]?.trim() || `Infraction classified under ${type} violation policy.`;
+          const default_sanction = parts[3]?.trim() || (type === 'Major' ? 'Parent Summon & Written Reprimand' : 'Verbal Warning & Counseling');
 
           return {
-            fname,
-            lname,
-            email,
-            role,
-            contact,
-            status,
-            image: ADMIN_AVATARS[i % ADMIN_AVATARS.length]
+            title,
+            type,
+            description,
+            default_sanction
           };
         });
     } catch {
@@ -133,29 +118,29 @@ export const BulkImportAdminsModal = ({ isOpen, onClose, onImported, initialForm
     }
   }, [csvText]);
 
-  const activeCandidateList = fileType === 'pdf' && pdfParsedAdmins.length > 0
-    ? pdfParsedAdmins
-    : parsedCsvAdmins;
+  const activeCandidateList = fileType === 'pdf' && pdfParsedViolations.length > 0
+    ? pdfParsedViolations
+    : parsedCsvViolations;
 
   const handleParseAndUpload = async () => {
     if (activeCandidateList.length === 0) {
-      error(`No valid administrator records found in ${fileType.toUpperCase()}.`);
+      error(`No valid violation entries found in ${fileType.toUpperCase()}.`);
       return;
     }
 
     setLoading(true);
     try {
       let count = 0;
-      for (const a of activeCandidateList) {
-        await dataService.addAdmin(a);
+      for (const v of activeCandidateList) {
+        await dataService.addViolationType(v);
         count++;
       }
 
-      success(`Successfully enrolled ${count} administrators from ${fileType.toUpperCase()}!`);
+      success(`Successfully enrolled ${count} violation types from ${fileType.toUpperCase()}!`);
       onImported?.();
       onClose();
       setCsvText('');
-      setPdfParsedAdmins([]);
+      setPdfParsedViolations([]);
       setFileName('');
     } catch (err) {
       error('Import failed: ' + err.message);
@@ -168,8 +153,8 @@ export const BulkImportAdminsModal = ({ isOpen, onClose, onImported, initialForm
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={`Bulk Administrator Import (${activeTab.toUpperCase()})`}
-      icon={ShieldAlert}
+      title={`Bulk Violation Policy Import (${activeTab.toUpperCase()})`}
+      icon={AlertTriangle}
       maxWidth="740px"
     >
       <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '14px', padding: '16px 22px', maxHeight: '76vh', overflowY: 'auto' }}>
@@ -223,7 +208,7 @@ export const BulkImportAdminsModal = ({ isOpen, onClose, onImported, initialForm
             }}
           >
             <FileType size={15} color={activeTab === 'pdf' ? '#07345f' : '#64748b'} />
-            PDF Administrator Document
+            PDF Student Handbook / Policy Document
           </button>
         </div>
 
@@ -252,7 +237,7 @@ export const BulkImportAdminsModal = ({ isOpen, onClose, onImported, initialForm
           {parsingPdf ? (
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
               <RefreshCw size={32} color="#07345f" className="animate-spin" />
-              <div style={{ fontSize: '13px', fontWeight: 700, color: '#07345f' }}>Analyzing PDF Admin Document...</div>
+              <div style={{ fontSize: '13px', fontWeight: 700, color: '#07345f' }}>Analyzing PDF Policy Document...</div>
             </div>
           ) : fileName ? (
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
@@ -264,10 +249,10 @@ export const BulkImportAdminsModal = ({ isOpen, onClose, onImported, initialForm
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
               <Upload size={28} color="#07345f" />
               <div style={{ fontSize: '13px', fontWeight: 700, color: '#1e293b' }}>
-                Click to upload {activeTab === 'pdf' ? 'PDF Admin Registry (.pdf)' : 'Admin CSV (.csv)'}
+                Click to upload {activeTab === 'pdf' ? 'PDF Violation Policy Catalog (.pdf)' : 'Violation Types CSV (.csv)'}
               </div>
               <div style={{ fontSize: '11px', color: '#64748b' }}>
-                {activeTab === 'pdf' ? 'Supports Administrative Staff rosters and directory PDFs' : 'Standard comma-delimited administrator format'}
+                {activeTab === 'pdf' ? 'Extracts infraction rules and disciplinary matrices from PDF handbook' : 'Standard comma-delimited violation catalog format'}
               </div>
             </div>
           )}
@@ -276,7 +261,7 @@ export const BulkImportAdminsModal = ({ isOpen, onClose, onImported, initialForm
         {/* Template download for CSV */}
         {activeTab === 'csv' && (
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#f8fafc', padding: '10px 14px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-            <span style={{ fontSize: '12px', color: '#475569' }}>Download standard CSV format with sample admin accounts</span>
+            <span style={{ fontSize: '12px', color: '#475569' }}>Download standard CSV format with sample infractions</span>
             <button
               type="button"
               onClick={handleDownloadTemplate}
@@ -303,7 +288,7 @@ export const BulkImportAdminsModal = ({ isOpen, onClose, onImported, initialForm
           <div style={{ border: '1px solid #e2e8f0', borderRadius: '10px', overflow: 'hidden' }}>
             <div style={{ background: '#f8fafc', padding: '10px 14px', borderBottom: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <span style={{ fontSize: '12.5px', fontWeight: 700, color: '#0f172a' }}>
-                Detected Administrator Candidates ({activeCandidateList.length})
+                Detected Violation Rules ({activeCandidateList.length})
               </span>
               <span style={{ fontSize: '11px', color: '#16a34a', fontWeight: 600 }}>Ready to Import</span>
             </div>
@@ -311,19 +296,28 @@ export const BulkImportAdminsModal = ({ isOpen, onClose, onImported, initialForm
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '11.5px' }}>
                 <thead style={{ background: '#f1f5f9', position: 'sticky', top: 0 }}>
                   <tr>
-                    <th style={{ padding: '6px 10px', textAlign: 'left', color: '#475569' }}>Name</th>
-                    <th style={{ padding: '6px 10px', textAlign: 'left', color: '#475569' }}>Role</th>
-                    <th style={{ padding: '6px 10px', textAlign: 'left', color: '#475569' }}>Email</th>
-                    <th style={{ padding: '6px 10px', textAlign: 'left', color: '#475569' }}>Contact</th>
+                    <th style={{ padding: '6px 10px', textAlign: 'left', color: '#475569' }}>Title</th>
+                    <th style={{ padding: '6px 10px', textAlign: 'left', color: '#475569' }}>Severity</th>
+                    <th style={{ padding: '6px 10px', textAlign: 'left', color: '#475569' }}>Default Sanction</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {activeCandidateList.map((a, idx) => (
+                  {activeCandidateList.map((v, idx) => (
                     <tr key={idx} style={{ borderBottom: '1px solid #f1f5f9' }}>
-                      <td style={{ padding: '6px 10px', fontWeight: 600 }}>{a.fname} {a.lname}</td>
-                      <td style={{ padding: '6px 10px', color: '#07345f', fontWeight: 700 }}>{a.role}</td>
-                      <td style={{ padding: '6px 10px', color: '#475569' }}>{a.email}</td>
-                      <td style={{ padding: '6px 10px', color: '#475569' }}>{a.contact}</td>
+                      <td style={{ padding: '6px 10px', fontWeight: 600 }}>{v.title}</td>
+                      <td style={{ padding: '6px 10px' }}>
+                        <span style={{
+                          padding: '2px 8px',
+                          borderRadius: '12px',
+                          fontSize: '11px',
+                          fontWeight: 700,
+                          background: v.type === 'Major' ? '#fee2e2' : '#fef3c7',
+                          color: v.type === 'Major' ? '#dc2626' : '#d97706'
+                        }}>
+                          {v.type}
+                        </span>
+                      </td>
+                      <td style={{ padding: '6px 10px', color: '#475569' }}>{v.default_sanction}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -368,7 +362,7 @@ export const BulkImportAdminsModal = ({ isOpen, onClose, onImported, initialForm
             }}
           >
             {loading ? <RefreshCw size={14} className="animate-spin" /> : <Upload size={14} />}
-            Import {activeCandidateList.length > 0 ? `${activeCandidateList.length} Admins` : 'Roster'}
+            Import {activeCandidateList.length > 0 ? `${activeCandidateList.length} Violations` : 'Catalog'}
           </button>
         </div>
       </div>

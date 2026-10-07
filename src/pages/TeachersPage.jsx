@@ -55,6 +55,7 @@ export const TeachersPage = () => {
   // Modals
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isBulkImportOpen, setIsBulkImportOpen] = useState(false);
+  const [bulkImportFormat, setBulkImportFormat] = useState('all'); // 'all' | 'pdf' | 'csv'
   const [teacherToEdit, setTeacherToEdit] = useState(null);
   const [teacherForAdviser, setTeacherForAdviser] = useState(null);
 
@@ -323,7 +324,7 @@ export const TeachersPage = () => {
               className="page-banner-btn-secondary"
               title="Download formatted PDF faculty directory"
             >
-              <Upload size={14} strokeWidth={2.2} /> Export PDF
+              <Download size={14} strokeWidth={2.2} /> Export PDF
             </button>
 
             <button
@@ -331,13 +332,27 @@ export const TeachersPage = () => {
               className="page-banner-btn-secondary"
               title="Download CSV spreadsheet"
             >
-              <FileText size={14} strokeWidth={2.2} /> Export CSV
+              <FileSpreadsheet size={14} strokeWidth={2.2} /> Export CSV
             </button>
 
             <button
-              onClick={() => setIsBulkImportOpen(true)}
+              onClick={() => {
+                setBulkImportFormat('pdf');
+                setIsBulkImportOpen(true);
+              }}
               className="page-banner-btn-secondary"
-              title="Import faculty members from CSV"
+              title="Import faculty roster from PDF document"
+            >
+              <Upload size={14} strokeWidth={2.2} /> Import PDF
+            </button>
+
+            <button
+              onClick={() => {
+                setBulkImportFormat('csv');
+                setIsBulkImportOpen(true);
+              }}
+              className="page-banner-btn-secondary"
+              title="Import faculty members from CSV spreadsheet"
             >
               <Upload size={14} strokeWidth={2.2} /> Import CSV
             </button>
@@ -1251,6 +1266,7 @@ export const TeachersPage = () => {
         isOpen={isBulkImportOpen}
         onClose={() => setIsBulkImportOpen(false)}
         onImported={loadData}
+        initialFormat={bulkImportFormat}
       />
     </div>
   );

@@ -28,7 +28,8 @@ import {
   Eye,
   EyeOff,
   Plus,
-  FileText
+  FileText,
+  Download
 } from 'lucide-react';
 import { getJsPDF } from '../utils/pdfHelper';
 
@@ -83,6 +84,7 @@ export const AdminUsersPage = () => {
   // Modals
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isBulkImportOpen, setIsBulkImportOpen] = useState(false);
+  const [bulkImportFormat, setBulkImportFormat] = useState('all'); // 'all' | 'pdf' | 'csv'
   const [editingAdmin, setEditingAdmin] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
@@ -385,7 +387,7 @@ export const AdminUsersPage = () => {
               className="page-banner-btn-secondary"
               title="Download formatted PDF administrator roster"
             >
-              <Upload size={14} strokeWidth={2.2} /> Export PDF
+              <Download size={14} strokeWidth={2.2} /> Export PDF
             </button>
 
             <button
@@ -393,13 +395,27 @@ export const AdminUsersPage = () => {
               className="page-banner-btn-secondary"
               title="Download CSV spreadsheet"
             >
-              <FileText size={14} strokeWidth={2.2} /> Export CSV
+              <FileSpreadsheet size={14} strokeWidth={2.2} /> Export CSV
             </button>
 
             <button
-              onClick={() => setIsBulkImportOpen(true)}
+              onClick={() => {
+                setBulkImportFormat('pdf');
+                setIsBulkImportOpen(true);
+              }}
               className="page-banner-btn-secondary"
-              title="Import administrators from CSV"
+              title="Import administrators from PDF document"
+            >
+              <Upload size={14} strokeWidth={2.2} /> Import PDF
+            </button>
+
+            <button
+              onClick={() => {
+                setBulkImportFormat('csv');
+                setIsBulkImportOpen(true);
+              }}
+              className="page-banner-btn-secondary"
+              title="Import administrators from CSV spreadsheet"
             >
               <Upload size={14} strokeWidth={2.2} /> Import CSV
             </button>
@@ -1433,9 +1449,8 @@ export const AdminUsersPage = () => {
       <BulkImportAdminsModal
         isOpen={isBulkImportOpen}
         onClose={() => setIsBulkImportOpen(false)}
-        onImported={(newList) => {
-          setAdminUsers(prev => [...newList, ...prev]);
-        }}
+        onImported={loadAdmins}
+        initialFormat={bulkImportFormat}
       />
     </div>
   );
