@@ -99,3 +99,7 @@ This baseline updates the prior `513dd67` record; the PR branch will rebase onto
 ## Baseline after the 2026-10-08 modal hook-order fix
 
 Latest main is [`533469b219c97f95e2b306529fef93d89c9f90fa`](https://github.com/andreicrp/viotrack-react/commit/533469b219c97f95e2b306529fef93d89c9f90fa). It changes only the two modal files and corrects the transient hook-order errors recorded for `d8c96f6`. On a clean detached checkout, the current-main baseline is **4 tests passed**, lint **368 warnings / 0 errors**, and build passed (281.82 kB `vendor-react`). Main still has no data-service tests and no `typecheck` script. The live-data refactor remains isolated to service modules and tests.
+
+## Baseline after the 2026-10-08 modal FAB styling commit
+
+Latest main is [`f925642f2bdcb2eacf169f35226e367f031db2de`](https://github.com/andreicrp/viotrack-react/commit/f925642f2bdcb2eacf169f35226e367f031db2de). It changes only `ParentSummonsModal.jsx` and `ResolutionModal.jsx`; data-service code and tests are unchanged. On the clean detached latest-main checkout, **4 existing tests passed**, lint passed with **370 warnings and 0 errors**, and the build passed (281.82 kB `vendor-react`). The hook-order errors from intermediate `d8c96f6` were resolved by `533469b`; current main is lint-clean apart from its existing warnings. Main still has no service tests or typecheck script.
