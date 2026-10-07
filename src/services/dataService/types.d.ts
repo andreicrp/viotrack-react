@@ -8,6 +8,8 @@ export interface Student {
   fname: string;
   lname: string;
   grade?: string;
+  track?: string;
+  strand?: string;
   section?: string;
   image?: string;
   [key: string]: unknown;
