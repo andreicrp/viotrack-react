@@ -1131,6 +1131,9 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
           width: 680px !important;
           min-width: 680px !important;
           max-width: 680px !important;
+          min-height: 960px !important;
+          display: flex !important;
+          flex-direction: column !important;
           background: #ffffff !important;
           box-shadow: 0 10px 30px rgba(0, 0, 0, 0.10), 0 1px 4px rgba(0, 0, 0, 0.05) !important;
           border-radius: 12px !important;
@@ -1265,7 +1268,7 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
           padding-top: 4px !important;
         }
         .psm-return-slip {
-          margin-top: 22px !important;
+          margin-top: auto !important;
           border-top: 2px dashed #cbd5e1 !important;
           padding-top: 14px !important;
           font-size: 11px !important;

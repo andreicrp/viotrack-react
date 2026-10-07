@@ -189,8 +189,11 @@ export const buildPrintReportHtml = ({
       page-break-after: always;
       break-after: page;
       box-sizing: border-box;
-      padding: 0 0 10px;
+      padding: 0;
       margin: 0;
+      min-height: 270mm;
+      display: flex;
+      flex-direction: column;
     }
     .print-page:last-child {
       page-break-after: auto;
@@ -201,10 +204,16 @@ export const buildPrintReportHtml = ({
       border: none;
       padding: 0;
       background: #ffffff;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
     }
     .report-inner {
       border: none;
       padding: 0;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
     }
 
     .header-table {
@@ -368,7 +377,7 @@ export const buildPrintReportHtml = ({
     .badge-major { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; padding: 1px 4px; border-radius: 3px; font-weight: 700; font-size: 6.8pt; }
 
     .report-footer {
-      margin-top: 10px;
+      margin-top: auto;
       border-top: 1px solid #cbd5e1;
       padding-top: 4px;
       font-size: 6.5pt;
@@ -1744,6 +1753,9 @@ export const PrintDataModal = ({ isOpen, onClose, records = [], students = [], t
           width: 680px;
           min-width: 680px;
           max-width: 680px;
+          min-height: 960px;
+          display: flex;
+          flex-direction: column;
           background: #ffffff;
           box-shadow: 0 10px 30px rgba(0, 0, 0, 0.10), 0 1px 4px rgba(0, 0, 0, 0.05);
           border-radius: 12px;
@@ -2558,7 +2570,7 @@ export const PrintDataModal = ({ isOpen, onClose, records = [], students = [], t
                   )}
 
                   {/* Page 1 Footer */}
-                  <div style={{ marginTop: '12px', borderTop: '1px solid #cbd5e1', paddingTop: '5px', fontSize: '8.5px', color: '#64748b' }}>
+                  <div style={{ marginTop: 'auto', paddingTop: '14px', borderTop: '1px solid #cbd5e1', fontSize: '8.5px', color: '#64748b' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px' }}>
                       <span>VERIFICATION CODE: <strong style={{ fontFamily: 'monospace', color: '#0f172a' }}>{securityHash}</strong></span>
                       <span>SYSTEM ARCHIVE: VIOTRACK INSTITUTIONAL DATA REPOSITORY</span>
@@ -2671,7 +2683,7 @@ export const PrintDataModal = ({ isOpen, onClose, records = [], students = [], t
                         </table>
 
                         {/* Page Footer */}
-                        <div style={{ marginTop: '12px', borderTop: '1px solid #cbd5e1', paddingTop: '5px', fontSize: '8.5px', color: '#64748b' }}>
+                        <div style={{ marginTop: 'auto', paddingTop: '14px', borderTop: '1px solid #cbd5e1', fontSize: '8.5px', color: '#64748b' }}>
                           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px' }}>
                             <span>VERIFICATION CODE: <strong style={{ fontFamily: 'monospace', color: '#0f172a' }}>{securityHash}</strong></span>
                             <span>SYSTEM ARCHIVE: VIOTRACK INSTITUTIONAL DATA REPOSITORY</span>

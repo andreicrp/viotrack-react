@@ -1296,6 +1296,9 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
         .res-preview-paper {
           width: 100%;
           max-width: 680px;
+          min-height: 960px;
+          display: flex;
+          flex-direction: column;
           background: #ffffff;
           box-shadow: 0 10px 30px rgba(0, 0, 0, 0.10);
           border-radius: 12px;
@@ -1982,7 +1985,7 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
                   </div>
 
                   {/* Security Footnote */}
-                  <div style={{ marginTop: '20px', borderTop: '1px solid #cbd5e1', paddingTop: '8px', fontSize: '9px', color: '#64748b' }}>
+                  <div style={{ marginTop: 'auto', borderTop: '1px solid #cbd5e1', paddingTop: '14px', fontSize: '9px', color: '#64748b' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2px', flexWrap: 'wrap', gap: '4px' }}>
                       <span>SECURITY CODE: <strong style={{ color: '#0f172a', fontFamily: 'monospace' }}>{securityHash}</strong></span>
                       <span>SYSTEM ARCHIVE: VIOTRACK INSTITUTIONAL RECORD</span>
