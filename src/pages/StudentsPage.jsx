@@ -90,6 +90,7 @@ export const StudentsPage = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [studentToEdit, setStudentToEdit] = useState(null);
   const [studentForIdCard, setStudentForIdCard] = useState(null);
+  const [studentForViewModal, setStudentForViewModal] = useState(null);
   const [isBulkImportOpen, setIsBulkImportOpen] = useState(false);
   const [bulkImportFormat, setBulkImportFormat] = useState('all'); // 'all' | 'pdf' | 'csv'
 
