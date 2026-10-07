@@ -229,3 +229,10 @@ After rebasing the existing PR onto `2503ca6`, **24 tests passed**, `npm run typ
 Latest main is [`f152b482b1c39cb806f560bb2f2385d1404809d1`](https://github.com/andreicrp/viotrack-react/commit/f152b482b1c39cb806f560bb2f2385d1404809d1). It adds the missing `UserCheck` icon import to `src/pages/ScanQRPage.jsx`; there are no data-service, test, or dependency changes, so no service port was needed.
 
 Clean latest main passed **4 existing tests**, lint (**389 warnings, 0 errors**), and build (2,662.97 kB `vendor-react`, 1,264.34 kB PDF worker, with the established chunk-size advisory). Main has no typecheck script. After rebasing the existing PR onto `f152b48`, **24 tests passed**, typecheck passed, lint passed (**388 warnings, 0 errors**), and build passed. Matching-path clean-main and PR assets are identical; no new bundle-size delta was introduced.
+
+
+## Baseline after the 2026-10-08 strict QR-payload validation commit
+
+Latest main is [`b8a09116dd71eeb5224f586c80250d09ad5953cf`](https://github.com/andreicrp/viotrack-react/commit/b8a09116dd71eeb5224f586c80250d09ad5953cf). It updates `qrHelper.js` and `ScanQRPage.jsx` to reject unrelated QR payloads and improve invalid-scan status. No data-service, dependency, or test files changed; no service-module port was needed.
+
+Clean latest main passed **4 existing tests**, lint (**389 warnings, 0 errors**), and build (2,662.97 kB `vendor-react`, 1,264.34 kB PDF worker, with the existing chunk-size advisory). Main has no typecheck script. After rebasing the existing PR onto `b8a0911`, **24 tests passed**, `npm run typecheck` passed, lint passed (**388 warnings, 0 errors**), and build passed. Matching-path main and PR builds emitted the same PDF helper, PDF worker, and vendor React assets; the advisory is baseline-equivalent.
