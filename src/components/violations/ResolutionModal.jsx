@@ -942,6 +942,7 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
   };
 
   const studentName = `${record.student?.fname || ''} ${record.student?.lname || ''}`.trim();
+  const studentLastName = record.student?.lname || (studentName ? studentName.split(' ').pop() : 'Student');
   const avatarUrl = record.student?.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(studentName || 'Student')}&background=0f172a&color=fff&size=100&bold=true`;
 
   const getSeverityStyle = (type) => {
@@ -1658,7 +1659,7 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
               <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                 <FileCheck2 size={15} color="#07345f" style={{ flexShrink: 0 }} />
                 <h3 className="res-header-title" style={{ margin: 0, fontSize: '14.5px', fontWeight: 800, color: '#0f172a' }}>
-                  {studentName || 'Student'} — Case Resolution &amp; Clearance Doc Proof
+                  {studentLastName ? `${studentLastName} - Case Resolution` : 'Case Resolution'}
                 </h3>
               </div>
               <span className="res-header-sub" style={{ fontSize: '11.5px', color: '#64748b', display: 'block', marginTop: '1px' }}>

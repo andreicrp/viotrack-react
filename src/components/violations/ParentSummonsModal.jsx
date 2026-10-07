@@ -1579,7 +1579,7 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
               <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                 <FileText size={15} color="#07345f" style={{ flexShrink: 0 }} />
                 <h3 className="psm-header-title" style={{ margin: 0, fontSize: '14.5px', fontWeight: 800, color: '#0f172a' }}>
-                  {studentLastName} — Parent Summons Notice
+                  {studentLastName ? `${studentLastName} - Parent Summon` : 'Parent Summon'}
                 </h3>
               </div>
               <span className="psm-header-sub" style={{ fontSize: '11.5px', color: '#64748b', display: 'block', marginTop: '1px' }}>

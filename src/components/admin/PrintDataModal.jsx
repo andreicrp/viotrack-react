@@ -2120,7 +2120,7 @@ export const PrintDataModal = ({ isOpen, onClose, records = [], students = [], t
               <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                 <BarChart2 size={15} color="#07345f" style={{ flexShrink: 0 }} />
                 <h3 className="pdm-header-title" style={{ margin: 0, fontSize: '14.5px', fontWeight: 800, color: '#0f172a' }}>
-                  Print Disciplinary Analytics ({totalPages} {totalPages === 1 ? 'Page' : 'Pages'})
+                  Disciplinary Analytics
                 </h3>
               </div>
               <span className="pdm-header-sub" style={{ fontSize: '11.5px', color: '#64748b', display: 'block', marginTop: '1px' }}>
