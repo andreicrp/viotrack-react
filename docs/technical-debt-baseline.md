@@ -183,3 +183,17 @@ A clean latest-main checkout passed **4 existing tests**, lint (**372 warnings, 
 Latest main is [`761259f0a9229bb68cb855b433e5876cfb279afd`](https://github.com/andreicrp/viotrack-react/commit/761259f0a9229bb68cb855b433e5876cfb279afd). It adds unified CSV/PDF import/export UI for Teachers, Admins, and Violation Types and updates `pdfHelper.js`; it does not change `src/services` or package dependencies. Its new service writes call only `addTeacher`, `addAdmin`, and `addViolationType`, all already exposed by the extracted modules, so no service changes were needed.
 
 Clean latest main passed **4 tests**, lint (**389 warnings, 0 errors**), and build; main still has no typecheck script. The rebased PR passed **21 tests**, the JSDoc typecheck, lint (**388 warnings, 0 errors**), and build. Clean main and PR matching-path builds are identical: `pdfHelper-DQXIWwx-.js` (7.07 kB), `pdf.worker.min-CjEcRF4W.mjs` (1,264.34 kB), and `vendor-react-df0RWb2s.js` (2,662.96 kB); the chunk-size advisory is baseline-equivalent.
+
+## Baseline after the 2026-10-08 scheduled-backup runner commit
+
+Latest main at this step was [`7cc1d53c49bf519ce5c56e367cc6c42edc01ddb7`](https://github.com/andreicrp/viotrack-react/commit/7cc1d53c49bf519ce5c56e367cc6c42edc01ddb7). It added startup/hourly schedule checks in `App.jsx` and `checkAndRunScheduledBackup` to the monolithic service. Before porting, clean main passed **4 tests**, lint (**389 warnings, 0 errors**), and build (281.89 kB `vendor-react` from the detached checkout path); main has no typecheck script.
+
+The PR ports the runner into `backups.js`, exposes the schedule settings/runner types, and tests disabled, due-daily, and not-yet-due weekly behavior. After the port, **24 tests passed**, typecheck passed, lint had **388 warnings and 0 errors**, and build passed. Matching-path clean-main and PR builds emitted identical PDF helper, PDF worker, and `vendor-react` assets; the chunk-size advisory is baseline-equivalent.
+
+## Baseline after the 2026-10-08 custom AM/PM time-picker commit
+
+Latest main [`95fc1bfbfe5e2b848a8fe9ec053add9170f08794`](https://github.com/andreicrp/viotrack-react/commit/95fc1bfbfe5e2b848a8fe9ec053add9170f08794) replaces the browser time input with a custom 12-hour picker. The control still persists `HH:mm` 24-hour values, matching `BackupScheduleSettings.time`; no service changes were needed. Clean main passed **4 tests**, lint (**388 warnings, 0 errors**), and build. After rebase, the PR passed **24 tests**, typecheck, lint (**387 warnings, 0 errors**), and build.
+
+## Baseline after the 2026-10-08 CustomTimePicker placement fix
+
+Latest main is [`2f6c3300d7feb7b68d527e39f6914469001c2660`](https://github.com/andreicrp/viotrack-react/commit/2f6c3300d7feb7b68d527e39f6914469001c2660). It only adjusts picker popover placement and compact layout; service files are unchanged and the stored `HH:mm` contract remains intact. Clean main passed **4 tests**, lint (**388 warnings, 0 errors**), and build. The PR after rebase passed **24 tests**, typecheck, lint (**387 warnings, 0 errors**), and build. Matching-path builds on clean main and the PR are identical: `pdfHelper-DQXIWwx-.js` (7.07 kB), `pdf.worker.min-CjEcRF4W.mjs` (1,264.34 kB), and `vendor-react-df0RWb2s.js` (2,662.96 kB), with the same existing chunk-size advisory.
