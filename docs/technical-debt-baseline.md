@@ -71,3 +71,16 @@ On the same clean `e4927d6` checkout, `npm run lint -- --quiet` passed with **36
 ## Baseline recheck after the 2026-10-08 print pagination commit
 
 Latest main is [`d901c7acda601be1544de3393b2d93ffe3f8744a`](https://github.com/andreicrp/viotrack-react/commit/d901c7acda601be1544de3393b2d93ffe3f8744a). It changes only `src/components/admin/PrintDataModal.jsx`; the service, tests, and package scripts are unchanged. On a clean detached checkout, `npm test -- --reporter=verbose` passed (**1 file, 4 tests**), lint passed (**367 warnings, 0 errors**), and the build passed (281.82 kB `vendor-react`, no size advisory in that checkout path). The existing PR branch was rebased onto this main commit; no additional service-source changes were needed for this event.
+
+## Baseline after the 2026-10-08 live-database commit
+
+Latest main is [`513dd67adb8c35590753ae787b81b5cd73c8f2b3`](https://github.com/andreicrp/viotrack-react/commit/513dd67adb8c35590753ae787b81b5cd73c8f2b3). It changes only `src/services/dataService.js`, removing the demo student/teacher/admin/incident/log/event seed data and preferring successful live query results over merged seed/local data. The clean current-main baseline was captured before modifying the PR branch:
+
+| Command | Result on clean `513dd67` |
+| --- | --- |
+| `npm test -- --reporter=verbose` | Passed: 1 file, 4 existing CSV/security/SMS tests; main has no data-service tests. |
+| `npm run typecheck` | Not available on main. |
+| `npm run lint -- --quiet` | Passed: 0 errors, 368 warnings. |
+| `npm run build` | Passed (281.82 kB `vendor-react`; no path-sensitive size advisory in the detached checkout). |
+
+`npm ci` reports one high-severity npm advisory, consistent with prior main baselines. The PR follow-up must preserve latest main's empty seed fallbacks, legacy student/record-cache cleanup, successful-empty-query semantics, and removal of mock merge behavior while keeping the characterization tests deterministic without demo fixtures.
