@@ -57,8 +57,87 @@ export const SaveAsModal = ({
   const [savedFilesList, setSavedFilesList] = useState([]);
   const [showFormatDropdown, setShowFormatDropdown] = useState(false);
 
+  // Build CSV content from headers and rows
+  const generateCsvBlob = () => {
+    const formatCell = (cell) => {
+      if (cell === null || cell === undefined) return '""';
+      const safeContent = sanitizeCsvCell(cell);
+      const str = String(safeContent).replace(/"/g, '""');
+      return `"${str}"`;
+    };
+    const headerLine = headers.map(formatCell).join(',');
+    const rowLines = rows.map(r => (Array.isArray(r) ? r : Object.values(r)).map(formatCell).join(','));
+    const csvContent = '\uFEFF' + [headerLine, ...rowLines].join('\r\n');
+    return new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  };
+
+  // Build Excel-compatible HTML/XML Blob or CSV blob
+  const generateExcelBlob = () => {
+    const formatCell = (cell) => {
+      if (cell === null || cell === undefined) return '""';
+      const safeContent = sanitizeCsvCell(cell);
+      const str = String(safeContent).replace(/"/g, '""');
+      return `"${str}"`;
+    };
+    const headerLine = headers.map(formatCell).join('\t');
+    const rowLines = rows.map(r => (Array.isArray(r) ? r : Object.values(r)).map(formatCell).join('\t'));
+    const content = '\uFEFF' + [headerLine, ...rowLines].join('\r\n');
+    return new Blob([content], { type: 'application/vnd.ms-excel;charset=utf-8;' });
+  };
+
   useEffect(() => {
     if (isOpen) {
+      // 1. If on Website / Desktop Browser -> Auto download immediately and close without showing modal
+      if (!isNativeApp() && !isMobileDevice()) {
+        const executeWebDownload = async () => {
+          try {
+            const cleanFilename = (defaultFilename || 'Viotrack_Export').replace(/\.(csv|pdf|xlsx)$/i, '').trim();
+            const format = defaultFormat || 'csv';
+            const fullFilename = `${cleanFilename}.${format}`;
+            let blob;
+
+            if (format === 'pdf') {
+              if (typeof generatePdfBlob === 'function') {
+                const pdfOutput = await generatePdfBlob();
+                if (pdfOutput instanceof Blob) blob = pdfOutput;
+                else if (pdfOutput && typeof pdfOutput.output === 'function') blob = pdfOutput.output('blob');
+                else if (pdfOutput instanceof ArrayBuffer) blob = new Blob([pdfOutput], { type: 'application/pdf' });
+              } else {
+                const text = headers.join(', ') + '\n' + rows.map(r => (Array.isArray(r) ? r : Object.values(r)).join(', ')).join('\n');
+                blob = new Blob([text], { type: 'application/pdf' });
+              }
+            } else if (format === 'xlsx') {
+              blob = generateExcelBlob();
+            } else {
+              blob = generateCsvBlob();
+            }
+
+            if (blob) {
+              const url = URL.createObjectURL(blob);
+              const link = document.createElement('a');
+              link.href = url;
+              link.setAttribute('download', fullFilename);
+              link.target = '_self';
+              link.style.display = 'none';
+              document.body.appendChild(link);
+              link.click();
+              document.body.removeChild(link);
+              URL.revokeObjectURL(url);
+              success(`Downloaded ${fullFilename}`);
+            }
+          } catch (err) {
+            console.error('Web auto-download error:', err);
+            error('Failed to download export file.');
+          } finally {
+            onClose();
+          }
+        };
+
+        executeWebDownload();
+        return;
+      }
+
+      // 2. Mobile / APK workflow -> Initialize mobile modal view
       setCurrentView('places');
       setSelectedFolder('Documents');
       setFilename(defaultFilename.replace(/\.(csv|pdf|xlsx)$/i, ''));
@@ -189,35 +268,7 @@ export const SaveAsModal = ({
     return { bg: '#f1f5f9', icon: <GenericFileIcon size={22} color="#475569" />, isDir: false };
   };
 
-  if (!isOpen) return null;
-
-  // Build CSV content from headers and rows
-  const generateCsvBlob = () => {
-    const formatCell = (cell) => {
-      if (cell === null || cell === undefined) return '""';
-      const safeContent = sanitizeCsvCell(cell);
-      const str = String(safeContent).replace(/"/g, '""');
-      return `"${str}"`;
-    };
-    const headerLine = headers.map(formatCell).join(',');
-    const rowLines = rows.map(r => (Array.isArray(r) ? r : Object.values(r)).map(formatCell).join(','));
-    const csvContent = '\uFEFF' + [headerLine, ...rowLines].join('\r\n');
-    return new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-  };
-
-  // Build Excel-compatible HTML/XML Blob or CSV blob
-  const generateExcelBlob = () => {
-    const formatCell = (cell) => {
-      if (cell === null || cell === undefined) return '""';
-      const safeContent = sanitizeCsvCell(cell);
-      const str = String(safeContent).replace(/"/g, '""');
-      return `"${str}"`;
-    };
-    const headerLine = headers.map(formatCell).join('\t');
-    const rowLines = rows.map(r => (Array.isArray(r) ? r : Object.values(r)).map(formatCell).join('\t'));
-    const content = '\uFEFF' + [headerLine, ...rowLines].join('\r\n');
-    return new Blob([content], { type: 'application/vnd.ms-excel;charset=utf-8;' });
-  };
+  if (!isOpen || (!isNativeApp() && !isMobileDevice())) return null;
 
   const handleSaveFile = async (destinationType = 'device') => {
     if (!filename.trim()) {
