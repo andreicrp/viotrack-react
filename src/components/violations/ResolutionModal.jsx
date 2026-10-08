@@ -126,26 +126,17 @@ export const buildCertificateHtml = ({ record, status, sanction, resolutionNotes
       -webkit-font-smoothing: antialiased;
     }
 
-    .doc-frame {
-      border: 2px solid #07345f;
-      padding: 12px 16px;
-      position: relative;
+    .cert-page-container {
+      width: 100%;
+      min-height: 268mm;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-sizing: border-box;
       background: #ffffff;
-      box-sizing: border-box;
-      min-height: 275mm;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
     }
-    .doc-frame-inner {
-      border: 0.75px solid #07345f;
-      padding: 14px 16px;
-      position: relative;
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      box-sizing: border-box;
+    .cert-content-top {
+      flex: 1 0 auto;
     }
 
     .inst-header-wrapper {
@@ -310,7 +301,7 @@ export const buildCertificateHtml = ({ record, status, sanction, resolutionNotes
     }
 
     .cert-footer {
-      margin-top: 20px;
+      margin-top: auto;
       border-top: 1px solid #cbd5e1;
       padding-top: 6px;
       font-size: 7.5pt;
@@ -321,8 +312,8 @@ export const buildCertificateHtml = ({ record, status, sanction, resolutionNotes
   </style>
 </head>
 <body>
-  <div class="doc-frame">
-    <div class="doc-frame-inner">
+  <div class="cert-page-container">
+    <div class="cert-content-top">
 
       <!-- Header Section -->
       <div class="inst-header-wrapper">
@@ -422,15 +413,15 @@ export const buildCertificateHtml = ({ record, status, sanction, resolutionNotes
         </table>
       </div>
 
-      <!-- Legal Footnote -->
-      <div class="cert-footer">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px;">
-          <span><strong>SECURITY VERIFICATION CODE:</strong> ${securityHash}</span>
-          <span><strong>SYSTEM ARCHIVE:</strong> VIOTRACK INSTITUTIONAL RECORD</span>
-        </div>
-        <strong>DOCUMENT SECURITY &amp; DATA PRIVACY NOTICE:</strong> This is an official institutional clearance issued by the Office of the Prefect of Discipline. Any unauthorized alteration, forgery, or erasure renders this certificate null and void and is subject to administrative and legal sanctions under Republic Act No. 10173 (Data Privacy Act of 2012) and the Philippine Revised Penal Code.
-      </div>
+    </div>
 
+    <!-- Legal Footnote at Bottom -->
+    <div class="cert-footer">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2px;">
+        <span><strong>SECURITY VERIFICATION CODE:</strong> ${securityHash}</span>
+        <span><strong>SYSTEM ARCHIVE:</strong> VIOTRACK INSTITUTIONAL RECORD</span>
+      </div>
+      <strong>DOCUMENT SECURITY &amp; DATA PRIVACY NOTICE:</strong> This is an official institutional clearance issued by the Office of the Prefect of Discipline. Any unauthorized alteration, forgery, or erasure renders this certificate null and void and is subject to administrative and legal sanctions under Republic Act No. 10173 (Data Privacy Act of 2012) and the Philippine Revised Penal Code.
     </div>
   </div>
 </body>
