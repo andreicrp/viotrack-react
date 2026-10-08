@@ -17,7 +17,17 @@ import {
   Compass,
   Play,
   RotateCcw,
-  Maximize2
+  Maximize2,
+  Calendar,
+  Clock,
+  MapPin,
+  User,
+  Award,
+  Shield,
+  Scissors,
+  FileCheck,
+  CheckSquare,
+  Square
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
@@ -54,6 +64,363 @@ const SANCTIONS_MATRIX = [
     thirdOffense: 'Non-Readmission / Recommendation for Transfer'
   }
 ];
+
+// Rich Visual Sample Previews for Guides
+const StepVisualPreview = ({ previewType }) => {
+  if (!previewType) return null;
+
+  if (previewType === 'summons_letterhead') {
+    return (
+      <div
+        style={{
+          background: '#ffffff',
+          borderRadius: '12px',
+          border: '1.5px solid #cbd5e1',
+          padding: '12px',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.06)',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '8px',
+          fontSize: '11px',
+          marginTop: '6px'
+        }}
+      >
+        {/* Letterhead Header */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', borderBottom: '1.5px solid #07345f', paddingBottom: '8px' }}>
+          <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: '#07345f', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ffffff', flexShrink: 0, fontWeight: 900, fontSize: '10px' }}>
+            UPH
+          </div>
+          <div style={{ flex: 1, lineHeight: 1.25 }}>
+            <div style={{ fontSize: '9px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+              Republic of the Philippines • Dept. of Education
+            </div>
+            <div style={{ fontSize: '11px', fontWeight: 900, color: '#07345f' }}>
+              UNIVERSITY OF PERPETUAL HELP SYSTEM
+            </div>
+            <div style={{ fontSize: '9.5px', fontWeight: 600, color: '#475569' }}>
+              Office of the Prefect of Student Discipline
+            </div>
+          </div>
+          <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', color: '#15803d', padding: '2px 6px', borderRadius: '4px', fontSize: '9px', fontWeight: 800 }}>
+            DepEd Order 40
+          </div>
+        </div>
+
+        {/* Title Banner */}
+        <div style={{ background: 'linear-gradient(135deg, #07345f 0%, #0f172a 100%)', color: '#ffffff', padding: '6px 10px', borderRadius: '6px', textAlign: 'center', fontWeight: 800, fontSize: '11px', letterSpacing: '0.03em' }}>
+          NOTICE OF MANDATORY PARENT-TEACHER CONFERENCE
+        </div>
+
+        {/* Mock Case Meta */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px', background: '#f8fafc', padding: '8px', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
+          <div>
+            <span style={{ color: '#64748b', fontSize: '10px' }}>Student: </span>
+            <strong style={{ color: '#0f172a' }}>Alexander Mendoza</strong>
+          </div>
+          <div>
+            <span style={{ color: '#64748b', fontSize: '10px' }}>Ref #: </span>
+            <strong style={{ color: '#07345f' }}>SUM-2026-1048</strong>
+          </div>
+          <div>
+            <span style={{ color: '#64748b', fontSize: '10px' }}>Grade / Sec: </span>
+            <strong style={{ color: '#0f172a' }}>Grade 10 - Rizal</strong>
+          </div>
+          <div>
+            <span style={{ color: '#64748b', fontSize: '10px' }}>LRN: </span>
+            <strong style={{ color: '#0f172a' }}>109283748201</strong>
+          </div>
+        </div>
+
+        <div style={{ fontSize: '10.5px', color: '#475569', fontStyle: 'italic', lineHeight: 1.35, background: '#fdfdfd', borderLeft: '3px solid #38bdf8', paddingLeft: '8px' }}>
+          "Formal notice inviting the parent/guardian for constructive dialogue and resolution contract..."
+        </div>
+      </div>
+    );
+  }
+
+  if (previewType === 'summons_bundling') {
+    return (
+      <div
+        style={{
+          background: '#ffffff',
+          borderRadius: '12px',
+          border: '1.5px solid #cbd5e1',
+          padding: '12px',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.06)',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '8px',
+          fontSize: '11px',
+          marginTop: '6px'
+        }}
+      >
+        {/* Bundled Checklist Header */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span style={{ fontWeight: 800, color: '#07345f', fontSize: '11.5px' }}>
+            Bundled Offense Dossier (3 Incidents)
+          </span>
+          <span style={{ background: '#fef2f2', color: '#dc2626', border: '1px solid #fecaca', padding: '1px 6px', borderRadius: '4px', fontSize: '9.5px', fontWeight: 800 }}>
+            Repeat Case
+          </span>
+        </div>
+
+        {/* Items */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#f8fafc', padding: '5px 8px', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <CheckSquare size={13} color="#07345f" />
+              <span style={{ fontWeight: 700, color: '#0f172a' }}>Skipping Class / Truancy</span>
+            </div>
+            <span style={{ background: '#fef9c3', color: '#a16207', padding: '1px 5px', borderRadius: '4px', fontSize: '9px', fontWeight: 800 }}>Serious</span>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#f8fafc', padding: '5px 8px', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <CheckSquare size={13} color="#07345f" />
+              <span style={{ fontWeight: 700, color: '#0f172a' }}>Improper Uniform / No ID</span>
+            </div>
+            <span style={{ background: '#dcfce7', color: '#15803d', padding: '1px 5px', borderRadius: '4px', fontSize: '9px', fontWeight: 800 }}>Minor</span>
+          </div>
+
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#f8fafc', padding: '5px 8px', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <CheckSquare size={13} color="#07345f" />
+              <span style={{ fontWeight: 700, color: '#0f172a' }}>Unauthorized Campus Exit</span>
+            </div>
+            <span style={{ background: '#fef9c3', color: '#a16207', padding: '1px 5px', borderRadius: '4px', fontSize: '9px', fontWeight: 800 }}>Serious</span>
+          </div>
+        </div>
+
+        {/* Schedule & Venue Card */}
+        <div style={{ background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '6px', padding: '6px 10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: '#1e40af', fontSize: '10.5px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '5px', fontWeight: 700 }}>
+            <Calendar size={13} /> Oct 14, 2026 @ 10:30 AM
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontWeight: 600 }}>
+            <MapPin size={12} /> Rm 204 (Prefect)
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (previewType === 'summons_return_slip') {
+    return (
+      <div
+        style={{
+          background: '#ffffff',
+          borderRadius: '12px',
+          border: '1.5px solid #cbd5e1',
+          padding: '12px',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.06)',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '8px',
+          fontSize: '11px',
+          marginTop: '6px'
+        }}
+      >
+        {/* Scissor Line */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#94a3b8', fontSize: '10px', fontWeight: 700 }}>
+          <Scissors size={13} color="#64748b" />
+          <div style={{ flex: 1, borderBottom: '1.5px dashed #cbd5e1' }} />
+          <span style={{ textTransform: 'uppercase', letterSpacing: '0.04em' }}>Tear-off Return Slip</span>
+        </div>
+
+        {/* Return Slip Content */}
+        <div style={{ background: '#fafafa', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '8px 10px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span style={{ fontWeight: 800, color: '#07345f', fontSize: '11px' }}>
+              PARENT ACKNOWLEDGEMENT CONFIRMATION
+            </span>
+            <span style={{ fontSize: '9.5px', color: '#64748b' }}>Return to Prefect Office</span>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '3px', fontSize: '10px', color: '#334155' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <CheckSquare size={12} color="#059669" />
+              <span><strong>I will attend</strong> the scheduled conference on Oct 14, 2026.</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <Square size={12} color="#94a3b8" />
+              <span>Request reschedule for valid reason.</span>
+            </div>
+          </div>
+
+          {/* Signature field mockup */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginTop: '4px', paddingTop: '4px', borderTop: '1px solid #e2e8f0' }}>
+            <div>
+              <div style={{ fontSize: '9px', color: '#64748b' }}>Guardian Signature & Date:</div>
+              <div style={{ fontFamily: 'monospace', fontWeight: 700, color: '#07345f', fontSize: '11px' }}>
+                M. Mendoza — 10/10/26
+              </div>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: '#f1f5f9', padding: '2px 6px', borderRadius: '4px', fontSize: '9px', fontWeight: 800, color: '#475569' }}>
+              <QrCode size={11} /> #VT-RET-84920
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (previewType === 'case_resolution_sanctions') {
+    return (
+      <div
+        style={{
+          background: '#ffffff',
+          borderRadius: '12px',
+          border: '1.5px solid #cbd5e1',
+          padding: '12px',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.06)',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '8px',
+          fontSize: '11px',
+          marginTop: '6px'
+        }}
+      >
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span style={{ fontWeight: 800, color: '#07345f' }}>Case Clearance & Sanctions Entry</span>
+          <span style={{ background: '#ecfdf5', color: '#059669', border: '1px solid #a7f3d0', padding: '2px 8px', borderRadius: '12px', fontSize: '10px', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '3px' }}>
+            <CheckCircle2 size={11} /> Case Resolved
+          </span>
+        </div>
+
+        {/* Assigned Sanction Box */}
+        <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '6px', padding: '8px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+          <div style={{ fontSize: '10px', color: '#64748b', fontWeight: 700 }}>PRESCRIBED ACTION TAKEN:</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#0f172a', fontWeight: 700 }}>
+            <CheckSquare size={13} color="#10b981" /> 2-Hour Campus Service & Reflection Essay
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#0f172a', fontWeight: 700 }}>
+            <CheckSquare size={13} color="#10b981" /> Guidance Counseling Session Completed
+          </div>
+        </div>
+
+        {/* Official Resolution Remarks */}
+        <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '6px', padding: '6px 8px', fontSize: '10px', color: '#166534' }}>
+          <strong>Prefect Log:</strong> Student completed designated service hours; behavior contract signed by parent and adviser.
+        </div>
+      </div>
+    );
+  }
+
+  if (previewType === 'case_resolution_certificate') {
+    return (
+      <div
+        style={{
+          background: 'linear-gradient(135deg, #ffffff 0%, #fbfdf9 100%)',
+          borderRadius: '12px',
+          border: '2px solid #10b981',
+          padding: '12px',
+          boxShadow: '0 4px 14px rgba(16, 185, 129, 0.15)',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '7px',
+          fontSize: '11px',
+          marginTop: '6px'
+        }}
+      >
+        {/* Certificate Header */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', color: '#047857', fontWeight: 900, fontSize: '10.5px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+          <Award size={15} color="#059669" />
+          <span>Certificate of Disciplinary Clearance</span>
+        </div>
+
+        <div style={{ textAlign: 'center', fontSize: '9px', color: '#64748b' }}>
+          University of Perpetual Help System Manila — Guidance & Prefect Office
+        </div>
+
+        <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '6px', padding: '8px', textAlign: 'center', lineHeight: 1.35 }}>
+          <div style={{ fontSize: '10px', color: '#64748b' }}>This officially certifies that:</div>
+          <div style={{ fontSize: '13px', fontWeight: 900, color: '#07345f', margin: '2px 0' }}>Gabriel Torres</div>
+          <div style={{ fontSize: '9.5px', color: '#475569' }}>Grade 10 - Section Bonifacio (LRN: 109283749102)</div>
+          <div style={{ fontSize: '9.5px', color: '#059669', fontWeight: 700, marginTop: '4px' }}>
+            ✓ All incident obligations cleared & closed in good standing.
+          </div>
+        </div>
+
+        {/* Certificate Security Stamp Footer */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '9px', color: '#64748b', paddingTop: '3px', borderTop: '1px solid #e2e8f0' }}>
+          <span>Control: <strong>#CLR-2026-0842</strong></span>
+          <span style={{ color: '#059669', fontWeight: 800 }}>Official Digital Doc Proof</span>
+        </div>
+      </div>
+    );
+  }
+
+  if (previewType === 'analytics_executive_report') {
+    return (
+      <div
+        style={{
+          background: '#ffffff',
+          borderRadius: '12px',
+          border: '1.5px solid #cbd5e1',
+          padding: '12px',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.06)',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '8px',
+          fontSize: '11px',
+          marginTop: '6px'
+        }}
+      >
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1.5px solid #07345f', paddingBottom: '6px' }}>
+          <div style={{ fontWeight: 900, color: '#07345f', fontSize: '11px' }}>
+            VIOTRACK ANNUAL DISCIPLINARY REPORT
+          </div>
+          <span style={{ fontSize: '9px', color: '#64748b' }}>S.Y. 2025-2026</span>
+        </div>
+
+        {/* Mini KPI Bar */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '4px', textAlign: 'center' }}>
+          <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '4px', padding: '4px 2px' }}>
+            <div style={{ fontSize: '8.5px', color: '#64748b' }}>TOTAL INCIDENTS</div>
+            <div style={{ fontSize: '13px', fontWeight: 900, color: '#0f172a' }}>48</div>
+          </div>
+          <div style={{ background: '#ecfdf5', border: '1px solid #a7f3d0', borderRadius: '4px', padding: '4px 2px' }}>
+            <div style={{ fontSize: '8.5px', color: '#065f46' }}>RESOLVED</div>
+            <div style={{ fontSize: '13px', fontWeight: 900, color: '#059669' }}>94.2%</div>
+          </div>
+          <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '4px', padding: '4px 2px' }}>
+            <div style={{ fontSize: '8.5px', color: '#991b1b' }}>REPEAT INDEX</div>
+            <div style={{ fontSize: '13px', fontWeight: 900, color: '#dc2626' }}>2.1%</div>
+          </div>
+        </div>
+
+        {/* Grade Breakdown Mini Table */}
+        <div style={{ background: '#fafafa', border: '1px solid #e2e8f0', borderRadius: '6px', padding: '6px 8px', fontSize: '9.5px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', color: '#64748b', fontWeight: 700, marginBottom: '2px' }}>
+            <span>Grade Level</span>
+            <span>Minor</span>
+            <span>Serious</span>
+            <span>Major</span>
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', color: '#0f172a', fontWeight: 600 }}>
+            <span>Grade 7 - 10</span>
+            <span>18</span>
+            <span>9</span>
+            <span>2</span>
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', color: '#0f172a', fontWeight: 600 }}>
+            <span>Senior High (G11-12)</span>
+            <span>11</span>
+            <span>6</span>
+            <span>2</span>
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '9px', color: '#64748b', paddingTop: '2px' }}>
+          <span>Signed: <strong>Prefect of Discipline</strong></span>
+          <span>Accreditation Ready PDF</span>
+        </div>
+      </div>
+    );
+  }
+
+  return null;
+};
 
 // Interactive Guided Tours Definitions matching actual DOM classes
 const TOUR_SCENARIOS = {
@@ -193,25 +560,28 @@ const TOUR_SCENARIOS = {
         icon: FileText
       },
       {
-        target: null, // Centered clean modal
+        target: null, // Centered clean modal with realistic visual letterhead sample
         title: 'Authentic Philippine Institutional Notice',
         content: 'Generates an official parent conference notice complete with Republic header, University of Perpetual Help seal, and DepEd compliance footnotes.',
         badge: 'Letterhead & Seals',
-        icon: FileText
+        icon: FileText,
+        previewType: 'summons_letterhead'
       },
       {
         target: null,
         title: 'Multi-Violation Bundling & Schedule',
         content: 'Select multiple infractions for a repeat offender into one single formal notice. Customize the conference date, time, venue, and designated signatories.',
         badge: 'Customization',
-        icon: CheckCircle2
+        icon: CheckCircle2,
+        previewType: 'summons_bundling'
       },
       {
         target: null,
         title: 'Direct PDF Download & Print',
         content: 'Download the summons as a crisp vector PDF or print directly. It includes an official tear-off Return Slip for parent confirmation.',
         badge: 'Export & Print',
-        icon: QrCode
+        icon: QrCode,
+        previewType: 'summons_return_slip'
       }
     ]
   },
@@ -233,14 +603,16 @@ const TOUR_SCENARIOS = {
         title: 'Corrective Action & Sanctions',
         content: 'Select prescribed institutional sanctions (e.g. Verbal Warning, Campus Service, Counseling) and record resolution remarks.',
         badge: 'Sanction Presets',
-        icon: ShieldCheck
+        icon: ShieldCheck,
+        previewType: 'case_resolution_sanctions'
       },
       {
         target: null,
         title: 'Official Certificate of Resolution',
         content: 'Generates an authentic Certificate of Disciplinary Resolution & Clearance with unique control number and digital verification hash.',
         badge: 'Certificate',
-        icon: Sparkles
+        icon: Sparkles,
+        previewType: 'case_resolution_certificate'
       }
     ]
   },
@@ -276,7 +648,8 @@ const TOUR_SCENARIOS = {
         title: 'Executive PDF Accreditation Report',
         content: 'Exports a multi-page PDF document including itemized incident logs, verification barcodes, and prefect signatures.',
         badge: 'Executive Report',
-        icon: FileText
+        icon: FileText,
+        previewType: 'analytics_executive_report'
       }
     ]
   }
@@ -951,11 +1324,13 @@ export const InteractiveTourGuide = () => {
                 ? '24px'
                 : 'auto',
               left: targetRect
-                ? `${Math.max(16, Math.min(window.innerWidth - 396, targetRect.rawLeft + (targetRect.rawWidth - 380) / 2))}px`
+                ? `${Math.max(16, Math.min(window.innerWidth - (currentStep.previewType ? 456 : 396), targetRect.rawLeft + (targetRect.rawWidth - (currentStep.previewType ? 440 : 380)) / 2))}px`
                 : '50%',
               transform: !targetRect ? 'translate(-50%, -50%)' : 'none',
-              width: '380px',
+              width: currentStep.previewType ? '440px' : '380px',
               maxWidth: 'calc(100vw - 32px)',
+              maxHeight: '90vh',
+              overflowY: 'auto',
               background: '#ffffff',
               borderRadius: '18px',
               padding: '20px',
@@ -1033,6 +1408,9 @@ export const InteractiveTourGuide = () => {
                 {currentStep.content}
               </p>
             </div>
+
+            {/* Visual Sample Document & UI Preview Mockup */}
+            <StepVisualPreview previewType={currentStep.previewType} />
 
             {/* Navigation Action Buttons */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '4px', paddingTop: '10px', borderTop: '1px solid #f1f5f9' }}>
