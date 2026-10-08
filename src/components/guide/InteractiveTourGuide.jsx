@@ -2,7 +2,6 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import {
   HelpCircle,
-  Sparkles,
   ChevronRight,
   ChevronLeft,
   X,
@@ -466,7 +465,7 @@ const TOUR_SCENARIOS = {
         title: 'Welcome to VioTrack',
         content: 'VioTrack is the institutional Student Welfare and Disciplinary Management System for the University of Perpetual Help System Manila.',
         badge: 'Getting Started',
-        icon: Sparkles
+        icon: Compass
       },
       {
         target: '.dash-stats-grid-4',
@@ -480,7 +479,7 @@ const TOUR_SCENARIOS = {
         title: 'Trend Curves & Incident Distribution',
         content: 'Visualize disciplinary activity over time with interactive spline curve trends and segmented donut charts of the most common school violations.',
         badge: 'Visual Trends',
-        icon: Sparkles
+        icon: BarChart3
       },
       {
         target: '.dash-bottom-card:nth-child(1), .dash-offenders-list',
@@ -686,49 +685,13 @@ const TOUR_SCENARIOS = {
   }
 };
 
-const TOUR_CATEGORIES = {
-  overview: {
-    category: 'System Core',
-    iconColor: '#0284c7',
-    iconBg: '#e0f2fe',
-    accentBorder: '#0284c7',
-    Icon: Sparkles
-  },
-  qr_scanner: {
-    category: 'Field Patrol',
-    iconColor: '#6366f1',
-    iconBg: '#eef2ff',
-    accentBorder: '#6366f1',
-    Icon: QrCode
-  },
-  violations_log: {
-    category: 'Incident Records',
-    iconColor: '#d97706',
-    iconBg: '#fef3c7',
-    accentBorder: '#d97706',
-    Icon: FileText
-  },
-  parent_summons: {
-    category: 'Official Notices',
-    iconColor: '#2563eb',
-    iconBg: '#eff6ff',
-    accentBorder: '#2563eb',
-    Icon: BookOpen
-  },
-  case_resolution: {
-    category: 'Sanctions & Clearance',
-    iconColor: '#059669',
-    iconBg: '#ecfdf5',
-    accentBorder: '#059669',
-    Icon: ShieldCheck
-  },
-  analytics_print: {
-    category: 'Executive Reports',
-    iconColor: '#7c3aed',
-    iconBg: '#f5f3ff',
-    accentBorder: '#7c3aed',
-    Icon: BarChart3
-  }
+const TOUR_ICONS = {
+  overview: Compass,
+  qr_scanner: QrCode,
+  violations_log: FileText,
+  parent_summons: BookOpen,
+  case_resolution: ShieldCheck,
+  analytics_print: BarChart3
 };
 
 export const InteractiveTourGuide = () => {
@@ -917,7 +880,7 @@ export const InteractiveTourGuide = () => {
 
   return (
     <>
-      {/* 1. Floating Help & Interactive Guides Launcher Button (Bottom-Right, Collapsible to prevent overlapping) */}
+      {/* 1. Floating System Guide Launcher Button (Bottom-Right, Collapsible) */}
       <div
         style={{
           position: 'fixed',
@@ -934,46 +897,46 @@ export const InteractiveTourGuide = () => {
             type="button"
             onClick={() => setIsGuideMenuOpen(true)}
             style={{
-              width: '42px',
-              height: '42px',
+              width: '40px',
+              height: '40px',
               borderRadius: '50%',
-              background: 'linear-gradient(135deg, #07345f 0%, #0f172a 100%)',
-              color: '#ffffff',
-              border: '1.5px solid rgba(255, 255, 255, 0.3)',
+              background: '#ffffff',
+              color: '#07345f',
+              border: '1.5px solid #cbd5e1',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               cursor: 'pointer',
-              boxShadow: '0 8px 24px rgba(7, 52, 95, 0.4)',
-              backdropFilter: 'blur(8px)',
+              boxShadow: '0 4px 14px rgba(15, 23, 42, 0.12)',
               position: 'relative',
-              transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)'
+              transition: 'all 0.18s ease'
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-2px) scale(1.08)';
-              e.currentTarget.style.boxShadow = '0 12px 30px rgba(7, 52, 95, 0.5)';
+              e.currentTarget.style.transform = 'translateY(-2px)';
+              e.currentTarget.style.borderColor = '#07345f';
+              e.currentTarget.style.boxShadow = '0 6px 20px rgba(7, 52, 95, 0.18)';
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0) scale(1)';
-              e.currentTarget.style.boxShadow = '0 8px 24px rgba(7, 52, 95, 0.4)';
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.borderColor = '#cbd5e1';
+              e.currentTarget.style.boxShadow = '0 4px 14px rgba(15, 23, 42, 0.12)';
             }}
-            title="Open Interactive Guide & SOP Manual"
+            title="Open VioTrack User Guide & SOPs"
           >
-            <Sparkles size={18} color="#38bdf8" />
+            <HelpCircle size={20} color="#07345f" />
             {completedTours.length > 0 && (
               <span
                 style={{
                   position: 'absolute',
-                  top: '-3px',
-                  right: '-3px',
-                  background: completedTours.length === totalScenariosCount ? '#10b981' : '#0284c7',
+                  top: '-2px',
+                  right: '-2px',
+                  background: '#07345f',
                   color: '#ffffff',
-                  fontSize: '9.5px',
-                  fontWeight: 900,
+                  fontSize: '9px',
+                  fontWeight: 800,
                   padding: '1px 5px',
                   borderRadius: '9999px',
-                  border: '1.5px solid #ffffff',
-                  boxShadow: '0 2px 5px rgba(0,0,0,0.2)'
+                  border: '1.5px solid #ffffff'
                 }}
               >
                 {completedTours.length}
@@ -985,14 +948,13 @@ export const InteractiveTourGuide = () => {
             style={{
               display: 'flex',
               alignItems: 'center',
-              background: 'linear-gradient(135deg, #07345f 0%, #0f172a 100%)',
+              background: '#ffffff',
               borderRadius: '9999px',
-              border: '1.5px solid rgba(255, 255, 255, 0.25)',
-              boxShadow: '0 8px 24px rgba(7, 52, 95, 0.35)',
-              backdropFilter: 'blur(8px)',
+              border: '1.5px solid #cbd5e1',
+              boxShadow: '0 4px 16px rgba(15, 23, 42, 0.12)',
               padding: '3px 4px 3px 12px',
-              gap: '6px',
-              transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)'
+              gap: '8px',
+              transition: 'all 0.18s ease'
             }}
           >
             <button
@@ -1001,42 +963,41 @@ export const InteractiveTourGuide = () => {
               style={{
                 background: 'transparent',
                 border: 'none',
-                color: '#ffffff',
+                color: '#0f172a',
                 display: 'flex',
                 alignItems: 'center',
                 gap: '8px',
                 fontSize: '12.5px',
-                fontWeight: 800,
+                fontWeight: 700,
                 cursor: 'pointer',
-                padding: '5px 0'
+                padding: '4px 0'
               }}
-              title="Open Interactive Guide & SOP Manual"
+              title="Open VioTrack User Guide & SOPs"
             >
-              <Sparkles size={15} color="#38bdf8" />
+              <HelpCircle size={16} color="#07345f" />
               <span>Interactive Guide</span>
-              {completedTours.length > 0 && (
-                <span
-                  style={{
-                    background: completedTours.length === totalScenariosCount ? '#10b981' : 'rgba(255, 255, 255, 0.2)',
-                    color: '#ffffff',
-                    fontSize: '10px',
-                    padding: '1px 6px',
-                    borderRadius: '9999px',
-                    fontWeight: 900
-                  }}
-                >
-                  {completedTours.length}/{totalScenariosCount}
-                </span>
-              )}
+              <span
+                style={{
+                  background: '#f1f5f9',
+                  color: '#07345f',
+                  fontSize: '10.5px',
+                  padding: '1px 6px',
+                  borderRadius: '9999px',
+                  fontWeight: 800,
+                  border: '1px solid #e2e8f0'
+                }}
+              >
+                {completedTours.length}/{totalScenariosCount}
+              </span>
             </button>
 
             <button
               type="button"
               onClick={toggleMinimizePill}
               style={{
-                background: 'rgba(255, 255, 255, 0.12)',
-                border: 'none',
-                color: '#ffffff',
+                background: '#f8fafc',
+                border: '1px solid #e2e8f0',
+                color: '#64748b',
                 width: '22px',
                 height: '22px',
                 borderRadius: '50%',
@@ -1044,9 +1005,17 @@ export const InteractiveTourGuide = () => {
                 alignItems: 'center',
                 justifyContent: 'center',
                 cursor: 'pointer',
-                marginLeft: '4px'
+                marginLeft: '2px'
               }}
-              title="Minimize pill to circular button"
+              title="Minimize guide button"
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = '#e2e8f0';
+                e.currentTarget.style.color = '#0f172a';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = '#f8fafc';
+                e.currentTarget.style.color = '#64748b';
+              }}
             >
               <Minimize2 size={11} />
             </button>
@@ -1061,37 +1030,37 @@ export const InteractiveTourGuide = () => {
             position: 'fixed',
             inset: 0,
             zIndex: 9999,
-            background: 'rgba(15, 23, 42, 0.65)',
-            backdropFilter: 'blur(6px)',
+            background: 'rgba(15, 23, 42, 0.55)',
+            backdropFilter: 'blur(4px)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             padding: '16px',
-            animation: 'fadeIn 0.2s ease-out'
+            animation: 'fadeIn 0.15s ease-out'
           }}
           onClick={() => setIsGuideMenuOpen(false)}
         >
           <div
             style={{
               width: '100%',
-              maxWidth: '740px',
+              maxWidth: '720px',
               maxHeight: '88vh',
               background: '#ffffff',
-              borderRadius: '20px',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.3)',
+              borderRadius: '16px',
+              boxShadow: '0 20px 40px -10px rgba(0, 0, 0, 0.25)',
               display: 'flex',
               flexDirection: 'column',
               overflow: 'hidden',
-              border: '1px solid #e2e8f0'
+              border: '1px solid #cbd5e1'
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Modal Header */}
+            {/* Clean White Modal Header */}
             <div
               style={{
-                padding: '20px 24px',
-                background: 'linear-gradient(135deg, #07345f 0%, #0f172a 100%)',
-                color: '#ffffff',
+                padding: '18px 22px',
+                background: '#ffffff',
+                borderBottom: '1px solid #e2e8f0',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between',
@@ -1101,24 +1070,25 @@ export const InteractiveTourGuide = () => {
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                 <div
                   style={{
-                    width: '42px',
-                    height: '42px',
-                    borderRadius: '12px',
-                    background: 'rgba(255, 255, 255, 0.12)',
+                    width: '38px',
+                    height: '38px',
+                    borderRadius: '10px',
+                    background: '#f8fafc',
+                    border: '1px solid #e2e8f0',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    border: '1px solid rgba(255, 255, 255, 0.2)'
+                    color: '#07345f'
                   }}
                 >
-                  <Compass size={22} color="#38bdf8" />
+                  <Compass size={20} />
                 </div>
                 <div>
-                  <h3 style={{ margin: 0, fontSize: '17px', fontWeight: 800, letterSpacing: '-0.01em' }}>
-                    VioTrack Interactive Guide &amp; SOP Hub
+                  <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 800, color: '#0f172a' }}>
+                    VioTrack System Guide &amp; SOP Manual
                   </h3>
-                  <span style={{ fontSize: '12px', color: '#94a3b8' }}>
-                    Interactive walkthroughs, sanction reference policies, and operations manual
+                  <span style={{ fontSize: '12px', color: '#64748b' }}>
+                    Interactive walkthroughs, sanction reference policies, and operational workflows
                   </span>
                 </div>
               </div>
@@ -1127,16 +1097,25 @@ export const InteractiveTourGuide = () => {
                 type="button"
                 onClick={() => setIsGuideMenuOpen(false)}
                 style={{
-                  background: 'rgba(255, 255, 255, 0.1)',
-                  border: 'none',
-                  color: '#ffffff',
+                  background: '#f8fafc',
+                  border: '1px solid #e2e8f0',
+                  color: '#64748b',
                   width: '32px',
                   height: '32px',
                   borderRadius: '8px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  cursor: 'pointer'
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = '#e2e8f0';
+                  e.currentTarget.style.color = '#0f172a';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = '#f8fafc';
+                  e.currentTarget.style.color = '#64748b';
                 }}
               >
                 <X size={18} />
@@ -1144,26 +1123,26 @@ export const InteractiveTourGuide = () => {
             </div>
 
             {/* Modal Body */}
-            <div style={{ padding: '20px 24px', overflowY: 'auto', flex: 1, display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div style={{ padding: '20px 22px', overflowY: 'auto', flex: 1, display: 'flex', flexDirection: 'column', gap: '14px' }}>
               {/* Progress Summary Strip */}
               <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <Sparkles size={16} color="#07345f" />
-                    <span style={{ fontSize: '13px', fontWeight: 800, color: '#0f172a' }}>
-                      Orientation &amp; Training Progress
+                    <BookOpen size={16} color="#07345f" />
+                    <span style={{ fontSize: '12.5px', fontWeight: 700, color: '#0f172a' }}>
+                      Walkthrough Progress
                     </span>
                   </div>
-                  <span style={{ fontSize: '12px', fontWeight: 800, color: completedTours.length === totalScenariosCount ? '#059669' : '#07345f' }}>
+                  <span style={{ fontSize: '12px', fontWeight: 700, color: '#07345f' }}>
                     {completedTours.length} of {totalScenariosCount} Complete ({completionPercent}%)
                   </span>
                 </div>
-                <div style={{ width: '100%', height: '6px', background: '#e2e8f0', borderRadius: '9999px', overflow: 'hidden' }}>
+                <div style={{ width: '100%', height: '5px', background: '#e2e8f0', borderRadius: '9999px', overflow: 'hidden' }}>
                   <div
                     style={{
                       width: `${completionPercent}%`,
                       height: '100%',
-                      background: completedTours.length === totalScenariosCount ? 'linear-gradient(90deg, #10b981 0%, #059669 100%)' : 'linear-gradient(90deg, #07345f 0%, #38bdf8 100%)',
+                      background: completedTours.length === totalScenariosCount ? '#059669' : '#07345f',
                       borderRadius: '9999px',
                       transition: 'width 0.4s ease'
                     }}
@@ -1175,26 +1154,25 @@ export const InteractiveTourGuide = () => {
               <div
                 style={{
                   background: '#ffffff',
-                  border: '1.5px solid #cbd5e1',
-                  borderRadius: '14px',
-                  padding: '14px 18px',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: '12px',
+                  padding: '12px 16px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'space-between',
-                  gap: '14px',
-                  boxShadow: '0 2px 8px rgba(0,0,0,0.03)'
+                  gap: '12px'
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <div style={{ width: '38px', height: '38px', borderRadius: '10px', background: '#ecfdf5', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #a7f3d0' }}>
-                    <BookOpen size={19} color="#10b981" />
+                  <div style={{ width: '36px', height: '36px', borderRadius: '8px', background: '#f8fafc', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#07345f', flexShrink: 0 }}>
+                    <BookOpen size={18} />
                   </div>
                   <div>
-                    <h4 style={{ margin: 0, fontSize: '13.5px', fontWeight: 800, color: '#0f172a' }}>
+                    <h4 style={{ margin: 0, fontSize: '13px', fontWeight: 700, color: '#0f172a' }}>
                       Institutional Sanctions Policy Matrix
                     </h4>
                     <span style={{ fontSize: '11.5px', color: '#64748b' }}>
-                      Official University handbook thresholds for Minor, Serious, and Major infractions.
+                      University handbook thresholds for Minor, Serious, and Major infractions.
                     </span>
                   </div>
                 </div>
@@ -1209,16 +1187,15 @@ export const InteractiveTourGuide = () => {
                     background: '#07345f',
                     color: '#ffffff',
                     border: 'none',
-                    padding: '8px 14px',
-                    borderRadius: '8px',
+                    padding: '7px 13px',
+                    borderRadius: '7px',
                     fontSize: '12px',
                     fontWeight: 700,
                     cursor: 'pointer',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '6px',
-                    whiteSpace: 'nowrap',
-                    boxShadow: '0 2px 6px rgba(7, 52, 95, 0.25)'
+                    gap: '5px',
+                    whiteSpace: 'nowrap'
                   }}
                 >
                   <span>View Matrix</span>
@@ -1226,11 +1203,11 @@ export const InteractiveTourGuide = () => {
                 </button>
               </div>
 
-              {/* Guided Interactive Missions Section */}
+              {/* Guided Walkthroughs Section */}
               <div>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
-                  <span style={{ fontSize: '12px', fontWeight: 800, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                    Select an Interactive Walkthrough
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+                  <span style={{ fontSize: '11.5px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                    Available Walkthroughs
                   </span>
                   {completedTours.length > 0 && (
                     <button
@@ -1243,17 +1220,10 @@ export const InteractiveTourGuide = () => {
                   )}
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '10px' }}>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '8px' }}>
                   {Object.entries(TOUR_SCENARIOS).map(([key, scenario]) => {
                     const isDone = completedTours.includes(scenario.id);
-                    const cat = TOUR_CATEGORIES[key] || {
-                      category: 'Guide',
-                      iconColor: '#07345f',
-                      iconBg: '#f1f5f9',
-                      accentBorder: '#07345f',
-                      Icon: Sparkles
-                    };
-                    const IconComponent = cat.Icon;
+                    const IconComponent = TOUR_ICONS[key] || Compass;
 
                     return (
                       <div
@@ -1263,67 +1233,59 @@ export const InteractiveTourGuide = () => {
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'space-between',
-                          padding: '13px 16px',
-                          borderRadius: '14px',
+                          padding: '12px 14px',
+                          borderRadius: '12px',
                           background: '#ffffff',
                           border: '1px solid #e2e8f0',
-                          borderLeft: `4px solid ${cat.accentBorder}`,
                           cursor: 'pointer',
-                          transition: 'all 0.18s cubic-bezier(0.16, 1, 0.3, 1)',
-                          position: 'relative',
-                          boxShadow: '0 1px 3px rgba(0,0,0,0.02)'
+                          transition: 'all 0.15s ease'
                         }}
                         onMouseEnter={(e) => {
-                          e.currentTarget.style.borderColor = cat.accentBorder;
-                          e.currentTarget.style.transform = 'translateY(-2px)';
-                          e.currentTarget.style.boxShadow = '0 8px 20px -4px rgba(7, 52, 95, 0.12)';
+                          e.currentTarget.style.borderColor = '#cbd5e1';
+                          e.currentTarget.style.boxShadow = '0 3px 10px rgba(0,0,0,0.04)';
                         }}
                         onMouseLeave={(e) => {
                           e.currentTarget.style.borderColor = '#e2e8f0';
-                          e.currentTarget.style.borderLeft = `4px solid ${cat.accentBorder}`;
-                          e.currentTarget.style.transform = 'translateY(0)';
-                          e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.02)';
+                          e.currentTarget.style.boxShadow = 'none';
                         }}
                       >
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                           <div
                             style={{
-                              width: '38px',
-                              height: '38px',
-                              borderRadius: '10px',
-                              background: cat.iconBg,
+                              width: '36px',
+                              height: '36px',
+                              borderRadius: '8px',
+                              background: '#f8fafc',
+                              border: '1px solid #e2e8f0',
                               display: 'flex',
                               alignItems: 'center',
                               justifyContent: 'center',
-                              color: cat.iconColor,
+                              color: '#07345f',
                               flexShrink: 0
                             }}
                           >
-                            <IconComponent size={19} />
+                            <IconComponent size={18} />
                           </div>
                           <div>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                              <span style={{ fontSize: '13.5px', fontWeight: 800, color: '#0f172a' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                              <span style={{ fontSize: '13px', fontWeight: 700, color: '#0f172a' }}>
                                 {scenario.title}
                               </span>
-                              <span style={{ fontSize: '9.5px', fontWeight: 800, color: cat.iconColor, background: cat.iconBg, padding: '1px 6px', borderRadius: '4px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                                {cat.category}
-                              </span>
                               {isDone && (
-                                <span style={{ fontSize: '9.5px', fontWeight: 800, color: '#059669', background: '#ecfdf5', border: '1px solid #a7f3d0', padding: '1px 7px', borderRadius: '12px', display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
-                                  <CheckCircle2 size={10} strokeWidth={3} /> Completed
+                                <span style={{ fontSize: '9.5px', fontWeight: 700, color: '#166534', background: '#f0fdf4', border: '1px solid #bbf7d0', padding: '1px 6px', borderRadius: '6px', display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+                                  <CheckCircle2 size={10} strokeWidth={2.5} /> Completed
                                 </span>
                               )}
                             </div>
-                            <span style={{ fontSize: '12px', color: '#64748b', display: 'block', marginTop: '2px', lineHeight: 1.35 }}>
+                            <span style={{ fontSize: '11.5px', color: '#64748b', display: 'block', marginTop: '1px' }}>
                               {scenario.description}
                             </span>
                           </div>
                         </div>
 
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: isDone ? '#059669' : '#07345f', fontWeight: 700, fontSize: '12px', flexShrink: 0, paddingLeft: '12px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#64748b', fontWeight: 600, fontSize: '11.5px', flexShrink: 0, paddingLeft: '12px' }}>
                           <span>{scenario.steps.length} Steps</span>
-                          <ChevronRight size={15} />
+                          <ChevronRight size={14} />
                         </div>
                       </div>
                     );
@@ -1342,8 +1304,8 @@ export const InteractiveTourGuide = () => {
             position: 'fixed',
             inset: 0,
             zIndex: 9999,
-            background: 'rgba(15, 23, 42, 0.65)',
-            backdropFilter: 'blur(6px)',
+            background: 'rgba(15, 23, 42, 0.55)',
+            backdropFilter: 'blur(4px)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -1354,33 +1316,34 @@ export const InteractiveTourGuide = () => {
           <div
             style={{
               width: '100%',
-              maxWidth: '820px',
+              maxWidth: '800px',
               maxHeight: '88vh',
               background: '#ffffff',
-              borderRadius: '20px',
-              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.3)',
+              borderRadius: '16px',
+              boxShadow: '0 20px 40px -10px rgba(0, 0, 0, 0.25)',
               display: 'flex',
               flexDirection: 'column',
               overflow: 'hidden',
-              border: '1px solid #e2e8f0'
+              border: '1px solid #cbd5e1'
             }}
             onClick={(e) => e.stopPropagation()}
           >
+            {/* Sanctions Modal Header */}
             <div
               style={{
-                padding: '18px 24px',
-                background: '#07345f',
-                color: '#ffffff',
+                padding: '18px 22px',
+                background: '#ffffff',
+                borderBottom: '1px solid #e2e8f0',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between'
               }}
             >
               <div>
-                <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 800 }}>
+                <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 800, color: '#0f172a' }}>
                   Institutional Infraction Severity &amp; Sanctions Matrix
                 </h3>
-                <span style={{ fontSize: '11.5px', color: '#94a3b8' }}>
+                <span style={{ fontSize: '11.5px', color: '#64748b' }}>
                   University of Perpetual Help System Manila • Student Handbook Guidelines
                 </span>
               </div>
@@ -1388,9 +1351,9 @@ export const InteractiveTourGuide = () => {
                 type="button"
                 onClick={() => setShowSanctionsModal(false)}
                 style={{
-                  background: 'rgba(255, 255, 255, 0.1)',
-                  border: 'none',
-                  color: '#ffffff',
+                  background: '#f8fafc',
+                  border: '1px solid #e2e8f0',
+                  color: '#64748b',
                   width: '32px',
                   height: '32px',
                   borderRadius: '8px',
@@ -1399,27 +1362,35 @@ export const InteractiveTourGuide = () => {
                   justifyContent: 'center',
                   cursor: 'pointer'
                 }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = '#e2e8f0';
+                  e.currentTarget.style.color = '#0f172a';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = '#f8fafc';
+                  e.currentTarget.style.color = '#64748b';
+                }}
               >
                 <X size={18} />
               </button>
             </div>
 
-            <div style={{ padding: '20px 24px', overflowY: 'auto', flex: 1, display: 'flex', flexDirection: 'column', gap: '14px' }}>
+            <div style={{ padding: '20px 22px', overflowY: 'auto', flex: 1, display: 'flex', flexDirection: 'column', gap: '12px' }}>
               {SANCTIONS_MATRIX.map((item, idx) => (
                 <div
                   key={idx}
                   style={{
                     background: item.bg,
-                    border: `1.5px solid ${item.border}`,
-                    borderRadius: '14px',
-                    padding: '16px',
+                    border: `1px solid ${item.border}`,
+                    borderRadius: '12px',
+                    padding: '14px',
                     display: 'flex',
                     flexDirection: 'column',
-                    gap: '10px'
+                    gap: '8px'
                   }}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <span style={{ fontSize: '14px', fontWeight: 800, color: item.color, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                    <span style={{ fontSize: '13px', fontWeight: 800, color: item.color, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                       {item.level}
                     </span>
                     <span style={{ fontSize: '11px', color: '#64748b' }}>
@@ -1427,18 +1398,18 @@ export const InteractiveTourGuide = () => {
                     </span>
                   </div>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px', background: '#ffffff', padding: '12px', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px', background: '#ffffff', padding: '10px 12px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
                     <div>
-                      <span style={{ fontSize: '10.5px', fontWeight: 800, color: '#64748b', display: 'block', textTransform: 'uppercase' }}>1st Offense</span>
-                      <span style={{ fontSize: '12px', fontWeight: 700, color: '#0f172a', display: 'block', marginTop: '2px' }}>{item.firstOffense}</span>
+                      <span style={{ fontSize: '10px', fontWeight: 700, color: '#64748b', display: 'block', textTransform: 'uppercase' }}>1st Offense</span>
+                      <span style={{ fontSize: '11.5px', fontWeight: 700, color: '#0f172a', display: 'block', marginTop: '2px' }}>{item.firstOffense}</span>
                     </div>
                     <div>
-                      <span style={{ fontSize: '10.5px', fontWeight: 800, color: '#64748b', display: 'block', textTransform: 'uppercase' }}>2nd Offense</span>
-                      <span style={{ fontSize: '12px', fontWeight: 700, color: '#0f172a', display: 'block', marginTop: '2px' }}>{item.secondOffense}</span>
+                      <span style={{ fontSize: '10px', fontWeight: 700, color: '#64748b', display: 'block', textTransform: 'uppercase' }}>2nd Offense</span>
+                      <span style={{ fontSize: '11.5px', fontWeight: 700, color: '#0f172a', display: 'block', marginTop: '2px' }}>{item.secondOffense}</span>
                     </div>
                     <div>
-                      <span style={{ fontSize: '10.5px', fontWeight: 800, color: '#64748b', display: 'block', textTransform: 'uppercase' }}>3rd Offense</span>
-                      <span style={{ fontSize: '12px', fontWeight: 700, color: '#dc2626', display: 'block', marginTop: '2px' }}>{item.thirdOffense}</span>
+                      <span style={{ fontSize: '10px', fontWeight: 700, color: '#64748b', display: 'block', textTransform: 'uppercase' }}>3rd Offense</span>
+                      <span style={{ fontSize: '11.5px', fontWeight: 700, color: '#dc2626', display: 'block', marginTop: '2px' }}>{item.thirdOffense}</span>
                     </div>
                   </div>
                 </div>
