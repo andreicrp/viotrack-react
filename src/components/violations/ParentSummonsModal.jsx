@@ -732,12 +732,19 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
     const studentId = activeStudent.id || record?.student_id;
     if (Array.isArray(records) && records.length > 0 && studentId) {
       const matched = records.filter(r => String(r.student_id) === String(studentId));
-      if (matched.length > 0) {
-        setStudentViolations(matched);
+      const seenIds = new Set();
+      const uniqueMatched = matched.filter(m => {
+        if (!m?.id) return true;
+        if (seenIds.has(m.id)) return false;
+        seenIds.add(m.id);
+        return true;
+      });
+      if (uniqueMatched.length > 0) {
+        setStudentViolations(uniqueMatched);
         if (record?.id) {
           setSelectedViolationIds([record.id]);
         } else {
-          setSelectedViolationIds(matched.map(m => m.id));
+          setSelectedViolationIds(uniqueMatched.map(m => m.id));
         }
       }
     }
@@ -752,12 +759,19 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
 
         if (studentId && Array.isArray(allRecords)) {
           const matched = allRecords.filter(r => String(r.student_id) === String(studentId));
-          if (matched.length > 0) {
-            setStudentViolations(matched);
+          const seenIds = new Set();
+          const uniqueMatched = matched.filter(m => {
+            if (!m?.id) return true;
+            if (seenIds.has(m.id)) return false;
+            seenIds.add(m.id);
+            return true;
+          });
+          if (uniqueMatched.length > 0) {
+            setStudentViolations(uniqueMatched);
             if (record?.id) {
               setSelectedViolationIds([record.id]);
             } else {
-              setSelectedViolationIds(matched.map(m => m.id));
+              setSelectedViolationIds(uniqueMatched.map(m => m.id));
             }
           }
         }

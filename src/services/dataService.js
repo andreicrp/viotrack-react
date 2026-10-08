@@ -520,6 +520,23 @@ export const dataService = {
           result = stored;
         }
       }
+
+      // Automatic Deduplication: Remove duplicate violation categories by normalized title
+      if (Array.isArray(result)) {
+        const seenTitles = new Set();
+        const seenIds = new Set();
+        result = result.filter(v => {
+          if (!v) return false;
+          const id = Number(v.id);
+          const title = String(v.title || '').trim().toLowerCase();
+          if (id && seenIds.has(id)) return false;
+          if (title && seenTitles.has(title)) return false;
+          if (id) seenIds.add(id);
+          if (title) seenTitles.add(title);
+          return true;
+        });
+      }
+
       _cache.data.violations = result;
       _cache.timestamps.violations = Date.now();
       return result;
@@ -527,7 +544,6 @@ export const dataService = {
   },
 
   async addViolationType(violation) {
-    let result = null;
     const cleanViolation = {
       title: String(violation.title || '').trim(),
       description: String(violation.description || '').trim(),
@@ -535,6 +551,14 @@ export const dataService = {
       default_sanction: String(violation.default_sanction || '').trim()
     };
 
+    // Check for existing duplicate title
+    const current = await this.getViolations();
+    const existing = current.find(v => (v.title || '').trim().toLowerCase() === cleanViolation.title.toLowerCase());
+    if (existing) {
+      return existing;
+    }
+
+    let result = null;
     if (isSupabaseConfigured()) {
       try {
         const { data, error } = await supabase.from('violations').insert([cleanViolation]).select();
@@ -547,11 +571,11 @@ export const dataService = {
         console.warn('Supabase addViolationType error:', err);
       }
     }
-    const current = getStored('violations', INITIAL_VIOLATIONS);
+    const currentStored = getStored('violations', INITIAL_VIOLATIONS);
     if (!result) {
       result = { ...cleanViolation, id: Date.now(), created_at: new Date().toISOString() };
     }
-    const updated = [...current, result];
+    const updated = [...currentStored.filter(v => (v.title || '').trim().toLowerCase() !== cleanViolation.title.toLowerCase()), result];
     setStored('violations', updated);
     invalidateCache('violations');
     await this.addActivityLog('Add Violation Category', `Created category "${cleanViolation.title}" (${cleanViolation.type})`);
@@ -664,7 +688,7 @@ export const dataService = {
         ? remoteRecords
         : getStored('records', []);
 
-      const mappedRecords = allRawRecords.map(r => {
+      let mappedRecords = allRawRecords.map(r => {
         const isTeacher = (r.reported_by_type === 'teacher' || (r.reported_by_name && r.reported_by_name !== 'System Admin' && r.reported_by_name !== 'Sheryl Gamboa' && r.reported_by_name !== 'Head Admin'));
         
         let resolvedApproval = r.approval_status;
@@ -696,6 +720,18 @@ export const dataService = {
           violation: resolvedViolation
         };
       });
+
+      // Automatic Deduplication of Incident Records
+      if (Array.isArray(mappedRecords)) {
+        const seenIds = new Set();
+        mappedRecords = mappedRecords.filter(r => {
+          if (!r) return false;
+          const id = Number(r.id);
+          if (id && seenIds.has(id)) return false;
+          if (id) seenIds.add(id);
+          return true;
+        });
+      }
 
       _cache.data.records = mappedRecords;
       _cache.timestamps.records = Date.now();
