@@ -429,3 +429,9 @@ Clean latest main passed **22 tests across 5 test files**, lint (**419 warnings,
 Latest main is [`a65080009c8a9c98d4e30dae782f05da70b799dc`](https://github.com/andreicrp/viotrack-react/commit/a65080009c8a9c98d4e30dae782f05da70b799dc). It changes only `PrintDataModal.jsx`, reducing records per printed page and adjusting print page-break/layout CSS; no data-service modules, tests, or dependencies changed.
 
 Clean latest main passed **22 tests across 5 test files**, lint (**419 warnings, 0 errors**), and build (2,675.64 kB `vendor-react`, gzip 792.00 kB; PDF worker 1,264.34 kB); clean main has no JSDoc typecheck script. After rebasing the PR onto `a650800`, **42 tests across 6 files passed**, `tsc -p tsconfig.check.json` passed, lint passed (**418 warnings, 0 errors**), and build passed with matching bundle sizes.
+
+## Baseline after the 2026-10-08 mobile vector-PDF print fix
+
+Latest main is [`4c75b0bbb11d5250b8a31dd406295cd4c6d87a50`](https://github.com/andreicrp/viotrack-react/commit/4c75b0bbb11d5250b8a31dd406295cd4c6d87a50). It changes only `mobilePrintHelper.js` to generate/open a PDF viewer for mobile web printing, with the HTML-print route retained for desktop; no data-service modules, tests, or dependencies changed.
+
+Clean latest main passed **22 tests across 5 test files**, lint (**418 warnings, 0 errors**), and build (2,675.64 kB `vendor-react`, gzip 792.00 kB; PDF worker 1,264.34 kB); clean main has no JSDoc typecheck script. After rebasing the PR onto `4c75b0b`, **42 tests across 6 files passed**, `tsc -p tsconfig.check.json` passed, lint passed (**417 warnings, 0 errors**), and build passed with matching bundle sizes.
