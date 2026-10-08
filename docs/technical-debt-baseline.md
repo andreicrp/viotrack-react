@@ -483,3 +483,9 @@ Clean latest main passed **22 tests across 5 test files**, lint (**431 warnings,
 Latest main is [`517197c02afd433e34391ee5764517b2b6d8e190`](https://github.com/andreicrp/viotrack-react/commit/517197c02afd433e34391ee5764517b2b6d8e190), changing only `InteractiveTourGuide.jsx` to add visual previews for summons letters, multi-violation bundling, return slips, sanctions, certificates, and executive reports. No service modules, tests, or dependencies changed.
 
 Clean latest main passed **22 tests across 5 test files**, lint (**435 warnings, 0 errors**), and build (2,675.94 kB `vendor-react`, gzip 792.00 kB; PDF worker 1,264.34 kB); clean main has no JSDoc typecheck script. After rebasing the PR onto `517197c`, **42 tests across 6 files passed**, `tsc -p tsconfig.check.json` passed, lint passed (**434 warnings, 0 errors**), and build passed with matching bundle sizes.
+
+## Baseline after the 2026-10-09 sample-preview visual polish
+
+Latest main is [`c4317d230561e9af2824fe1d51d1efea163a4d52`](https://github.com/andreicrp/viotrack-react/commit/c4317d230561e9af2824fe1d51d1efea163a4d52), changing only `InteractiveTourGuide.jsx` to refine table alignment and styling in the sample document previews. No service modules, tests, or dependencies changed.
+
+Clean latest main passed **22 tests across 5 test files**, lint (**434 warnings, 0 errors**), and build (2,675.94 kB `vendor-react`, gzip 792.00 kB; PDF worker 1,264.34 kB); clean main has no JSDoc typecheck script. After rebasing the PR onto `c4317d2`, **42 tests across 6 files passed**, `tsc -p tsconfig.check.json` passed, lint passed (**433 warnings, 0 errors**), and build passed with matching bundle sizes.
