@@ -3,6 +3,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useNotification } from '../../context/NotificationContext';
 import { lockBodyScroll, unlockBodyScroll } from '../../utils/scrollLock';
 import { printOrShareDocument } from '../../utils/mobilePrintHelper';
+import { getJsPDF } from '../../utils/pdfHelper';
 import { CustomDatePicker } from '../common/CustomDatePicker';
 import {
   Printer,
@@ -72,21 +73,24 @@ export const buildPrintReportHtml = ({
   currentDateFormatted = ''
 } = {}) => {
   // Generate SVG Donut Paths for print
-  const totalDistVal = violationDistribution.reduce((acc, d) => acc + d.value, 0) || 1;
+  const totalDistVal = violationDistribution.reduce((acc, d) => acc + (d.value || 0), 0) || 1;
   let currentAngle = 0;
   const donutPaths = violationDistribution.map((item) => {
-    const sliceAngle = (item.value / totalDistVal) * 360;
+    const sliceAngle = ((item.value || 0) / totalDistVal) * 360;
     const startAngle = currentAngle;
-    const endAngle = currentAngle + sliceAngle;
-    currentAngle = endAngle;
-
-    const startRad = ((startAngle - 90) * Math.PI) / 180;
-    const endRad = ((endAngle - 90) * Math.PI) / 180;
+    currentAngle += sliceAngle;
 
     const cx = 80;
     const cy = 80;
     const rOuter = 70;
     const rInner = 42;
+
+    if (sliceAngle >= 359.9) {
+      return `<path d="M ${cx} ${cy - rOuter} A ${rOuter} ${rOuter} 0 1 0 ${cx} ${cy + rOuter} A ${rOuter} ${rOuter} 0 1 0 ${cx} ${cy - rOuter} M ${cx} ${cy - rInner} A ${rInner} ${rInner} 0 1 1 ${cx} ${cy + rInner} A ${rInner} ${rInner} 0 1 1 ${cx} ${cy - rInner} Z" fill="${item.color}" stroke="#ffffff" stroke-width="1.5" />`;
+    }
+
+    const startRad = ((startAngle - 90) * Math.PI) / 180;
+    const endRad = (((startAngle + sliceAngle) - 90) * Math.PI) / 180;
 
     const x1 = cx + rOuter * Math.cos(startRad);
     const y1 = cy + rOuter * Math.sin(startRad);
@@ -99,7 +103,6 @@ export const buildPrintReportHtml = ({
     const y4 = cy + rInner * Math.sin(startRad);
 
     const largeArc = sliceAngle > 180 ? 1 : 0;
-
     const pathData = `M ${x1} ${y1} A ${rOuter} ${rOuter} 0 ${largeArc} 1 ${x2} ${y2} L ${x3} ${y3} A ${rInner} ${rInner} 0 ${largeArc} 0 ${x4} ${y4} Z`;
 
     return `<path d="${pathData}" fill="${item.color}" stroke="#ffffff" stroke-width="1.5" />`;
@@ -812,7 +815,7 @@ export const printReportDocument = (htmlContent) => {
 
 export const PrintDataModal = ({ isOpen, onClose, records = [], students = [], teachers = [] }) => {
   const { user } = useAuth();
-  const { success, info } = useNotification();
+  const { success, info, error } = useNotification();
   const printRef = useRef(null);
   const page1Ref = useRef(null);
   const page2Ref = useRef(null);
@@ -1342,10 +1345,105 @@ export const PrintDataModal = ({ isOpen, onClose, records = [], students = [], t
         currentDateFormatted
       });
 
+      const generatePdfBlob = async () => {
+        const doc = await getJsPDF({ unit: 'mm', format: 'a4' });
+
+        // Header Banner
+        doc.setFillColor(7, 52, 95);
+        doc.rect(0, 0, 210, 24, 'F');
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(14);
+        doc.setFont('helvetica', 'bold');
+        doc.text('VIOTRACK - DISCIPLINARY ANALYTICS REPORT', 14, 11);
+        doc.setFontSize(8.5);
+        doc.setFont('helvetica', 'normal');
+        doc.text(`Period: ${dateRangeLabel} | Generated: ${new Date().toLocaleDateString('en-US', { dateStyle: 'medium', timeStyle: 'short' })}`, 14, 18);
+
+        // Summary Metrics
+        doc.setTextColor(15, 23, 42);
+        doc.autoTable({
+          head: [['Metric Category', 'Incident Count', 'Distribution / Status']],
+          body: [
+            ['Total Recorded Incidents', `${metrics.total || 0}`, `${metrics.resolvedPercent || 0}% Overall Resolution Rate`],
+            ['Minor Offenses', `${metrics.minor || 0}`, 'Warning & Informal Guidance Logs'],
+            ['Serious Offenses', `${metrics.serious || 0}`, 'Parent Summons & Faculty Interventions'],
+            ['Major Offenses', `${metrics.major || 0}`, 'Formal Case & Administrative Action'],
+            ['Resolved Cases', `${metrics.resolved || 0}`, 'Officially Closed & Documented'],
+            ['Pending Cases', `${metrics.pending || 0}`, 'Active Follow-up Required']
+          ],
+          startY: 28,
+          theme: 'grid',
+          headStyles: { fillColor: [7, 52, 95], fontStyle: 'bold', fontSize: 9 },
+          styles: { fontSize: 8.5 }
+        });
+
+        let currentY = doc.lastAutoTable.finalY + 8;
+
+        // Grade Level Breakdown
+        if (includeGrades && gradeBreakdown.length > 0) {
+          doc.setFontSize(11);
+          doc.setFont('helvetica', 'bold');
+          doc.setTextColor(7, 52, 95);
+          doc.text('Grade Level Distribution', 14, currentY);
+
+          doc.autoTable({
+            head: [['Grade Level', 'Total Incidents', 'Percentage of Total']],
+            body: gradeBreakdown.map(g => [g.grade, `${g.count}`, `${g.percent}%`]),
+            startY: currentY + 3,
+            theme: 'striped',
+            headStyles: { fillColor: [30, 58, 138], fontStyle: 'bold', fontSize: 8.5 },
+            styles: { fontSize: 8 }
+          });
+          currentY = doc.lastAutoTable.finalY + 8;
+        }
+
+        // Itemized Incident Records
+        if (includeRecordsTable && filteredRecords.length > 0) {
+          if (currentY > 200) {
+            doc.addPage();
+            currentY = 20;
+          }
+
+          doc.setFontSize(11);
+          doc.setFont('helvetica', 'bold');
+          doc.setTextColor(7, 52, 95);
+          doc.text('Itemized Disciplinary Records', 14, currentY);
+
+          const tableRows = filteredRecords.map(r => [
+            r.student_name || r.student?.name || `${r.student?.fname || ''} ${r.student?.lname || ''}`.trim() || 'N/A',
+            r.grade || r.student?.grade || 'N/A',
+            r.violation?.name || r.violation_name || r.violation_type || 'N/A',
+            r.violation?.type || r.severity || r.type || 'Minor',
+            r.status || 'Pending',
+            r.date_reported || r.created_at ? new Date(r.date_reported || r.created_at).toLocaleDateString() : 'N/A'
+          ]);
+
+          doc.autoTable({
+            head: [['Student Name', 'Grade', 'Violation', 'Severity', 'Status', 'Date']],
+            body: tableRows,
+            startY: currentY + 3,
+            theme: 'grid',
+            headStyles: { fillColor: [7, 52, 95], fontStyle: 'bold', fontSize: 8 },
+            styles: { fontSize: 7.5 },
+            columnStyles: {
+              0: { cellWidth: 45 },
+              1: { cellWidth: 20 },
+              2: { cellWidth: 50 },
+              3: { cellWidth: 22 },
+              4: { cellWidth: 25 },
+              5: { cellWidth: 25 }
+            }
+          });
+        }
+
+        return doc.output('blob');
+      };
+
       await printOrShareDocument({
         title: `${reportTitle} - ${dateRangeLabel}`,
-        filename: `Disciplinary_Analytics_Report_${dateRangeLabel.replace(/\s+/g, '_')}.html`,
+        filename: `Disciplinary_Analytics_Report_${dateRangeLabel.replace(/\s+/g, '_')}.pdf`,
         htmlContent: html,
+        generatePdfBlob,
         onStatus: (st) => {
           if (st.type === 'success') success(st.message);
           else if (st.type === 'info') info(st.message);
@@ -1662,34 +1760,38 @@ export const PrintDataModal = ({ isOpen, onClose, records = [], students = [], t
   };
 
   // SVG Donut Path calculations for Live Preview
-  const totalDistVal = violationDistribution.reduce((acc, d) => acc + d.value, 0) || 1;
+  const totalDistVal = violationDistribution.reduce((acc, d) => acc + (d.value || 0), 0) || 1;
   let currentAngle = 0;
   const liveDonutSlices = violationDistribution.map((item) => {
-    const sliceAngle = (item.value / totalDistVal) * 360;
+    const sliceAngle = ((item.value || 0) / totalDistVal) * 360;
     const startAngle = currentAngle;
-    const endAngle = currentAngle + sliceAngle;
-    currentAngle = endAngle;
-
-    const startRad = ((startAngle - 90) * Math.PI) / 180;
-    const endRad = ((endAngle - 90) * Math.PI) / 180;
+    currentAngle += sliceAngle;
 
     const cx = 80;
     const cy = 80;
     const rOuter = 70;
     const rInner = 42;
 
-    const x1 = cx + rOuter * Math.cos(startRad);
-    const y1 = cy + rOuter * Math.sin(startRad);
-    const x2 = cx + rOuter * Math.cos(endRad);
-    const y2 = cy + rOuter * Math.sin(endRad);
+    let pathData = '';
+    if (sliceAngle >= 359.9) {
+      pathData = `M ${cx} ${cy - rOuter} A ${rOuter} ${rOuter} 0 1 0 ${cx} ${cy + rOuter} A ${rOuter} ${rOuter} 0 1 0 ${cx} ${cy - rOuter} M ${cx} ${cy - rInner} A ${rInner} ${rInner} 0 1 1 ${cx} ${cy + rInner} A ${rInner} ${rInner} 0 1 1 ${cx} ${cy - rInner} Z`;
+    } else {
+      const startRad = ((startAngle - 90) * Math.PI) / 180;
+      const endRad = (((startAngle + sliceAngle) - 90) * Math.PI) / 180;
 
-    const x3 = cx + rInner * Math.cos(endRad);
-    const y3 = cy + rInner * Math.sin(endRad);
-    const x4 = cx + rInner * Math.cos(startRad);
-    const y4 = cy + rInner * Math.sin(startRad);
+      const x1 = cx + rOuter * Math.cos(startRad);
+      const y1 = cy + rOuter * Math.sin(startRad);
+      const x2 = cx + rOuter * Math.cos(endRad);
+      const y2 = cy + rOuter * Math.sin(endRad);
 
-    const largeArc = sliceAngle > 180 ? 1 : 0;
-    const pathData = `M ${x1} ${y1} A ${rOuter} ${rOuter} 0 ${largeArc} 1 ${x2} ${y2} L ${x3} ${y3} A ${rInner} ${rInner} 0 ${largeArc} 0 ${x4} ${y4} Z`;
+      const x3 = cx + rInner * Math.cos(endRad);
+      const y3 = cy + rInner * Math.sin(endRad);
+      const x4 = cx + rInner * Math.cos(startRad);
+      const y4 = cy + rInner * Math.sin(startRad);
+
+      const largeArc = sliceAngle > 180 ? 1 : 0;
+      pathData = `M ${x1} ${y1} A ${rOuter} ${rOuter} 0 ${largeArc} 1 ${x2} ${y2} L ${x3} ${y3} A ${rInner} ${rInner} 0 ${largeArc} 0 ${x4} ${y4} Z`;
+    }
 
     return { pathData, color: item.color, name: item.name, value: item.value };
   });

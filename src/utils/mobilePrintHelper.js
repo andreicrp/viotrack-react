@@ -166,11 +166,26 @@ export async function printOrShareDocument({
         if (err.name === 'AbortError') return;
         console.warn('Mobile print/share error:', err);
       }
+    } else if (htmlContent) {
+      // If only HTML is provided on mobile/APK, share the HTML file safely without window.open
+      try {
+        const htmlBlob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+        await shareOrSaveNativeFile({
+          filename: filename.endsWith('.html') ? filename : `${filename}.html`,
+          blob: htmlBlob,
+          title: title,
+          mimeType: 'text/html'
+        });
+        onStatus?.({ type: 'success', message: 'Document ready to print / share.' });
+        return;
+      } catch (err) {
+        console.warn('Native HTML print fallback failed:', err);
+      }
     }
   }
 
   // 2. Desktop Flow: Hidden IFrame Printing
-  if (htmlContent) {
+  if (htmlContent && !isNative && !isMobile) {
     try {
       const existing = document.getElementById('viotrack-print-frame');
       if (existing) existing.remove();
@@ -198,15 +213,17 @@ export async function printOrShareDocument({
           iframe.contentWindow.print();
           onStatus?.({ type: 'success', message: 'Print dialog opened.' });
         } catch (e) {
-          // Window fallback
-          const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
-          const url = URL.createObjectURL(blob);
-          const printWin = window.open(url, '_blank');
-          if (printWin) {
-            printWin.onload = () => {
-              printWin.focus();
-              printWin.print();
-            };
+          // Safe window fallback only on desktop web browser
+          if (!isNative && !isMobile) {
+            const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const printWin = window.open(url, '_blank');
+            if (printWin) {
+              printWin.onload = () => {
+                printWin.focus();
+                printWin.print();
+              };
+            }
           }
         }
       }, 300);
