@@ -248,9 +248,11 @@ html.dark body,
 [data-theme="dark"] .metric-card,
 [data-theme="dark"] .dash-trends-card,
 [data-theme="dark"] .dash-distribution-card,
+[data-theme="dark"] .dash-bottom-card,
 [data-theme="dark"] .dash-repeat-card,
 [data-theme="dark"] .dash-grade-card,
 [data-theme="dark"] .dash-calendar-card,
+[data-theme="dark"] .dash-quick-actions-card,
 [data-theme="dark"] .dash-top-hero-card,
 [data-theme="dark"] .dashboard-card,
 [data-theme="dark"] .card {
@@ -273,29 +275,228 @@ html.dark body,
 }
 
 [data-theme="dark"] .dash-stat-title-label {
-  color: #94a3b8 !important;
+  color: #cbd5e1 !important;
 }
 
 [data-theme="dark"] .dash-stat-big-num {
-  color: #f8fafc !important;
+  color: #ffffff !important;
 }
 
 [data-theme="dark"] .dash-stat-bottom-text {
-  color: #64748b !important;
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .dash-stat-icon-circle.minor {
+  color: #10b981 !important;
+}
+
+[data-theme="dark"] .dash-stat-icon-circle.serious {
+  color: #f59e0b !important;
+}
+
+[data-theme="dark"] .dash-stat-icon-circle.major {
+  color: #ef4444 !important;
+}
+
+[data-theme="dark"] .dash-stat-icon-circle.violations {
+  color: #a78bfa !important;
+}
+
+[data-theme="dark"] .dash-stat-icon-circle svg {
+  stroke: currentColor !important;
+}
+
+[data-theme="dark"] .dash-trends-title-left svg,
+[data-theme="dark"] .dash-card-header-left svg,
+[data-theme="dark"] .dash-calendar-title svg,
+[data-theme="dark"] .dash-quick-actions-title svg {
+  color: #38bdf8 !important;
+  stroke: #38bdf8 !important;
 }
 
 [data-theme="dark"] .dash-trends-main-title,
 [data-theme="dark"] .dash-distribution-title,
+[data-theme="dark"] .dash-card-header-title,
 [data-theme="dark"] .dash-bottom-card-title,
+[data-theme="dark"] .dash-calendar-title,
+[data-theme="dark"] .dash-quick-actions-title,
 [data-theme="dark"] .section-title,
 [data-theme="dark"] .chart-title {
   color: #f8fafc !important;
 }
 
 [data-theme="dark"] .dash-trends-sub-title,
+[data-theme="dark"] .dash-card-header-desc,
 [data-theme="dark"] .dash-bottom-card-sub,
 [data-theme="dark"] .section-sub,
 [data-theme="dark"] .chart-sub {
+  color: #94a3b8 !important;
+}
+
+/* Repeat Offenders Row in Dark Mode */
+[data-theme="dark"] .dash-offender-row,
+[data-theme="dark"] .dash-repeat-item-card,
+[data-theme="dark"] .repeat-student-item {
+  background: #0b1120 !important;
+  border: 1px solid #1e293b !important;
+}
+
+[data-theme="dark"] .dash-offender-row:hover,
+[data-theme="dark"] .dash-repeat-item-card:hover {
+  background: #151f36 !important;
+  border-color: #334155 !important;
+}
+
+[data-theme="dark"] .dash-offender-name,
+[data-theme="dark"] .dash-repeat-name {
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .dash-offender-grade,
+[data-theme="dark"] .dash-repeat-section {
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .dash-btn-view-offender,
+[data-theme="dark"] .dash-repeat-btn-view {
+  background: #1e293b !important;
+  border: 1px solid #334155 !important;
+  color: #38bdf8 !important;
+}
+
+[data-theme="dark"] .dash-btn-view-offender:hover,
+[data-theme="dark"] .dash-repeat-btn-view:hover {
+  background: #38bdf8 !important;
+  color: #0f172a !important;
+}
+
+/* Grade and Section Bars in Dark Mode */
+[data-theme="dark"] .dash-section-bar-row,
+[data-theme="dark"] .dash-grade-row-clean {
+  border-bottom: 1px solid #1e293b !important;
+}
+
+[data-theme="dark"] .dash-section-tag,
+[data-theme="dark"] .dash-grade-label {
+  background: #1e293b !important;
+  color: #cbd5e1 !important;
+  border-color: #334155 !important;
+}
+
+[data-theme="dark"] .dash-section-name,
+[data-theme="dark"] .dash-grade-sec-name {
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .dash-section-track,
+[data-theme="dark"] .dash-grade-bar-track {
+  background: #1e293b !important;
+}
+
+[data-theme="dark"] .dash-sec-count-num,
+[data-theme="dark"] .dash-grade-count-num {
+  color: #38bdf8 !important;
+}
+
+[data-theme="dark"] .dash-sec-count-pct-sub {
+  color: #64748b !important;
+}
+
+/* Insight Callout in Dark Mode */
+[data-theme="dark"] .dash-insight-banner {
+  background: #0b1120 !important;
+  border: 1px solid #1e293b !important;
+}
+
+[data-theme="dark"] .dash-insight-title {
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .dash-insight-text {
+  color: #94a3b8 !important;
+}
+
+/* Quick Actions in Dark Mode */
+[data-theme="dark"] .dash-quick-action-btn {
+  background: #0b1120 !important;
+  border: 1px solid #1e293b !important;
+  color: #cbd5e1 !important;
+}
+
+[data-theme="dark"] .dash-quick-action-btn:hover {
+  background: #1e293b !important;
+  border-color: #38bdf8 !important;
+  color: #38bdf8 !important;
+}
+
+[data-theme="dark"] .dash-quick-action-btn svg {
+  color: #38bdf8 !important;
+}
+
+/* Calendar Card & Month in Dark Mode */
+[data-theme="dark"] .dash-calendar-month-row {
+  border-bottom: 1px solid #1e293b !important;
+}
+
+[data-theme="dark"] .dash-month-title {
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .dash-cal-nav-btn {
+  background: #0b1120 !important;
+  border: 1px solid #1e293b !important;
+  color: #cbd5e1 !important;
+}
+
+[data-theme="dark"] .dash-cal-nav-btn:hover {
+  background: #1e293b !important;
+  color: #38bdf8 !important;
+}
+
+[data-theme="dark"] .dash-cal-day-name {
+  color: #64748b !important;
+}
+
+[data-theme="dark"] .dash-cal-date-cell {
+  background: #0b1120 !important;
+  border: 1px solid #1e293b !important;
+  color: #cbd5e1 !important;
+}
+
+[data-theme="dark"] .dash-cal-date-cell:hover {
+  background: #1e293b !important;
+  border-color: #38bdf8 !important;
+  color: #38bdf8 !important;
+}
+
+[data-theme="dark"] .dash-cal-date-cell.selected {
+  background: #0284c7 !important;
+  border-color: #38bdf8 !important;
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .dash-upcoming-header {
+  border-bottom: 1px solid #1e293b !important;
+}
+
+[data-theme="dark"] .dash-upcoming-title {
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .dash-upcoming-item {
+  background: #0b1120 !important;
+  border: 1px solid #1e293b !important;
+}
+
+[data-theme="dark"] .dash-upcoming-item:hover {
+  background: #1e293b !important;
+}
+
+[data-theme="dark"] .dash-upcoming-name {
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .dash-upcoming-time {
   color: #94a3b8 !important;
 }
 
