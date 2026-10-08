@@ -459,3 +459,9 @@ Clean latest main passed **22 tests across 5 test files**, lint (**431 warnings,
 Latest main is [`b2a4b6f8b42dea4b583757bda62049f82d8ba44c`](https://github.com/andreicrp/viotrack-react/commit/b2a4b6f8b42dea4b583757bda62049f82d8ba44c), changing only `InteractiveTourGuide.jsx` to correct spotlight targeting, element scrolling, and guidance-card positioning. The preceding baseline already covers the 10 commits from `3ae92e7` through the guide feature `38f44fd`; no service modules, tests, or dependencies changed in this commit.
 
 Clean latest main passed **22 tests across 5 test files**, lint (**431 warnings, 0 errors**), and build (2,675.64 kB `vendor-react`, gzip 792.00 kB; PDF worker 1,264.34 kB); clean main has no JSDoc typecheck script. After rebasing the PR onto `b2a4b6f`, **42 tests across 6 files passed**, `tsc -p tsconfig.check.json` passed, lint passed (**430 warnings, 0 errors**), and build passed with matching bundle sizes.
+
+## Baseline after the 2026-10-09 lower-dashboard System Overview tour steps
+
+Latest main is [`eecafb0542d1bdd33486846dea21a4dd3eabc647`](https://github.com/andreicrp/viotrack-react/commit/eecafb0542d1bdd33486846dea21a4dd3eabc647), changing only `InteractiveTourGuide.jsx` to add tour targets for Repeat Offenders, Grade Sections, and School Calendar dashboard cards. The prior entry records the preceding commits through the spotlight-targeting fix `b2a4b6f`; no service modules, tests, or dependencies changed in this commit.
+
+Clean latest main passed **22 tests across 5 test files**, lint (**431 warnings, 0 errors**), and build (2,675.64 kB `vendor-react`, gzip 792.00 kB; PDF worker 1,264.34 kB); clean main has no JSDoc typecheck script. After rebasing the PR onto `eecafb0`, **42 tests across 6 files passed**, `tsc -p tsconfig.check.json` passed, lint passed (**430 warnings, 0 errors**), and build passed with matching bundle sizes.
