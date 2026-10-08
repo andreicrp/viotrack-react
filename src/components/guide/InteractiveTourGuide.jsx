@@ -76,43 +76,43 @@ const StepVisualPreview = ({ previewType }) => {
           background: '#ffffff',
           borderRadius: '12px',
           border: '1.5px solid #cbd5e1',
-          padding: '12px',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.06)',
+          padding: '14px',
+          boxShadow: '0 8px 20px -4px rgba(7, 52, 95, 0.12)',
           display: 'flex',
           flexDirection: 'column',
-          gap: '8px',
+          gap: '10px',
           fontSize: '11px',
           marginTop: '6px'
         }}
       >
         {/* Letterhead Header */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', borderBottom: '1.5px solid #07345f', paddingBottom: '8px' }}>
-          <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: '#07345f', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ffffff', flexShrink: 0, fontWeight: 900, fontSize: '10px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', borderBottom: '2px solid #07345f', paddingBottom: '10px' }}>
+          <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'linear-gradient(135deg, #07345f 0%, #0f172a 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#f8fafc', flexShrink: 0, fontWeight: 900, fontSize: '10px', border: '1.5px solid #e2e8f0', boxShadow: '0 2px 6px rgba(7, 52, 95, 0.25)' }}>
             UPH
           </div>
           <div style={{ flex: 1, lineHeight: 1.25 }}>
             <div style={{ fontSize: '9px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-              Republic of the Philippines • Dept. of Education
+              Republic of the Philippines • Department of Education
             </div>
-            <div style={{ fontSize: '11px', fontWeight: 900, color: '#07345f' }}>
+            <div style={{ fontSize: '11.5px', fontWeight: 900, color: '#07345f' }}>
               UNIVERSITY OF PERPETUAL HELP SYSTEM
             </div>
             <div style={{ fontSize: '9.5px', fontWeight: 600, color: '#475569' }}>
-              Office of the Prefect of Student Discipline
+              Office of the Prefect of Student Discipline &amp; Guidance
             </div>
           </div>
-          <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', color: '#15803d', padding: '2px 6px', borderRadius: '4px', fontSize: '9px', fontWeight: 800 }}>
+          <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', color: '#15803d', padding: '3px 7px', borderRadius: '6px', fontSize: '9px', fontWeight: 800 }}>
             DepEd Order 40
           </div>
         </div>
 
         {/* Title Banner */}
-        <div style={{ background: 'linear-gradient(135deg, #07345f 0%, #0f172a 100%)', color: '#ffffff', padding: '6px 10px', borderRadius: '6px', textAlign: 'center', fontWeight: 800, fontSize: '11px', letterSpacing: '0.03em' }}>
+        <div style={{ background: 'linear-gradient(135deg, #07345f 0%, #0f172a 100%)', color: '#ffffff', padding: '7px 12px', borderRadius: '8px', textAlign: 'center', fontWeight: 800, fontSize: '11px', letterSpacing: '0.03em', boxShadow: '0 2px 6px rgba(7, 52, 95, 0.2)' }}>
           NOTICE OF MANDATORY PARENT-TEACHER CONFERENCE
         </div>
 
-        {/* Mock Case Meta */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px', background: '#f8fafc', padding: '8px', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
+        {/* Mock Case Meta Grid */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px', background: '#f8fafc', padding: '9px 12px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
           <div>
             <span style={{ color: '#64748b', fontSize: '10px' }}>Student: </span>
             <strong style={{ color: '#0f172a' }}>Alexander Mendoza</strong>
@@ -131,8 +131,8 @@ const StepVisualPreview = ({ previewType }) => {
           </div>
         </div>
 
-        <div style={{ fontSize: '10.5px', color: '#475569', fontStyle: 'italic', lineHeight: 1.35, background: '#fdfdfd', borderLeft: '3px solid #38bdf8', paddingLeft: '8px' }}>
-          "Formal notice inviting the parent/guardian for constructive dialogue and resolution contract..."
+        <div style={{ fontSize: '10.5px', color: '#475569', fontStyle: 'italic', lineHeight: 1.4, background: '#f0fdf4', borderLeft: '3px solid #10b981', padding: '6px 10px', borderRadius: '0 6px 6px 0' }}>
+          "This serves as official notification requesting your urgent presence for a constructive disciplinary conference regarding the recorded infraction(s)..."
         </div>
       </div>
     );
@@ -145,59 +145,62 @@ const StepVisualPreview = ({ previewType }) => {
           background: '#ffffff',
           borderRadius: '12px',
           border: '1.5px solid #cbd5e1',
-          padding: '12px',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.06)',
+          padding: '14px',
+          boxShadow: '0 8px 20px -4px rgba(7, 52, 95, 0.12)',
           display: 'flex',
           flexDirection: 'column',
-          gap: '8px',
+          gap: '10px',
           fontSize: '11px',
           marginTop: '6px'
         }}
       >
         {/* Bundled Checklist Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span style={{ fontWeight: 800, color: '#07345f', fontSize: '11.5px' }}>
-            Bundled Offense Dossier (3 Incidents)
-          </span>
-          <span style={{ background: '#fef2f2', color: '#dc2626', border: '1px solid #fecaca', padding: '1px 6px', borderRadius: '4px', fontSize: '9.5px', fontWeight: 800 }}>
-            Repeat Case
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <FileText size={15} color="#07345f" />
+            <span style={{ fontWeight: 800, color: '#07345f', fontSize: '12px' }}>
+              Bundled Offense Dossier (3 Incidents)
+            </span>
+          </div>
+          <span style={{ background: '#fef2f2', color: '#dc2626', border: '1px solid #fecaca', padding: '2px 8px', borderRadius: '6px', fontSize: '9.5px', fontWeight: 800 }}>
+            Repeat Offender
           </span>
         </div>
 
         {/* Items */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#f8fafc', padding: '5px 8px', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <CheckSquare size={13} color="#07345f" />
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#f8fafc', padding: '6px 10px', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <CheckSquare size={14} color="#07345f" />
               <span style={{ fontWeight: 700, color: '#0f172a' }}>Skipping Class / Truancy</span>
             </div>
-            <span style={{ background: '#fef9c3', color: '#a16207', padding: '1px 5px', borderRadius: '4px', fontSize: '9px', fontWeight: 800 }}>Serious</span>
+            <span style={{ background: '#fef9c3', color: '#a16207', border: '1px solid #fde047', padding: '2px 7px', borderRadius: '4px', fontSize: '9.5px', fontWeight: 800 }}>Serious</span>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#f8fafc', padding: '5px 8px', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <CheckSquare size={13} color="#07345f" />
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#f8fafc', padding: '6px 10px', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <CheckSquare size={14} color="#07345f" />
               <span style={{ fontWeight: 700, color: '#0f172a' }}>Improper Uniform / No ID</span>
             </div>
-            <span style={{ background: '#dcfce7', color: '#15803d', padding: '1px 5px', borderRadius: '4px', fontSize: '9px', fontWeight: 800 }}>Minor</span>
+            <span style={{ background: '#dcfce7', color: '#15803d', border: '1px solid #bbf7d0', padding: '2px 7px', borderRadius: '4px', fontSize: '9.5px', fontWeight: 800 }}>Minor</span>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#f8fafc', padding: '5px 8px', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <CheckSquare size={13} color="#07345f" />
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: '#f8fafc', padding: '6px 10px', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <CheckSquare size={14} color="#07345f" />
               <span style={{ fontWeight: 700, color: '#0f172a' }}>Unauthorized Campus Exit</span>
             </div>
-            <span style={{ background: '#fef9c3', color: '#a16207', padding: '1px 5px', borderRadius: '4px', fontSize: '9px', fontWeight: 800 }}>Serious</span>
+            <span style={{ background: '#fef9c3', color: '#a16207', border: '1px solid #fde047', padding: '2px 7px', borderRadius: '4px', fontSize: '9.5px', fontWeight: 800 }}>Serious</span>
           </div>
         </div>
 
         {/* Schedule & Venue Card */}
-        <div style={{ background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '6px', padding: '6px 10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: '#1e40af', fontSize: '10.5px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '5px', fontWeight: 700 }}>
-            <Calendar size={13} /> Oct 14, 2026 @ 10:30 AM
+        <div style={{ background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '8px', padding: '8px 12px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', color: '#1e40af', fontSize: '11px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 700 }}>
+            <Calendar size={14} color="#2563eb" /> Oct 14, 2026 @ 10:30 AM
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontWeight: 600 }}>
-            <MapPin size={12} /> Rm 204 (Prefect)
+            <MapPin size={13} color="#2563eb" /> Rm 204 (Prefect Office)
           </div>
         </div>
       </div>
@@ -211,52 +214,54 @@ const StepVisualPreview = ({ previewType }) => {
           background: '#ffffff',
           borderRadius: '12px',
           border: '1.5px solid #cbd5e1',
-          padding: '12px',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.06)',
+          padding: '14px',
+          boxShadow: '0 8px 20px -4px rgba(7, 52, 95, 0.12)',
           display: 'flex',
           flexDirection: 'column',
-          gap: '8px',
+          gap: '10px',
           fontSize: '11px',
           marginTop: '6px'
         }}
       >
         {/* Scissor Line */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#94a3b8', fontSize: '10px', fontWeight: 700 }}>
-          <Scissors size={13} color="#64748b" />
+        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#64748b', fontSize: '10px', fontWeight: 700 }}>
+          <Scissors size={14} color="#07345f" />
           <div style={{ flex: 1, borderBottom: '1.5px dashed #cbd5e1' }} />
-          <span style={{ textTransform: 'uppercase', letterSpacing: '0.04em' }}>Tear-off Return Slip</span>
+          <span style={{ textTransform: 'uppercase', letterSpacing: '0.04em', color: '#07345f', fontWeight: 800 }}>Official Tear-off Return Slip</span>
         </div>
 
         {/* Return Slip Content */}
-        <div style={{ background: '#fafafa', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '8px 10px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+        <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '10px 12px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontWeight: 800, color: '#07345f', fontSize: '11px' }}>
+            <span style={{ fontWeight: 800, color: '#07345f', fontSize: '11.5px' }}>
               PARENT ACKNOWLEDGEMENT CONFIRMATION
             </span>
-            <span style={{ fontSize: '9.5px', color: '#64748b' }}>Return to Prefect Office</span>
+            <span style={{ fontSize: '9.5px', color: '#64748b', background: '#ffffff', padding: '2px 6px', borderRadius: '4px', border: '1px solid #e2e8f0' }}>
+              Return to Prefect Office
+            </span>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '3px', fontSize: '10px', color: '#334155' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <CheckSquare size={12} color="#059669" />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '10.5px', color: '#334155' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
+              <CheckSquare size={13} color="#059669" />
               <span><strong>I will attend</strong> the scheduled conference on Oct 14, 2026.</span>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <Square size={12} color="#94a3b8" />
-              <span>Request reschedule for valid reason.</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
+              <Square size={13} color="#94a3b8" />
+              <span>Request reschedule for valid institutional conflict.</span>
             </div>
           </div>
 
           {/* Signature field mockup */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginTop: '4px', paddingTop: '4px', borderTop: '1px solid #e2e8f0' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginTop: '4px', paddingTop: '6px', borderTop: '1px solid #e2e8f0' }}>
             <div>
-              <div style={{ fontSize: '9px', color: '#64748b' }}>Guardian Signature & Date:</div>
-              <div style={{ fontFamily: 'monospace', fontWeight: 700, color: '#07345f', fontSize: '11px' }}>
-                M. Mendoza — 10/10/26
+              <div style={{ fontSize: '9px', color: '#64748b' }}>Guardian Signature &amp; Date:</div>
+              <div style={{ fontFamily: 'Georgia, serif', fontStyle: 'italic', fontWeight: 700, color: '#07345f', fontSize: '13px' }}>
+                Maria Mendoza — 10/10/26
               </div>
             </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '4px', background: '#f1f5f9', padding: '2px 6px', borderRadius: '4px', fontSize: '9px', fontWeight: 800, color: '#475569' }}>
-              <QrCode size={11} /> #VT-RET-84920
+            <div style={{ display: 'flex', alignItems: 'center', gap: '5px', background: '#ffffff', padding: '3px 8px', borderRadius: '6px', fontSize: '9.5px', fontWeight: 800, color: '#07345f', border: '1px solid #cbd5e1' }}>
+              <QrCode size={12} /> #VT-RET-84920
             </div>
           </div>
         </div>
@@ -271,36 +276,41 @@ const StepVisualPreview = ({ previewType }) => {
           background: '#ffffff',
           borderRadius: '12px',
           border: '1.5px solid #cbd5e1',
-          padding: '12px',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.06)',
+          padding: '14px',
+          boxShadow: '0 8px 20px -4px rgba(7, 52, 95, 0.12)',
           display: 'flex',
           flexDirection: 'column',
-          gap: '8px',
+          gap: '10px',
           fontSize: '11px',
           marginTop: '6px'
         }}
       >
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span style={{ fontWeight: 800, color: '#07345f' }}>Case Clearance & Sanctions Entry</span>
-          <span style={{ background: '#ecfdf5', color: '#059669', border: '1px solid #a7f3d0', padding: '2px 8px', borderRadius: '12px', fontSize: '10px', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '3px' }}>
-            <CheckCircle2 size={11} /> Case Resolved
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <ShieldCheck size={16} color="#059669" />
+            <span style={{ fontWeight: 800, color: '#07345f', fontSize: '12px' }}>Case Clearance &amp; Sanctions Entry</span>
+          </div>
+          <span style={{ background: '#ecfdf5', color: '#059669', border: '1px solid #a7f3d0', padding: '3px 9px', borderRadius: '12px', fontSize: '10px', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <CheckCircle2 size={12} /> Resolved
           </span>
         </div>
 
         {/* Assigned Sanction Box */}
-        <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '6px', padding: '8px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
-          <div style={{ fontSize: '10px', color: '#64748b', fontWeight: 700 }}>PRESCRIBED ACTION TAKEN:</div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#0f172a', fontWeight: 700 }}>
-            <CheckSquare size={13} color="#10b981" /> 2-Hour Campus Service & Reflection Essay
+        <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '10px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+          <div style={{ fontSize: '10px', color: '#64748b', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+            Prescribed Institutional Action Taken:
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#0f172a', fontWeight: 700 }}>
-            <CheckSquare size={13} color="#10b981" /> Guidance Counseling Session Completed
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#0f172a', fontWeight: 700 }}>
+            <CheckSquare size={14} color="#10b981" /> 2-Hour Campus Service &amp; Reflection Essay
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#0f172a', fontWeight: 700 }}>
+            <CheckSquare size={14} color="#10b981" /> Guidance Counseling Session Completed
           </div>
         </div>
 
         {/* Official Resolution Remarks */}
-        <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '6px', padding: '6px 8px', fontSize: '10px', color: '#166534' }}>
-          <strong>Prefect Log:</strong> Student completed designated service hours; behavior contract signed by parent and adviser.
+        <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '8px', padding: '8px 10px', fontSize: '10.5px', color: '#166534', lineHeight: 1.4 }}>
+          <strong>Prefect Disciplinary Log:</strong> Student completed designated service hours; behavior contract signed by parent, adviser, and prefect. Case closed in good standing.
         </div>
       </div>
     );
@@ -313,38 +323,40 @@ const StepVisualPreview = ({ previewType }) => {
           background: 'linear-gradient(135deg, #ffffff 0%, #fbfdf9 100%)',
           borderRadius: '12px',
           border: '2px solid #10b981',
-          padding: '12px',
-          boxShadow: '0 4px 14px rgba(16, 185, 129, 0.15)',
+          padding: '14px',
+          boxShadow: '0 8px 24px -4px rgba(16, 185, 129, 0.2)',
           display: 'flex',
           flexDirection: 'column',
-          gap: '7px',
+          gap: '8px',
           fontSize: '11px',
           marginTop: '6px'
         }}
       >
         {/* Certificate Header */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', color: '#047857', fontWeight: 900, fontSize: '10.5px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-          <Award size={15} color="#059669" />
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', color: '#047857', fontWeight: 900, fontSize: '11px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+          <Award size={17} color="#059669" />
           <span>Certificate of Disciplinary Clearance</span>
         </div>
 
-        <div style={{ textAlign: 'center', fontSize: '9px', color: '#64748b' }}>
-          University of Perpetual Help System Manila — Guidance & Prefect Office
+        <div style={{ textAlign: 'center', fontSize: '9.5px', color: '#64748b' }}>
+          University of Perpetual Help System Manila — Guidance &amp; Prefect Office
         </div>
 
-        <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '6px', padding: '8px', textAlign: 'center', lineHeight: 1.35 }}>
+        <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '10px 12px', textAlign: 'center', lineHeight: 1.4, boxShadow: '0 2px 6px rgba(0,0,0,0.03)' }}>
           <div style={{ fontSize: '10px', color: '#64748b' }}>This officially certifies that:</div>
-          <div style={{ fontSize: '13px', fontWeight: 900, color: '#07345f', margin: '2px 0' }}>Gabriel Torres</div>
-          <div style={{ fontSize: '9.5px', color: '#475569' }}>Grade 10 - Section Bonifacio (LRN: 109283749102)</div>
-          <div style={{ fontSize: '9.5px', color: '#059669', fontWeight: 700, marginTop: '4px' }}>
-            ✓ All incident obligations cleared & closed in good standing.
+          <div style={{ fontSize: '14px', fontWeight: 900, color: '#07345f', margin: '3px 0' }}>Gabriel Torres</div>
+          <div style={{ fontSize: '10px', color: '#475569' }}>Grade 10 - Section Bonifacio (LRN: 109283749102)</div>
+          <div style={{ fontSize: '10px', color: '#059669', fontWeight: 800, marginTop: '5px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+            <CheckCircle2 size={12} /> All incident obligations cleared &amp; closed in good standing.
           </div>
         </div>
 
         {/* Certificate Security Stamp Footer */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '9px', color: '#64748b', paddingTop: '3px', borderTop: '1px solid #e2e8f0' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '9.5px', color: '#64748b', paddingTop: '4px', borderTop: '1px solid #e2e8f0' }}>
           <span>Control: <strong>#CLR-2026-0842</strong></span>
-          <span style={{ color: '#059669', fontWeight: 800 }}>Official Digital Doc Proof</span>
+          <span style={{ color: '#059669', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '3px' }}>
+            <ShieldCheck size={12} /> Verified Authentic Doc Proof
+          </span>
         </div>
       </div>
     );
@@ -357,63 +369,81 @@ const StepVisualPreview = ({ previewType }) => {
           background: '#ffffff',
           borderRadius: '12px',
           border: '1.5px solid #cbd5e1',
-          padding: '12px',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.06)',
+          padding: '14px',
+          boxShadow: '0 8px 20px -4px rgba(7, 52, 95, 0.12)',
           display: 'flex',
           flexDirection: 'column',
-          gap: '8px',
+          gap: '10px',
           fontSize: '11px',
           marginTop: '6px'
         }}
       >
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1.5px solid #07345f', paddingBottom: '6px' }}>
-          <div style={{ fontWeight: 900, color: '#07345f', fontSize: '11px' }}>
-            VIOTRACK ANNUAL DISCIPLINARY REPORT
+        {/* Header Bar */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '2px solid #07345f', paddingBottom: '8px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <BarChart3 size={15} color="#07345f" />
+            <div style={{ fontWeight: 900, color: '#07345f', fontSize: '11.5px', letterSpacing: '-0.01em' }}>
+              VIOTRACK ANNUAL DISCIPLINARY REPORT
+            </div>
           </div>
-          <span style={{ fontSize: '9px', color: '#64748b' }}>S.Y. 2025-2026</span>
+          <span style={{ fontSize: '9.5px', color: '#64748b', fontWeight: 700, background: '#f1f5f9', padding: '2px 6px', borderRadius: '4px' }}>
+            S.Y. 2025–2026
+          </span>
         </div>
 
-        {/* Mini KPI Bar */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '4px', textAlign: 'center' }}>
-          <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '4px', padding: '4px 2px' }}>
-            <div style={{ fontSize: '8.5px', color: '#64748b' }}>TOTAL INCIDENTS</div>
-            <div style={{ fontSize: '13px', fontWeight: 900, color: '#0f172a' }}>48</div>
+        {/* KPI Metric Cards */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '6px', textAlign: 'center' }}>
+          <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '6px 4px' }}>
+            <div style={{ fontSize: '8.5px', color: '#64748b', fontWeight: 800, textTransform: 'uppercase' }}>TOTAL INCIDENTS</div>
+            <div style={{ fontSize: '15px', fontWeight: 900, color: '#0f172a', marginTop: '1px' }}>48</div>
           </div>
-          <div style={{ background: '#ecfdf5', border: '1px solid #a7f3d0', borderRadius: '4px', padding: '4px 2px' }}>
-            <div style={{ fontSize: '8.5px', color: '#065f46' }}>RESOLVED</div>
-            <div style={{ fontSize: '13px', fontWeight: 900, color: '#059669' }}>94.2%</div>
+          <div style={{ background: '#ecfdf5', border: '1px solid #a7f3d0', borderRadius: '8px', padding: '6px 4px' }}>
+            <div style={{ fontSize: '8.5px', color: '#065f46', fontWeight: 800, textTransform: 'uppercase' }}>RESOLVED</div>
+            <div style={{ fontSize: '15px', fontWeight: 900, color: '#059669', marginTop: '1px' }}>94.2%</div>
           </div>
-          <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '4px', padding: '4px 2px' }}>
-            <div style={{ fontSize: '8.5px', color: '#991b1b' }}>REPEAT INDEX</div>
-            <div style={{ fontSize: '13px', fontWeight: 900, color: '#dc2626' }}>2.1%</div>
-          </div>
-        </div>
-
-        {/* Grade Breakdown Mini Table */}
-        <div style={{ background: '#fafafa', border: '1px solid #e2e8f0', borderRadius: '6px', padding: '6px 8px', fontSize: '9.5px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', color: '#64748b', fontWeight: 700, marginBottom: '2px' }}>
-            <span>Grade Level</span>
-            <span>Minor</span>
-            <span>Serious</span>
-            <span>Major</span>
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', color: '#0f172a', fontWeight: 600 }}>
-            <span>Grade 7 - 10</span>
-            <span>18</span>
-            <span>9</span>
-            <span>2</span>
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', color: '#0f172a', fontWeight: 600 }}>
-            <span>Senior High (G11-12)</span>
-            <span>11</span>
-            <span>6</span>
-            <span>2</span>
+          <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '8px', padding: '6px 4px' }}>
+            <div style={{ fontSize: '8.5px', color: '#991b1b', fontWeight: 800, textTransform: 'uppercase' }}>REPEAT INDEX</div>
+            <div style={{ fontSize: '15px', fontWeight: 900, color: '#dc2626', marginTop: '1px' }}>2.1%</div>
           </div>
         </div>
 
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '9px', color: '#64748b', paddingTop: '2px' }}>
-          <span>Signed: <strong>Prefect of Discipline</strong></span>
-          <span>Accreditation Ready PDF</span>
+        {/* Grade Breakdown Table with Perfect Column Alignment */}
+        <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '8px 10px', overflow: 'hidden' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '10.5px' }}>
+            <thead>
+              <tr style={{ borderBottom: '1.5px solid #cbd5e1', color: '#64748b', fontWeight: 800, fontSize: '9.5px', textTransform: 'uppercase' }}>
+                <th style={{ textAlign: 'left', paddingBottom: '5px' }}>Grade Level</th>
+                <th style={{ textAlign: 'center', paddingBottom: '5px', color: '#16a34a' }}>Minor</th>
+                <th style={{ textAlign: 'center', paddingBottom: '5px', color: '#d97706' }}>Serious</th>
+                <th style={{ textAlign: 'center', paddingBottom: '5px', color: '#dc2626' }}>Major</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style={{ borderBottom: '1px solid #e2e8f0', color: '#1e293b' }}>
+                <td style={{ textAlign: 'left', padding: '5px 0', fontWeight: 700 }}>Junior High (G7–10)</td>
+                <td style={{ textAlign: 'center', padding: '5px 0', fontWeight: 700, color: '#15803d' }}>18</td>
+                <td style={{ textAlign: 'center', padding: '5px 0', fontWeight: 700, color: '#b45309' }}>9</td>
+                <td style={{ textAlign: 'center', padding: '5px 0', fontWeight: 700, color: '#b91c1c' }}>2</td>
+              </tr>
+              <tr style={{ color: '#1e293b' }}>
+                <td style={{ textAlign: 'left', padding: '5px 0 2px 0', fontWeight: 700 }}>Senior High (G11–12)</td>
+                <td style={{ textAlign: 'center', padding: '5px 0 2px 0', fontWeight: 700, color: '#15803d' }}>11</td>
+                <td style={{ textAlign: 'center', padding: '5px 0 2px 0', fontWeight: 700, color: '#b45309' }}>6</td>
+                <td style={{ textAlign: 'center', padding: '5px 0 2px 0', fontWeight: 700, color: '#b91c1c' }}>2</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        {/* Footer Signature & Accreditation Stamp */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '9.5px', color: '#64748b', paddingTop: '4px', borderTop: '1px solid #e2e8f0' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <FileCheck size={12} color="#07345f" />
+            <span>Signed: <strong>Prefect of Discipline</strong></span>
+          </div>
+          <span style={{ color: '#07345f', fontWeight: 800, background: '#eff6ff', border: '1px solid #bfdbfe', padding: '2px 6px', borderRadius: '4px' }}>
+            Accreditation Ready PDF
+          </span>
         </div>
       </div>
     );
