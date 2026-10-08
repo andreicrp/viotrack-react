@@ -1269,11 +1269,31 @@ body {
     .header-clock-pill {
         padding: 5px 8px !important;
     }
+
+    .header-cmd-search-text {
+        display: none !important;
+    }
+
+    .header-cmd-search-btn {
+        padding: 6px 8px !important;
+    }
 }
 
 .header-clock-pill:hover {
     background: #f1f5f9 !important;
     border-color: #cbd5e1 !important;
+}
+
+.header-cmd-search-btn:hover {
+    background: #f1f5f9 !important;
+    border-color: #cbd5e1 !important;
+    color: #0f172a !important;
+}
+
+@media (max-width: 540px) {
+    .header-cmd-search-btn {
+        display: none !important;
+    }
 }
 
 @media (max-width: 480px) {

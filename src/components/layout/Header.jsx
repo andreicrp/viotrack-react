@@ -11,13 +11,14 @@ import {
   ChevronRight,
   Clock,
   Lock,
-  Database
+  Database,
+  Search
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { dataService } from '../../services/dataService';
 import { BackupRestoreModal } from '../common/BackupRestoreModal';
 
-export const Header = ({ onToggleSidebar }) => {
+export const Header = ({ onToggleSidebar, onOpenCommandPalette }) => {
   const { user, logout, lockScreen } = useAuth();
   const navigate = useNavigate();
   const [showDropdown, setShowDropdown] = useState(false);
@@ -191,6 +192,52 @@ export const Header = ({ onToggleSidebar }) => {
       </div>
 
       <div className="header-right" draggable={false}>
+        {/* Quick Command Palette Button (Ctrl+K) */}
+        <button
+          type="button"
+          className="header-cmd-search-btn"
+          onClick={() => {
+            if (typeof onOpenCommandPalette === 'function') {
+              onOpenCommandPalette();
+            } else {
+              window.dispatchEvent(new CustomEvent('open_command_palette'));
+            }
+          }}
+          title="Quick Search & Command Palette (Ctrl + K / ⌘K)"
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '8px',
+            background: '#f8fafc',
+            border: '1px solid #e2e8f0',
+            borderRadius: '10px',
+            padding: '6px 12px',
+            color: '#64748b',
+            fontSize: '12.5px',
+            fontWeight: 500,
+            cursor: 'pointer',
+            transition: 'all 0.15s ease',
+            marginRight: '2px'
+          }}
+        >
+          <Search size={14} color="#07345f" />
+          <span className="header-cmd-search-text">Search...</span>
+          <kbd
+            style={{
+              fontSize: '10px',
+              fontWeight: 800,
+              background: '#ffffff',
+              border: '1px solid #cbd5e1',
+              borderRadius: '4px',
+              padding: '1px 5px',
+              color: '#07345f',
+              fontFamily: 'monospace'
+            }}
+          >
+            ⌘K
+          </kbd>
+        </button>
+
         {/* 24-Hour Live Institutional Clock */}
         <div
           className="header-clock-pill"
