@@ -4,6 +4,7 @@ import { Sidebar } from './Sidebar';
 import { Header } from './Header';
 import { MobileBottomNav } from './MobileBottomNav';
 import { AddViolationModal } from '../violations/AddViolationModal';
+import { InteractiveTourGuide } from '../guide/InteractiveTourGuide';
 
 export const Layout = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -30,6 +31,9 @@ export const Layout = () => {
       <main id="main-content" tabIndex="-1" className={`main-content ${isCollapsed ? 'expanded' : ''}`}>
         <Outlet />
       </main>
+
+      {/* Interactive Instructional Guide & SOP Hub */}
+      <InteractiveTourGuide />
 
       {/* Modern Mobile Bottom Navigation Bar */}
       <MobileBottomNav
