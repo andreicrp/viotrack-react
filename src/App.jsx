@@ -145,6 +145,7 @@ export function App() {
                   {/* General Authenticated Access */}
                   <Route index element={<DashboardPage />} />
                   <Route path="scan-qr" element={<ScanQRPage />} />
+                  <Route path="scan" element={<ScanQRPage />} />
                   <Route path="track-location" element={<TrackLocationPage />} />
                   <Route path="violations" element={<ViolationsPage />} />
                   <Route path="violation-types" element={<ViolationTypesPage />} />

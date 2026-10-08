@@ -118,27 +118,27 @@ const TOUR_SCENARIOS = {
     id: 'qr_scanner',
     title: 'QR Code Scanning & Field Patrol',
     description: 'Master how to scan student badges at school gates and hallways for instant lookup.',
-    route: '/scan',
+    route: '/scan-qr',
     steps: [
       {
-        target: '.scanner-viewport, video, .qr-camera-container, .scanner-card',
+        target: '.scanner-viewport-wrapper, #reader-stream-container, .scanner-card',
         title: 'Live Camera Viewfinder',
         content: 'Point your camera at a student QR badge. VioTrack scans and validates student identity in real-time.',
         badge: 'Camera Scan',
         icon: QrCode
       },
       {
-        target: 'input[type="text"], .search-input, .student-lookup-input',
+        target: '.manual-search-box, .manual-search-field',
         title: 'Manual Student ID / LRN Search',
-        content: 'If the student does not have their badge, type their Student ID number or name here for instant record lookup.',
+        content: 'If the student does not have their badge, type their Student ID number or name here, or click one of the quick test chips for instant record lookup.',
         badge: 'Manual Lookup',
         icon: BookOpen
       },
       {
-        target: 'button.btn-primary, button:has(svg), .action-btn',
-        title: 'Quick Infraction Citation',
-        content: 'Select the reported violation and tap Log Violation to record infractions with preset policies and timestamps in under 5 seconds.',
-        badge: 'Instant Citation',
+        target: '.scanner-controls-bar',
+        title: 'Camera Controls & Upload',
+        content: 'Easily mirror camera view, switch facing modes, pause live scanner stream, or upload saved QR code images directly.',
+        badge: 'Controls & Upload',
         icon: AlertTriangle
       }
     ]
@@ -150,21 +150,21 @@ const TOUR_SCENARIOS = {
     route: '/violations',
     steps: [
       {
-        target: '.filters-container, .filter-bar, .search-bar, .violations-header-actions',
+        target: '.metric-cards-grid, .page-banner-header',
         title: 'Severity & Status Filters',
         content: 'Filter incidents by Minor, Serious, or Major offense level, or filter by Pending vs. Resolved status to prioritize open cases.',
         badge: 'Filter & Search',
         icon: AlertTriangle
       },
       {
-        target: '.table-container, .violations-table, .records-list, table',
+        target: 'table, tbody, .table-container',
         title: 'Incident Record Log',
         content: 'View comprehensive details for each incident: student name, grade & section, offense details, reporting officer, and timestamps.',
         badge: 'Records',
         icon: FileText
       },
       {
-        target: 'button:has(svg), .action-button, tr td:last-child',
+        target: '.page-banner-primary-btn, tbody tr td:last-child, button',
         title: 'Summons & Resolution Actions',
         content: 'Open the Parent Summons generator for formal notices, or open the Resolution modal (Doc Proof) to clear cases with official certificates.',
         badge: 'Actions',
