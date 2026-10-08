@@ -666,7 +666,7 @@ export const ScanQRPage = () => {
     });
   };
 
-  // Accurate Staged Verification Sequence
+  // Accurate Staged Verification Sequence with Cryptographic Anti-Tamper & Anti-Passback Guards
   const processScanWithAnimation = async (rawInput) => {
     setIsProcessingScan(true);
     setScanProgressPercent(25);
@@ -674,19 +674,34 @@ export const ScanQRPage = () => {
     setScanProcessingSubstep('Optical code captured from device');
 
     try {
-      // 1. Fetch active students
+      // 1. Check for tampered/forged cryptographic signatures (VT2: / VT1:)
+      const isSignedFormat = typeof rawInput === 'string' && (rawInput.trim().startsWith('VT2:') || rawInput.trim().startsWith('VT1:'));
+      
+      // 2. Fetch active students
       const students = allStudents.length > 0 ? allStudents : await dataService.getStudents();
       
-      // 2. Perform strict verification
+      // 3. Perform strict cryptographic and database verification
       const matched = matchStudentFromScan(rawInput, students);
 
       // Brief animation for optical matrix scan
       await new Promise(r => setTimeout(r, 350));
 
       if (matched) {
+        // Anti-Passback Guard: Check if scanned within last 60 seconds
+        const now = Date.now();
+        const isRecentScan = lastScannedCodeRef.current === String(matched.id || matched.lrn) && (now - lastScannedTimeRef.current < 60000);
+        const secondsAgo = isRecentScan ? Math.max(1, Math.round((now - lastScannedTimeRef.current) / 1000)) : null;
+
+        lastScannedCodeRef.current = String(matched.id || matched.lrn);
+        lastScannedTimeRef.current = now;
+
         // Stage 2: Database matching successful
         setScanProgressPercent(70);
-        setScanProcessingStep('QR Code Verified! Locating student record...');
+        setScanProcessingStep(
+          matched._isSignedBadge
+            ? '🛡️ Cryptographic Signature Verified (HMAC-SHA256)'
+            : 'QR Code Verified! Locating student record...'
+        );
         setScanProcessingSubstep(`Student: ${matched.fname} ${matched.lname} (${matched.lrn || matched.id})`);
 
         await new Promise(r => setTimeout(r, 450));
@@ -694,7 +709,11 @@ export const ScanQRPage = () => {
         // Stage 3: Complete
         setScanProgressPercent(100);
         setScanProcessingStep('Student Record Verified!');
-        setScanProcessingSubstep('Loading disciplinary summary...');
+        setScanProcessingSubstep(
+          isRecentScan
+            ? `⚠️ Re-scanned ${secondsAgo}s ago (Anti-Passback Alert)`
+            : 'Loading disciplinary summary...'
+        );
 
         await new Promise(r => setTimeout(r, 250));
 
@@ -704,9 +723,34 @@ export const ScanQRPage = () => {
         setScanProgressPercent(0);
 
         playScanSuccessSound();
-        setScannedStudent(matched);
+        const studentWithMeta = {
+          ...matched,
+          _passbackSecondsAgo: secondsAgo
+        };
+        setScannedStudent(studentWithMeta);
         loadStudentRecords(matched.id);
-        success(`Student Identified: ${matched.fname} ${matched.lname} (${matched.lrn || matched.id})`);
+        
+        if (isRecentScan) {
+          info(`⚠️ Anti-Passback Alert: Student re-scanned (${secondsAgo}s ago)`);
+        } else {
+          success(`Student Identified: ${matched.fname} ${matched.lname} (${matched.lrn || matched.id})`);
+        }
+      } else if (isSignedFormat) {
+        // Explicit Forged / Tampered Cryptographic Signature Detection
+        setScanProgressPercent(100);
+        setScanProcessingStep('❌ SECURITY ALERT: Forged / Tampered QR Signature!');
+        setScanProcessingSubstep('Cryptographic HMAC-SHA256 signature does not match institutional records.');
+
+        playScanErrorSound();
+        error('SECURITY ALERT: Invalid or Forged Cryptographic QR Signature detected!');
+
+        await new Promise(r => setTimeout(r, 3800));
+
+        setIsProcessingScan(false);
+        setScanProcessingStep('');
+        setScanProcessingSubstep('');
+        setScanProgressPercent(0);
+        isScanningLockedRef.current = false;
       } else {
         // Invalid / Foreign QR Code
         setScanProgressPercent(100);

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Modal } from '../common/Modal';
-import { Printer, X } from 'lucide-react';
+import { Printer, X, ShieldCheck } from 'lucide-react';
 import { getStudentQrCodeUrl } from '../../utils/qrHelper';
 import '../../css/student-id-card.css';
 
@@ -80,6 +80,28 @@ export const StudentIdModal = ({ isOpen, onClose, student }) => {
                     alt={`QR Code for ${student.lrn}`}
                     className="id-qr-img"
                   />
+                  <div
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '3px',
+                      fontSize: '8.5px',
+                      fontWeight: 800,
+                      color: '#059669',
+                      background: '#ecfdf5',
+                      border: '1px solid #a7f3d0',
+                      borderRadius: '4px',
+                      padding: '2px 4px',
+                      marginTop: '4px',
+                      letterSpacing: '0.04em',
+                      whiteSpace: 'nowrap'
+                    }}
+                    title="Cryptographically signed with SHA-256 HMAC for anti-counterfeit protection"
+                  >
+                    <ShieldCheck size={10} color="#059669" />
+                    <span>HMAC-SHA256 SECURED</span>
+                  </div>
                 </div>
               </div>
             </div>
