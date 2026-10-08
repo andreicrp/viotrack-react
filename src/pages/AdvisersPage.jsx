@@ -35,6 +35,7 @@ import {
 } from 'lucide-react';
 import { getJsPDF } from '../utils/pdfHelper';
 import { exportToCsv } from '../utils/csvHelper';
+import { SaveAsModal } from '../components/common/SaveAsModal';
 import '../css/adviser.css';
 
 export const AdvisersPage = () => {
@@ -46,6 +47,16 @@ export const AdvisersPage = () => {
   const [students, setStudents] = useState([]);
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [saveAsModalOpen, setSaveAsModalOpen] = useState(false);
+  const [saveAsConfig, setSaveAsConfig] = useState({
+    defaultFilename: 'Viotrack_Class_Advisers',
+    defaultFormat: 'csv',
+    availableFormats: ['csv', 'xlsx', 'pdf'],
+    headers: [],
+    rows: [],
+    generatePdfBlob: null,
+    title: 'Save Class Advisers As'
+  });
 
   // Filters & Search
   const [searchTerm, setSearchTerm] = useState('');
@@ -218,9 +229,27 @@ export const AdvisersPage = () => {
     }
   };
 
-  // PDF Export
-  const handleExportPDF = async () => {
-    try {
+  // Export via SaveAs
+  const handleOpenExportSaveAs = (defaultFormat = 'csv') => {
+    const headers = ['Adviser Name', 'Grade Level', 'Section', 'Department', 'Email', 'Contact', 'Enrolled Students', 'Violations Recorded'];
+    const rows = advisers.map(adv => {
+      const teacher = teachers.find(t => t.id === adv.teacher_id);
+      const name = teacher ? `${teacher.fname} ${teacher.lname}` : `Teacher #${adv.teacher_id}`;
+      const stdCount = students.filter(s => s.grade === adv.grade_level && s.section === adv.section).length;
+      const vioCount = records.filter(r => r.student?.grade === adv.grade_level && r.student?.section === adv.section).length;
+      return [
+        name,
+        adv.grade_level || 'Grade 10',
+        adv.section || 'General',
+        teacher?.department || 'Academic Faculty',
+        teacher?.email || '',
+        teacher?.contact || '',
+        stdCount,
+        vioCount
+      ];
+    });
+
+    const generatePdfBlob = async () => {
       const doc = await getJsPDF();
       doc.setFontSize(16);
       doc.setTextColor(39, 54, 127);
@@ -250,39 +279,19 @@ export const AdvisersPage = () => {
         headStyles: { fillColor: [39, 54, 127], textColor: 255, fontStyle: 'bold' }
       });
 
-      doc.save(`Viotrack_Class_Advisers_${Date.now()}.pdf`);
-      success('Exported Class Advisers Directory as PDF!');
-    } catch (err) {
-      error('Failed to export PDF: ' + err.message);
-    }
-  };
+      return doc.output('blob');
+    };
 
-  // CSV Export
-  const handleExportCSV = () => {
-    try {
-      const headers = ['Adviser Name', 'Grade Level', 'Section', 'Department', 'Email', 'Contact', 'Enrolled Students', 'Violations Recorded'];
-      const rows = advisers.map(adv => {
-        const teacher = teachers.find(t => t.id === adv.teacher_id);
-        const name = teacher ? `${teacher.fname} ${teacher.lname}` : `Teacher #${adv.teacher_id}`;
-        const stdCount = students.filter(s => s.grade === adv.grade_level && s.section === adv.section).length;
-        const vioCount = records.filter(r => r.student?.grade === adv.grade_level && r.student?.section === adv.section).length;
-        return [
-          name,
-          adv.grade_level || 'Grade 10',
-          adv.section || 'General',
-          teacher?.department || 'Academic Faculty',
-          teacher?.email || '',
-          teacher?.contact || '',
-          stdCount,
-          vioCount
-        ];
-      });
-
-      exportToCsv(`Viotrack_Class_Advisers_${Date.now()}`, headers, rows);
-      success(`Exported ${rows.length} class advisers to CSV!`);
-    } catch (err) {
-      error('Failed to export CSV: ' + err.message);
-    }
+    setSaveAsConfig({
+      defaultFilename: `Viotrack_Class_Advisers_${new Date().toISOString().slice(0, 10)}`,
+      defaultFormat,
+      availableFormats: ['csv', 'xlsx', 'pdf'],
+      headers,
+      rows,
+      generatePdfBlob,
+      title: 'Save Class Advisers As'
+    });
+    setSaveAsModalOpen(true);
   };
 
   return (
@@ -312,17 +321,17 @@ export const AdvisersPage = () => {
             </button>
 
             <button
-              onClick={handleExportPDF}
+              onClick={() => handleOpenExportSaveAs('pdf')}
               className="page-banner-btn-secondary"
-              title="Download formatted PDF directory"
+              title="Save As formatted PDF directory"
             >
               <Upload size={14} strokeWidth={2.2} /> Export PDF
             </button>
 
             <button
-              onClick={handleExportCSV}
+              onClick={() => handleOpenExportSaveAs('csv')}
               className="page-banner-btn-secondary"
-              title="Download CSV spreadsheet"
+              title="Save As CSV / Excel spreadsheet"
             >
               <FileText size={14} strokeWidth={2.2} /> Export CSV
             </button>
@@ -1137,6 +1146,20 @@ export const AdvisersPage = () => {
           </div>
         </div>
       )}
+
+      {/* Save As / Export Modal */}
+      <SaveAsModal
+        isOpen={saveAsModalOpen}
+        onClose={() => setSaveAsModalOpen(false)}
+        defaultFilename={saveAsConfig.defaultFilename}
+        defaultFormat={saveAsConfig.defaultFormat}
+        availableFormats={saveAsConfig.availableFormats}
+        headers={saveAsConfig.headers}
+        rows={saveAsConfig.rows}
+        generatePdfBlob={saveAsConfig.generatePdfBlob}
+        userEmail={user?.email || 'viotrack.cloud@gmail.com'}
+        title={saveAsConfig.title}
+      />
     </div>
   );
 };

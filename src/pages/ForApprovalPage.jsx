@@ -40,6 +40,7 @@ import {
 } from 'lucide-react';
 import { getJsPDF } from '../utils/pdfHelper';
 import { exportToCsv } from '../utils/csvHelper';
+import { SaveAsModal } from '../components/common/SaveAsModal';
 import { ViewModeToggle } from '../components/common/ViewModeToggle';
 import { CustomSelect } from '../components/common/CustomSelect';
 import { Modal } from '../components/common/Modal';
@@ -51,6 +52,16 @@ export const ForApprovalPage = () => {
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState('list'); // 'list' | 'grid'
+  const [saveAsModalOpen, setSaveAsModalOpen] = useState(false);
+  const [saveAsConfig, setSaveAsConfig] = useState({
+    defaultFilename: 'Viotrack_For_Approval',
+    defaultFormat: 'csv',
+    availableFormats: ['csv', 'xlsx', 'pdf'],
+    headers: [],
+    rows: [],
+    generatePdfBlob: null,
+    title: 'Save Approval Queue As'
+  });
 
   // Filter States
   const [searchTerm, setSearchTerm] = useState('');
@@ -392,68 +403,71 @@ export const ForApprovalPage = () => {
     }
   };
 
-  // Exports
-  const handleExportPDF = async () => {
-    const doc = await getJsPDF();
-    doc.setFillColor(39, 54, 127);
-    doc.rect(0, 0, 210, 24, 'F');
-
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(14);
-    doc.setFont('helvetica', 'bold');
-    doc.text('UNIVERSITY OF PERPETUAL HELP SYSTEM MANILA', 14, 11);
-    doc.setFontSize(9);
-    doc.setFont('helvetica', 'normal');
-    doc.text('VioTrack Disciplinary System - Violations For Approval Queue', 14, 18);
-
-    doc.setTextColor(30, 41, 59);
-    doc.setFontSize(9);
-    doc.text(`Queue Status: ${approvalFilter} | Records: ${filteredRecords.length} | Generated: ${new Date().toLocaleDateString()}`, 14, 30);
-
-    const tableData = filteredRecords.map(r => [
+  // Exports via SaveAs
+  const handleOpenExportSaveAs = (defaultFormat = 'csv') => {
+    const headers = ['Student Name', 'Student ID', 'Grade', 'Section', 'Offense', 'Severity', 'Sanction', 'Reported By', 'Approval Status', 'Date Reported', 'Remarks'];
+    const rows = filteredRecords.map(r => [
       `${r.student?.fname || ''} ${r.student?.lname || ''}`.trim(),
-      `${r.student?.grade || ''} - ${r.student?.section || ''}`,
-      r.violation?.title || 'Disciplinary Offense',
-      r.violation?.type || 'Minor',
+      r.student?.lrn || 'N/A',
+      r.student?.grade || 'N/A',
+      r.student?.section || 'N/A',
+      r.violation?.title || 'N/A',
+      r.violation?.type || 'N/A',
+      r.sanction || 'N/A',
       r.reported_by_name || 'Faculty',
       r.approval_status || 'Under Approval',
-      new Date(r.date_reported).toLocaleDateString()
+      new Date(r.date_reported).toLocaleString(),
+      r.remarks || ''
     ]);
 
-    doc.autoTable({
-      head: [['Student Name', 'Grade & Section', 'Offense Title', 'Severity', 'Reported By', 'Approval Status', 'Date']],
-      body: tableData,
-      startY: 34,
-      theme: 'striped',
-      headStyles: { fillColor: [39, 54, 127], fontStyle: 'bold' }
-    });
+    const generatePdfBlob = async () => {
+      const doc = await getJsPDF();
+      doc.setFillColor(39, 54, 127);
+      doc.rect(0, 0, 210, 24, 'F');
 
-    doc.save(`Viotrack_For_Approval_${Date.now()}.pdf`);
-    success('Exported Approval Queue as PDF!');
-  };
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(14);
+      doc.setFont('helvetica', 'bold');
+      doc.text('UNIVERSITY OF PERPETUAL HELP SYSTEM MANILA', 14, 11);
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'normal');
+      doc.text('VioTrack Disciplinary System - Violations For Approval Queue', 14, 18);
 
-  const handleExportCSV = () => {
-    try {
-      const headers = ['Student Name', 'Student ID', 'Grade', 'Section', 'Offense', 'Severity', 'Sanction', 'Reported By', 'Approval Status', 'Date Reported', 'Remarks'];
-      const rows = filteredRecords.map(r => [
+      doc.setTextColor(30, 41, 59);
+      doc.setFontSize(9);
+      doc.text(`Queue Status: ${approvalFilter} | Records: ${filteredRecords.length} | Generated: ${new Date().toLocaleDateString()}`, 14, 30);
+
+      const tableData = filteredRecords.map(r => [
         `${r.student?.fname || ''} ${r.student?.lname || ''}`.trim(),
-        r.student?.lrn || 'N/A',
-        r.student?.grade || 'N/A',
-        r.student?.section || 'N/A',
-        r.violation?.title || 'N/A',
-        r.violation?.type || 'N/A',
-        r.sanction || 'N/A',
+        `${r.student?.grade || ''} - ${r.student?.section || ''}`,
+        r.violation?.title || 'Disciplinary Offense',
+        r.violation?.type || 'Minor',
         r.reported_by_name || 'Faculty',
         r.approval_status || 'Under Approval',
-        new Date(r.date_reported).toLocaleString(),
-        r.remarks || ''
+        new Date(r.date_reported).toLocaleDateString()
       ]);
 
-      exportToCsv(`Viotrack_For_Approval_${Date.now()}`, headers, rows);
-      success(`Exported ${rows.length} approval entries to CSV!`);
-    } catch (err) {
-      error('Failed to export CSV: ' + err.message);
-    }
+      doc.autoTable({
+        head: [['Student Name', 'Grade & Section', 'Offense Title', 'Severity', 'Reported By', 'Approval Status', 'Date']],
+        body: tableData,
+        startY: 34,
+        theme: 'striped',
+        headStyles: { fillColor: [39, 54, 127], fontStyle: 'bold' }
+      });
+
+      return doc.output('blob');
+    };
+
+    setSaveAsConfig({
+      defaultFilename: `Viotrack_For_Approval_${new Date().toISOString().slice(0, 10)}`,
+      defaultFormat,
+      availableFormats: ['csv', 'xlsx', 'pdf'],
+      headers,
+      rows,
+      generatePdfBlob,
+      title: 'Save Approval Queue As'
+    });
+    setSaveAsModalOpen(true);
   };
 
   const renderSortIcon = (field) => {
@@ -498,17 +512,17 @@ export const ForApprovalPage = () => {
         <div className="page-banner-actions">
           <div className="page-banner-secondary-group">
             <button
-              onClick={handleExportPDF}
+              onClick={() => handleOpenExportSaveAs('pdf')}
               className="page-banner-btn-secondary"
-              title="Download PDF registry of approval cases"
+              title="Save As formatted PDF registry of approval cases"
             >
               <Upload size={14} strokeWidth={2.2} /> Export PDF
             </button>
 
             <button
-              onClick={handleExportCSV}
+              onClick={() => handleOpenExportSaveAs('csv')}
               className="page-banner-btn-secondary"
-              title="Download CSV spreadsheet"
+              title="Save As CSV / Excel spreadsheet"
             >
               <FileText size={14} strokeWidth={2.2} /> Export CSV
             </button>
@@ -2470,6 +2484,20 @@ export const ForApprovalPage = () => {
           </Modal>
         );
       })()}
+
+      {/* Save As / Export Modal */}
+      <SaveAsModal
+        isOpen={saveAsModalOpen}
+        onClose={() => setSaveAsModalOpen(false)}
+        defaultFilename={saveAsConfig.defaultFilename}
+        defaultFormat={saveAsConfig.defaultFormat}
+        availableFormats={saveAsConfig.availableFormats}
+        headers={saveAsConfig.headers}
+        rows={saveAsConfig.rows}
+        generatePdfBlob={saveAsConfig.generatePdfBlob}
+        userEmail={user?.email || 'viotrack.cloud@gmail.com'}
+        title={saveAsConfig.title}
+      />
     </div>
   );
 };

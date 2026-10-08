@@ -34,6 +34,7 @@ import {
 } from 'lucide-react';
 import { getJsPDF } from '../utils/pdfHelper';
 import { parseCsvString, readFileAsText, downloadSampleCsv } from '../utils/csvHelper';
+import { SaveAsModal } from '../components/common/SaveAsModal';
 
 export const ViolationTypesPage = () => {
   const { success, error, info } = useNotification();
@@ -43,6 +44,16 @@ export const ViolationTypesPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedIds, setSelectedIds] = useState([]);
   const [selectedSeverityFilter, setSelectedSeverityFilter] = useState('all');
+  const [saveAsModalOpen, setSaveAsModalOpen] = useState(false);
+  const [saveAsConfig, setSaveAsConfig] = useState({
+    defaultFilename: 'Viotrack_Violations_Catalog',
+    defaultFormat: 'csv',
+    availableFormats: ['csv', 'xlsx', 'pdf'],
+    headers: [],
+    rows: [],
+    generatePdfBlob: null,
+    title: 'Save Offenses Catalog As'
+  });
 
   // Sorting state
   const [sortField, setSortField] = useState('title'); // 'title' | 'type' | 'default_sanction'
@@ -306,62 +317,61 @@ export const ViolationTypesPage = () => {
     }
   };
 
-  // Export Executive PDF Report
-  const handleExport = async () => {
-    const doc = await getJsPDF();
-    doc.setFillColor(39, 54, 127);
-    doc.rect(0, 0, 210, 24, 'F');
-
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(14);
-    doc.setFont('helvetica', 'bold');
-    doc.text('UNIVERSITY OF PERPETUAL HELP SYSTEM MANILA', 14, 11);
-    doc.setFontSize(9);
-    doc.setFont('helvetica', 'normal');
-    doc.text('Student Conduct Manual - Master Violation Offenses Catalog', 14, 18);
-
-    doc.setTextColor(30, 41, 59);
-    doc.setFontSize(9);
-    doc.text(`Total Configured Offenses: ${filteredAndSorted.length} | Generated: ${new Date().toLocaleDateString()}`, 14, 30);
-
-    const tableData = filteredAndSorted.map(v => [
-      v.title,
-      v.type,
-      v.default_sanction || 'Standard Sanction',
-      v.description || 'N/A'
-    ]);
-
-    doc.autoTable({
-      head: [['Violation Offense Title', 'Severity', 'Default Sanction / Consequence', 'Policy Scope']],
-      body: tableData,
-      startY: 34,
-      theme: 'striped',
-      headStyles: { fillColor: [39, 54, 127], fontStyle: 'bold' }
-    });
-
-    doc.save(`Viotrack_Violation_Offenses_${Date.now()}.pdf`);
-    success('Exported Violations Catalog as PDF!');
-  };
-
-  // Export CSV
-  const handleExportCsv = () => {
+  // Export via SaveAs
+  const handleOpenExportSaveAs = (defaultFormat = 'csv') => {
     const headers = ['Title', 'Severity Type', 'Default Sanction', 'Description'];
     const rows = filteredAndSorted.map(v => [
-      `"${v.title.replace(/"/g, '""')}"`,
-      `"${v.type}"`,
-      `"${(v.default_sanction || '').replace(/"/g, '""')}"`,
-      `"${(v.description || '').replace(/"/g, '""')}"`
+      v.title,
+      v.type,
+      v.default_sanction || '',
+      v.description || ''
     ]);
 
-    const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement('a');
-    link.setAttribute('href', encodedUri);
-    link.setAttribute('download', `Viotrack_Violations_${Date.now()}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    success('Exported Violations List as CSV!');
+    const generatePdfBlob = async () => {
+      const doc = await getJsPDF();
+      doc.setFillColor(39, 54, 127);
+      doc.rect(0, 0, 210, 24, 'F');
+
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(14);
+      doc.setFont('helvetica', 'bold');
+      doc.text('UNIVERSITY OF PERPETUAL HELP SYSTEM MANILA', 14, 11);
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'normal');
+      doc.text('Student Conduct Manual - Master Violation Offenses Catalog', 14, 18);
+
+      doc.setTextColor(30, 41, 59);
+      doc.setFontSize(9);
+      doc.text(`Total Configured Offenses: ${filteredAndSorted.length} | Generated: ${new Date().toLocaleDateString()}`, 14, 30);
+
+      const tableData = filteredAndSorted.map(v => [
+        v.title,
+        v.type,
+        v.default_sanction || 'Standard Sanction',
+        v.description || 'N/A'
+      ]);
+
+      doc.autoTable({
+        head: [['Violation Offense Title', 'Severity', 'Default Sanction / Consequence', 'Policy Scope']],
+        body: tableData,
+        startY: 34,
+        theme: 'striped',
+        headStyles: { fillColor: [39, 54, 127], fontStyle: 'bold' }
+      });
+
+      return doc.output('blob');
+    };
+
+    setSaveAsConfig({
+      defaultFilename: `Viotrack_Violations_Catalog_${new Date().toISOString().slice(0, 10)}`,
+      defaultFormat,
+      availableFormats: ['csv', 'xlsx', 'pdf'],
+      headers,
+      rows,
+      generatePdfBlob,
+      title: 'Save Offenses Catalog As'
+    });
+    setSaveAsModalOpen(true);
   };
 
   // Render sort icon helper
@@ -396,17 +406,17 @@ export const ViolationTypesPage = () => {
         <div className="page-banner-actions">
           <div className="page-banner-secondary-group">
             <button
-              onClick={handleExport}
+              onClick={() => handleOpenExportSaveAs('pdf')}
               className="page-banner-btn-secondary"
-              title="Download formatted PDF violation offenses catalog"
+              title="Save As formatted PDF violation offenses catalog"
             >
               <Download size={14} strokeWidth={2.2} /> Export PDF
             </button>
 
             <button
-              onClick={handleExportCsv}
+              onClick={() => handleOpenExportSaveAs('csv')}
               className="page-banner-btn-secondary"
-              title="Download CSV spreadsheet"
+              title="Save As CSV / Excel spreadsheet"
             >
               <FileSpreadsheet size={14} strokeWidth={2.2} /> Export CSV
             </button>
@@ -1623,6 +1633,20 @@ export const ViolationTypesPage = () => {
         onClose={() => setIsImportModalOpen(false)}
         onImported={loadViolations}
         initialFormat={bulkImportFormat}
+      />
+
+      {/* Save As / Export Modal */}
+      <SaveAsModal
+        isOpen={saveAsModalOpen}
+        onClose={() => setSaveAsModalOpen(false)}
+        defaultFilename={saveAsConfig.defaultFilename}
+        defaultFormat={saveAsConfig.defaultFormat}
+        availableFormats={saveAsConfig.availableFormats}
+        headers={saveAsConfig.headers}
+        rows={saveAsConfig.rows}
+        generatePdfBlob={saveAsConfig.generatePdfBlob}
+        userEmail={'viotrack.cloud@gmail.com'}
+        title={saveAsConfig.title}
       />
     </div>
   );

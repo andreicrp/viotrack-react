@@ -38,6 +38,7 @@ import {
 import { getJsPDF } from '../utils/pdfHelper';
 import { exportToCsv } from '../utils/csvHelper';
 import { ViewModeToggle } from '../components/common/ViewModeToggle';
+import { SaveAsModal } from '../components/common/SaveAsModal';
 
 export const ViolationsPage = () => {
   const { user } = useAuth();
@@ -45,6 +46,16 @@ export const ViolationsPage = () => {
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState('list'); // 'list' | 'grid'
+  const [saveAsModalOpen, setSaveAsModalOpen] = useState(false);
+  const [saveAsConfig, setSaveAsConfig] = useState({
+    defaultFilename: 'Viotrack_Violations',
+    defaultFormat: 'csv',
+    availableFormats: ['csv', 'xlsx', 'pdf'],
+    headers: [],
+    rows: [],
+    generatePdfBlob: null,
+    title: 'Save as'
+  });
 
   // Keyboard navigation shortcuts: '/' to search, 'N' for new violation, 'Esc' to close modals
   useKeyboardShortcuts({
@@ -55,6 +66,7 @@ export const ViolationsPage = () => {
       setRecordForStatusChange(null);
       setSelectedRecordForResolution(null);
       setSummonsTargetRecord(null);
+      setSaveAsModalOpen(false);
     }
   });
 
@@ -330,9 +342,27 @@ export const ViolationsPage = () => {
     }, 5200);
   };
 
-  // PDF Export
-  const handleExportPDF = async () => {
-    try {
+  // Open Save As Modal for Export
+  const handleOpenExportSaveAs = (defaultFormat = 'csv') => {
+    const headers = ['Record ID', 'Student ID', 'Student Name', 'Grade', 'Section', 'Offense', 'Severity', 'Reported By', 'Reporter Type', 'Date Reported', 'Sanction', 'Status', 'Remarks', 'Resolution Notes'];
+    const rows = filteredAndSortedRecords.map(r => [
+      r.id,
+      r.student?.lrn || '',
+      r.student ? `${r.student.fname} ${r.student.lname}` : 'N/A',
+      r.student?.grade || '',
+      r.student?.section || '',
+      r.violation?.title || 'N/A',
+      r.violation?.type || 'Minor',
+      r.reported_by_name || 'Admin',
+      r.reported_by_type || 'admin',
+      new Date(r.date_reported).toLocaleString(),
+      r.sanction || 'None',
+      r.status || 'Pending',
+      r.remarks || '',
+      r.resolution_notes || ''
+    ]);
+
+    const generatePdfBlob = async () => {
       const doc = await getJsPDF();
       doc.setFontSize(16);
       doc.setTextColor(39, 54, 127);
@@ -361,39 +391,19 @@ export const ViolationsPage = () => {
         styles: { fontSize: 8.5 }
       });
 
-      doc.save(`Viotrack_Violation_Records_${exportDate || Date.now()}.pdf`);
-      success('Exported PDF Violation Report successfully!');
-    } catch (err) {
-      error('Failed to export PDF: ' + err.message);
-    }
-  };
+      return doc.output('blob');
+    };
 
-  // CSV Export
-  const handleExportCSV = () => {
-    try {
-      const headers = ['Record ID', 'Student ID', 'Student Name', 'Grade', 'Section', 'Offense', 'Severity', 'Reported By', 'Reporter Type', 'Date Reported', 'Sanction', 'Status', 'Remarks', 'Resolution Notes'];
-      const rows = filteredAndSortedRecords.map(r => [
-        r.id,
-        r.student?.lrn || '',
-        r.student ? `${r.student.fname} ${r.student.lname}` : 'N/A',
-        r.student?.grade || '',
-        r.student?.section || '',
-        r.violation?.title || 'N/A',
-        r.violation?.type || 'Minor',
-        r.reported_by_name || 'Admin',
-        r.reported_by_type || 'admin',
-        new Date(r.date_reported).toLocaleString(),
-        r.sanction || 'None',
-        r.status || 'Pending',
-        r.remarks || '',
-        r.resolution_notes || ''
-      ]);
-
-      exportToCsv(`Viotrack_Violations_${exportDate || Date.now()}`, headers, rows);
-      success(`Exported ${rows.length} violation records to CSV!`);
-    } catch (err) {
-      error('Failed to export CSV: ' + err.message);
-    }
+    setSaveAsConfig({
+      defaultFilename: `Viotrack_Violations_${exportDate || new Date().toISOString().slice(0, 10)}`,
+      defaultFormat,
+      availableFormats: ['csv', 'xlsx', 'pdf'],
+      headers,
+      rows,
+      generatePdfBlob,
+      title: 'Save Violation Records As'
+    });
+    setSaveAsModalOpen(true);
   };
 
   // Pagination
@@ -494,16 +504,16 @@ export const ViolationsPage = () => {
                 />
               </div>
               <button
-                onClick={handleExportPDF}
+                onClick={() => handleOpenExportSaveAs('pdf')}
                 className="page-banner-btn-secondary"
-                title="Download formatted PDF report"
+                title="Save As formatted PDF report"
               >
                 <Upload size={14} strokeWidth={2.2} /> Export PDF
               </button>
               <button
-                onClick={handleExportCSV}
+                onClick={() => handleOpenExportSaveAs('csv')}
                 className="page-banner-btn-secondary"
-                title="Download CSV report"
+                title="Save As CSV / Excel report"
               >
                 <FileText size={14} strokeWidth={2.2} /> Export CSV
               </button>
@@ -1750,6 +1760,20 @@ export const ViolationsPage = () => {
           records={records}
         />
       )}
+
+      {/* Save As / Export Modal */}
+      <SaveAsModal
+        isOpen={saveAsModalOpen}
+        onClose={() => setSaveAsModalOpen(false)}
+        defaultFilename={saveAsConfig.defaultFilename}
+        defaultFormat={saveAsConfig.defaultFormat}
+        availableFormats={saveAsConfig.availableFormats}
+        headers={saveAsConfig.headers}
+        rows={saveAsConfig.rows}
+        generatePdfBlob={saveAsConfig.generatePdfBlob}
+        userEmail={user?.email || 'viotrack.cloud@gmail.com'}
+        title={saveAsConfig.title}
+      />
     </div>
   );
 };

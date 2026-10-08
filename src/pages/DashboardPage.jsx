@@ -44,9 +44,9 @@ import { useNotification } from '../context/NotificationContext';
 import { AddViolationModal } from '../components/violations/AddViolationModal';
 import { SchoolCalendarModal } from '../components/common/SchoolCalendarModal';
 import { CustomDateRangeModal } from '../components/common/CustomDateRangeModal';
-import { PrintDataModal } from '../components/admin/PrintDataModal';
 import { getJsPDF } from '../utils/pdfHelper';
 import { exportToCsv } from '../utils/csvHelper';
+import { SaveAsModal } from '../components/common/SaveAsModal';
 
 const DashboardNoViolationsEmptyState = ({ IconComponent }) => (
   <div style={{ minHeight: 220, width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', textAlign: 'center', gap: 8 }}>
@@ -116,6 +116,16 @@ export const DashboardPage = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isCalendarModalOpen, setIsCalendarModalOpen] = useState(false);
   const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
+  const [saveAsModalOpen, setSaveAsModalOpen] = useState(false);
+  const [saveAsConfig, setSaveAsConfig] = useState({
+    defaultFilename: 'Viotrack_Executive_Report',
+    defaultFormat: 'pdf',
+    availableFormats: ['pdf', 'csv', 'xlsx'],
+    headers: [],
+    rows: [],
+    generatePdfBlob: null,
+    title: 'Save Executive Summary As'
+  });
 
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -754,9 +764,24 @@ export const DashboardPage = () => {
     };
   }, [calendarMonth, selectedCalendarDate, schoolEvents]);
 
-  // Export Executive PDF Report (Dynamic)
-  const handleExportPDF = async () => {
-    try {
+  // Export Executive Report via SaveAs
+  const handleOpenExportSaveAs = (defaultFormat = 'pdf') => {
+    const headers = ['Record ID', 'Student ID', 'Student Name', 'Grade', 'Section', 'Offense', 'Severity', 'Status', 'Reported By', 'Date Reported', 'Sanction'];
+    const rows = records.map(r => [
+      r.id,
+      r.student?.lrn || '',
+      r.student ? `${r.student.fname} ${r.student.lname}` : '',
+      r.student?.grade || '',
+      r.student?.section || '',
+      r.violation?.title || r.title || '',
+      r.violation?.type || r.type || 'Minor',
+      r.status || 'Pending',
+      r.reported_by_name || '',
+      r.date_reported || r.created_at || '',
+      r.sanction || ''
+    ]);
+
+    const generatePdfBlob = async () => {
       const doc = await getJsPDF();
       doc.setFillColor(11, 25, 44);
       doc.rect(0, 0, 210, 26, 'F');
@@ -807,37 +832,19 @@ export const DashboardPage = () => {
         headStyles: { fillColor: [30, 58, 138] }
       });
 
-      doc.save(`Viotrack_Executive_Report_${Date.now()}.pdf`);
-      success('Executive Summary PDF report exported successfully!');
-    } catch (err) {
-      console.error(err);
-      info('Could not export PDF report.');
-    }
-  };
+      return doc.output('blob');
+    };
 
-  // Export CSV Data
-  const handleExportCSV = () => {
-    try {
-      const exportRows = records.map(r => ({
-        Record_ID: r.id,
-        Student_ID: r.student?.lrn || '',
-        Student_Name: r.student ? `${r.student.fname} ${r.student.lname}` : '',
-        Grade: r.student?.grade || '',
-        Section: r.student?.section || '',
-        Violation_Title: r.violation?.title || r.title || '',
-        Severity: r.violation?.type || r.type || 'Minor',
-        Status: r.status || 'Pending',
-        Reported_By: r.reported_by_name || '',
-        Date_Reported: r.date_reported || r.created_at || '',
-        Sanction: r.sanction || ''
-      }));
-
-      exportToCsv(`Viotrack_Disciplinary_Records_${Date.now()}.csv`, exportRows);
-      success('Disciplinary dataset exported to CSV.');
-    } catch (err) {
-      console.error(err);
-      info('Could not export CSV data.');
-    }
+    setSaveAsConfig({
+      defaultFilename: `Viotrack_Executive_Report_${new Date().toISOString().slice(0, 10)}`,
+      defaultFormat,
+      availableFormats: ['pdf', 'csv', 'xlsx'],
+      headers,
+      rows,
+      generatePdfBlob,
+      title: 'Save Executive Summary As'
+    });
+    setSaveAsModalOpen(true);
   };
 
   // Open Customizable Print Data Modal
@@ -879,9 +886,9 @@ export const DashboardPage = () => {
             <button
               type="button"
               className="dash-export-pdf-btn"
-              onClick={handleExportPDF}
+              onClick={() => handleOpenExportSaveAs('pdf')}
               id="exportDashboardPdfBtn"
-              title="Export dashboard summary as PDF"
+              title="Save As dashboard executive report"
             >
               <Download size={15} strokeWidth={2.4} />
               <span>Export PDF</span>
@@ -1692,6 +1699,20 @@ export const DashboardPage = () => {
           teachers={[]}
         />
       )}
+
+      {/* Save As / Export Modal */}
+      <SaveAsModal
+        isOpen={saveAsModalOpen}
+        onClose={() => setSaveAsModalOpen(false)}
+        defaultFilename={saveAsConfig.defaultFilename}
+        defaultFormat={saveAsConfig.defaultFormat}
+        availableFormats={saveAsConfig.availableFormats}
+        headers={saveAsConfig.headers}
+        rows={saveAsConfig.rows}
+        generatePdfBlob={saveAsConfig.generatePdfBlob}
+        userEmail={user?.email || 'viotrack.cloud@gmail.com'}
+        title={saveAsConfig.title}
+      />
     </div>
   );
 };

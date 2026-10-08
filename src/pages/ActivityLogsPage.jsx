@@ -40,6 +40,7 @@ import {
 } from 'lucide-react';
 import { getJsPDF } from '../utils/pdfHelper';
 import { exportToCsv } from '../utils/csvHelper';
+import { SaveAsModal } from '../components/common/SaveAsModal';
 
 export const ActivityLogsPage = () => {
   const { success, error, info } = useNotification();
@@ -48,6 +49,16 @@ export const ActivityLogsPage = () => {
   const [inspectLog, setInspectLog] = useState(null);
   const [isBackupModalOpen, setIsBackupModalOpen] = useState(false);
   const [copiedField, setCopiedField] = useState(null);
+  const [saveAsModalOpen, setSaveAsModalOpen] = useState(false);
+  const [saveAsConfig, setSaveAsConfig] = useState({
+    defaultFilename: 'Viotrack_Audit_Logs',
+    defaultFormat: 'csv',
+    availableFormats: ['csv', 'xlsx', 'pdf'],
+    headers: [],
+    rows: [],
+    generatePdfBlob: null,
+    title: 'Save Activity Audit Logs As'
+  });
 
   const handleCopy = (text, fieldKey) => {
     if (navigator?.clipboard?.writeText) {
@@ -161,9 +172,18 @@ export const ActivityLogsPage = () => {
     return result;
   }, [logs, deferredSearch, actionCategory, sortOrder]);
 
-  // PDF Export
-  const handleExportPDF = async () => {
-    try {
+  // Save As Export Handler
+  const handleOpenExportSaveAs = (defaultFormat = 'csv') => {
+    const headers = ['Timestamp', 'Actor / User', 'Role', 'Action Type', 'Event Details'];
+    const rows = filteredAndSortedLogs.map(l => [
+      new Date(l.created_at || l.date).toLocaleString(),
+      l.user_name || 'System Admin',
+      l.user_role || 'Admin',
+      l.action || 'Action',
+      l.details || l.description || 'N/A'
+    ]);
+
+    const generatePdfBlob = async () => {
       const doc = await getJsPDF();
       doc.setFontSize(16);
       doc.setTextColor(39, 54, 127);
@@ -191,30 +211,19 @@ export const ActivityLogsPage = () => {
         styles: { fontSize: 8.5 }
       });
 
-      doc.save(`Viotrack_Audit_Logs_${Date.now()}.pdf`);
-      success('Exported Activity Audit Report PDF successfully!');
-    } catch (err) {
-      error('Failed to export PDF: ' + err.message);
-    }
-  };
+      return doc.output('blob');
+    };
 
-  // CSV Export
-  const handleExportCSV = () => {
-    try {
-      const headers = ['Timestamp', 'Actor / User', 'Role', 'Action Type', 'Event Details'];
-      const rows = filteredAndSortedLogs.map(l => [
-        new Date(l.created_at || l.date).toLocaleString(),
-        l.user_name || 'System Admin',
-        l.user_role || 'Admin',
-        l.action || 'Action',
-        l.details || l.description || 'N/A'
-      ]);
-
-      exportToCsv(`Viotrack_Audit_Logs_${Date.now()}`, headers, rows);
-      success(`Exported ${rows.length} audit records to CSV!`);
-    } catch (err) {
-      error('Failed to export CSV: ' + err.message);
-    }
+    setSaveAsConfig({
+      defaultFilename: `Viotrack_Audit_Logs_${new Date().toISOString().slice(0, 10)}`,
+      defaultFormat,
+      availableFormats: ['csv', 'xlsx', 'pdf'],
+      headers,
+      rows,
+      generatePdfBlob,
+      title: 'Save Activity Audit Logs As'
+    });
+    setSaveAsModalOpen(true);
   };
 
   // Pagination
@@ -297,17 +306,17 @@ export const ActivityLogsPage = () => {
             </button>
 
             <button
-              onClick={handleExportPDF}
+              onClick={() => handleOpenExportSaveAs('pdf')}
               className="page-banner-btn-secondary"
-              title="Download formatted PDF audit report"
+              title="Save As formatted PDF audit report"
             >
               <Upload size={14} strokeWidth={2.2} /> Export PDF
             </button>
 
             <button
-              onClick={handleExportCSV}
+              onClick={() => handleOpenExportSaveAs('csv')}
               className="page-banner-btn-secondary"
-              title="Download CSV audit log"
+              title="Save As CSV / Excel audit log"
             >
               <FileText size={14} strokeWidth={2.2} /> Export CSV
             </button>
@@ -1238,6 +1247,20 @@ export const ActivityLogsPage = () => {
           onClose={() => setIsBackupModalOpen(false)}
         />
       )}
+
+      {/* Save As / Export Modal */}
+      <SaveAsModal
+        isOpen={saveAsModalOpen}
+        onClose={() => setSaveAsModalOpen(false)}
+        defaultFilename={saveAsConfig.defaultFilename}
+        defaultFormat={saveAsConfig.defaultFormat}
+        availableFormats={saveAsConfig.availableFormats}
+        headers={saveAsConfig.headers}
+        rows={saveAsConfig.rows}
+        generatePdfBlob={saveAsConfig.generatePdfBlob}
+        userEmail={user?.email || 'viotrack.cloud@gmail.com'}
+        title={saveAsConfig.title}
+      />
     </div>
   );
 };

@@ -37,6 +37,7 @@ import {
 } from 'lucide-react';
 import { getJsPDF } from '../utils/pdfHelper';
 import { exportToCsv } from '../utils/csvHelper';
+import { SaveAsModal } from '../components/common/SaveAsModal';
 
 import { ViewModeToggle } from '../components/common/ViewModeToggle';
 import { SkeletonTable, SkeletonCardGrid } from '../components/common/SkeletonLoader';
@@ -70,6 +71,16 @@ export const StudentsPage = () => {
   const [students, setStudents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState('list'); // 'list' | 'grid'
+  const [saveAsModalOpen, setSaveAsModalOpen] = useState(false);
+  const [saveAsConfig, setSaveAsConfig] = useState({
+    defaultFilename: 'Viotrack_Students',
+    defaultFormat: 'csv',
+    availableFormats: ['csv', 'xlsx', 'pdf'],
+    headers: [],
+    rows: [],
+    generatePdfBlob: null,
+    title: 'Save Student Roster As'
+  });
 
   // Keyboard navigation shortcuts
   useKeyboardShortcuts({
@@ -309,9 +320,24 @@ export const StudentsPage = () => {
     }
   };
 
-  // PDF Export
-  const handleExportStudents = async () => {
-    try {
+  // Save As Export Handler
+  const handleOpenExportSaveAs = (defaultFormat = 'csv') => {
+    const headers = ['Student ID', 'First Name', 'Middle Name', 'Last Name', 'Grade', 'Strand', 'Section', 'Gender', 'Contact', 'Parent Name', 'Parent Contact'];
+    const rows = filteredAndSortedStudents.map(s => [
+      s.lrn,
+      s.fname,
+      s.mname || '',
+      s.lname,
+      s.grade,
+      getStudentStrand(s),
+      s.section,
+      s.gender || 'N/A',
+      s.contact || 'N/A',
+      s.parent_name || 'N/A',
+      s.parent_contact || 'N/A'
+    ]);
+
+    const generatePdfBlob = async () => {
       const doc = await getJsPDF();
       doc.setFontSize(16);
       doc.setTextColor(39, 54, 127);
@@ -341,36 +367,19 @@ export const StudentsPage = () => {
         styles: { fontSize: 8.5 }
       });
 
-      doc.save(`Viotrack_Student_Roster_${Date.now()}.pdf`);
-      success('Exported Student Roster PDF successfully!');
-    } catch (err) {
-      error('Failed to export PDF: ' + err.message);
-    }
-  };
+      return doc.output('blob');
+    };
 
-  // CSV Export
-  const handleExportCsv = () => {
-    try {
-      const headers = ['Student ID', 'First Name', 'Middle Name', 'Last Name', 'Grade', 'Strand', 'Section', 'Gender', 'Contact', 'Parent Name', 'Parent Contact'];
-      const rows = filteredAndSortedStudents.map(s => [
-        s.lrn,
-        s.fname,
-        s.mname || '',
-        s.lname,
-        s.grade,
-        getStudentStrand(s),
-        s.section,
-        s.gender || 'N/A',
-        s.contact || 'N/A',
-        s.parent_name || 'N/A',
-        s.parent_contact || 'N/A'
-      ]);
-
-      exportToCsv(`Viotrack_Students_${Date.now()}`, headers, rows);
-      success(`Exported ${rows.length} students to CSV!`);
-    } catch (err) {
-      error('Failed to export CSV: ' + err.message);
-    }
+    setSaveAsConfig({
+      defaultFilename: `Viotrack_Students_${new Date().toISOString().slice(0, 10)}`,
+      defaultFormat,
+      availableFormats: ['csv', 'xlsx', 'pdf'],
+      headers,
+      rows,
+      generatePdfBlob,
+      title: 'Save Student Roster As'
+    });
+    setSaveAsModalOpen(true);
   };
 
   // Pagination
@@ -430,17 +439,17 @@ export const StudentsPage = () => {
 
           <div className="page-banner-secondary-group">
             <button
-              onClick={handleExportStudents}
+              onClick={() => handleOpenExportSaveAs('pdf')}
               className="page-banner-btn-secondary"
-              title="Download formatted PDF student roster"
+              title="Save As formatted PDF student roster"
             >
               <Download size={14} strokeWidth={2.2} /> Export PDF
             </button>
 
             <button
-              onClick={handleExportCsv}
+              onClick={() => handleOpenExportSaveAs('csv')}
               className="page-banner-btn-secondary"
-              title="Download CSV spreadsheet"
+              title="Save As CSV / Excel spreadsheet"
             >
               <FileSpreadsheet size={14} strokeWidth={2.2} /> Export CSV
             </button>
@@ -1673,6 +1682,20 @@ export const StudentsPage = () => {
         onClose={() => setIsBulkImportOpen(false)}
         onImported={loadStudents}
         initialFormat={bulkImportFormat}
+      />
+
+      {/* Save As / Export Modal */}
+      <SaveAsModal
+        isOpen={saveAsModalOpen}
+        onClose={() => setSaveAsModalOpen(false)}
+        defaultFilename={saveAsConfig.defaultFilename}
+        defaultFormat={saveAsConfig.defaultFormat}
+        availableFormats={saveAsConfig.availableFormats}
+        headers={saveAsConfig.headers}
+        rows={saveAsConfig.rows}
+        generatePdfBlob={saveAsConfig.generatePdfBlob}
+        userEmail={user?.email || 'viotrack.cloud@gmail.com'}
+        title={saveAsConfig.title}
       />
     </div>
   );

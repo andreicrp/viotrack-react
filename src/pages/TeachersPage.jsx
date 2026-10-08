@@ -7,6 +7,7 @@ import { CustomSelect } from '../components/common/CustomSelect';
 import { ViewModeToggle } from '../components/common/ViewModeToggle';
 import { useNotification } from '../context/NotificationContext';
 import { exportToCsv } from '../utils/csvHelper';
+import { SaveAsModal } from '../components/common/SaveAsModal';
 import {
   GraduationCap,
   UserCheck,
@@ -40,6 +41,16 @@ export const TeachersPage = () => {
   const [advisers, setAdvisers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState('list'); // 'list' | 'grid'
+  const [saveAsModalOpen, setSaveAsModalOpen] = useState(false);
+  const [saveAsConfig, setSaveAsConfig] = useState({
+    defaultFilename: 'Viotrack_Faculty',
+    defaultFormat: 'csv',
+    availableFormats: ['csv', 'xlsx', 'pdf'],
+    headers: [],
+    rows: [],
+    generatePdfBlob: null,
+    title: 'Save Faculty Directory As'
+  });
 
   // Search & Filter
   const [searchTerm, setSearchTerm] = useState('');
@@ -168,72 +179,76 @@ export const TeachersPage = () => {
     }
   };
 
-  const handleExportPDF = async () => {
-    const doc = await getJsPDF();
-    doc.setFillColor(39, 54, 127);
-    doc.rect(0, 0, 210, 24, 'F');
-
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(14);
-    doc.setFont('helvetica', 'bold');
-    doc.text('UNIVERSITY OF PERPETUAL HELP SYSTEM MANILA', 14, 11);
-    doc.setFontSize(9);
-    doc.setFont('helvetica', 'normal');
-    doc.text('Faculty Directory & Section Advisers Master Roster', 14, 18);
-
-    doc.setTextColor(30, 41, 59);
-    doc.setFontSize(9);
-    doc.text(`Total Active Faculty: ${filteredAndSorted.length} | Generated: ${new Date().toLocaleDateString()}`, 14, 30);
-
-    const tableData = filteredAndSorted.map(t => {
+  // Export via SaveAs
+  const handleOpenExportSaveAs = (defaultFormat = 'csv') => {
+    const headers = ['First Name', 'Middle Name', 'Last Name', 'Position', 'Department', 'Specialization', 'Advisory', 'Email', 'Contact', 'Gender'];
+    const rows = filteredAndSorted.map(t => {
       const adv = advisers.find(a => a.teacher_id === t.id);
-      const advText = adv ? `${adv.grade_level} - ${adv.class_section}` : 'Subject Teacher';
+      const advText = adv ? `${adv.grade_level} - ${adv.class_section}` : 'None';
       return [
-        `${t.fname} ${t.lname}`,
+        t.fname,
+        t.mname || '',
+        t.lname,
         t.position || 'Teacher',
         t.department || 'Academic Faculty',
+        t.specialization || 'General Education',
         advText,
-        t.email
+        t.email || '',
+        t.contact || '',
+        t.gender || 'Male'
       ];
     });
 
-    doc.autoTable({
-      head: [['Faculty Name', 'Academic Rank', 'Department', 'Advisory Assignment', 'Institutional Email']],
-      body: tableData,
-      startY: 34,
-      theme: 'striped',
-      headStyles: { fillColor: [39, 54, 127], fontStyle: 'bold' }
-    });
+    const generatePdfBlob = async () => {
+      const doc = await getJsPDF();
+      doc.setFillColor(39, 54, 127);
+      doc.rect(0, 0, 210, 24, 'F');
 
-    doc.save(`Viotrack_Faculty_Directory_${Date.now()}.pdf`);
-    success('Exported Faculty Directory as PDF!');
-  };
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(14);
+      doc.setFont('helvetica', 'bold');
+      doc.text('UNIVERSITY OF PERPETUAL HELP SYSTEM MANILA', 14, 11);
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'normal');
+      doc.text('Faculty Directory & Section Advisers Master Roster', 14, 18);
 
-  const handleExportCSV = () => {
-    try {
-      const headers = ['First Name', 'Middle Name', 'Last Name', 'Position', 'Department', 'Specialization', 'Advisory', 'Email', 'Contact', 'Gender'];
-      const rows = filteredAndSorted.map(t => {
+      doc.setTextColor(30, 41, 59);
+      doc.setFontSize(9);
+      doc.text(`Total Active Faculty: ${filteredAndSorted.length} | Generated: ${new Date().toLocaleDateString()}`, 14, 30);
+
+      const tableData = filteredAndSorted.map(t => {
         const adv = advisers.find(a => a.teacher_id === t.id);
-        const advText = adv ? `${adv.grade_level} - ${adv.class_section}` : 'None';
+        const advText = adv ? `${adv.grade_level} - ${adv.class_section}` : 'Subject Teacher';
         return [
-          t.fname,
-          t.mname || '',
-          t.lname,
+          `${t.fname} ${t.lname}`,
           t.position || 'Teacher',
           t.department || 'Academic Faculty',
-          t.specialization || 'General Education',
           advText,
-          t.email || '',
-          t.contact || '',
-          t.gender || 'Male'
+          t.email
         ];
       });
 
-      exportToCsv(`Viotrack_Faculty_${Date.now()}`, headers, rows);
-      success(`Exported ${rows.length} faculty members to CSV!`);
-    } catch (err) {
-      error('Failed to export CSV: ' + err.message);
-    }
+      doc.autoTable({
+        head: [['Faculty Name', 'Academic Rank', 'Department', 'Advisory Assignment', 'Institutional Email']],
+        body: tableData,
+        startY: 34,
+        theme: 'striped',
+        headStyles: { fillColor: [39, 54, 127], fontStyle: 'bold' }
+      });
+
+      return doc.output('blob');
+    };
+
+    setSaveAsConfig({
+      defaultFilename: `Viotrack_Faculty_${new Date().toISOString().slice(0, 10)}`,
+      defaultFormat,
+      availableFormats: ['csv', 'xlsx', 'pdf'],
+      headers,
+      rows,
+      generatePdfBlob,
+      title: 'Save Faculty Directory As'
+    });
+    setSaveAsModalOpen(true);
   };
 
   const deferredSearch = useDeferredValue(searchTerm);
@@ -320,17 +335,17 @@ export const TeachersPage = () => {
         <div className="page-banner-actions">
           <div className="page-banner-secondary-group">
             <button
-              onClick={handleExportPDF}
+              onClick={() => handleOpenExportSaveAs('pdf')}
               className="page-banner-btn-secondary"
-              title="Download formatted PDF faculty directory"
+              title="Save As formatted PDF faculty directory"
             >
               <Download size={14} strokeWidth={2.2} /> Export PDF
             </button>
 
             <button
-              onClick={handleExportCSV}
+              onClick={() => handleOpenExportSaveAs('csv')}
               className="page-banner-btn-secondary"
-              title="Download CSV spreadsheet"
+              title="Save As CSV / Excel spreadsheet"
             >
               <FileSpreadsheet size={14} strokeWidth={2.2} /> Export CSV
             </button>
@@ -1267,6 +1282,20 @@ export const TeachersPage = () => {
         onClose={() => setIsBulkImportOpen(false)}
         onImported={loadData}
         initialFormat={bulkImportFormat}
+      />
+
+      {/* Save As / Export Modal */}
+      <SaveAsModal
+        isOpen={saveAsModalOpen}
+        onClose={() => setSaveAsModalOpen(false)}
+        defaultFilename={saveAsConfig.defaultFilename}
+        defaultFormat={saveAsConfig.defaultFormat}
+        availableFormats={saveAsConfig.availableFormats}
+        headers={saveAsConfig.headers}
+        rows={saveAsConfig.rows}
+        generatePdfBlob={saveAsConfig.generatePdfBlob}
+        userEmail={user?.email || 'viotrack.cloud@gmail.com'}
+        title={saveAsConfig.title}
       />
     </div>
   );

@@ -32,10 +32,21 @@ import {
   Download
 } from 'lucide-react';
 import { getJsPDF } from '../utils/pdfHelper';
+import { SaveAsModal } from '../components/common/SaveAsModal';
 
 export const AdminUsersPage = () => {
   const { success, error, info } = useNotification();
   const [viewMode, setViewMode] = useState('list'); // 'list' | 'grid'
+  const [saveAsModalOpen, setSaveAsModalOpen] = useState(false);
+  const [saveAsConfig, setSaveAsConfig] = useState({
+    defaultFilename: 'Viotrack_Administrators',
+    defaultFormat: 'csv',
+    availableFormats: ['csv', 'xlsx', 'pdf'],
+    headers: [],
+    rows: [],
+    generatePdfBlob: null,
+    title: 'Save Administrators Directory As'
+  });
   const [adminUsers, setAdminUsers] = useState([
     {
       id: 1,
@@ -237,60 +248,64 @@ export const AdminUsersPage = () => {
     }
   };
 
-  const handleExportPDF = async () => {
-    const doc = await getJsPDF();
-    doc.setFillColor(39, 54, 127);
-    doc.rect(0, 0, 210, 24, 'F');
-
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(14);
-    doc.setFont('helvetica', 'bold');
-    doc.text('UNIVERSITY OF PERPETUAL HELP SYSTEM MANILA', 14, 11);
-    doc.setFontSize(9);
-    doc.setFont('helvetica', 'normal');
-    doc.text('VioTrack Disciplinary System - Official Administrators Registry', 14, 18);
-
-    doc.setTextColor(30, 41, 59);
-    doc.setFontSize(9);
-    doc.text(`Total Active Administrators: ${filteredAndSorted.length} | Generated: ${new Date().toLocaleDateString()}`, 14, 30);
-
-    const tableData = filteredAndSorted.map(a => [
-      `${a.fname} ${a.mname ? a.mname + ' ' : ''}${a.lname}`.trim(),
-      a.role || 'Admin',
+  // Export via SaveAs
+  const handleOpenExportSaveAs = (defaultFormat = 'csv') => {
+    const headers = ['First Name', 'Middle Name', 'Last Name', 'Email', 'Role', 'Position', 'Contact'];
+    const rows = filteredAndSorted.map(a => [
+      a.fname,
+      a.mname || '',
+      a.lname,
+      a.email,
+      a.role || 'Staff',
       a.position || 'Administrative Officer',
-      a.email
+      a.contact || 'N/A'
     ]);
 
-    doc.autoTable({
-      head: [['Administrator Name', 'Privilege Level', 'Department / Role', 'Email Address']],
-      body: tableData,
-      startY: 34,
-      theme: 'striped',
-      headStyles: { fillColor: [39, 54, 127], fontStyle: 'bold' }
-    });
+    const generatePdfBlob = async () => {
+      const doc = await getJsPDF();
+      doc.setFillColor(39, 54, 127);
+      doc.rect(0, 0, 210, 24, 'F');
 
-    doc.save(`Viotrack_Administrators_${Date.now()}.pdf`);
-    success('Exported Administrators Registry as PDF!');
-  };
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(14);
+      doc.setFont('helvetica', 'bold');
+      doc.text('UNIVERSITY OF PERPETUAL HELP SYSTEM MANILA', 14, 11);
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'normal');
+      doc.text('VioTrack Disciplinary System - Official Administrators Registry', 14, 18);
 
-  const handleExportCSV = () => {
-    try {
-      const headers = ['First Name', 'Middle Name', 'Last Name', 'Email', 'Role', 'Position', 'Contact'];
-      const rows = filteredAndSorted.map(a => [
-        a.fname,
-        a.mname || '',
-        a.lname,
-        a.email,
-        a.role || 'Staff',
+      doc.setTextColor(30, 41, 59);
+      doc.setFontSize(9);
+      doc.text(`Total Active Administrators: ${filteredAndSorted.length} | Generated: ${new Date().toLocaleDateString()}`, 14, 30);
+
+      const tableData = filteredAndSorted.map(a => [
+        `${a.fname} ${a.mname ? a.mname + ' ' : ''}${a.lname}`.trim(),
+        a.role || 'Admin',
         a.position || 'Administrative Officer',
-        a.contact || 'N/A'
+        a.email
       ]);
 
-      exportToCsv(`Viotrack_Administrators_${Date.now()}`, headers, rows);
-      success(`Exported ${rows.length} administrators to CSV!`);
-    } catch (err) {
-      error('Failed to export CSV: ' + err.message);
-    }
+      doc.autoTable({
+        head: [['Administrator Name', 'Privilege Level', 'Department / Role', 'Email Address']],
+        body: tableData,
+        startY: 34,
+        theme: 'striped',
+        headStyles: { fillColor: [39, 54, 127], fontStyle: 'bold' }
+      });
+
+      return doc.output('blob');
+    };
+
+    setSaveAsConfig({
+      defaultFilename: `Viotrack_Administrators_${new Date().toISOString().slice(0, 10)}`,
+      defaultFormat,
+      availableFormats: ['csv', 'xlsx', 'pdf'],
+      headers,
+      rows,
+      generatePdfBlob,
+      title: 'Save Administrators Directory As'
+    });
+    setSaveAsModalOpen(true);
   };
 
   const deferredSearch = useDeferredValue(searchTerm);
@@ -383,17 +398,17 @@ export const AdminUsersPage = () => {
         <div className="page-banner-actions">
           <div className="page-banner-secondary-group">
             <button
-              onClick={handleExportPDF}
+              onClick={() => handleOpenExportSaveAs('pdf')}
               className="page-banner-btn-secondary"
-              title="Download formatted PDF administrator roster"
+              title="Save As formatted PDF administrator roster"
             >
               <Download size={14} strokeWidth={2.2} /> Export PDF
             </button>
 
             <button
-              onClick={handleExportCSV}
+              onClick={() => handleOpenExportSaveAs('csv')}
               className="page-banner-btn-secondary"
-              title="Download CSV spreadsheet"
+              title="Save As CSV / Excel spreadsheet"
             >
               <FileSpreadsheet size={14} strokeWidth={2.2} /> Export CSV
             </button>
@@ -1451,6 +1466,20 @@ export const AdminUsersPage = () => {
         onClose={() => setIsBulkImportOpen(false)}
         onImported={loadAdmins}
         initialFormat={bulkImportFormat}
+      />
+
+      {/* Save As / Export Modal */}
+      <SaveAsModal
+        isOpen={saveAsModalOpen}
+        onClose={() => setSaveAsModalOpen(false)}
+        defaultFilename={saveAsConfig.defaultFilename}
+        defaultFormat={saveAsConfig.defaultFormat}
+        availableFormats={saveAsConfig.availableFormats}
+        headers={saveAsConfig.headers}
+        rows={saveAsConfig.rows}
+        generatePdfBlob={saveAsConfig.generatePdfBlob}
+        userEmail={'viotrack.cloud@gmail.com'}
+        title={saveAsConfig.title}
       />
     </div>
   );

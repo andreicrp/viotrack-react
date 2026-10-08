@@ -32,6 +32,7 @@ import {
 } from 'lucide-react';
 import { getJsPDF } from '../utils/pdfHelper';
 import { exportToCsv } from '../utils/csvHelper';
+import { SaveAsModal } from '../components/common/SaveAsModal';
 
 export const MyClassPage = () => {
   const { id } = useParams();
@@ -43,6 +44,16 @@ export const MyClassPage = () => {
   const [students, setStudents] = useState([]);
   const [records, setRecords] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [saveAsModalOpen, setSaveAsModalOpen] = useState(false);
+  const [saveAsConfig, setSaveAsConfig] = useState({
+    defaultFilename: 'Class_Roster',
+    defaultFormat: 'csv',
+    availableFormats: ['csv', 'xlsx', 'pdf'],
+    headers: [],
+    rows: [],
+    generatePdfBlob: null,
+    title: 'Save Class Roster As'
+  });
 
   // Search & Filter
   const [searchTerm, setSearchTerm] = useState('');
@@ -157,9 +168,26 @@ export const MyClassPage = () => {
     });
   }, [students, records, searchTerm, statusFilter]);
 
-  // Export Class Roster PDF
-  const handleExportPDF = async () => {
-    try {
+  // Export Class Roster via SaveAs
+  const handleOpenExportSaveAs = (defaultFormat = 'csv') => {
+    const headers = ['Student ID', 'Last Name', 'First Name', 'Middle Name', 'Grade', 'Section', 'Gender', 'Contact', 'Violations Count', 'Conduct Standing'];
+    const rows = filteredStudents.map(s => {
+      const vCount = records.filter(r => r.student_id === s.id).length;
+      return [
+        s.lrn,
+        s.lname,
+        s.fname,
+        s.mname || '',
+        s.grade,
+        s.section,
+        s.gender || 'N/A',
+        s.contact || s.email || 'N/A',
+        vCount,
+        vCount === 0 ? 'Good Standing' : `${vCount} Recorded Infraction(s)`
+      ];
+    });
+
+    const generatePdfBlob = async () => {
       const doc = await getJsPDF();
       doc.setFontSize(16);
       doc.setTextColor(39, 54, 127);
@@ -192,38 +220,19 @@ export const MyClassPage = () => {
         styles: { fontSize: 9 }
       });
 
-      doc.save(`Advisory_Roster_${adviser?.class_section || 'Class'}_${Date.now()}.pdf`);
-      success('Class roster exported as PDF successfully.');
-    } catch (err) {
-      error('Failed to export PDF: ' + err.message);
-    }
-  };
+      return doc.output('blob');
+    };
 
-  // Export Class Roster CSV
-  const handleExportCSV = () => {
-    try {
-      const headers = ['Student ID', 'Last Name', 'First Name', 'Middle Name', 'Grade', 'Section', 'Gender', 'Contact', 'Violations Count', 'Conduct Standing'];
-      const rows = filteredStudents.map(s => {
-        const vCount = records.filter(r => r.student_id === s.id).length;
-        return [
-          s.lrn,
-          s.lname,
-          s.fname,
-          s.mname || '',
-          s.grade,
-          s.section,
-          s.gender || 'N/A',
-          s.contact || s.email || 'N/A',
-          vCount,
-          vCount === 0 ? 'Good Standing' : `${vCount} Recorded Infraction(s)`
-        ];
-      });
-
-      exportToCsv(`Viotrack_Class_Roster_${adviser?.class_section || 'Class'}_${Date.now()}`, headers, rows);
-      success(`Exported ${rows.length} class students to CSV!`);
-    } catch (err) {
-      error('Failed to export CSV: ' + err.message);
-    }
+    setSaveAsConfig({
+      defaultFilename: `Class_Roster_${adviser?.class_section || 'Section'}_${new Date().toISOString().slice(0, 10)}`,
+      defaultFormat,
+      availableFormats: ['csv', 'xlsx', 'pdf'],
+      headers,
+      rows,
+      generatePdfBlob,
+      title: 'Save Class Roster As'
+    });
+    setSaveAsModalOpen(true);
   };
 
   const teacher = adviser?.teacher || {};
@@ -334,18 +343,18 @@ export const MyClassPage = () => {
             </button>
 
             <button
-              onClick={handleExportCSV}
+              onClick={() => handleOpenExportSaveAs('csv')}
               className="page-banner-btn-secondary"
-              title="Download CSV roster"
+              title="Save As CSV / Excel roster"
             >
               <FileText size={14} strokeWidth={2.2} /> Export CSV
             </button>
           </div>
 
           <button
-            onClick={handleExportPDF}
+            onClick={() => handleOpenExportSaveAs('pdf')}
             className="page-banner-primary-btn"
-            title="Download formatted PDF class roster"
+            title="Save As formatted PDF class roster"
           >
             <Upload size={14} strokeWidth={2.2} /> Export Roster (PDF)
           </button>
@@ -810,6 +819,20 @@ export const MyClassPage = () => {
           }}
         />
       )}
+
+      {/* Save As / Export Modal */}
+      <SaveAsModal
+        isOpen={saveAsModalOpen}
+        onClose={() => setSaveAsModalOpen(false)}
+        defaultFilename={saveAsConfig.defaultFilename}
+        defaultFormat={saveAsConfig.defaultFormat}
+        availableFormats={saveAsConfig.availableFormats}
+        headers={saveAsConfig.headers}
+        rows={saveAsConfig.rows}
+        generatePdfBlob={saveAsConfig.generatePdfBlob}
+        userEmail={user?.email || 'viotrack.cloud@gmail.com'}
+        title={saveAsConfig.title}
+      />
     </div>
   );
 };
