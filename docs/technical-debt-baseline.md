@@ -341,3 +341,10 @@ Clean latest main passed **4 existing tests**, lint (**413 warnings, 0 errors**)
 Latest main is [`116e7ab55e15b70feb08d527637e04c00592cff6`](https://github.com/andreicrp/viotrack-react/commit/116e7ab55e15b70feb08d527637e04c00592cff6). It updates the Save As modal to enumerate/save device files directly on APK; no data-service or dependency files changed.
 
 Clean latest main passed **4 existing tests**, lint (**412 warnings, 0 errors**), and build (2,674.21 kB `vendor-react`, gzip 791.67 kB; PDF worker 1,264.34 kB). After rebasing the existing PR onto `116e7ab`, **24 tests passed**, typecheck passed, lint passed (**411 warnings, 0 errors**), and build passed with matching vendor React and PDF worker bundle sizes.
+
+
+## Baseline after the 2026-10-08 Save As explorer updates
+
+Latest main is [`67e954549595195b02f0f6ab5ba23587d3daa3b9`](https://github.com/andreicrp/viotrack-react/commit/67e954549595195b02f0f6ab5ba23587d3daa3b9), following [`48b090e`](https://github.com/andreicrp/viotrack-react/commit/48b090e8a8b09a95830a718f3bf4eb8288418db7). These commits add colored file/folder icons and make the Save As explorer load real files per directory and save to the selected folder; no data-service or dependency files changed.
+
+Clean latest main passed **4 existing tests**, lint (**414 warnings, 0 errors**), and build (2,675.16 kB `vendor-react`, gzip 791.81 kB; PDF worker 1,264.34 kB). After rebasing the existing PR onto `67e9545`, **24 tests passed**, typecheck passed, lint passed (**413 warnings, 0 errors**), and build passed with matching vendor React and PDF worker bundle sizes.
