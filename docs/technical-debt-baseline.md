@@ -471,3 +471,9 @@ Clean latest main passed **22 tests across 5 test files**, lint (**431 warnings,
 Latest main is [`cc7befbd53f92412372f45de818505125500626b`](https://github.com/andreicrp/viotrack-react/commit/cc7befbd53f92412372f45de818505125500626b), modifying `App.jsx` and `InteractiveTourGuide.jsx` to route the guide to `/scan-qr` and add `/scan` as an alias. The prior baseline covers the lower-dashboard System Overview tour update; no data-service modules, tests, or dependencies changed in this commit.
 
 Clean latest main passed **22 tests across 5 test files**, lint (**431 warnings, 0 errors**), and build (2,675.64 kB `vendor-react`, gzip 792.00 kB; PDF worker 1,264.34 kB); clean main has no JSDoc typecheck script. After rebasing the PR onto `cc7befb`, **42 tests across 6 files passed**, `tsc -p tsconfig.check.json` passed, lint passed (**430 warnings, 0 errors**), and build passed with matching bundle sizes.
+
+## Baseline after the 2026-10-09 guide selector-priority update
+
+Latest main is [`764f5e54459101f0100abfc9e2db8b40434e9d8d`](https://github.com/andreicrp/viotrack-react/commit/764f5e54459101f0100abfc9e2db8b40434e9d8d), changing only `InteractiveTourGuide.jsx` to refine selector fallback/visibility priorities and add or adjust steps across tours. The prior entry records the immediately preceding scanner-route alias update; this change introduces no service, test, or dependency edits.
+
+Clean latest main passed **22 tests across 5 test files**, lint (**431 warnings, 0 errors**), and build (2,675.64 kB `vendor-react`, gzip 792.00 kB; PDF worker 1,264.34 kB); clean main has no JSDoc typecheck script. After rebasing the PR onto `764f5e5`, **42 tests across 6 files passed**, `tsc -p tsconfig.check.json` passed, lint passed (**430 warnings, 0 errors**), and build passed with matching bundle sizes.
