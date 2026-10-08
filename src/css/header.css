@@ -1261,4 +1261,23 @@ body {
         width: auto;
         max-width: none;
     }
+
+    .header-clock-date {
+        display: none !important;
+    }
+
+    .header-clock-pill {
+        padding: 5px 8px !important;
+    }
+}
+
+.header-clock-pill:hover {
+    background: #f1f5f9 !important;
+    border-color: #cbd5e1 !important;
+}
+
+@media (max-width: 480px) {
+    .header-clock-pill {
+        display: none !important;
+    }
 }

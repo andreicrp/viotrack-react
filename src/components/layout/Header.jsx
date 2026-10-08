@@ -24,10 +24,34 @@ export const Header = ({ onToggleSidebar }) => {
   const [showNotifDropdown, setShowNotifDropdown] = useState(false);
   const [isBackupModalOpen, setIsBackupModalOpen] = useState(false);
   const [pendingApprovals, setPendingApprovals] = useState([]);
+  const [currentTime, setCurrentTime] = useState(() => new Date());
   const dropdownRef = useRef(null);
   const notifRef = useRef(null);
 
   const isAdmin = user?.role === 'admin';
+
+  // Live 24-hour clock timer
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const format24HourTime = (d) => {
+    const h = String(d.getHours()).padStart(2, '0');
+    const m = String(d.getMinutes()).padStart(2, '0');
+    const s = String(d.getSeconds()).padStart(2, '0');
+    return `${h}:${m}:${s}`;
+  };
+
+  const formatDateLabel = (d) => {
+    return d.toLocaleDateString('en-US', {
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
 
   // Helper to check if a record is Under Approval
   const resolveApprovalStatus = (r) => {
@@ -167,6 +191,47 @@ export const Header = ({ onToggleSidebar }) => {
       </div>
 
       <div className="header-right" draggable={false}>
+        {/* 24-Hour Live Institutional Clock */}
+        <div
+          className="header-clock-pill"
+          title={`Philippine Standard Time • ${currentTime.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}`}
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '6px',
+            background: '#f8fafc',
+            border: '1px solid #e2e8f0',
+            borderRadius: '10px',
+            padding: '6px 11px',
+            color: '#0f172a',
+            fontSize: '13px',
+            fontWeight: 700,
+            fontVariantNumeric: 'tabular-nums',
+            boxShadow: '0 1px 2px rgba(0,0,0,0.02)',
+            userSelect: 'none',
+            cursor: 'default',
+            marginRight: '4px'
+          }}
+        >
+          <Clock size={15} color="#07345f" style={{ flexShrink: 0 }} />
+          <span style={{ fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace', fontSize: '13px', fontWeight: 800, color: '#07345f' }}>
+            {format24HourTime(currentTime)}
+          </span>
+          <span
+            className="header-clock-date"
+            style={{
+              fontSize: '11px',
+              fontWeight: 600,
+              color: '#64748b',
+              paddingLeft: '5px',
+              borderLeft: '1px solid #cbd5e1',
+              marginLeft: '2px'
+            }}
+          >
+            {formatDateLabel(currentTime)}
+          </span>
+        </div>
+
         {/* Notification Bell next to profile */}
         <div className="header-notif-wrap" ref={notifRef} draggable={false}>
           <button
