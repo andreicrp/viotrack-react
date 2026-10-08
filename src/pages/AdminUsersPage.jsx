@@ -445,15 +445,15 @@ export const AdminUsersPage = () => {
         </div>
       </div>
 
-      <div className="card" style={{ padding: '24px', background: '#ffffff', borderRadius: '16px', border: '1px solid #e2e8f0', boxShadow: '0 4px 20px rgba(0, 0, 0, 0.04)' }}>
+      <div className="card" style={{ padding: '24px', background: 'var(--bg-surface, #ffffff)', borderRadius: '16px', border: '1px solid var(--border-subtle, #e2e8f0)', boxShadow: '0 4px 20px rgba(0, 0, 0, 0.04)' }}>
         {/* 2. Stat Filter Cards */}
         <div className="metric-cards-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' }}>
           {/* Total Admins */}
           <div
             onClick={() => setSelectedRoleFilter('all')}
             style={{
-              background: '#ffffff',
-              border: selectedRoleFilter === 'all' ? '2px solid #07345f' : '1.5px solid #cbd5e1',
+              background: 'var(--bg-surface, #ffffff)',
+              border: selectedRoleFilter === 'all' ? '2px solid var(--brand-blue, #07345f)' : '1.5px solid var(--border-subtle, #cbd5e1)',
               borderRadius: '12px',
               padding: '14px 16px',
               cursor: 'pointer',
@@ -464,17 +464,17 @@ export const AdminUsersPage = () => {
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div>
-                <div style={{ fontSize: '11.5px', fontWeight: 800, color: '#07345f', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                <div style={{ fontSize: '11.5px', fontWeight: 800, color: 'var(--brand-blue, #07345f)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                   TOTAL ADMINS
                 </div>
-                <div style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', margin: '4px 0 2px 0', lineHeight: 1.1 }}>
+                <div style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-primary, #0f172a)', margin: '4px 0 2px 0', lineHeight: 1.1 }}>
                   {stats.total}
                 </div>
-                <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 500 }}>
+                <div style={{ fontSize: '11px', color: 'var(--text-muted, #64748b)', fontWeight: 500 }}>
                   System administration users
                 </div>
               </div>
-              <Users size={20} color="#07345f" strokeWidth={2} />
+              <Users size={20} color="var(--brand-blue, #07345f)" strokeWidth={2} />
             </div>
           </div>
 
@@ -482,8 +482,8 @@ export const AdminUsersPage = () => {
           <div
             onClick={() => setSelectedRoleFilter(selectedRoleFilter === 'Head Admin' ? 'all' : 'Head Admin')}
             style={{
-              background: '#ffffff',
-              border: selectedRoleFilter === 'Head Admin' ? '2px solid #07345f' : '1.5px solid #cbd5e1',
+              background: 'var(--bg-surface, #ffffff)',
+              border: selectedRoleFilter === 'Head Admin' ? '2px solid var(--brand-blue, #07345f)' : '1.5px solid var(--border-subtle, #cbd5e1)',
               borderRadius: '12px',
               padding: '14px 16px',
               cursor: 'pointer',
@@ -494,17 +494,17 @@ export const AdminUsersPage = () => {
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div>
-                <div style={{ fontSize: '11.5px', fontWeight: 800, color: '#07345f', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                <div style={{ fontSize: '11.5px', fontWeight: 800, color: 'var(--brand-blue, #07345f)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                   HEAD ADMINS
                 </div>
-                <div style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', margin: '4px 0 2px 0', lineHeight: 1.1 }}>
+                <div style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-primary, #0f172a)', margin: '4px 0 2px 0', lineHeight: 1.1 }}>
                   {stats.headAdmins}
                 </div>
-                <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 500 }}>
+                <div style={{ fontSize: '11px', color: 'var(--text-muted, #64748b)', fontWeight: 500 }}>
                   Full executive privileges
                 </div>
               </div>
-              <Shield size={20} color="#07345f" strokeWidth={2} />
+              <Shield size={20} color="var(--brand-blue, #07345f)" strokeWidth={2} />
             </div>
           </div>
 
@@ -512,8 +512,8 @@ export const AdminUsersPage = () => {
           <div
             onClick={() => setSelectedRoleFilter(selectedRoleFilter === 'Discipline Officer' ? 'all' : 'Discipline Officer')}
             style={{
-              background: '#ffffff',
-              border: selectedRoleFilter === 'Discipline Officer' ? '2px solid #07345f' : '1.5px solid #cbd5e1',
+              background: 'var(--bg-surface, #ffffff)',
+              border: selectedRoleFilter === 'Discipline Officer' ? '2px solid var(--brand-blue, #07345f)' : '1.5px solid var(--border-subtle, #cbd5e1)',
               borderRadius: '12px',
               padding: '14px 16px',
               cursor: 'pointer',
@@ -524,17 +524,17 @@ export const AdminUsersPage = () => {
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div>
-                <div style={{ fontSize: '11.5px', fontWeight: 800, color: '#07345f', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                <div style={{ fontSize: '11.5px', fontWeight: 800, color: 'var(--brand-blue, #07345f)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                   DISCIPLINE OFFICERS
                 </div>
-                <div style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', margin: '4px 0 2px 0', lineHeight: 1.1 }}>
+                <div style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-primary, #0f172a)', margin: '4px 0 2px 0', lineHeight: 1.1 }}>
                   {stats.disciplineOfficers}
                 </div>
-                <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 500 }}>
+                <div style={{ fontSize: '11px', color: 'var(--text-muted, #64748b)', fontWeight: 500 }}>
                   Case review & hearings
                 </div>
               </div>
-              <ShieldCheck size={20} color="#07345f" strokeWidth={2} />
+              <ShieldCheck size={20} color="var(--brand-blue, #07345f)" strokeWidth={2} />
             </div>
           </div>
         </div>

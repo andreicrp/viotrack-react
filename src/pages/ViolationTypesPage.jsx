@@ -453,15 +453,15 @@ export const ViolationTypesPage = () => {
         </div>
       </div>
 
-      <div className="card" style={{ padding: '24px', background: '#ffffff', borderRadius: '16px', border: '1px solid #e2e8f0', boxShadow: '0 4px 20px rgba(0, 0, 0, 0.04)' }}>
+      <div className="card" style={{ padding: '24px', background: 'var(--bg-surface, #ffffff)', borderRadius: '16px', border: '1px solid var(--border-subtle, #e2e8f0)', boxShadow: '0 4px 20px rgba(0, 0, 0, 0.04)' }}>
         {/* 2. Four Interactive Stat Filter Cards */}
         <div className="metric-cards-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' }}>
           {/* Total Filter Card */}
           <div
             onClick={() => setSelectedSeverityFilter('all')}
             style={{
-              background: '#ffffff',
-              border: selectedSeverityFilter === 'all' ? '2px solid #07345f' : '1.5px solid #cbd5e1',
+              background: 'var(--bg-surface, #ffffff)',
+              border: selectedSeverityFilter === 'all' ? '2px solid var(--brand-blue, #07345f)' : '1.5px solid var(--border-subtle, #cbd5e1)',
               borderRadius: '12px',
               padding: '14px 16px',
               cursor: 'pointer',
@@ -472,17 +472,17 @@ export const ViolationTypesPage = () => {
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div>
-                <div style={{ fontSize: '11.5px', fontWeight: 800, color: '#07345f', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                <div style={{ fontSize: '11.5px', fontWeight: 800, color: 'var(--brand-blue, #07345f)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                   ALL OFFENSES
                 </div>
-                <div style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', margin: '4px 0 2px 0', lineHeight: 1.1 }}>
+                <div style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-primary, #0f172a)', margin: '4px 0 2px 0', lineHeight: 1.1 }}>
                   {stats.total}
                 </div>
-                <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 500 }}>
+                <div style={{ fontSize: '11px', color: 'var(--text-muted, #64748b)', fontWeight: 500 }}>
                   Total catalog categories
                 </div>
               </div>
-              <List size={20} color="#07345f" strokeWidth={2} />
+              <List size={20} color="var(--brand-blue, #07345f)" strokeWidth={2} />
             </div>
           </div>
 
@@ -490,8 +490,8 @@ export const ViolationTypesPage = () => {
           <div
             onClick={() => setSelectedSeverityFilter(selectedSeverityFilter === 'Minor' ? 'all' : 'Minor')}
             style={{
-              background: '#ffffff',
-              border: selectedSeverityFilter === 'Minor' ? '2px solid #07345f' : '1.5px solid #cbd5e1',
+              background: 'var(--bg-surface, #ffffff)',
+              border: selectedSeverityFilter === 'Minor' ? '2px solid var(--brand-blue, #07345f)' : '1.5px solid var(--border-subtle, #cbd5e1)',
               borderRadius: '12px',
               padding: '14px 16px',
               cursor: 'pointer',
@@ -502,17 +502,17 @@ export const ViolationTypesPage = () => {
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div>
-                <div style={{ fontSize: '11.5px', fontWeight: 800, color: '#07345f', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                <div style={{ fontSize: '11.5px', fontWeight: 800, color: 'var(--brand-blue, #07345f)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                   MINOR OFFENSES
                 </div>
-                <div style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', margin: '4px 0 2px 0', lineHeight: 1.1 }}>
+                <div style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-primary, #0f172a)', margin: '4px 0 2px 0', lineHeight: 1.1 }}>
                   {stats.minor}
                 </div>
-                <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 500 }}>
+                <div style={{ fontSize: '11px', color: 'var(--text-muted, #64748b)', fontWeight: 500 }}>
                   Warnings & compliance
                 </div>
               </div>
-              <ShieldCheck size={20} color="#07345f" strokeWidth={2} />
+              <ShieldCheck size={20} color="var(--brand-blue, #07345f)" strokeWidth={2} />
             </div>
           </div>
 
@@ -520,8 +520,8 @@ export const ViolationTypesPage = () => {
           <div
             onClick={() => setSelectedSeverityFilter(selectedSeverityFilter === 'Serious' ? 'all' : 'Serious')}
             style={{
-              background: '#ffffff',
-              border: selectedSeverityFilter === 'Serious' ? '2px solid #07345f' : '1.5px solid #cbd5e1',
+              background: 'var(--bg-surface, #ffffff)',
+              border: selectedSeverityFilter === 'Serious' ? '2px solid var(--brand-blue, #07345f)' : '1.5px solid var(--border-subtle, #cbd5e1)',
               borderRadius: '12px',
               padding: '14px 16px',
               cursor: 'pointer',
@@ -532,17 +532,17 @@ export const ViolationTypesPage = () => {
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div>
-                <div style={{ fontSize: '11.5px', fontWeight: 800, color: '#07345f', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                <div style={{ fontSize: '11.5px', fontWeight: 800, color: 'var(--brand-blue, #07345f)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                   SERIOUS OFFENSES
                 </div>
-                <div style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', margin: '4px 0 2px 0', lineHeight: 1.1 }}>
+                <div style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-primary, #0f172a)', margin: '4px 0 2px 0', lineHeight: 1.1 }}>
                   {stats.serious}
                 </div>
-                <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 500 }}>
+                <div style={{ fontSize: '11px', color: 'var(--text-muted, #64748b)', fontWeight: 500 }}>
                   Conferences required
                 </div>
               </div>
-              <AlertTriangle size={20} color="#07345f" strokeWidth={2} />
+              <AlertTriangle size={20} color="var(--brand-blue, #07345f)" strokeWidth={2} />
             </div>
           </div>
 
@@ -550,8 +550,8 @@ export const ViolationTypesPage = () => {
           <div
             onClick={() => setSelectedSeverityFilter(selectedSeverityFilter === 'Major' ? 'all' : 'Major')}
             style={{
-              background: '#ffffff',
-              border: selectedSeverityFilter === 'Major' ? '2px solid #07345f' : '1.5px solid #cbd5e1',
+              background: 'var(--bg-surface, #ffffff)',
+              border: selectedSeverityFilter === 'Major' ? '2px solid var(--brand-blue, #07345f)' : '1.5px solid var(--border-subtle, #cbd5e1)',
               borderRadius: '12px',
               padding: '14px 16px',
               cursor: 'pointer',
@@ -562,17 +562,17 @@ export const ViolationTypesPage = () => {
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div>
-                <div style={{ fontSize: '11.5px', fontWeight: 800, color: '#07345f', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                <div style={{ fontSize: '11.5px', fontWeight: 800, color: 'var(--brand-blue, #07345f)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                   MAJOR OFFENSES
                 </div>
-                <div style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', margin: '4px 0 2px 0', lineHeight: 1.1 }}>
+                <div style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-primary, #0f172a)', margin: '4px 0 2px 0', lineHeight: 1.1 }}>
                   {stats.major}
                 </div>
-                <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 500 }}>
+                <div style={{ fontSize: '11px', color: 'var(--text-muted, #64748b)', fontWeight: 500 }}>
                   Formal hearings
                 </div>
               </div>
-              <ShieldAlert size={20} color="#07345f" strokeWidth={2} />
+              <ShieldAlert size={20} color="var(--brand-blue, #07345f)" strokeWidth={2} />
             </div>
           </div>
         </div>
@@ -581,7 +581,7 @@ export const ViolationTypesPage = () => {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '12px', flexWrap: 'wrap', gap: '12px' }}>
           {/* Search Box */}
           <div style={{ position: 'relative', minWidth: '280px', flex: '1', maxWidth: '420px' }}>
-            <Search size={16} color="#94a3b8" style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)' }} />
+            <Search size={16} color="var(--text-muted, #94a3b8)" style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)' }} />
             <input
               type="text"
               placeholder="Search violation title, sanction, or keyword..."
@@ -594,11 +594,11 @@ export const ViolationTypesPage = () => {
                 width: '100%',
                 padding: '9px 12px 9px 36px',
                 borderRadius: '9px',
-                border: '1.5px solid #e2e8f0',
+                border: '1.5px solid var(--border-subtle, #e2e8f0)',
                 fontSize: '13px',
-                background: '#ffffff',
+                background: 'var(--bg-input, #ffffff)',
                 outline: 'none',
-                color: '#1f2937'
+                color: 'var(--text-primary, #1f2937)'
               }}
             />
             {searchTerm && (
@@ -613,7 +613,7 @@ export const ViolationTypesPage = () => {
 
           {/* Controls: Severity Tabs & Sort Menu */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-            <div style={{ display: 'flex', gap: '3px', background: '#f1f5f9', padding: '3px', borderRadius: '8px' }}>
+            <div style={{ display: 'flex', gap: '3px', background: 'var(--bg-surface-elevated, #f1f5f9)', padding: '3px', borderRadius: '8px', border: '1px solid var(--border-subtle, transparent)' }}>
               {[
                 { id: 'all', label: `All (${stats.total})` },
                 { id: 'Major', label: `Major (${stats.major})` },
@@ -625,8 +625,8 @@ export const ViolationTypesPage = () => {
                   onClick={() => setSelectedSeverityFilter(tab.id)}
                   style={{
                     border: 'none',
-                    background: selectedSeverityFilter === tab.id ? '#ffffff' : 'transparent',
-                    color: selectedSeverityFilter === tab.id ? '#1e293b' : '#64748b',
+                    background: selectedSeverityFilter === tab.id ? 'var(--bg-surface, #ffffff)' : 'transparent',
+                    color: selectedSeverityFilter === tab.id ? 'var(--brand-blue, #1e293b)' : 'var(--text-muted, #64748b)',
                     fontWeight: selectedSeverityFilter === tab.id ? 700 : 500,
                     fontSize: '12px',
                     padding: '5px 10px',
@@ -724,16 +724,16 @@ export const ViolationTypesPage = () => {
         )}
 
         {/* 4. Enhanced Violations Table with Sortable Columns (Desktop View) */}
-        <div className={`responsive-table-desktop table-container ${viewMode === 'grid' ? 'force-hidden' : ''}`} style={{ marginTop: '16px', border: '1px solid #e2e8f0', borderRadius: '12px', overflow: 'hidden' }}>
+        <div className={`responsive-table-desktop table-container ${viewMode === 'grid' ? 'force-hidden' : ''}`} style={{ marginTop: '16px', border: '1px solid var(--border-subtle, #e2e8f0)', borderRadius: '12px', overflow: 'hidden' }}>
           <table className="violation-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
-              <tr style={{ background: '#f8fafc', borderBottom: '1.5px solid #e2e8f0' }}>
+              <tr style={{ background: 'var(--bg-surface-elevated, #f8fafc)', borderBottom: '1.5px solid var(--border-subtle, #e2e8f0)' }}>
                 <th className="checkbox-col" style={{ width: 44, textAlign: 'center', padding: '14px 10px' }}>
                   <input
                     type="checkbox"
                     onChange={handleSelectAll}
                     checked={selectedIds.length > 0 && selectedIds.length === filteredAndSorted.length}
-                    style={{ width: 16, height: 16, cursor: 'pointer', accentColor: '#07345f' }}
+                    style={{ width: 16, height: 16, cursor: 'pointer', accentColor: 'var(--brand-blue, #07345f)' }}
                   />
                 </th>
 
@@ -744,7 +744,7 @@ export const ViolationTypesPage = () => {
                     padding: '14px 16px',
                     fontSize: '12px',
                     fontWeight: 800,
-                    color: '#334155',
+                    color: 'var(--text-primary, #334155)',
                     cursor: 'pointer',
                     userSelect: 'none',
                     letterSpacing: '0.04em'
@@ -762,7 +762,7 @@ export const ViolationTypesPage = () => {
                     padding: '14px 16px',
                     fontSize: '12px',
                     fontWeight: 800,
-                    color: '#334155',
+                    color: 'var(--text-primary, #334155)',
                     cursor: 'pointer',
                     userSelect: 'none',
                     letterSpacing: '0.04em',
@@ -781,7 +781,7 @@ export const ViolationTypesPage = () => {
                     padding: '14px 16px',
                     fontSize: '12px',
                     fontWeight: 800,
-                    color: '#334155',
+                    color: 'var(--text-primary, #334155)',
                     cursor: 'pointer',
                     userSelect: 'none',
                     letterSpacing: '0.04em',
@@ -799,7 +799,7 @@ export const ViolationTypesPage = () => {
                     padding: '14px 16px',
                     fontSize: '12px',
                     fontWeight: 800,
-                    color: '#334155',
+                    color: 'var(--text-primary, #334155)',
                     textAlign: 'right',
                     letterSpacing: '0.04em',
                     width: '180px'
@@ -813,13 +813,13 @@ export const ViolationTypesPage = () => {
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={5} style={{ textAlign: 'center', padding: '50px 20px', color: '#94a3b8' }}>
+                  <td colSpan={5} style={{ textAlign: 'center', padding: '50px 20px', color: 'var(--text-muted, #94a3b8)' }}>
                     Loading handbook offenses...
                   </td>
                 </tr>
               ) : paginated.length === 0 ? (
                 <tr>
-                  <td colSpan={5} style={{ textAlign: 'center', padding: '50px 20px', color: '#94a3b8' }}>
+                  <td colSpan={5} style={{ textAlign: 'center', padding: '50px 20px', color: 'var(--text-muted, #94a3b8)' }}>
                     <AlertCircle size={32} color="#cbd5e1" style={{ margin: '0 auto 8px auto', display: 'block' }} />
                     No violation categories found matching your filter criteria.
                   </td>
@@ -834,29 +834,27 @@ export const ViolationTypesPage = () => {
                     <tr
                       key={v.id}
                       style={{
-                        borderBottom: '1px solid #f1f5f9',
-                        background: isChecked ? '#f8fafc' : '#ffffff',
+                        borderBottom: '1px solid var(--border-subtle, #f1f5f9)',
+                        background: isChecked ? 'var(--bg-surface-hover, #f8fafc)' : 'var(--bg-surface, #ffffff)',
                         transition: 'background 0.15s ease'
                       }}
-                      onMouseOver={(e) => { if (!isChecked) e.currentTarget.style.background = '#fafbfc'; }}
-                      onMouseOut={(e) => { if (!isChecked) e.currentTarget.style.background = '#ffffff'; }}
                     >
                       <td className="checkbox-col" style={{ textAlign: 'center', padding: '14px 10px' }}>
                         <input
                           type="checkbox"
                           checked={isChecked}
                           onChange={() => toggleSelect(v.id)}
-                          style={{ width: 16, height: 16, cursor: 'pointer', accentColor: '#07345f' }}
+                          style={{ width: 16, height: 16, cursor: 'pointer', accentColor: 'var(--brand-blue, #07345f)' }}
                         />
                       </td>
 
                       {/* Title & Description */}
                       <td style={{ padding: '14px 16px' }}>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
-                          <span style={{ fontSize: '14px', fontWeight: 700, color: '#0f172a' }}>
+                          <span style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary, #0f172a)' }}>
                             {v.title}
                           </span>
-                          <span style={{ fontSize: '12.5px', color: '#64748b', lineHeight: 1.4 }}>
+                          <span style={{ fontSize: '12.5px', color: 'var(--text-muted, #64748b)', lineHeight: 1.4 }}>
                             {v.description || 'Standard handbook conduct policy infraction.'}
                           </span>
                         </div>
@@ -873,8 +871,8 @@ export const ViolationTypesPage = () => {
                             borderRadius: '20px',
                             fontSize: '11.5px',
                             fontWeight: 700,
-                            background: isMajor ? '#fee2e2' : isSerious ? '#fef3c7' : '#dcfce7',
-                            color: isMajor ? '#dc2626' : isSerious ? '#d97706' : '#15803d'
+                            background: isMajor ? 'rgba(239, 68, 68, 0.15)' : isSerious ? 'rgba(245, 158, 11, 0.15)' : 'rgba(16, 185, 129, 0.15)',
+                            color: isMajor ? '#ef4444' : isSerious ? '#f59e0b' : '#10b981'
                           }}
                         >
                           <span style={{ width: 6, height: 6, borderRadius: '50%', background: isMajor ? '#ef4444' : isSerious ? '#f59e0b' : '#22c55e' }} />
@@ -887,12 +885,12 @@ export const ViolationTypesPage = () => {
                         <span
                           style={{
                             fontSize: '12.5px',
-                            color: '#334155',
+                            color: 'var(--text-secondary, #334155)',
                             fontWeight: 600,
-                            background: '#f8fafc',
+                            background: 'var(--bg-surface-elevated, #f8fafc)',
                             padding: '4px 10px',
                             borderRadius: '6px',
-                            border: '1px solid #e2e8f0',
+                            border: '1px solid var(--border-subtle, #e2e8f0)',
                             display: 'inline-block'
                           }}
                         >
@@ -906,9 +904,9 @@ export const ViolationTypesPage = () => {
                           <button
                             onClick={() => handleOpenEdit(v)}
                             style={{
-                              background: '#f8fafc',
-                              color: '#07345f',
-                              border: '1px solid #cbd5e1',
+                              background: 'var(--bg-surface-elevated, #f8fafc)',
+                              color: 'var(--brand-blue, #07345f)',
+                              border: '1px solid var(--border-subtle, #cbd5e1)',
                               padding: '6px 12px',
                               borderRadius: '7px',
                               fontSize: '12px',
@@ -919,10 +917,8 @@ export const ViolationTypesPage = () => {
                               gap: '5px',
                               transition: 'all 0.15s'
                             }}
-                            onMouseOver={(e) => e.currentTarget.style.background = '#f1f5f9'}
-                            onMouseOut={(e) => e.currentTarget.style.background = '#f8fafc'}
                           >
-                            <Edit3 size={13} color="#07345f" strokeWidth={2} /> Edit
+                            <Edit3 size={13} strokeWidth={2} /> Edit
                           </button>
 
                           <button

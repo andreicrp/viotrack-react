@@ -354,29 +354,28 @@ export const AdvisersPage = () => {
         <div
           onClick={() => { setLevelFilter('all'); setGradeFilter('all'); }}
           style={{
-            background: '#ffffff',
-            border: levelFilter === 'all' && gradeFilter === 'all' ? '2px solid #07345f' : '1.5px solid #cbd5e1',
+            background: 'var(--bg-surface, #ffffff)',
+            border: levelFilter === 'all' && gradeFilter === 'all' ? '2px solid var(--brand-blue, #07345f)' : '1.5px solid var(--border-subtle, #cbd5e1)',
             borderRadius: '12px',
             padding: '14px 16px',
             cursor: 'pointer',
             transition: 'all 0.15s ease',
-            boxShadow: levelFilter === 'all' && gradeFilter === 'all' ? '0 4px 14px rgba(7, 52, 95, 0.10)' : '0 1px 3px rgba(0,0,0,0.02)',
             position: 'relative'
           }}
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
-              <div style={{ fontSize: '11.5px', fontWeight: 800, color: '#07345f', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+              <div style={{ fontSize: '11.5px', fontWeight: 800, color: 'var(--brand-blue, #07345f)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                 TOTAL ADVISERS
               </div>
-              <div style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', margin: '4px 0 2px 0', lineHeight: 1.1 }}>
+              <div style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-primary, #0f172a)', margin: '4px 0 2px 0', lineHeight: 1.1 }}>
                 {stats.total}
               </div>
-              <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 500 }}>
+              <div style={{ fontSize: '11px', color: 'var(--text-muted, #64748b)', fontWeight: 500 }}>
                 All grade levels
               </div>
             </div>
-            <UserCheck size={20} color="#07345f" strokeWidth={2} />
+            <UserCheck size={20} color="var(--brand-blue, #07345f)" strokeWidth={2} />
           </div>
         </div>
 
@@ -384,29 +383,28 @@ export const AdvisersPage = () => {
         <div
           onClick={() => { setLevelFilter('jhs'); setGradeFilter('all'); }}
           style={{
-            background: '#ffffff',
-            border: levelFilter === 'jhs' ? '2px solid #07345f' : '1.5px solid #cbd5e1',
+            background: 'var(--bg-surface, #ffffff)',
+            border: levelFilter === 'jhs' ? '2px solid var(--brand-blue, #07345f)' : '1.5px solid var(--border-subtle, #cbd5e1)',
             borderRadius: '12px',
             padding: '14px 16px',
             cursor: 'pointer',
             transition: 'all 0.15s ease',
-            boxShadow: levelFilter === 'jhs' ? '0 4px 14px rgba(7, 52, 95, 0.10)' : '0 1px 3px rgba(0,0,0,0.02)',
             position: 'relative'
           }}
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
-              <div style={{ fontSize: '11.5px', fontWeight: 800, color: '#07345f', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+              <div style={{ fontSize: '11.5px', fontWeight: 800, color: 'var(--brand-blue, #07345f)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                 JUNIOR HIGH (G7-10)
               </div>
-              <div style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', margin: '4px 0 2px 0', lineHeight: 1.1 }}>
+              <div style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-primary, #0f172a)', margin: '4px 0 2px 0', lineHeight: 1.1 }}>
                 {stats.jhsCount}
               </div>
-              <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 500 }}>
+              <div style={{ fontSize: '11px', color: 'var(--text-muted, #64748b)', fontWeight: 500 }}>
                 JHS advisory sections
               </div>
             </div>
-            <BookOpen size={20} color="#07345f" strokeWidth={2} />
+            <BookOpen size={20} color="var(--brand-blue, #07345f)" strokeWidth={2} />
           </div>
         </div>
 
@@ -414,56 +412,54 @@ export const AdvisersPage = () => {
         <div
           onClick={() => { setLevelFilter('shs'); setGradeFilter('all'); }}
           style={{
-            background: '#ffffff',
-            border: levelFilter === 'shs' ? '2px solid #07345f' : '1.5px solid #cbd5e1',
+            background: 'var(--bg-surface, #ffffff)',
+            border: levelFilter === 'shs' ? '2px solid var(--brand-blue, #07345f)' : '1.5px solid var(--border-subtle, #cbd5e1)',
             borderRadius: '12px',
             padding: '14px 16px',
             cursor: 'pointer',
             transition: 'all 0.15s ease',
-            boxShadow: levelFilter === 'shs' ? '0 4px 14px rgba(7, 52, 95, 0.10)' : '0 1px 3px rgba(0,0,0,0.02)',
             position: 'relative'
           }}
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
-              <div style={{ fontSize: '11.5px', fontWeight: 800, color: '#07345f', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+              <div style={{ fontSize: '11.5px', fontWeight: 800, color: 'var(--brand-blue, #07345f)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                 SENIOR HIGH (G11-12)
               </div>
-              <div style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', margin: '4px 0 2px 0', lineHeight: 1.1 }}>
+              <div style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-primary, #0f172a)', margin: '4px 0 2px 0', lineHeight: 1.1 }}>
                 {stats.shsCount}
               </div>
-              <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 500 }}>
+              <div style={{ fontSize: '11px', color: 'var(--text-muted, #64748b)', fontWeight: 500 }}>
                 SHS tracks & strands
               </div>
             </div>
-            <GraduationCap size={20} color="#07345f" strokeWidth={2} />
+            <GraduationCap size={20} color="var(--brand-blue, #07345f)" strokeWidth={2} />
           </div>
         </div>
 
         {/* Assigned Students */}
         <div
           style={{
-            background: '#ffffff',
-            border: '1.5px solid #cbd5e1',
+            background: 'var(--bg-surface, #ffffff)',
+            border: '1.5px solid var(--border-subtle, #cbd5e1)',
             borderRadius: '12px',
             padding: '14px 16px',
-            boxShadow: '0 1px 3px rgba(0,0,0,0.02)',
             position: 'relative'
           }}
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
-              <div style={{ fontSize: '11.5px', fontWeight: 800, color: '#07345f', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+              <div style={{ fontSize: '11.5px', fontWeight: 800, color: 'var(--brand-blue, #07345f)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                 ASSIGNED STUDENTS
               </div>
-              <div style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', margin: '4px 0 2px 0', lineHeight: 1.1 }}>
+              <div style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-primary, #0f172a)', margin: '4px 0 2px 0', lineHeight: 1.1 }}>
                 {stats.assignedStudentCount}
               </div>
-              <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 500 }}>
+              <div style={{ fontSize: '11px', color: 'var(--text-muted, #64748b)', fontWeight: 500 }}>
                 Across {advisers.length} advisory classes
               </div>
             </div>
-            <Users size={20} color="#07345f" strokeWidth={2} />
+            <Users size={20} color="var(--brand-blue, #07345f)" strokeWidth={2} />
           </div>
         </div>
       </div>

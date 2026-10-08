@@ -982,3 +982,779 @@ html.dark body,
   color: #34d399 !important;
 }
 
+/* ==========================================================================
+   SCAN QR PAGE IN DARK MODE (100% Coverage)
+   ========================================================================== */
+[data-theme="dark"] .scan-camera-header-actions .scan-action-pill,
+[data-theme="dark"] .scan-control-btn,
+[data-theme="dark"] .manual-lookup-card,
+[data-theme="dark"] .quick-test-tag {
+  background: #0f172a !important;
+  border-color: #1e293b !important;
+  color: #f8fafc !important;
+  box-shadow: none !important;
+}
+
+[data-theme="dark"] .scan-control-btn:hover,
+[data-theme="dark"] .quick-test-tag:hover {
+  background: #1e293b !important;
+  border-color: #38bdf8 !important;
+  color: #38bdf8 !important;
+}
+
+[data-theme="dark"] .manual-student-input {
+  background: #0b1120 !important;
+  border-color: #1e293b !important;
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .manual-student-input:focus {
+  border-color: #38bdf8 !important;
+  box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.25) !important;
+}
+
+[data-theme="dark"] .student-scan-modal-dialog {
+  background: #0f172a !important;
+  border: 1px solid #1e293b !important;
+  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.85) !important;
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .student-scan-modal-header,
+[data-theme="dark"] .student-scan-modal-footer {
+  background: #0b1120 !important;
+  border-color: #1e293b !important;
+}
+
+[data-theme="dark"] .student-scan-modal-title {
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .student-scan-modal-close-btn {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .student-scan-modal-close-btn:hover {
+  background: #334155 !important;
+  color: #f87171 !important;
+}
+
+[data-theme="dark"] .verified-header-card,
+[data-theme="dark"] .student-stats-strip {
+  background: #0b1120 !important;
+  border: 1px solid #1e293b !important;
+}
+
+/* ==========================================================================
+   SCAN QR PAGE IN DARK MODE (100% Complete Dark Coverage)
+   ========================================================================== */
+[data-theme="dark"] .scan-ctrl-btn {
+  background: #0f172a !important;
+  border-color: #1e293b !important;
+  color: #cbd5e1 !important;
+}
+
+[data-theme="dark"] .scan-ctrl-btn:hover {
+  background: #1e293b !important;
+  border-color: #38bdf8 !important;
+  color: #38bdf8 !important;
+}
+
+[data-theme="dark"] .scan-ctrl-btn.active {
+  background: rgba(56, 189, 248, 0.15) !important;
+  border-color: #38bdf8 !important;
+  color: #38bdf8 !important;
+}
+
+[data-theme="dark"] .manual-search-box {
+  background: #0f172a !important;
+  border: 1px solid #1e293b !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4) !important;
+}
+
+[data-theme="dark"] .manual-search-title {
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .manual-search-subtag {
+  background: #1e293b !important;
+  color: #38bdf8 !important;
+}
+
+[data-theme="dark"] .manual-search-field {
+  background: #0b1120 !important;
+  border-color: #1e293b !important;
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .manual-search-field:focus {
+  border-color: #38bdf8 !important;
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2) !important;
+}
+
+[data-theme="dark"] .manual-clear-btn {
+  background: #1e293b !important;
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .manual-clear-btn:hover {
+  background: #334155 !important;
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .manual-search-submit-btn {
+  background: #38bdf8 !important;
+  color: #070b14 !important;
+}
+
+[data-theme="dark"] .manual-search-submit-btn:hover:not(:disabled) {
+  background: #0ea5e9 !important;
+}
+
+[data-theme="dark"] .quick-sample-label {
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .quick-chip {
+  background: #0b1120 !important;
+  border-color: #1e293b !important;
+  color: #cbd5e1 !important;
+}
+
+[data-theme="dark"] .quick-chip-dot {
+  background: #38bdf8 !important;
+}
+
+[data-theme="dark"] .quick-chip-name {
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .quick-chip-grade {
+  background: #1e293b !important;
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .quick-chip:hover {
+  background: #1e293b !important;
+  border-color: #38bdf8 !important;
+  color: #38bdf8 !important;
+}
+
+[data-theme="dark"] .quick-chip:hover .quick-chip-grade {
+  background: rgba(56, 189, 248, 0.2) !important;
+  color: #38bdf8 !important;
+}
+
+/* Scan Processing Dialog */
+[data-theme="dark"] .student-scan-modal-overlay {
+  background: rgba(3, 7, 18, 0.85) !important;
+}
+
+[data-theme="dark"] .student-scan-modal-dialog {
+  background: #0f172a !important;
+  border: 1px solid #1e293b !important;
+  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.9) !important;
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .scan-matrix-hub {
+  background: #0b1120 !important;
+  border-color: #1e293b !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.8), 0 0 0 5px rgba(30, 41, 59, 0.6) !important;
+  color: #38bdf8 !important;
+}
+
+[data-theme="dark"] .scan-matrix-corner {
+  border-color: #38bdf8 !important;
+}
+
+[data-theme="dark"] .scan-matrix-laser {
+  background: linear-gradient(90deg, transparent 0%, #38bdf8 50%, transparent 100%) !important;
+  box-shadow: 0 0 12px #38bdf8 !important;
+}
+
+[data-theme="dark"] .processing-title {
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .processing-substep-text {
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .processing-step-pill {
+  background: #0b1120 !important;
+  border-color: #1e293b !important;
+  color: #38bdf8 !important;
+}
+
+[data-theme="dark"] .scan-pipeline-steps {
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .pipeline-connector {
+  background: #1e293b !important;
+}
+
+[data-theme="dark"] .pipeline-step {
+  color: #64748b !important;
+}
+
+[data-theme="dark"] .pipeline-step .pipeline-dot {
+  background: #1e293b !important;
+  border: 2px solid #334155 !important;
+}
+
+[data-theme="dark"] .pipeline-step.active {
+  color: #38bdf8 !important;
+}
+
+[data-theme="dark"] .pipeline-step.active .pipeline-dot {
+  background: #38bdf8 !important;
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.6) !important;
+}
+
+[data-theme="dark"] .pipeline-step.completed {
+  color: #34d399 !important;
+}
+
+[data-theme="dark"] .pipeline-step.completed .pipeline-dot {
+  background: #10b981 !important;
+}
+
+[data-theme="dark"] .scan-progress-bar-container {
+  background: #1e293b !important;
+}
+
+[data-theme="dark"] .scan-progress-status-label {
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .scan-progress-percentage {
+  background: #0b1120 !important;
+  border: 1px solid #1e293b !important;
+  color: #38bdf8 !important;
+}
+
+/* Verified Student Modal */
+[data-theme="dark"] .student-scan-modal-header {
+  background: #0b1120 !important;
+  border-bottom: 1px solid #1e293b !important;
+}
+
+[data-theme="dark"] .student-scan-modal-footer {
+  background: #0b1120 !important;
+  border-top: 1px solid #1e293b !important;
+}
+
+[data-theme="dark"] .student-scan-modal-title {
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .student-scan-modal-subtitle {
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .modal-header-icon-badge {
+  background: rgba(56, 189, 248, 0.15) !important;
+  color: #38bdf8 !important;
+  border: 1px solid rgba(56, 189, 248, 0.3) !important;
+}
+
+[data-theme="dark"] .student-scan-modal-close-btn {
+  background: #1e293b !important;
+  border: 1px solid #334155 !important;
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .student-scan-modal-close-btn:hover {
+  background: #334155 !important;
+  color: #f87171 !important;
+}
+
+[data-theme="dark"] .verified-header-card {
+  background: #0b1120 !important;
+  border: 1px solid #1e293b !important;
+}
+
+[data-theme="dark"] .verified-name {
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .verified-section-tag {
+  color: #38bdf8 !important;
+  background: rgba(56, 189, 248, 0.1) !important;
+  border: 1px solid rgba(56, 189, 248, 0.25) !important;
+}
+
+[data-theme="dark"] .lrn-chip {
+  background: #1e293b !important;
+  border: 1px solid #334155 !important;
+  color: #cbd5e1 !important;
+}
+
+[data-theme="dark"] .sy-text {
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .verified-guardian-strip {
+  background: #151f36 !important;
+  border-top: 1px solid #1e293b !important;
+}
+
+[data-theme="dark"] .guardian-strip-label {
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .guardian-strip-name {
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .guardian-strip-phone {
+  background: #1e293b !important;
+  border: 1px solid #334155 !important;
+  color: #38bdf8 !important;
+}
+
+[data-theme="dark"] .student-stats-strip {
+  background: #0b1120 !important;
+  border: 1px solid #1e293b !important;
+}
+
+[data-theme="dark"] .stat-strip-divider {
+  background: #1e293b !important;
+}
+
+[data-theme="dark"] .stat-strip-label {
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .recent-violations-wrap {
+  border-color: #1e293b !important;
+}
+
+[data-theme="dark"] .recent-violations-title {
+  color: #cbd5e1 !important;
+}
+
+[data-theme="dark"] .history-count-badge {
+  background: #1e293b !important;
+  color: #38bdf8 !important;
+  border: 1px solid #334155 !important;
+}
+
+[data-theme="dark"] .clean-standing-box {
+  background: rgba(16, 185, 129, 0.1) !important;
+  border: 1px solid rgba(16, 185, 129, 0.25) !important;
+  color: #34d399 !important;
+}
+
+[data-theme="dark"] .violation-timeline-item {
+  background: #0b1120 !important;
+  border: 1px solid #1e293b !important;
+}
+
+[data-theme="dark"] .violation-timeline-item:hover {
+  background: #151f36 !important;
+  border-color: #38bdf8 !important;
+}
+
+[data-theme="dark"] .v-item-title {
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .v-item-date {
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .verified-btn.primary {
+  background: #0284c7 !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 14px rgba(2, 132, 199, 0.35) !important;
+}
+
+[data-theme="dark"] .verified-btn.primary:hover {
+  background: #0369a1 !important;
+}
+
+[data-theme="dark"] .verified-btn.secondary {
+  background: #1e293b !important;
+  border: 1px solid #334155 !important;
+  color: #cbd5e1 !important;
+}
+
+[data-theme="dark"] .verified-btn.secondary:hover {
+  background: #334155 !important;
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .verified-btn.tertiary {
+  background: transparent !important;
+  border: 1px solid #1e293b !important;
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .verified-btn.tertiary:hover {
+  background: #1e293b !important;
+  color: #f8fafc !important;
+}
+
+/* ==========================================================================
+   ADVISER MANAGEMENT IN DARK MODE (100% Coverage)
+   ========================================================================== */
+[data-theme="dark"] .advisers-banner-title {
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .advisers-banner-desc {
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .advisers-btn-secondary {
+  background: #1e293b !important;
+  border: 1px solid #334155 !important;
+  color: #cbd5e1 !important;
+}
+
+[data-theme="dark"] .advisers-btn-secondary:hover {
+  background: #334155 !important;
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .advisers-btn-primary {
+  background: #38bdf8 !important;
+  border-color: #38bdf8 !important;
+  color: #070b14 !important;
+  box-shadow: 0 4px 14px rgba(56, 189, 248, 0.3) !important;
+}
+
+[data-theme="dark"] .advisers-btn-primary:hover {
+  background: #0ea5e9 !important;
+  color: #070b14 !important;
+}
+
+[data-theme="dark"] .advisers-stat-card {
+  background: #0f172a !important;
+  border: 1px solid #1e293b !important;
+  color: #f8fafc !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4) !important;
+}
+
+[data-theme="dark"] .advisers-stat-card:hover {
+  border-color: #38bdf8 !important;
+  background: #151f36 !important;
+}
+
+[data-theme="dark"] .advisers-stat-card.active {
+  border-color: #38bdf8 !important;
+  background: #151f36 !important;
+}
+
+[data-theme="dark"] .advisers-stat-card.active::before {
+  background: #38bdf8 !important;
+}
+
+[data-theme="dark"] .advisers-stat-label {
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .advisers-stat-value {
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .advisers-stat-icon-wrap {
+  color: #38bdf8 !important;
+}
+
+[data-theme="dark"] .advisers-toolbar {
+  background: #0f172a !important;
+  border: 1px solid #1e293b !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4) !important;
+}
+
+[data-theme="dark"] .advisers-search-input {
+  background: #0b1120 !important;
+  border: 1px solid #1e293b !important;
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .advisers-search-input:focus {
+  border-color: #38bdf8 !important;
+  background: #0b1120 !important;
+}
+
+[data-theme="dark"] .advisers-tab-group {
+  background: #0b1120 !important;
+  border: 1px solid #1e293b !important;
+}
+
+[data-theme="dark"] .advisers-tab-btn {
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .advisers-tab-btn:hover {
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .advisers-tab-btn.active {
+  background: #1e293b !important;
+  color: #38bdf8 !important;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4) !important;
+}
+
+[data-theme="dark"] .adviser-card {
+  background: #0f172a !important;
+  border: 1px solid #1e293b !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4) !important;
+}
+
+[data-theme="dark"] .adviser-card:hover {
+  border-color: #38bdf8 !important;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.6) !important;
+}
+
+[data-theme="dark"] .adviser-card-header {
+  border-bottom: 1px solid #1e293b !important;
+  background: #0b1120 !important;
+}
+
+[data-theme="dark"] .adviser-teacher-name {
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .adviser-teacher-email {
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .adviser-position-pill {
+  background: #1e293b !important;
+  color: #cbd5e1 !important;
+}
+
+[data-theme="dark"] .adviser-section-badge {
+  background: #151f36 !important;
+  border-color: #1e293b !important;
+  color: #38bdf8 !important;
+}
+
+[data-theme="dark"] .adviser-section-badge.shs {
+  background: rgba(139, 92, 246, 0.15) !important;
+  border-color: rgba(139, 92, 246, 0.3) !important;
+  color: #c084fc !important;
+}
+
+[data-theme="dark"] .adviser-metrics-bar {
+  background: #0b1120 !important;
+  border-bottom: 1px solid #1e293b !important;
+}
+
+[data-theme="dark"] .adviser-metric-box {
+  background: #0f172a !important;
+  border-color: #1e293b !important;
+}
+
+[data-theme="dark"] .adviser-metric-box.clean {
+  background: rgba(16, 185, 129, 0.12) !important;
+  border-color: rgba(16, 185, 129, 0.3) !important;
+  color: #34d399 !important;
+}
+
+[data-theme="dark"] .adviser-metric-box.incident {
+  background: rgba(239, 68, 68, 0.12) !important;
+  border-color: rgba(239, 68, 68, 0.3) !important;
+  color: #f87171 !important;
+}
+
+[data-theme="dark"] .adviser-metric-label {
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .adviser-metric-value {
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .adviser-roster-preview {
+  background: #0f172a !important;
+}
+
+[data-theme="dark"] .adviser-roster-header {
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .adviser-roster-list {
+  background: transparent !important;
+}
+
+[data-theme="dark"] .adviser-roster-item {
+  background: #0b1120 !important;
+  border: 1px solid #1e293b !important;
+}
+
+[data-theme="dark"] .adviser-roster-item:hover {
+  background: #151f36 !important;
+}
+
+[data-theme="dark"] .adviser-student-name {
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .adviser-student-lrn {
+  color: #64748b !important;
+}
+
+[data-theme="dark"] .adviser-status-pill.good {
+  background: rgba(16, 185, 129, 0.12) !important;
+  border: 1px solid rgba(16, 185, 129, 0.3) !important;
+  color: #34d399 !important;
+}
+
+[data-theme="dark"] .adviser-status-pill.violation {
+  background: rgba(239, 68, 68, 0.15) !important;
+  border: 1px solid rgba(239, 68, 68, 0.3) !important;
+  color: #f87171 !important;
+}
+
+[data-theme="dark"] .adviser-card-footer {
+  background: #0b1120 !important;
+  border-top: 1px solid #1e293b !important;
+}
+
+[data-theme="dark"] .adviser-btn-view-roster {
+  background: #1e293b !important;
+  border: 1px solid #334155 !important;
+  color: #cbd5e1 !important;
+}
+
+[data-theme="dark"] .adviser-btn-view-roster:hover {
+  background: #38bdf8 !important;
+  border-color: #38bdf8 !important;
+  color: #070b14 !important;
+}
+
+[data-theme="dark"] .adviser-btn-remove {
+  background: rgba(239, 68, 68, 0.12) !important;
+  border: 1px solid rgba(239, 68, 68, 0.3) !important;
+  color: #f87171 !important;
+}
+
+[data-theme="dark"] .adviser-btn-remove:hover {
+  background: #ef4444 !important;
+  color: #ffffff !important;
+}
+
+/* ==========================================================================
+   VIOLATION TYPES / CATALOG PAGE IN DARK MODE (100% Coverage)
+   ========================================================================== */
+[data-theme="dark"] .violation-card,
+[data-theme="dark"] .card {
+  background: #0f172a !important;
+  border: 1px solid #1e293b !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4) !important;
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .stat-card-violation {
+  background: #0f172a !important;
+  border: 1px solid #1e293b !important;
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .stat-card-violation .stat-icon {
+  color: #38bdf8 !important;
+}
+
+[data-theme="dark"] .stat-card-violation .stat-value {
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .stat-card-violation .stat-label {
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .violation-table,
+[data-theme="dark"] .types-table,
+[data-theme="dark"] .table-container {
+  background: #0f172a !important;
+  border-color: #1e293b !important;
+}
+
+[data-theme="dark"] .violation-table thead,
+[data-theme="dark"] .types-table thead,
+[data-theme="dark"] thead tr {
+  background: #0b1120 !important;
+  border-bottom: 1.5px solid #1e293b !important;
+}
+
+[data-theme="dark"] .violation-table th,
+[data-theme="dark"] .types-table th,
+[data-theme="dark"] th {
+  border-color: #1e293b !important;
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .violation-table td,
+[data-theme="dark"] .types-table td,
+[data-theme="dark"] td {
+  border-color: #1e293b !important;
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .violation-table tbody tr,
+[data-theme="dark"] .types-table tbody tr,
+[data-theme="dark"] tbody tr {
+  background: #0f172a !important;
+  border-bottom: 1px solid #1e293b !important;
+}
+
+[data-theme="dark"] .violation-table tbody tr:hover,
+[data-theme="dark"] .types-table tbody tr:hover,
+[data-theme="dark"] tbody tr:hover {
+  background: #151f36 !important;
+}
+
+[data-theme="dark"] .violation-title {
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .violation-desc {
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .violation-type.major {
+  background: rgba(239, 68, 68, 0.16) !important;
+  color: #f87171 !important;
+  border: 1px solid rgba(239, 68, 68, 0.35) !important;
+}
+
+[data-theme="dark"] .violation-type.serious {
+  background: rgba(245, 158, 11, 0.16) !important;
+  color: #fbbf24 !important;
+  border: 1px solid rgba(245, 158, 11, 0.35) !important;
+}
+
+[data-theme="dark"] .violation-type.minor {
+  background: rgba(16, 185, 129, 0.16) !important;
+  color: #34d399 !important;
+  border: 1px solid rgba(16, 185, 129, 0.35) !important;
+}
+
+[data-theme="dark"] .btn-action {
+  background: #1e293b !important;
+  border: 1px solid #334155 !important;
+  color: #38bdf8 !important;
+}
+
+[data-theme="dark"] .btn-action:hover {
+  background: #38bdf8 !important;
+  color: #070b14 !important;
+}
+
+[data-theme="dark"] .table-footer {
+  border-top: 1px solid #1e293b !important;
+  background: #0b1120 !important;
+  color: #94a3b8 !important;
+}
+
+
+

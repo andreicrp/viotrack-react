@@ -387,15 +387,15 @@ export const TeachersPage = () => {
         </div>
       </div>
 
-      <div className="card" style={{ padding: '24px', background: '#ffffff', borderRadius: '16px', border: '1px solid #e2e8f0', boxShadow: '0 4px 20px rgba(0, 0, 0, 0.04)' }}>
+      <div className="card" style={{ padding: '24px', background: 'var(--bg-surface, #ffffff)', borderRadius: '16px', border: '1px solid var(--border-subtle, #e2e8f0)', boxShadow: '0 4px 20px rgba(0, 0, 0, 0.04)' }}>
         {/* 2. Stat Filter Cards */}
         <div className="metric-cards-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' }}>
           {/* Total Teachers */}
           <div
             onClick={() => setSelectedFacultyFilter('all')}
             style={{
-              background: '#ffffff',
-              border: selectedFacultyFilter === 'all' ? '2px solid #07345f' : '1.5px solid #cbd5e1',
+              background: 'var(--bg-surface, #ffffff)',
+              border: selectedFacultyFilter === 'all' ? '2px solid var(--brand-blue, #07345f)' : '1.5px solid var(--border-subtle, #cbd5e1)',
               borderRadius: '12px',
               padding: '14px 16px',
               cursor: 'pointer',
@@ -406,17 +406,17 @@ export const TeachersPage = () => {
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div>
-                <div style={{ fontSize: '11.5px', fontWeight: 800, color: '#07345f', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                <div style={{ fontSize: '11.5px', fontWeight: 800, color: 'var(--brand-blue, #07345f)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                   TOTAL TEACHERS
                 </div>
-                <div style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', margin: '4px 0 2px 0', lineHeight: 1.1 }}>
+                <div style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-primary, #0f172a)', margin: '4px 0 2px 0', lineHeight: 1.1 }}>
                   {stats.total}
                 </div>
-                <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 500 }}>
+                <div style={{ fontSize: '11px', color: 'var(--text-muted, #64748b)', fontWeight: 500 }}>
                   Active faculty members
                 </div>
               </div>
-              <Users size={20} color="#07345f" strokeWidth={2} />
+              <Users size={20} color="var(--brand-blue, #07345f)" strokeWidth={2} />
             </div>
           </div>
 
@@ -424,8 +424,8 @@ export const TeachersPage = () => {
           <div
             onClick={() => setSelectedFacultyFilter('adviser')}
             style={{
-              background: '#ffffff',
-              border: selectedFacultyFilter === 'adviser' ? '2px solid #07345f' : '1.5px solid #cbd5e1',
+              background: 'var(--bg-surface, #ffffff)',
+              border: selectedFacultyFilter === 'adviser' ? '2px solid var(--brand-blue, #07345f)' : '1.5px solid var(--border-subtle, #cbd5e1)',
               borderRadius: '12px',
               padding: '14px 16px',
               cursor: 'pointer',
@@ -436,17 +436,17 @@ export const TeachersPage = () => {
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div>
-                <div style={{ fontSize: '11.5px', fontWeight: 800, color: '#07345f', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                <div style={{ fontSize: '11.5px', fontWeight: 800, color: 'var(--brand-blue, #07345f)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                   CLASS ADVISERS
                 </div>
-                <div style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', margin: '4px 0 2px 0', lineHeight: 1.1 }}>
+                <div style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-primary, #0f172a)', margin: '4px 0 2px 0', lineHeight: 1.1 }}>
                   {stats.advisersCount}
                 </div>
-                <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 500 }}>
+                <div style={{ fontSize: '11px', color: 'var(--text-muted, #64748b)', fontWeight: 500 }}>
                   Assigned section leads
                 </div>
               </div>
-              <UserCheck size={20} color="#07345f" strokeWidth={2} />
+              <UserCheck size={20} color="var(--brand-blue, #07345f)" strokeWidth={2} />
             </div>
           </div>
 
@@ -454,8 +454,8 @@ export const TeachersPage = () => {
           <div
             onClick={() => setSelectedFacultyFilter('subject')}
             style={{
-              background: '#ffffff',
-              border: selectedFacultyFilter === 'subject' ? '2px solid #07345f' : '1.5px solid #cbd5e1',
+              background: 'var(--bg-surface, #ffffff)',
+              border: selectedFacultyFilter === 'subject' ? '2px solid var(--brand-blue, #07345f)' : '1.5px solid var(--border-subtle, #cbd5e1)',
               borderRadius: '12px',
               padding: '14px 16px',
               cursor: 'pointer',
@@ -466,25 +466,25 @@ export const TeachersPage = () => {
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div>
-                <div style={{ fontSize: '11.5px', fontWeight: 800, color: '#07345f', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                <div style={{ fontSize: '11.5px', fontWeight: 800, color: 'var(--brand-blue, #07345f)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                   SUBJECT TEACHERS
                 </div>
-                <div style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', margin: '4px 0 2px 0', lineHeight: 1.1 }}>
+                <div style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-primary, #0f172a)', margin: '4px 0 2px 0', lineHeight: 1.1 }}>
                   {stats.subjectTeachers}
                 </div>
-                <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 500 }}>
+                <div style={{ fontSize: '11px', color: 'var(--text-muted, #64748b)', fontWeight: 500 }}>
                   Instructional faculty
                 </div>
               </div>
-              <GraduationCap size={20} color="#07345f" strokeWidth={2} />
+              <GraduationCap size={20} color="var(--brand-blue, #07345f)" strokeWidth={2} />
             </div>
           </div>
 
           {/* Departments */}
           <div
             style={{
-              background: '#ffffff',
-              border: '1.5px solid #cbd5e1',
+              background: 'var(--bg-surface, #ffffff)',
+              border: '1.5px solid var(--border-subtle, #cbd5e1)',
               borderRadius: '12px',
               padding: '14px 16px',
               boxShadow: '0 1px 3px rgba(0,0,0,0.02)',
@@ -493,17 +493,17 @@ export const TeachersPage = () => {
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div>
-                <div style={{ fontSize: '11.5px', fontWeight: 800, color: '#07345f', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                <div style={{ fontSize: '11.5px', fontWeight: 800, color: 'var(--brand-blue, #07345f)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                   DEPARTMENTS
                 </div>
-                <div style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', margin: '4px 0 2px 0', lineHeight: 1.1 }}>
+                <div style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-primary, #0f172a)', margin: '4px 0 2px 0', lineHeight: 1.1 }}>
                   {stats.departmentsCount}
                 </div>
-                <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 500 }}>
+                <div style={{ fontSize: '11px', color: 'var(--text-muted, #64748b)', fontWeight: 500 }}>
                   Academic learning groups
                 </div>
               </div>
-              <Building size={20} color="#07345f" strokeWidth={2} />
+              <Building size={20} color="var(--brand-blue, #07345f)" strokeWidth={2} />
             </div>
           </div>
         </div>

@@ -508,10 +508,10 @@ export const StudentsPage = () => {
         <div
           onClick={() => { setLevelFilter('all'); setGradeFilter('all'); setStrandFilter('all'); }}
           style={{
-            background: '#ffffff',
+            background: 'var(--bg-surface, #ffffff)',
             borderRadius: '12px',
             padding: '14px 16px',
-            border: levelFilter === 'all' && gradeFilter === 'all' && strandFilter === 'all' ? '2px solid #07345f' : '1.5px solid #cbd5e1',
+            border: levelFilter === 'all' && gradeFilter === 'all' && strandFilter === 'all' ? '2px solid var(--brand-blue, #07345f)' : '1.5px solid var(--border-subtle, #cbd5e1)',
             boxShadow: levelFilter === 'all' && gradeFilter === 'all' && strandFilter === 'all' ? '0 4px 14px rgba(7, 52, 95, 0.10)' : '0 1px 3px rgba(0,0,0,0.02)',
             cursor: 'pointer',
             transition: 'all 0.15s ease',
@@ -520,17 +520,17 @@ export const StudentsPage = () => {
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
-              <div style={{ fontSize: '11.5px', fontWeight: 800, color: '#07345f', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+              <div style={{ fontSize: '11.5px', fontWeight: 800, color: 'var(--brand-blue, #07345f)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                 TOTAL STUDENTS
               </div>
-              <div style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', margin: '4px 0 2px 0', lineHeight: 1.1 }}>
+              <div style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-primary, #0f172a)', margin: '4px 0 2px 0', lineHeight: 1.1 }}>
                 {stats.total}
               </div>
-              <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 500 }}>
+              <div style={{ fontSize: '11px', color: 'var(--text-muted, #64748b)', fontWeight: 500 }}>
                 Across all levels & strands
               </div>
             </div>
-            <Users size={20} color="#07345f" strokeWidth={2} />
+            <Users size={20} color="var(--brand-blue, #07345f)" strokeWidth={2} />
           </div>
         </div>
 
@@ -538,10 +538,10 @@ export const StudentsPage = () => {
         <div
           onClick={() => { setLevelFilter('jhs'); setGradeFilter('all'); setStrandFilter('all'); }}
           style={{
-            background: '#ffffff',
+            background: 'var(--bg-surface, #ffffff)',
             borderRadius: '12px',
             padding: '14px 16px',
-            border: levelFilter === 'jhs' ? '2px solid #07345f' : '1.5px solid #cbd5e1',
+            border: levelFilter === 'jhs' ? '2px solid var(--brand-blue, #07345f)' : '1.5px solid var(--border-subtle, #cbd5e1)',
             boxShadow: levelFilter === 'jhs' ? '0 4px 14px rgba(7, 52, 95, 0.10)' : '0 1px 3px rgba(0,0,0,0.02)',
             cursor: 'pointer',
             transition: 'all 0.15s ease',
@@ -550,17 +550,17 @@ export const StudentsPage = () => {
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
-              <div style={{ fontSize: '11.5px', fontWeight: 800, color: '#07345f', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+              <div style={{ fontSize: '11.5px', fontWeight: 800, color: 'var(--brand-blue, #07345f)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                 JUNIOR HIGH (G7-10)
               </div>
-              <div style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', margin: '4px 0 2px 0', lineHeight: 1.1 }}>
+              <div style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-primary, #0f172a)', margin: '4px 0 2px 0', lineHeight: 1.1 }}>
                 {stats.jhsCount}
               </div>
-              <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 500 }}>
+              <div style={{ fontSize: '11px', color: 'var(--text-muted, #64748b)', fontWeight: 500 }}>
                 Basic education students
               </div>
             </div>
-            <BookOpen size={20} color="#07345f" strokeWidth={2} />
+            <BookOpen size={20} color="var(--brand-blue, #07345f)" strokeWidth={2} />
           </div>
         </div>
 
@@ -568,10 +568,10 @@ export const StudentsPage = () => {
         <div
           onClick={() => { setLevelFilter('shs'); setGradeFilter('all'); }}
           style={{
-            background: '#ffffff',
+            background: 'var(--bg-surface, #ffffff)',
             borderRadius: '12px',
             padding: '14px 16px',
-            border: levelFilter === 'shs' ? '2px solid #07345f' : '1.5px solid #cbd5e1',
+            border: levelFilter === 'shs' ? '2px solid var(--brand-blue, #07345f)' : '1.5px solid var(--border-subtle, #cbd5e1)',
             boxShadow: levelFilter === 'shs' ? '0 4px 14px rgba(7, 52, 95, 0.10)' : '0 1px 3px rgba(0,0,0,0.02)',
             cursor: 'pointer',
             transition: 'all 0.15s ease',
@@ -580,44 +580,44 @@ export const StudentsPage = () => {
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
-              <div style={{ fontSize: '11.5px', fontWeight: 800, color: '#07345f', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+              <div style={{ fontSize: '11.5px', fontWeight: 800, color: 'var(--brand-blue, #07345f)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                 SENIOR HIGH (G11-12)
               </div>
-              <div style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', margin: '4px 0 2px 0', lineHeight: 1.1 }}>
+              <div style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-primary, #0f172a)', margin: '4px 0 2px 0', lineHeight: 1.1 }}>
                 {stats.shsCount}
               </div>
-              <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 500 }}>
+              <div style={{ fontSize: '11px', color: 'var(--text-muted, #64748b)', fontWeight: 500 }}>
                 Specialized strands & tracks
               </div>
             </div>
-            <GraduationCap size={20} color="#07345f" strokeWidth={2} />
+            <GraduationCap size={20} color="var(--brand-blue, #07345f)" strokeWidth={2} />
           </div>
         </div>
 
         {/* Active Academic Strands */}
         <div
           style={{
-            background: '#ffffff',
+            background: 'var(--bg-surface, #ffffff)',
             borderRadius: '12px',
             padding: '14px 16px',
-            border: '1.5px solid #cbd5e1',
+            border: '1.5px solid var(--border-subtle, #cbd5e1)',
             boxShadow: '0 1px 3px rgba(0,0,0,0.02)',
             position: 'relative'
           }}
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
-              <div style={{ fontSize: '11.5px', fontWeight: 800, color: '#07345f', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+              <div style={{ fontSize: '11.5px', fontWeight: 800, color: 'var(--brand-blue, #07345f)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                 ACADEMIC STRANDS
               </div>
-              <div style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', margin: '4px 0 2px 0', lineHeight: 1.1 }}>
+              <div style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-primary, #0f172a)', margin: '4px 0 2px 0', lineHeight: 1.1 }}>
                 {stats.uniqueStrands}
               </div>
-              <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 500 }}>
+              <div style={{ fontSize: '11px', color: 'var(--text-muted, #64748b)', fontWeight: 500 }}>
                 STEM, ABM, HUMSS, GAS, JHS
               </div>
             </div>
-            <Layers size={20} color="#07345f" strokeWidth={2} />
+            <Layers size={20} color="var(--brand-blue, #07345f)" strokeWidth={2} />
           </div>
         </div>
       </div>
