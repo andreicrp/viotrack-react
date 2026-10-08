@@ -362,3 +362,10 @@ Clean latest main passed **4 existing tests**, lint (**414 warnings, 0 errors**)
 Latest main is [`d3af4bf2f07dd1e0fa3e817fc76cf5f38759e50e`](https://github.com/andreicrp/viotrack-react/commit/d3af4bf2f07dd1e0fa3e817fc76cf5f38759e50e). It adds a high-resolution print PDF generator and robust donut-slice SVG geometry; the accompanying helper update does not change the data-service layer or dependencies.
 
 Clean latest main passed **4 existing tests**, lint (**414 warnings, 0 errors**), and build (2,675.16 kB `vendor-react`, gzip 791.81 kB; PDF worker 1,264.34 kB). After rebasing the existing PR onto `d3af4bf`, **24 tests passed**, typecheck passed, lint passed (**413 warnings, 0 errors**), and build passed with matching vendor React and PDF worker bundle sizes.
+
+
+## Baseline after the 2026-10-08 dashboard PrintDataModal import fix
+
+Latest main is [`300380b138f990d3d560c66bb73a0e378cdcccf0`](https://github.com/andreicrp/viotrack-react/commit/300380b138f990d3d560c66bb73a0e378cdcccf0). It imports the missing PrintDataModal component in DashboardPage to avoid a runtime ReferenceError; no data-service or dependency files changed.
+
+Clean latest main passed **4 existing tests**, lint (**413 warnings, 0 errors**), and build (2,675.64 kB `vendor-react`, gzip 792.00 kB; PDF worker 1,264.34 kB). After rebasing the existing PR onto `300380b`, **24 tests passed**, typecheck passed, lint passed (**412 warnings, 0 errors**), and build passed with matching vendor React and PDF worker bundle sizes.
