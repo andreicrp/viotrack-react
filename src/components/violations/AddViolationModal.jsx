@@ -284,13 +284,14 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
         
         {/* Step Progress Header */}
-        <div style={{ padding: '10px 16px', background: '#f8fafc', borderBottom: '1px solid #e2e8f0' }}>
+        <div className="modal-stepper-header" style={{ padding: '10px 16px', background: 'var(--bg-surface-elevated, #f8fafc)', borderBottom: '1px solid var(--border-subtle, #e2e8f0)' }}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '6px' }}>
             
             {/* Step 1: Student */}
             <button
               type="button"
               onClick={() => setStep(1)}
+              className={`violation-step-pill ${step === 1 ? 'active' : step > 1 ? 'completed' : ''}`}
               style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -298,12 +299,11 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
                 gap: '6px',
                 padding: '8px 6px',
                 borderRadius: '8px',
-                border: step === 1 ? '1.5px solid #0f172a' : step > 1 ? '1px solid #a7f3d0' : '1px solid #e2e8f0',
-                background: step === 1 ? '#0f172a' : step > 1 ? '#ecfdf5' : '#ffffff',
-                color: step === 1 ? '#ffffff' : step > 1 ? '#065f46' : '#475569',
+                border: step === 1 ? '1.5px solid var(--brand-blue, #0f172a)' : step > 1 ? '1px solid #10b981' : '1px solid var(--border-subtle, #e2e8f0)',
+                background: step === 1 ? 'var(--brand-blue, #0f172a)' : step > 1 ? 'rgba(16, 185, 129, 0.15)' : 'var(--bg-surface, #ffffff)',
+                color: step === 1 ? '#ffffff' : step > 1 ? '#34d399' : 'var(--text-muted, #475569)',
                 cursor: 'pointer',
                 transition: 'all 0.15s ease',
-                boxShadow: step === 1 ? '0 2px 6px rgba(15, 23, 42, 0.2)' : 'none',
                 fontFamily: 'inherit'
               }}
             >
@@ -311,8 +311,8 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
                 width: 20,
                 height: 20,
                 borderRadius: '50%',
-                background: step === 1 ? '#ffffff' : step > 1 ? '#10b981' : '#f1f5f9',
-                color: step === 1 ? '#0f172a' : step > 1 ? '#ffffff' : '#64748b',
+                background: step === 1 ? '#ffffff' : step > 1 ? '#10b981' : 'var(--bg-surface-hover, #f1f5f9)',
+                color: step === 1 ? 'var(--brand-blue, #0f172a)' : step > 1 ? '#ffffff' : 'var(--text-muted, #64748b)',
                 fontSize: '11px',
                 fontWeight: 800,
                 display: 'flex',
@@ -332,6 +332,7 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
               type="button"
               onClick={() => { if (selectedStudentIds.length > 0) setStep(2); }}
               disabled={selectedStudentIds.length === 0}
+              className={`violation-step-pill ${step === 2 ? 'active' : step > 2 ? 'completed' : ''}`}
               style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -339,12 +340,11 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
                 gap: '6px',
                 padding: '8px 6px',
                 borderRadius: '8px',
-                border: step === 2 ? '1.5px solid #0f172a' : step > 2 ? '1px solid #a7f3d0' : '1px solid #e2e8f0',
-                background: step === 2 ? '#0f172a' : step > 2 ? '#ecfdf5' : '#ffffff',
-                color: step === 2 ? '#ffffff' : step > 2 ? '#065f46' : '#475569',
+                border: step === 2 ? '1.5px solid var(--brand-blue, #0f172a)' : step > 2 ? '1px solid #10b981' : '1px solid var(--border-subtle, #e2e8f0)',
+                background: step === 2 ? 'var(--brand-blue, #0f172a)' : step > 2 ? 'rgba(16, 185, 129, 0.15)' : 'var(--bg-surface, #ffffff)',
+                color: step === 2 ? '#ffffff' : step > 2 ? '#34d399' : 'var(--text-muted, #475569)',
                 cursor: selectedStudentIds.length > 0 ? 'pointer' : 'not-allowed',
                 transition: 'all 0.15s ease',
-                boxShadow: step === 2 ? '0 2px 6px rgba(15, 23, 42, 0.2)' : 'none',
                 opacity: selectedStudentIds.length === 0 ? 0.6 : 1,
                 fontFamily: 'inherit'
               }}
@@ -353,8 +353,8 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
                 width: 20,
                 height: 20,
                 borderRadius: '50%',
-                background: step === 2 ? '#ffffff' : step > 2 ? '#10b981' : '#f1f5f9',
-                color: step === 2 ? '#0f172a' : step > 2 ? '#ffffff' : '#64748b',
+                background: step === 2 ? '#ffffff' : step > 2 ? '#10b981' : 'var(--bg-surface-hover, #f1f5f9)',
+                color: step === 2 ? 'var(--brand-blue, #0f172a)' : step > 2 ? '#ffffff' : 'var(--text-muted, #64748b)',
                 fontSize: '11px',
                 fontWeight: 800,
                 display: 'flex',
@@ -374,6 +374,7 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
               type="button"
               onClick={() => { if (selectedStudentIds.length > 0 && selectedViolationIds.length > 0) setStep(3); }}
               disabled={selectedStudentIds.length === 0 || selectedViolationIds.length === 0}
+              className={`violation-step-pill ${step === 3 ? 'active' : ''}`}
               style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -381,12 +382,11 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
                 gap: '6px',
                 padding: '8px 6px',
                 borderRadius: '8px',
-                border: step === 3 ? '1.5px solid #0f172a' : '1px solid #e2e8f0',
-                background: step === 3 ? '#0f172a' : '#ffffff',
-                color: step === 3 ? '#ffffff' : '#475569',
+                border: step === 3 ? '1.5px solid var(--brand-blue, #0f172a)' : '1px solid var(--border-subtle, #e2e8f0)',
+                background: step === 3 ? 'var(--brand-blue, #0f172a)' : 'var(--bg-surface, #ffffff)',
+                color: step === 3 ? '#ffffff' : 'var(--text-muted, #475569)',
                 cursor: (selectedStudentIds.length > 0 && selectedViolationIds.length > 0) ? 'pointer' : 'not-allowed',
                 transition: 'all 0.15s ease',
-                boxShadow: step === 3 ? '0 2px 6px rgba(15, 23, 42, 0.2)' : 'none',
                 opacity: (selectedStudentIds.length === 0 || selectedViolationIds.length === 0) ? 0.6 : 1,
                 fontFamily: 'inherit'
               }}
@@ -395,8 +395,8 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
                 width: 20,
                 height: 20,
                 borderRadius: '50%',
-                background: step === 3 ? '#ffffff' : '#f1f5f9',
-                color: step === 3 ? '#0f172a' : '#64748b',
+                background: step === 3 ? '#ffffff' : 'var(--bg-surface-hover, #f1f5f9)',
+                color: step === 3 ? 'var(--brand-blue, #0f172a)' : 'var(--text-muted, #64748b)',
                 fontSize: '11px',
                 fontWeight: 800,
                 display: 'flex',
@@ -421,12 +421,12 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
           {step === 1 && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               <div>
-                <label style={{ fontSize: '12px', fontWeight: 700, color: '#0f172a', marginBottom: '6px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <label style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-primary, #0f172a)', marginBottom: '6px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                    <Users size={14} color="#0f172a" />
+                    <Users size={14} color="var(--brand-blue, #0f172a)" />
                     Select Student(s) <span style={{ color: '#ef4444' }}>*</span>
                   </span>
-                  <span style={{ fontSize: '11px', color: selectedStudentIds.length > 0 ? '#0f172a' : '#64748b', fontWeight: 600 }}>
+                  <span style={{ fontSize: '11px', color: selectedStudentIds.length > 0 ? 'var(--brand-blue, #0f172a)' : 'var(--text-muted, #64748b)', fontWeight: 600 }}>
                     {selectedStudentIds.length} Selected
                   </span>
                 </label>
@@ -442,17 +442,17 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
               </div>
 
               {selectedStudents.length > 0 && (
-                <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '8px 10px' }}>
-                  <div style={{ fontSize: '10.5px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', marginBottom: '4px' }}>
+                <div style={{ background: 'var(--bg-surface-elevated, #f8fafc)', border: '1px solid var(--border-subtle, #e2e8f0)', borderRadius: '8px', padding: '8px 10px' }}>
+                  <div style={{ fontSize: '10.5px', fontWeight: 700, color: 'var(--text-muted, #64748b)', textTransform: 'uppercase', marginBottom: '4px' }}>
                     Selected ({selectedStudents.length})
                   </div>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', maxHeight: '65px', overflowY: 'auto' }}>
                     {selectedStudents.map(s => (
-                      <div key={s.id} style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', background: '#ffffff', border: '1px solid #cbd5e1', borderRadius: '5px', padding: '2px 6px' }}>
-                        <span style={{ fontSize: '11.5px', fontWeight: 600, color: '#0f172a' }}>
+                      <div key={s.id} style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', background: 'var(--bg-surface, #ffffff)', border: '1px solid var(--border-subtle, #cbd5e1)', borderRadius: '5px', padding: '2px 6px' }}>
+                        <span style={{ fontSize: '11.5px', fontWeight: 600, color: 'var(--text-primary, #0f172a)' }}>
                           {s.fname} {s.lname}
                         </span>
-                        <span style={{ fontSize: '10px', color: '#64748b' }}>
+                        <span style={{ fontSize: '10px', color: 'var(--text-muted, #64748b)' }}>
                           ({s.grade}-{s.section})
                         </span>
                       </div>
@@ -467,12 +467,12 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
           {step === 2 && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               <div>
-                <label style={{ fontSize: '12px', fontWeight: 700, color: '#0f172a', marginBottom: '6px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <label style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-primary, #0f172a)', marginBottom: '6px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                    <Layers size={14} color="#07345f" />
+                    <Layers size={14} color="var(--brand-blue, #07345f)" />
                     Violation Offense Category <span style={{ color: '#ef4444' }}>*</span>
                   </span>
-                  <span style={{ fontSize: '11px', color: selectedViolationIds.length > 0 ? '#07345f' : '#64748b', fontWeight: 600 }}>
+                  <span style={{ fontSize: '11px', color: selectedViolationIds.length > 0 ? 'var(--brand-blue, #07345f)' : 'var(--text-muted, #64748b)', fontWeight: 600 }}>
                     {selectedViolationIds.length} Selected
                   </span>
                 </label>
@@ -488,7 +488,7 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
               </div>
 
               <div>
-                <label style={{ fontSize: '12px', fontWeight: 700, color: '#0f172a', marginBottom: '4px', display: 'block' }}>
+                <label style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-primary, #0f172a)', marginBottom: '4px', display: 'block' }}>
                   Prescribed Sanction / Corrective Measure
                 </label>
                 <input
@@ -502,10 +502,10 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
                     height: '38px',
                     padding: '8px 12px',
                     borderRadius: '8px',
-                    border: '1px solid #cbd5e1',
+                    border: '1px solid var(--border-subtle, #cbd5e1)',
                     fontSize: '12.5px',
-                    color: '#0f172a',
-                    background: '#ffffff',
+                    color: 'var(--text-primary, #0f172a)',
+                    background: 'var(--bg-input, #ffffff)',
                     outline: 'none',
                     fontFamily: 'inherit'
                   }}
@@ -513,8 +513,8 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
               </div>
 
               <div>
-                <label style={{ fontSize: '12px', fontWeight: 700, color: '#0f172a', marginBottom: '4px', display: 'block' }}>
-                  Incident Details &amp; Faculty Remarks <span style={{ fontSize: '11px', fontWeight: 500, color: '#94a3b8' }}>(Optional)</span>
+                <label style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-primary, #0f172a)', marginBottom: '4px', display: 'block' }}>
+                  Incident Details &amp; Faculty Remarks <span style={{ fontSize: '11px', fontWeight: 500, color: 'var(--text-muted, #94a3b8)' }}>(Optional)</span>
                 </label>
                 <textarea
                   rows={2}
@@ -525,11 +525,11 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
                     width: '100%',
                     boxSizing: 'border-box',
                     borderRadius: '8px',
-                    border: '1px solid #cbd5e1',
+                    border: '1px solid var(--border-subtle, #cbd5e1)',
                     fontSize: '12px',
                     padding: '8px 10px',
-                    color: '#0f172a',
-                    background: '#ffffff',
+                    color: 'var(--text-primary, #0f172a)',
+                    background: 'var(--bg-input, #ffffff)',
                     outline: 'none',
                     resize: 'none',
                     fontFamily: 'inherit',
@@ -545,7 +545,7 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
             <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               {/* Initial Case Status */}
               <div>
-                <label style={{ fontSize: '12px', fontWeight: 700, color: '#0f172a', marginBottom: '6px', display: 'block' }}>
+                <label style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-primary, #0f172a)', marginBottom: '6px', display: 'block' }}>
                   Initial Case Status
                 </label>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '6px' }}>
@@ -564,9 +564,9 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
                         borderRadius: '8px',
                         fontSize: '11px',
                         fontWeight: 700,
-                        border: formData.status === st.id ? `1.5px solid ${st.color}` : '1px solid #e2e8f0',
-                        background: formData.status === st.id ? `${st.color}15` : '#ffffff',
-                        color: formData.status === st.id ? st.color : '#64748b',
+                        border: formData.status === st.id ? `1.5px solid ${st.color}` : '1px solid var(--border-subtle, #e2e8f0)',
+                        background: formData.status === st.id ? `${st.color}25` : 'var(--bg-surface, #ffffff)',
+                        color: formData.status === st.id ? st.color : 'var(--text-muted, #64748b)',
                         cursor: 'pointer',
                         transition: 'all 0.15s',
                         textAlign: 'center',
@@ -582,8 +582,8 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
               {/* SMS Notification Toggle */}
               <div
                 style={{
-                  background: '#f8fafc',
-                  border: '1px solid #e2e8f0',
+                  background: 'var(--bg-surface-elevated, #f8fafc)',
+                  border: '1px solid var(--border-subtle, #e2e8f0)',
                   borderRadius: '10px',
                   padding: '10px 12px',
                   display: 'flex',
@@ -596,11 +596,11 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
                   id="notify_sms_check"
                   checked={formData.notify_parent_sms}
                   onChange={(e) => setFormData({ ...formData, notify_parent_sms: e.target.checked })}
-                  style={{ width: 16, height: 16, cursor: 'pointer', accentColor: '#07345f', flexShrink: 0 }}
+                  style={{ width: 16, height: 16, cursor: 'pointer', accentColor: 'var(--brand-blue, #07345f)', flexShrink: 0 }}
                 />
-                <label htmlFor="notify_sms_check" style={{ fontSize: '12px', color: '#0f172a', cursor: 'pointer', margin: 0, fontFamily: 'inherit', lineHeight: 1.3 }}>
+                <label htmlFor="notify_sms_check" style={{ fontSize: '12px', color: 'var(--text-primary, #0f172a)', cursor: 'pointer', margin: 0, fontFamily: 'inherit', lineHeight: 1.3 }}>
                   <strong style={{ display: 'block' }}>Dispatch SMS Alert to Guardian(s)</strong>
-                  <span style={{ fontSize: '11px', color: '#64748b' }}>
+                  <span style={{ fontSize: '11px', color: 'var(--text-muted, #64748b)' }}>
                     {selectedStudents.length > 0
                       ? `Sends instant notification to ${selectedStudents.length} guardian contact(s).`
                       : 'Sends instant notification to guardian on file.'}
@@ -609,14 +609,14 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
               </div>
 
               {/* Quick Summary Card */}
-              <div style={{ background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '10px', padding: '10px 12px' }}>
-                <div style={{ fontSize: '11px', fontWeight: 700, color: '#1e40af', textTransform: 'uppercase', marginBottom: '4px' }}>
+              <div style={{ background: 'var(--bg-surface-elevated, #eff6ff)', border: '1px solid var(--border-subtle, #bfdbfe)', borderRadius: '10px', padding: '10px 12px' }}>
+                <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--brand-blue, #1e40af)', textTransform: 'uppercase', marginBottom: '4px' }}>
                   Incident Summary
                 </div>
-                <div style={{ fontSize: '12px', color: '#1e293b', lineHeight: 1.4 }}>
+                <div style={{ fontSize: '12px', color: 'var(--text-primary, #1e293b)', lineHeight: 1.4 }}>
                   <strong>Student:</strong> {selectedStudents.map(s => `${s.fname} ${s.lname}`).join(', ') || 'None selected'}
                 </div>
-                <div style={{ fontSize: '12px', color: '#1e293b', lineHeight: 1.4, marginTop: '2px' }}>
+                <div style={{ fontSize: '12px', color: 'var(--text-primary, #1e293b)', lineHeight: 1.4, marginTop: '2px' }}>
                   <strong>Offense:</strong> {selectedViolations.map(v => v.title).join(', ') || 'None selected'}
                 </div>
               </div>
@@ -630,8 +630,8 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
           className="modal-footer"
           style={{
             padding: '12px 16px',
-            borderTop: '1px solid #e2e8f0',
-            background: '#f8fafc',
+            borderTop: '1px solid var(--border-subtle, #e2e8f0)',
+            background: 'var(--bg-surface-elevated, #f8fafc)',
             display: 'flex',
             justifyContent: 'space-between',
             alignItems: 'center',
@@ -650,9 +650,9 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
                 padding: '8px 14px',
                 fontWeight: 600,
                 fontSize: '12.5px',
-                background: '#ffffff',
-                border: '1px solid #cbd5e1',
-                color: '#0f172a',
+                background: 'var(--bg-surface, #ffffff)',
+                border: '1px solid var(--border-subtle, #cbd5e1)',
+                color: 'var(--text-primary, #0f172a)',
                 cursor: 'pointer',
                 fontFamily: 'inherit'
               }}
@@ -668,9 +668,9 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
                 padding: '8px 14px',
                 fontWeight: 600,
                 fontSize: '12.5px',
-                background: '#ffffff',
-                border: '1px solid #cbd5e1',
-                color: '#0f172a',
+                background: 'var(--bg-surface, #ffffff)',
+                border: '1px solid var(--border-subtle, #cbd5e1)',
+                color: 'var(--text-primary, #0f172a)',
                 cursor: 'pointer',
                 display: 'inline-flex',
                 alignItems: 'center',
@@ -689,7 +689,7 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
               onClick={handleNextToStep2}
               disabled={selectedStudentIds.length === 0}
               style={{
-                background: selectedStudentIds.length === 0 ? '#94a3b8' : '#0f172a',
+                background: selectedStudentIds.length === 0 ? 'var(--text-dim, #94a3b8)' : 'var(--brand-blue, #0f172a)',
                 borderRadius: '8px',
                 padding: '8px 16px',
                 fontWeight: 700,
@@ -700,8 +700,7 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '6px',
-                fontFamily: 'inherit',
-                boxShadow: selectedStudentIds.length === 0 ? 'none' : '0 3px 10px rgba(15, 23, 42, 0.25)'
+                fontFamily: 'inherit'
               }}
             >
               <span>Next: Offense</span>
@@ -713,7 +712,7 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
               onClick={handleNextToStep3}
               disabled={selectedViolationIds.length === 0}
               style={{
-                background: selectedViolationIds.length === 0 ? '#94a3b8' : '#0f172a',
+                background: selectedViolationIds.length === 0 ? 'var(--text-dim, #94a3b8)' : 'var(--brand-blue, #0f172a)',
                 borderRadius: '8px',
                 padding: '8px 16px',
                 fontWeight: 700,
@@ -724,8 +723,7 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '6px',
-                fontFamily: 'inherit',
-                boxShadow: selectedViolationIds.length === 0 ? 'none' : '0 3px 10px rgba(15, 23, 42, 0.25)'
+                fontFamily: 'inherit'
               }}
             >
               <span>Next: Status &amp; SMS</span>
@@ -738,7 +736,7 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
               className="btn btn-primary btn-save-violation-action"
               disabled={loading}
               style={{
-                background: '#0f172a',
+                background: 'var(--brand-blue, #0f172a)',
                 borderRadius: '8px',
                 padding: '8px 18px',
                 fontWeight: 700,
@@ -749,7 +747,6 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '6px',
-                boxShadow: '0 4px 12px rgba(15, 23, 42, 0.3)',
                 fontFamily: 'inherit'
               }}
             >

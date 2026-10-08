@@ -1303,15 +1303,15 @@ export const DashboardPage = () => {
                           const data = payload[0].payload;
                           return (
                             <div className="dash-pie-tooltip-box">
-                              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 800, color: '#0f172a', marginBottom: '4px' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 800, color: 'var(--text-primary, #f8fafc)', marginBottom: '4px' }}>
                                 <span style={{ width: 8, height: 8, borderRadius: '50%', background: data.color }} />
                                 <span>{data.name}</span>
                               </div>
-                              <div style={{ color: '#64748b', fontSize: '11.5px', marginTop: '2px' }}>
-                                Incidents: <strong style={{ color: '#0f172a' }}>{data.value}</strong> {data.value === 1 ? 'case' : 'cases'}
+                              <div style={{ color: 'var(--text-muted, #94a3b8)', fontSize: '11.5px', marginTop: '2px' }}>
+                                Incidents: <strong style={{ color: 'var(--text-primary, #f8fafc)' }}>{data.value}</strong> {data.value === 1 ? 'case' : 'cases'}
                               </div>
-                              <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '2px' }}>
-                                Severity: <span style={{ textTransform: 'capitalize', fontWeight: 600, color: data.severity === 'Major' ? '#dc2626' : data.severity === 'Serious' ? '#d97706' : '#10b981' }}>{data.severity}</span>
+                              <div style={{ fontSize: '11px', color: 'var(--text-dim, #64748b)', marginTop: '2px' }}>
+                                Severity: <span style={{ textTransform: 'capitalize', fontWeight: 600, color: data.severity === 'Major' ? '#f87171' : data.severity === 'Serious' ? '#fbbf24' : '#34d399' }}>{data.severity}</span>
                               </div>
                             </div>
                           );
@@ -1363,7 +1363,7 @@ export const DashboardPage = () => {
         <div className="dash-bottom-card">
           <div className="dash-card-header-clean">
             <div className="dash-card-header-left">
-              <ShieldAlert size={20} color="#0f172a" />
+              <ShieldAlert size={20} color="currentColor" className="dash-header-icon" />
               <div>
                 <h2 className="dash-card-header-title">Repeat & High-Risk Students</h2>
                 <p className="dash-card-header-desc">Top 5 students ranked dynamically by incident weight & frequency</p>
@@ -1419,7 +1419,7 @@ export const DashboardPage = () => {
         <div className="dash-bottom-card">
           <div className="dash-card-header-clean">
             <div className="dash-card-header-left">
-              <GraduationCap size={20} color="#0f172a" />
+              <GraduationCap size={20} color="currentColor" className="dash-header-icon" />
               <div>
                 <h2 className="dash-card-header-title">Violations by Grade & Section</h2>
                 <p className="dash-card-header-desc">Dynamic incident distribution across classes</p>

@@ -396,6 +396,38 @@ html.dark body,
 [data-theme="dark"] .dash-section-track,
 [data-theme="dark"] .dash-grade-bar-track {
   background: #1e293b !important;
+  border-color: #334155 !important;
+}
+
+[data-theme="dark"] .dash-section-fill {
+  background: linear-gradient(90deg, #0284c7 0%, #38bdf8 100%) !important;
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.45) !important;
+}
+
+[data-theme="dark"] .dash-infraction-pill.red,
+[data-theme="dark"] .dash-infraction-pill.major,
+[data-theme="dark"] .dash-infraction-pill.high {
+  background: rgba(239, 68, 68, 0.18) !important;
+  color: #f87171 !important;
+  border: 1px solid rgba(239, 68, 68, 0.45) !important;
+  box-shadow: 0 0 8px rgba(239, 68, 68, 0.15) !important;
+}
+
+[data-theme="dark"] .dash-infraction-pill.amber,
+[data-theme="dark"] .dash-infraction-pill.serious,
+[data-theme="dark"] .dash-infraction-pill.moderate {
+  background: rgba(245, 158, 11, 0.18) !important;
+  color: #fbbf24 !important;
+  border: 1px solid rgba(245, 158, 11, 0.45) !important;
+  box-shadow: 0 0 8px rgba(245, 158, 11, 0.15) !important;
+}
+
+[data-theme="dark"] .dash-infraction-pill.slate,
+[data-theme="dark"] .dash-infraction-pill.minor,
+[data-theme="dark"] .dash-infraction-pill.low {
+  background: rgba(148, 163, 184, 0.14) !important;
+  color: #cbd5e1 !important;
+  border: 1px solid rgba(148, 163, 184, 0.3) !important;
 }
 
 [data-theme="dark"] .dash-btn-view-offender,
@@ -764,3 +796,189 @@ html.dark body,
   border-top: 1px solid #1e293b !important;
   color: #64748b !important;
 }
+
+/* ==========================================================================
+   PROFILE PAGE IN DARK MODE (100% Coverage)
+   ========================================================================== */
+[data-theme="dark"] .profile-page-container {
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .profile-hero-card,
+[data-theme="dark"] .profile-card,
+[data-theme="dark"] .profile-bottom-actions-bar {
+  background: #0f172a !important;
+  border: 1px solid #1e293b !important;
+  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.5) !important;
+}
+
+[data-theme="dark"] .profile-hero-content {
+  background: transparent !important;
+}
+
+[data-theme="dark"] .profile-avatar-img {
+  border-color: #0f172a !important;
+  background: #0f172a !important;
+}
+
+[data-theme="dark"] .profile-name-text {
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .profile-role-badge {
+  background: rgba(56, 189, 248, 0.15) !important;
+  border: 1px solid rgba(56, 189, 248, 0.3) !important;
+  color: #38bdf8 !important;
+}
+
+[data-theme="dark"] .profile-meta-item {
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .profile-tabs-bar {
+  background: #0b1120 !important;
+  border-top: 1px solid #1e293b !important;
+}
+
+[data-theme="dark"] .profile-tab-item {
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .profile-tab-item:hover {
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .profile-tab-item.active {
+  color: #38bdf8 !important;
+  border-bottom-color: #38bdf8 !important;
+  background: rgba(56, 189, 248, 0.08) !important;
+}
+
+[data-theme="dark"] .profile-card-header {
+  border-bottom: 1px solid #1e293b !important;
+}
+
+[data-theme="dark"] .profile-card-icon {
+  background: #1e293b !important;
+  color: #38bdf8 !important;
+}
+
+[data-theme="dark"] .profile-card-icon.red {
+  background: rgba(239, 68, 68, 0.15) !important;
+  color: #f87171 !important;
+}
+
+[data-theme="dark"] .profile-card-title {
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .profile-card-subtitle {
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .profile-form-label {
+  color: #cbd5e1 !important;
+}
+
+[data-theme="dark"] .profile-input {
+  background: #0b1120 !important;
+  border: 1px solid #1e293b !important;
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .profile-input:focus {
+  border-color: #38bdf8 !important;
+  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2) !important;
+}
+
+[data-theme="dark"] .profile-input:disabled {
+  background: #080d1a !important;
+  color: #64748b !important;
+  border-color: #1e293b !important;
+}
+
+[data-theme="dark"] .profile-upload-dropzone {
+  background: #0b1120 !important;
+  border: 2px dashed #1e293b !important;
+}
+
+[data-theme="dark"] .profile-upload-dropzone:hover {
+  border-color: #38bdf8 !important;
+  background: #151f36 !important;
+}
+
+[data-theme="dark"] .profile-preset-box {
+  border-color: #1e293b !important;
+}
+
+[data-theme="dark"] .profile-preset-box.selected {
+  border-color: #38bdf8 !important;
+  box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.4) !important;
+}
+
+[data-theme="dark"] .profile-action-btn.secondary {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+  color: #cbd5e1 !important;
+}
+
+[data-theme="dark"] .profile-action-btn.secondary:hover {
+  background: #334155 !important;
+  color: #f8fafc !important;
+}
+
+/* ==========================================================================
+   ADD VIOLATION MODAL & SEARCHABLE SELECTS IN DARK MODE
+   ========================================================================== */
+[data-theme="dark"] .searchable-select-box,
+[data-theme="dark"] .searchable-select-wrapper,
+[data-theme="dark"] .searchable-dropdown-panel {
+  background: #0f172a !important;
+  border-color: #1e293b !important;
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .searchable-filter-chip {
+  background: #0b1120 !important;
+  border: 1px solid #1e293b !important;
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .searchable-filter-chip.active {
+  background: #38bdf8 !important;
+  border-color: #38bdf8 !important;
+  color: #0f172a !important;
+  font-weight: 750 !important;
+}
+
+[data-theme="dark"] .searchable-item-row {
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .searchable-item-row:hover {
+  background: #1e293b !important;
+}
+
+[data-theme="dark"] .searchable-item-row.selected {
+  background: #151f36 !important;
+  border-color: #38bdf8 !important;
+}
+
+[data-theme="dark"] .violation-step-pill {
+  background: #0b1120 !important;
+  border-color: #1e293b !important;
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .violation-step-pill.active {
+  background: #1e293b !important;
+  border-color: #38bdf8 !important;
+  color: #38bdf8 !important;
+}
+
+[data-theme="dark"] .violation-step-pill.completed {
+  background: rgba(16, 185, 129, 0.15) !important;
+  border-color: rgba(16, 185, 129, 0.4) !important;
+  color: #34d399 !important;
+}
+

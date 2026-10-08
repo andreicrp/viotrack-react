@@ -122,12 +122,13 @@ export const SearchableStudentSelect = ({
 
   const renderContent = () => (
     <div
+      className="searchable-dropdown-panel"
       style={
         inline
           ? {
-              background: '#ffffff',
+              background: 'var(--bg-surface, #ffffff)',
               borderRadius: '10px',
-              border: '1px solid #cbd5e1',
+              border: '1px solid var(--border-subtle, #cbd5e1)',
               overflow: 'hidden',
               display: 'flex',
               flexDirection: 'column',
@@ -139,10 +140,10 @@ export const SearchableStudentSelect = ({
               top: 'calc(100% + 4px)',
               left: 0,
               right: 0,
-              background: '#ffffff',
+              background: 'var(--bg-surface, #ffffff)',
               borderRadius: '10px',
-              border: '1px solid #cbd5e1',
-              boxShadow: '0 12px 30px -5px rgba(0, 0, 0, 0.2)',
+              border: '1px solid var(--border-subtle, #cbd5e1)',
+              boxShadow: '0 12px 30px -5px rgba(0, 0, 0, 0.35)',
               zIndex: 9999,
               overflow: 'hidden',
               display: 'flex',
@@ -153,7 +154,7 @@ export const SearchableStudentSelect = ({
       }
     >
       {/* Search & Filter Header */}
-      <div style={{ padding: '10px 12px', background: '#f8fafc', borderBottom: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+      <div className="searchable-select-header" style={{ padding: '10px 12px', background: 'var(--bg-surface-elevated, #f8fafc)', borderBottom: '1px solid var(--border-subtle, #e2e8f0)', display: 'flex', flexDirection: 'column', gap: '8px' }}>
         <div style={{ position: 'relative', width: '100%' }}>
           <input
             ref={searchInputRef}
@@ -161,20 +162,21 @@ export const SearchableStudentSelect = ({
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search by name, Student ID, section..."
+            className="searchable-select-input"
             style={{
               width: '100%',
               boxSizing: 'border-box',
               padding: '8px 12px 8px 32px',
               borderRadius: '8px',
-              border: '1px solid #cbd5e1',
+              border: '1px solid var(--border-subtle, #cbd5e1)',
               fontSize: '13px',
               outline: 'none',
-              color: '#0f172a',
-              background: '#ffffff',
+              color: 'var(--text-primary, #0f172a)',
+              background: 'var(--bg-input, #ffffff)',
               fontFamily: 'inherit'
             }}
           />
-          <Search size={15} color="#94a3b8" style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)' }} />
+          <Search size={15} color="var(--text-muted, #94a3b8)" style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)' }} />
           {searchQuery && (
             <button
               type="button"
@@ -186,7 +188,7 @@ export const SearchableStudentSelect = ({
                 transform: 'translateY(-50%)',
                 background: 'transparent',
                 border: 'none',
-                color: '#94a3b8',
+                color: 'var(--text-muted, #94a3b8)',
                 cursor: 'pointer'
               }}
             >
@@ -205,17 +207,17 @@ export const SearchableStudentSelect = ({
                   type="button"
                   key={g}
                   onClick={() => setGradeFilter(g)}
+                  className={`searchable-filter-chip ${isActive ? 'active' : ''}`}
                   style={{
                     padding: '5px 10px',
                     borderRadius: '6px',
-                    border: isActive ? '1.5px solid #0f172a' : '1px solid #cbd5e1',
-                    background: isActive ? '#0f172a' : '#ffffff',
-                    color: isActive ? '#ffffff' : '#334155',
+                    border: isActive ? '1.5px solid var(--brand-blue, #0f172a)' : '1px solid var(--border-subtle, #cbd5e1)',
+                    background: isActive ? 'var(--brand-blue, #0f172a)' : 'var(--bg-surface, #ffffff)',
+                    color: isActive ? '#ffffff' : 'var(--text-secondary, #334155)',
                     fontSize: '11.5px',
                     fontWeight: 700,
                     cursor: 'pointer',
-                    transition: 'all 0.15s ease',
-                    boxShadow: isActive ? '0 2px 4px rgba(15, 23, 42, 0.2)' : 'none'
+                    transition: 'all 0.15s ease'
                   }}
                 >
                   {g === 'all' ? 'All' : g.replace('Grade ', 'G')}
@@ -228,12 +230,13 @@ export const SearchableStudentSelect = ({
             <button
               type="button"
               onClick={handleSelectAllFiltered}
+              className="searchable-filter-chip"
               style={{
                 fontSize: '11.5px',
                 fontWeight: 700,
-                color: '#0f172a',
-                background: '#f1f5f9',
-                border: '1px solid #cbd5e1',
+                color: 'var(--text-primary, #0f172a)',
+                background: 'var(--bg-surface-hover, #f1f5f9)',
+                border: '1px solid var(--border-subtle, #cbd5e1)',
                 borderRadius: '6px',
                 padding: '5px 10px',
                 cursor: 'pointer',
@@ -247,9 +250,9 @@ export const SearchableStudentSelect = ({
       </div>
 
       {/* Student List */}
-      <div style={{ overflowY: 'auto', maxHeight: inline ? maxListHeight : '240px', minHeight: '140px', flex: 1, padding: '4px' }}>
+      <div className="searchable-select-list" style={{ overflowY: 'auto', maxHeight: inline ? maxListHeight : '240px', minHeight: '140px', flex: 1, padding: '4px', background: 'var(--bg-surface, #ffffff)' }}>
         {filtered.length === 0 ? (
-          <div style={{ padding: '16px 12px', textAlign: 'center', color: '#64748b', fontSize: '12px' }}>
+          <div style={{ padding: '16px 12px', textAlign: 'center', color: 'var(--text-muted, #64748b)', fontSize: '12px' }}>
             No students found.
           </div>
         ) : (
@@ -260,6 +263,7 @@ export const SearchableStudentSelect = ({
                 <div
                   key={s.id}
                   onClick={() => handleToggle(s)}
+                  className={`searchable-item-row ${isSelected ? 'selected' : ''}`}
                   style={{
                     padding: '6px 8px',
                     borderRadius: '6px',
@@ -267,13 +271,11 @@ export const SearchableStudentSelect = ({
                     alignItems: 'center',
                     justifyContent: 'space-between',
                     cursor: 'pointer',
-                    background: isSelected ? '#f1f5f9' : 'transparent',
-                    border: isSelected ? '1px solid #cbd5e1' : '1px solid transparent',
+                    background: isSelected ? 'var(--bg-surface-hover, #f1f5f9)' : 'transparent',
+                    border: isSelected ? '1px solid var(--border-subtle, #cbd5e1)' : '1px solid transparent',
                     marginBottom: '2px',
                     transition: 'all 0.12s ease'
                   }}
-                  onMouseOver={(e) => { if (!isSelected) e.currentTarget.style.background = '#f8fafc'; }}
-                  onMouseOut={(e) => { if (!isSelected) e.currentTarget.style.background = 'transparent'; }}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     {isMulti ? (
@@ -282,8 +284,8 @@ export const SearchableStudentSelect = ({
                           width: 16,
                           height: 16,
                           borderRadius: '3px',
-                          border: isSelected ? '1.5px solid #0f172a' : '1.5px solid #cbd5e1',
-                          background: isSelected ? '#0f172a' : '#ffffff',
+                          border: isSelected ? '1.5px solid var(--brand-blue, #0f172a)' : '1.5px solid var(--border-subtle, #cbd5e1)',
+                          background: isSelected ? 'var(--brand-blue, #0f172a)' : 'var(--bg-input, #ffffff)',
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'center',
@@ -303,21 +305,21 @@ export const SearchableStudentSelect = ({
                       style={{ width: 24, height: 24, borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }}
                     />
                     <div>
-                      <div style={{ fontSize: '12.5px', fontWeight: isSelected ? 700 : 600, color: '#0f172a' }}>
+                      <div style={{ fontSize: '12.5px', fontWeight: isSelected ? 700 : 600, color: 'var(--text-primary, #0f172a)' }}>
                         {s.fname} {s.lname}
                       </div>
-                      <div style={{ fontSize: '11px', color: '#64748b' }}>
+                      <div style={{ fontSize: '11px', color: 'var(--text-muted, #64748b)' }}>
                         Student ID: {s.lrn} • {s.grade} - {s.section}
                       </div>
                     </div>
                   </div>
 
-                  {!isMulti && isSelected && <Check size={14} color="#0f172a" strokeWidth={2.5} />}
+                  {!isMulti && isSelected && <Check size={14} color="var(--brand-blue, #0f172a)" strokeWidth={2.5} />}
                 </div>
               );
             })}
             {filtered.length > 50 && (
-              <div style={{ padding: '6px 8px', textAlign: 'center', fontSize: '11px', color: '#64748b', background: '#f8fafc', borderRadius: '6px', margin: '4px 0' }}>
+              <div style={{ padding: '6px 8px', textAlign: 'center', fontSize: '11px', color: 'var(--text-muted, #64748b)', background: 'var(--bg-surface-elevated, #f8fafc)', borderRadius: '6px', margin: '4px 0' }}>
                 Showing top 50 of {filtered.length.toLocaleString()} matching students. Type to narrow search.
               </div>
             )}
@@ -327,15 +329,15 @@ export const SearchableStudentSelect = ({
 
       {/* Bottom Bar (in dropdown mode) */}
       {!inline && isMulti && (
-        <div style={{ padding: '6px 10px', background: '#f8fafc', borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span style={{ fontSize: '11px', color: '#64748b', fontWeight: 500 }}>
+        <div style={{ padding: '6px 10px', background: 'var(--bg-surface-elevated, #f8fafc)', borderTop: '1px solid var(--border-subtle, #e2e8f0)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span style={{ fontSize: '11px', color: 'var(--text-muted, #64748b)', fontWeight: 500 }}>
             {selectedIds.length} {selectedIds.length === 1 ? 'student' : 'students'} chosen
           </span>
           <button
             type="button"
             onClick={() => setIsOpen(false)}
             style={{
-              background: '#0f172a',
+              background: 'var(--brand-blue, #0f172a)',
               color: '#ffffff',
               border: 'none',
               borderRadius: '5px',
