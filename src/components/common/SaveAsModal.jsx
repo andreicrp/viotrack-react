@@ -16,7 +16,11 @@ import {
   FileCode,
   Loader2,
   CheckCircle2,
-  FolderOpen
+  FolderOpen,
+  Image as ImageIcon,
+  Music as MusicIcon,
+  Video as VideoIcon,
+  File as GenericFileIcon
 } from 'lucide-react';
 import { Capacitor } from '@capacitor/core';
 import { Filesystem, Directory } from '@capacitor/filesystem';
@@ -45,7 +49,7 @@ export const SaveAsModal = ({
 
   // Navigation views: 'places' | 'device' | 'folder'
   const [currentView, setCurrentView] = useState('places');
-  const [selectedFolder, setSelectedFolder] = useState('Download');
+  const [selectedFolder, setSelectedFolder] = useState('Documents');
   const [filename, setFilename] = useState(defaultFilename);
   const [selectedFormat, setSelectedFormat] = useState(defaultFormat);
   const [isSaving, setIsSaving] = useState(false);
@@ -56,11 +60,11 @@ export const SaveAsModal = ({
   useEffect(() => {
     if (isOpen) {
       setCurrentView('places');
-      setSelectedFolder('Download');
+      setSelectedFolder('Documents');
       setFilename(defaultFilename.replace(/\.(csv|pdf|xlsx)$/i, ''));
       setSelectedFormat(defaultFormat);
       setIsSaving(false);
-      loadSavedFiles('Download');
+      loadSavedFiles('Documents');
     }
   }, [isOpen, defaultFilename, defaultFormat]);
 
@@ -68,24 +72,51 @@ export const SaveAsModal = ({
     if (isNativeApp()) {
       try {
         let targetDir = Directory.Documents;
+        let subPath = '';
+
         if (folderName === 'Storage') {
           targetDir = Directory.ExternalStorage;
+          subPath = '';
+        } else if (folderName === 'Download') {
+          targetDir = Directory.ExternalStorage;
+          subPath = 'Download';
+        } else if (folderName === 'Documents') {
+          targetDir = Directory.Documents;
+          subPath = '';
+        } else {
+          // Subfolder on device
+          targetDir = Directory.ExternalStorage;
+          subPath = folderName;
         }
 
-        const res = await Filesystem.readdir({
-          path: '',
-          directory: targetDir
-        });
+        let res;
+        try {
+          res = await Filesystem.readdir({
+            path: subPath,
+            directory: targetDir
+          });
+        } catch (subErr) {
+          try {
+            res = await Filesystem.readdir({
+              path: '',
+              directory: Directory.Documents
+            });
+          } catch (docErr) {
+            console.warn('Documents readdir fallback failed:', docErr);
+          }
+        }
 
         if (res && res.files) {
           const fileItems = res.files
             .map(f => {
               const name = typeof f === 'string' ? f : (f.name || '');
-              const size = typeof f === 'object' && f.size ? `${(f.size / 1024).toFixed(0)} KB` : '';
+              const type = typeof f === 'object' && f.type ? f.type : (!name.includes('.') ? 'directory' : 'file');
+              const isDir = type === 'directory' || !name.includes('.');
+              const size = typeof f === 'object' && f.size ? `${(f.size / 1024).toFixed(0)} KB` : (isDir ? 'Folder' : '');
               const mtime = typeof f === 'object' && f.mtime 
                 ? new Date(f.mtime).toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' }) 
-                : 'Device File';
-              return { name, size, date: mtime };
+                : '';
+              return { name, size, date: mtime, isDirectory: isDir };
             })
             .filter(f => f.name && !f.name.startsWith('.'));
 
@@ -97,8 +128,50 @@ export const SaveAsModal = ({
       }
     }
     
-    // Default fallback list on browser dev mode
-    setSavedFilesList([]);
+    // Default mock list for browser dev testing
+    setSavedFilesList([
+      { name: 'Viotrack_Violations_2026.pdf', size: '24 KB', date: 'Oct 8, 2026', isDirectory: false },
+      { name: 'Student_Directory.csv', size: '86 KB', date: 'Oct 5, 2026', isDirectory: false },
+      { name: 'Download', size: 'Folder', date: 'Oct 8, 2026', isDirectory: true },
+      { name: 'Pictures', size: 'Folder', date: 'Sep 29, 2026', isDirectory: true }
+    ]);
+  };
+
+  // Helper to determine icon & badge color for any file/folder type
+  const getFileBadgeMeta = (file) => {
+    const name = (file?.name || '').toLowerCase();
+    const isDir = file?.isDirectory || !name.includes('.');
+
+    if (isDir) {
+      if (name.includes('music') || name.includes('audio') || name.includes('ringtone') || name.includes('notification')) {
+        return { bg: '#eff6ff', icon: <MusicIcon size={22} color="#2563eb" />, isDir: true };
+      }
+      if (name.includes('picture') || name.includes('dcim') || name.includes('photo') || name.includes('image')) {
+        return { bg: '#faf5ff', icon: <ImageIcon size={22} color="#9333ea" />, isDir: true };
+      }
+      if (name.includes('movie') || name.includes('video')) {
+        return { bg: '#fff1f2', icon: <VideoIcon size={22} color="#e11d48" />, isDir: true };
+      }
+      return { bg: '#fef3c7', icon: <Folder size={22} color="#d97706" />, isDir: true };
+    }
+
+    if (name.endsWith('.pdf')) {
+      return { bg: '#fef2f2', icon: <FileText size={22} color="#dc2626" />, isDir: false };
+    }
+    if (name.endsWith('.csv') || name.endsWith('.xlsx') || name.endsWith('.xls')) {
+      return { bg: '#f0fdf4', icon: <FileSpreadsheet size={22} color="#16a34a" />, isDir: false };
+    }
+    if (name.endsWith('.png') || name.endsWith('.jpg') || name.endsWith('.jpeg') || name.endsWith('.webp') || name.endsWith('.svg')) {
+      return { bg: '#faf5ff', icon: <ImageIcon size={22} color="#9333ea" />, isDir: false };
+    }
+    if (name.endsWith('.mp3') || name.endsWith('.wav') || name.endsWith('.ogg') || name.endsWith('.m4a')) {
+      return { bg: '#eff6ff', icon: <MusicIcon size={22} color="#2563eb" />, isDir: false };
+    }
+    if (name.endsWith('.mp4') || name.endsWith('.mkv') || name.endsWith('.mov')) {
+      return { bg: '#fff1f2', icon: <VideoIcon size={22} color="#e11d48" />, isDir: false };
+    }
+
+    return { bg: '#f1f5f9', icon: <GenericFileIcon size={22} color="#475569" />, isDir: false };
   };
 
   if (!isOpen) return null;
@@ -584,27 +657,49 @@ export const SaveAsModal = ({
                   Folder is empty. Tap <b>Save</b> below to export file directly here.
                 </div>
               ) : (
-                savedFilesList.map((file, idx) => (
-                  <div
-                    key={idx}
-                    className="saveas-item-light"
-                    style={{ borderBottom: idx === savedFilesList.length - 1 ? 'none' : '1px solid #f1f5f9' }}
-                  >
-                    <div style={{ width: '40px', height: '40px', borderRadius: '8px', background: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                      {file.name.endsWith('.csv') && <FileSpreadsheet size={22} color="#16a34a" />}
-                      {file.name.endsWith('.pdf') && <FileText size={22} color="#dc2626" />}
-                      {file.name.endsWith('.xlsx') && <FileSpreadsheet size={22} color="#2563eb" />}
-                    </div>
-                    <div style={{ flex: 1, marginLeft: '12px', minWidth: 0 }}>
-                      <div style={{ fontSize: '14px', fontWeight: 600, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                        {file.name}
+                savedFilesList.map((file, idx) => {
+                  const meta = getFileBadgeMeta(file);
+                  return (
+                    <div
+                      key={idx}
+                      className="saveas-item-light"
+                      style={{ 
+                        borderBottom: idx === savedFilesList.length - 1 ? 'none' : '1px solid #f1f5f9',
+                        cursor: meta.isDir ? 'pointer' : 'default'
+                      }}
+                      onClick={() => {
+                        if (meta.isDir) {
+                          setSelectedFolder(file.name);
+                          loadSavedFiles(file.name);
+                        }
+                      }}
+                    >
+                      <div style={{ 
+                        width: '40px', 
+                        height: '40px', 
+                        borderRadius: '8px', 
+                        background: meta.bg, 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        justifyContent: 'center', 
+                        flexShrink: 0 
+                      }}>
+                        {meta.icon}
                       </div>
-                      <div style={{ fontSize: '11.5px', color: '#64748b', marginTop: '2px' }}>
-                        {file.size} &bull; {file.date}
+                      <div style={{ flex: 1, marginLeft: '12px', minWidth: 0 }}>
+                        <div style={{ fontSize: '14px', fontWeight: 600, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                          {file.name}
+                        </div>
+                        <div style={{ fontSize: '11.5px', color: '#64748b', marginTop: '2px' }}>
+                          {file.size ? `${file.size} \u2022 ` : ''}{file.date || (meta.isDir ? 'Directory' : 'File')}
+                        </div>
                       </div>
+                      {meta.isDir && (
+                        <ChevronRight size={18} color="#94a3b8" />
+                      )}
                     </div>
-                  </div>
-                ))
+                  );
+                })
               )}
             </div>
           </div>
