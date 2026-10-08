@@ -4,7 +4,7 @@ import { Sidebar } from './Sidebar';
 import { Header } from './Header';
 import { MobileBottomNav } from './MobileBottomNav';
 import { AddViolationModal } from '../violations/AddViolationModal';
-import { InteractiveTourGuide } from '../guide/InteractiveTourGuide';
+import { InteractiveTourGuide } from '../guide/InteractiveGuide';
 import { CommandPalette } from '../common/CommandPalette';
 
 export const Layout = () => {

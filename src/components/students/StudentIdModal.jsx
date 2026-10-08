@@ -81,22 +81,7 @@ export const StudentIdModal = ({ isOpen, onClose, student }) => {
                     className="id-qr-img"
                   />
                   <div
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      gap: '3px',
-                      fontSize: '8.5px',
-                      fontWeight: 800,
-                      color: '#059669',
-                      background: '#ecfdf5',
-                      border: '1px solid #a7f3d0',
-                      borderRadius: '4px',
-                      padding: '2px 4px',
-                      marginTop: '4px',
-                      letterSpacing: '0.04em',
-                      whiteSpace: 'nowrap'
-                    }}
+                    className="id-qr-security-badge"
                     title="Cryptographically signed with SHA-256 HMAC for anti-counterfeit protection"
                   >
                     <ShieldCheck size={10} color="#059669" />
