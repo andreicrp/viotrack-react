@@ -18,6 +18,7 @@ import {
   Play,
   RotateCcw,
   Maximize2,
+  Minimize2,
   Calendar,
   Clock,
   MapPin,
