@@ -151,7 +151,7 @@ export const buildPrintReportHtml = ({
   };
 
   // Chunk records for clean pagination (fits up to 30 rows comfortably on Letter/A4/Legal)
-  const RECORDS_PER_PAGE = 30;
+  const RECORDS_PER_PAGE = 22;
 
   let recordPages = [];
   if (includeRecordsTable && records && records.length > 0) {
@@ -168,11 +168,12 @@ export const buildPrintReportHtml = ({
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>${reportTitle} - ${dateRangeLabel}</title>
   <style>
     @page {
-      size: portrait;
-      margin: 8mm 10mm 8mm 10mm;
+      size: auto;
+      margin: 6mm 8mm 6mm 8mm;
     }
     * {
       box-sizing: border-box;
@@ -185,24 +186,25 @@ export const buildPrintReportHtml = ({
       background: #ffffff;
       margin: 0;
       padding: 0;
-      font-size: 10pt;
-      line-height: 1.35;
+      font-size: 9.5pt;
+      line-height: 1.3;
     }
 
     /* Page container with strict page breaks and tight natural spacing */
     .print-page {
       page-break-after: always;
       break-after: page;
+      page-break-inside: avoid;
+      break-inside: avoid;
       box-sizing: border-box;
       padding: 0;
       margin: 0;
-      min-height: 270mm;
       display: flex;
       flex-direction: column;
     }
     .print-page:last-child {
-      page-break-after: auto;
-      break-after: auto;
+      page-break-after: avoid;
+      break-after: avoid;
     }
 
     .report-frame {
@@ -291,7 +293,9 @@ export const buildPrintReportHtml = ({
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       gap: 6px;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
+      page-break-inside: avoid;
+      break-inside: avoid;
     }
     .kpi-card {
       border: 1px solid #cbd5e1;
@@ -319,7 +323,9 @@ export const buildPrintReportHtml = ({
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 10px;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
+      page-break-inside: avoid;
+      break-inside: avoid;
     }
     .chart-box {
       border: 1px solid #cbd5e1;
@@ -351,6 +357,8 @@ export const buildPrintReportHtml = ({
       margin: 6px 0 4px;
       border-bottom: 1.5px solid #e2e8f0;
       padding-bottom: 2px;
+      page-break-after: avoid;
+      break-after: avoid;
     }
 
     /* Data Breakdown Tables */
@@ -360,6 +368,8 @@ export const buildPrintReportHtml = ({
       font-size: 7.8pt;
       margin-bottom: 8px;
       border: 1px solid #cbd5e1;
+      page-break-inside: auto;
+      break-inside: auto;
     }
     .data-table th {
       background: #f1f5f9;
