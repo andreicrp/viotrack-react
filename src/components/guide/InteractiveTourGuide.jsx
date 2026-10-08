@@ -85,6 +85,27 @@ const TOUR_SCENARIOS = {
         icon: Sparkles
       },
       {
+        target: '.dash-bottom-card:nth-child(1), .dash-offenders-list',
+        title: 'Repeat & High-Risk Students',
+        content: 'Dynamically ranks the top students by cumulative infraction weight. Click "View" to open their comprehensive disciplinary dossier and timeline.',
+        badge: 'Risk Monitoring',
+        icon: AlertTriangle
+      },
+      {
+        target: '.dash-bottom-card:nth-child(2), .dash-sections-list, .dash-insight-banner',
+        title: 'Violations by Grade & Section',
+        content: 'Inspect disciplinary distribution across grade levels and sections, paired with automated Priority Guidance Alerts for timely advisory intervention.',
+        badge: 'Class Distribution',
+        icon: BookOpen
+      },
+      {
+        target: '.dash-right-col-stack, .dash-calendar-card',
+        title: 'School Calendar & Quick Actions',
+        content: 'Track scheduled disciplinary hearings and campus events on the interactive calendar, or use Quick Actions to manage rosters and export data.',
+        badge: 'Schedule & Actions',
+        icon: Compass
+      },
+      {
         target: '.sidebar, .mobile-bottom-nav, nav',
         title: 'Quick Navigation Hub',
         content: 'Easily switch between QR Scanning for on-the-ground ID checks, Violations Registry, Student Rosters, and Institutional Data Print exports.',
