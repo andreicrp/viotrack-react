@@ -334,3 +334,10 @@ Clean latest main passed **4 existing tests**, lint (**412 warnings, 0 errors**)
 Latest main is [`0828a9b8edd67974cf9b4c5883a5edcb8f3b081f`](https://github.com/andreicrp/viotrack-react/commit/0828a9b8edd67974cf9b4c5883a5edcb8f3b081f). It requests storage permission and adjusts APK save behavior in the Android manifest and Save As modal; no data-service or dependency files changed.
 
 Clean latest main passed **4 existing tests**, lint (**413 warnings, 0 errors**), and build (2,674.21 kB `vendor-react`, gzip 791.67 kB; PDF worker 1,264.34 kB). After rebasing the existing PR onto `0828a9b`, **24 tests passed**, typecheck passed, lint passed (**412 warnings, 0 errors**), and build passed with matching vendor React and PDF worker bundle sizes.
+
+
+## Baseline after the 2026-10-08 direct-to-device save commit
+
+Latest main is [`116e7ab55e15b70feb08d527637e04c00592cff6`](https://github.com/andreicrp/viotrack-react/commit/116e7ab55e15b70feb08d527637e04c00592cff6). It updates the Save As modal to enumerate/save device files directly on APK; no data-service or dependency files changed.
+
+Clean latest main passed **4 existing tests**, lint (**412 warnings, 0 errors**), and build (2,674.21 kB `vendor-react`, gzip 791.67 kB; PDF worker 1,264.34 kB). After rebasing the existing PR onto `116e7ab`, **24 tests passed**, typecheck passed, lint passed (**411 warnings, 0 errors**), and build passed with matching vendor React and PDF worker bundle sizes.
