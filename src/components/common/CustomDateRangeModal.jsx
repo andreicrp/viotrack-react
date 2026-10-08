@@ -13,16 +13,22 @@ export const CustomDateRangeModal = ({
 }) => {
   const [startDate, setStartDate] = useState(initialStartDate);
   const [endDate, setEndDate] = useState(initialEndDate);
-  const [activePreset, setActivePreset] = useState('month');
+  const [activePreset, setActivePreset] = useState('30days');
 
   useEffect(() => {
     if (isOpen) {
       lockBodyScroll();
       setStartDate(initialStartDate);
       setEndDate(initialEndDate);
-      if (initialStartDate === '2026-09-01' && initialEndDate === '2026-09-30') {
-        setActivePreset('month');
-      } else if (initialStartDate === '2026-09-30' && initialEndDate === '2026-09-30') {
+      const now = new Date();
+      const currentYear = now.getFullYear();
+      const todayStr = `${currentYear}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+      
+      if (initialStartDate === `${currentYear}-01-01` && initialEndDate === `${currentYear}-12-31`) {
+        setActivePreset('year');
+      } else if (initialStartDate === '2020-01-01') {
+        setActivePreset('all');
+      } else if (initialStartDate === todayStr && initialEndDate === todayStr) {
         setActivePreset('today');
       } else {
         setActivePreset('custom');
@@ -58,36 +64,35 @@ export const CustomDateRangeModal = ({
 
   const handleApplyPreset = (presetId) => {
     setActivePreset(presetId);
-    const baseDate = new Date(2026, 8, 30); // 2026-09-30
+    const now = new Date();
+    const currentYear = now.getFullYear();
 
     if (presetId === 'today') {
-      const todayStr = formatDateString(baseDate);
+      const todayStr = formatDateString(now);
       setStartDate(todayStr);
       setEndDate(todayStr);
     } else if (presetId === 'yesterday') {
-      const yDate = new Date(baseDate);
+      const yDate = new Date(now);
       yDate.setDate(yDate.getDate() - 1);
       const yStr = formatDateString(yDate);
       setStartDate(yStr);
       setEndDate(yStr);
     } else if (presetId === '7days') {
-      const sDate = new Date(baseDate);
+      const sDate = new Date(now);
       sDate.setDate(sDate.getDate() - 6);
       setStartDate(formatDateString(sDate));
-      setEndDate(formatDateString(baseDate));
-    } else if (presetId === '14days') {
-      const sDate = new Date(baseDate);
-      sDate.setDate(sDate.getDate() - 13);
-      setStartDate(formatDateString(sDate));
-      setEndDate(formatDateString(baseDate));
+      setEndDate(formatDateString(now));
     } else if (presetId === '30days') {
-      const sDate = new Date(baseDate);
+      const sDate = new Date(now);
       sDate.setDate(sDate.getDate() - 29);
       setStartDate(formatDateString(sDate));
-      setEndDate(formatDateString(baseDate));
-    } else if (presetId === 'month') {
-      setStartDate('2026-09-01');
-      setEndDate('2026-09-30');
+      setEndDate(formatDateString(now));
+    } else if (presetId === 'year') {
+      setStartDate(`${currentYear}-01-01`);
+      setEndDate(`${currentYear}-12-31`);
+    } else if (presetId === 'all') {
+      setStartDate('2020-01-01');
+      setEndDate(`${currentYear + 1}-12-31`);
     }
   };
 
@@ -118,9 +123,9 @@ export const CustomDateRangeModal = ({
     { id: 'today', label: 'Today' },
     { id: 'yesterday', label: 'Yesterday' },
     { id: '7days', label: 'Last 7 Days' },
-    { id: '14days', label: 'Last 14 Days' },
     { id: '30days', label: 'Last 30 Days' },
-    { id: 'month', label: 'This Month' }
+    { id: 'year', label: 'This Year' },
+    { id: 'all', label: 'All Time' }
   ];
 
   return (
@@ -334,7 +339,7 @@ export const CustomDateRangeModal = ({
                 flexShrink: 0
               }}
             >
-              {daysCount} {daysCount === 1 ? 'Day' : 'Days'}
+              {activePreset === 'all' ? 'All Time' : `${daysCount} ${daysCount === 1 ? 'Day' : 'Days'}`}
             </span>
           </div>
 
