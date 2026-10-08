@@ -658,7 +658,10 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
       title: `${studentLastName || 'Student'} - Official Parent Summons Notice`,
       filename: `Parent_Summons_${studentFullName.replace(/\s+/g, '_')}_${referenceNo}.pdf`,
       htmlContent: html,
-      generatePdfBlob: generateSummonsPdfDoc,
+      generatePdfBlob: async () => {
+        const doc = await generateSummonsPdfDoc();
+        return doc.output('blob');
+      },
       onStatus: (st) => {
         if (st.type === 'success') success(st.message);
         else if (st.type === 'info') info(st.message);
@@ -1617,8 +1620,34 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
             </div>
           </div>
 
-          {/* Right: Only Print Button + Close Button */}
+          {/* Right: PDF + Print Button + Close Button */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
+            {/* Download PDF Button */}
+            <button
+              type="button"
+              onClick={handleDownloadPDF}
+              style={{
+                background: '#ffffff',
+                border: '1px solid #cbd5e1',
+                color: '#0f172a',
+                cursor: 'pointer',
+                padding: '0 10px',
+                height: '32px',
+                borderRadius: '8px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '5px',
+                fontSize: '12px',
+                fontWeight: 700,
+                boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)',
+                transition: 'all 0.15s ease'
+              }}
+              title="Download Summons PDF"
+            >
+              <Download size={14} />
+              <span>PDF</span>
+            </button>
+
             {/* Print Button */}
             <button
               type="button"

@@ -957,7 +957,10 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
         title: `${studentLastName || 'Student'} - Disciplinary Case Resolution Certificate`,
         filename: `Disciplinary_Resolution_${studentFullName.replace(/\s+/g, '_')}_${record.id}.pdf`,
         htmlContent: html,
-        generatePdfBlob: generateResolutionPdfDoc,
+        generatePdfBlob: async () => {
+          const doc = await generateResolutionPdfDoc();
+          return doc.output('blob');
+        },
         onStatus: (st) => {
           if (st.type === 'success') success(st.message);
           else if (st.type === 'info') info(st.message);
@@ -1706,8 +1709,34 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
             </div>
           </div>
 
-          {/* Right: Only Print Button + Close Button */}
+          {/* Right: PDF + Print Button + Close Button */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
+            {/* Download PDF Button */}
+            <button
+              type="button"
+              onClick={handleDownloadPDF}
+              style={{
+                background: '#ffffff',
+                border: '1px solid #cbd5e1',
+                color: '#0f172a',
+                cursor: 'pointer',
+                padding: '0 10px',
+                height: '32px',
+                borderRadius: '8px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '5px',
+                fontSize: '12px',
+                fontWeight: 700,
+                boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)',
+                transition: 'all 0.15s ease'
+              }}
+              title="Download Resolution PDF"
+            >
+              <Download size={14} />
+              <span>PDF</span>
+            </button>
+
             <button
               type="button"
               onClick={handlePrintResolutionCertificate}
