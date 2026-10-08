@@ -313,3 +313,10 @@ Clean latest main passed **4 existing tests**, lint (**395 warnings, 0 errors**)
 Latest main is [`7d6cfe03a0eea377d8807a9c245704eb8b193d5a`](https://github.com/andreicrp/viotrack-react/commit/7d6cfe03a0eea377d8807a9c245704eb8b193d5a). It updates Android FileProvider paths and the mobile print helper's share-file handling; no data-service or dependency files changed.
 
 After reinstalling the clean-main lockfile with `npm ci` (the initial attempt used stale `node_modules` and could not resolve `@capacitor/share`), clean main passed **4 tests**, lint (**395 warnings, 0 errors**), and build (**2,673.86 kB** `vendor-react`, gzip 791.60 kB; PDF worker 1,264.34 kB). The rebased PR passed **24 tests**, `npm run typecheck`, lint (**394 warnings, 0 errors**), and build with the same matching bundle sizes. Compared with the previous main baseline at `695c3cc`, the earlier +9.93 kB apparent PR delta is no longer present against `7d6cfe0`; current main and PR outputs match.
+
+
+## Baseline after the 2026-10-08 native Save As export-flow commit
+
+Latest main is [`0c2117e11be53730042441ecf1e62d5414bf2494`](https://github.com/andreicrp/viotrack-react/commit/0c2117e11be53730042441ecf1e62d5414bf2494). It adds a shared Save As modal and updates export actions across the application pages; no data-service or dependency files changed.
+
+Clean latest main passed **4 existing tests**, lint (**412 warnings, 0 errors**), and build (2,674.21 kB `vendor-react`, gzip 791.67 kB; PDF worker 1,264.34 kB). After rebasing the existing PR onto `0c2117e`, **24 tests passed**, typecheck passed, lint passed (**411 warnings, 0 errors**), and build passed with matching vendor React/PDF worker bundle sizes.
