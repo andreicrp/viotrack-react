@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import {
   Database,
   Download,
@@ -169,7 +170,7 @@ export const BackupRestoreModal = ({ isOpen, onClose }) => {
     }
   };
 
-  return (
+  const modalContent = (
     <div
       className="modal-backdrop-smooth"
       style={{
@@ -188,14 +189,14 @@ export const BackupRestoreModal = ({ isOpen, onClose }) => {
       <div className="modal-content-smooth backup-modal-dialog">
         {/* Modal Header */}
         <div className="backup-modal-header">
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: 0 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: 0, flex: 1 }}>
             <Database size={22} color="#0f172a" style={{ flexShrink: 0 }} />
-            <div style={{ minWidth: 0 }}>
-              <h3 style={{ margin: 0, fontSize: '16.5px', fontWeight: 800, letterSpacing: '-0.01em', color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            <div style={{ minWidth: 0, flex: 1 }}>
+              <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 800, letterSpacing: '-0.01em', color: '#0f172a' }}>
                 Database Backup &amp; Restore
               </h3>
-              <span style={{ fontSize: '12px', color: '#64748b', marginTop: '2px', display: 'block', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                Create portable backups, restore from files, or configure auto-backup schedules.
+              <span style={{ fontSize: '12px', color: '#64748b', marginTop: '2px', display: 'block', lineHeight: 1.35 }}>
+                Create portable backups, restore from files, or configure schedules.
               </span>
             </div>
           </div>
@@ -355,7 +356,7 @@ export const BackupRestoreModal = ({ isOpen, onClose }) => {
 
               {/* Snapshot History Section */}
               <div>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px', flexWrap: 'wrap', gap: '6px 12px' }}>
                   <h4 style={{ margin: 0, fontSize: '14px', fontWeight: 800, color: '#0f172a', letterSpacing: '-0.01em' }}>
                     Recent Local Snapshots ({history.length})
                   </h4>
@@ -804,4 +805,7 @@ export const BackupRestoreModal = ({ isOpen, onClose }) => {
       </div>
     </div>
   );
+
+  if (typeof document === 'undefined') return null;
+  return createPortal(modalContent, document.body);
 };
