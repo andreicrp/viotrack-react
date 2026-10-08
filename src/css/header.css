@@ -1261,6 +1261,125 @@ body {
         width: auto;
         max-width: none;
     }
+}
+
+/* Header Command Search Button */
+.header-cmd-search-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    background: #ffffff;
+    border: 1px solid #dbeafe;
+    border-radius: 9px;
+    padding: 6px 10px 6px 12px;
+    min-width: 200px;
+    height: 36px;
+    color: #64748b;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+    transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+    margin-right: 2px;
+}
+
+.header-cmd-search-btn:hover {
+    background: #ffffff;
+    border-color: #07345f;
+    box-shadow: 0 2px 8px rgba(7, 52, 95, 0.1);
+    color: #0f172a;
+}
+
+.header-cmd-search-btn:active {
+    transform: translateY(1px);
+    box-shadow: 0 1px 3px rgba(7, 52, 95, 0.08);
+}
+
+.header-cmd-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: inherit;
+}
+
+.header-cmd-icon {
+    color: #07345f;
+    flex-shrink: 0;
+    transition: transform 0.2s ease;
+}
+
+.header-cmd-search-btn:hover .header-cmd-icon {
+    transform: scale(1.1);
+}
+
+.header-cmd-search-text {
+    font-size: 12.5px;
+    font-weight: 500;
+    color: #64748b;
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+}
+
+.header-cmd-search-btn:hover .header-cmd-search-text {
+    color: #1e293b;
+}
+
+.header-cmd-shortcut {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    margin-left: auto;
+}
+
+.header-kbd {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 18px;
+    height: 20px;
+    padding: 0 5px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+    font-size: 10.5px;
+    font-weight: 700;
+    line-height: 1;
+    color: #475569;
+    background: #f1f5f9;
+    border: 1px solid #cbd5e1;
+    border-radius: 5px;
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06);
+    user-select: none;
+    letter-spacing: 0.02em;
+    transition: all 0.15s ease;
+}
+
+.header-cmd-search-btn:hover .header-kbd {
+    background: #e2e8f0;
+    color: #07345f;
+    border-color: #94a3b8;
+}
+
+.header-clock-pill:hover {
+    background: #f1f5f9 !important;
+    border-color: #cbd5e1 !important;
+}
+
+@media (max-width: 900px) {
+    .header-cmd-search-btn {
+        min-width: auto;
+    }
+}
+
+@media (max-width: 680px) {
+    .header-cmd-search-text {
+        display: none !important;
+    }
+
+    .header-cmd-search-btn {
+        min-width: auto;
+        padding: 6px 8px;
+        gap: 6px;
+    }
 
     .header-clock-date {
         display: none !important;
@@ -1269,25 +1388,6 @@ body {
     .header-clock-pill {
         padding: 5px 8px !important;
     }
-
-    .header-cmd-search-text {
-        display: none !important;
-    }
-
-    .header-cmd-search-btn {
-        padding: 6px 8px !important;
-    }
-}
-
-.header-clock-pill:hover {
-    background: #f1f5f9 !important;
-    border-color: #cbd5e1 !important;
-}
-
-.header-cmd-search-btn:hover {
-    background: #f1f5f9 !important;
-    border-color: #cbd5e1 !important;
-    color: #0f172a !important;
 }
 
 @media (max-width: 540px) {

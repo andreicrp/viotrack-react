@@ -192,7 +192,7 @@ export const Header = ({ onToggleSidebar, onOpenCommandPalette }) => {
       </div>
 
       <div className="header-right" draggable={false}>
-        {/* Quick Command Palette Button (Ctrl+K) */}
+        {/* Quick Command Palette Button (Ctrl+K / ⌘K) */}
         <button
           type="button"
           className="header-cmd-search-btn"
@@ -203,39 +203,25 @@ export const Header = ({ onToggleSidebar, onOpenCommandPalette }) => {
               window.dispatchEvent(new CustomEvent('open_command_palette'));
             }
           }}
-          title="Quick Search & Command Palette (Ctrl + K / ⌘K)"
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '8px',
-            background: '#f8fafc',
-            border: '1px solid #e2e8f0',
-            borderRadius: '10px',
-            padding: '6px 12px',
-            color: '#64748b',
-            fontSize: '12.5px',
-            fontWeight: 500,
-            cursor: 'pointer',
-            transition: 'all 0.15s ease',
-            marginRight: '2px'
-          }}
+          title={typeof window !== 'undefined' && /Mac|iPod|iPhone|iPad/.test(navigator.platform) ? 'Quick Search & Command Palette (⌘K)' : 'Quick Search & Command Palette (Ctrl+K)'}
         >
-          <Search size={14} color="#07345f" />
-          <span className="header-cmd-search-text">Search...</span>
-          <kbd
-            style={{
-              fontSize: '10px',
-              fontWeight: 800,
-              background: '#ffffff',
-              border: '1px solid #cbd5e1',
-              borderRadius: '4px',
-              padding: '1px 5px',
-              color: '#07345f',
-              fontFamily: 'monospace'
-            }}
-          >
-            ⌘K
-          </kbd>
+          <div className="header-cmd-left">
+            <Search size={14} className="header-cmd-icon" />
+            <span className="header-cmd-search-text">Quick search...</span>
+          </div>
+          <div className="header-cmd-shortcut" aria-hidden="true">
+            {typeof window !== 'undefined' && /Mac|iPod|iPhone|iPad/.test(navigator.platform) ? (
+              <>
+                <kbd className="header-kbd">⌘</kbd>
+                <kbd className="header-kbd">K</kbd>
+              </>
+            ) : (
+              <>
+                <kbd className="header-kbd">Ctrl</kbd>
+                <kbd className="header-kbd">K</kbd>
+              </>
+            )}
+          </div>
         </button>
 
         {/* 24-Hour Live Institutional Clock */}
