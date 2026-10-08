@@ -180,47 +180,21 @@ export const BackupRestoreModal = ({ isOpen, onClose }) => {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        padding: '16px',
+        padding: '12px',
         transform: 'translateZ(0)',
         contain: 'strict'
       }}
     >
-      <div
-        className="modal-content-smooth"
-        style={{
-          width: '100%',
-          maxWidth: '780px',
-          maxHeight: '90vh',
-          background: '#ffffff',
-          borderRadius: '24px',
-          boxShadow: '0 25px 60px -15px rgba(0, 0, 0, 0.35)',
-          display: 'flex',
-          flexDirection: 'column',
-          overflow: 'hidden',
-          border: '1px solid #e2e8f0',
-          transform: 'translate3d(0, 0, 0)',
-          contain: 'layout paint'
-        }}
-      >
+      <div className="modal-content-smooth backup-modal-dialog">
         {/* Modal Header */}
-        <div
-          style={{
-            background: '#ffffff',
-            color: '#0f172a',
-            padding: '18px 28px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            borderBottom: '1px solid #e2e8f0'
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+        <div className="backup-modal-header">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: 0 }}>
             <Database size={22} color="#0f172a" style={{ flexShrink: 0 }} />
-            <div>
-              <h3 style={{ margin: 0, fontSize: '17px', fontWeight: 800, letterSpacing: '-0.01em', color: '#0f172a' }}>
-                Database Backup & Restore
+            <div style={{ minWidth: 0 }}>
+              <h3 style={{ margin: 0, fontSize: '16.5px', fontWeight: 800, letterSpacing: '-0.01em', color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                Database Backup &amp; Restore
               </h3>
-              <span style={{ fontSize: '12px', color: '#64748b', marginTop: '2px', display: 'block' }}>
+              <span style={{ fontSize: '12px', color: '#64748b', marginTop: '2px', display: 'block', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                 Create portable backups, restore from files, or configure auto-backup schedules.
               </span>
             </div>
@@ -240,7 +214,8 @@ export const BackupRestoreModal = ({ isOpen, onClose }) => {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              transition: 'all 0.15s ease'
+              transition: 'all 0.15s ease',
+              flexShrink: 0
             }}
             onMouseOver={(e) => { e.currentTarget.style.background = '#e2e8f0'; e.currentTarget.style.color = '#0f172a'; }}
             onMouseOut={(e) => { e.currentTarget.style.background = '#f8fafc'; e.currentTarget.style.color = '#64748b'; }}
@@ -251,96 +226,42 @@ export const BackupRestoreModal = ({ isOpen, onClose }) => {
         </div>
 
         {/* Modern Segmented Pill Switcher */}
-        <div style={{ padding: '16px 28px 0 28px', background: '#ffffff' }}>
-          <div
-            style={{
-              display: 'flex',
-              background: '#f1f5f9',
-              padding: '4px',
-              borderRadius: '14px',
-              border: '1px solid #e2e8f0',
-              gap: '4px'
-            }}
-          >
+        <div className="backup-modal-tabs-wrap">
+          <div className="backup-modal-tabs">
             <button
               type="button"
               onClick={() => setActiveTab('create')}
-              style={{
-                flex: 1,
-                padding: '10px 14px',
-                border: 'none',
-                background: activeTab === 'create' ? '#ffffff' : 'transparent',
-                borderRadius: '10px',
-                fontSize: '13px',
-                fontWeight: activeTab === 'create' ? 800 : 600,
-                color: activeTab === 'create' ? '#0f172a' : '#64748b',
-                boxShadow: activeTab === 'create' ? '0 2px 8px rgba(0, 0, 0, 0.08)' : 'none',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '8px',
-                transition: 'all 0.18s ease'
-              }}
+              className={`backup-modal-tab-btn ${activeTab === 'create' ? 'is-active' : ''}`}
             >
               <Download size={15} color={activeTab === 'create' ? '#0f172a' : '#64748b'} />
-              <span>Create Snapshot</span>
+              <span className="tab-text-full">Create Snapshot</span>
+              <span className="tab-text-short">Create</span>
             </button>
 
             <button
               type="button"
               onClick={() => setActiveTab('restore')}
-              style={{
-                flex: 1,
-                padding: '10px 14px',
-                border: 'none',
-                background: activeTab === 'restore' ? '#ffffff' : 'transparent',
-                borderRadius: '10px',
-                fontSize: '13px',
-                fontWeight: activeTab === 'restore' ? 800 : 600,
-                color: activeTab === 'restore' ? '#0f172a' : '#64748b',
-                boxShadow: activeTab === 'restore' ? '0 2px 8px rgba(0, 0, 0, 0.08)' : 'none',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '8px',
-                transition: 'all 0.18s ease'
-              }}
+              className={`backup-modal-tab-btn ${activeTab === 'restore' ? 'is-active' : ''}`}
             >
               <Upload size={15} color={activeTab === 'restore' ? '#0f172a' : '#64748b'} />
-              <span>Restore Database</span>
+              <span className="tab-text-full">Restore Database</span>
+              <span className="tab-text-short">Restore</span>
             </button>
 
             <button
               type="button"
               onClick={() => setActiveTab('schedule')}
-              style={{
-                flex: 1,
-                padding: '10px 14px',
-                border: 'none',
-                background: activeTab === 'schedule' ? '#ffffff' : 'transparent',
-                borderRadius: '10px',
-                fontSize: '13px',
-                fontWeight: activeTab === 'schedule' ? 800 : 600,
-                color: activeTab === 'schedule' ? '#0f172a' : '#64748b',
-                boxShadow: activeTab === 'schedule' ? '0 2px 8px rgba(0, 0, 0, 0.08)' : 'none',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '8px',
-                transition: 'all 0.18s ease'
-              }}
+              className={`backup-modal-tab-btn ${activeTab === 'schedule' ? 'is-active' : ''}`}
             >
               <Clock size={15} color={activeTab === 'schedule' ? '#0f172a' : '#64748b'} />
-              <span>Schedule Settings</span>
+              <span className="tab-text-full">Schedule Settings</span>
+              <span className="tab-text-short">Schedule</span>
             </button>
           </div>
         </div>
 
         {/* Modal Body */}
-        <div className="smooth-scroll-container" style={{ padding: '24px 28px', flex: 1 }}>
+        <div className="smooth-scroll-container backup-modal-body">
           
           {/* TAB 1: CREATE SNAPSHOT */}
           {activeTab === 'create' && (
@@ -397,15 +318,7 @@ export const BackupRestoreModal = ({ isOpen, onClose }) => {
                 </div>
 
                 {/* Live Data Counts Pill Bar */}
-                <div
-                  style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))',
-                    gap: '10px',
-                    paddingTop: '14px',
-                    borderTop: '1px solid #e2e8f0'
-                  }}
-                >
+                <div className="backup-counts-grid">
                   <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '10px 14px', display: 'flex', alignItems: 'center', gap: '10px' }}>
                     <Users size={18} color="#0f172a" />
                     <div>
@@ -474,8 +387,8 @@ export const BackupRestoreModal = ({ isOpen, onClose }) => {
                     </span>
                   </div>
                 ) : (
-                  <div style={{ border: '1px solid #e2e8f0', borderRadius: '14px', overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.02)' }}>
-                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12.5px' }}>
+                  <div style={{ border: '1px solid #e2e8f0', borderRadius: '14px', overflowX: 'auto', WebkitOverflowScrolling: 'touch', boxShadow: '0 1px 3px rgba(0,0,0,0.02)' }}>
+                    <table style={{ width: '100%', minWidth: '520px', borderCollapse: 'collapse', fontSize: '12.5px' }}>
                       <thead>
                         <tr style={{ background: '#f8fafc', borderBottom: '1.5px solid #e2e8f0', textAlign: 'left' }}>
                           <th style={{ padding: '12px 16px', fontWeight: 800, color: '#475569', textTransform: 'uppercase', fontSize: '11px', letterSpacing: '0.03em' }}>Snapshot ID</th>
@@ -711,14 +624,14 @@ export const BackupRestoreModal = ({ isOpen, onClose }) => {
 
           {/* TAB 3: SCHEDULE SETTINGS */}
           {activeTab === 'schedule' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', minHeight: '280px', paddingBottom: '30px' }}>
-              <div style={{ background: '#f8fafc', border: '1.5px solid #e2e8f0', borderRadius: '18px', padding: '24px' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px', paddingBottom: '16px', borderBottom: '1px solid #e2e8f0' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px', minHeight: '260px', paddingBottom: '20px' }}>
+              <div style={{ background: '#f8fafc', border: '1.5px solid #e2e8f0', borderRadius: '18px', padding: '20px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '18px', paddingBottom: '14px', borderBottom: '1px solid #e2e8f0', gap: '12px' }}>
                   <div>
                     <strong style={{ fontSize: '15px', color: '#0f172a', display: 'block' }}>
                       Automatic Backups
                     </strong>
-                    <span style={{ fontSize: '12.5px', color: '#64748b' }}>
+                    <span style={{ fontSize: '12px', color: '#64748b' }}>
                       Schedule recurring backups of system records
                     </span>
                   </div>
@@ -726,11 +639,11 @@ export const BackupRestoreModal = ({ isOpen, onClose }) => {
                     type="checkbox"
                     checked={schedule.auto_backup_enabled}
                     onChange={(e) => setSchedule(s => ({ ...s, auto_backup_enabled: e.target.checked }))}
-                    style={{ width: '20px', height: '20px', cursor: 'pointer', accentColor: '#0f172a' }}
+                    style={{ width: '20px', height: '20px', cursor: 'pointer', accentColor: '#0f172a', flexShrink: 0 }}
                   />
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '20px' }}>
+                <div className="backup-schedule-grid">
                   <div>
                     <label style={{ display: 'block', fontSize: '12.5px', fontWeight: 700, color: '#334155', marginBottom: '6px' }}>
                       Backup Frequency
@@ -768,7 +681,8 @@ export const BackupRestoreModal = ({ isOpen, onClose }) => {
                     fontSize: '13px',
                     fontWeight: 700,
                     cursor: 'pointer',
-                    boxShadow: '0 2px 8px rgba(15, 23, 42, 0.2)'
+                    boxShadow: '0 2px 8px rgba(15, 23, 42, 0.2)',
+                    transition: 'all 0.15s ease'
                   }}
                 >
                   Save Settings
@@ -780,16 +694,7 @@ export const BackupRestoreModal = ({ isOpen, onClose }) => {
         </div>
 
         {/* Modal Footer */}
-        <div
-          style={{
-            background: '#f8fafc',
-            borderTop: '1px solid #e2e8f0',
-            padding: '14px 28px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between'
-          }}
-        >
+        <div className="backup-modal-footer">
           <span style={{ fontSize: '12px', color: '#64748b' }}>
             Backups are stored locally and encrypted.
           </span>

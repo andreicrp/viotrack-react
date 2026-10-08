@@ -2211,6 +2211,172 @@ button:active,
   }
 }
 
+/* ==========================================================================
+   Database Backup & Restore Modal Responsive Layout
+   ========================================================================== */
+.backup-modal-dialog {
+  width: 100%;
+  max-width: 780px;
+  max-height: 90vh;
+  background: #ffffff;
+  border-radius: 24px;
+  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.35);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+  transform: translate3d(0, 0, 0);
+  contain: layout paint;
+}
+
+.backup-modal-header {
+  background: #ffffff;
+  color: #0f172a;
+  padding: 18px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #e2e8f0;
+  gap: 12px;
+}
+
+.backup-modal-tabs-wrap {
+  padding: 16px 28px 0 28px;
+  background: #ffffff;
+}
+
+.backup-modal-tabs {
+  display: flex;
+  background: #f1f5f9;
+  padding: 4px;
+  border-radius: 14px;
+  border: 1px solid #e2e8f0;
+  gap: 4px;
+}
+
+.backup-modal-tab-btn {
+  flex: 1;
+  padding: 10px 14px;
+  border: none;
+  background: transparent;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #64748b;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.18s ease;
+  white-space: nowrap;
+}
+
+.backup-modal-tab-btn.is-active {
+  background: #ffffff;
+  font-weight: 800;
+  color: #0f172a;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.backup-modal-body {
+  padding: 24px 28px;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.backup-schedule-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.backup-counts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 10px;
+  padding-top: 14px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.backup-modal-footer {
+  background: #f8fafc;
+  border-top: 1px solid #e2e8f0;
+  padding: 14px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.tab-text-short {
+  display: none;
+}
+
+.tab-text-full {
+  display: inline;
+}
+
+@media (max-width: 640px) {
+  .backup-modal-dialog {
+    max-height: 94vh;
+    border-radius: 18px;
+    margin: 0;
+  }
+
+  .backup-modal-header {
+    padding: 14px 16px;
+  }
+
+  .backup-modal-tabs-wrap {
+    padding: 12px 14px 0 14px;
+  }
+
+  .backup-modal-tab-btn {
+    padding: 8px 6px;
+    font-size: 12px;
+    gap: 4px;
+  }
+
+  .tab-text-full {
+    display: none;
+  }
+
+  .tab-text-short {
+    display: inline;
+  }
+
+  .backup-modal-body {
+    padding: 16px 14px;
+  }
+
+  .backup-schedule-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+    margin-bottom: 16px;
+  }
+
+  .backup-counts-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .backup-modal-footer {
+    padding: 12px 16px;
+    flex-direction: column-reverse;
+    align-items: stretch;
+    gap: 8px;
+    text-align: center;
+  }
+
+  .backup-modal-footer button {
+    width: 100%;
+    padding: 10px !important;
+  }
+}
+
+
 
 
 
