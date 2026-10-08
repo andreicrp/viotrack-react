@@ -507,3 +507,9 @@ Clean latest main passed **22 tests across 5 test files**, lint (**434 warnings,
 Latest main is [`bf1b80972dff46c5ed61ca62e37ef41aaf7eb51b`](https://github.com/andreicrp/viotrack-react/commit/bf1b80972dff46c5ed61ca62e37ef41aaf7eb51b), replacing dangling `Sparkles` references with existing `Award` and `BarChart3` icons in `InteractiveTourGuide.jsx`. No data-service modules, tests, or dependencies changed.
 
 Clean latest main passed **22 tests across 5 test files**, lint (**434 warnings, 0 errors**), and build (2,676.16 kB `vendor-react`, gzip 792.02 kB; PDF worker 1,264.34 kB); clean main has no JSDoc typecheck script. After rebasing the PR onto `bf1b809`, **42 tests across 6 files passed**, `tsc -p tsconfig.check.json` passed, lint passed (**433 warnings, 0 errors**), and build passed with matching bundle sizes.
+
+## Baseline after the 2026-10-09 Resolution modal scroll-lock import fix
+
+Latest main is [`13a096241a39d24acc5148d27ffb6440cdf13e3a`](https://github.com/andreicrp/viotrack-react/commit/13a096241a39d24acc5148d27ffb6440cdf13e3a), importing the existing `lockBodyScroll` / `unlockBodyScroll` helpers into `ResolutionModal.jsx`. No data-service modules, tests, or dependencies changed.
+
+Clean latest main passed **22 tests across 5 test files**, lint (**434 warnings, 0 errors**), and build (2,676.16 kB `vendor-react`, gzip 792.02 kB; PDF worker 1,264.34 kB); clean main has no JSDoc typecheck script. After rebasing the PR onto `13a0962`, **42 tests across 6 files passed**, `tsc -p tsconfig.check.json` passed, lint passed (**433 warnings, 0 errors**), and build passed with matching bundle sizes.
