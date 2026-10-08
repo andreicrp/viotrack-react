@@ -150,23 +150,30 @@ const TOUR_SCENARIOS = {
     route: '/violations',
     steps: [
       {
-        target: '.metric-cards-grid, .page-banner-header',
+        target: '.metric-cards-grid',
         title: 'Severity & Status Filters',
-        content: 'Filter incidents by Minor, Serious, or Major offense level, or filter by Pending vs. Resolved status to prioritize open cases.',
+        content: 'Click on any KPI card (All, Investigation, or Resolved) to quickly filter the incident register by status, or use the search box and dropdown filters below.',
         badge: 'Filter & Search',
         icon: AlertTriangle
       },
       {
-        target: 'table, tbody, .table-container',
-        title: 'Incident Record Log',
+        target: '.mobile-filter-grid, .responsive-table-desktop',
+        title: 'Multi-Field Search & Filter Toolbar',
+        content: 'Search by student name, ID number, or offense title. Filter by School Year, Grade Level, Severity, or Status with real-time matching.',
+        badge: 'Search & Sort',
+        icon: BookOpen
+      },
+      {
+        target: 'tbody tr:first-child, table',
+        title: 'Incident Record Registry',
         content: 'View comprehensive details for each incident: student name, grade & section, offense details, reporting officer, and timestamps.',
         badge: 'Records',
         icon: FileText
       },
       {
-        target: '.page-banner-primary-btn, tbody tr td:last-child, button',
+        target: 'tbody tr:first-child td:last-child, tr td:last-child',
         title: 'Summons & Resolution Actions',
-        content: 'Open the Parent Summons generator for formal notices, or open the Resolution modal (Doc Proof) to clear cases with official certificates.',
+        content: 'Click "Status" to update case progress, "Summons" to create formal parent notices, or the green badge to view clearance certificates.',
         badge: 'Actions',
         icon: ShieldCheck
       }
@@ -178,6 +185,13 @@ const TOUR_SCENARIOS = {
     description: 'Learn how to bundle violations and generate official conference notices with seals.',
     route: '/violations',
     steps: [
+      {
+        target: 'tbody tr:first-child td:last-child, tr td:last-child',
+        title: 'Click the "Summons" Action Button',
+        content: 'To generate an official conference notice for a student, click the "Summons" button on any incident record in the table.',
+        badge: 'Action Trigger',
+        icon: FileText
+      },
       {
         target: null, // Centered clean modal
         title: 'Authentic Philippine Institutional Notice',
@@ -208,6 +222,13 @@ const TOUR_SCENARIOS = {
     route: '/violations',
     steps: [
       {
+        target: 'tbody tr:first-child td:last-child, tr td:last-child',
+        title: 'Update Status & Mark Resolved',
+        content: 'Click the "Status" button on an incident to update its state. Marking a case as "Resolved" unlocks official institutional clearance documentation.',
+        badge: 'Status Update',
+        icon: ShieldCheck
+      },
+      {
         target: null,
         title: 'Corrective Action & Sanctions',
         content: 'Select prescribed institutional sanctions (e.g. Verbal Warning, Campus Service, Counseling) and record resolution remarks.',
@@ -230,22 +251,29 @@ const TOUR_SCENARIOS = {
     route: '/',
     steps: [
       {
-        target: '.dash-trends-grid, .dash-stats-grid-4',
-        title: 'Coverage Period & Presets',
-        content: 'Choose between Today, Weekly, Monthly, All-Time, or custom date ranges to compile accreditation-ready analytics.',
-        badge: 'Time Period',
+        target: '.dash-stats-grid-4',
+        title: 'Real-Time Incident Metrics',
+        content: 'Monitor high-level KPI cards for Minor, Serious, and Major infractions, plus total resolution rates across the university.',
+        badge: 'KPI Metrics',
         icon: BarChart3
       },
       {
-        target: null,
-        title: 'Vector Charts & Grade Breakdown',
-        content: 'Includes real-time spline trend graphs, most common violation donut charts, and complete grade level incident distribution tables.',
-        badge: 'Visual Analytics',
+        target: '.dash-trends-grid',
+        title: 'Vector Charts & Incident Distribution',
+        content: 'Visualize disciplinary activity over time with interactive spline curve trends and segmented donut charts of the most common school violations.',
+        badge: 'Visual Trends',
         icon: Sparkles
       },
       {
-        target: null,
-        title: 'Multi-Page DepEd Compliance Report',
+        target: '.dash-bottom-card:nth-child(1), .dash-bottom-card:nth-child(2)',
+        title: 'Repeat Risk Rankings & Grade Breakdown',
+        content: 'Inspect disciplinary distribution across grade levels and sections, paired with automated Priority Guidance Alerts for timely advisory intervention.',
+        badge: 'Grade & Risk',
+        icon: BookOpen
+      },
+      {
+        target: '.dash-header-bar, .page-banner-actions',
+        title: 'Executive PDF Accreditation Report',
         content: 'Exports a multi-page PDF document including itemized incident logs, verification barcodes, and prefect signatures.',
         badge: 'Executive Report',
         icon: FileText
@@ -287,7 +315,20 @@ export const InteractiveTourGuide = () => {
     }
 
     try {
-      const el = document.querySelector(currentStep.target);
+      // Check comma-separated selectors in priority order
+      const selectors = currentStep.target.split(',').map(s => s.trim()).filter(Boolean);
+      let el = null;
+      for (const selector of selectors) {
+        const found = document.querySelector(selector);
+        if (found) {
+          const r = found.getBoundingClientRect();
+          if (r.width > 0 && r.height > 0) {
+            el = found;
+            break;
+          }
+        }
+      }
+
       if (el) {
         // Scroll target element smoothly into view if needed
         el.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
@@ -327,13 +368,18 @@ export const InteractiveTourGuide = () => {
     window.addEventListener('resize', updateTargetRect);
     window.addEventListener('scroll', updateTargetRect, true);
 
-    const timer = setTimeout(updateTargetRect, 200);
+    const t1 = setTimeout(updateTargetRect, 80);
+    const t2 = setTimeout(updateTargetRect, 250);
+    const t3 = setTimeout(updateTargetRect, 600);
+
     return () => {
       window.removeEventListener('resize', updateTargetRect);
       window.removeEventListener('scroll', updateTargetRect, true);
-      clearTimeout(timer);
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
     };
-  }, [activeTour, currentStepIndex, updateTargetRect]);
+  }, [activeTour, currentStepIndex, updateTargetRect, location.pathname]);
 
   // Keyboard navigation
   useEffect(() => {
