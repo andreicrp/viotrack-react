@@ -465,3 +465,9 @@ Clean latest main passed **22 tests across 5 test files**, lint (**431 warnings,
 Latest main is [`eecafb0542d1bdd33486846dea21a4dd3eabc647`](https://github.com/andreicrp/viotrack-react/commit/eecafb0542d1bdd33486846dea21a4dd3eabc647), changing only `InteractiveTourGuide.jsx` to add tour targets for Repeat Offenders, Grade Sections, and School Calendar dashboard cards. The prior entry records the preceding commits through the spotlight-targeting fix `b2a4b6f`; no service modules, tests, or dependencies changed in this commit.
 
 Clean latest main passed **22 tests across 5 test files**, lint (**431 warnings, 0 errors**), and build (2,675.64 kB `vendor-react`, gzip 792.00 kB; PDF worker 1,264.34 kB); clean main has no JSDoc typecheck script. After rebasing the PR onto `eecafb0`, **42 tests across 6 files passed**, `tsc -p tsconfig.check.json` passed, lint passed (**430 warnings, 0 errors**), and build passed with matching bundle sizes.
+
+## Baseline after the 2026-10-09 QR scanner route-alias update
+
+Latest main is [`cc7befbd53f92412372f45de818505125500626b`](https://github.com/andreicrp/viotrack-react/commit/cc7befbd53f92412372f45de818505125500626b), modifying `App.jsx` and `InteractiveTourGuide.jsx` to route the guide to `/scan-qr` and add `/scan` as an alias. The prior baseline covers the lower-dashboard System Overview tour update; no data-service modules, tests, or dependencies changed in this commit.
+
+Clean latest main passed **22 tests across 5 test files**, lint (**431 warnings, 0 errors**), and build (2,675.64 kB `vendor-react`, gzip 792.00 kB; PDF worker 1,264.34 kB); clean main has no JSDoc typecheck script. After rebasing the PR onto `cc7befb`, **42 tests across 6 files passed**, `tsc -p tsconfig.check.json` passed, lint passed (**430 warnings, 0 errors**), and build passed with matching bundle sizes.
