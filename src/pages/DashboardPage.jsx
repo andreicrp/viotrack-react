@@ -793,7 +793,7 @@ export const DashboardPage = () => {
       doc.text('VIOTRACK - Executive School Disciplinary Report', 14, 12);
       doc.setFontSize(9);
       doc.setFont('helvetica', 'normal');
-      doc.text(`Generated: ${new Date().toLocaleDateString('en-US', { dateStyle: 'medium', timeStyle: 'short' })} | Status: Live Sync`, 14, 20);
+      doc.text(`Generated: ${new Date().toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' })} | Status: Live Sync`, 14, 20);
 
       doc.setTextColor(30, 41, 59);
       doc.autoTable({

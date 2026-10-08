@@ -1348,7 +1348,7 @@ export const PrintDataModal = ({ isOpen, onClose, records = [], students = [], t
     doc.text('VIOTRACK - DISCIPLINARY ANALYTICS REPORT', 14, 11);
     doc.setFontSize(8.5);
     doc.setFont('helvetica', 'normal');
-    doc.text(`Period: ${dateRangeLabel} | Generated: ${new Date().toLocaleDateString('en-US', { dateStyle: 'medium', timeStyle: 'short' })}`, 14, 18);
+    doc.text(`Period: ${dateRangeLabel} | Generated: ${new Date().toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' })}`, 14, 18);
 
     // Summary Metrics
     doc.setTextColor(15, 23, 42);
