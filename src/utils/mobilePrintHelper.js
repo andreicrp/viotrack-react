@@ -131,10 +131,9 @@ export async function printOrShareDocument({
   onStatus = () => {}
 }) {
   const isNative = isNativeApp();
-  const isMobile = isMobileDevice();
 
-  // 1. Native APK or Mobile Flow: Generate high-res PDF and trigger Android Print / Share Intent
-  if (isNative || isMobile) {
+  // 1. Native Capacitor Android APK Flow (Share & Print Intent via Plugins)
+  if (isNative) {
     if (typeof generatePdfBlob === 'function') {
       try {
         onStatus?.({ type: 'info', message: 'Generating document...' });
@@ -163,11 +162,10 @@ export async function printOrShareDocument({
           }
         }
       } catch (err) {
-        if (err.name === 'AbortError') return;
-        console.warn('Mobile print/share error:', err);
+        if (err?.name === 'AbortError') return;
+        console.warn('Native APK PDF print/share error:', err);
       }
     } else if (htmlContent) {
-      // If only HTML is provided on mobile/APK, share the HTML file safely without window.open
       try {
         const htmlBlob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
         await shareOrSaveNativeFile({
@@ -179,14 +177,16 @@ export async function printOrShareDocument({
         onStatus?.({ type: 'success', message: 'Document ready to print / share.' });
         return;
       } catch (err) {
-        console.warn('Native HTML print fallback failed:', err);
+        console.warn('Native APK HTML print fallback failed:', err);
       }
     }
   }
 
-  // 2. Desktop Flow: Hidden IFrame Printing
-  if (htmlContent && !isNative && !isMobile) {
+  // 2. Web Browser Flow (Both Mobile Web and Desktop Web)
+  if (htmlContent) {
     try {
+      onStatus?.({ type: 'info', message: 'Opening print dialog...' });
+
       const existing = document.getElementById('viotrack-print-frame');
       if (existing) existing.remove();
 
@@ -195,10 +195,11 @@ export async function printOrShareDocument({
       iframe.style.position = 'fixed';
       iframe.style.right = '0';
       iframe.style.bottom = '0';
-      iframe.style.width = '0';
-      iframe.style.height = '0';
+      iframe.style.width = '1px';
+      iframe.style.height = '1px';
+      iframe.style.opacity = '0.01';
       iframe.style.border = '0';
-      iframe.style.visibility = 'hidden';
+      iframe.style.pointerEvents = 'none';
 
       document.body.appendChild(iframe);
 
@@ -212,37 +213,73 @@ export async function printOrShareDocument({
           iframe.contentWindow.focus();
           iframe.contentWindow.print();
           onStatus?.({ type: 'success', message: 'Print dialog opened.' });
+          setTimeout(() => {
+            try { iframe.remove(); } catch (e) {}
+          }, 3000);
         } catch (e) {
-          // Safe window fallback only on desktop web browser
-          if (!isNative && !isMobile) {
-            const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
-            const url = URL.createObjectURL(blob);
-            const printWin = window.open(url, '_blank');
-            if (printWin) {
-              printWin.onload = () => {
-                printWin.focus();
-                printWin.print();
-              };
-            }
+          console.warn('Iframe print failed, falling back to popup window / tab:', e);
+          const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+          const url = URL.createObjectURL(blob);
+          const printWin = window.open(url, '_blank');
+          if (printWin) {
+            printWin.onload = () => {
+              printWin.focus();
+              printWin.print();
+            };
+            onStatus?.({ type: 'success', message: 'Print view opened in new tab.' });
+          } else {
+            // Popup blocked: download HTML document
+            shareOrSaveNativeFile({
+              filename: filename.endsWith('.html') ? filename : `${filename}.html`,
+              blob,
+              title,
+              mimeType: 'text/html'
+            });
+            onStatus?.({ type: 'info', message: 'Print view downloaded.' });
           }
         }
-      }, 300);
+      }, 350);
       return;
     } catch (err) {
-      console.error('Desktop print error:', err);
+      console.error('Web HTML print error:', err);
     }
   }
 
-  // 3. Fallback: Direct PDF generator save
+  // 3. Web PDF Direct Generator / Viewer
   if (typeof generatePdfBlob === 'function') {
     try {
+      onStatus?.({ type: 'info', message: 'Generating PDF document...' });
       const pdfOutput = await generatePdfBlob();
-      if (pdfOutput && typeof pdfOutput.save === 'function') {
-        pdfOutput.save(filename);
-        onStatus?.({ type: 'success', message: 'PDF saved successfully.' });
+      
+      let blob;
+      if (pdfOutput instanceof Blob) {
+        blob = pdfOutput;
+      } else if (pdfOutput && typeof pdfOutput.output === 'function') {
+        blob = pdfOutput.output('blob');
+      } else if (pdfOutput instanceof ArrayBuffer) {
+        blob = new Blob([pdfOutput], { type: 'application/pdf' });
+      }
+
+      if (blob) {
+        const blobUrl = URL.createObjectURL(blob);
+        const win = window.open(blobUrl, '_blank');
+        if (win) {
+          onStatus?.({ type: 'success', message: 'PDF document opened in new tab.' });
+        } else {
+          // If popup is blocked, download directly
+          await shareOrSaveNativeFile({
+            filename: filename.endsWith('.pdf') ? filename : `${filename}.pdf`,
+            blob: blob,
+            title: title,
+            mimeType: 'application/pdf'
+          });
+          onStatus?.({ type: 'success', message: 'PDF document downloaded.' });
+        }
+        return;
       }
     } catch (err) {
-      console.error('Final fallback error:', err);
+      console.error('Final fallback PDF error:', err);
+      onStatus?.({ type: 'error', message: 'Failed to generate PDF: ' + err.message });
     }
   }
 }
