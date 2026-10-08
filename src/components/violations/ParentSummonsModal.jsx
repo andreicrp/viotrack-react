@@ -40,6 +40,369 @@ import { printOrShareDocument } from '../../utils/mobilePrintHelper';
 import { CustomDatePicker } from '../common/CustomDatePicker';
 import { CustomTimePicker } from '../common/CustomTimePicker';
 
+/**
+ * Builds the complete, authentic Philippine Institutional Parent Summons Notice HTML for direct printing
+ */
+export const buildParentSummonsHtml = ({
+  parentName,
+  studentFullName,
+  activeStudent,
+  activeViolations = [],
+  referenceNo,
+  currentDateFormatted,
+  formattedConfDate,
+  conferenceTime,
+  venue,
+  customRemarks,
+  signatory1Name,
+  signatory1Title,
+  includeSignatory2,
+  signatory2Name,
+  signatory2Title
+}) => {
+  const gradeSection = `Grade ${activeStudent?.grade || '10'} - ${activeStudent?.section || 'General'}`;
+  const studentId = activeStudent?.student_id || activeStudent?.lrn || 'N/A';
+  const viosSummary = activeViolations.map(v => v.violation?.title || v.offense || 'Disciplinary Infraction').join(', ');
+
+  const multiInfractionsTable = activeViolations.length > 1 ? `
+    <table style="width: 100%; border-collapse: collapse; margin: 8px 0 10px; font-size: 8.5pt;">
+      <thead>
+        <tr style="background: #f1f5f9;">
+          <th style="padding: 5px 4px; border: 1px solid #cbd5e1; width: 28px; text-align: center; color: #0f172a; font-weight: bold; text-transform: uppercase;">#</th>
+          <th style="padding: 5px 8px; border: 1px solid #cbd5e1; text-align: left; color: #0f172a; font-weight: bold; text-transform: uppercase;">Infraction / Violation</th>
+          <th style="padding: 5px 6px; border: 1px solid #cbd5e1; width: 85px; text-align: center; color: #0f172a; font-weight: bold; text-transform: uppercase;">Offense Level</th>
+          <th style="padding: 5px 6px; border: 1px solid #cbd5e1; width: 80px; text-align: center; color: #0f172a; font-weight: bold; text-transform: uppercase;">Date Reported</th>
+          <th style="padding: 5px 6px; border: 1px solid #cbd5e1; width: 70px; text-align: center; color: #0f172a; font-weight: bold; text-transform: uppercase;">Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${activeViolations.map((v, idx) => `
+          <tr style="background: ${idx % 2 === 0 ? '#ffffff' : '#f8fafc'};">
+            <td style="padding: 4px 4px; border: 1px solid #cbd5e1; text-align: center; font-weight: bold; color: #0f172a;">${idx + 1}</td>
+            <td style="padding: 4px 8px; border: 1px solid #cbd5e1; font-weight: 600; color: #0f172a;">${v.violation?.title || v.offense || 'Infraction'}</td>
+            <td style="padding: 4px 6px; border: 1px solid #cbd5e1; text-align: center; font-weight: bold; color: #0f172a;">${v.violation?.type || v.severity || 'Minor'}</td>
+            <td style="padding: 4px 6px; border: 1px solid #cbd5e1; text-align: center; color: #475569;">${v.date_reported ? new Date(v.date_reported).toLocaleDateString() : 'Recorded'}</td>
+            <td style="padding: 4px 6px; border: 1px solid #cbd5e1; text-align: center; color: #0f172a; font-weight: 600;">${v.status || 'Pending'}</td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  ` : '';
+
+  const singleInfractionText = activeViolations.length === 1 ? `
+    <p style="margin: 0 0 6px 0; text-align: justify;">
+      This is to formally inform you that your child/ward, <strong>${studentFullName}</strong>, has been reported for a disciplinary infraction regarding <strong>"${activeViolations[0].violation?.title || activeViolations[0].offense || 'School ID not worn properly'}"</strong> (classified as a <strong>${activeViolations[0].violation?.type || activeViolations[0].severity || 'Minor'} Offense</strong> under the Student Code of Conduct).
+    </p>
+  ` : `
+    <p style="margin: 0 0 6px 0; text-align: justify;">
+      This is to formally inform you that your child/ward, <strong>${studentFullName}</strong>, has been reported for <strong>${activeViolations.length} cumulative disciplinary infractions</strong> under the Student Code of Conduct as itemized in the summary table below:
+    </p>
+    ${multiInfractionsTable}
+  `;
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Official Parent Conference Notice - ${studentFullName}</title>
+  <style>
+    @page {
+      size: portrait;
+      margin: 8mm 12mm 8mm 12mm;
+    }
+    * {
+      box-sizing: border-box;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      color: #0f172a;
+      background: #ffffff;
+      margin: 0;
+      padding: 6px 12px;
+      font-size: 9.5pt;
+      line-height: 1.42;
+    }
+    .psm-print-wrapper {
+      max-width: 100%;
+      margin: 0 auto;
+      background: #ffffff;
+    }
+    .header-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 6px;
+    }
+    .univ-logo {
+      width: 46px;
+      height: 46px;
+      object-fit: contain;
+      flex-shrink: 0;
+    }
+    .univ-center {
+      flex: 1;
+      text-align: center;
+    }
+    .univ-title {
+      font-size: 11pt;
+      font-weight: 800;
+      color: #07345f;
+      letter-spacing: 0.5px;
+      margin: 0;
+      text-transform: uppercase;
+    }
+    .univ-sub {
+      font-size: 7.5pt;
+      color: #334155;
+      margin: 2px 0 0 0;
+    }
+    .univ-tag {
+      font-size: 7pt;
+      font-weight: 700;
+      color: #64748b;
+      margin: 2px 0 0 0;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .header-divider {
+      border-bottom: 2px solid #07345f;
+      margin-bottom: 8px;
+    }
+    .meta-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 8pt;
+      color: #475569;
+      margin-bottom: 8px;
+    }
+    .notice-heading {
+      text-align: center;
+      margin: 6px 0 8px 0;
+    }
+    .notice-title {
+      font-size: 11pt;
+      font-weight: 800;
+      color: #07345f;
+      letter-spacing: 0.5px;
+      margin: 0;
+      text-transform: uppercase;
+    }
+    .notice-sub {
+      font-size: 8pt;
+      font-weight: 800;
+      color: #dc2626;
+      text-transform: uppercase;
+      margin-top: 2px;
+      letter-spacing: 0.5px;
+    }
+    .recipient-card {
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      padding: 8px 12px;
+      margin-bottom: 8px;
+      font-size: 8.5pt;
+      line-height: 1.42;
+      color: #1e293b;
+    }
+    .letter-body {
+      font-size: 8.5pt;
+      line-height: 1.42;
+      color: #1e293b;
+      margin-bottom: 8px;
+    }
+    .conf-card {
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      padding: 8px 12px;
+      margin-bottom: 6px;
+      font-size: 8.5pt;
+      line-height: 1.45;
+    }
+    .conf-grid {
+      display: grid;
+      grid-template-columns: 130px 1fr;
+      row-gap: 3px;
+      column-gap: 8px;
+    }
+    .conf-label {
+      color: #07345f;
+      font-weight: 700;
+    }
+    .conf-val {
+      color: #0f172a;
+    }
+    .note-text {
+      font-size: 8pt;
+      color: #475569;
+      font-style: italic;
+      margin: 0 0 10px 0;
+      line-height: 1.35;
+    }
+    .signatures-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      margin-top: 8px;
+    }
+    .sig-col {
+      min-width: 180px;
+    }
+    .sig-col-right {
+      min-width: 180px;
+      text-align: right;
+    }
+    .sig-line {
+      border-top: 1px solid #334155;
+      width: 175px;
+      padding-top: 3px;
+      margin-top: 16px;
+    }
+    .sig-line-right {
+      border-top: 1px solid #334155;
+      width: 175px;
+      padding-top: 3px;
+      margin-top: 16px;
+      margin-left: auto;
+    }
+    .sig-name {
+      font-size: 8.5pt;
+      font-weight: bold;
+      color: #0f172a;
+      display: block;
+    }
+    .sig-title {
+      font-size: 7.5pt;
+      color: #64748b;
+      display: block;
+    }
+    .return-slip {
+      border-top: 1.5px dashed #94a3b8;
+      padding-top: 6px;
+      margin-top: 6px;
+      font-size: 8pt;
+      color: #334155;
+      line-height: 1.35;
+    }
+    .slip-title {
+      text-align: center;
+      font-weight: 800;
+      font-size: 8.5pt;
+      color: #07345f;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      margin-bottom: 3px;
+    }
+    .slip-sign-row {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 6px;
+      font-size: 8pt;
+    }
+  </style>
+</head>
+<body>
+  <div class="psm-print-wrapper">
+    <!-- Header -->
+    <div class="header-bar">
+      <img src="/images/phcm-logo.png" class="univ-logo" alt="PHCM Logo" />
+      <div class="univ-center">
+        <h1 class="univ-title">UNIVERSITY OF PERPETUAL HELP SYSTEM MANILA</h1>
+        <div class="univ-sub">1240 V. Concepcion St., Sampaloc, Manila | Office of the Prefect of Discipline</div>
+        <div class="univ-tag">VIOTRACK DISCIPLINARY &amp; STUDENT WELFARE MANAGEMENT SYSTEM</div>
+      </div>
+      <img src="/images/phcm-seal.png" class="univ-logo" alt="PHCM Seal" />
+    </div>
+
+    <div class="header-divider"></div>
+
+    <!-- Meta Row -->
+    <div class="meta-row">
+      <span>Reference No: <strong style="font-family: monospace; color: #0f172a;">${referenceNo}</strong></span>
+      <span>Date Issued: <strong style="color: #0f172a;">${currentDateFormatted}</strong></span>
+    </div>
+
+    <!-- Notice Heading -->
+    <div class="notice-heading">
+      <div class="notice-title">OFFICIAL PARENT / GUARDIAN CONFERENCE NOTICE</div>
+      <div class="notice-sub">(MANDATORY DISCIPLINARY APPEARANCE)</div>
+    </div>
+
+    <!-- Recipient Box -->
+    <div class="recipient-card">
+      <div><strong>TO:</strong> ${parentName ? parentName.toUpperCase() : 'PARENT / GUARDIAN'}</div>
+      <div><strong>Parent / Legal Guardian of:</strong> ${studentFullName}</div>
+      <div><strong>Grade &amp; Section:</strong> ${gradeSection} | <strong>Student ID:</strong> ${studentId}</div>
+    </div>
+
+    <!-- Letter Body -->
+    <div class="letter-body">
+      <p style="margin: 0 0 5px 0;">Dear Mr. / Mrs. / Ms. <strong>${parentName}</strong>,</p>
+      ${singleInfractionText}
+      <p style="margin: 5px 0 0 0; text-align: justify;">
+        In line with our mutual goal to nurture positive student character, accountability, and academic success, you are cordially requested to attend an in-person case conference scheduled as follows:
+      </p>
+    </div>
+
+    <!-- Conference Details -->
+    <div class="conf-card">
+      <div class="conf-grid">
+        <span class="conf-label">Conference Date:</span>
+        <span class="conf-val"><strong>${formattedConfDate}</strong></span>
+
+        <span class="conf-label">Designated Time:</span>
+        <span class="conf-val"><strong>${conferenceTime}</strong> (Please arrive 10 minutes prior)</span>
+
+        <span class="conf-label">Designated Venue:</span>
+        <span class="conf-val">${venue}</span>
+
+        <span class="conf-label">Presiding Officer:</span>
+        <span class="conf-val">${signatory1Name} (${signatory1Title})</span>
+      </div>
+    </div>
+
+    <!-- Note / Remarks -->
+    <p class="note-text">
+      <strong>Note:</strong> ${customRemarks}
+    </p>
+
+    <!-- Signatures -->
+    <div class="signatures-row">
+      <div class="sig-col">
+        <div class="sig-line">
+          <span class="sig-name">${signatory1Name}</span>
+          <span class="sig-title">${signatory1Title}</span>
+        </div>
+      </div>
+      ${includeSignatory2 ? `
+      <div class="sig-col-right">
+        <div class="sig-line-right">
+          <span class="sig-name">${signatory2Name}</span>
+          <span class="sig-title">${signatory2Title}</span>
+        </div>
+      </div>` : ''}
+    </div>
+
+    <!-- Return Slip -->
+    <div class="return-slip">
+      <div class="slip-title">ACKNOWLEDGEMENT &amp; CONFIRMATION RETURN SLIP</div>
+      <p style="margin: 0 0 5px 0;">
+        I acknowledge receipt of the conference notice for <strong>${studentFullName}</strong> (Ref: ${referenceNo}) regarding <strong>[${viosSummary}]</strong> for the scheduled date of <strong>${formattedConfDate}</strong> at <strong>${conferenceTime}</strong>.
+      </p>
+      <div class="slip-sign-row">
+        <span>Parent/Guardian Signature: _________________________</span>
+        <span>Date Signed: _______________</span>
+      </div>
+    </div>
+  </div>
+</body>
+</html>`;
+};
+
 export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }) => {
   const { user } = useAuth();
   const { success, error, info } = useNotification();
@@ -628,46 +991,43 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
 
   // 1. Direct Print & Mobile Native Share Functionality
   const handlePrint = async () => {
-    const printContent = printRef.current;
-    const html = printContent ? `
-      <!DOCTYPE html>
-      <html>
-        <head>
-          <title>Official Parent Summons - ${studentFullName}</title>
-          <style>
-            @page { size: portrait; margin: 12mm 15mm; }
-            body { font-family: 'Times New Roman', Times, serif; color: #1e293b; line-height: 1.5; margin: 0; padding: 20px; font-size: 13px; }
-            .header-tbl { width: 100%; border-bottom: 2px solid #0f172a; padding-bottom: 12px; margin-bottom: 18px; }
-            .ref-no { font-family: monospace; font-size: 11px; color: #64748b; }
-            .section-title { font-weight: bold; font-size: 14px; text-transform: uppercase; margin-top: 14px; margin-bottom: 6px; }
-            .box { background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 6px; padding: 12px; margin: 14px 0; }
-            .tear-off { border-top: 2px dashed #94a3b8; margin-top: 30px; padding-top: 15px; }
-            .sig-line { border-bottom: 1px solid #334155; width: 220px; margin-top: 40px; display: inline-block; }
-            table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 12px; }
-            th, td { border: 1px solid #cbd5e1; padding: 6px 8px; text-align: left; }
-            th { background: #f1f5f9; font-weight: bold; color: #0f172a; }
-          </style>
-        </head>
-        <body>
-          ${printContent.innerHTML}
-        </body>
-      </html>
-    ` : '';
+    try {
+      const html = buildParentSummonsHtml({
+        parentName,
+        studentFullName,
+        activeStudent,
+        activeViolations,
+        referenceNo,
+        currentDateFormatted,
+        formattedConfDate,
+        conferenceTime,
+        venue,
+        customRemarks,
+        signatory1Name,
+        signatory1Title,
+        includeSignatory2,
+        signatory2Name,
+        signatory2Title
+      });
 
-    await printOrShareDocument({
-      title: `${studentLastName || 'Student'} - Official Parent Summons Notice`,
-      filename: `Parent_Summons_${studentFullName.replace(/\s+/g, '_')}_${referenceNo}.pdf`,
-      htmlContent: html,
-      generatePdfBlob: async () => {
-        const doc = await generateSummonsPdfDoc();
-        return doc.output('blob');
-      },
-      onStatus: (st) => {
-        if (st.type === 'success') success(st.message);
-        else if (st.type === 'info') info(st.message);
-        else if (st.type === 'error') error(st.message);
-      }
-    });
+      await printOrShareDocument({
+        title: `${studentLastName || 'Student'} - Official Parent Summons Notice`,
+        filename: `Parent_Summons_${studentFullName.replace(/\s+/g, '_')}_${referenceNo}.pdf`,
+        htmlContent: html,
+        generatePdfBlob: async () => {
+          const doc = await generateSummonsPdfDoc();
+          return doc.output('blob');
+        },
+        onStatus: (st) => {
+          if (st.type === 'success') success(st.message);
+          else if (st.type === 'info') info(st.message);
+          else if (st.type === 'error') error(st.message);
+        }
+      });
+    } catch (err) {
+      console.error('Print / Share error:', err);
+      error('Failed to print document: ' + err.message);
+    }
   };
 
   // 2. High Quality PDF Generation
