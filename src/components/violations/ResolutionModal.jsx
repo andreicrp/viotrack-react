@@ -2,6 +2,7 @@ import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { dataService } from '../../services/dataService';
 import { useNotification } from '../../context/NotificationContext';
 import { useAuth } from '../../context/AuthContext';
+import { lockBodyScroll, unlockBodyScroll } from '../../utils/scrollLock';
 import { printOrShareDocument, shareOrSaveNativeFile, downloadBlobFile } from '../../utils/mobilePrintHelper';
 import { getJsPDF, loadPublicImageAsBase64 } from '../../utils/pdfHelper';
 import { 
