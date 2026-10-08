@@ -131,6 +131,7 @@ export async function printOrShareDocument({
   onStatus = () => {}
 }) {
   const isNative = isNativeApp();
+  const isMobile = isMobileDevice();
 
   // 1. Native Capacitor Android APK Flow (Share & Print Intent via Plugins)
   if (isNative) {
@@ -182,29 +183,51 @@ export async function printOrShareDocument({
     }
   }
 
-  // 2. Web Browser Flow (Both Mobile Web and Desktop Web)
-  if (htmlContent) {
+  // 2. Mobile Web Browser Flow (Mobile Chrome / Safari / Firefox)
+  // On mobile browsers, raw HTML print causes viewport scaling & blank page overflow.
+  // Generating and opening/sharing the exact vector PDF solves all mobile print spooler slicing bugs!
+  if (isMobile && typeof generatePdfBlob === 'function') {
     try {
-      const isMobile = isMobileDevice();
+      onStatus?.({ type: 'info', message: 'Generating document...' });
+      const pdfOutput = await generatePdfBlob();
+      
+      let blob;
+      if (pdfOutput instanceof Blob) {
+        blob = pdfOutput;
+      } else if (pdfOutput && typeof pdfOutput.output === 'function') {
+        blob = pdfOutput.output('blob');
+      } else if (pdfOutput instanceof ArrayBuffer) {
+        blob = new Blob([pdfOutput], { type: 'application/pdf' });
+      }
 
-      // On Mobile Web browsers, opening the printable view directly in a new tab triggers mobile browser print reliably
-      if (isMobile) {
-        onStatus?.({ type: 'info', message: 'Opening printable document...' });
-        const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
-        const url = URL.createObjectURL(blob);
-        const printWin = window.open(url, '_blank');
-        if (printWin) {
-          printWin.onload = () => {
-            try {
-              printWin.focus();
-              printWin.print();
-            } catch (e) {}
-          };
-          onStatus?.({ type: 'success', message: 'Print view opened.' });
+      if (blob) {
+        const pdfBlob = new Blob([blob], { type: 'application/pdf' });
+        const blobUrl = URL.createObjectURL(pdfBlob);
+        const win = window.open(blobUrl, '_blank');
+        
+        if (win) {
+          onStatus?.({ type: 'success', message: 'Document opened in mobile viewer.' });
+          return;
+        } else {
+          // If popup is blocked by mobile browser, download directly
+          await shareOrSaveNativeFile({
+            filename: filename.endsWith('.pdf') ? filename : `${filename}.pdf`,
+            blob: pdfBlob,
+            title: title,
+            mimeType: 'application/pdf'
+          });
+          onStatus?.({ type: 'success', message: 'Document downloaded successfully.' });
           return;
         }
       }
+    } catch (err) {
+      console.warn('Mobile PDF generation fallback to HTML print:', err);
+    }
+  }
 
+  // 3. Desktop Web Flow: Hidden IFrame Printing (100% reliable on Desktop Chrome/Edge/Safari)
+  if (htmlContent) {
+    try {
       onStatus?.({ type: 'info', message: 'Opening print dialog...' });
 
       const existing = document.getElementById('viotrack-print-frame');
@@ -237,7 +260,7 @@ export async function printOrShareDocument({
             try { iframe.remove(); } catch (e) {}
           }, 3000);
         } catch (e) {
-          console.warn('Iframe print failed, falling back to popup window / tab:', e);
+          console.warn('Iframe print failed, falling back to popup window:', e);
           const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
           const url = URL.createObjectURL(blob);
           const printWin = window.open(url, '_blank');
@@ -248,7 +271,6 @@ export async function printOrShareDocument({
             };
             onStatus?.({ type: 'success', message: 'Print view opened in new tab.' });
           } else {
-            // Popup blocked: download HTML document
             shareOrSaveNativeFile({
               filename: filename.endsWith('.html') ? filename : `${filename}.html`,
               blob,
@@ -261,11 +283,11 @@ export async function printOrShareDocument({
       }, 350);
       return;
     } catch (err) {
-      console.error('Web HTML print error:', err);
+      console.error('Desktop HTML print error:', err);
     }
   }
 
-  // 3. Web PDF Direct Generator / Viewer
+  // 4. Direct PDF generator save fallback
   if (typeof generatePdfBlob === 'function') {
     try {
       onStatus?.({ type: 'info', message: 'Generating PDF document...' });
@@ -286,7 +308,6 @@ export async function printOrShareDocument({
         if (win) {
           onStatus?.({ type: 'success', message: 'PDF document opened in new tab.' });
         } else {
-          // If popup is blocked, download directly
           await shareOrSaveNativeFile({
             filename: filename.endsWith('.pdf') ? filename : `${filename}.pdf`,
             blob: blob,
