@@ -36,6 +36,23 @@ export const violationsMethods = {
             result = stored;
           }
         }
+
+        // Remove duplicate categories by numeric ID and normalized title.
+        if (Array.isArray(result)) {
+          const seenTitles = new Set();
+          const seenIds = new Set();
+          result = result.filter((violation) => {
+            if (!violation) return false;
+            const id = Number(violation.id);
+            const title = String(violation.title || '').trim().toLowerCase();
+            if (id && seenIds.has(id)) return false;
+            if (title && seenTitles.has(title)) return false;
+            if (id) seenIds.add(id);
+            if (title) seenTitles.add(title);
+            return true;
+          });
+        }
+
         _cache.data.violations = result;
         _cache.timestamps.violations = Date.now();
         return result;
@@ -43,13 +60,20 @@ export const violationsMethods = {
     },
 
   async addViolationType(violation) {
-      let result = null;
       const cleanViolation = {
         title: String(violation.title || '').trim(),
         description: String(violation.description || '').trim(),
         type: String(violation.type || 'Minor').trim(),
         default_sanction: String(violation.default_sanction || '').trim()
       };
+
+      // Return the existing row rather than inserting a duplicate category.
+      const current = await this.getViolations();
+      const normalizedTitle = cleanViolation.title.toLowerCase();
+      const existing = current.find((item) => (item.title || '').trim().toLowerCase() === normalizedTitle);
+      if (existing) return existing;
+
+      let result = null;
 
       if (isSupabaseConfigured()) {
         try {
@@ -63,11 +87,14 @@ export const violationsMethods = {
           console.warn('Supabase addViolationType error:', err);
         }
       }
-      const current = getStored('violations', INITIAL_VIOLATIONS);
+      const currentStored = getStored('violations', INITIAL_VIOLATIONS);
       if (!result) {
         result = { ...cleanViolation, id: Date.now(), created_at: new Date().toISOString() };
       }
-      const updated = [...current, result];
+      const updated = [
+        ...currentStored.filter((item) => (item.title || '').trim().toLowerCase() !== normalizedTitle),
+        result
+      ];
       setStored('violations', updated);
       invalidateCache('violations');
       await this.addActivityLog('Add Violation Category', `Created category "${cleanViolation.title}" (${cleanViolation.type})`);
@@ -184,7 +211,7 @@ export const violationsMethods = {
           ? remoteRecords
           : getStored('records', []);
 
-        const mappedRecords = allRawRecords.map(r => {
+        let mappedRecords = allRawRecords.map(r => {
           const isTeacher = (r.reported_by_type === 'teacher' || (r.reported_by_name && r.reported_by_name !== 'System Admin' && r.reported_by_name !== 'Sheryl Gamboa' && r.reported_by_name !== 'Head Admin'));
 
           let resolvedApproval = r.approval_status;
@@ -216,6 +243,18 @@ export const violationsMethods = {
             violation: resolvedViolation
           };
         });
+
+        // Remove repeated incident rows while preserving the first (newest) row.
+        if (Array.isArray(mappedRecords)) {
+          const seenIds = new Set();
+          mappedRecords = mappedRecords.filter((record) => {
+            if (!record) return false;
+            const id = Number(record.id);
+            if (id && seenIds.has(id)) return false;
+            if (id) seenIds.add(id);
+            return true;
+          });
+        }
 
         _cache.data.records = mappedRecords;
         _cache.timestamps.records = Date.now();

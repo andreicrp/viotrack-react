@@ -73,6 +73,62 @@ describe('dataService data sources', () => {
     expect(['Minor', 'Serious', 'Major']).toContain(violations[0].type);
   });
 
+  it('deduplicates violation categories by numeric ID and normalized title', async () => {
+    supabaseState.configured = true;
+    supabaseState.responses.violations = {
+      data: [
+        { id: 1, title: 'Dress Code' },
+        { id: 2, title: '  dress code ' },
+        { id: '1', title: 'Another title' },
+        null,
+        { id: 3, title: 'Bullying' }
+      ],
+      error: null
+    };
+
+    const result = await dataService.getViolations(true);
+
+    expect(result).toEqual([
+      { id: 1, title: 'Dress Code' },
+      { id: 3, title: 'Bullying' }
+    ]);
+  });
+
+  it('returns an existing violation category instead of inserting a duplicate', async () => {
+    supabaseState.configured = true;
+    const existing = { id: 7, title: 'Uniform Policy', type: 'Minor' };
+    supabaseState.responses.violations = { data: [existing], error: null };
+    const addActivityLog = vi.spyOn(dataService, 'addActivityLog');
+
+    const result = await dataService.addViolationType({ title: '  uniform policy  ', type: 'Major' });
+
+    expect(result).toEqual(existing);
+    expect(supabaseState.calls.filter((call) => call.table === 'violations' && call.operation === 'insert')).toEqual([]);
+    expect(addActivityLog).not.toHaveBeenCalled();
+  });
+
+  it('removes stale local categories with the same normalized title when adding', async () => {
+    supabaseState.configured = true;
+    supabaseState.responses.violations = [
+      { data: [{ id: 10, title: 'Other Category' }], error: null },
+      { data: [{ id: 20, title: 'New Category', type: 'Minor' }], error: null }
+    ];
+    localStorage.setItem('viotrack_violations', JSON.stringify([
+      { id: 1, title: 'New Category' },
+      { id: 2, title: ' new category ' },
+      { id: 3, title: 'Unrelated Category' }
+    ]));
+
+    const result = await dataService.addViolationType({ title: 'New Category' });
+    const stored = JSON.parse(localStorage.getItem('viotrack_violations'));
+
+    expect(result).toMatchObject({ id: 20, title: 'New Category' });
+    expect(stored).toEqual([
+      { id: 3, title: 'Unrelated Category' },
+      { id: 20, title: 'New Category', type: 'Minor' }
+    ]);
+  });
+
   it('deduplicates concurrent student reads and returns the same cached result', async () => {
     const [first, second] = await Promise.all([
       dataService.getStudents(true),
@@ -270,6 +326,27 @@ describe('dataService data sources', () => {
     ]));
 
     expect(await dataService.getRecords(true)).toEqual([]);
+  });
+
+  it('deduplicates live incident records by numeric ID and keeps the first record', async () => {
+    supabaseState.configured = true;
+    supabaseState.responses = {
+      students: { data: [], error: null },
+      violations: { data: [{ id: 2, title: 'Minor Violation' }], error: null },
+      records: {
+        data: [
+          { id: 12, student_id: 1, violation_id: 2, remarks: 'newest copy' },
+          { id: '12', student_id: 1, violation_id: 2, remarks: 'duplicate copy' },
+          { id: 11, student_id: 1, violation_id: 2, remarks: 'other incident' }
+        ],
+        error: null
+      }
+    };
+
+    const result = await dataService.getRecords(true);
+
+    expect(result.map((record) => record.id)).toEqual([12, 11]);
+    expect(result[0].remarks).toBe('newest copy');
   });
 
   it('purges the known legacy demo student and incident caches at module startup', async () => {
