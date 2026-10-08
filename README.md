@@ -14,11 +14,18 @@ A modern, responsive, full-featured **Student Violation Tracking and Monitoring 
 - Integrated school calendar with color-coded event markers and upcoming events panel.
 - Executive vector PDF dashboard summary export (`jspdf` + `jspdf-autotable`).
 
+### ⚡ Global Command Palette (`Ctrl + K` / `⌘K`) & Spotlight Navigation
+- **Universal Keyboard Command Spotlight**: Instant floating search accessible anywhere in the application via <kbd>Ctrl</kbd> + <kbd>K</kbd> (or <kbd>⌘</kbd> + <kbd>K</kbd> on macOS).
+- **Sub-Second Student Dossier Search**: Instant query matching by Student Name, 12-digit LRN, Student ID, or Section with direct dossier routing.
+- **Deep System Jump**: Direct navigation across all 11 system modules (Violations Log, QR Scanner, Summons Generator, For Approval, Campus Tracking, etc.).
+- **Quick Prefect Actions**: Trigger new violation entries, export accreditation reports, launch the interactive system guide, or lock the session instantly.
+
 ### 📷 Live QR Scanner & Tamper-Proof HMAC Badges
 - **HMAC-SHA256 Authenticated QR Protocol (`VT2:<student_id>:<timestamp>:<hmac>`)**:
   - Employs cryptographically secure HMAC-SHA256 signature verification to prevent badge forgery.
   - Backward compatible with legacy `VT1` checksum badges.
-  - Strict payload validation filtering foreign/invalid QR codes with a 3-second auto-dismiss notification.
+  - Real-time detection and explicit visual/audio security alerts for forged or altered cryptographic signatures.
+  - **Anti-Passback Guard**: Tracks recent scans and alerts prefects if a student ID is re-scanned within 60 seconds.
 - **Audio & Haptic Feedback Engine**:
   - 🔔 **Ascending High Chime (`C6 → E6 → B6`)** + Subtle tactile vibration on **Success / Authentic Badge**.
   - ⚠️ **Double Low Buzz (`220Hz / 180Hz`)** + Heavy double vibration on **Invalid / Tampered QR**.
@@ -26,6 +33,10 @@ A modern, responsive, full-featured **Student Violation Tracking and Monitoring 
 - **Real-Time Camera Scanner (`html5-qrcode`)**: High-framerate optical matrix detection with front/rear camera switcher.
 - **Image File Upload Decoder**: Multi-engine canvas preprocessing for low-contrast or rotated photos.
 - **1-Click Violation Logging & Student History Modal**: Instant access to infraction logs from scan results.
+
+### 🕒 Institutional 24-Hour Clock & Header Tools
+- **Live Tabular Clock (`HH:mm:ss`)**: Synchronized Philippine Standard Time with day/date badges and full locale tooltips.
+- **Responsive Header Command Trigger**: OS-aware micro-keycaps (<kbd>Ctrl</kbd> <kbd>K</kbd> / <kbd>⌘</kbd> <kbd>K</kbd>) with smooth elevation and hover states.
 
 ### ⚠️ Violation Records & Case Management
 - Filterable violation registry (Student name, Student ID, offense category, status, severity, grade, date).
