@@ -399,3 +399,9 @@ Clean latest main passed **22 tests across 5 test files**, lint (**418 warnings,
 Latest main is [`3ce1316c007ad48feb64623eeb28713a16c02b93`](https://github.com/andreicrp/viotrack-react/commit/3ce1316c007ad48feb64623eeb28713a16c02b93). It adjusts BackupRestoreModal tabs, the schedule grid, and touch targets plus related CSS; no data-service implementation or dependency files changed.
 
 Clean latest main passed **22 tests across 5 test files**, lint (**418 warnings, 0 errors**), and build (2,675.64 kB `vendor-react`, gzip 792.00 kB; PDF worker 1,264.34 kB). After rebasing the existing PR onto `3ce1316`, **42 tests across 6 files passed**, typecheck passed, lint passed (**417 warnings, 0 errors**), and build passed with matching bundle sizes.
+
+## Baseline after the 2026-10-08 mobile snapshot-card and modal-layering update
+
+Latest main is [`fc639e9ca7a7f5e60a7c4f98676c17cb2a939ee3`](https://github.com/andreicrp/viotrack-react/commit/fc639e9ca7a7f5e60a7c4f98676c17cb2a939ee3). It changes `BackupRestoreModal.jsx` and `index.css` to raise the mobile modal backdrop and show responsive snapshot cards; no data-service modules or dependency files changed.
+
+Clean latest main passed **22 tests across 5 test files**, lint (**418 warnings, 0 errors**), and build (2,675.64 kB `vendor-react`, gzip 792.00 kB; PDF worker 1,264.34 kB); clean main has no JSDoc typecheck script. After rebasing the PR onto `fc639e9`, **42 tests across 6 files passed**, `tsc -p tsconfig.check.json` passed, lint passed (**417 warnings, 0 errors**), and build passed with matching bundle sizes.
