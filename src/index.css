@@ -2320,9 +2320,10 @@ button:active,
 
 @media (max-width: 640px) {
   .backup-modal-dialog {
-    max-height: 94vh;
-    border-radius: 18px;
+    max-height: calc(100vh - 32px);
+    border-radius: 20px;
     margin: 0;
+    width: 100%;
   }
 
   .backup-modal-header {
@@ -2348,7 +2349,7 @@ button:active,
   }
 
   .backup-modal-body {
-    padding: 16px 14px;
+    padding: 14px 12px;
   }
 
   .backup-schedule-grid {
@@ -2372,9 +2373,30 @@ button:active,
 
   .backup-modal-footer button {
     width: 100%;
-    padding: 10px !important;
+    padding: 11px !important;
+  }
+
+  .backup-history-desktop {
+    display: none !important;
+  }
+
+  .backup-history-mobile {
+    display: flex !important;
+    flex-direction: column;
+    gap: 10px;
   }
 }
+
+@media (min-width: 641px) {
+  .backup-history-desktop {
+    display: block !important;
+  }
+
+  .backup-history-mobile {
+    display: none !important;
+  }
+}
+
 
 
 

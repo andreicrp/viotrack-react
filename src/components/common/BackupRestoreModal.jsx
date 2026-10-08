@@ -175,7 +175,7 @@ export const BackupRestoreModal = ({ isOpen, onClose }) => {
       style={{
         position: 'fixed',
         inset: 0,
-        zIndex: 9999,
+        zIndex: 99999,
         background: 'rgba(15, 23, 42, 0.75)',
         display: 'flex',
         alignItems: 'center',
@@ -265,26 +265,26 @@ export const BackupRestoreModal = ({ isOpen, onClose }) => {
           
           {/* TAB 1: CREATE SNAPSHOT */}
           {activeTab === 'create' && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '22px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
               {/* Main Snapshot Hero Card */}
               <div
                 style={{
                   background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
                   border: '1.5px solid #e2e8f0',
                   borderRadius: '18px',
-                  padding: '24px',
+                  padding: '20px',
                   display: 'flex',
                   flexDirection: 'column',
-                  gap: '18px',
+                  gap: '16px',
                   boxShadow: '0 4px 16px rgba(0,0,0,0.02)'
                 }}
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '14px' }}>
                   <div>
-                    <h4 style={{ margin: '0 0 4px 0', fontSize: '16px', fontWeight: 800, color: '#0f172a' }}>
+                    <h4 style={{ margin: '0 0 4px 0', fontSize: '15.5px', fontWeight: 800, color: '#0f172a' }}>
                       Database Backup
                     </h4>
-                    <p style={{ margin: 0, fontSize: '12.5px', color: '#64748b', lineHeight: 1.5, maxWidth: '520px' }}>
+                    <p style={{ margin: 0, fontSize: '12px', color: '#64748b', lineHeight: 1.5, maxWidth: '520px' }}>
                       Download a complete JSON file containing all students, violation records, faculty, and activity logs.
                     </p>
                   </div>
@@ -294,7 +294,7 @@ export const BackupRestoreModal = ({ isOpen, onClose }) => {
                     onClick={() => handleCreateBackup('manual')}
                     disabled={loading}
                     style={{
-                      padding: '11px 20px',
+                      padding: '10px 18px',
                       borderRadius: '10px',
                       background: '#0f172a',
                       color: '#ffffff',
@@ -367,7 +367,7 @@ export const BackupRestoreModal = ({ isOpen, onClose }) => {
                 {history.length === 0 ? (
                   <div
                     style={{
-                      padding: '36px 20px',
+                      padding: '32px 20px',
                       textAlign: 'center',
                       background: '#f8fafc',
                       borderRadius: '14px',
@@ -383,89 +383,173 @@ export const BackupRestoreModal = ({ isOpen, onClose }) => {
                       No snapshots created yet
                     </span>
                     <span style={{ fontSize: '12px', color: '#64748b', maxWidth: '360px' }}>
-                      Click "Take Snapshot &amp; Download" above to generate a complete backup file.
+                      Click "Download Backup" above to generate a complete backup file.
                     </span>
                   </div>
                 ) : (
-                  <div style={{ border: '1px solid #e2e8f0', borderRadius: '14px', overflowX: 'auto', WebkitOverflowScrolling: 'touch', boxShadow: '0 1px 3px rgba(0,0,0,0.02)' }}>
-                    <table style={{ width: '100%', minWidth: '520px', borderCollapse: 'collapse', fontSize: '12.5px' }}>
-                      <thead>
-                        <tr style={{ background: '#f8fafc', borderBottom: '1.5px solid #e2e8f0', textAlign: 'left' }}>
-                          <th style={{ padding: '12px 16px', fontWeight: 800, color: '#475569', textTransform: 'uppercase', fontSize: '11px', letterSpacing: '0.03em' }}>Snapshot ID</th>
-                          <th style={{ padding: '12px 16px', fontWeight: 800, color: '#475569', textTransform: 'uppercase', fontSize: '11px', letterSpacing: '0.03em' }}>Timestamp</th>
-                          <th style={{ padding: '12px 16px', fontWeight: 800, color: '#475569', textTransform: 'uppercase', fontSize: '11px', letterSpacing: '0.03em' }}>Payload Summary</th>
-                          <th style={{ padding: '12px 16px', fontWeight: 800, color: '#475569', textTransform: 'uppercase', fontSize: '11px', letterSpacing: '0.03em', textAlign: 'right' }}>Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {history.map((item) => (
-                          <tr key={item.id} style={{ borderBottom: '1px solid #f1f5f9', background: '#ffffff', transition: 'background 0.15s' }}>
-                            <td style={{ padding: '12px 16px' }}>
-                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                <span style={{ fontFamily: 'monospace', fontWeight: 800, color: '#0f172a', fontSize: '12.5px' }}>
-                                  {item.id}
-                                </span>
-                                <span style={{ fontSize: '10.5px', fontWeight: 700, background: '#f1f5f9', border: '1px solid #e2e8f0', padding: '1px 6px', borderRadius: '4px', color: '#475569', textTransform: 'uppercase' }}>
-                                  {item.type}
-                                </span>
-                              </div>
-                            </td>
-                            <td style={{ padding: '12px 16px', color: '#475569' }}>
-                              {new Date(item.created_at).toLocaleDateString([], { month: 'short', day: '2-digit', year: 'numeric' })},{' '}
-                              {new Date(item.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                            </td>
-                            <td style={{ padding: '12px 16px', color: '#334155', fontWeight: 600 }}>
-                              {item.counts?.records || 0} incidents • {item.counts?.students || 0} students ({item.size_kb || 0} KB)
-                            </td>
-                            <td style={{ padding: '12px 16px', textAlign: 'right' }}>
-                              <div style={{ display: 'inline-flex', gap: '6px' }}>
-                                <button
-                                  type="button"
-                                  onClick={() => handleExecuteRestore(item.snapshot)}
-                                  disabled={loading}
-                                  style={{
-                                    padding: '5px 12px',
-                                    borderRadius: '8px',
-                                    background: '#ecfdf5',
-                                    color: '#065f46',
-                                    border: '1px solid #a7f3d0',
-                                    fontSize: '11.5px',
-                                    fontWeight: 800,
-                                    cursor: 'pointer',
-                                    display: 'inline-flex',
-                                    alignItems: 'center',
-                                    gap: '4px'
-                                  }}
-                                  title="Restore system directly from this snapshot"
-                                >
-                                  <RefreshCw size={12} />
-                                  <span>Restore</span>
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={() => handleDeleteSnapshot(item.id)}
-                                  style={{
-                                    padding: '5px 8px',
-                                    borderRadius: '8px',
-                                    background: '#ffffff',
-                                    color: '#dc2626',
-                                    border: '1px solid #fecaca',
-                                    cursor: 'pointer',
-                                    display: 'inline-flex',
-                                    alignItems: 'center',
-                                    justifyContent: 'center'
-                                  }}
-                                  title="Delete from history"
-                                >
-                                  <Trash2 size={12} />
-                                </button>
-                              </div>
-                            </td>
+                  <>
+                    {/* Desktop Table */}
+                    <div className="backup-history-desktop" style={{ border: '1px solid #e2e8f0', borderRadius: '14px', overflowX: 'auto', WebkitOverflowScrolling: 'touch', boxShadow: '0 1px 3px rgba(0,0,0,0.02)' }}>
+                      <table style={{ width: '100%', minWidth: '520px', borderCollapse: 'collapse', fontSize: '12.5px' }}>
+                        <thead>
+                          <tr style={{ background: '#f8fafc', borderBottom: '1.5px solid #e2e8f0', textAlign: 'left' }}>
+                            <th style={{ padding: '12px 16px', fontWeight: 800, color: '#475569', textTransform: 'uppercase', fontSize: '11px', letterSpacing: '0.03em' }}>Snapshot ID</th>
+                            <th style={{ padding: '12px 16px', fontWeight: 800, color: '#475569', textTransform: 'uppercase', fontSize: '11px', letterSpacing: '0.03em' }}>Timestamp</th>
+                            <th style={{ padding: '12px 16px', fontWeight: 800, color: '#475569', textTransform: 'uppercase', fontSize: '11px', letterSpacing: '0.03em' }}>Payload Summary</th>
+                            <th style={{ padding: '12px 16px', fontWeight: 800, color: '#475569', textTransform: 'uppercase', fontSize: '11px', letterSpacing: '0.03em', textAlign: 'right' }}>Actions</th>
                           </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
+                        </thead>
+                        <tbody>
+                          {history.map((item) => (
+                            <tr key={item.id} style={{ borderBottom: '1px solid #f1f5f9', background: '#ffffff', transition: 'background 0.15s' }}>
+                              <td style={{ padding: '12px 16px' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                  <span style={{ fontFamily: 'monospace', fontWeight: 800, color: '#0f172a', fontSize: '12.5px' }}>
+                                    {item.id}
+                                  </span>
+                                  <span style={{ fontSize: '10.5px', fontWeight: 700, background: '#f1f5f9', border: '1px solid #e2e8f0', padding: '1px 6px', borderRadius: '4px', color: '#475569', textTransform: 'uppercase' }}>
+                                    {item.type}
+                                  </span>
+                                </div>
+                              </td>
+                              <td style={{ padding: '12px 16px', color: '#475569' }}>
+                                {new Date(item.created_at).toLocaleDateString([], { month: 'short', day: '2-digit', year: 'numeric' })},{' '}
+                                {new Date(item.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                              </td>
+                              <td style={{ padding: '12px 16px', color: '#334155', fontWeight: 600 }}>
+                                {item.counts?.records || 0} incidents • {item.counts?.students || 0} students ({item.size_kb || 0} KB)
+                              </td>
+                              <td style={{ padding: '12px 16px', textAlign: 'right' }}>
+                                <div style={{ display: 'inline-flex', gap: '6px' }}>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleExecuteRestore(item.snapshot)}
+                                    disabled={loading}
+                                    style={{
+                                      padding: '5px 12px',
+                                      borderRadius: '8px',
+                                      background: '#ecfdf5',
+                                      color: '#065f46',
+                                      border: '1px solid #a7f3d0',
+                                      fontSize: '11.5px',
+                                      fontWeight: 800,
+                                      cursor: 'pointer',
+                                      display: 'inline-flex',
+                                      alignItems: 'center',
+                                      gap: '4px'
+                                    }}
+                                    title="Restore system directly from this snapshot"
+                                  >
+                                    <RefreshCw size={12} />
+                                    <span>Restore</span>
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleDeleteSnapshot(item.id)}
+                                    style={{
+                                      padding: '5px 8px',
+                                      borderRadius: '8px',
+                                      background: '#ffffff',
+                                      color: '#dc2626',
+                                      border: '1px solid #fecaca',
+                                      cursor: 'pointer',
+                                      display: 'inline-flex',
+                                      alignItems: 'center',
+                                      justifyContent: 'center'
+                                    }}
+                                    title="Delete from history"
+                                  >
+                                    <Trash2 size={12} />
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+
+                    {/* Mobile Cards */}
+                    <div className="backup-history-mobile">
+                      {history.map((item) => (
+                        <div
+                          key={item.id}
+                          style={{
+                            background: '#ffffff',
+                            border: '1px solid #e2e8f0',
+                            borderRadius: '12px',
+                            padding: '12px',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '8px',
+                            boxShadow: '0 1px 3px rgba(0,0,0,0.02)'
+                          }}
+                        >
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                            <span style={{ fontFamily: 'monospace', fontWeight: 800, color: '#0f172a', fontSize: '12px' }}>
+                              {item.id}
+                            </span>
+                            <span style={{ fontSize: '10px', fontWeight: 700, background: '#f1f5f9', border: '1px solid #e2e8f0', padding: '2px 6px', borderRadius: '4px', color: '#475569', textTransform: 'uppercase' }}>
+                              {item.type}
+                            </span>
+                          </div>
+
+                          <div style={{ fontSize: '11.5px', color: '#64748b' }}>
+                            {new Date(item.created_at).toLocaleDateString([], { month: 'short', day: '2-digit', year: 'numeric' })},{' '}
+                            {new Date(item.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          </div>
+
+                          <div style={{ fontSize: '12px', color: '#334155', fontWeight: 600 }}>
+                            {item.counts?.records || 0} incidents • {item.counts?.students || 0} students ({item.size_kb || 0} KB)
+                          </div>
+
+                          <div style={{ display: 'flex', gap: '8px', marginTop: '4px', paddingTop: '8px', borderTop: '1px solid #f1f5f9' }}>
+                            <button
+                              type="button"
+                              onClick={() => handleExecuteRestore(item.snapshot)}
+                              disabled={loading}
+                              style={{
+                                flex: 1,
+                                padding: '7px 12px',
+                                borderRadius: '8px',
+                                background: '#ecfdf5',
+                                color: '#065f46',
+                                border: '1px solid #a7f3d0',
+                                fontSize: '12px',
+                                fontWeight: 800,
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                gap: '5px'
+                              }}
+                            >
+                              <RefreshCw size={13} />
+                              <span>Restore</span>
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteSnapshot(item.id)}
+                              style={{
+                                padding: '7px 12px',
+                                borderRadius: '8px',
+                                background: '#fef2f2',
+                                color: '#dc2626',
+                                border: '1px solid #fecaca',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center'
+                              }}
+                            >
+                              <Trash2 size={13} />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </>
                 )}
               </div>
             </div>
