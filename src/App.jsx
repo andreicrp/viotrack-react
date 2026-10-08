@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-route
 import { Capacitor } from '@capacitor/core';
 import { StatusBar, Style } from '@capacitor/status-bar';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { ThemeProvider } from './context/ThemeContext';
 import { NotificationProvider } from './context/NotificationContext';
 import { Layout } from './components/layout/Layout';
 import { SplashScreen } from './components/common/SplashScreen';
@@ -113,17 +114,18 @@ export function App() {
   return (
     <ErrorBoundary>
       <AuthProvider>
-        <NotificationProvider>
-          {showSplash && (
-            <SplashScreen
-              mode="coded"
-              duration={1600}
-              onFinish={() => setShowSplash(false)}
-            />
-          )}
-          <BrowserRouter>
-            <Suspense fallback={<PageLoader />}>
-              <Routes>
+        <ThemeProvider>
+          <NotificationProvider>
+            {showSplash && (
+              <SplashScreen
+                mode="coded"
+                duration={1600}
+                onFinish={() => setShowSplash(false)}
+              />
+            )}
+            <BrowserRouter>
+              <Suspense fallback={<PageLoader />}>
+                <Routes>
                 {/* Public Auth & Student ID Pass Routes */}
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/verify-student/:id" element={<VerifyStudentPage />} />
@@ -216,8 +218,9 @@ export function App() {
             <ScreenLockModal />
           </BrowserRouter>
         </NotificationProvider>
-      </AuthProvider>
-    </ErrorBoundary>
+      </ThemeProvider>
+    </AuthProvider>
+  </ErrorBoundary>
   );
 }
 

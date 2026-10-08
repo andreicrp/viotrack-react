@@ -14,6 +14,7 @@
 @import './css/addrecord-modal.css';
 @import './css/scan-qr.css';
 @import './css/school-calendar.css';
+@import './css/dark-theme.css';
 
 /* Local Sora Font Declarations (Guaranteed 100% Offline & Mobile Support) */
 @font-face {

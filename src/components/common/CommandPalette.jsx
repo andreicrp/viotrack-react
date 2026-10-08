@@ -21,10 +21,13 @@ import {
   X,
   Sparkles,
   Command,
-  CornerDownLeft
+  CornerDownLeft,
+  Sun,
+  Moon
 } from 'lucide-react';
 import { dataService } from '../../services/dataService';
 import { useAuth } from '../../context/AuthContext';
+import { useTheme } from '../../context/ThemeContext';
 import { lockBodyScroll, unlockBodyScroll } from '../../utils/scrollLock';
 
 export const CommandPalette = ({
@@ -36,6 +39,7 @@ export const CommandPalette = ({
 }) => {
   const navigate = useNavigate();
   const { user, lockScreen } = useAuth();
+  const { isDark, toggleTheme } = useTheme();
   const [query, setQuery] = useState('');
   const [students, setStudents] = useState([]);
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -232,8 +236,18 @@ export const CommandPalette = ({
           lockScreen();
         }
       }
+    },
+    {
+      id: 'action_toggle_theme',
+      category: 'Quick Actions',
+      title: isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode',
+      subtitle: `Toggle visual theme (currently ${isDark ? 'Dark' : 'Light'})`,
+      icon: isDark ? Sun : Moon,
+      action: () => {
+        toggleTheme();
+      }
     }
-  ], [onOpenAddViolation, onOpenPrintData, onOpenGuide, lockScreen]);
+  ], [onOpenAddViolation, onOpenPrintData, onOpenGuide, lockScreen, isDark, toggleTheme]);
 
   // Filtered Results Pipeline
   const filteredResults = useMemo(() => {

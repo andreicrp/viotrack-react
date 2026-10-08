@@ -12,14 +12,18 @@ import {
   Clock,
   Lock,
   Database,
-  Search
+  Search,
+  Sun,
+  Moon
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { useTheme } from '../../context/ThemeContext';
 import { dataService } from '../../services/dataService';
 import { BackupRestoreModal } from '../common/BackupRestoreModal';
 
 export const Header = ({ onToggleSidebar, onOpenCommandPalette }) => {
   const { user, logout, lockScreen } = useAuth();
+  const { isDark, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const [showDropdown, setShowDropdown] = useState(false);
   const [showNotifDropdown, setShowNotifDropdown] = useState(false);
@@ -462,6 +466,32 @@ export const Header = ({ onToggleSidebar, onOpenCommandPalette }) => {
                     <span className="user-dropdown-btn-label">Database Backups</span>
                   </button>
                 )}
+
+                {/* Dark / Light Mode Toggle */}
+                <button
+                  type="button"
+                  className="user-dropdown-btn theme-toggle-btn"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleTheme();
+                  }}
+                  role="menuitem"
+                  title={`Switch to ${isDark ? 'Light' : 'Dark'} Mode`}
+                >
+                  <div className="user-dropdown-btn-content">
+                    {isDark ? (
+                      <Sun size={16} className="user-dropdown-icon text-amber-500" style={{ color: '#f59e0b' }} />
+                    ) : (
+                      <Moon size={16} className="user-dropdown-icon" />
+                    )}
+                    <span className="user-dropdown-btn-label">
+                      {isDark ? 'Light Mode' : 'Dark Mode'}
+                    </span>
+                  </div>
+                  <div className={`theme-toggle-switch ${isDark ? 'active' : ''}`} aria-hidden="true">
+                    <div className="theme-toggle-knob" />
+                  </div>
+                </button>
 
                 <button
                   type="button"
