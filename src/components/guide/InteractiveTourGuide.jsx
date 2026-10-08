@@ -55,7 +55,7 @@ const SANCTIONS_MATRIX = [
   }
 ];
 
-// Interactive Guided Tours Definitions
+// Interactive Guided Tours Definitions matching actual DOM classes
 const TOUR_SCENARIOS = {
   overview: {
     id: 'overview',
@@ -64,23 +64,30 @@ const TOUR_SCENARIOS = {
     route: '/',
     steps: [
       {
-        target: '.header-title, h1, h2',
+        target: '.dash-header-bar, .dash-header-title-row, .page-header, h1',
         title: 'Welcome to VioTrack',
         content: 'VioTrack is the institutional Student Welfare and Disciplinary Management System for the University of Perpetual Help System Manila.',
         badge: 'Getting Started',
         icon: Sparkles
       },
       {
-        target: '.metrics-grid, .stats-container, [data-tour="metrics"]',
+        target: '.dash-stats-grid-4',
         title: 'Real-Time Incident Metrics',
-        content: 'Monitor high-level KPI cards showing Total Reported Infractions, Resolved Cases, Active Students, and Pending Actions at a glance.',
+        content: 'Monitor high-level KPI cards for Minor, Serious, and Major infractions, plus total resolution rates. Click any card to filter by severity!',
         badge: 'Analytics',
         icon: BarChart3
       },
       {
-        target: 'nav, .sidebar, .mobile-nav-bar',
-        title: 'Navigation Hub',
-        content: 'Access the QR Scanner for on-the-ground ID checks, Violations Registry, Student Rosters, and Institutional Data Print exports.',
+        target: '.dash-trends-grid',
+        title: 'Trend Curves & Incident Distribution',
+        content: 'Visualize disciplinary activity over time with interactive spline curve trends and segmented donut charts of the most common school violations.',
+        badge: 'Visual Trends',
+        icon: Sparkles
+      },
+      {
+        target: '.sidebar, .mobile-bottom-nav, nav',
+        title: 'Quick Navigation Hub',
+        content: 'Easily switch between QR Scanning for on-the-ground ID checks, Violations Registry, Student Rosters, and Institutional Data Print exports.',
         badge: 'Navigation',
         icon: Compass
       }
@@ -93,23 +100,23 @@ const TOUR_SCENARIOS = {
     route: '/scan',
     steps: [
       {
-        target: '.scanner-viewport, video, [data-tour="camera"]',
+        target: '.scanner-viewport, video, .qr-camera-container, .scanner-card',
         title: 'Live Camera Viewfinder',
-        content: 'Point your phone or laptop camera at the student ID QR code. VioTrack detects and reads the student identification number in real-time.',
+        content: 'Point your camera at a student QR badge. VioTrack scans and validates student identity in real-time.',
         badge: 'Camera Scan',
         icon: QrCode
       },
       {
-        target: 'input[type="text"], .search-input, [data-tour="manual-search"]',
+        target: 'input[type="text"], .search-input, .student-lookup-input',
         title: 'Manual Student ID / LRN Search',
-        content: 'If a student forgot their physical ID card, type their Student ID number or name here to look up their disciplinary history instantly.',
+        content: 'If the student does not have their badge, type their Student ID number or name here for instant record lookup.',
         badge: 'Manual Lookup',
         icon: BookOpen
       },
       {
-        target: 'button, .action-btn, [data-tour="quick-log"]',
-        title: 'Quick Infraction Logging',
-        content: 'Once the student profile appears, tap "Log Violation" to record infractions with preset policies and timestamps in under 5 seconds.',
+        target: 'button.btn-primary, button:has(svg), .action-btn',
+        title: 'Quick Infraction Citation',
+        content: 'Select the reported violation and tap Log Violation to record infractions with preset policies and timestamps in under 5 seconds.',
         badge: 'Instant Citation',
         icon: AlertTriangle
       }
@@ -122,21 +129,21 @@ const TOUR_SCENARIOS = {
     route: '/violations',
     steps: [
       {
-        target: '.filters-container, .filter-bar, [data-tour="filters"]',
+        target: '.filters-container, .filter-bar, .search-bar, .violations-header-actions',
         title: 'Severity & Status Filters',
         content: 'Filter incidents by Minor, Serious, or Major offense level, or filter by Pending vs. Resolved status to prioritize open cases.',
         badge: 'Filter & Search',
         icon: AlertTriangle
       },
       {
-        target: '.table-container, .record-card, [data-tour="records-list"]',
+        target: '.table-container, .violations-table, .records-list, table',
         title: 'Incident Record Log',
         content: 'View comprehensive details for each incident: student name, grade & section, offense details, reporting officer, and timestamps.',
         badge: 'Records',
         icon: FileText
       },
       {
-        target: 'button:has(svg), .action-button, [data-tour="action-buttons"]',
+        target: 'button:has(svg), .action-button, tr td:last-child',
         title: 'Summons & Resolution Actions',
         content: 'Open the Parent Summons generator for formal notices, or open the Resolution modal (Doc Proof) to clear cases with official certificates.',
         badge: 'Actions',
@@ -151,21 +158,21 @@ const TOUR_SCENARIOS = {
     route: '/violations',
     steps: [
       {
-        target: '.psm-preview-paper, .preview-container, body',
+        target: null, // Centered clean modal
         title: 'Authentic Philippine Institutional Notice',
         content: 'Generates an official parent conference notice complete with Republic header, University of Perpetual Help seal, and DepEd compliance footnotes.',
         badge: 'Letterhead & Seals',
         icon: FileText
       },
       {
-        target: '.psm-left, [data-tour="summons-parameters"]',
+        target: null,
         title: 'Multi-Violation Bundling & Schedule',
         content: 'Select multiple infractions for a repeat offender into one single formal notice. Customize the conference date, time, venue, and designated signatories.',
         badge: 'Customization',
         icon: CheckCircle2
       },
       {
-        target: '.psm-btn-download, .psm-btn-print, button:contains("PDF")',
+        target: null,
         title: 'Direct PDF Download & Print',
         content: 'Download the summons as a crisp vector PDF or print directly. It includes an official tear-off Return Slip for parent confirmation.',
         badge: 'Export & Print',
@@ -180,14 +187,14 @@ const TOUR_SCENARIOS = {
     route: '/violations',
     steps: [
       {
-        target: 'body',
+        target: null,
         title: 'Corrective Action & Sanctions',
         content: 'Select prescribed institutional sanctions (e.g. Verbal Warning, Campus Service, Counseling) and record resolution remarks.',
         badge: 'Sanction Presets',
         icon: ShieldCheck
       },
       {
-        target: 'body',
+        target: null,
         title: 'Official Certificate of Resolution',
         content: 'Generates an authentic Certificate of Disciplinary Resolution & Clearance with unique control number and digital verification hash.',
         badge: 'Certificate',
@@ -202,21 +209,21 @@ const TOUR_SCENARIOS = {
     route: '/',
     steps: [
       {
-        target: 'body',
+        target: '.dash-trends-grid, .dash-stats-grid-4',
         title: 'Coverage Period & Presets',
         content: 'Choose between Today, Weekly, Monthly, All-Time, or custom date ranges to compile accreditation-ready analytics.',
         badge: 'Time Period',
         icon: BarChart3
       },
       {
-        target: 'body',
+        target: null,
         title: 'Vector Charts & Grade Breakdown',
         content: 'Includes real-time spline trend graphs, most common violation donut charts, and complete grade level incident distribution tables.',
         badge: 'Visual Analytics',
         icon: Sparkles
       },
       {
-        target: 'body',
+        target: null,
         title: 'Multi-Page DepEd Compliance Report',
         content: 'Exports a multi-page PDF document including itemized incident logs, verification barcodes, and prefect signatures.',
         badge: 'Executive Report',
@@ -253,50 +260,43 @@ export const InteractiveTourGuide = () => {
     }
 
     const currentStep = activeTour.steps[currentStepIndex];
-    if (!currentStep) return;
-
-    if (currentStep.target === 'body') {
-      setTargetRect({
-        top: window.innerHeight * 0.15,
-        left: window.innerWidth * 0.1,
-        width: window.innerWidth * 0.8,
-        height: window.innerHeight * 0.65,
-        isCenter: true
-      });
+    if (!currentStep || !currentStep.target) {
+      setTargetRect(null);
       return;
     }
 
     try {
       const el = document.querySelector(currentStep.target);
       if (el) {
+        // Scroll target element smoothly into view if needed
+        el.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
+
         const rect = el.getBoundingClientRect();
-        const padding = 8;
-        setTargetRect({
-          top: Math.max(0, rect.top - padding),
-          left: Math.max(0, rect.left - padding),
-          width: Math.min(window.innerWidth, rect.width + padding * 2),
-          height: Math.min(window.innerHeight, rect.height + padding * 2),
-          isCenter: false
-        });
-      } else {
-        // Fallback to centered card if selector not found on current page
-        setTargetRect({
-          top: window.innerHeight * 0.2,
-          left: window.innerWidth * 0.15,
-          width: window.innerWidth * 0.7,
-          height: 280,
-          isCenter: true
-        });
+        const padding = 10;
+        const top = Math.max(0, rect.top - padding);
+        const left = Math.max(0, rect.left - padding);
+        const width = Math.min(window.innerWidth - left, rect.width + padding * 2);
+        const height = Math.min(window.innerHeight - top, rect.height + padding * 2);
+
+        // Only set rect if it has reasonable dimensions and is visible
+        if (width > 20 && height > 20 && rect.top < window.innerHeight && rect.bottom > 0) {
+          setTargetRect({
+            top,
+            left,
+            width,
+            height,
+            rawBottom: rect.bottom,
+            rawTop: rect.top,
+            rawLeft: rect.left,
+            rawWidth: rect.width
+          });
+          return;
+        }
       }
-    } catch {
-      setTargetRect({
-        top: window.innerHeight * 0.2,
-        left: window.innerWidth * 0.15,
-        width: window.innerWidth * 0.7,
-        height: 280,
-        isCenter: true
-      });
-    }
+    } catch {}
+
+    // Target not found or invalid: fallback to clean centered modal (no spotlight cutout)
+    setTargetRect(null);
   }, [activeTour, currentStepIndex]);
 
   // Handle Window Resize and Scroll during Active Tour
@@ -306,7 +306,7 @@ export const InteractiveTourGuide = () => {
     window.addEventListener('resize', updateTargetRect);
     window.addEventListener('scroll', updateTargetRect, true);
 
-    const timer = setTimeout(updateTargetRect, 250);
+    const timer = setTimeout(updateTargetRect, 200);
     return () => {
       window.removeEventListener('resize', updateTargetRect);
       window.removeEventListener('scroll', updateTargetRect, true);
@@ -803,74 +803,92 @@ export const InteractiveTourGuide = () => {
           }}
         >
           {/* Dark Backdrop Spotlight with SVG Cutout */}
-          <svg
-            style={{
-              position: 'fixed',
-              top: 0,
-              left: 0,
-              width: '100vw',
-              height: '100vh',
-              pointerEvents: 'none'
-            }}
-          >
-            <defs>
-              <mask id="spotlight-mask">
-                <rect x="0" y="0" width="100%" height="100%" fill="white" />
-                {targetRect && (
-                  <rect
-                    x={targetRect.left}
-                    y={targetRect.top}
-                    width={targetRect.width}
-                    height={targetRect.height}
-                    rx="12"
-                    ry="12"
-                    fill="black"
-                  />
-                )}
-              </mask>
-            </defs>
-            <rect
-              x="0"
-              y="0"
-              width="100%"
-              height="100%"
-              fill="rgba(15, 23, 42, 0.75)"
-              mask="url(#spotlight-mask)"
-            />
-          </svg>
+          {targetRect ? (
+            <>
+              <svg
+                style={{
+                  position: 'fixed',
+                  top: 0,
+                  left: 0,
+                  width: '100vw',
+                  height: '100vh',
+                  pointerEvents: 'none',
+                  zIndex: 10000
+                }}
+              >
+                <defs>
+                  <mask id="spotlight-mask">
+                    <rect x="0" y="0" width="100%" height="100%" fill="white" />
+                    <rect
+                      x={targetRect.left}
+                      y={targetRect.top}
+                      width={targetRect.width}
+                      height={targetRect.height}
+                      rx="14"
+                      ry="14"
+                      fill="black"
+                    />
+                  </mask>
+                </defs>
+                <rect
+                  x="0"
+                  y="0"
+                  width="100%"
+                  height="100%"
+                  fill="rgba(15, 23, 42, 0.72)"
+                  mask="url(#spotlight-mask)"
+                />
+              </svg>
 
-          {/* Glowing Target Ring */}
-          {targetRect && !targetRect.isCenter && (
+              {/* Glowing Target Ring */}
+              <div
+                style={{
+                  position: 'fixed',
+                  top: `${targetRect.top}px`,
+                  left: `${targetRect.left}px`,
+                  width: `${targetRect.width}px`,
+                  height: `${targetRect.height}px`,
+                  borderRadius: '14px',
+                  border: '2.5px solid #38bdf8',
+                  boxShadow: '0 0 24px rgba(56, 189, 248, 0.6), inset 0 0 10px rgba(56, 189, 248, 0.2)',
+                  pointerEvents: 'none',
+                  zIndex: 10000,
+                  transition: 'all 0.25s cubic-bezier(0.16, 1, 0.3, 1)'
+                }}
+              />
+            </>
+          ) : (
             <div
               style={{
                 position: 'fixed',
-                top: `${targetRect.top}px`,
-                left: `${targetRect.left}px`,
-                width: `${targetRect.width}px`,
-                height: `${targetRect.height}px`,
-                borderRadius: '12px',
-                border: '2.5px solid #38bdf8',
-                boxShadow: '0 0 20px rgba(56, 189, 248, 0.6), inset 0 0 10px rgba(56, 189, 248, 0.3)',
-                pointerEvents: 'none',
-                transition: 'all 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
-                animation: 'pulseRing 2s infinite ease-in-out'
+                inset: 0,
+                background: 'rgba(15, 23, 42, 0.65)',
+                backdropFilter: 'blur(4px)',
+                zIndex: 10000
               }}
             />
           )}
 
-          {/* Floating Guidance Card */}
+          {/* Floating Guidance Card with Intelligent Screen Placement */}
           <div
             style={{
               position: 'fixed',
-              top: targetRect && !targetRect.isCenter
-                ? Math.min(window.innerHeight - 300, Math.max(20, targetRect.top + targetRect.height + 16))
+              top: targetRect
+                ? (window.innerHeight - targetRect.rawBottom >= 230
+                    ? `${targetRect.rawBottom + 16}px`
+                    : targetRect.rawTop >= 230
+                      ? `${Math.max(16, targetRect.rawTop - 220)}px`
+                      : 'auto')
                 : '50%',
-              left: targetRect && !targetRect.isCenter
-                ? Math.min(window.innerWidth - 420, Math.max(20, targetRect.left))
+              bottom: targetRect && window.innerHeight - targetRect.rawBottom < 230 && targetRect.rawTop < 230
+                ? '24px'
+                : 'auto',
+              left: targetRect
+                ? `${Math.max(16, Math.min(window.innerWidth - 396, targetRect.rawLeft + (targetRect.rawWidth - 380) / 2))}px`
                 : '50%',
-              transform: targetRect && targetRect.isCenter ? 'translate(-50%, -50%)' : 'none',
-              width: '100%',
-              maxWidth: '390px',
+              transform: !targetRect ? 'translate(-50%, -50%)' : 'none',
+              width: '380px',
+              maxWidth: 'calc(100vw - 32px)',
               background: '#ffffff',
               borderRadius: '18px',
               padding: '20px',
