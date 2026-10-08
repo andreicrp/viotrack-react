@@ -376,3 +376,10 @@ Clean latest main passed **4 existing tests**, lint (**413 warnings, 0 errors**)
 Latest main is [`5d84f2cf2beac7389afaad4f2517818ec719192f`](https://github.com/andreicrp/viotrack-react/commit/5d84f2cf2beac7389afaad4f2517818ec719192f). It removes the page-count suffix from the Print button in PrintDataModal; no data-service or dependency files changed.
 
 Clean latest main passed **4 existing tests**, lint (**413 warnings, 0 errors**), and build (2,675.64 kB `vendor-react`, gzip 792.00 kB; PDF worker 1,264.34 kB). After rebasing the existing PR onto `5d84f2c`, **24 tests passed**, typecheck passed, lint passed (**412 warnings, 0 errors**), and build passed with matching vendor React and PDF worker bundle sizes.
+
+
+## Baseline after the 2026-10-08 user-reference and SaveAsModal auth-fallback fix
+
+Latest main is [`01a1be2690cbe9177ff9643b8870c4928a8c5f2a`](https://github.com/andreicrp/viotrack-react/commit/01a1be2690cbe9177ff9643b8870c4928a8c5f2a). It fixes undefined `user` references across pages and adds an auth fallback in SaveAsModal; no data-service or dependency files changed.
+
+Clean latest main passed **4 existing tests**, lint (**413 warnings, 0 errors**), and build (2,675.64 kB `vendor-react`, gzip 792.00 kB; PDF worker 1,264.34 kB). After rebasing the existing PR onto `01a1be2`, **24 tests passed**, typecheck passed, lint passed (**412 warnings, 0 errors**), and build passed with matching vendor React and PDF worker bundle sizes.
