@@ -2,7 +2,7 @@ import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useNotification } from '../../context/NotificationContext';
 import { lockBodyScroll, unlockBodyScroll } from '../../utils/scrollLock';
-import { printOrShareDocument } from '../../utils/mobilePrintHelper';
+import { printOrShareDocument, shareOrSaveNativeFile } from '../../utils/mobilePrintHelper';
 import { getJsPDF } from '../../utils/pdfHelper';
 import { CustomDatePicker } from '../common/CustomDatePicker';
 import {
@@ -1432,12 +1432,19 @@ export const PrintDataModal = ({ isOpen, onClose, records = [], students = [], t
 
   const handleDownloadPdf = async () => {
     try {
-      info('Generating PDF document...');
+      info('Generating Analytics Report PDF...');
       const doc = await generateAnalyticsPdfDoc();
       const filename = `Disciplinary_Analytics_Report_${dateRangeLabel.replace(/\s+/g, '_')}.pdf`;
-      doc.save(filename);
-      success('Analytics Report PDF successfully downloaded!');
+      const blob = doc.output('blob');
+      await shareOrSaveNativeFile({
+        filename,
+        blob,
+        title: `${reportTitle} - ${dateRangeLabel}`,
+        mimeType: 'application/pdf'
+      });
+      success('Analytics Report PDF successfully downloaded and saved!');
     } catch (err) {
+      if (err?.name === 'AbortError') return;
       console.error('PDF download error:', err);
       error('Failed to download PDF: ' + err.message);
     }

@@ -36,7 +36,7 @@ import { useNotification } from '../../context/NotificationContext';
 import { useAuth } from '../../context/AuthContext';
 import { dataService } from '../../services/dataService';
 import { lockBodyScroll, unlockBodyScroll } from '../../utils/scrollLock';
-import { printOrShareDocument } from '../../utils/mobilePrintHelper';
+import { printOrShareDocument, shareOrSaveNativeFile } from '../../utils/mobilePrintHelper';
 import { CustomDatePicker } from '../common/CustomDatePicker';
 import { CustomTimePicker } from '../common/CustomTimePicker';
 
@@ -1054,10 +1054,19 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
   // 2. High Quality PDF Generation
   const handleDownloadPDF = async () => {
     try {
+      info('Generating Parent Summons PDF...');
       const doc = await generateSummonsPdfDoc();
-      doc.save(`Parent_Summons_${studentFullName.replace(/\s+/g, '_')}_${referenceNo}.pdf`);
-      success('Parent Summons Letter PDF successfully generated and downloaded!');
+      const filename = `Parent_Summons_${studentFullName.replace(/\s+/g, '_')}_${referenceNo}.pdf`;
+      const blob = doc.output('blob');
+      await shareOrSaveNativeFile({
+        filename,
+        blob,
+        title: `${studentLastName || 'Student'} - Official Parent Summons Notice`,
+        mimeType: 'application/pdf'
+      });
+      success('Parent Summons Letter PDF successfully generated and saved!');
     } catch (err) {
+      if (err?.name === 'AbortError') return;
       error('Failed to export PDF: ' + err.message);
     }
   };

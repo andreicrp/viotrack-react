@@ -3,7 +3,7 @@ import { dataService } from '../../services/dataService';
 import { useNotification } from '../../context/NotificationContext';
 import { useAuth } from '../../context/AuthContext';
 import { lockBodyScroll, unlockBodyScroll } from '../../utils/scrollLock';
-import { printOrShareDocument } from '../../utils/mobilePrintHelper';
+import { printOrShareDocument, shareOrSaveNativeFile } from '../../utils/mobilePrintHelper';
 import { 
   CheckCircle2, 
   ShieldCheck, 
@@ -940,10 +940,19 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
 
   const handleDownloadPDF = async () => {
     try {
+      info('Generating Resolution Certificate PDF...');
       const doc = await generateResolutionPdfDoc();
-      doc.save(`Disciplinary_Resolution_Certificate_${studentFullName.replace(/\s+/g, '_')}_${record.id}.pdf`);
-      success('Case Resolution PDF Certificate successfully downloaded!');
+      const filename = `Disciplinary_Resolution_Certificate_${studentFullName.replace(/\s+/g, '_')}_${record.id}.pdf`;
+      const blob = doc.output('blob');
+      await shareOrSaveNativeFile({
+        filename,
+        blob,
+        title: `${studentLastName || 'Student'} - Disciplinary Case Resolution Certificate`,
+        mimeType: 'application/pdf'
+      });
+      success('Case Resolution PDF Certificate successfully generated and saved!');
     } catch (err) {
+      if (err?.name === 'AbortError') return;
       error('Failed to generate PDF: ' + err.message);
     }
   };
