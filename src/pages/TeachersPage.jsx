@@ -5,6 +5,7 @@ import { AppointAdviserModal } from '../components/teachers/AppointAdviserModal'
 import { BulkImportTeachersModal } from '../components/teachers/BulkImportTeachersModal';
 import { CustomSelect } from '../components/common/CustomSelect';
 import { ViewModeToggle } from '../components/common/ViewModeToggle';
+import { useAuth } from '../context/AuthContext';
 import { useNotification } from '../context/NotificationContext';
 import { exportToCsv } from '../utils/csvHelper';
 import { SaveAsModal } from '../components/common/SaveAsModal';
@@ -36,6 +37,7 @@ import {
 import { getJsPDF } from '../utils/pdfHelper';
 
 export const TeachersPage = () => {
+  const { user } = useAuth();
   const { success, error, info } = useNotification();
   const [teachers, setTeachers] = useState([]);
   const [advisers, setAdvisers] = useState([]);

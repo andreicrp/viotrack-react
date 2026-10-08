@@ -26,6 +26,7 @@ import { Capacitor } from '@capacitor/core';
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import { Share } from '@capacitor/share';
 import { useNotification } from '../../context/NotificationContext';
+import { useAuth } from '../../context/AuthContext';
 import { isMobileDevice, isNativeApp, blobToBase64 } from '../../utils/mobilePrintHelper';
 import { sanitizeCsvCell } from '../../utils/security';
 
@@ -43,8 +44,10 @@ export const SaveAsModal = ({
   rows = [],
   generatePdfBlob = null,
   title = 'Save as',
-  userEmail = 'viotrack.cloud@gmail.com'
+  userEmail
 }) => {
+  const { user } = useAuth() || {};
+  const activeUserEmail = userEmail || user?.email || 'viotrack.cloud@gmail.com';
   const { success, error, info } = useNotification();
 
   // Navigation views: 'places' | 'device' | 'folder'
@@ -597,7 +600,7 @@ export const SaveAsModal = ({
                     Google Drive / Cloud
                   </div>
                   <div style={{ fontSize: '12.5px', color: '#64748b', marginTop: '1px' }}>
-                    {userEmail}
+                    {activeUserEmail}
                   </div>
                 </div>
                 <ChevronRight size={18} color="#94a3b8" />

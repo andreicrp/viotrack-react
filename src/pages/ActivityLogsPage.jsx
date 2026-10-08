@@ -41,8 +41,10 @@ import {
 import { getJsPDF } from '../utils/pdfHelper';
 import { exportToCsv } from '../utils/csvHelper';
 import { SaveAsModal } from '../components/common/SaveAsModal';
+import { useAuth } from '../context/AuthContext';
 
 export const ActivityLogsPage = () => {
+  const { user } = useAuth();
   const { success, error, info } = useNotification();
   const [logs, setLogs] = useState([]);
   const [loading, setLoading] = useState(false);

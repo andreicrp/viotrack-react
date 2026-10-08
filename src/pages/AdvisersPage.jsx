@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { dataService } from '../services/dataService';
 import { CustomSelect } from '../components/common/CustomSelect';
 import { SectionSelect } from '../components/common/SectionSelect';
+import { useAuth } from '../context/AuthContext';
 import { useNotification } from '../context/NotificationContext';
 import {
   GraduationCap,
@@ -40,6 +41,7 @@ import '../css/adviser.css';
 
 export const AdvisersPage = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const { success, error, info } = useNotification();
 
   const [advisers, setAdvisers] = useState([]);
