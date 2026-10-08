@@ -3,7 +3,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useNotification } from '../../context/NotificationContext';
 import { lockBodyScroll, unlockBodyScroll } from '../../utils/scrollLock';
 import { printOrShareDocument, shareOrSaveNativeFile, downloadBlobFile } from '../../utils/mobilePrintHelper';
-import { getJsPDF } from '../../utils/pdfHelper';
+import { getJsPDF, loadPublicImageAsBase64 } from '../../utils/pdfHelper';
 import { CustomDatePicker } from '../common/CustomDatePicker';
 import {
   Printer,
@@ -1343,75 +1343,155 @@ export const PrintDataModal = ({ isOpen, onClose, records = [], students = [], t
     return [(num >> 16) & 255, (num >> 8) & 255, num & 255];
   };
 
-  const loadImageAsBase64 = async (url) => {
+
+  const createDonutChartImage = (slices, size = 220) => {
     try {
-      const res = await fetch(url);
-      if (!res.ok) return null;
-      const blob = await res.blob();
-      return new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.onloadend = () => resolve(reader.result);
-        reader.onerror = () => resolve(null);
-        reader.readAsDataURL(blob);
+      const canvas = document.createElement('canvas');
+      canvas.width = size;
+      canvas.height = size;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return null;
+
+      const total = slices.reduce((acc, s) => acc + (s.value || 0), 0) || 1;
+      const cx = size / 2;
+      const cy = size / 2;
+      const rOuter = (size / 2) - 4;
+      const rInner = rOuter * 0.55;
+
+      let currentAngle = -Math.PI / 2;
+
+      slices.forEach((slice) => {
+        const sliceAngle = ((slice.value || 0) / total) * 2 * Math.PI;
+        if (sliceAngle <= 0.001) return;
+
+        ctx.beginPath();
+        ctx.arc(cx, cy, rOuter, currentAngle, currentAngle + sliceAngle);
+        ctx.arc(cx, cy, rInner, currentAngle + sliceAngle, currentAngle, true);
+        ctx.closePath();
+        ctx.fillStyle = slice.color || '#07345f';
+        ctx.fill();
+        ctx.strokeStyle = '#ffffff';
+        ctx.lineWidth = 2.5;
+        ctx.stroke();
+
+        currentAngle += sliceAngle;
       });
-    } catch {
+
+      return canvas.toDataURL('image/png');
+    } catch (e) {
+      console.warn('createDonutChartImage failed:', e);
       return null;
     }
   };
 
-  const drawVectorDonut = (doc, cx, cy, rOuter, rInner, slices) => {
-    const total = slices.reduce((acc, s) => acc + (s.value || 0), 0) || 1;
-    let currentAngle = -Math.PI / 2;
+  const createTrendsChartImage = (trendPoints, width = 540, height = 140) => {
+    try {
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return null;
 
-    slices.forEach((slice) => {
-      const sliceAngle = ((slice.value || 0) / total) * 2 * Math.PI;
-      if (sliceAngle <= 0.01) return;
+      const maxVal = Math.max(...trendPoints.map((p) => Math.max(p.minor, p.serious, p.major, p.total)), 4);
+      const padLeft = 35;
+      const padRight = 20;
+      const padBottom = 26;
+      const chartW = width - padLeft - padRight;
+      const chartH = height - padBottom;
 
-      const startAngle = currentAngle;
-      const endAngle = currentAngle + sliceAngle;
-      currentAngle = endAngle;
+      // Gridlines
+      ctx.strokeStyle = '#e2e8f0';
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.moveTo(padLeft, chartH);
+      ctx.lineTo(width - padRight, chartH);
+      ctx.stroke();
 
-      const numSteps = Math.max(4, Math.ceil((sliceAngle / (2 * Math.PI)) * 24));
-      const points = [];
+      ctx.strokeStyle = '#f1f5f9';
+      ctx.setLineDash([4, 4]);
+      [0.33, 0.66].forEach((ratio) => {
+        const y = chartH * ratio;
+        ctx.beginPath();
+        ctx.moveTo(padLeft, y);
+        ctx.lineTo(width - padRight, y);
+        ctx.stroke();
+      });
+      ctx.setLineDash([]);
 
-      // Outer arc
-      for (let i = 0; i <= numSteps; i++) {
-        const a = startAngle + (i / numSteps) * (endAngle - startAngle);
-        points.push([cx + rOuter * Math.cos(a), cy + rOuter * Math.sin(a)]);
-      }
-      // Inner arc
-      for (let i = numSteps; i >= 0; i++) {
-        const a = startAngle + (i / numSteps) * (endAngle - startAngle);
-        points.push([cx + rInner * Math.cos(a), cy + rInner * Math.sin(a)]);
-      }
+      const drawLineSeries = (key, strokeColor, fillColor) => {
+        const pts = trendPoints.map((pt, idx) => {
+          const x = padLeft + idx * (chartW / Math.max(trendPoints.length - 1, 1));
+          const y = chartH - ((pt[key] || 0) / maxVal) * (chartH - 18);
+          return { x, y };
+        });
 
-      const rgb = hexToRgb(slice.color || '#3b82f6');
-      doc.setFillColor(rgb[0], rgb[1], rgb[2]);
-      doc.setDrawColor(255, 255, 255);
-      doc.setLineWidth(0.3);
+        if (pts.length === 0) return;
 
-      const startPt = points[0];
-      const lines = points.slice(1).map((p, idx) => {
-        const prev = points[idx];
-        return [p[0] - prev[0], p[1] - prev[1]];
+        // Fill area
+        ctx.beginPath();
+        ctx.moveTo(pts[0].x, pts[0].y);
+        for (let i = 1; i < pts.length; i++) {
+          const prev = pts[i - 1];
+          const curr = pts[i];
+          const cx = (prev.x + curr.x) / 2;
+          ctx.bezierCurveTo(cx, prev.y, cx, curr.y, curr.x, curr.y);
+        }
+        ctx.lineTo(pts[pts.length - 1].x, chartH);
+        ctx.lineTo(pts[0].x, chartH);
+        ctx.closePath();
+        ctx.fillStyle = fillColor;
+        ctx.fill();
+
+        // Stroke curve
+        ctx.beginPath();
+        ctx.moveTo(pts[0].x, pts[0].y);
+        for (let i = 1; i < pts.length; i++) {
+          const prev = pts[i - 1];
+          const curr = pts[i];
+          const cx = (prev.x + curr.x) / 2;
+          ctx.bezierCurveTo(cx, prev.y, cx, curr.y, curr.x, curr.y);
+        }
+        ctx.strokeStyle = strokeColor;
+        ctx.lineWidth = 3.2;
+        ctx.stroke();
+
+        // Circles at points
+        pts.forEach((p) => {
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, 4, 0, 2 * Math.PI);
+          ctx.fillStyle = strokeColor;
+          ctx.fill();
+          ctx.strokeStyle = '#ffffff';
+          ctx.lineWidth = 2;
+          ctx.stroke();
+        });
+      };
+
+      drawLineSeries('minor', '#10b981', 'rgba(16, 185, 129, 0.22)');
+      drawLineSeries('serious', '#f59e0b', 'rgba(245, 158, 11, 0.22)');
+      drawLineSeries('major', '#ef4444', 'rgba(239, 68, 68, 0.22)');
+
+      // Timeline Labels
+      ctx.fillStyle = '#64748b';
+      ctx.font = '600 13px sans-serif';
+      ctx.textAlign = 'center';
+      trendPoints.forEach((pt, idx) => {
+        const x = padLeft + idx * (chartW / Math.max(trendPoints.length - 1, 1));
+        ctx.fillText(pt.label, x, height - 6);
       });
 
-      if (lines.length > 0) {
-        doc.lines(lines, startPt[0], startPt[1], [1, 1], 'FD', true);
-      }
-    });
-
-    // Inner center hole
-    doc.setFillColor(255, 255, 255);
-    doc.setDrawColor(255, 255, 255);
-    doc.circle(cx, cy, rInner, 'F');
+      return canvas.toDataURL('image/png');
+    } catch (e) {
+      console.warn('createTrendsChartImage failed:', e);
+      return null;
+    }
   };
 
   const generateAnalyticsPdfDoc = async () => {
     const [doc, logoBase64, sealBase64] = await Promise.all([
       getJsPDF({ unit: 'mm', format: 'a4' }),
-      loadImageAsBase64('/images/phcm-logo.png'),
-      loadImageAsBase64('/images/phcm-seal.png')
+      loadPublicImageAsBase64('/images/phcm-logo.png'),
+      loadPublicImageAsBase64('/images/phcm-seal.png')
     ]);
 
     const totalPages = recordPages.length === 0 ? 1 : 1 + recordPages.length;
@@ -1579,55 +1659,15 @@ export const PrintDataModal = ({ isOpen, onClose, records = [], students = [], t
         doc.setTextColor(100, 116, 139);
         doc.text(`Incidents recorded over time (${dateRangeLabel})`, 16, nextY + 8.5);
 
-        // Spline / Trend Curve Drawing
-        const maxVal = Math.max(...trendPoints.map((p) => Math.max(p.minor, p.serious, p.major, p.total)), 4);
-        const plotX = 18;
-        const plotY = nextY + 11;
-        const plotW = chartBoxW - 14;
-        const plotH = 22;
+        // Spline / Trend Curve Drawing via Canvas Image
+        const trendsImg = createTrendsChartImage(trendPoints, 540, 140);
+        if (trendsImg) {
+          try {
+            doc.addImage(trendsImg, 'PNG', 15, nextY + 10, chartBoxW - 6, 25);
+          } catch {}
+        }
 
-        // Gridlines
-        doc.setDrawColor(241, 245, 249);
-        doc.setLineWidth(0.2);
-        doc.line(plotX, plotY + plotH * 0.33, plotX + plotW, plotY + plotH * 0.33);
-        doc.line(plotX, plotY + plotH * 0.66, plotX + plotW, plotY + plotH * 0.66);
-        doc.setDrawColor(226, 232, 240);
-        doc.line(plotX, plotY + plotH, plotX + plotW, plotY + plotH);
-
-        const drawSeries = (key, strokeColor) => {
-          doc.setDrawColor(...strokeColor);
-          doc.setFillColor(...strokeColor);
-          doc.setLineWidth(0.6);
-
-          const pts = trendPoints.map((pt, idx) => {
-            const x = plotX + idx * (plotW / Math.max(trendPoints.length - 1, 1));
-            const y = (plotY + plotH) - ((pt[key] || 0) / maxVal) * (plotH - 2);
-            return { x, y };
-          });
-
-          for (let i = 0; i < pts.length - 1; i++) {
-            doc.line(pts[i].x, pts[i].y, pts[i + 1].x, pts[i + 1].y);
-          }
-          pts.forEach((p) => {
-            doc.setFillColor(...strokeColor);
-            doc.setDrawColor(255, 255, 255);
-            doc.circle(p.x, p.y, 0.9, 'FD');
-          });
-        };
-
-        drawSeries('minor', [16, 185, 129]);
-        drawSeries('serious', [245, 158, 11]);
-        drawSeries('major', [239, 68, 68]);
-
-        // Labels
-        doc.setFontSize(5.5);
-        doc.setTextColor(100, 116, 139);
-        trendPoints.forEach((pt, idx) => {
-          const x = plotX + idx * (plotW / Math.max(trendPoints.length - 1, 1));
-          doc.text(pt.label, x, plotY + plotH + 3.5, { align: 'center' });
-        });
-
-        // Legend with clean drawn circles (avoid unicode corruption)
+        // Legend with clean drawn circles
         doc.setFontSize(6.5);
         doc.setFont('helvetica', 'bold');
 
@@ -1666,9 +1706,14 @@ export const PrintDataModal = ({ isOpen, onClose, records = [], students = [], t
         doc.setTextColor(100, 116, 139);
         doc.text('Distribution of infractions most likely to occur in school', cRightX + 4, nextY + 8.5);
 
-        // Vector Donut Chart on Left Side of Box
+        // Vector Donut Chart via Canvas Image on Left Side of Box
         if (violationDistribution.length > 0) {
-          drawVectorDonut(doc, cRightX + 17, nextY + 23, 13.5, 7.5, violationDistribution);
+          const donutImg = createDonutChartImage(violationDistribution, 220);
+          if (donutImg) {
+            try {
+              doc.addImage(donutImg, 'PNG', cRightX + 4, nextY + 11.5, 25, 25);
+            } catch {}
+          }
         }
 
         // Top Violations Ranking List on Right Side of Box
@@ -1682,7 +1727,7 @@ export const PrintDataModal = ({ isOpen, onClose, records = [], students = [], t
           // Colored Bullet Dot
           doc.setFillColor(rgb[0], rgb[1], rgb[2]);
           doc.setDrawColor(rgb[0], rgb[1], rgb[2]);
-          doc.circle(cRightX + 36, listY - 0.7, 0.9, 'F');
+          doc.circle(cRightX + 33.5, listY - 0.7, 0.9, 'F');
 
           // Item Name
           doc.setFont('helvetica', 'bold');
@@ -1690,7 +1735,7 @@ export const PrintDataModal = ({ isOpen, onClose, records = [], students = [], t
           doc.setTextColor(15, 23, 42);
 
           const truncatedName = item.name.length > 20 ? item.name.substring(0, 19) + '...' : item.name;
-          doc.text(truncatedName, cRightX + 38.5, listY);
+          doc.text(truncatedName, cRightX + 36, listY);
 
           // Count Text
           doc.setFont('helvetica', 'normal');
@@ -1699,14 +1744,14 @@ export const PrintDataModal = ({ isOpen, onClose, records = [], students = [], t
           doc.text(`${item.value} ${item.value === 1 ? 'incident' : 'incidents'}`, cRightX + chartBoxW - 4, listY, { align: 'right' });
 
           // Progress Bar Track & Fill
-          const barW = chartBoxW - 43;
+          const barW = chartBoxW - 40;
           const fillW = Math.max(3, (item.value / maxV) * barW);
 
           doc.setFillColor(226, 232, 240);
-          doc.roundedRect(cRightX + 36, listY + 1.2, barW, 1.3, 0.5, 0.5, 'F');
+          doc.roundedRect(cRightX + 33.5, listY + 1.2, barW, 1.3, 0.5, 0.5, 'F');
 
           doc.setFillColor(rgb[0], rgb[1], rgb[2]);
-          doc.roundedRect(cRightX + 36, listY + 1.2, fillW, 1.3, 0.5, 0.5, 'F');
+          doc.roundedRect(cRightX + 33.5, listY + 1.2, fillW, 1.3, 0.5, 0.5, 'F');
 
           listY += 5.3;
         });

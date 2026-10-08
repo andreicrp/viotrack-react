@@ -2,8 +2,8 @@ import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { dataService } from '../../services/dataService';
 import { useNotification } from '../../context/NotificationContext';
 import { useAuth } from '../../context/AuthContext';
-import { lockBodyScroll, unlockBodyScroll } from '../../utils/scrollLock';
 import { printOrShareDocument, shareOrSaveNativeFile, downloadBlobFile } from '../../utils/mobilePrintHelper';
+import { getJsPDF, loadPublicImageAsBase64 } from '../../utils/pdfHelper';
 import { 
   CheckCircle2, 
   ShieldCheck, 
@@ -807,32 +807,13 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
     });
   };
 
-  const loadImageAsBase64 = async (url) => {
-    try {
-      const res = await fetch(url);
-      if (!res.ok) return null;
-      const blob = await res.blob();
-      return new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.onloadend = () => resolve(reader.result);
-        reader.onerror = () => resolve(null);
-        reader.readAsDataURL(blob);
-      });
-    } catch {
-      return null;
-    }
-  };
-
   // High Quality Client-Side PDF Generation
   const generateResolutionPdfDoc = async () => {
-    const [{ default: jsPDF }, logoBase64, sealBase64] = await Promise.all([
-      import('jspdf'),
-      loadImageAsBase64('/images/phcm-logo.png'),
-      loadImageAsBase64('/images/phcm-seal.png')
+    const [doc, logoBase64, sealBase64] = await Promise.all([
+      getJsPDF({ unit: 'mm', format: 'a4' }),
+      loadPublicImageAsBase64('/images/phcm-logo.png'),
+      loadPublicImageAsBase64('/images/phcm-seal.png')
     ]);
-    await import('jspdf-autotable');
-
-    const doc = new jsPDF({ unit: 'mm', format: 'a4' });
 
     // Left Logo
     if (logoBase64) {

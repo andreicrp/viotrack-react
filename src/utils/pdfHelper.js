@@ -3,6 +3,69 @@
  * Loads jsPDF, jspdf-autotable, and pdfjs-dist dynamically to keep initial bundle ultra lightweight.
  */
 
+// Image to Base64 with in-memory caching and fetch + canvas fallback
+const imageBase64Cache = new Map();
+
+export async function loadPublicImageAsBase64(src) {
+  if (!src) return null;
+  if (imageBase64Cache.has(src)) {
+    return imageBase64Cache.get(src);
+  }
+
+  // 1. Direct fetch to blob and convert via FileReader (cleanest, eliminates canvas CORS/taint)
+  try {
+    const res = await fetch(src);
+    if (res.ok) {
+      const blob = await res.blob();
+      const base64 = await new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result);
+        reader.onerror = () => resolve(null);
+        reader.readAsDataURL(blob);
+      });
+      if (base64 && typeof base64 === 'string' && base64.startsWith('data:image')) {
+        imageBase64Cache.set(src, base64);
+        return base64;
+      }
+    }
+  } catch {}
+
+  // 2. Fallback to Image element with canvas conversion
+  try {
+    const base64 = await new Promise((resolve) => {
+      if (typeof window === 'undefined') return resolve(null);
+      const img = new Image();
+      const timer = setTimeout(() => resolve(null), 1000);
+      img.onload = () => {
+        clearTimeout(timer);
+        try {
+          const canvas = document.createElement('canvas');
+          canvas.width = img.naturalWidth || img.width || 80;
+          canvas.height = img.naturalHeight || img.height || 80;
+          const ctx = canvas.getContext('2d');
+          if (!ctx) return resolve(null);
+          ctx.drawImage(img, 0, 0);
+          const dataUrl = canvas.toDataURL('image/png');
+          resolve(dataUrl);
+        } catch {
+          resolve(null);
+        }
+      };
+      img.onerror = () => {
+        clearTimeout(timer);
+        resolve(null);
+      };
+      img.src = src;
+    });
+    if (base64) {
+      imageBase64Cache.set(src, base64);
+      return base64;
+    }
+  } catch {}
+
+  return null;
+}
+
 // PDF Exporter
 export async function getJsPDF(options = {}) {
   const [jsPdfModule, autoTableModule] = await Promise.all([
