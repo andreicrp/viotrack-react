@@ -685,6 +685,51 @@ const TOUR_SCENARIOS = {
   }
 };
 
+const TOUR_CATEGORIES = {
+  overview: {
+    category: 'System Core',
+    iconColor: '#0284c7',
+    iconBg: '#e0f2fe',
+    accentBorder: '#0284c7',
+    Icon: Sparkles
+  },
+  qr_scanner: {
+    category: 'Field Patrol',
+    iconColor: '#6366f1',
+    iconBg: '#eef2ff',
+    accentBorder: '#6366f1',
+    Icon: QrCode
+  },
+  violations_log: {
+    category: 'Incident Records',
+    iconColor: '#d97706',
+    iconBg: '#fef3c7',
+    accentBorder: '#d97706',
+    Icon: FileText
+  },
+  parent_summons: {
+    category: 'Official Notices',
+    iconColor: '#2563eb',
+    iconBg: '#eff6ff',
+    accentBorder: '#2563eb',
+    Icon: BookOpen
+  },
+  case_resolution: {
+    category: 'Sanctions & Clearance',
+    iconColor: '#059669',
+    iconBg: '#ecfdf5',
+    accentBorder: '#059669',
+    Icon: ShieldCheck
+  },
+  analytics_print: {
+    category: 'Executive Reports',
+    iconColor: '#7c3aed',
+    iconBg: '#f5f3ff',
+    accentBorder: '#7c3aed',
+    Icon: BarChart3
+  }
+};
+
 export const InteractiveTourGuide = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -696,6 +741,9 @@ export const InteractiveTourGuide = () => {
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [targetRect, setTargetRect] = useState(null);
   const [showSanctionsModal, setShowSanctionsModal] = useState(false);
+  const [isPillMinimized, setIsPillMinimized] = useState(() => {
+    return localStorage.getItem('viotrack_guide_minimized') === 'true';
+  });
   const [completedTours, setCompletedTours] = useState(() => {
     try {
       return JSON.parse(localStorage.getItem('viotrack_completed_tours') || '[]');
@@ -703,6 +751,15 @@ export const InteractiveTourGuide = () => {
       return [];
     }
   });
+
+  const toggleMinimizePill = (e) => {
+    e.stopPropagation();
+    setIsPillMinimized((prev) => {
+      const next = !prev;
+      localStorage.setItem('viotrack_guide_minimized', String(next));
+      return next;
+    });
+  };
 
   // Calculate Target Spotlight Rectangle
   const updateTargetRect = useCallback(() => {
@@ -854,66 +911,146 @@ export const InteractiveTourGuide = () => {
     ? Math.round(((currentStepIndex + 1) / activeTour.steps.length) * 100)
     : 0;
 
+  const totalScenariosCount = Object.keys(TOUR_SCENARIOS).length;
+  const completionPercent = Math.round((completedTours.length / totalScenariosCount) * 100);
+
   return (
     <>
-      {/* 1. Floating Help & Interactive Guides Launcher Button (Bottom-Right) */}
+      {/* 1. Floating Help & Interactive Guides Launcher Button (Bottom-Right, Collapsible to prevent overlapping) */}
       <div
         style={{
           position: 'fixed',
-          bottom: '24px',
-          right: '24px',
+          bottom: '20px',
+          right: '20px',
           zIndex: 900,
           display: 'flex',
           alignItems: 'center',
-          gap: '8px'
+          gap: '6px'
         }}
       >
-        <button
-          type="button"
-          onClick={() => setIsGuideMenuOpen(true)}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            background: 'linear-gradient(135deg, #07345f 0%, #0f172a 100%)',
-            color: '#ffffff',
-            border: '1.5px solid rgba(255, 255, 255, 0.25)',
-            padding: '10px 16px',
-            borderRadius: '9999px',
-            fontSize: '13px',
-            fontWeight: 800,
-            cursor: 'pointer',
-            boxShadow: '0 8px 24px rgba(7, 52, 95, 0.35)',
-            backdropFilter: 'blur(8px)',
-            transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)'
-          }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.transform = 'translateY(-2px) scale(1.03)';
-            e.currentTarget.style.boxShadow = '0 12px 30px rgba(7, 52, 95, 0.45)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = 'translateY(0) scale(1)';
-            e.currentTarget.style.boxShadow = '0 8px 24px rgba(7, 52, 95, 0.35)';
-          }}
-          title="Open Interactive Guide & SOP Manual"
-        >
-          <Sparkles size={16} color="#38bdf8" />
-          <span>Interactive Guide</span>
-          {completedTours.length > 0 && (
-            <span
+        {isPillMinimized ? (
+          <button
+            type="button"
+            onClick={() => setIsGuideMenuOpen(true)}
+            style={{
+              width: '42px',
+              height: '42px',
+              borderRadius: '50%',
+              background: 'linear-gradient(135deg, #07345f 0%, #0f172a 100%)',
+              color: '#ffffff',
+              border: '1.5px solid rgba(255, 255, 255, 0.3)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              cursor: 'pointer',
+              boxShadow: '0 8px 24px rgba(7, 52, 95, 0.4)',
+              backdropFilter: 'blur(8px)',
+              position: 'relative',
+              transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-2px) scale(1.08)';
+              e.currentTarget.style.boxShadow = '0 12px 30px rgba(7, 52, 95, 0.5)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0) scale(1)';
+              e.currentTarget.style.boxShadow = '0 8px 24px rgba(7, 52, 95, 0.4)';
+            }}
+            title="Open Interactive Guide & SOP Manual"
+          >
+            <Sparkles size={18} color="#38bdf8" />
+            {completedTours.length > 0 && (
+              <span
+                style={{
+                  position: 'absolute',
+                  top: '-3px',
+                  right: '-3px',
+                  background: completedTours.length === totalScenariosCount ? '#10b981' : '#0284c7',
+                  color: '#ffffff',
+                  fontSize: '9.5px',
+                  fontWeight: 900,
+                  padding: '1px 5px',
+                  borderRadius: '9999px',
+                  border: '1.5px solid #ffffff',
+                  boxShadow: '0 2px 5px rgba(0,0,0,0.2)'
+                }}
+              >
+                {completedTours.length}
+              </span>
+            )}
+          </button>
+        ) : (
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              background: 'linear-gradient(135deg, #07345f 0%, #0f172a 100%)',
+              borderRadius: '9999px',
+              border: '1.5px solid rgba(255, 255, 255, 0.25)',
+              boxShadow: '0 8px 24px rgba(7, 52, 95, 0.35)',
+              backdropFilter: 'blur(8px)',
+              padding: '3px 4px 3px 12px',
+              gap: '6px',
+              transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)'
+            }}
+          >
+            <button
+              type="button"
+              onClick={() => setIsGuideMenuOpen(true)}
               style={{
-                background: '#10b981',
+                background: 'transparent',
+                border: 'none',
                 color: '#ffffff',
-                fontSize: '10px',
-                padding: '1px 6px',
-                borderRadius: '9999px',
-                fontWeight: 900
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                fontSize: '12.5px',
+                fontWeight: 800,
+                cursor: 'pointer',
+                padding: '5px 0'
               }}
+              title="Open Interactive Guide & SOP Manual"
             >
-              {completedTours.length}/{Object.keys(TOUR_SCENARIOS).length}
-            </span>
-          )}
-        </button>
+              <Sparkles size={15} color="#38bdf8" />
+              <span>Interactive Guide</span>
+              {completedTours.length > 0 && (
+                <span
+                  style={{
+                    background: completedTours.length === totalScenariosCount ? '#10b981' : 'rgba(255, 255, 255, 0.2)',
+                    color: '#ffffff',
+                    fontSize: '10px',
+                    padding: '1px 6px',
+                    borderRadius: '9999px',
+                    fontWeight: 900
+                  }}
+                >
+                  {completedTours.length}/{totalScenariosCount}
+                </span>
+              )}
+            </button>
+
+            <button
+              type="button"
+              onClick={toggleMinimizePill}
+              style={{
+                background: 'rgba(255, 255, 255, 0.12)',
+                border: 'none',
+                color: '#ffffff',
+                width: '22px',
+                height: '22px',
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                marginLeft: '4px'
+              }}
+              title="Minimize pill to circular button"
+            >
+              <Minimize2 size={11} />
+            </button>
+          </div>
+        )}
       </div>
 
       {/* 2. Interactive Guide Hub Modal */}
@@ -936,7 +1073,7 @@ export const InteractiveTourGuide = () => {
           <div
             style={{
               width: '100%',
-              maxWidth: '720px',
+              maxWidth: '740px',
               maxHeight: '88vh',
               background: '#ffffff',
               borderRadius: '20px',
@@ -963,13 +1100,14 @@ export const InteractiveTourGuide = () => {
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                 <div
                   style={{
-                    width: '40px',
-                    height: '40px',
+                    width: '42px',
+                    height: '42px',
                     borderRadius: '12px',
                     background: 'rgba(255, 255, 255, 0.12)',
                     display: 'flex',
                     alignItems: 'center',
-                    justifyContent: 'center'
+                    justifyContent: 'center',
+                    border: '1px solid rgba(255, 255, 255, 0.2)'
                   }}
                 >
                   <Compass size={22} color="#38bdf8" />
@@ -1005,23 +1143,50 @@ export const InteractiveTourGuide = () => {
             </div>
 
             {/* Modal Body */}
-            <div style={{ padding: '20px 24px', overflowY: 'auto', flex: 1, display: 'flex', flexDirection: 'column', gap: '18px' }}>
+            <div style={{ padding: '20px 24px', overflowY: 'auto', flex: 1, display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              {/* Progress Summary Strip */}
+              <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <Sparkles size={16} color="#07345f" />
+                    <span style={{ fontSize: '13px', fontWeight: 800, color: '#0f172a' }}>
+                      Orientation &amp; Training Progress
+                    </span>
+                  </div>
+                  <span style={{ fontSize: '12px', fontWeight: 800, color: completedTours.length === totalScenariosCount ? '#059669' : '#07345f' }}>
+                    {completedTours.length} of {totalScenariosCount} Complete ({completionPercent}%)
+                  </span>
+                </div>
+                <div style={{ width: '100%', height: '6px', background: '#e2e8f0', borderRadius: '9999px', overflow: 'hidden' }}>
+                  <div
+                    style={{
+                      width: `${completionPercent}%`,
+                      height: '100%',
+                      background: completedTours.length === totalScenariosCount ? 'linear-gradient(90deg, #10b981 0%, #059669 100%)' : 'linear-gradient(90deg, #07345f 0%, #38bdf8 100%)',
+                      borderRadius: '9999px',
+                      transition: 'width 0.4s ease'
+                    }}
+                  />
+                </div>
+              </div>
+
               {/* Sanctions Cheat Sheet Quick Action */}
               <div
                 style={{
-                  background: '#f8fafc',
-                  border: '1.5px solid #e2e8f0',
+                  background: '#ffffff',
+                  border: '1.5px solid #cbd5e1',
                   borderRadius: '14px',
                   padding: '14px 18px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'space-between',
-                  gap: '14px'
+                  gap: '14px',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.03)'
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: '#ecfdf5', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #a7f3d0' }}>
-                    <BookOpen size={18} color="#10b981" />
+                  <div style={{ width: '38px', height: '38px', borderRadius: '10px', background: '#ecfdf5', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #a7f3d0' }}>
+                    <BookOpen size={19} color="#10b981" />
                   </div>
                   <div>
                     <h4 style={{ margin: 0, fontSize: '13.5px', fontWeight: 800, color: '#0f172a' }}>
@@ -1051,7 +1216,8 @@ export const InteractiveTourGuide = () => {
                     display: 'flex',
                     alignItems: 'center',
                     gap: '6px',
-                    whiteSpace: 'nowrap'
+                    whiteSpace: 'nowrap',
+                    boxShadow: '0 2px 6px rgba(7, 52, 95, 0.25)'
                   }}
                 >
                   <span>View Matrix</span>
@@ -1079,6 +1245,15 @@ export const InteractiveTourGuide = () => {
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '10px' }}>
                   {Object.entries(TOUR_SCENARIOS).map(([key, scenario]) => {
                     const isDone = completedTours.includes(scenario.id);
+                    const cat = TOUR_CATEGORIES[key] || {
+                      category: 'Guide',
+                      iconColor: '#07345f',
+                      iconBg: '#f1f5f9',
+                      accentBorder: '#07345f',
+                      Icon: Sparkles
+                    };
+                    const IconComponent = cat.Icon;
+
                     return (
                       <div
                         key={key}
@@ -1087,55 +1262,65 @@ export const InteractiveTourGuide = () => {
                           display: 'flex',
                           alignItems: 'center',
                           justifyContent: 'space-between',
-                          padding: '12px 16px',
-                          borderRadius: '12px',
-                          background: isDone ? '#f0fdf4' : '#ffffff',
-                          border: isDone ? '1.5px solid #bbf7d0' : '1px solid #e2e8f0',
+                          padding: '13px 16px',
+                          borderRadius: '14px',
+                          background: '#ffffff',
+                          border: '1px solid #e2e8f0',
+                          borderLeft: `4px solid ${cat.accentBorder}`,
                           cursor: 'pointer',
-                          transition: 'all 0.15s ease'
+                          transition: 'all 0.18s cubic-bezier(0.16, 1, 0.3, 1)',
+                          position: 'relative',
+                          boxShadow: '0 1px 3px rgba(0,0,0,0.02)'
                         }}
                         onMouseEnter={(e) => {
-                          e.currentTarget.style.borderColor = '#07345f';
-                          e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.06)';
+                          e.currentTarget.style.borderColor = cat.accentBorder;
+                          e.currentTarget.style.transform = 'translateY(-2px)';
+                          e.currentTarget.style.boxShadow = '0 8px 20px -4px rgba(7, 52, 95, 0.12)';
                         }}
                         onMouseLeave={(e) => {
-                          e.currentTarget.style.borderColor = isDone ? '#bbf7d0' : '#e2e8f0';
-                          e.currentTarget.style.boxShadow = 'none';
+                          e.currentTarget.style.borderColor = '#e2e8f0';
+                          e.currentTarget.style.borderLeft = `4px solid ${cat.accentBorder}`;
+                          e.currentTarget.style.transform = 'translateY(0)';
+                          e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.02)';
                         }}
                       >
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
                           <div
                             style={{
-                              width: '32px',
-                              height: '32px',
-                              borderRadius: '8px',
-                              background: isDone ? '#dcfce7' : '#f1f5f9',
+                              width: '38px',
+                              height: '38px',
+                              borderRadius: '10px',
+                              background: cat.iconBg,
                               display: 'flex',
                               alignItems: 'center',
                               justifyContent: 'center',
-                              color: isDone ? '#16a34a' : '#07345f'
+                              color: cat.iconColor,
+                              flexShrink: 0
                             }}
                           >
-                            {isDone ? <CheckCircle2 size={18} /> : <Play size={15} fill="#07345f" />}
+                            <IconComponent size={19} />
                           </div>
                           <div>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
                               <span style={{ fontSize: '13.5px', fontWeight: 800, color: '#0f172a' }}>
                                 {scenario.title}
                               </span>
+                              <span style={{ fontSize: '9.5px', fontWeight: 800, color: cat.iconColor, background: cat.iconBg, padding: '1px 6px', borderRadius: '4px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                                {cat.category}
+                              </span>
                               {isDone && (
-                                <span style={{ fontSize: '10px', fontWeight: 800, color: '#16a34a', background: '#dcfce7', padding: '1px 6px', borderRadius: '4px' }}>
-                                  Completed
+                                <span style={{ fontSize: '9.5px', fontWeight: 800, color: '#059669', background: '#ecfdf5', border: '1px solid #a7f3d0', padding: '1px 7px', borderRadius: '12px', display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+                                  <CheckCircle2 size={10} strokeWidth={3} /> Completed
                                 </span>
                               )}
                             </div>
-                            <span style={{ fontSize: '11.5px', color: '#64748b', display: 'block', marginTop: '2px' }}>
+                            <span style={{ fontSize: '12px', color: '#64748b', display: 'block', marginTop: '2px', lineHeight: 1.35 }}>
                               {scenario.description}
                             </span>
                           </div>
                         </div>
 
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: '#07345f', fontWeight: 700, fontSize: '12px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: isDone ? '#059669' : '#07345f', fontWeight: 700, fontSize: '12px', flexShrink: 0, paddingLeft: '12px' }}>
                           <span>{scenario.steps.length} Steps</span>
                           <ChevronRight size={15} />
                         </div>
