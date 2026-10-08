@@ -383,3 +383,12 @@ Clean latest main passed **4 existing tests**, lint (**413 warnings, 0 errors**)
 Latest main is [`01a1be2690cbe9177ff9643b8870c4928a8c5f2a`](https://github.com/andreicrp/viotrack-react/commit/01a1be2690cbe9177ff9643b8870c4928a8c5f2a). It fixes undefined `user` references across pages and adds an auth fallback in SaveAsModal; no data-service or dependency files changed.
 
 Clean latest main passed **4 existing tests**, lint (**413 warnings, 0 errors**), and build (2,675.64 kB `vendor-react`, gzip 792.00 kB; PDF worker 1,264.34 kB). After rebasing the existing PR onto `01a1be2`, **24 tests passed**, typecheck passed, lint passed (**412 warnings, 0 errors**), and build passed with matching vendor React and PDF worker bundle sizes.
+
+
+## Baseline after the 2026-10-08 security and mobile-toast commits
+
+Latest main is [`300b6b35426b06e679ebc97f41d8cc19da1eb933`](https://github.com/andreicrp/viotrack-react/commit/300b6b35426b06e679ebc97f41d8cc19da1eb933), following security commit [`dc73722204884ef650480ce7e1951bfddc6595d8`](https://github.com/andreicrp/viotrack-react/commit/dc73722204884ef650480ce7e1951bfddc6595d8). Security changes add QR HMAC utilities/tests, an offline mutation queue and tests, a privacy notice, and an RLS SQL file; the newest commit only changes toast CSS. They do not alter existing data-service modules or dependencies.
+
+Clean latest main passed **22 tests across 5 test files**, lint (**418 warnings, 0 errors**), and build (2,675.64 kB `vendor-react`, gzip 792.00 kB; PDF worker 1,264.34 kB). After rebasing the existing PR onto `300b6b3`, **42 tests across 6 files passed**, typecheck passed, lint passed (**417 warnings, 0 errors**), and build passed with matching bundle sizes.
+
+**Security follow-up observations (not changed in this technical-debt PR):** `offlineSyncQueue` has no application call sites outside its implementation/tests, so enqueueing is not yet wired into violation mutations. The QR HMAC default secret is a `VITE_` client variable with a committed fallback, so it is recoverable from the shipped client and must not be relied on as a private signing key. The RLS SQL is a source file rather than an applied migration; if applied as written, its violation SELECT policy grants every authenticated user access (`USING (true)`). Review integration and role-scoping before relying on these controls.
