@@ -185,6 +185,26 @@ export async function printOrShareDocument({
   // 2. Web Browser Flow (Both Mobile Web and Desktop Web)
   if (htmlContent) {
     try {
+      const isMobile = isMobileDevice();
+
+      // On Mobile Web browsers, opening the printable view directly in a new tab triggers mobile browser print reliably
+      if (isMobile) {
+        onStatus?.({ type: 'info', message: 'Opening printable document...' });
+        const blob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const printWin = window.open(url, '_blank');
+        if (printWin) {
+          printWin.onload = () => {
+            try {
+              printWin.focus();
+              printWin.print();
+            } catch (e) {}
+          };
+          onStatus?.({ type: 'success', message: 'Print view opened.' });
+          return;
+        }
+      }
+
       onStatus?.({ type: 'info', message: 'Opening print dialog...' });
 
       const existing = document.getElementById('viotrack-print-frame');

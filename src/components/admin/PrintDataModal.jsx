@@ -7,6 +7,7 @@ import { getJsPDF } from '../../utils/pdfHelper';
 import { CustomDatePicker } from '../common/CustomDatePicker';
 import {
   Printer,
+  Download,
   FileText,
   Calendar,
   Filter,
@@ -1325,6 +1326,113 @@ export const PrintDataModal = ({ isOpen, onClose, records = [], students = [], t
     }
   };
 
+  const generateAnalyticsPdfDoc = async () => {
+    const doc = await getJsPDF({ unit: 'mm', format: 'a4' });
+
+    // Header Banner
+    doc.setFillColor(7, 52, 95);
+    doc.rect(0, 0, 210, 24, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.text('VIOTRACK - DISCIPLINARY ANALYTICS REPORT', 14, 11);
+    doc.setFontSize(8.5);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Period: ${dateRangeLabel} | Generated: ${new Date().toLocaleDateString('en-US', { dateStyle: 'medium', timeStyle: 'short' })}`, 14, 18);
+
+    // Summary Metrics
+    doc.setTextColor(15, 23, 42);
+    doc.autoTable({
+      head: [['Metric Category', 'Incident Count', 'Distribution / Status']],
+      body: [
+        ['Total Recorded Incidents', `${metrics.total || 0}`, `${metrics.resolvedPercent || 0}% Overall Resolution Rate`],
+        ['Minor Offenses', `${metrics.minor || 0}`, 'Warning & Informal Guidance Logs'],
+        ['Serious Offenses', `${metrics.serious || 0}`, 'Parent Summons & Faculty Interventions'],
+        ['Major Offenses', `${metrics.major || 0}`, 'Formal Case & Administrative Action'],
+        ['Resolved Cases', `${metrics.resolved || 0}`, 'Officially Closed & Documented'],
+        ['Pending Cases', `${metrics.pending || 0}`, 'Active Follow-up Required']
+      ],
+      startY: 28,
+      theme: 'grid',
+      headStyles: { fillColor: [7, 52, 95], fontStyle: 'bold', fontSize: 9 },
+      styles: { fontSize: 8.5 }
+    });
+
+    let currentY = doc.lastAutoTable.finalY + 8;
+
+    // Grade Level Breakdown
+    if (includeGrades && gradeBreakdown.length > 0) {
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(7, 52, 95);
+      doc.text('Grade Level Distribution', 14, currentY);
+
+      doc.autoTable({
+        head: [['Grade Level', 'Total Incidents', 'Percentage of Total']],
+        body: gradeBreakdown.map(g => [g.grade, `${g.count}`, `${g.percent}%`]),
+        startY: currentY + 3,
+        theme: 'striped',
+        headStyles: { fillColor: [30, 58, 138], fontStyle: 'bold', fontSize: 8.5 },
+        styles: { fontSize: 8 }
+      });
+      currentY = doc.lastAutoTable.finalY + 8;
+    }
+
+    // Itemized Incident Records
+    if (includeRecordsTable && filteredRecords.length > 0) {
+      if (currentY > 200) {
+        doc.addPage();
+        currentY = 20;
+      }
+
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(7, 52, 95);
+      doc.text('Itemized Disciplinary Records', 14, currentY);
+
+      const tableRows = filteredRecords.map(r => [
+        r.student_name || r.student?.name || `${r.student?.fname || ''} ${r.student?.lname || ''}`.trim() || 'N/A',
+        r.grade || r.student?.grade || 'N/A',
+        r.violation?.name || r.violation_name || r.violation_type || 'N/A',
+        r.violation?.type || r.severity || r.type || 'Minor',
+        r.status || 'Pending',
+        r.date_reported || r.created_at ? new Date(r.date_reported || r.created_at).toLocaleDateString() : 'N/A'
+      ]);
+
+      doc.autoTable({
+        head: [['Student Name', 'Grade', 'Violation', 'Severity', 'Status', 'Date']],
+        body: tableRows,
+        startY: currentY + 3,
+        theme: 'grid',
+        headStyles: { fillColor: [7, 52, 95], fontStyle: 'bold', fontSize: 8 },
+        styles: { fontSize: 7.5 },
+        columnStyles: {
+          0: { cellWidth: 45 },
+          1: { cellWidth: 20 },
+          2: { cellWidth: 50 },
+          3: { cellWidth: 22 },
+          4: { cellWidth: 25 },
+          5: { cellWidth: 25 }
+        }
+      });
+    }
+
+    return doc;
+  };
+
+  const handleDownloadPdf = async () => {
+    try {
+      info('Generating PDF document...');
+      const doc = await generateAnalyticsPdfDoc();
+      const filename = `Disciplinary_Analytics_Report_${dateRangeLabel.replace(/\s+/g, '_')}.pdf`;
+      doc.save(filename);
+      success('Analytics Report PDF successfully downloaded!');
+    } catch (err) {
+      console.error('PDF download error:', err);
+      error('Failed to download PDF: ' + err.message);
+    }
+  };
+
   const handlePrint = async () => {
     try {
       const html = buildPrintReportHtml({
@@ -1345,105 +1453,14 @@ export const PrintDataModal = ({ isOpen, onClose, records = [], students = [], t
         currentDateFormatted
       });
 
-      const generatePdfBlob = async () => {
-        const doc = await getJsPDF({ unit: 'mm', format: 'a4' });
-
-        // Header Banner
-        doc.setFillColor(7, 52, 95);
-        doc.rect(0, 0, 210, 24, 'F');
-        doc.setTextColor(255, 255, 255);
-        doc.setFontSize(14);
-        doc.setFont('helvetica', 'bold');
-        doc.text('VIOTRACK - DISCIPLINARY ANALYTICS REPORT', 14, 11);
-        doc.setFontSize(8.5);
-        doc.setFont('helvetica', 'normal');
-        doc.text(`Period: ${dateRangeLabel} | Generated: ${new Date().toLocaleDateString('en-US', { dateStyle: 'medium', timeStyle: 'short' })}`, 14, 18);
-
-        // Summary Metrics
-        doc.setTextColor(15, 23, 42);
-        doc.autoTable({
-          head: [['Metric Category', 'Incident Count', 'Distribution / Status']],
-          body: [
-            ['Total Recorded Incidents', `${metrics.total || 0}`, `${metrics.resolvedPercent || 0}% Overall Resolution Rate`],
-            ['Minor Offenses', `${metrics.minor || 0}`, 'Warning & Informal Guidance Logs'],
-            ['Serious Offenses', `${metrics.serious || 0}`, 'Parent Summons & Faculty Interventions'],
-            ['Major Offenses', `${metrics.major || 0}`, 'Formal Case & Administrative Action'],
-            ['Resolved Cases', `${metrics.resolved || 0}`, 'Officially Closed & Documented'],
-            ['Pending Cases', `${metrics.pending || 0}`, 'Active Follow-up Required']
-          ],
-          startY: 28,
-          theme: 'grid',
-          headStyles: { fillColor: [7, 52, 95], fontStyle: 'bold', fontSize: 9 },
-          styles: { fontSize: 8.5 }
-        });
-
-        let currentY = doc.lastAutoTable.finalY + 8;
-
-        // Grade Level Breakdown
-        if (includeGrades && gradeBreakdown.length > 0) {
-          doc.setFontSize(11);
-          doc.setFont('helvetica', 'bold');
-          doc.setTextColor(7, 52, 95);
-          doc.text('Grade Level Distribution', 14, currentY);
-
-          doc.autoTable({
-            head: [['Grade Level', 'Total Incidents', 'Percentage of Total']],
-            body: gradeBreakdown.map(g => [g.grade, `${g.count}`, `${g.percent}%`]),
-            startY: currentY + 3,
-            theme: 'striped',
-            headStyles: { fillColor: [30, 58, 138], fontStyle: 'bold', fontSize: 8.5 },
-            styles: { fontSize: 8 }
-          });
-          currentY = doc.lastAutoTable.finalY + 8;
-        }
-
-        // Itemized Incident Records
-        if (includeRecordsTable && filteredRecords.length > 0) {
-          if (currentY > 200) {
-            doc.addPage();
-            currentY = 20;
-          }
-
-          doc.setFontSize(11);
-          doc.setFont('helvetica', 'bold');
-          doc.setTextColor(7, 52, 95);
-          doc.text('Itemized Disciplinary Records', 14, currentY);
-
-          const tableRows = filteredRecords.map(r => [
-            r.student_name || r.student?.name || `${r.student?.fname || ''} ${r.student?.lname || ''}`.trim() || 'N/A',
-            r.grade || r.student?.grade || 'N/A',
-            r.violation?.name || r.violation_name || r.violation_type || 'N/A',
-            r.violation?.type || r.severity || r.type || 'Minor',
-            r.status || 'Pending',
-            r.date_reported || r.created_at ? new Date(r.date_reported || r.created_at).toLocaleDateString() : 'N/A'
-          ]);
-
-          doc.autoTable({
-            head: [['Student Name', 'Grade', 'Violation', 'Severity', 'Status', 'Date']],
-            body: tableRows,
-            startY: currentY + 3,
-            theme: 'grid',
-            headStyles: { fillColor: [7, 52, 95], fontStyle: 'bold', fontSize: 8 },
-            styles: { fontSize: 7.5 },
-            columnStyles: {
-              0: { cellWidth: 45 },
-              1: { cellWidth: 20 },
-              2: { cellWidth: 50 },
-              3: { cellWidth: 22 },
-              4: { cellWidth: 25 },
-              5: { cellWidth: 25 }
-            }
-          });
-        }
-
-        return doc.output('blob');
-      };
-
       await printOrShareDocument({
         title: `${reportTitle} - ${dateRangeLabel}`,
         filename: `Disciplinary_Analytics_Report_${dateRangeLabel.replace(/\s+/g, '_')}.pdf`,
         htmlContent: html,
-        generatePdfBlob,
+        generatePdfBlob: async () => {
+          const doc = await generateAnalyticsPdfDoc();
+          return doc.output('blob');
+        },
         onStatus: (st) => {
           if (st.type === 'success') success(st.message);
           else if (st.type === 'info') info(st.message);
@@ -2250,8 +2267,33 @@ export const PrintDataModal = ({ isOpen, onClose, records = [], students = [], t
             </div>
           </div>
 
-          {/* Right: Print Button + Close Button */}
+          {/* Right: Print Button + Download PDF + Close Button */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
+            <button
+              type="button"
+              onClick={handleDownloadPdf}
+              style={{
+                background: '#ffffff',
+                border: '1px solid #cbd5e1',
+                color: '#0f172a',
+                cursor: 'pointer',
+                padding: '0 10px',
+                height: '32px',
+                borderRadius: '8px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '5px',
+                fontSize: '12px',
+                fontWeight: 700,
+                boxShadow: '0 1px 2px rgba(0, 0, 0, 0.05)',
+                transition: 'all 0.15s ease'
+              }}
+              title="Download PDF"
+            >
+              <Download size={14} />
+              <span>PDF</span>
+            </button>
+
             <button
               type="button"
               onClick={handlePrint}
