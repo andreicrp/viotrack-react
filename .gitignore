@@ -35,3 +35,16 @@ dist-ssr
 *.sln
 *.sw?
 ~$*
+
+# Binary media and package release artifacts
+*.apk
+*.aab
+*.mp4
+export.mp4
+
+# Android build outputs
+android/app/build
+android/.gradle
+android/build
+capacitor-cordova-android-plugins
+

@@ -1,6 +1,6 @@
 # 🛡️ VIOTRACK: A Student Violation Tracking and Monitoring System Using QR Code and Dashboard
 
-A modern, responsive, full-featured **Student Violation Tracking and Monitoring System Using QR Code and Dashboard** built with **React 19**, **Vite 8**, and **Supabase**. Designed for Philippine basic and secondary educational institutions with cryptographically signed QR badge scanning, live analytics, audio/haptic feedback, automated parent summons, geolocation tracking, and SMS alerts.
+A modern, responsive, full-featured **Student Violation Tracking and Monitoring System Using QR Code and Dashboard** built with **React 19**, **Vite 8**, and **Supabase**. Designed for Philippine basic and secondary educational institutions with cryptographically signed HMAC-SHA256 QR badge scanning, live analytics, audio/haptic feedback, automated parent summons, geolocation tracking, and SMS alerts.
 
 ---
 
@@ -12,10 +12,13 @@ A modern, responsive, full-featured **Student Violation Tracking and Monitoring 
 - Repeat & high-risk students leaderboard with infraction count badges.
 - Grade level and strand breakdown with horizontal bar visualizations.
 - Integrated school calendar with color-coded event markers and upcoming events panel.
-- Executive PDF dashboard summary export (`jspdf` + `jspdf-autotable`).
+- Executive vector PDF dashboard summary export (`jspdf` + `jspdf-autotable`).
 
-### 📷 Live QR Scanner & Tamper-Proof Badges
-- **Cryptographically Signed QR Protocol (`VT1:<lrn>:<checksum>`)**: Protects against forged QR codes generated on mobile phones.
+### 📷 Live QR Scanner & Tamper-Proof HMAC Badges
+- **HMAC-SHA256 Authenticated QR Protocol (`VT2:<student_id>:<timestamp>:<hmac>`)**:
+  - Employs cryptographically secure HMAC-SHA256 signature verification to prevent badge forgery.
+  - Backward compatible with legacy `VT1` checksum badges.
+  - Strict payload validation filtering foreign/invalid QR codes with a 3-second auto-dismiss notification.
 - **Audio & Haptic Feedback Engine**:
   - 🔔 **Ascending High Chime (`C6 → E6 → B6`)** + Subtle tactile vibration on **Success / Authentic Badge**.
   - ⚠️ **Double Low Buzz (`220Hz / 180Hz`)** + Heavy double vibration on **Invalid / Tampered QR**.
@@ -25,36 +28,29 @@ A modern, responsive, full-featured **Student Violation Tracking and Monitoring 
 - **1-Click Violation Logging & Student History Modal**: Instant access to infraction logs from scan results.
 
 ### ⚠️ Violation Records & Case Management
-- Filterable violation registry (Student name, LRN, offense category, status, severity, grade, date).
+- Filterable violation registry (Student name, Student ID, offense category, status, severity, grade, date).
 - Dual view modes: **Table View** and **Grid/Card View** with responsive mobile layout.
 - **Action Undo Toast Notifications**: 5-second countdown with `↶ Undo` button before permanently committing record updates or deletions.
 - Official Parent Summons form generator with scheduled conference details.
 - Case resolution modal with clearance notes and celebration confetti.
-- CSV and PDF incident report exports.
+- CSV and PDF incident report exports with formula injection protection.
 
 ### 🎓 Student Directory & ID Card Generation
 - Searchable student roster with photo avatars, parent/guardian contacts, and emergency info.
-- Printable official Student ID cards with dynamic signed QR codes.
+- Printable official Student ID cards with dynamic HMAC-signed QR codes.
 - Bulk student roster import via CSV with validation and duplicate prevention.
 - Individual student violation detail page with complete infraction history and status tracking.
 
-### ⌨️ Keyboard Navigation Shortcuts
-- **`/`**: Automatically focuses and selects the search bar on any page.
-- **`Esc`**: Closes active modals, drawers, or clears search focus.
-- **`N`**: Instantly opens the "Add Violation" modal on the Violations page.
-
-### 💀 Skeleton Loading Placeholders
-- Smooth animated shimmer pulse placeholders for tables, cards, feeds, and profiles, eliminating jarring screen flashes.
-
-### 🖨️ High-Contrast Print Stylesheet (`@media print`)
-- Ink-saving, pure black-and-white print styles for violation summary slips, data reports, and conference letters, optimized for school laser and dot-matrix printers.
+### 📱 Universal "Save As" & Native Mobile File Explorer
+- **Desktop / Web**: Automatic background downloads without modal prompts.
+- **Android APK / Mobile**: Interactive Microsoft 365 / Google Drive-inspired Save As file explorer with real device filesystem navigation (`@capacitor/filesystem`), direct folder saving, and native print service integration.
 
 ### 🔒 Enterprise Security & Access Control
+- **Server-Side Row Level Security (RLS)**: Database-level RBAC policies in PostgreSQL enforcing permissions for Admins, Advisers, and Teachers.
+- **Offline Mutation Sync Queue**: Transparent offline caching of violation logs during network outages with auto-sync on reconnect.
 - **Inactivity Workstation Lock**: Automatic screen lock after idle periods with PIN/password re-authentication.
-- **Role-Based Access Control (RBAC)**: Super Admin, Prefect of Discipline, and Teacher/Adviser permissions.
-- Protected routes with custom 403 Forbidden and 404 handler pages.
-- CSV Formula Injection (`=`, `+`, `-`, `@`) sanitization.
-- Timestamped activity audit trail logging all security and data modifications.
+- **In-App Privacy & Data-Retention Notice**: Full compliance with the Philippine Data Privacy Act of 2012 (RA 10173) and DepEd Child Protection Policy (DO 40, s. 2012).
+- **Public Student ID Verification**: Secure `VerifyStudentPage` confirming enrollment status without leaking confidential disciplinary history.
 
 ---
 
@@ -65,12 +61,12 @@ A modern, responsive, full-featured **Student Violation Tracking and Monitoring 
 | **Frontend** | React 19, React Router 7, Recharts |
 | **Build Tool** | Vite 8, Route-level code splitting via `React.lazy` |
 | **Styling** | Vanilla CSS (Zero Tailwind), Lucide React icons |
-| **Backend & Auth** | Supabase (PostgreSQL + RLS + Realtime) or built-in offline mock data engine |
+| **Backend & Auth** | Supabase (PostgreSQL + RLS + Realtime) with SWR memory cache |
 | **Audio & Haptics** | Web Audio API Synthesizer + HTML5 Audio + Navigator Vibration API |
-| **Mobile** | Capacitor 8 (Android APK with native splash screen & status bar) |
+| **Mobile** | Capacitor 8 (Android APK with native splash screen, filesystem & share) |
 | **Testing & Linting** | Vitest, oxlint, GitHub Actions CI |
 | **PDF & CSV** | jsPDF + jsPDF-autotable, CSV security sanitization |
-| **QR Engine** | html5-qrcode, cryptographic FNV-1a checksum verification |
+| **QR Engine** | html5-qrcode, HMAC-SHA256 cryptographic signature verification |
 
 ---
 
@@ -82,7 +78,6 @@ A modern, responsive, full-featured **Student Violation Tracking and Monitoring 
 
 ### 1. Install Dependencies
 ```bash
-cd Viotrack_React
 npm install
 ```
 
@@ -94,11 +89,14 @@ cp .env.example .env
 
 Configure your secrets in `.env`:
 ```env
-# Supabase Database Configuration (Optional - runs on offline engine if empty)
+# Supabase Database Configuration
 VITE_SUPABASE_URL=https://your-project-id.supabase.co
 VITE_SUPABASE_ANON_KEY=your-supabase-anon-key
 
-# iProgSMS Gateway Configuration
+# Cryptographic QR HMAC Signing Key
+VITE_QR_HMAC_SECRET=your-secure-institutional-hmac-secret
+
+# iProgSMS Gateway Configuration (Optional)
 VITE_IPROGSMS_API_TOKEN=your-iprogsms-api-token
 VITE_IPROGSMS_ENDPOINT=https://sms.iprogtech.com/api/v1/sms_messages
 VITE_IPROGSMS_SENDER_NAME=PHCM VioTrack
@@ -129,14 +127,13 @@ npm run build
 
 ---
 
-## 📱 Android Build (Capacitor)
+## 📱 Android Build & Distribution
+
+Android APK builds are compiled via Capacitor and distributed through **GitHub Releases**:
 
 ```bash
 # Sync web assets to Android project
 npm run cap:sync
-
-# Open in Android Studio
-npm run cap:open
 
 # Build release APK
 npm run build:apk
@@ -147,34 +144,24 @@ npm run build:debug
 
 ---
 
-## 🔑 Demo Access Accounts
-
-Log in using the **1-Click Quick Access** buttons on the login screen, or with these demo profiles:
-
-| Role | Email | Password | Access |
-|---|---|---|---|
-| **Admin** | `admin@viotrack.edu` | `admin123` | Full administrative & prefect privileges |
-| **Teacher / Adviser** | `juan.delacruz@viotrack.edu` | `teacher123` | Class Adviser for Grade 10 – Rizal |
-
----
-
 ## 📁 Project Structure
 
 ```
 src/
 ├── assets/             # Audio sound effects & graphic assets
-├── components/         # Modular UI components (violations, students, admin, layout)
-│   ├── common/         # SkeletonLoader, ScreenLockModal, CustomDatePicker, CustomSelect
+├── components/         # Modular UI components
+│   ├── admin/          # PrintDataModal, ExportDataModal, EditAdminModal
+│   ├── common/         # SaveAsModal, CustomTimePicker, SectionSelect, PrivacyNoticeModal, SkeletonLoader, ScreenLockModal
 │   ├── layout/         # Top navbar, sidebar navigation, responsive wrappers
 │   ├── students/       # AddStudentModal, StudentIdModal, BulkImportModal
 │   └── violations/     # AddViolationModal, StatusModal, ResolutionModal, ParentSummonsModal
 ├── context/            # AuthContext (Inactivity Lock), NotificationContext (Undo Toasts)
 ├── css/                # Responsive stylesheets (dashboard, scan-qr, violations, print)
 ├── hooks/              # useKeyboardShortcuts
-├── lib/                # Supabase client & SQL schema
-├── pages/              # Route-level pages (Dashboard, ScanQR, Violations, Students, Notifications)
-├── services/           # DataService, SMSService, caching & backup routines
-└── utils/              # qrHelper, scannerFeedback, pdfHelper, csvHelper, security
+├── lib/                # Supabase client, schema & supabase-rls-policies.sql
+├── pages/              # Route-level pages (Dashboard, ScanQR, Violations, Students, Teachers, Advisers, ActivityLogs, VerifyStudentPage)
+├── services/           # DataService, SMSService, offlineSyncQueue, caching & backup routines
+└── utils/              # qrHelper (HMAC-SHA256), mobilePrintHelper, scannerFeedback, pdfHelper, csvHelper, security
 ```
 
 ---
@@ -182,3 +169,4 @@ src/
 ## 📄 License
 
 This project is proprietary software developed for educational institutions. All rights reserved.
+

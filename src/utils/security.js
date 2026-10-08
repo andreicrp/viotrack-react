@@ -283,7 +283,7 @@ export const sanitizeText = (input = '') => {
 
 export const sanitizeCsvCell = (value = '') => {
   if (value === null || value === undefined) return '';
-  const str = String(value).trim();
+  const str = String(value);
   if (/^[=+\-@\t\r]/.test(str)) {
     return `'${str}`;
   }
@@ -351,7 +351,7 @@ export const maskPhoneNumber = (phone = '') => {
 };
 
 export const maskEmail = (email = '') => {
-  if (!email || !email.includes('@')) return '***@***';
+  if (!email || typeof email !== 'string' || !email.includes('@')) return '';
   const [local, domain] = email.split('@');
   if (local.length <= 2) return `*@${domain}`;
   return `${local[0]}***${local.slice(-1)}@${domain}`;
