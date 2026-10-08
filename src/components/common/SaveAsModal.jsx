@@ -26,7 +26,7 @@ import { isMobileDevice, isNativeApp, blobToBase64 } from '../../utils/mobilePri
 import { sanitizeCsvCell } from '../../utils/security';
 
 /**
- * Universal Mobile & Desktop "Save as" Modal
+ * Universal Mobile & Desktop "Save as" Modal (Light Mode Theme)
  * Inspired by Microsoft 365 / Google Docs mobile file save workflow.
  */
 export const SaveAsModal = ({
@@ -247,8 +247,8 @@ export const SaveAsModal = ({
         position: 'fixed',
         inset: 0,
         zIndex: 99999,
-        background: '#000000',
-        color: '#ffffff',
+        background: '#ffffff',
+        color: '#0f172a',
         display: 'flex',
         flexDirection: 'column',
         fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", sans-serif',
@@ -257,48 +257,75 @@ export const SaveAsModal = ({
     >
       <style>{`
         @keyframes fadeIn {
-          from { opacity: 0; transform: scale(0.98); }
+          from { opacity: 0; transform: scale(0.99); }
           to { opacity: 1; transform: scale(1); }
         }
-        .saveas-item {
+        .saveas-item-light {
           display: flex;
           align-items: center;
-          padding: 14px 18px;
-          border-bottom: 1px solid #1e293b;
+          padding: 15px 20px;
+          border-bottom: 1px solid #f1f5f9;
           cursor: pointer;
           transition: background 0.15s ease;
           user-select: none;
+          background: #ffffff;
         }
-        .saveas-item:active {
-          background: #1e293b !important;
+        .saveas-item-light:hover {
+          background: #f8fafc;
         }
-        .saveas-format-badge {
-          padding: 6px 12px;
-          border-radius: 6px;
+        .saveas-item-light:active {
+          background: #f1f5f9 !important;
+        }
+        .saveas-format-badge-light {
+          padding: 6px 13px;
+          border-radius: 8px;
           font-size: 13px;
           font-weight: 800;
           cursor: pointer;
           display: flex;
           align-items: center;
           gap: 4px;
-          border: 1px solid #334155;
-          background: #1e293b;
-          color: #93c5fd;
+          border: 1.5px solid #cbd5e1;
+          background: #f8fafc;
+          color: #1d4ed8;
+          transition: all 0.15s ease;
+        }
+        .saveas-format-badge-light:hover {
+          background: #eff6ff;
+          border-color: #93c5fd;
+        }
+        .saveas-input-box {
+          flex: 1;
+          display: flex;
+          align-items: center;
+          background: #ffffff;
+          border-radius: 8px;
+          border: 1.5px solid #cbd5e1;
+          padding: 0 8px 0 12px;
+          height: 42px;
+          min-width: 0;
+          box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+          transition: border-color 0.15s ease;
+        }
+        .saveas-input-box:focus-within {
+          border-color: #2563eb;
+          box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
         }
       `}</style>
 
-      {/* Top App Bar (Matching Microsoft Office / Google Docs mobile Save As) */}
+      {/* Top App Bar (Light Mode Header) */}
       <div
         style={{
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
           padding: 'max(14px, env(safe-area-inset-top, 14px)) 16px 14px 16px',
-          borderBottom: '1px solid #1e293b',
-          background: '#090d16'
+          borderBottom: '1px solid #e2e8f0',
+          background: '#ffffff',
+          boxShadow: '0 1px 3px rgba(0,0,0,0.02)'
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
           <button
             type="button"
             onClick={() => {
@@ -309,19 +336,20 @@ export const SaveAsModal = ({
             style={{
               background: 'transparent',
               border: 'none',
-              color: '#ffffff',
+              color: '#0f172a',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              padding: '6px'
+              padding: '6px',
+              borderRadius: '8px'
             }}
             title="Back"
           >
-            <ArrowLeft size={22} />
+            <ArrowLeft size={22} color="#0f172a" />
           </button>
 
-          <span style={{ fontSize: '18px', fontWeight: 700, color: '#ffffff' }}>
+          <span style={{ fontSize: '18px', fontWeight: 800, color: '#0f172a', letterSpacing: '-0.01em' }}>
             {currentView === 'places' && 'Save as'}
             {currentView === 'device' && 'This device'}
             {currentView === 'folder' && `This device > ${selectedFolder}`}
@@ -334,103 +362,108 @@ export const SaveAsModal = ({
             type="button"
             onClick={() => setCurrentView('places')}
             style={{
-              background: 'transparent',
-              border: 'none',
-              color: '#94a3b8',
-              fontSize: '14px',
-              fontWeight: 600,
+              background: '#f8fafc',
+              border: '1px solid #e2e8f0',
+              color: '#475569',
+              fontSize: '13px',
+              fontWeight: 700,
               display: 'flex',
               alignItems: 'center',
               gap: '6px',
-              cursor: 'pointer'
+              cursor: 'pointer',
+              padding: '6px 12px',
+              borderRadius: '8px'
             }}
           >
-            <FolderOpen size={17} />
+            <FolderOpen size={16} color="#475569" />
             <span>Places</span>
           </button>
         )}
       </div>
 
       {/* Center Body: Navigation Views */}
-      <div style={{ flex: 1, overflowY: 'auto', background: '#000000' }}>
+      <div style={{ flex: 1, overflowY: 'auto', background: '#f8fafc' }}>
         {/* VIEW 1: PLACES */}
         {currentView === 'places' && (
-          <div>
-            <div style={{ padding: '14px 18px 8px 18px', fontSize: '12px', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+          <div style={{ maxWidth: '720px', margin: '0 auto', padding: '10px 0' }}>
+            <div style={{ padding: '14px 20px 8px 20px', fontSize: '11.5px', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
               Places
             </div>
 
-            {/* Cloud Storage / Google Drive / OneDrive */}
-            <div
-              className="saveas-item"
-              onClick={() => handleSaveFile('cloud')}
-            >
-              <div style={{ width: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <Cloud size={24} color="#3b82f6" />
-              </div>
-              <div style={{ flex: 1, marginLeft: '8px' }}>
-                <div style={{ fontSize: '15px', fontWeight: 700, color: '#ffffff' }}>
-                  Google Drive / Cloud
+            <div style={{ background: '#ffffff', borderTop: '1px solid #e2e8f0', borderBottom: '1px solid #e2e8f0' }}>
+              {/* Cloud Storage / Google Drive / OneDrive */}
+              <div
+                className="saveas-item-light"
+                onClick={() => handleSaveFile('cloud')}
+              >
+                <div style={{ width: '42px', height: '42px', borderRadius: '10px', background: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <Cloud size={22} color="#2563eb" />
                 </div>
-                <div style={{ fontSize: '12.5px', color: '#64748b', marginTop: '1px' }}>
-                  {userEmail}
+                <div style={{ flex: 1, marginLeft: '12px' }}>
+                  <div style={{ fontSize: '15px', fontWeight: 700, color: '#0f172a' }}>
+                    Google Drive / Cloud
+                  </div>
+                  <div style={{ fontSize: '12.5px', color: '#64748b', marginTop: '1px' }}>
+                    {userEmail}
+                  </div>
                 </div>
+                <ChevronRight size={18} color="#94a3b8" />
               </div>
-              <ChevronRight size={18} color="#475569" />
-            </div>
 
-            {/* This Device */}
-            <div
-              className="saveas-item"
-              onClick={() => setCurrentView('device')}
-            >
-              <div style={{ width: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <Smartphone size={24} color="#94a3b8" />
-              </div>
-              <div style={{ flex: 1, marginLeft: '8px' }}>
-                <div style={{ fontSize: '15px', fontWeight: 700, color: '#ffffff' }}>
-                  This device
+              {/* This Device */}
+              <div
+                className="saveas-item-light"
+                onClick={() => setCurrentView('device')}
+              >
+                <div style={{ width: '42px', height: '42px', borderRadius: '10px', background: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <Smartphone size={22} color="#475569" />
                 </div>
-                <div style={{ fontSize: '12.5px', color: '#64748b', marginTop: '1px' }}>
-                  Internal storage (Download, Documents)
+                <div style={{ flex: 1, marginLeft: '12px' }}>
+                  <div style={{ fontSize: '15px', fontWeight: 700, color: '#0f172a' }}>
+                    This device
+                  </div>
+                  <div style={{ fontSize: '12.5px', color: '#64748b', marginTop: '1px' }}>
+                    Internal storage (Download, Documents)
+                  </div>
                 </div>
+                <ChevronRight size={18} color="#94a3b8" />
               </div>
-              <ChevronRight size={18} color="#475569" />
-            </div>
 
-            {/* Browse (Android Storage Access Framework / Native Picker / Share) */}
-            <div
-              className="saveas-item"
-              onClick={() => handleSaveFile('browse')}
-            >
-              <div style={{ width: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <Folder size={24} color="#f59e0b" />
-              </div>
-              <div style={{ flex: 1, marginLeft: '8px' }}>
-                <div style={{ fontSize: '15px', fontWeight: 700, color: '#ffffff' }}>
-                  Browse
+              {/* Browse (Android Storage Access Framework / Native Picker / Share) */}
+              <div
+                className="saveas-item-light"
+                onClick={() => handleSaveFile('browse')}
+              >
+                <div style={{ width: '42px', height: '42px', borderRadius: '10px', background: '#fef3c7', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <Folder size={22} color="#d97706" />
                 </div>
-                <div style={{ fontSize: '12.5px', color: '#64748b', marginTop: '1px' }}>
-                  Google Drive, SD card, and other apps...
+                <div style={{ flex: 1, marginLeft: '12px' }}>
+                  <div style={{ fontSize: '15px', fontWeight: 700, color: '#0f172a' }}>
+                    Browse
+                  </div>
+                  <div style={{ fontSize: '12.5px', color: '#64748b', marginTop: '1px' }}>
+                    Google Drive, SD card, and other apps...
+                  </div>
                 </div>
+                <ChevronRight size={18} color="#94a3b8" />
               </div>
-              <ChevronRight size={18} color="#475569" />
-            </div>
 
-            {/* Add a place */}
-            <div
-              className="saveas-item"
-              onClick={() => info('Connect additional cloud accounts in System Settings.')}
-            >
-              <div style={{ width: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <Plus size={22} color="#94a3b8" />
-              </div>
-              <div style={{ flex: 1, marginLeft: '8px' }}>
-                <div style={{ fontSize: '15px', fontWeight: 700, color: '#ffffff' }}>
-                  Add a place
+              {/* Add a place */}
+              <div
+                className="saveas-item-light"
+                style={{ borderBottom: 'none' }}
+                onClick={() => info('Connect additional cloud accounts in System Settings.')}
+              >
+                <div style={{ width: '42px', height: '42px', borderRadius: '10px', background: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <Plus size={22} color="#2563eb" />
                 </div>
-                <div style={{ fontSize: '12.5px', color: '#64748b', marginTop: '1px' }}>
-                  Connect to cloud storage
+                <div style={{ flex: 1, marginLeft: '12px' }}>
+                  <div style={{ fontSize: '15px', fontWeight: 700, color: '#0f172a' }}>
+                    Add a place
+                  </div>
+                  <div style={{ fontSize: '12.5px', color: '#64748b', marginTop: '1px' }}>
+                    Connect to cloud storage
+                  </div>
                 </div>
               </div>
             </div>
@@ -439,121 +472,127 @@ export const SaveAsModal = ({
 
         {/* VIEW 2: THIS DEVICE FOLDERS */}
         {currentView === 'device' && (
-          <div>
-            <div style={{ padding: '14px 18px 8px 18px', fontSize: '12px', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+          <div style={{ maxWidth: '720px', margin: '0 auto', padding: '10px 0' }}>
+            <div style={{ padding: '14px 20px 8px 20px', fontSize: '11.5px', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
               Device Storage Locations
             </div>
 
-            {/* Documents Folder */}
-            <div
-              className="saveas-item"
-              onClick={() => {
-                setSelectedFolder('Documents');
-                loadSavedFiles('Documents');
-                setCurrentView('folder');
-              }}
-            >
-              <div style={{ width: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <Folder size={24} color="#f59e0b" />
+            <div style={{ background: '#ffffff', borderTop: '1px solid #e2e8f0', borderBottom: '1px solid #e2e8f0' }}>
+              {/* Documents Folder */}
+              <div
+                className="saveas-item-light"
+                onClick={() => {
+                  setSelectedFolder('Documents');
+                  loadSavedFiles('Documents');
+                  setCurrentView('folder');
+                }}
+              >
+                <div style={{ width: '42px', height: '42px', borderRadius: '10px', background: '#fef3c7', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <Folder size={22} color="#d97706" />
+                </div>
+                <div style={{ flex: 1, marginLeft: '12px', fontSize: '15px', fontWeight: 700, color: '#0f172a' }}>
+                  Documents
+                </div>
+                <ChevronRight size={18} color="#94a3b8" />
               </div>
-              <div style={{ flex: 1, marginLeft: '8px', fontSize: '15px', fontWeight: 700, color: '#ffffff' }}>
-                Documents
-              </div>
-              <ChevronRight size={18} color="#475569" />
-            </div>
 
-            {/* Download Folder */}
-            <div
-              className="saveas-item"
-              onClick={() => {
-                setSelectedFolder('Download');
-                loadSavedFiles('Download');
-                setCurrentView('folder');
-              }}
-            >
-              <div style={{ width: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <Folder size={24} color="#f59e0b" />
+              {/* Download Folder */}
+              <div
+                className="saveas-item-light"
+                onClick={() => {
+                  setSelectedFolder('Download');
+                  loadSavedFiles('Download');
+                  setCurrentView('folder');
+                }}
+              >
+                <div style={{ width: '42px', height: '42px', borderRadius: '10px', background: '#fef3c7', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <Folder size={22} color="#d97706" />
+                </div>
+                <div style={{ flex: 1, marginLeft: '12px', fontSize: '15px', fontWeight: 700, color: '#0f172a' }}>
+                  Download
+                </div>
+                <ChevronRight size={18} color="#94a3b8" />
               </div>
-              <div style={{ flex: 1, marginLeft: '8px', fontSize: '15px', fontWeight: 700, color: '#ffffff' }}>
-                Download
-              </div>
-              <ChevronRight size={18} color="#475569" />
-            </div>
 
-            {/* General Storage */}
-            <div
-              className="saveas-item"
-              onClick={() => {
-                setSelectedFolder('Storage');
-                loadSavedFiles('Storage');
-                setCurrentView('folder');
-              }}
-            >
-              <div style={{ width: '40px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <HardDrive size={24} color="#94a3b8" />
+              {/* General Storage */}
+              <div
+                className="saveas-item-light"
+                style={{ borderBottom: 'none' }}
+                onClick={() => {
+                  setSelectedFolder('Storage');
+                  loadSavedFiles('Storage');
+                  setCurrentView('folder');
+                }}
+              >
+                <div style={{ width: '42px', height: '42px', borderRadius: '10px', background: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <HardDrive size={22} color="#475569" />
+                </div>
+                <div style={{ flex: 1, marginLeft: '12px', fontSize: '15px', fontWeight: 700, color: '#0f172a' }}>
+                  Storage
+                </div>
+                <ChevronRight size={18} color="#94a3b8" />
               </div>
-              <div style={{ flex: 1, marginLeft: '8px', fontSize: '15px', fontWeight: 700, color: '#ffffff' }}>
-                Storage
-              </div>
-              <ChevronRight size={18} color="#475569" />
             </div>
           </div>
         )}
 
         {/* VIEW 3: INSIDE SELECTED FOLDER */}
         {currentView === 'folder' && (
-          <div>
-            <div style={{ padding: '14px 18px 8px 18px', fontSize: '12px', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+          <div style={{ maxWidth: '720px', margin: '0 auto', padding: '10px 0' }}>
+            <div style={{ padding: '14px 20px 8px 20px', fontSize: '11.5px', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
               Files in {selectedFolder}
             </div>
 
-            {savedFilesList.length === 0 ? (
-              <div style={{ padding: '30px 18px', textAlign: 'center', color: '#64748b', fontSize: '13px' }}>
-                Folder is empty. Tap Save below to export here.
-              </div>
-            ) : (
-              savedFilesList.map((file, idx) => (
-                <div
-                  key={idx}
-                  className="saveas-item"
-                  style={{ opacity: 0.85 }}
-                >
-                  <div style={{ width: '38px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    {file.name.endsWith('.csv') && <FileSpreadsheet size={22} color="#10b981" />}
-                    {file.name.endsWith('.pdf') && <FileText size={22} color="#ef4444" />}
-                    {file.name.endsWith('.xlsx') && <FileSpreadsheet size={22} color="#3b82f6" />}
-                  </div>
-                  <div style={{ flex: 1, marginLeft: '8px', minWidth: 0 }}>
-                    <div style={{ fontSize: '14px', fontWeight: 600, color: '#ffffff', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                      {file.name}
-                    </div>
-                    <div style={{ fontSize: '11.5px', color: '#64748b' }}>
-                      {file.size} &bull; {file.date}
-                    </div>
-                  </div>
+            <div style={{ background: '#ffffff', borderTop: '1px solid #e2e8f0', borderBottom: '1px solid #e2e8f0' }}>
+              {savedFilesList.length === 0 ? (
+                <div style={{ padding: '40px 20px', textAlign: 'center', color: '#64748b', fontSize: '13px' }}>
+                  Folder is empty. Tap <b>Save</b> below to export file directly here.
                 </div>
-              ))
-            )}
+              ) : (
+                savedFilesList.map((file, idx) => (
+                  <div
+                    key={idx}
+                    className="saveas-item-light"
+                    style={{ borderBottom: idx === savedFilesList.length - 1 ? 'none' : '1px solid #f1f5f9' }}
+                  >
+                    <div style={{ width: '40px', height: '40px', borderRadius: '8px', background: '#f8fafc', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      {file.name.endsWith('.csv') && <FileSpreadsheet size={22} color="#16a34a" />}
+                      {file.name.endsWith('.pdf') && <FileText size={22} color="#dc2626" />}
+                      {file.name.endsWith('.xlsx') && <FileSpreadsheet size={22} color="#2563eb" />}
+                    </div>
+                    <div style={{ flex: 1, marginLeft: '12px', minWidth: 0 }}>
+                      <div style={{ fontSize: '14px', fontWeight: 600, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        {file.name}
+                      </div>
+                      <div style={{ fontSize: '11.5px', color: '#64748b', marginTop: '2px' }}>
+                        {file.size} &bull; {file.date}
+                      </div>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
           </div>
         )}
       </div>
 
-      {/* Format Switcher Tray (Popover) */}
+      {/* Format Switcher Tray (Light Mode Popover) */}
       {showFormatDropdown && (
         <div
           style={{
             position: 'absolute',
             bottom: '75px',
-            right: '85px',
-            background: '#1e293b',
-            border: '1px solid #334155',
-            borderRadius: '10px',
+            right: '90px',
+            background: '#ffffff',
+            border: '1.5px solid #cbd5e1',
+            borderRadius: '12px',
             padding: '6px',
-            boxShadow: '0 10px 30px rgba(0,0,0,0.6)',
+            boxShadow: '0 12px 32px rgba(0, 0, 0, 0.12)',
             zIndex: 100000,
             display: 'flex',
             flexDirection: 'column',
-            gap: '4px'
+            gap: '4px',
+            minWidth: '120px'
           }}
         >
           {availableFormats.map((fmt) => (
@@ -565,11 +604,11 @@ export const SaveAsModal = ({
                 setShowFormatDropdown(false);
               }}
               style={{
-                background: selectedFormat === fmt ? '#07345f' : 'transparent',
+                background: selectedFormat === fmt ? '#eff6ff' : 'transparent',
                 border: 'none',
-                color: '#ffffff',
-                padding: '8px 14px',
-                borderRadius: '6px',
+                color: selectedFormat === fmt ? '#1d4ed8' : '#0f172a',
+                padding: '9px 14px',
+                borderRadius: '8px',
                 fontSize: '13px',
                 fontWeight: 700,
                 cursor: 'pointer',
@@ -581,7 +620,7 @@ export const SaveAsModal = ({
               }}
             >
               <span>.{fmt.toUpperCase()}</span>
-              {selectedFormat === fmt && <Check size={14} color="#60a5fa" />}
+              {selectedFormat === fmt && <Check size={15} color="#2563eb" strokeWidth={2.5} />}
             </button>
           ))}
         </div>
@@ -593,25 +632,14 @@ export const SaveAsModal = ({
           display: 'flex',
           alignItems: 'center',
           gap: '8px',
-          padding: '10px 14px max(14px, env(safe-area-inset-bottom, 14px)) 14px',
-          background: '#090d16',
-          borderTop: '1px solid #1e293b'
+          padding: '12px 16px max(16px, env(safe-area-inset-bottom, 16px)) 16px',
+          background: '#ffffff',
+          borderTop: '1px solid #e2e8f0',
+          boxShadow: '0 -4px 16px rgba(0, 0, 0, 0.04)'
         }}
       >
         {/* Filename Input Container */}
-        <div
-          style={{
-            flex: 1,
-            display: 'flex',
-            alignItems: 'center',
-            background: '#131c2e',
-            borderRadius: '8px',
-            border: '1.5px solid #334155',
-            padding: '0 8px 0 12px',
-            height: '42px',
-            minWidth: 0
-          }}
-        >
+        <div className="saveas-input-box">
           <input
             type="text"
             value={filename}
@@ -621,7 +649,7 @@ export const SaveAsModal = ({
               flex: 1,
               background: 'transparent',
               border: 'none',
-              color: '#ffffff',
+              color: '#0f172a',
               fontSize: '14px',
               fontWeight: 600,
               outline: 'none',
@@ -636,7 +664,7 @@ export const SaveAsModal = ({
               style={{
                 background: 'transparent',
                 border: 'none',
-                color: '#64748b',
+                color: '#94a3b8',
                 cursor: 'pointer',
                 padding: '4px',
                 display: 'flex',
@@ -651,7 +679,7 @@ export const SaveAsModal = ({
         {/* Format Selector Badge (e.g. .csv, .xlsx, .pdf) */}
         <button
           type="button"
-          className="saveas-format-badge"
+          className="saveas-format-badge-light"
           onClick={() => setShowFormatDropdown(!showFormatDropdown)}
           title="Change file format"
         >
@@ -668,7 +696,7 @@ export const SaveAsModal = ({
             border: 'none',
             color: '#ffffff',
             height: '42px',
-            padding: '0 18px',
+            padding: '0 20px',
             borderRadius: '8px',
             fontSize: '14px',
             fontWeight: 700,
@@ -676,22 +704,25 @@ export const SaveAsModal = ({
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
+            boxShadow: '0 2px 8px rgba(37, 99, 235, 0.28)',
             transition: 'background 0.15s ease'
           }}
+          onMouseOver={(e) => e.currentTarget.style.background = '#1d4ed8'}
+          onMouseOut={(e) => e.currentTarget.style.background = '#2563eb'}
         >
           Save
         </button>
       </div>
 
-      {/* Full-Screen "Saving: [filename]... Working on it..." Modal Overlay */}
+      {/* Full-Screen "Saving: [filename]... Working on it..." Light Modal Overlay */}
       {isSaving && (
         <div
           style={{
             position: 'absolute',
             inset: 0,
             zIndex: 100001,
-            background: 'rgba(0, 0, 0, 0.75)',
-            backdropFilter: 'blur(6px)',
+            background: 'rgba(15, 23, 42, 0.45)',
+            backdropFilter: 'blur(5px)',
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
@@ -701,26 +732,26 @@ export const SaveAsModal = ({
         >
           <div
             style={{
-              background: '#1e293b',
-              border: '1.5px solid #334155',
+              background: '#ffffff',
+              border: '1px solid #e2e8f0',
               borderRadius: '16px',
-              padding: '24px 32px',
+              padding: '28px 32px',
               display: 'flex',
               flexDirection: 'column',
               alignItems: 'center',
               gap: '14px',
               maxWidth: '340px',
               width: '100%',
-              boxShadow: '0 20px 50px rgba(0, 0, 0, 0.6)',
+              boxShadow: '0 20px 50px rgba(0, 0, 0, 0.15)',
               textAlign: 'center'
             }}
           >
-            <Loader2 size={36} color="#60a5fa" className="animate-spin" style={{ animation: 'spin 1s linear infinite' }} />
-            <div style={{ fontSize: '15px', fontWeight: 700, color: '#ffffff', lineHeight: 1.4 }}>
+            <Loader2 size={38} color="#2563eb" className="animate-spin" style={{ animation: 'spin 1s linear infinite' }} />
+            <div style={{ fontSize: '15px', fontWeight: 800, color: '#0f172a', lineHeight: 1.4 }}>
               {savingMessage}
             </div>
-            <div style={{ fontSize: '12px', color: '#94a3b8' }}>
-              Preparing and exporting data...
+            <div style={{ fontSize: '12.5px', color: '#64748b' }}>
+              Preparing and exporting file data...
             </div>
           </div>
         </div>
