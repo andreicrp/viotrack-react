@@ -501,3 +501,9 @@ Clean latest main passed **22 tests across 5 test files**, lint (**435 warnings,
 Latest main is [`b0f1361fc3de2d2f3de141c0a16be30233bd94ce`](https://github.com/andreicrp/viotrack-react/commit/b0f1361fc3de2d2f3de141c0a16be30233bd94ce), changing only `InteractiveTourGuide.jsx` to refresh the institutional white UI and walkthrough hub. The preceding baseline includes the guide layout and icon fixes; no data-service modules, tests, or dependencies changed.
 
 Clean latest main passed **22 tests across 5 test files**, lint (**434 warnings, 0 errors**), and build (2,676.16 kB `vendor-react`, gzip 792.02 kB; PDF worker 1,264.34 kB); clean main has no JSDoc typecheck script. After rebasing the PR onto `b0f1361`, **42 tests across 6 files passed**, `tsc -p tsconfig.check.json` passed, lint passed (**433 warnings, 0 errors**), and build passed with matching bundle sizes.
+
+## Baseline after the 2026-10-09 guide scenario icon fix
+
+Latest main is [`bf1b80972dff46c5ed61ca62e37ef41aaf7eb51b`](https://github.com/andreicrp/viotrack-react/commit/bf1b80972dff46c5ed61ca62e37ef41aaf7eb51b), replacing dangling `Sparkles` references with existing `Award` and `BarChart3` icons in `InteractiveTourGuide.jsx`. No data-service modules, tests, or dependencies changed.
+
+Clean latest main passed **22 tests across 5 test files**, lint (**434 warnings, 0 errors**), and build (2,676.16 kB `vendor-react`, gzip 792.02 kB; PDF worker 1,264.34 kB); clean main has no JSDoc typecheck script. After rebasing the PR onto `bf1b809`, **42 tests across 6 files passed**, `tsc -p tsconfig.check.json` passed, lint passed (**433 warnings, 0 errors**), and build passed with matching bundle sizes.
