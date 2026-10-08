@@ -1713,7 +1713,7 @@ export const PrintDataModal = ({ isOpen, onClose, records = [], students = [], t
           boxShadow: '0 4px 12px rgba(7, 52, 95, 0.25)'
         }}
       >
-        <Printer size={15} /> Print Document ({totalPages} {totalPages === 1 ? 'Page' : 'Pages'})
+        <Printer size={15} /> Print Document
       </button>
     </div>
   );
@@ -2271,10 +2271,10 @@ export const PrintDataModal = ({ isOpen, onClose, records = [], students = [], t
                 boxShadow: '0 1px 3px rgba(7, 52, 95, 0.25)',
                 transition: 'all 0.15s ease'
               }}
-              title="Print Multi-Page Document"
+              title="Print Document"
             >
               <Printer size={14} />
-              <span>Print ({totalPages}p)</span>
+              <span>Print</span>
             </button>
 
             <button
