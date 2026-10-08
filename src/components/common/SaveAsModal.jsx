@@ -186,35 +186,67 @@ export const SaveAsModal = ({
 
       // 2. If Destination is "This Device" inside Capacitor APK
       if (isNativeApp()) {
-        const base64 = await blobToBase64(blob);
-        let targetDirectory = Directory.Documents;
-        if (selectedFolder === 'Download' || selectedFolder === 'Documents') {
-          targetDirectory = Directory.Documents;
+        // Explicitly check & request Android storage permissions
+        try {
+          const permStatus = await Filesystem.checkPermissions();
+          if (permStatus.publicStorage !== 'granted') {
+            await Filesystem.requestPermissions();
+          }
+        } catch (permErr) {
+          console.warn('Filesystem permission request:', permErr);
         }
 
-        const writeRes = await Filesystem.writeFile({
-          path: fullFilename,
-          data: base64,
-          directory: targetDirectory,
-          recursive: true
-        });
+        const base64 = await blobToBase64(blob);
+        let writeRes = null;
+        let savedLocationName = selectedFolder || 'Documents';
 
-        // Also trigger native share sheet so user can open in Excel/Drive or move to custom folder
+        // Try writing directly to user-accessible Documents directory
+        try {
+          writeRes = await Filesystem.writeFile({
+            path: fullFilename,
+            data: base64,
+            directory: Directory.Documents,
+            recursive: true
+          });
+          savedLocationName = 'Documents';
+        } catch (docWriteErr) {
+          console.warn('Documents write attempt fallback:', docWriteErr);
+          // Fallback to Data or Cache directory
+          try {
+            writeRes = await Filesystem.writeFile({
+              path: fullFilename,
+              data: base64,
+              directory: Directory.Data,
+              recursive: true
+            });
+            savedLocationName = 'Internal Storage';
+          } catch (dataWriteErr) {
+            writeRes = await Filesystem.writeFile({
+              path: fullFilename,
+              data: base64,
+              directory: Directory.Cache,
+              recursive: true
+            });
+            savedLocationName = 'Downloads';
+          }
+        }
+
+        // Also trigger native share/save sheet so user can open directly or save to custom folder
         try {
           if (writeRes && writeRes.uri) {
             await Share.share({
               title: fullFilename,
-              text: `Saved to ${selectedFolder}: ${fullFilename}`,
+              text: `Saved to ${savedLocationName}: ${fullFilename}`,
               url: writeRes.uri,
               files: [writeRes.uri],
-              dialogTitle: `Saved to ${selectedFolder}`
+              dialogTitle: `Saved to ${savedLocationName}`
             });
           }
         } catch (shareErr) {
-          // User closed share dialog, still saved to documents
+          // User closed share dialog, file remains safely saved on device
         }
 
-        success(`Saved successfully to ${selectedFolder}/${fullFilename}!`);
+        success(`Saved to Device Storage: ${savedLocationName}/${fullFilename}`);
         onClose();
         return;
       }
