@@ -96,6 +96,9 @@ export const buildCertificateHtml = ({ record, status, sanction, resolutionNotes
     : new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
   const controlNumber = `PHCM-OPD-CLR-2026-${String(record?.id || 1).padStart(5, '0')}`;
   const securityHash = `SHA256:7D9A4C${String(record?.id || 1).padStart(4, '0')}E83B10928`;
+  const rawGrade = record?.student?.grade || 'Grade 10';
+  const formattedGrade = rawGrade.toString().toLowerCase().startsWith('grade') ? rawGrade : `Grade ${rawGrade}`;
+  const gradeSection = `${formattedGrade} - ${record?.student?.section || 'General'}`;
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -104,34 +107,45 @@ export const buildCertificateHtml = ({ record, status, sanction, resolutionNotes
   <title>Certificate of Disciplinary Resolution - ${studentFullName}</title>
   <style>
     @page {
-      size: portrait;
-      margin: 10mm 14mm 10mm 14mm;
+      size: A4 portrait;
+      margin: 10mm 12mm 10mm 12mm;
     }
     * {
       box-sizing: border-box;
       -webkit-print-color-adjust: exact;
       print-color-adjust: exact;
     }
-    body {
-      font-family: "Times New Roman", Times, "Liberation Serif", Georgia, serif;
+    html, body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", "Helvetica Neue", Arial, sans-serif;
       color: #0f172a;
       background: #ffffff;
       margin: 0;
-      padding: 12px 16px;
-      font-size: 11pt;
-      line-height: 1.4;
+      padding: 0;
+      font-size: 10pt;
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
     }
 
     .doc-frame {
       border: 2px solid #07345f;
-      padding: 18px 22px;
+      padding: 12px 16px;
       position: relative;
       background: #ffffff;
+      box-sizing: border-box;
+      min-height: 275mm;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
     }
     .doc-frame-inner {
       border: 0.75px solid #07345f;
-      padding: 16px 18px;
+      padding: 14px 16px;
       position: relative;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-sizing: border-box;
     }
 
     .inst-header-wrapper {
@@ -139,11 +153,12 @@ export const buildCertificateHtml = ({ record, status, sanction, resolutionNotes
       align-items: center;
       justify-content: space-between;
       gap: 14px;
-      margin-bottom: 6px;
+      margin-bottom: 4px;
     }
     .inst-logo {
-      width: 62px;
-      height: 62px;
+      width: 52px;
+      height: 52px;
+      object-fit: contain;
       flex-shrink: 0;
     }
     .inst-center-text {
@@ -345,7 +360,7 @@ export const buildCertificateHtml = ({ record, status, sanction, resolutionNotes
         </tr>
         <tr>
           <th>Student ID / Grade &amp; Section:</th>
-          <td>${record?.student?.student_id || record?.student?.lrn || 'N/A'} &nbsp;|&nbsp; Grade ${record?.student?.grade || '10'} - ${record?.student?.section || 'General'}</td>
+          <td>${record?.student?.student_id || record?.student?.lrn || 'N/A'} &nbsp;|&nbsp; ${gradeSection}</td>
         </tr>
         <tr>
           <th>Case Incident Reference:</th>
@@ -480,7 +495,7 @@ export const printCertificateDocument = (htmlContent) => {
 
 export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
   const { user } = useAuth();
-  const { success, error } = useNotification();
+  const { success, error, info } = useNotification();
   const printRef = useRef(null);
   
   const [status, setStatus] = useState(record?.status || 'Resolved');
@@ -844,7 +859,7 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
       body: [
         ['Student Name:', studentFullName],
         ['Student ID:', record.student?.student_id || record.student?.lrn || 'N/A'],
-        ['Grade & Section:', `Grade ${record.student?.grade || '10'} - ${record.student?.section || 'General'}`],
+        ['Grade & Section:', `${record.student?.grade ? (record.student.grade.toString().toLowerCase().startsWith('grade') ? record.student.grade : `Grade ${record.student.grade}`) : 'Grade 10'} - ${record.student?.section || 'General'}`],
         ['Incident Reference:', `Incident #${record.id} (Date: ${incidentDateFormatted})`],
         ['Infraction / Violation:', `${record.violation?.title || record.offense || 'General Infraction'} (${record.violation?.type || record.severity || 'Minor'} Offense)`],
         ['Final Case Status:', status.toUpperCase()]
