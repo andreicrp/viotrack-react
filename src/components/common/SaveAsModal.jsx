@@ -71,38 +71,58 @@ export const SaveAsModal = ({
   const loadSavedFiles = async (folderName = 'Documents') => {
     if (isNativeApp()) {
       try {
-        let targetDir = Directory.Documents;
-        let subPath = '';
+        let res = null;
 
         if (folderName === 'Storage') {
-          targetDir = Directory.ExternalStorage;
-          subPath = '';
-        } else if (folderName === 'Download') {
-          targetDir = Directory.ExternalStorage;
-          subPath = 'Download';
+          try {
+            res = await Filesystem.readdir({
+              path: '',
+              directory: Directory.ExternalStorage
+            });
+          } catch (e) {
+            console.warn('Read Storage failed:', e);
+          }
+        } else if (folderName === 'Download' || folderName === 'Downloads') {
+          try {
+            res = await Filesystem.readdir({
+              path: 'Download',
+              directory: Directory.ExternalStorage
+            });
+          } catch (e1) {
+            try {
+              res = await Filesystem.readdir({
+                path: 'Downloads',
+                directory: Directory.ExternalStorage
+              });
+            } catch (e2) {
+              console.warn('Read Download failed:', e2);
+            }
+          }
         } else if (folderName === 'Documents') {
-          targetDir = Directory.Documents;
-          subPath = '';
-        } else {
-          // Subfolder on device
-          targetDir = Directory.ExternalStorage;
-          subPath = folderName;
-        }
-
-        let res;
-        try {
-          res = await Filesystem.readdir({
-            path: subPath,
-            directory: targetDir
-          });
-        } catch (subErr) {
           try {
             res = await Filesystem.readdir({
               path: '',
               directory: Directory.Documents
             });
-          } catch (docErr) {
-            console.warn('Documents readdir fallback failed:', docErr);
+          } catch (e1) {
+            try {
+              res = await Filesystem.readdir({
+                path: 'Documents',
+                directory: Directory.ExternalStorage
+              });
+            } catch (e2) {
+              console.warn('Read Documents failed:', e2);
+            }
+          }
+        } else {
+          // Navigating into a specific subfolder (e.g., DCIM, Pictures, CapCut)
+          try {
+            res = await Filesystem.readdir({
+              path: folderName,
+              directory: Directory.ExternalStorage
+            });
+          } catch (e) {
+            console.warn(`Read subfolder ${folderName} failed:`, e);
           }
         }
 
@@ -128,13 +148,8 @@ export const SaveAsModal = ({
       }
     }
     
-    // Default mock list for browser dev testing
-    setSavedFilesList([
-      { name: 'Viotrack_Violations_2026.pdf', size: '24 KB', date: 'Oct 8, 2026', isDirectory: false },
-      { name: 'Student_Directory.csv', size: '86 KB', date: 'Oct 5, 2026', isDirectory: false },
-      { name: 'Download', size: 'Folder', date: 'Oct 8, 2026', isDirectory: true },
-      { name: 'Pictures', size: 'Folder', date: 'Sep 29, 2026', isDirectory: true }
-    ]);
+    // Only real files from device storage — no mock lists
+    setSavedFilesList([]);
   };
 
   // Helper to determine icon & badge color for any file/folder type
@@ -288,21 +303,48 @@ export const SaveAsModal = ({
         }
 
         const base64 = await blobToBase64(blob);
+        let targetDir = Directory.Documents;
+        let filePath = fullFilename;
         let savedLocationName = selectedFolder || 'Documents';
 
-        // Try writing directly to user-accessible Documents directory
+        if (selectedFolder === 'Download' || selectedFolder === 'Downloads') {
+          targetDir = Directory.ExternalStorage;
+          filePath = `Download/${fullFilename}`;
+          savedLocationName = 'Download';
+        } else if (selectedFolder === 'Storage') {
+          targetDir = Directory.ExternalStorage;
+          filePath = fullFilename;
+          savedLocationName = 'Storage';
+        } else if (selectedFolder === 'Documents') {
+          targetDir = Directory.Documents;
+          filePath = fullFilename;
+          savedLocationName = 'Documents';
+        } else if (selectedFolder) {
+          targetDir = Directory.ExternalStorage;
+          filePath = `${selectedFolder}/${fullFilename}`;
+          savedLocationName = selectedFolder;
+        }
+
         try {
           await Filesystem.writeFile({
-            path: fullFilename,
+            path: filePath,
             data: base64,
-            directory: Directory.Documents,
+            directory: targetDir,
             recursive: true
           });
-          savedLocationName = 'Documents';
-        } catch (docWriteErr) {
-          console.warn('Documents write attempt fallback:', docWriteErr);
-          // Fallback to Data or Cache directory
+        } catch (targetWriteErr) {
+          console.warn(`Write to ${savedLocationName} failed:`, targetWriteErr);
+          // Fallback to Documents
           try {
+            await Filesystem.writeFile({
+              path: fullFilename,
+              data: base64,
+              directory: Directory.Documents,
+              recursive: true
+            });
+            savedLocationName = 'Documents';
+          } catch (docErr) {
+            // Fallback to Data directory
             await Filesystem.writeFile({
               path: fullFilename,
               data: base64,
@@ -310,14 +352,6 @@ export const SaveAsModal = ({
               recursive: true
             });
             savedLocationName = 'Internal Storage';
-          } catch (dataWriteErr) {
-            await Filesystem.writeFile({
-              path: fullFilename,
-              data: base64,
-              directory: Directory.Cache,
-              recursive: true
-            });
-            savedLocationName = 'Downloads';
           }
         }
 
