@@ -641,7 +641,7 @@ const TOUR_SCENARIOS = {
         title: 'Official Certificate of Resolution',
         content: 'Generates an authentic Certificate of Disciplinary Resolution & Clearance with unique control number and digital verification hash.',
         badge: 'Certificate',
-        icon: Sparkles,
+        icon: Award,
         previewType: 'case_resolution_certificate'
       }
     ]
@@ -664,7 +664,7 @@ const TOUR_SCENARIOS = {
         title: 'Vector Charts & Incident Distribution',
         content: 'Visualize disciplinary activity over time with interactive spline curve trends and segmented donut charts of the most common school violations.',
         badge: 'Visual Trends',
-        icon: Sparkles
+        icon: BarChart3
       },
       {
         target: '.dash-bottom-card:nth-child(1), .dash-bottom-card:nth-child(2)',
