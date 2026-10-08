@@ -807,25 +807,72 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
     });
   };
 
+  const loadImageAsBase64 = async (url) => {
+    try {
+      const res = await fetch(url);
+      if (!res.ok) return null;
+      const blob = await res.blob();
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result);
+        reader.onerror = () => resolve(null);
+        reader.readAsDataURL(blob);
+      });
+    } catch {
+      return null;
+    }
+  };
+
   // High Quality Client-Side PDF Generation
   const generateResolutionPdfDoc = async () => {
-    const { default: jsPDF } = await import('jspdf');
+    const [{ default: jsPDF }, logoBase64, sealBase64] = await Promise.all([
+      import('jspdf'),
+      loadImageAsBase64('/images/phcm-logo.png'),
+      loadImageAsBase64('/images/phcm-seal.png')
+    ]);
     await import('jspdf-autotable');
 
     const doc = new jsPDF({ unit: 'mm', format: 'a4' });
 
-    // Header Banner
-    doc.setFillColor(15, 23, 42);
-    doc.rect(0, 0, 210, 26, 'F');
+    // Left Logo
+    if (logoBase64) {
+      try {
+        doc.addImage(logoBase64, 'PNG', 14, 7.5, 14, 14);
+      } catch {}
+    }
 
-    doc.setTextColor(255, 255, 255);
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(12);
-    doc.text('UNIVERSITY OF PERPETUAL HELP SYSTEM MANILA', 105, 11, { align: 'center' });
-    doc.setFontSize(8.5);
+    // Right Seal
+    if (sealBase64) {
+      try {
+        doc.addImage(sealBase64, 'PNG', 182, 7.5, 14, 14);
+      } catch {}
+    }
+
+    // Letterhead
     doc.setFont('helvetica', 'normal');
-    doc.text('1240 V. Concepcion St., Sampaloc, Manila | Office of the Prefect of Discipline', 105, 17, { align: 'center' });
-    doc.text('VIOTRACK DISCIPLINARY & STUDENT WELFARE MANAGEMENT SYSTEM', 105, 22, { align: 'center' });
+    doc.setFontSize(7.5);
+    doc.setTextColor(71, 85, 105);
+    doc.text('REPUBLIC OF THE PHILIPPINES', 105, 10, { align: 'center' });
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(12.5);
+    doc.setTextColor(7, 52, 95);
+    doc.text('UNIVERSITY OF PERPETUAL HELP SYSTEM MANILA', 105, 15, { align: 'center' });
+
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7.5);
+    doc.setTextColor(71, 85, 105);
+    doc.text('1240 V. Concepcion St., Sampaloc, Manila | Office of the Prefect of Discipline', 105, 19.5, { align: 'center' });
+
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(7);
+    doc.setTextColor(100, 116, 139);
+    doc.text('VIOTRACK DISCIPLINARY & STUDENT WELFARE MANAGEMENT SYSTEM', 105, 23.5, { align: 'center' });
+
+    // Header Line
+    doc.setDrawColor(7, 52, 95);
+    doc.setLineWidth(0.6);
+    doc.line(14, 26, 196, 26);
 
     // Metadata Bar
     doc.setTextColor(15, 23, 42);

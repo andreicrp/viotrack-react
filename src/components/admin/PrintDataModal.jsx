@@ -1336,12 +1336,102 @@ export const PrintDataModal = ({ isOpen, onClose, records = [], students = [], t
     }
   };
 
+  const hexToRgb = (hex) => {
+    let c = (hex || '#07345f').replace('#', '');
+    if (c.length === 3) c = c.split('').map((x) => x + x).join('');
+    const num = parseInt(c, 16) || 0;
+    return [(num >> 16) & 255, (num >> 8) & 255, num & 255];
+  };
+
+  const loadImageAsBase64 = async (url) => {
+    try {
+      const res = await fetch(url);
+      if (!res.ok) return null;
+      const blob = await res.blob();
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result);
+        reader.onerror = () => resolve(null);
+        reader.readAsDataURL(blob);
+      });
+    } catch {
+      return null;
+    }
+  };
+
+  const drawVectorDonut = (doc, cx, cy, rOuter, rInner, slices) => {
+    const total = slices.reduce((acc, s) => acc + (s.value || 0), 0) || 1;
+    let currentAngle = -Math.PI / 2;
+
+    slices.forEach((slice) => {
+      const sliceAngle = ((slice.value || 0) / total) * 2 * Math.PI;
+      if (sliceAngle <= 0.01) return;
+
+      const startAngle = currentAngle;
+      const endAngle = currentAngle + sliceAngle;
+      currentAngle = endAngle;
+
+      const numSteps = Math.max(4, Math.ceil((sliceAngle / (2 * Math.PI)) * 24));
+      const points = [];
+
+      // Outer arc
+      for (let i = 0; i <= numSteps; i++) {
+        const a = startAngle + (i / numSteps) * (endAngle - startAngle);
+        points.push([cx + rOuter * Math.cos(a), cy + rOuter * Math.sin(a)]);
+      }
+      // Inner arc
+      for (let i = numSteps; i >= 0; i++) {
+        const a = startAngle + (i / numSteps) * (endAngle - startAngle);
+        points.push([cx + rInner * Math.cos(a), cy + rInner * Math.sin(a)]);
+      }
+
+      const rgb = hexToRgb(slice.color || '#3b82f6');
+      doc.setFillColor(rgb[0], rgb[1], rgb[2]);
+      doc.setDrawColor(255, 255, 255);
+      doc.setLineWidth(0.3);
+
+      const startPt = points[0];
+      const lines = points.slice(1).map((p, idx) => {
+        const prev = points[idx];
+        return [p[0] - prev[0], p[1] - prev[1]];
+      });
+
+      if (lines.length > 0) {
+        doc.lines(lines, startPt[0], startPt[1], [1, 1], 'FD', true);
+      }
+    });
+
+    // Inner center hole
+    doc.setFillColor(255, 255, 255);
+    doc.setDrawColor(255, 255, 255);
+    doc.circle(cx, cy, rInner, 'F');
+  };
+
   const generateAnalyticsPdfDoc = async () => {
-    const doc = await getJsPDF({ unit: 'mm', format: 'a4' });
+    const [doc, logoBase64, sealBase64] = await Promise.all([
+      getJsPDF({ unit: 'mm', format: 'a4' }),
+      loadImageAsBase64('/images/phcm-logo.png'),
+      loadImageAsBase64('/images/phcm-seal.png')
+    ]);
+
     const totalPages = recordPages.length === 0 ? 1 : 1 + recordPages.length;
 
     const drawHeaderAndMeta = (pageNum) => {
-      // Letterhead
+      // Left Logo
+      if (logoBase64) {
+        try {
+          doc.addImage(logoBase64, 'PNG', 13, 7.5, 14, 14);
+        } catch {}
+      }
+
+      // Right Seal
+      if (sealBase64) {
+        try {
+          doc.addImage(sealBase64, 'PNG', 183, 7.5, 14, 14);
+        } catch {}
+      }
+
+      // Letterhead Text
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(7.5);
       doc.setTextColor(71, 85, 105);
@@ -1507,7 +1597,7 @@ export const PrintDataModal = ({ isOpen, onClose, records = [], students = [], t
         const drawSeries = (key, strokeColor) => {
           doc.setDrawColor(...strokeColor);
           doc.setFillColor(...strokeColor);
-          doc.setLineWidth(0.5);
+          doc.setLineWidth(0.6);
 
           const pts = trendPoints.map((pt, idx) => {
             const x = plotX + idx * (plotW / Math.max(trendPoints.length - 1, 1));
@@ -1519,7 +1609,9 @@ export const PrintDataModal = ({ isOpen, onClose, records = [], students = [], t
             doc.line(pts[i].x, pts[i].y, pts[i + 1].x, pts[i + 1].y);
           }
           pts.forEach((p) => {
-            doc.circle(p.x, p.y, 0.7, 'F');
+            doc.setFillColor(...strokeColor);
+            doc.setDrawColor(255, 255, 255);
+            doc.circle(p.x, p.y, 0.9, 'FD');
           });
         };
 
@@ -1535,15 +1627,27 @@ export const PrintDataModal = ({ isOpen, onClose, records = [], students = [], t
           doc.text(pt.label, x, plotY + plotH + 3.5, { align: 'center' });
         });
 
-        // Legend
+        // Legend with clean drawn circles (avoid unicode corruption)
         doc.setFontSize(6.5);
         doc.setFont('helvetica', 'bold');
+
+        doc.setFillColor(16, 185, 129);
+        doc.setDrawColor(16, 185, 129);
+        doc.circle(27, nextY + chartBoxH - 3.5, 1.1, 'F');
         doc.setTextColor(16, 185, 129);
-        doc.text('● Minor', 16 + chartBoxW * 0.15, nextY + chartBoxH - 2.5);
+        doc.text('Minor', 29.5, nextY + chartBoxH - 2.5);
+
+        doc.setFillColor(245, 158, 11);
+        doc.setDrawColor(245, 158, 11);
+        doc.circle(49, nextY + chartBoxH - 3.5, 1.1, 'F');
         doc.setTextColor(245, 158, 11);
-        doc.text('● Serious', 16 + chartBoxW * 0.45, nextY + chartBoxH - 2.5);
+        doc.text('Serious', 51.5, nextY + chartBoxH - 2.5);
+
+        doc.setFillColor(239, 68, 68);
+        doc.setDrawColor(239, 68, 68);
+        doc.circle(73, nextY + chartBoxH - 3.5, 1.1, 'F');
         doc.setTextColor(239, 68, 68);
-        doc.text('● Major', 16 + chartBoxW * 0.75, nextY + chartBoxH - 2.5);
+        doc.text('Major', 75.5, nextY + chartBoxH - 2.5);
       }
 
       if (includeCommonViolationsChart) {
@@ -1562,32 +1666,49 @@ export const PrintDataModal = ({ isOpen, onClose, records = [], students = [], t
         doc.setTextColor(100, 116, 139);
         doc.text('Distribution of infractions most likely to occur in school', cRightX + 4, nextY + 8.5);
 
+        // Vector Donut Chart on Left Side of Box
+        if (violationDistribution.length > 0) {
+          drawVectorDonut(doc, cRightX + 17, nextY + 23, 13.5, 7.5, violationDistribution);
+        }
+
+        // Top Violations Ranking List on Right Side of Box
         const topViolations = violationDistribution.slice(0, 5);
         const maxV = Math.max(...topViolations.map((d) => d.value), 1);
         let listY = nextY + 13;
 
         topViolations.forEach((item) => {
+          const rgb = hexToRgb(item.color || '#07345f');
+
+          // Colored Bullet Dot
+          doc.setFillColor(rgb[0], rgb[1], rgb[2]);
+          doc.setDrawColor(rgb[0], rgb[1], rgb[2]);
+          doc.circle(cRightX + 36, listY - 0.7, 0.9, 'F');
+
+          // Item Name
           doc.setFont('helvetica', 'bold');
-          doc.setFontSize(6.5);
+          doc.setFontSize(6.2);
           doc.setTextColor(15, 23, 42);
 
-          const truncatedName = item.name.length > 28 ? item.name.substring(0, 26) + '...' : item.name;
-          doc.text(`• ${truncatedName}`, cRightX + 4, listY);
+          const truncatedName = item.name.length > 20 ? item.name.substring(0, 19) + '...' : item.name;
+          doc.text(truncatedName, cRightX + 38.5, listY);
 
+          // Count Text
           doc.setFont('helvetica', 'normal');
-          doc.setFontSize(6);
+          doc.setFontSize(5.8);
           doc.setTextColor(71, 85, 105);
           doc.text(`${item.value} ${item.value === 1 ? 'incident' : 'incidents'}`, cRightX + chartBoxW - 4, listY, { align: 'right' });
 
-          // Progress Bar
-          const barW = chartBoxW - 8;
+          // Progress Bar Track & Fill
+          const barW = chartBoxW - 43;
           const fillW = Math.max(3, (item.value / maxV) * barW);
-          doc.setFillColor(226, 232, 240);
-          doc.roundedRect(cRightX + 4, listY + 1.2, barW, 1.4, 0.5, 0.5, 'F');
-          doc.setFillColor(7, 52, 95);
-          doc.roundedRect(cRightX + 4, listY + 1.2, fillW, 1.4, 0.5, 0.5, 'F');
 
-          listY += 5.4;
+          doc.setFillColor(226, 232, 240);
+          doc.roundedRect(cRightX + 36, listY + 1.2, barW, 1.3, 0.5, 0.5, 'F');
+
+          doc.setFillColor(rgb[0], rgb[1], rgb[2]);
+          doc.roundedRect(cRightX + 36, listY + 1.2, fillW, 1.3, 0.5, 0.5, 'F');
+
+          listY += 5.3;
         });
       }
 
