@@ -64,23 +64,41 @@ export const SaveAsModal = ({
     }
   }, [isOpen, defaultFilename, defaultFormat]);
 
-  const loadSavedFiles = (folderName) => {
-    // Simulated/Real recent files in that folder for authentic browsing experience
-    const mockFiles = {
-      'Download': [
-        { name: 'Viotrack_Violations_Q1.csv', size: '24 KB', date: 'Yesterday' },
-        { name: 'Student_Directory_2026.csv', size: '86 KB', date: 'Oct 5, 2026' },
-        { name: 'Parent_Summons_Notice.pdf', size: '142 KB', date: 'Oct 2, 2026' }
-      ],
-      'Documents': [
-        { name: 'Disciplinary_Clearance_Summary.pdf', size: '210 KB', date: 'Sep 28, 2026' },
-        { name: 'Attendance_Logs_Grade10.csv', size: '54 KB', date: 'Sep 20, 2026' }
-      ],
-      'Storage': [
-        { name: 'Institutional_Discipline_Archive.csv', size: '312 KB', date: 'Aug 15, 2026' }
-      ]
-    };
-    setSavedFilesList(mockFiles[folderName] || []);
+  const loadSavedFiles = async (folderName = 'Documents') => {
+    if (isNativeApp()) {
+      try {
+        let targetDir = Directory.Documents;
+        if (folderName === 'Storage') {
+          targetDir = Directory.ExternalStorage;
+        }
+
+        const res = await Filesystem.readdir({
+          path: '',
+          directory: targetDir
+        });
+
+        if (res && res.files) {
+          const fileItems = res.files
+            .map(f => {
+              const name = typeof f === 'string' ? f : (f.name || '');
+              const size = typeof f === 'object' && f.size ? `${(f.size / 1024).toFixed(0)} KB` : '';
+              const mtime = typeof f === 'object' && f.mtime 
+                ? new Date(f.mtime).toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' }) 
+                : 'Device File';
+              return { name, size, date: mtime };
+            })
+            .filter(f => f.name && !f.name.startsWith('.'));
+
+          setSavedFilesList(fileItems);
+          return;
+        }
+      } catch (err) {
+        console.warn('Real device readdir attempt:', err);
+      }
+    }
+    
+    // Default fallback list on browser dev mode
+    setSavedFilesList([]);
   };
 
   if (!isOpen) return null;
@@ -123,7 +141,7 @@ export const SaveAsModal = ({
     const fullFilename = `${cleanFilename}.${selectedFormat}`;
     
     setIsSaving(true);
-    setSavingMessage(`Saving: ${fullFilename}... Working on it...`);
+    setSavingMessage(`Saving to ${selectedFolder || 'Device'}: ${fullFilename}...`);
 
     try {
       let blob;
@@ -169,7 +187,7 @@ export const SaveAsModal = ({
               files: [writeRes.uri],
               dialogTitle: destinationType === 'cloud' ? 'Save to Cloud / Drive' : 'Browse Apps to Save'
             });
-            success(`${fullFilename} shared to cloud destination!`);
+            success(`${fullFilename} saved to cloud destination!`);
             onClose();
             return;
           }
@@ -184,7 +202,7 @@ export const SaveAsModal = ({
         }
       }
 
-      // 2. If Destination is "This Device" inside Capacitor APK
+      // 2. If Destination is "This Device" inside Capacitor APK -> Directly save to device storage without sharing dialog
       if (isNativeApp()) {
         // Explicitly check & request Android storage permissions
         try {
@@ -197,12 +215,11 @@ export const SaveAsModal = ({
         }
 
         const base64 = await blobToBase64(blob);
-        let writeRes = null;
         let savedLocationName = selectedFolder || 'Documents';
 
         // Try writing directly to user-accessible Documents directory
         try {
-          writeRes = await Filesystem.writeFile({
+          await Filesystem.writeFile({
             path: fullFilename,
             data: base64,
             directory: Directory.Documents,
@@ -213,7 +230,7 @@ export const SaveAsModal = ({
           console.warn('Documents write attempt fallback:', docWriteErr);
           // Fallback to Data or Cache directory
           try {
-            writeRes = await Filesystem.writeFile({
+            await Filesystem.writeFile({
               path: fullFilename,
               data: base64,
               directory: Directory.Data,
@@ -221,7 +238,7 @@ export const SaveAsModal = ({
             });
             savedLocationName = 'Internal Storage';
           } catch (dataWriteErr) {
-            writeRes = await Filesystem.writeFile({
+            await Filesystem.writeFile({
               path: fullFilename,
               data: base64,
               directory: Directory.Cache,
@@ -231,22 +248,8 @@ export const SaveAsModal = ({
           }
         }
 
-        // Also trigger native share/save sheet so user can open directly or save to custom folder
-        try {
-          if (writeRes && writeRes.uri) {
-            await Share.share({
-              title: fullFilename,
-              text: `Saved to ${savedLocationName}: ${fullFilename}`,
-              url: writeRes.uri,
-              files: [writeRes.uri],
-              dialogTitle: `Saved to ${savedLocationName}`
-            });
-          }
-        } catch (shareErr) {
-          // User closed share dialog, file remains safely saved on device
-        }
-
-        success(`Saved to Device Storage: ${savedLocationName}/${fullFilename}`);
+        success(`Saved directly to device: ${savedLocationName}/${fullFilename}`);
+        await loadSavedFiles(selectedFolder);
         onClose();
         return;
       }
