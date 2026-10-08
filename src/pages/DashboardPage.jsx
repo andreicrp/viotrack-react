@@ -47,6 +47,7 @@ import { CustomDateRangeModal } from '../components/common/CustomDateRangeModal'
 import { getJsPDF } from '../utils/pdfHelper';
 import { exportToCsv } from '../utils/csvHelper';
 import { SaveAsModal } from '../components/common/SaveAsModal';
+import { PrintDataModal } from '../components/admin/PrintDataModal';
 
 const DashboardNoViolationsEmptyState = ({ IconComponent }) => (
   <div style={{ minHeight: 220, width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', color: '#94a3b8', textAlign: 'center', gap: 8 }}>
