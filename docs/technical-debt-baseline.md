@@ -495,3 +495,9 @@ Clean latest main passed **22 tests across 5 test files**, lint (**434 warnings,
 Since the prior baseline on `c4317d2`, `main` received two commits: [`e89682bf92a103fea7c1e4a2264ce728005a4655`](https://github.com/andreicrp/viotrack-react/commit/e89682bf92a103fea7c1e4a2264ce728005a4655) prevents launcher overlap and redesigns guide-hub cards, and [`291361f8ffa07d173ee47bf484097c4d9bffea0c`](https://github.com/andreicrp/viotrack-react/commit/291361f8ffa07d173ee47bf484097c4d9bffea0c) imports the missing `Minimize2` icon. Both modify only `InteractiveTourGuide.jsx`; no data-service modules, tests, or dependencies changed.
 
 Clean latest main passed **22 tests across 5 test files**, lint (**435 warnings, 0 errors**), and build (2,676.16 kB `vendor-react`, gzip 792.02 kB; PDF worker 1,264.34 kB); clean main has no JSDoc typecheck script. After rebasing the PR onto `291361f`, **42 tests across 6 files passed**, `tsc -p tsconfig.check.json` passed, lint passed (**434 warnings, 0 errors**), and build passed with matching bundle sizes.
+
+## Baseline after the 2026-10-09 institutional guide-hub redesign
+
+Latest main is [`b0f1361fc3de2d2f3de141c0a16be30233bd94ce`](https://github.com/andreicrp/viotrack-react/commit/b0f1361fc3de2d2f3de141c0a16be30233bd94ce), changing only `InteractiveTourGuide.jsx` to refresh the institutional white UI and walkthrough hub. The preceding baseline includes the guide layout and icon fixes; no data-service modules, tests, or dependencies changed.
+
+Clean latest main passed **22 tests across 5 test files**, lint (**434 warnings, 0 errors**), and build (2,676.16 kB `vendor-react`, gzip 792.02 kB; PDF worker 1,264.34 kB); clean main has no JSDoc typecheck script. After rebasing the PR onto `b0f1361`, **42 tests across 6 files passed**, `tsc -p tsconfig.check.json` passed, lint passed (**433 warnings, 0 errors**), and build passed with matching bundle sizes.
