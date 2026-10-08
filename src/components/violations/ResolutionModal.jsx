@@ -3,7 +3,7 @@ import { dataService } from '../../services/dataService';
 import { useNotification } from '../../context/NotificationContext';
 import { useAuth } from '../../context/AuthContext';
 import { lockBodyScroll, unlockBodyScroll } from '../../utils/scrollLock';
-import { printOrShareDocument, shareOrSaveNativeFile } from '../../utils/mobilePrintHelper';
+import { printOrShareDocument, shareOrSaveNativeFile, downloadBlobFile } from '../../utils/mobilePrintHelper';
 import { 
   CheckCircle2, 
   ShieldCheck, 
@@ -944,13 +944,12 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
       const doc = await generateResolutionPdfDoc();
       const filename = `Disciplinary_Resolution_Certificate_${studentFullName.replace(/\s+/g, '_')}_${record.id}.pdf`;
       const blob = doc.output('blob');
-      await shareOrSaveNativeFile({
+      await downloadBlobFile({
         filename,
         blob,
-        title: `${studentLastName || 'Student'} - Disciplinary Case Resolution Certificate`,
         mimeType: 'application/pdf'
       });
-      success('Case Resolution PDF Certificate successfully generated and saved!');
+      success('Case Resolution PDF Certificate successfully downloaded and saved!');
     } catch (err) {
       if (err?.name === 'AbortError') return;
       error('Failed to generate PDF: ' + err.message);

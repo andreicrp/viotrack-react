@@ -4,7 +4,7 @@
  */
 
 import { sanitizeCsvCell, sanitizeText } from './security';
-import { shareOrSaveNativeFile } from './mobilePrintHelper';
+import { downloadBlobFile } from './mobilePrintHelper';
 
 export const exportToCsv = async (filename, headers, rows) => {
   try {
@@ -23,10 +23,9 @@ export const exportToCsv = async (filename, headers, rows) => {
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const fname = filename.endsWith('.csv') ? filename : `${filename}.csv`;
 
-    return await shareOrSaveNativeFile({
+    return await downloadBlobFile({
       filename: fname,
       blob: blob,
-      title: fname,
       mimeType: 'text/csv'
     });
   } catch (err) {
@@ -41,10 +40,9 @@ export const downloadSampleCsv = async (filename, content) => {
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const fname = filename.endsWith('.csv') ? filename : `${filename}.csv`;
 
-    return await shareOrSaveNativeFile({
+    return await downloadBlobFile({
       filename: fname,
       blob: blob,
-      title: fname,
       mimeType: 'text/csv'
     });
   } catch (err) {

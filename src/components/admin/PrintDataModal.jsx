@@ -2,7 +2,7 @@ import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useNotification } from '../../context/NotificationContext';
 import { lockBodyScroll, unlockBodyScroll } from '../../utils/scrollLock';
-import { printOrShareDocument, shareOrSaveNativeFile } from '../../utils/mobilePrintHelper';
+import { printOrShareDocument, shareOrSaveNativeFile, downloadBlobFile } from '../../utils/mobilePrintHelper';
 import { getJsPDF } from '../../utils/pdfHelper';
 import { CustomDatePicker } from '../common/CustomDatePicker';
 import {
@@ -1436,10 +1436,9 @@ export const PrintDataModal = ({ isOpen, onClose, records = [], students = [], t
       const doc = await generateAnalyticsPdfDoc();
       const filename = `Disciplinary_Analytics_Report_${dateRangeLabel.replace(/\s+/g, '_')}.pdf`;
       const blob = doc.output('blob');
-      await shareOrSaveNativeFile({
+      await downloadBlobFile({
         filename,
         blob,
-        title: `${reportTitle} - ${dateRangeLabel}`,
         mimeType: 'application/pdf'
       });
       success('Analytics Report PDF successfully downloaded and saved!');

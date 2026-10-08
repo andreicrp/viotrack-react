@@ -36,7 +36,7 @@ import { useNotification } from '../../context/NotificationContext';
 import { useAuth } from '../../context/AuthContext';
 import { dataService } from '../../services/dataService';
 import { lockBodyScroll, unlockBodyScroll } from '../../utils/scrollLock';
-import { printOrShareDocument, shareOrSaveNativeFile } from '../../utils/mobilePrintHelper';
+import { printOrShareDocument, shareOrSaveNativeFile, downloadBlobFile } from '../../utils/mobilePrintHelper';
 import { CustomDatePicker } from '../common/CustomDatePicker';
 import { CustomTimePicker } from '../common/CustomTimePicker';
 
@@ -1058,13 +1058,12 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
       const doc = await generateSummonsPdfDoc();
       const filename = `Parent_Summons_${studentFullName.replace(/\s+/g, '_')}_${referenceNo}.pdf`;
       const blob = doc.output('blob');
-      await shareOrSaveNativeFile({
+      await downloadBlobFile({
         filename,
         blob,
-        title: `${studentLastName || 'Student'} - Official Parent Summons Notice`,
         mimeType: 'application/pdf'
       });
-      success('Parent Summons Letter PDF successfully generated and saved!');
+      success('Parent Summons Letter PDF successfully downloaded and saved!');
     } catch (err) {
       if (err?.name === 'AbortError') return;
       error('Failed to export PDF: ' + err.message);

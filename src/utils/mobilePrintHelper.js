@@ -43,6 +43,50 @@ export async function blobToBase64(blob) {
 }
 
 /**
+ * Direct file download helper without invoking system share tray
+ */
+export async function downloadBlobFile({
+  filename,
+  blob,
+  mimeType = 'application/pdf'
+}) {
+  if (isNativeApp()) {
+    try {
+      const base64Data = await blobToBase64(blob);
+      await Filesystem.writeFile({
+        path: filename,
+        data: base64Data,
+        directory: Directory.Documents,
+        recursive: true
+      });
+      return true;
+    } catch (err) {
+      console.warn('Native APK filesystem save failed, falling back to browser download:', err);
+    }
+  }
+
+  try {
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', filename);
+    link.target = '_self';
+    link.style.display = 'none';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    setTimeout(() => {
+      URL.revokeObjectURL(url);
+    }, 4000);
+    return true;
+  } catch (err) {
+    console.error('Direct download failed:', err);
+    throw err;
+  }
+}
+
+/**
  * Shares or saves any file natively via Capacitor or Web Share
  */
 export async function shareOrSaveNativeFile({
