@@ -1338,94 +1338,412 @@ export const PrintDataModal = ({ isOpen, onClose, records = [], students = [], t
 
   const generateAnalyticsPdfDoc = async () => {
     const doc = await getJsPDF({ unit: 'mm', format: 'a4' });
+    const totalPages = recordPages.length === 0 ? 1 : 1 + recordPages.length;
 
-    // Header Banner
-    doc.setFillColor(7, 52, 95);
-    doc.rect(0, 0, 210, 24, 'F');
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(14);
-    doc.setFont('helvetica', 'bold');
-    doc.text('VIOTRACK - DISCIPLINARY ANALYTICS REPORT', 14, 11);
-    doc.setFontSize(8.5);
-    doc.setFont('helvetica', 'normal');
-    doc.text(`Period: ${dateRangeLabel} | Generated: ${new Date().toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' })}`, 14, 18);
+    const drawHeaderAndMeta = (pageNum) => {
+      // Letterhead
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(7.5);
+      doc.setTextColor(71, 85, 105);
+      doc.text('REPUBLIC OF THE PHILIPPINES', 105, 10, { align: 'center' });
 
-    // Summary Metrics
-    doc.setTextColor(15, 23, 42);
-    doc.autoTable({
-      head: [['Metric Category', 'Incident Count', 'Distribution / Status']],
-      body: [
-        ['Total Recorded Incidents', `${metrics.total || 0}`, `${metrics.resolvedPercent || 0}% Overall Resolution Rate`],
-        ['Minor Offenses', `${metrics.minor || 0}`, 'Warning & Informal Guidance Logs'],
-        ['Serious Offenses', `${metrics.serious || 0}`, 'Parent Summons & Faculty Interventions'],
-        ['Major Offenses', `${metrics.major || 0}`, 'Formal Case & Administrative Action'],
-        ['Resolved Cases', `${metrics.resolved || 0}`, 'Officially Closed & Documented'],
-        ['Pending Cases', `${metrics.pending || 0}`, 'Active Follow-up Required']
-      ],
-      startY: 28,
-      theme: 'grid',
-      headStyles: { fillColor: [7, 52, 95], fontStyle: 'bold', fontSize: 9 },
-      styles: { fontSize: 8.5 }
-    });
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(12.5);
+      doc.setTextColor(7, 52, 95);
+      doc.text('UNIVERSITY OF PERPETUAL HELP SYSTEM MANILA', 105, 15, { align: 'center' });
 
-    let currentY = doc.lastAutoTable.finalY + 8;
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(7.5);
+      doc.setTextColor(71, 85, 105);
+      doc.text('1240 V. Concepcion St., Sampaloc, Manila | Office of the Prefect of Discipline', 105, 19.5, { align: 'center' });
 
-    // Grade Level Breakdown
-    if (includeGrades && gradeBreakdown.length > 0) {
-      doc.setFontSize(11);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(7);
+      doc.setTextColor(100, 116, 139);
+      doc.text('VIOTRACK DISCIPLINARY & STUDENT WELFARE MANAGEMENT SYSTEM', 105, 23.5, { align: 'center' });
+
+      // Header Line
+      doc.setDrawColor(7, 52, 95);
+      doc.setLineWidth(0.6);
+      doc.line(12, 26, 198, 26);
+
+      // Meta Bar
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(7.8);
+      doc.setTextColor(71, 85, 105);
+      doc.text(`Report Ref: ${reportRefNo}`, 12, 31);
+      doc.text(`Coverage: ${dateRangeLabel}`, 65, 31);
+      doc.text(`Date: ${currentDateFormatted}`, 135, 31);
+
       doc.setFont('helvetica', 'bold');
       doc.setTextColor(7, 52, 95);
-      doc.text('Grade Level Distribution', 14, currentY);
+      doc.text(`Page ${pageNum} of ${totalPages}`, 198, 31, { align: 'right' });
 
-      doc.autoTable({
-        head: [['Grade Level', 'Total Incidents', 'Percentage of Total']],
-        body: gradeBreakdown.map(g => [g.grade, `${g.count}`, `${g.percent}%`]),
-        startY: currentY + 3,
-        theme: 'striped',
-        headStyles: { fillColor: [30, 58, 138], fontStyle: 'bold', fontSize: 8.5 },
-        styles: { fontSize: 8 }
-      });
-      currentY = doc.lastAutoTable.finalY + 8;
-    }
+      doc.setDrawColor(203, 213, 225);
+      doc.setLineWidth(0.2);
+      doc.line(12, 33.5, 198, 33.5);
+    };
 
-    // Itemized Incident Records
-    if (includeRecordsTable && filteredRecords.length > 0) {
-      if (currentY > 200) {
-        doc.addPage();
-        currentY = 20;
+    const drawFooter = (pageNum) => {
+      doc.setDrawColor(203, 213, 225);
+      doc.setLineWidth(0.2);
+      doc.line(12, 282, 198, 282);
+
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(6.8);
+      doc.setTextColor(100, 116, 139);
+      doc.text(`VERIFICATION CODE: ${securityHash}   |   SYSTEM ARCHIVE: VIOTRACK INSTITUTIONAL DATA REPOSITORY`, 12, 286);
+      doc.text('Official institutional summary generated in compliance with DepEd & Philippine Data Privacy Act of 2012.', 12, 290);
+
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(7, 52, 95);
+      doc.text(`Page ${pageNum} of ${totalPages}`, 198, 290, { align: 'right' });
+    };
+
+    // ================= PAGE 1: EXECUTIVE ANALYTICS =================
+    drawHeaderAndMeta(1);
+
+    // Title & Subtitle
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(11.5);
+    doc.setTextColor(7, 52, 95);
+    doc.text(reportTitle, 105, 39, { align: 'center' });
+
+    doc.setFont('helvetica', 'italic');
+    doc.setFontSize(7.5);
+    doc.setTextColor(100, 116, 139);
+    doc.text('Official Institutional Conduct Analytics, Incident Timeline Trends & Infraction Distribution', 105, 43, { align: 'center' });
+
+    // 4 KPI Cards (Total, Resolved, Pending, Involved)
+    const cardY = 46;
+    const cardH = 15;
+    const cardW = 44;
+    const cardGap = 3.33;
+
+    // Card 1: Total
+    doc.setFillColor(248, 250, 252);
+    doc.setDrawColor(203, 213, 225);
+    doc.roundedRect(12, cardY, cardW, cardH, 2, 2, 'FD');
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(13);
+    doc.setTextColor(7, 52, 95);
+    doc.text(`${metrics.total}`, 12 + cardW / 2, cardY + 7, { align: 'center' });
+    doc.setFontSize(6.5);
+    doc.setTextColor(100, 116, 139);
+    doc.text('TOTAL INCIDENTS', 12 + cardW / 2, cardY + 12, { align: 'center' });
+
+    // Card 2: Resolved
+    const c2X = 12 + cardW + cardGap;
+    doc.setFillColor(240, 253, 244);
+    doc.setDrawColor(187, 247, 208);
+    doc.roundedRect(c2X, cardY, cardW, cardH, 2, 2, 'FD');
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(11.5);
+    doc.setTextColor(21, 128, 61);
+    doc.text(`${metrics.resolved} (${metrics.resolvedRate}%)`, c2X + cardW / 2, cardY + 7, { align: 'center' });
+    doc.setFontSize(6.5);
+    doc.text('RESOLVED & CLEARED', c2X + cardW / 2, cardY + 12, { align: 'center' });
+
+    // Card 3: Pending
+    const c3X = c2X + cardW + cardGap;
+    doc.setFillColor(254, 252, 232);
+    doc.setDrawColor(254, 240, 138);
+    doc.roundedRect(c3X, cardY, cardW, cardH, 2, 2, 'FD');
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(13);
+    doc.setTextColor(180, 83, 9);
+    doc.text(`${metrics.pending}`, c3X + cardW / 2, cardY + 7, { align: 'center' });
+    doc.setFontSize(6.5);
+    doc.text('PENDING CASES', c3X + cardW / 2, cardY + 12, { align: 'center' });
+
+    // Card 4: Unique Students
+    const c4X = c3X + cardW + cardGap;
+    doc.setFillColor(245, 243, 255);
+    doc.setDrawColor(221, 214, 254);
+    doc.roundedRect(c4X, cardY, cardW, cardH, 2, 2, 'FD');
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(13);
+    doc.setTextColor(109, 40, 217);
+    doc.text(`${metrics.uniqueStudents}`, c4X + cardW / 2, cardY + 7, { align: 'center' });
+    doc.setFontSize(6.5);
+    doc.text('INVOLVED STUDENTS', c4X + cardW / 2, cardY + 12, { align: 'center' });
+
+    // 2-Column Analytics Charts
+    let nextY = 64;
+    if (includeTrendsChart || includeCommonViolationsChart) {
+      const chartBoxW = (includeTrendsChart && includeCommonViolationsChart) ? 91 : 186;
+      const chartBoxH = 43;
+
+      if (includeTrendsChart) {
+        doc.setFillColor(255, 255, 255);
+        doc.setDrawColor(203, 213, 225);
+        doc.roundedRect(12, nextY, chartBoxW, chartBoxH, 2, 2, 'FD');
+
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(8);
+        doc.setTextColor(7, 52, 95);
+        doc.text('VIOLATION TRENDS', 16, nextY + 5);
+
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(6.5);
+        doc.setTextColor(100, 116, 139);
+        doc.text(`Incidents recorded over time (${dateRangeLabel})`, 16, nextY + 8.5);
+
+        // Spline / Trend Curve Drawing
+        const maxVal = Math.max(...trendPoints.map((p) => Math.max(p.minor, p.serious, p.major, p.total)), 4);
+        const plotX = 18;
+        const plotY = nextY + 11;
+        const plotW = chartBoxW - 14;
+        const plotH = 22;
+
+        // Gridlines
+        doc.setDrawColor(241, 245, 249);
+        doc.setLineWidth(0.2);
+        doc.line(plotX, plotY + plotH * 0.33, plotX + plotW, plotY + plotH * 0.33);
+        doc.line(plotX, plotY + plotH * 0.66, plotX + plotW, plotY + plotH * 0.66);
+        doc.setDrawColor(226, 232, 240);
+        doc.line(plotX, plotY + plotH, plotX + plotW, plotY + plotH);
+
+        const drawSeries = (key, strokeColor) => {
+          doc.setDrawColor(...strokeColor);
+          doc.setFillColor(...strokeColor);
+          doc.setLineWidth(0.5);
+
+          const pts = trendPoints.map((pt, idx) => {
+            const x = plotX + idx * (plotW / Math.max(trendPoints.length - 1, 1));
+            const y = (plotY + plotH) - ((pt[key] || 0) / maxVal) * (plotH - 2);
+            return { x, y };
+          });
+
+          for (let i = 0; i < pts.length - 1; i++) {
+            doc.line(pts[i].x, pts[i].y, pts[i + 1].x, pts[i + 1].y);
+          }
+          pts.forEach((p) => {
+            doc.circle(p.x, p.y, 0.7, 'F');
+          });
+        };
+
+        drawSeries('minor', [16, 185, 129]);
+        drawSeries('serious', [245, 158, 11]);
+        drawSeries('major', [239, 68, 68]);
+
+        // Labels
+        doc.setFontSize(5.5);
+        doc.setTextColor(100, 116, 139);
+        trendPoints.forEach((pt, idx) => {
+          const x = plotX + idx * (plotW / Math.max(trendPoints.length - 1, 1));
+          doc.text(pt.label, x, plotY + plotH + 3.5, { align: 'center' });
+        });
+
+        // Legend
+        doc.setFontSize(6.5);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(16, 185, 129);
+        doc.text('● Minor', 16 + chartBoxW * 0.15, nextY + chartBoxH - 2.5);
+        doc.setTextColor(245, 158, 11);
+        doc.text('● Serious', 16 + chartBoxW * 0.45, nextY + chartBoxH - 2.5);
+        doc.setTextColor(239, 68, 68);
+        doc.text('● Major', 16 + chartBoxW * 0.75, nextY + chartBoxH - 2.5);
       }
 
-      doc.setFontSize(11);
-      doc.setFont('helvetica', 'bold');
-      doc.setTextColor(7, 52, 95);
-      doc.text('Itemized Disciplinary Records', 14, currentY);
+      if (includeCommonViolationsChart) {
+        const cRightX = (includeTrendsChart && includeCommonViolationsChart) ? 107 : 12;
+        doc.setFillColor(255, 255, 255);
+        doc.setDrawColor(203, 213, 225);
+        doc.roundedRect(cRightX, nextY, chartBoxW, chartBoxH, 2, 2, 'FD');
 
-      const tableRows = filteredRecords.map(r => [
-        r.student_name || r.student?.name || `${r.student?.fname || ''} ${r.student?.lname || ''}`.trim() || 'N/A',
-        r.grade || r.student?.grade || 'N/A',
-        r.violation?.name || r.violation_name || r.violation_type || 'N/A',
-        r.violation?.type || r.severity || r.type || 'Minor',
-        r.status || 'Pending',
-        r.date_reported || r.created_at ? new Date(r.date_reported || r.created_at).toLocaleDateString() : 'N/A'
-      ]);
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(8);
+        doc.setTextColor(7, 52, 95);
+        doc.text('MOST COMMON VIOLATIONS', cRightX + 4, nextY + 5);
+
+        doc.setFont('helvetica', 'normal');
+        doc.setFontSize(6.5);
+        doc.setTextColor(100, 116, 139);
+        doc.text('Distribution of infractions most likely to occur in school', cRightX + 4, nextY + 8.5);
+
+        const topViolations = violationDistribution.slice(0, 5);
+        const maxV = Math.max(...topViolations.map((d) => d.value), 1);
+        let listY = nextY + 13;
+
+        topViolations.forEach((item) => {
+          doc.setFont('helvetica', 'bold');
+          doc.setFontSize(6.5);
+          doc.setTextColor(15, 23, 42);
+
+          const truncatedName = item.name.length > 28 ? item.name.substring(0, 26) + '...' : item.name;
+          doc.text(`• ${truncatedName}`, cRightX + 4, listY);
+
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(6);
+          doc.setTextColor(71, 85, 105);
+          doc.text(`${item.value} ${item.value === 1 ? 'incident' : 'incidents'}`, cRightX + chartBoxW - 4, listY, { align: 'right' });
+
+          // Progress Bar
+          const barW = chartBoxW - 8;
+          const fillW = Math.max(3, (item.value / maxV) * barW);
+          doc.setFillColor(226, 232, 240);
+          doc.roundedRect(cRightX + 4, listY + 1.2, barW, 1.4, 0.5, 0.5, 'F');
+          doc.setFillColor(7, 52, 95);
+          doc.roundedRect(cRightX + 4, listY + 1.2, fillW, 1.4, 0.5, 0.5, 'F');
+
+          listY += 5.4;
+        });
+      }
+
+      nextY += chartBoxH + 4;
+    }
+
+    // 1. Severity Classification Breakdown Table
+    if (includeSeverity) {
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(8);
+      doc.setTextColor(7, 52, 95);
+      doc.text('1. INFRACTION SEVERITY CLASSIFICATION BREAKDOWN', 12, nextY + 2);
 
       doc.autoTable({
-        head: [['Student Name', 'Grade', 'Violation', 'Severity', 'Status', 'Date']],
-        body: tableRows,
-        startY: currentY + 3,
+        startY: nextY + 3.5,
+        margin: { left: 12, right: 12 },
+        head: [['OFFENSE LEVEL', 'INCIDENT COUNT', 'PERCENTAGE (%)', 'STANDARD PRESCRIBED SANCTION']],
+        body: [
+          ['Minor Offense', `${metrics.minor}`, `${metrics.total > 0 ? Math.round((metrics.minor / metrics.total) * 100) : 0}%`, 'Verbal Warning, Written Reflection & Parent Notification'],
+          ['Serious Offense', `${metrics.serious}`, `${metrics.total > 0 ? Math.round((metrics.serious / metrics.total) * 100) : 0}%`, 'Parent / Guardian Conference & Campus Service'],
+          ['Major Offense', `${metrics.major}`, `${metrics.total > 0 ? Math.round((metrics.major / metrics.total) * 100) : 0}%`, 'Disciplinary Board Hearing, Formal Contract & Counseling']
+        ],
         theme: 'grid',
-        headStyles: { fillColor: [7, 52, 95], fontStyle: 'bold', fontSize: 8 },
-        styles: { fontSize: 7.5 },
+        headStyles: { fillColor: [241, 245, 249], textColor: [15, 23, 42], fontStyle: 'bold', fontSize: 7 },
+        bodyStyles: { fontSize: 7, textColor: [30, 41, 59] },
         columnStyles: {
-          0: { cellWidth: 45 },
-          1: { cellWidth: 20 },
-          2: { cellWidth: 50 },
-          3: { cellWidth: 22 },
-          4: { cellWidth: 25 },
-          5: { cellWidth: 25 }
+          0: { cellWidth: 38, fontStyle: 'bold' },
+          1: { cellWidth: 26, halign: 'center', fontStyle: 'bold' },
+          2: { cellWidth: 26, halign: 'center' },
+          3: { cellWidth: 96, textColor: [71, 85, 105] }
+        },
+        didParseCell: (data) => {
+          if (data.section === 'body' && data.column.index === 0) {
+            if (data.cell.raw === 'Minor Offense') data.cell.styles.textColor = [21, 128, 61];
+            if (data.cell.raw === 'Serious Offense') data.cell.styles.textColor = [161, 98, 7];
+            if (data.cell.raw === 'Major Offense') data.cell.styles.textColor = [220, 38, 38];
+          }
         }
       });
+
+      nextY = doc.lastAutoTable.finalY + 4;
     }
+
+    // 2. Grade Level Distribution Breakdown Table
+    if (includeGrades && gradeBreakdown.length > 0) {
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(8);
+      doc.setTextColor(7, 52, 95);
+      doc.text('2. GRADE LEVEL DISTRIBUTION BREAKDOWN', 12, nextY + 2);
+
+      doc.autoTable({
+        startY: nextY + 3.5,
+        margin: { left: 12, right: 12 },
+        head: [['GRADE LEVEL', 'INCIDENT COUNT', 'SHARE (%)', 'CASE STATUS OVERVIEW']],
+        body: gradeBreakdown.map((g) => [
+          g.label,
+          `${g.count}`,
+          `${metrics.total > 0 ? Math.round((g.count / metrics.total) * 100) : 0}%`,
+          `${g.resolved} Resolved • ${g.pending} Pending`
+        ]),
+        theme: 'grid',
+        headStyles: { fillColor: [241, 245, 249], textColor: [15, 23, 42], fontStyle: 'bold', fontSize: 7 },
+        bodyStyles: { fontSize: 7, textColor: [30, 41, 59] },
+        alternateRowStyles: { fillColor: [248, 250, 252] },
+        columnStyles: {
+          0: { cellWidth: 38, fontStyle: 'bold', textColor: [15, 23, 42] },
+          1: { cellWidth: 26, halign: 'center', fontStyle: 'bold' },
+          2: { cellWidth: 26, halign: 'center' },
+          3: { cellWidth: 96, textColor: [71, 85, 105] }
+        }
+      });
+
+      nextY = doc.lastAutoTable.finalY + 3;
+    }
+
+    if (totalPages > 1) {
+      doc.setFillColor(248, 250, 252);
+      doc.setDrawColor(203, 213, 225);
+      doc.roundedRect(12, nextY, 186, 6.5, 1.5, 1.5, 'FD');
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(6.5);
+      doc.setTextColor(100, 116, 139);
+      doc.text('Official Disciplinary Summary & Analytics • Continued on Page 2 for Itemized Incident Case Records Log →', 105, nextY + 4.2, { align: 'center' });
+    }
+
+    drawFooter(1);
+
+    // ================= SUBSEQUENT PAGES (ITEMIZED CASE RECORDS) =================
+    recordPages.forEach((pageChunk, pIdx) => {
+      const pageNum = pIdx + 2;
+      const startingIndex = recordPages.slice(0, pIdx).reduce((acc, p) => acc + p.length, 0);
+
+      doc.addPage();
+      drawHeaderAndMeta(pageNum);
+
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(8);
+      doc.setTextColor(7, 52, 95);
+      doc.text(`3. ITEMIZED INCIDENT CASE RECORDS LOG (PAGE ${pageNum} OF ${totalPages})`, 12, 38);
+
+      const tableRows = pageChunk.map((r, idx) => {
+        const studentName = r.student_name || (r.student ? `${r.student.fname || ''} ${r.student.lname || ''}`.trim() : '') || 'Student';
+        const gradeSec = `${r.student?.grade || r.grade || 'N/A'} - ${r.student?.section || r.section || 'General'}`;
+        const vioTitle = r.violation?.title || r.violation_name || r.offense || 'Disciplinary Infraction';
+        const sev = r.violation?.type || r.severity || r.type || 'Minor';
+        const stat = r.status || 'Pending';
+        const dateRep = r.date_reported || r.created_at ? new Date(r.date_reported || r.created_at).toLocaleDateString() : 'N/A';
+
+        return [
+          startingIndex + idx + 1,
+          studentName,
+          gradeSec,
+          vioTitle,
+          sev,
+          stat,
+          dateRep
+        ];
+      });
+
+      doc.autoTable({
+        startY: 40.5,
+        margin: { left: 12, right: 12 },
+        head: [['#', 'STUDENT NAME', 'GRADE & SECTION', 'VIOLATION INFRACTION', 'SEVERITY', 'STATUS', 'DATE REPORTED']],
+        body: tableRows,
+        theme: 'grid',
+        headStyles: { fillColor: [241, 245, 249], textColor: [15, 23, 42], fontStyle: 'bold', fontSize: 6.8 },
+        bodyStyles: { fontSize: 6.5, textColor: [30, 41, 59] },
+        alternateRowStyles: { fillColor: [248, 250, 252] },
+        columnStyles: {
+          0: { cellWidth: 7, halign: 'center', fontStyle: 'bold' },
+          1: { cellWidth: 38, fontStyle: 'bold' },
+          2: { cellWidth: 28 },
+          3: { cellWidth: 55 },
+          4: { cellWidth: 20, halign: 'center' },
+          5: { cellWidth: 18, halign: 'center', fontStyle: 'bold' },
+          6: { cellWidth: 20, halign: 'center', textColor: [71, 85, 105] }
+        },
+        didParseCell: (data) => {
+          if (data.section === 'body') {
+            if (data.column.index === 4) {
+              const val = String(data.cell.raw || '').toLowerCase();
+              if (val.includes('minor')) data.cell.styles.textColor = [21, 128, 61];
+              else if (val.includes('serious')) data.cell.styles.textColor = [161, 98, 7];
+              else if (val.includes('major')) data.cell.styles.textColor = [220, 38, 38];
+            }
+            if (data.column.index === 5) {
+              const val = String(data.cell.raw || '').toLowerCase();
+              if (val === 'resolved') data.cell.styles.textColor = [21, 128, 61];
+              else data.cell.styles.textColor = [180, 83, 9];
+            }
+          }
+        }
+      });
+
+      drawFooter(pageNum);
+    });
 
     return doc;
   };
