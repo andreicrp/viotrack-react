@@ -2045,10 +2045,10 @@ export const PrintDataModal = ({ isOpen, onClose, records = [], students = [], t
         </button>
 
         {periodPreset === 'custom' && (
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', background: '#ffffff', padding: '10px', borderRadius: '8px', border: '1px solid #e2e8f0', marginTop: '6px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', background: 'var(--bg-surface, #ffffff)', padding: '10px', borderRadius: '8px', border: '1px solid var(--border-subtle, #e2e8f0)', marginTop: '6px' }}>
             <div>
-              <span style={{ fontSize: '10.5px', color: '#475569', display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '4px', fontWeight: 700 }}>
-                <Calendar size={11} color="#07345f" /> Start Date
+              <span style={{ fontSize: '10.5px', color: 'var(--text-muted, #475569)', display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '4px', fontWeight: 700 }}>
+                <Calendar size={11} color="currentColor" /> Start Date
               </span>
               <CustomDatePicker
                 value={customStartDate}
@@ -2059,8 +2059,8 @@ export const PrintDataModal = ({ isOpen, onClose, records = [], students = [], t
               />
             </div>
             <div>
-              <span style={{ fontSize: '10.5px', color: '#475569', display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '4px', fontWeight: 700 }}>
-                <Calendar size={11} color="#07345f" /> End Date
+              <span style={{ fontSize: '10.5px', color: 'var(--text-muted, #475569)', display: 'flex', alignItems: 'center', gap: '4px', marginBottom: '4px', fontWeight: 700 }}>
+                <Calendar size={11} color="currentColor" /> End Date
               </span>
               <CustomDatePicker
                 value={customEndDate}
@@ -2076,43 +2076,43 @@ export const PrintDataModal = ({ isOpen, onClose, records = [], students = [], t
 
       {/* 2. Visual Charts & Sections To Include */}
       <div>
-        <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11.5px', fontWeight: 800, color: '#0f172a', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '6px' }}>
-          <Layers size={13} color="#07345f" /> Analytical Charts &amp; Layout
+        <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11.5px', fontWeight: 800, color: 'var(--text-primary, #0f172a)', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '6px' }}>
+          <Layers size={13} color="currentColor" /> Analytical Charts &amp; Layout
         </label>
-        <div className="pdm-chart-options" style={{ display: 'flex', flexDirection: 'column', gap: '4px', background: '#f8fafc', padding: '8px 10px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+        <div className="pdm-chart-options" style={{ display: 'flex', flexDirection: 'column', gap: '4px', background: 'var(--bg-surface-elevated, #f8fafc)', padding: '8px 10px', borderRadius: '8px', border: '1px solid var(--border-subtle, #e2e8f0)' }}>
           {[
             {
               checked: includeTrendsChart,
               setter: setIncludeTrendsChart,
-              icon: <TrendingUp size={15} color="#0f172a" style={{ flexShrink: 0 }} />,
+              icon: <TrendingUp size={15} color="currentColor" style={{ flexShrink: 0 }} />,
               title: 'Violation Trends Area Chart',
               sub: 'Minor, Serious & Major spline trends'
             },
             {
               checked: includeCommonViolationsChart,
               setter: setIncludeCommonViolationsChart,
-              icon: <PieChartIcon size={15} color="#0f172a" style={{ flexShrink: 0 }} />,
+              icon: <PieChartIcon size={15} color="currentColor" style={{ flexShrink: 0 }} />,
               title: 'Most Common Violations',
               sub: 'Donut breakdown & frequency ranking'
             },
             {
               checked: includeSeverity,
               setter: setIncludeSeverity,
-              icon: <BarChart2 size={15} color="#0f172a" style={{ flexShrink: 0 }} />,
+              icon: <BarChart2 size={15} color="currentColor" style={{ flexShrink: 0 }} />,
               title: 'Infraction Severity Table',
               sub: 'Offense levels & prescribed sanctions'
             },
             {
               checked: includeGrades,
               setter: setIncludeGrades,
-              icon: <School size={15} color="#0f172a" style={{ flexShrink: 0 }} />,
+              icon: <School size={15} color="currentColor" style={{ flexShrink: 0 }} />,
               title: 'Grade Level Distribution',
               sub: 'Grade 7–12 incident breakdown & status'
             },
             {
               checked: includeRecordsTable,
               setter: setIncludeRecordsTable,
-              icon: <FileSpreadsheet size={15} color="#0f172a" style={{ flexShrink: 0 }} />,
+              icon: <FileSpreadsheet size={15} color="currentColor" style={{ flexShrink: 0 }} />,
               title: 'Itemized Incident Records Log',
               sub: 'Multi-page student incident records table'
             }
@@ -2126,8 +2126,8 @@ export const PrintDataModal = ({ isOpen, onClose, records = [], students = [], t
                 gap: '8px',
                 padding: '5px 6px',
                 borderRadius: '6px',
-                background: item.checked ? '#ffffff' : 'transparent',
-                border: item.checked ? '1px solid #cbd5e1' : '1px solid transparent',
+                background: item.checked ? 'var(--bg-surface, #ffffff)' : 'transparent',
+                border: item.checked ? '1px solid var(--border-medium, #cbd5e1)' : '1px solid transparent',
                 cursor: 'pointer',
                 transition: 'all 0.12s ease'
               }}
@@ -2136,14 +2136,14 @@ export const PrintDataModal = ({ isOpen, onClose, records = [], students = [], t
                 type="checkbox"
                 checked={item.checked}
                 onChange={(e) => item.setter(e.target.checked)}
-                style={{ width: '15px', height: '15px', accentColor: '#07345f', cursor: 'pointer', flexShrink: 0 }}
+                style={{ width: '15px', height: '15px', accentColor: 'var(--brand-blue, #07345f)', cursor: 'pointer', flexShrink: 0 }}
               />
               {item.icon}
               <div style={{ minWidth: 0, flex: 1 }}>
-                <span style={{ fontSize: '11.5px', fontWeight: 700, color: '#0f172a', display: 'block', lineHeight: 1.25 }}>
+                <span style={{ fontSize: '11.5px', fontWeight: 700, color: 'var(--text-primary, #0f172a)', display: 'block', lineHeight: 1.25 }}>
                   {item.title}
                 </span>
-                <span style={{ fontSize: '10px', color: '#64748b', display: 'block' }}>
+                <span style={{ fontSize: '10px', color: 'var(--text-muted, #64748b)', display: 'block' }}>
                   {item.sub}
                 </span>
               </div>
@@ -2753,10 +2753,11 @@ export const PrintDataModal = ({ isOpen, onClose, records = [], students = [], t
             <button
               type="button"
               onClick={onClose}
+              className="pdm-btn-back"
               style={{
-                background: '#f8fafc',
-                border: '1px solid #cbd5e1',
-                color: '#334155',
+                background: 'var(--bg-surface-elevated, #f8fafc)',
+                border: '1px solid var(--border-medium, #cbd5e1)',
+                color: 'var(--text-primary, #0f172a)',
                 cursor: 'pointer',
                 width: '32px',
                 height: '32px',
@@ -2769,7 +2770,7 @@ export const PrintDataModal = ({ isOpen, onClose, records = [], students = [], t
               }}
               title="Close print preview"
             >
-              <ChevronLeft size={18} strokeWidth={2.4} />
+              <ChevronLeft size={18} strokeWidth={2.4} color="currentColor" />
             </button>
 
             <div style={{ minWidth: 0, flex: 1, overflow: 'hidden' }}>

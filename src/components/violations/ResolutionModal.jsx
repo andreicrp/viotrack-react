@@ -1059,7 +1059,7 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
               height: '40px',
               borderRadius: '8px',
               objectFit: 'cover',
-              border: '1.5px solid #cbd5e1',
+              border: '1.5px solid var(--border-medium, #cbd5e1)',
               flexShrink: 0
             }}
             onError={(e) => {
@@ -1067,11 +1067,11 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
             }}
           />
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: '13.5px', fontWeight: 800, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            <div style={{ fontSize: '13.5px', fontWeight: 800, color: 'var(--text-primary, #0f172a)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
               {studentName}
             </div>
-            <div style={{ fontSize: '11px', color: '#64748b' }}>
-              Student ID: <span style={{ fontFamily: 'monospace', fontWeight: 700, color: '#0f172a' }}>{record.student?.student_id || record.student?.lrn || 'N/A'}</span>
+            <div style={{ fontSize: '11px', color: 'var(--text-secondary, #64748b)' }}>
+              Student ID: <span style={{ fontFamily: 'monospace', fontWeight: 700, color: 'var(--text-primary, #0f172a)' }}>{record.student?.student_id || record.student?.lrn || 'N/A'}</span>
             </div>
           </div>
         </div>
@@ -1079,8 +1079,8 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
         <div
           className="res-violation-summary-card"
           style={{
-            background: '#f8fafc',
-            border: '1px solid #e2e8f0',
+            background: 'var(--bg-surface-elevated, #f8fafc)',
+            border: '1px solid var(--border-medium, #e2e8f0)',
             borderRadius: '6px',
             padding: '6px 10px',
             display: 'flex',
@@ -1089,7 +1089,7 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
             gap: '6px'
           }}
         >
-          <span className="res-violation-summary-title" style={{ fontSize: '11.5px', fontWeight: 700, color: '#0f172a', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          <span className="res-violation-summary-title" style={{ fontSize: '11.5px', fontWeight: 700, color: 'var(--text-primary, #0f172a)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
             {record.violation?.title || record.offense || 'Infraction'}
           </span>
           <span
@@ -1113,8 +1113,8 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
 
       {/* 1. Case Resolution Status */}
       <div>
-        <label style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '11.5px', fontWeight: 800, color: '#0f172a', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '6px' }}>
-          <Shield size={12} color="#0f172a" /> Resolution Status
+        <label style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '11.5px', fontWeight: 800, color: 'var(--text-primary, #0f172a)', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '6px' }}>
+          <Shield size={12} color="currentColor" /> Resolution Status
         </label>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6px' }}>
           {Object.entries(STATUS_CONFIG).map(([key, cfg]) => {
@@ -1132,16 +1132,16 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
                   gap: '6px',
                   padding: '7px 9px',
                   borderRadius: '8px',
-                  border: isSelected ? `2px solid ${cfg.color}` : '1.5px solid #e2e8f0',
-                  background: isSelected ? cfg.bg : '#ffffff',
+                  border: isSelected ? `2px solid ${cfg.color}` : '1.5px solid var(--border-medium, #e2e8f0)',
+                  background: isSelected ? cfg.bg : 'var(--bg-surface, #ffffff)',
                   cursor: 'pointer',
                   transition: 'all 0.15s ease',
                   boxShadow: isSelected ? `0 2px 6px ${cfg.color}20` : 'none',
                   textAlign: 'left'
                 }}
               >
-                <IconComponent size={13} color={isSelected ? cfg.color : '#64748b'} />
-                <span style={{ fontSize: '11px', fontWeight: isSelected ? 800 : 600, color: isSelected ? cfg.color : '#334155' }}>
+                <IconComponent size={13} color={isSelected ? cfg.color : 'currentColor'} />
+                <span className="res-status-btn-text" style={{ fontSize: '11px', fontWeight: isSelected ? 800 : 600, color: isSelected ? cfg.color : 'var(--text-primary, #334155)' }}>
                   {key === 'Resolved' ? 'Resolved' : key === 'Investigation' ? 'Investigating' : key}
                 </span>
               </button>
@@ -1153,10 +1153,10 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
       {/* 2. Sanction / Remediation Completed */}
       <div>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-          <label style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '11.5px', fontWeight: 800, color: '#0f172a', textTransform: 'uppercase', letterSpacing: '0.04em', margin: 0 }}>
-            <Award size={12} color="#0f172a" /> Fulfilled Sanction
+          <label style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '11.5px', fontWeight: 800, color: 'var(--text-primary, #0f172a)', textTransform: 'uppercase', letterSpacing: '0.04em', margin: 0 }}>
+            <Award size={12} color="currentColor" /> Fulfilled Sanction
           </label>
-          <span style={{ fontSize: '10px', color: '#64748b' }}>Click presets</span>
+          <span style={{ fontSize: '10px', color: 'var(--text-secondary, #64748b)' }}>Click presets</span>
         </div>
         <input
           type="text"
@@ -1168,11 +1168,12 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
             height: '36px',
             borderRadius: '7px',
             fontSize: '12px',
-            border: '1.5px solid #cbd5e1',
+            border: '1.5px solid var(--border-medium, #cbd5e1)',
             padding: '0 10px',
             marginBottom: '6px',
             boxSizing: 'border-box',
-            background: '#ffffff'
+            background: 'var(--bg-surface, #ffffff)',
+            color: 'var(--text-primary, #0f172a)'
           }}
         />
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
@@ -1183,10 +1184,10 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
               className={`res-preset-button${sanction === p ? ' is-selected' : ''}`}
               onClick={() => handleApplyPreset(p)}
               style={{
-                background: sanction === p ? '#0f172a' : '#ffffff',
-                color: sanction === p ? '#ffffff' : '#475569',
+                background: sanction === p ? 'var(--brand-blue, #0f172a)' : 'var(--bg-surface, #ffffff)',
+                color: sanction === p ? '#ffffff' : 'var(--text-secondary, #475569)',
                 border: '1px solid',
-                borderColor: sanction === p ? '#0f172a' : '#cbd5e1',
+                borderColor: sanction === p ? 'var(--brand-blue, #0f172a)' : 'var(--border-medium, #cbd5e1)',
                 borderRadius: '5px',
                 padding: '3px 7px',
                 fontSize: '10px',
@@ -1204,10 +1205,10 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
       {/* 3. Resolution Notes / Outcomes */}
       <div>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
-          <label style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '11.5px', fontWeight: 800, color: '#0f172a', textTransform: 'uppercase', letterSpacing: '0.04em', margin: 0 }}>
-            <FileText size={12} color="#0f172a" /> Resolution Summary
+          <label style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '11.5px', fontWeight: 800, color: 'var(--text-primary, #0f172a)', textTransform: 'uppercase', letterSpacing: '0.04em', margin: 0 }}>
+            <FileText size={12} color="currentColor" /> Resolution Summary
           </label>
-          <span style={{ fontSize: '10px', color: '#64748b' }}>Official Record</span>
+          <span style={{ fontSize: '10px', color: 'var(--text-secondary, #64748b)' }}>Official Record</span>
         </div>
         <textarea
           rows={3}
@@ -1219,14 +1220,15 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
             borderRadius: '7px',
             fontSize: '12px',
             padding: '8px 10px',
-            border: '1.5px solid #cbd5e1',
+            border: '1.5px solid var(--border-medium, #cbd5e1)',
             boxSizing: 'border-box',
             lineHeight: 1.4,
             marginBottom: '6px',
             resize: 'vertical',
             minHeight: '55px',
             maxHeight: '95px',
-            background: '#ffffff'
+            background: 'var(--bg-surface, #ffffff)',
+            color: 'var(--text-primary, #0f172a)'
           }}
         />
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
@@ -1237,9 +1239,9 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
               className="res-note-snippet"
               onClick={() => handleAppendSnippet(snip)}
               style={{
-                background: '#ffffff',
-                color: '#475569',
-                border: '1px dashed #cbd5e1',
+                background: 'var(--bg-surface, #ffffff)',
+                color: 'var(--text-secondary, #475569)',
+                border: '1px dashed var(--border-medium, #cbd5e1)',
                 borderRadius: '5px',
                 padding: '3px 6px',
                 fontSize: '10px',
@@ -1256,8 +1258,8 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
       </div>
 
       {/* 4. Presiding Officer Signatory */}
-      <div className="res-officer-card" style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '10px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
-        <span style={{ fontSize: '11px', fontWeight: 700, color: '#0f172a' }}>
+      <div className="res-officer-card" style={{ background: 'var(--bg-surface, #ffffff)', border: '1px solid var(--border-medium, #e2e8f0)', borderRadius: '8px', padding: '10px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+        <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-primary, #0f172a)' }}>
           Presiding Officer Signatory
         </span>
         <input
@@ -1269,9 +1271,11 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
             width: '100%',
             padding: '6px 9px',
             borderRadius: '6px',
-            border: '1px solid #cbd5e1',
+            border: '1px solid var(--border-medium, #cbd5e1)',
             fontSize: '12px',
             fontWeight: 600,
+            background: 'var(--bg-surface, #ffffff)',
+            color: 'var(--text-primary, #0f172a)',
             boxSizing: 'border-box'
           }}
         />
@@ -1284,8 +1288,10 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
             width: '100%',
             padding: '5px 9px',
             borderRadius: '6px',
-            border: '1px solid #cbd5e1',
+            border: '1px solid var(--border-medium, #cbd5e1)',
             fontSize: '11.5px',
+            background: 'var(--bg-surface, #ffffff)',
+            color: 'var(--text-primary, #0f172a)',
             boxSizing: 'border-box'
           }}
         />
@@ -1304,7 +1310,7 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
           fontSize: '13px',
           fontWeight: 800,
           border: 'none',
-          background: status === 'Resolved' ? '#10b981' : '#0f172a',
+          background: status === 'Resolved' ? '#10b981' : 'var(--brand-blue, #0f172a)',
           color: '#ffffff',
           cursor: 'pointer',
           display: 'flex',
@@ -1314,7 +1320,7 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
           boxShadow: status === 'Resolved' ? '0 4px 12px rgba(16, 185, 129, 0.3)' : '0 4px 12px rgba(15, 23, 42, 0.25)'
         }}
       >
-        <Check size={15} strokeWidth={2.5} />
+        <Check size={15} strokeWidth={2.5} color="currentColor" />
         {loading ? 'Saving...' : 'Save & Finalize Resolution'}
       </button>
     </div>
@@ -1720,9 +1726,9 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
               className="res-header-back-btn"
               onClick={onClose}
               style={{
-                background: '#f8fafc',
-                border: '1px solid #cbd5e1',
-                color: '#334155',
+                background: 'var(--bg-surface-elevated, #f8fafc)',
+                border: '1px solid var(--border-medium, #cbd5e1)',
+                color: 'var(--text-primary, #334155)',
                 cursor: 'pointer',
                 width: '32px',
                 height: '32px',
@@ -1733,27 +1739,19 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
                 flexShrink: 0,
                 transition: 'all 0.15s ease'
               }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = '#e2e8f0';
-                e.currentTarget.style.color = '#0f172a';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = '#f8fafc';
-                e.currentTarget.style.color = '#334155';
-              }}
               title="Close viewer"
             >
-              <ChevronLeft size={18} strokeWidth={2.4} />
+              <ChevronLeft size={18} strokeWidth={2.4} color="currentColor" />
             </button>
 
             <div style={{ minWidth: 0, flex: 1, overflow: 'hidden' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '5px', minWidth: 0, overflow: 'hidden' }}>
-                <FileCheck2 size={14} color="#07345f" style={{ flexShrink: 0 }} />
-                <h3 className="res-header-title" style={{ margin: 0, fontSize: '13.5px', fontWeight: 800, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', minWidth: 0, flex: 1 }}>
+                <FileCheck2 size={14} className="res-header-icon" color="currentColor" style={{ flexShrink: 0 }} />
+                <h3 className="res-header-title" style={{ margin: 0, fontSize: '13.5px', fontWeight: 800, color: 'var(--text-primary, #0f172a)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', minWidth: 0, flex: 1 }}>
                   {studentLastName ? `${studentLastName} - Case Resolution` : 'Case Resolution'}
                 </h3>
               </div>
-              <span className="res-header-sub" style={{ fontSize: '11px', color: '#64748b', display: 'block', marginTop: '1px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              <span className="res-header-sub" style={{ fontSize: '11px', color: 'var(--text-secondary, #64748b)', display: 'block', marginTop: '1px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                 Incident #{record.id} • Official Institutional Certificate of Disciplinary Resolution
               </span>
             </div>
@@ -1767,9 +1765,9 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
               className="res-header-download-btn"
               onClick={handleDownloadPDF}
               style={{
-                background: '#ffffff',
-                border: '1px solid #cbd5e1',
-                color: '#0f172a',
+                background: 'var(--bg-surface, #ffffff)',
+                border: '1px solid var(--border-medium, #cbd5e1)',
+                color: 'var(--text-primary, #0f172a)',
                 cursor: 'pointer',
                 padding: '0 10px',
                 height: '32px',
@@ -1784,7 +1782,7 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
               }}
               title="Download Resolution PDF"
             >
-              <Download size={14} />
+              <Download size={14} color="currentColor" />
               <span>PDF</span>
             </button>
 
@@ -1793,8 +1791,8 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
               className="res-header-print-btn"
               onClick={handlePrintResolutionCertificate}
               style={{
-                background: '#0f172a',
-                border: '1px solid #0f172a',
+                background: 'var(--brand-blue, #0f172a)',
+                border: '1px solid var(--brand-blue, #0f172a)',
                 color: '#ffffff',
                 cursor: 'pointer',
                 padding: '0 10px',
@@ -1808,15 +1806,9 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
                 boxShadow: '0 1px 3px rgba(15, 23, 42, 0.15)',
                 transition: 'all 0.15s ease'
               }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = '#1e293b';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = '#0f172a';
-              }}
               title="Print Resolution Document"
             >
-              <Printer size={14} />
+              <Printer size={14} color="currentColor" />
               <span>Print</span>
             </button>
 
@@ -1825,9 +1817,9 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
               className="res-header-close-btn"
               onClick={onClose}
               style={{
-                background: '#f8fafc',
-                border: '1px solid #cbd5e1',
-                color: '#64748b',
+                background: 'var(--bg-surface-elevated, #f8fafc)',
+                border: '1px solid var(--border-medium, #cbd5e1)',
+                color: 'var(--text-secondary, #64748b)',
                 cursor: 'pointer',
                 width: '32px',
                 height: '32px',
@@ -1838,19 +1830,9 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
                 transition: 'all 0.15s ease',
                 flexShrink: 0
               }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = '#fee2e2';
-                e.currentTarget.style.borderColor = '#fca5a5';
-                e.currentTarget.style.color = '#dc2626';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = '#f8fafc';
-                e.currentTarget.style.borderColor = '#cbd5e1';
-                e.currentTarget.style.color = '#64748b';
-              }}
               title="Close"
             >
-              <X size={15} />
+              <X size={15} color="currentColor" />
             </button>
           </div>
         </div>
@@ -1882,8 +1864,8 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
             {/* Desktop Canvas Toolbar */}
             <div className="res-canvas-toolbar">
               <div className="res-canvas-tools-group">
-                <Move size={13} color="#64748b" />
-                <span style={{ fontSize: '11px', fontWeight: 700, color: '#334155' }}>
+                <Move size={13} className="res-canvas-move-icon" color="currentColor" />
+                <span className="res-canvas-doc-label">
                   {isDragging ? 'Dragging layout...' : 'Official Certificate Document'}
                 </span>
               </div>
@@ -1894,7 +1876,7 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
                   onClick={handleZoomOut}
                   title="Zoom Out"
                 >
-                  <ZoomOut size={13} />
+                  <ZoomOut size={13} color="currentColor" />
                 </button>
                 <span className="res-canvas-badge">{Math.round(zoom * 100)}%</span>
                 <button
@@ -1903,7 +1885,7 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
                   onClick={handleZoomIn}
                   title="Zoom In"
                 >
-                  <ZoomIn size={13} />
+                  <ZoomIn size={13} color="currentColor" />
                 </button>
                 <button
                   type="button"
@@ -1911,7 +1893,7 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
                   onClick={handleResetView}
                   title="Reset Position & Zoom"
                 >
-                  <RotateCcw size={12} />
+                  <RotateCcw size={12} color="currentColor" />
                   <span>Reset</span>
                 </button>
               </div>
@@ -2114,7 +2096,7 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
 
         {/* Modal Footer Controls (Desktop) */}
         <div className="res-footer">
-          <span className="res-footer-text" style={{ fontSize: '12px', color: '#64748b' }}>
+          <span className="res-footer-text" style={{ fontSize: '12px' }}>
             Saving this resolution affirms restorative guidance intervention and updates Incident #{record.id}.
           </span>
 
@@ -2134,12 +2116,12 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
               disabled={loading}
               style={{
                 border: 'none',
-                background: status === 'Resolved' ? '#10b981' : '#0f172a',
+                background: status === 'Resolved' ? '#10b981' : '#18181b',
                 color: '#ffffff',
-                boxShadow: status === 'Resolved' ? '0 4px 12px rgba(16, 185, 129, 0.3)' : '0 4px 12px rgba(15, 23, 42, 0.25)'
+                boxShadow: status === 'Resolved' ? '0 4px 12px rgba(16, 185, 129, 0.3)' : '0 4px 12px rgba(0, 0, 0, 0.25)'
               }}
             >
-              <Check size={14} strokeWidth={2.4} />
+              <Check size={14} strokeWidth={2.4} color="currentColor" />
               {loading ? 'Saving...' : 'Save & Finalize Resolution'}
             </button>
           </div>
@@ -2205,17 +2187,16 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
           >
             <div className="res-drawer-header">
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <SlidersHorizontal size={18} color="#0f172a" />
-                <h4 style={{ margin: 0, fontSize: '15px', fontWeight: 800, color: '#0f172a' }}>
+                <SlidersHorizontal size={18} color="currentColor" />
+                <h4 className="res-drawer-header-title" style={{ margin: 0, fontSize: '15px', fontWeight: 800 }}>
                   Edit Resolution Details
                 </h4>
               </div>
               <button
                 type="button"
+                className="res-drawer-done-btn"
                 onClick={() => setIsMobileDrawerOpen(false)}
                 style={{
-                  background: '#0f172a',
-                  color: '#ffffff',
                   border: 'none',
                   borderRadius: '8px',
                   padding: '6px 14px',
@@ -2227,7 +2208,7 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
                   gap: '4px'
                 }}
               >
-                <Check size={14} /> Done
+                <Check size={14} color="currentColor" /> Done
               </button>
             </div>
 

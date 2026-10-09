@@ -1144,8 +1144,8 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
 
         {/* Guardian Name */}
         <div>
-          <label style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '12px', fontWeight: 700, color: '#334155', marginBottom: '4px' }}>
-            <User size={13} color="#0f172a" /> Parent / Guardian Name
+          <label style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '12px', fontWeight: 700, color: 'var(--text-primary, #334155)', marginBottom: '4px' }}>
+            <User size={13} color="currentColor" /> Parent / Guardian Name
           </label>
           <input
             type="text"
@@ -1156,9 +1156,10 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
               width: '100%',
               padding: '7px 11px',
               borderRadius: '8px',
-              border: '1.5px solid #cbd5e1',
+              border: '1.5px solid var(--border-medium, #cbd5e1)',
               fontSize: '12.5px',
-              background: '#ffffff',
+              background: 'var(--bg-surface, #ffffff)',
+              color: 'var(--text-primary, #0f172a)',
               boxSizing: 'border-box'
             }}
           />
@@ -1167,8 +1168,8 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
         {/* Conference Date & Time (Row) */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
           <div>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '11.5px', fontWeight: 700, color: '#334155', marginBottom: '4px' }}>
-              <Calendar size={12} color="#0f172a" /> Date
+            <label style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '11.5px', fontWeight: 700, color: 'var(--text-primary, #334155)', marginBottom: '4px' }}>
+              <Calendar size={12} color="currentColor" /> Date
             </label>
             <CustomDatePicker
               value={conferenceDate}
@@ -1179,8 +1180,8 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
           </div>
 
           <div>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '11.5px', fontWeight: 700, color: '#334155', marginBottom: '4px' }}>
-              <Clock size={12} color="#0f172a" /> Time
+            <label style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '11.5px', fontWeight: 700, color: 'var(--text-primary, #334155)', marginBottom: '4px' }}>
+              <Clock size={12} color="currentColor" /> Time
             </label>
             <CustomTimePicker
               value={conferenceTime}
@@ -1194,8 +1195,8 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
 
         {/* Venue */}
         <div>
-          <label style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '12px', fontWeight: 700, color: '#334155', marginBottom: '4px' }}>
-            <MapPin size={13} color="#0f172a" /> Designated Venue
+          <label style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '12px', fontWeight: 700, color: 'var(--text-primary, #334155)', marginBottom: '4px' }}>
+            <MapPin size={13} color="currentColor" /> Designated Venue
           </label>
           <input
             type="text"
@@ -1205,9 +1206,10 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
               width: '100%',
               padding: '7px 11px',
               borderRadius: '8px',
-              border: '1.5px solid #cbd5e1',
+              border: '1.5px solid var(--border-medium, #cbd5e1)',
               fontSize: '12.5px',
-              background: '#ffffff',
+              background: 'var(--bg-surface, #ffffff)',
+              color: 'var(--text-primary, #0f172a)',
               boxSizing: 'border-box'
             }}
           />
@@ -1215,10 +1217,10 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
       </div>
 
       {/* 2. Multi-Violation Bundling Section */}
-      <div className="psm-violation-panel" style={{ display: 'flex', flexDirection: 'column', gap: '8px', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '12px' }}>
+      <div className="psm-violation-panel" style={{ display: 'flex', flexDirection: 'column', gap: '8px', background: 'var(--bg-surface, #ffffff)', border: '1px solid var(--border-medium, #e2e8f0)', borderRadius: '12px', padding: '12px' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <span style={{ fontSize: '11px', fontWeight: 800, color: '#0f172a', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '5px' }}>
-            <Layers size={13} color="#0f172a" /> Included Violations ({activeViolations.length})
+          <span style={{ fontSize: '11px', fontWeight: 800, color: 'var(--text-primary, #0f172a)', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '5px' }}>
+            <Layers size={13} color="currentColor" /> Included Violations ({activeViolations.length})
           </span>
           {studentViolations.length > 1 && (
             <button
@@ -1255,8 +1257,8 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
                   gap: '8px',
                   padding: '6px 8px',
                   borderRadius: '6px',
-                  background: isChecked ? '#f8fafc' : '#ffffff',
-                  border: isChecked ? '1.5px solid #93c5fd' : '1px solid #e2e8f0',
+                  background: isChecked ? 'var(--bg-surface-elevated, #f8fafc)' : 'var(--bg-surface, #ffffff)',
+                  border: isChecked ? '1.5px solid var(--brand-blue, #93c5fd)' : '1px solid var(--border-medium, #e2e8f0)',
                   cursor: 'pointer',
                   transition: 'all 0.15s ease'
                 }}
@@ -1265,10 +1267,10 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
                   type="checkbox"
                   checked={isChecked}
                   onChange={() => {}}
-                  style={{ marginTop: '2px', accentColor: '#0f172a', cursor: 'pointer' }}
+                  style={{ marginTop: '2px', accentColor: 'var(--brand-blue, #0f172a)', cursor: 'pointer' }}
                 />
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div className="psm-violation-title" style={{ fontSize: '11.5px', fontWeight: 700, color: '#0f172a', lineHeight: 1.3 }}>
+                  <div className="psm-violation-title" style={{ fontSize: '11.5px', fontWeight: 700, color: 'var(--text-primary, #0f172a)', lineHeight: 1.3 }}>
                     {title}
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '2px' }}>
@@ -1287,7 +1289,7 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
                     >
                       {sev}
                     </span>
-                    <span className="psm-violation-date" style={{ fontSize: '10.5px', color: '#64748b' }}>
+                    <span className="psm-violation-date" style={{ fontSize: '10.5px', color: 'var(--text-secondary, #64748b)' }}>
                       {v.date_reported ? new Date(v.date_reported).toLocaleDateString([], { month: 'short', day: 'numeric' }) : 'Recorded'}
                     </span>
                   </div>
@@ -1300,8 +1302,8 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
 
       {/* 3. Editable Signatories */}
       <div className="psm-form-section" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-        <div className="psm-form-section-heading" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #e2e8f0', paddingBottom: '6px' }}>
-          <span style={{ fontSize: '11px', fontWeight: 800, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+        <div className="psm-form-section-heading" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid var(--border-medium, #e2e8f0)', paddingBottom: '6px' }}>
+          <span style={{ fontSize: '11px', fontWeight: 800, color: 'var(--text-secondary, #475569)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
             2. Authorized Signatories
           </span>
           <span className="psm-signatory-status is-included" style={{ fontSize: '10px', color: '#16a34a', fontWeight: 700 }}>
@@ -1310,8 +1312,8 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
         </div>
 
         {/* Signatory 1 (Left - Prefect) */}
-        <div className="psm-signatory-card" style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '10px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
-          <span style={{ fontSize: '11px', fontWeight: 700, color: '#0f172a' }}>
+        <div className="psm-signatory-card" style={{ background: 'var(--bg-surface, #ffffff)', border: '1px solid var(--border-medium, #e2e8f0)', borderRadius: '10px', padding: '10px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+          <span style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-primary, #0f172a)' }}>
             Signatory 1 (Left - Prefect / Discipline Head)
           </span>
           <div>
@@ -1325,7 +1327,7 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
                 width: '100%',
                 padding: '6px 9px',
                 borderRadius: '6px',
-                border: '1px solid #cbd5e1',
+                border: '1px solid var(--border-medium, #cbd5e1)',
                 fontSize: '12px',
                 fontWeight: 600,
                 marginBottom: '4px',
@@ -1342,7 +1344,7 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
                 width: '100%',
                 padding: '5px 9px',
                 borderRadius: '6px',
-                border: '1px solid #cbd5e1',
+                border: '1px solid var(--border-medium, #cbd5e1)',
                 fontSize: '11.5px',
                 boxSizing: 'border-box'
               }}
@@ -1354,8 +1356,8 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
         <div
           className="psm-signatory-card"
           style={{
-            background: '#ffffff',
-            border: includeSignatory2 ? '1px solid #e2e8f0' : '1px dashed #cbd5e1',
+            background: 'var(--bg-surface, #ffffff)',
+            border: includeSignatory2 ? '1px solid var(--border-medium, #e2e8f0)' : '1px dashed var(--border-medium, #cbd5e1)',
             borderRadius: '10px',
             padding: '10px',
             display: 'flex',
@@ -1366,12 +1368,12 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', fontWeight: 700, color: '#0f172a', cursor: 'pointer' }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11px', fontWeight: 700, color: 'var(--text-primary, #0f172a)', cursor: 'pointer' }}>
               <input
                 type="checkbox"
                 checked={includeSignatory2}
                 onChange={(e) => setIncludeSignatory2(e.target.checked)}
-                style={{ accentColor: '#0f172a', cursor: 'pointer' }}
+                style={{ accentColor: 'var(--brand-blue, #0f172a)', cursor: 'pointer' }}
               />
               <span>Signatory 2 (Adviser / Head)</span>
             </label>
@@ -1392,7 +1394,7 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
                   width: '100%',
                   padding: '6px 9px',
                   borderRadius: '6px',
-                  border: '1px solid #cbd5e1',
+                  border: '1px solid var(--border-medium, #cbd5e1)',
                   fontSize: '12px',
                   fontWeight: 600,
                   marginBottom: '4px',
@@ -1409,14 +1411,14 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
                   width: '100%',
                   padding: '5px 9px',
                   borderRadius: '6px',
-                  border: '1px solid #cbd5e1',
+                  border: '1px solid var(--border-medium, #cbd5e1)',
                   fontSize: '11.5px',
                   boxSizing: 'border-box'
                 }}
               />
             </div>
           ) : (
-            <span style={{ fontSize: '11px', color: '#64748b', fontStyle: 'italic', padding: '4px 0' }}>
+            <span style={{ fontSize: '11px', color: 'var(--text-secondary, #64748b)', fontStyle: 'italic', padding: '4px 0' }}>
               Second signatory line removed from notice.
             </span>
           )}
@@ -1425,8 +1427,8 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
 
       {/* 4. Custom Notes */}
       <div>
-        <label style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '12px', fontWeight: 700, color: '#334155', marginBottom: '4px' }}>
-          <MessageSquare size={13} color="#0f172a" /> Meeting Agenda &amp; Notes
+        <label style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '12px', fontWeight: 700, color: 'var(--text-primary, #334155)', marginBottom: '4px' }}>
+          <MessageSquare size={13} color="currentColor" /> Meeting Agenda &amp; Notes
         </label>
         <textarea
           rows={2}
@@ -1436,9 +1438,10 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
             width: '100%',
             padding: '7px 11px',
             borderRadius: '8px',
-            border: '1.5px solid #cbd5e1',
+            border: '1.5px solid var(--border-medium, #cbd5e1)',
             fontSize: '12px',
-            background: '#ffffff',
+            background: 'var(--bg-surface, #ffffff)',
+            color: 'var(--text-primary, #0f172a)',
             resize: 'vertical',
             minHeight: '55px',
             maxHeight: '90px',
@@ -1458,9 +1461,9 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
             width: '100%',
             padding: '9px 12px',
             borderRadius: '10px',
-            background: '#ffffff',
-            color: '#0f172a',
-            border: '1.5px solid #cbd5e1',
+            background: 'var(--bg-surface, #ffffff)',
+            color: 'var(--text-primary, #0f172a)',
+            border: '1.5px solid var(--border-medium, #cbd5e1)',
             fontSize: '12px',
             fontWeight: 700,
             cursor: isSendingSms ? 'not-allowed' : 'pointer',
@@ -1472,11 +1475,11 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
             transition: 'all 0.15s ease'
           }}
         >
-          <Send size={13} color="#0f172a" />
-          <span>{isSendingSms ? 'Dispatching...' : 'Send SMS Notice to Parent'}</span>
+          <Send size={13} color="currentColor" />
+          <span className="psm-sms-btn-label">{isSendingSms ? 'Dispatching...' : 'Send SMS Notice to Parent'}</span>
         </button>
         {defaultParentContact && defaultParentContact !== 'N/A' && (
-          <span className="psm-sms-target" style={{ fontSize: '10.5px', color: '#64748b', textAlign: 'center', display: 'block', marginTop: '4px' }}>
+          <span className="psm-sms-target" style={{ fontSize: '10.5px', color: 'var(--text-secondary, #64748b)', textAlign: 'center', display: 'block', marginTop: '4px' }}>
             Target: {defaultParentContact}
           </span>
         )}
@@ -2026,9 +2029,9 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
               className="psm-header-back-btn"
               onClick={onClose}
               style={{
-                background: '#f8fafc',
-                border: '1px solid #cbd5e1',
-                color: '#334155',
+                background: 'var(--bg-surface-elevated, #f8fafc)',
+                border: '1px solid var(--border-medium, #cbd5e1)',
+                color: 'var(--text-primary, #334155)',
                 cursor: 'pointer',
                 width: '32px',
                 height: '32px',
@@ -2039,27 +2042,19 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
                 flexShrink: 0,
                 transition: 'all 0.15s ease'
               }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = '#e2e8f0';
-                e.currentTarget.style.color = '#0f172a';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = '#f8fafc';
-                e.currentTarget.style.color = '#334155';
-              }}
               title="Close viewer"
             >
-              <ChevronLeft size={18} strokeWidth={2.4} />
+              <ChevronLeft size={18} strokeWidth={2.4} color="currentColor" />
             </button>
 
             <div style={{ minWidth: 0, flex: 1, overflow: 'hidden' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '5px', minWidth: 0, overflow: 'hidden' }}>
-                <FileText size={14} color="#07345f" style={{ flexShrink: 0 }} />
-                <h3 className="psm-header-title" style={{ margin: 0, fontSize: '13.5px', fontWeight: 800, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', minWidth: 0, flex: 1 }}>
+                <FileText size={14} className="psm-header-icon" color="currentColor" style={{ flexShrink: 0 }} />
+                <h3 className="psm-header-title" style={{ margin: 0, fontSize: '13.5px', fontWeight: 800, color: 'var(--text-primary, #0f172a)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', minWidth: 0, flex: 1 }}>
                   {studentLastName ? `${studentLastName} - Parent Summon` : 'Parent Summon'}
                 </h3>
               </div>
-              <span className="psm-header-sub" style={{ fontSize: '11px', color: '#64748b', display: 'block', marginTop: '1px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              <span className="psm-header-sub" style={{ fontSize: '11px', color: 'var(--text-secondary, #64748b)', display: 'block', marginTop: '1px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                 Official disciplinary conference notice letter for parent / guardian.
               </span>
             </div>
@@ -2073,9 +2068,9 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
               className="psm-header-download-btn"
               onClick={handleDownloadPDF}
               style={{
-                background: '#ffffff',
-                border: '1px solid #cbd5e1',
-                color: '#0f172a',
+                background: 'var(--bg-surface, #ffffff)',
+                border: '1px solid var(--border-medium, #cbd5e1)',
+                color: 'var(--text-primary, #0f172a)',
                 cursor: 'pointer',
                 padding: '0 10px',
                 height: '32px',
@@ -2090,7 +2085,7 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
               }}
               title="Download Summons PDF"
             >
-              <Download size={14} />
+              <Download size={14} color="currentColor" />
               <span>PDF</span>
             </button>
 
@@ -2100,8 +2095,8 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
               className="psm-header-print-btn"
               onClick={handlePrint}
               style={{
-                background: '#0f172a',
-                border: '1px solid #0f172a',
+                background: 'var(--brand-blue, #0f172a)',
+                border: '1px solid var(--brand-blue, #0f172a)',
                 color: '#ffffff',
                 cursor: 'pointer',
                 padding: '0 10px',
@@ -2115,15 +2110,9 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
                 boxShadow: '0 1px 3px rgba(15, 23, 42, 0.15)',
                 transition: 'all 0.15s ease'
               }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = '#1e293b';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = '#0f172a';
-              }}
               title="Print Summons Letter"
             >
-              <Printer size={14} />
+              <Printer size={14} color="currentColor" />
               <span>Print</span>
             </button>
 
@@ -2133,9 +2122,9 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
               className="psm-header-close-btn"
               onClick={onClose}
               style={{
-                background: '#f8fafc',
-                border: '1px solid #cbd5e1',
-                color: '#64748b',
+                background: 'var(--bg-surface-elevated, #f8fafc)',
+                border: '1px solid var(--border-medium, #cbd5e1)',
+                color: 'var(--text-secondary, #64748b)',
                 cursor: 'pointer',
                 width: '32px',
                 height: '32px',
@@ -2145,19 +2134,9 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
                 justifyContent: 'center',
                 transition: 'all 0.15s ease'
               }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = '#fee2e2';
-                e.currentTarget.style.borderColor = '#fca5a5';
-                e.currentTarget.style.color = '#dc2626';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = '#f8fafc';
-                e.currentTarget.style.borderColor = '#cbd5e1';
-                e.currentTarget.style.color = '#64748b';
-              }}
               title="Close modal"
             >
-              <X size={15} />
+              <X size={15} color="currentColor" />
             </button>
           </div>
         </div>
@@ -2189,8 +2168,8 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
             {/* Canvas Control Toolbar (Desktop interactive toolbar) */}
             <div className="psm-canvas-toolbar">
               <div className="psm-canvas-tools-group">
-                <Move size={13} color="#64748b" />
-                <span style={{ fontSize: '11px', fontWeight: 700, color: '#334155' }}>
+                <Move size={13} className="psm-canvas-move-icon" color="currentColor" />
+                <span className="psm-canvas-doc-label">
                   {isDragging ? 'Dragging layout...' : 'Official A4 Document'}
                 </span>
               </div>
@@ -2201,7 +2180,7 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
                   onClick={handleZoomOut}
                   title="Zoom Out"
                 >
-                  <ZoomOut size={13} />
+                  <ZoomOut size={13} color="currentColor" />
                 </button>
                 <span className="psm-canvas-badge">{Math.round(zoom * 100)}%</span>
                 <button
@@ -2210,7 +2189,7 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
                   onClick={handleZoomIn}
                   title="Zoom In"
                 >
-                  <ZoomIn size={13} />
+                  <ZoomIn size={13} color="currentColor" />
                 </button>
                 <button
                   type="button"
@@ -2218,7 +2197,7 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
                   onClick={handleResetView}
                   title="Reset Position & Zoom"
                 >
-                  <RotateCcw size={12} />
+                  <RotateCcw size={12} color="currentColor" />
                   <span>Reset</span>
                 </button>
               </div>
@@ -2432,7 +2411,7 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
 
         {/* Modal Footer Controls (Desktop) */}
         <div className="psm-footer">
-          <span className="psm-footer-text" style={{ fontSize: '12.5px', color: '#64748b' }}>
+          <span className="psm-footer-text" style={{ fontSize: '12.5px', color: 'var(--text-secondary, #64748b)' }}>
             {activeViolations.length} infraction{activeViolations.length > 1 ? 's' : ''} bundled into this official conference notice.
           </span>
 
@@ -2450,7 +2429,7 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
               className="psm-footer-btn psm-btn-print"
               onClick={handlePrint}
             >
-              <Printer size={15} />
+              <Printer size={15} color="currentColor" />
               <span>Print Letter</span>
             </button>
 
@@ -2459,7 +2438,7 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
               className="psm-footer-btn psm-btn-download"
               onClick={handleDownloadPDF}
             >
-              <Download size={15} />
+              <Download size={15} color="currentColor" />
               <span>Download PDF</span>
             </button>
           </div>
