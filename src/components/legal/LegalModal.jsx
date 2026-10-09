@@ -62,7 +62,7 @@ export const LegalModal = ({ isOpen, onClose, initialTab = 'privacy' }) => {
             <div className="legal-pane" tabIndex={0} role="tabpanel" aria-label="Privacy Policy Details">
               <div className="legal-hero-banner">
                 <div className="legal-hero-icon-wrap">
-                  <Shield size={24} color="#0ea5a0" />
+                  <Shield size={24} className="legal-hero-icon" color="currentColor" />
                 </div>
                 <div>
                   <h4 className="legal-hero-heading">Data Privacy & Student Protection Policy</h4>
@@ -129,7 +129,7 @@ export const LegalModal = ({ isOpen, onClose, initialTab = 'privacy' }) => {
             <div className="legal-pane" tabIndex={0} role="tabpanel" aria-label="Terms and Conditions Details">
               <div className="legal-hero-banner">
                 <div className="legal-hero-icon-wrap">
-                  <FileText size={24} color="#07345f" />
+                  <FileText size={24} className="legal-hero-icon" color="currentColor" />
                 </div>
                 <div>
                   <h4 className="legal-hero-heading">Institutional Terms & Conditions of Use</h4>
@@ -176,7 +176,7 @@ export const LegalModal = ({ isOpen, onClose, initialTab = 'privacy' }) => {
             <div className="legal-pane" tabIndex={0} role="tabpanel" aria-label="Cookie and Local Storage Policy">
               <div className="legal-hero-banner">
                 <div className="legal-hero-icon-wrap">
-                  <Database size={24} color="#3b82f6" />
+                  <Database size={24} className="legal-hero-icon" color="currentColor" />
                 </div>
                 <div>
                   <h4 className="legal-hero-heading">Cookie & Local Storage Disclosure</h4>

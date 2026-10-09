@@ -4,6 +4,7 @@
   inset: 0;
   width: 100vw;
   height: 100vh;
+  height: 100dvh;
   z-index: 99999;
   display: flex;
   flex-direction: column;
@@ -210,5 +211,52 @@
   100% {
     transform: scale(1.18);
     opacity: 0.85;
+  }
+}
+
+.viotrack-splash-overlay.is-dark {
+  background: radial-gradient(circle at 50% 42%, #0b0d10 0%, #050607 58%, #000000 100%);
+}
+
+.viotrack-splash-overlay.is-dark .splash-bg-shape-top-left {
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.07), rgba(14, 165, 160, 0.02));
+}
+
+.viotrack-splash-overlay.is-dark .splash-bg-shape-bottom-right {
+  background: linear-gradient(315deg, rgba(14, 165, 160, 0.09), rgba(56, 189, 248, 0.02));
+}
+
+.viotrack-splash-overlay.is-dark .splash-logo-svg {
+  filter: drop-shadow(0 12px 28px rgba(0, 0, 0, 0.3));
+}
+
+.viotrack-splash-overlay.is-dark .splash-brand-title {
+  color: #f8fafc;
+}
+
+.viotrack-splash-overlay.is-dark .splash-brand-tagline {
+  color: #b4c2d0;
+}
+
+.viotrack-splash-overlay.is-dark .splash-video-wrapper {
+  background-color: #000000;
+}
+
+.viotrack-splash-overlay.is-dark .splash-glow {
+  background: radial-gradient(circle, rgba(14, 165, 160, 0.1) 0%, rgba(56, 189, 248, 0) 70%);
+}
+
+@media (max-width: 640px) {
+  .viotrack-splash-overlay {
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  }
+
+  .splash-content {
+    padding: 16px;
+  }
+
+  .splash-logo-svg {
+    width: min(195px, 52vw);
+    height: auto;
   }
 }

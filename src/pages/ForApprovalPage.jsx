@@ -472,12 +472,12 @@ export const ForApprovalPage = () => {
 
   const renderSortIcon = (field) => {
     if (sortField !== field) {
-      return <ArrowUpDown size={13} style={{ color: '#94a3b8', marginLeft: 4 }} />;
+      return <ArrowUpDown size={13} className="table-sort-icon is-inactive" color="currentColor" style={{ color: 'var(--text-muted, #94a3b8)', marginLeft: 4 }} />;
     }
     return sortOrder === 'asc' ? (
-      <ArrowUp size={13} style={{ color: '#07345f', marginLeft: 4 }} />
+      <ArrowUp size={13} className="table-sort-icon is-active" color="currentColor" style={{ color: 'var(--brand-blue, #07345f)', marginLeft: 4 }} />
     ) : (
-      <ArrowDown size={13} style={{ color: '#07345f', marginLeft: 4 }} />
+      <ArrowDown size={13} className="table-sort-icon is-active" color="currentColor" style={{ color: 'var(--brand-blue, #07345f)', marginLeft: 4 }} />
     );
   };
 
@@ -1163,6 +1163,7 @@ export const ForApprovalPage = () => {
                   return (
                     <div
                       key={r.id}
+                      className={`approval-mobile-record-card${isChecked ? ' is-selected' : ''}`}
                       style={{
                         background: isChecked ? '#f8fafc' : '#ffffff',
                         border: isChecked ? '2px solid #07345f' : '1px solid #e2e8f0',
@@ -1279,7 +1280,8 @@ export const ForApprovalPage = () => {
                             gap: '4px'
                           }}
                         >
-                          <Eye size={13} /> View
+                          <Eye size={13} />
+                          <span className="approval-mobile-action-label">View</span>
                         </button>
                         {isPending && (
                           <>
@@ -1343,6 +1345,7 @@ export const ForApprovalPage = () => {
                   return (
                     <div
                       key={r.id}
+                      className={`approval-mobile-record-card${isChecked ? ' is-selected' : ''}`}
                       style={{
                         background: isChecked ? '#f8faff' : '#ffffff',
                         border: isChecked ? '1.5px solid #07345f' : '1px solid #e2e8f0',
@@ -1380,10 +1383,10 @@ export const ForApprovalPage = () => {
                             }}
                           />
                           <div style={{ minWidth: 0, flex: 1 }}>
-                            <div style={{ fontWeight: 800, fontSize: '13.5px', color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                            <div className="approval-mobile-student-name" style={{ fontWeight: 800, fontSize: '13.5px', color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                               {studentName}
                             </div>
-                            <div style={{ fontSize: '11px', color: '#64748b' }}>
+                            <div className="approval-mobile-student-detail" style={{ fontSize: '11px', color: '#64748b' }}>
                               <span>{s.grade || 'Grade 10'} • {s.section || 'Section'}</span>
                               {s.lrn && <span style={{ marginLeft: 4 }}>• Student ID: {s.lrn}</span>}
                             </div>
@@ -1408,27 +1411,27 @@ export const ForApprovalPage = () => {
                       </div>
 
                       {/* Offense & Description Box */}
-                      <div style={{ background: '#f8fafc', padding: '10px 12px', borderRadius: '10px', border: '1px solid #f1f5f9' }}>
-                        <div style={{ fontSize: '10.5px', color: '#64748b', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '2px' }}>
+                      <div className="approval-mobile-offense-panel" style={{ background: '#f8fafc', padding: '10px 12px', borderRadius: '10px', border: '1px solid #f1f5f9' }}>
+                        <div className="approval-mobile-offense-label" style={{ fontSize: '10.5px', color: '#64748b', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '2px' }}>
                           Offense
                         </div>
-                        <div style={{ fontWeight: 800, fontSize: '13px', color: '#1e293b', lineHeight: 1.35 }}>
+                        <div className="approval-mobile-offense-title" style={{ fontWeight: 800, fontSize: '13px', color: '#1e293b', lineHeight: 1.35 }}>
                           {v.title || v.name || 'Violation Incident'}
                         </div>
                         {r.remarks && (
-                          <div style={{ fontSize: '11.5px', color: '#475569', fontStyle: 'italic', marginTop: '4px', lineHeight: 1.4 }}>
+                          <div className="approval-mobile-offense-remarks" style={{ fontSize: '11.5px', color: '#475569', fontStyle: 'italic', marginTop: '4px', lineHeight: 1.4 }}>
                             "{r.remarks}"
                           </div>
                         )}
                       </div>
 
                       {/* Reporter, Date & Status Meta */}
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '11.5px', color: '#64748b', paddingTop: '2px' }}>
+                      <div className="approval-mobile-record-meta" style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '11.5px', color: '#64748b', paddingTop: '2px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '4px' }}>
                           <span>
-                            Reported by: <strong style={{ color: '#334155' }}>{r.reported_by_name || 'Faculty'}</strong>
+                            Reported by: <strong className="approval-mobile-reporter" style={{ color: '#334155' }}>{r.reported_by_name || 'Faculty'}</strong>
                           </span>
-                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+                          <span className="approval-mobile-record-date" style={{ display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
                             <Clock size={11} />
                             {new Date(r.date_reported || r.created_at || Date.now()).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                           </span>
@@ -1452,7 +1455,7 @@ export const ForApprovalPage = () => {
                       </div>
 
                       {/* Bottom Action Buttons */}
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', paddingTop: '8px', borderTop: '1px solid #f1f5f9' }}>
+                      <div className="approval-mobile-card-actions" style={{ display: 'flex', alignItems: 'center', gap: '8px', paddingTop: '8px', borderTop: '1px solid #f1f5f9' }}>
                         <button
                           type="button"
                           onClick={() => setInspectRecord(r)}
@@ -1499,7 +1502,8 @@ export const ForApprovalPage = () => {
                                 boxShadow: '0 2px 6px rgba(16, 185, 129, 0.25)'
                               }}
                             >
-                              <Check size={14} strokeWidth={2.5} /> Approve
+                              <Check size={14} strokeWidth={2.5} />
+                              <span className="approval-mobile-action-label">Approve</span>
                             </button>
                             <button
                               type="button"
@@ -1521,7 +1525,8 @@ export const ForApprovalPage = () => {
                                 minHeight: '34px'
                               }}
                             >
-                              <X size={14} strokeWidth={2.5} /> Reject
+                              <X size={14} strokeWidth={2.5} />
+                              <span className="approval-mobile-action-label">Reject</span>
                             </button>
                           </>
                         )}

@@ -369,12 +369,12 @@ export const AdminUsersPage = () => {
 
   const renderSortIcon = (field) => {
     if (sortField !== field) {
-      return <ArrowUpDown size={13} style={{ color: '#94a3b8', marginLeft: 4 }} />;
+      return <ArrowUpDown size={13} className="table-sort-icon is-inactive" color="currentColor" style={{ color: 'var(--text-muted, #94a3b8)', marginLeft: 4 }} />;
     }
     return sortOrder === 'asc' ? (
-      <ArrowUp size={13} style={{ color: '#07345f', marginLeft: 4 }} />
+      <ArrowUp size={13} className="table-sort-icon is-active" color="currentColor" style={{ color: 'var(--brand-blue, #07345f)', marginLeft: 4 }} />
     ) : (
-      <ArrowDown size={13} style={{ color: '#07345f', marginLeft: 4 }} />
+      <ArrowDown size={13} className="table-sort-icon is-active" color="currentColor" style={{ color: 'var(--brand-blue, #07345f)', marginLeft: 4 }} />
     );
   };
 
@@ -857,7 +857,7 @@ export const AdminUsersPage = () => {
         </div>
 
         {/* Admin Cards (Mobile View) */}
-        <div className={`responsive-cards-mobile ${viewMode === 'grid' ? 'grid-view' : 'list-view'}`} style={{ marginTop: '16px' }}>
+        <div className={`responsive-cards-mobile admin-users-mobile-cards ${viewMode === 'grid' ? 'grid-view' : 'list-view'}`} style={{ marginTop: '16px' }}>
           {loading ? (
             <div style={{ textAlign: 'center', padding: '30px 16px', color: '#94a3b8', gridColumn: '1 / -1' }}>
               Loading administrators...
@@ -931,10 +931,10 @@ export const AdminUsersPage = () => {
                   </div>
 
                   <div className="entity-grid-meta">
-                    <div style={{ fontWeight: 700, color: '#1e293b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    <div className="entity-grid-meta-primary" style={{ fontWeight: 700, color: '#1e293b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                       {admin.position || 'Admin Staff'}
                     </div>
-                    <div style={{ color: '#64748b', fontSize: '9.5px', marginTop: '1px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    <div className="entity-grid-meta-secondary" style={{ color: '#64748b', fontSize: '9.5px', marginTop: '1px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                       {admin.email}
                     </div>
                   </div>
@@ -952,7 +952,7 @@ export const AdminUsersPage = () => {
                     <button
                       type="button"
                       onClick={() => handleDeleteSingle(admin.id, fullName)}
-                      className="entity-grid-btn"
+                      className="entity-grid-btn is-delete"
                       title="Remove Admin Account"
                       style={{ flex: '0 0 28px', color: '#dc2626', borderColor: '#fecaca', background: '#fef2f2' }}
                     >
@@ -982,6 +982,7 @@ export const AdminUsersPage = () => {
                     gap: '10px',
                     boxShadow: '0 2px 6px rgba(0,0,0,0.03)'
                   }}
+                  className={`admin-mobile-list-card${isChecked ? ' is-selected' : ''}`}
                 >
                   {/* Top Header: Checkbox + Avatar + Name + Role Badge */}
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
@@ -1018,10 +1019,10 @@ export const AdminUsersPage = () => {
                         </div>
                       )}
                       <div style={{ minWidth: 0, flex: 1 }}>
-                        <div style={{ fontWeight: 800, fontSize: '13.5px', color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        <div className="admin-mobile-list-name" style={{ fontWeight: 800, fontSize: '13.5px', color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                           {fullName}
                         </div>
-                        <div style={{ fontSize: '11.5px', color: '#64748b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        <div className="admin-mobile-list-position" style={{ fontSize: '11.5px', color: '#64748b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                           {admin.position || 'Discipline & Admin Personnel'}
                         </div>
                       </div>
@@ -1044,15 +1045,16 @@ export const AdminUsersPage = () => {
                   </div>
 
                   {/* Middle Row: Email */}
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: '#475569', background: '#f8fafc', padding: '6px 10px', borderRadius: '8px' }}>
+                  <div className="admin-mobile-list-email" style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: '#475569', background: '#f8fafc', padding: '6px 10px', borderRadius: '8px' }}>
                     <Mail size={13} color="#94a3b8" />
                     <span style={{ wordBreak: 'break-all' }}>{admin.email}</span>
                   </div>
 
                   {/* Actions Row */}
-                  <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', paddingTop: '4px', borderTop: '1px solid #f1f5f9' }}>
+                  <div className="admin-mobile-list-actions" style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', paddingTop: '4px', borderTop: '1px solid #f1f5f9' }}>
                     <button
                       onClick={() => handleOpenEdit(admin)}
+                      className="admin-mobile-action"
                       style={{
                         background: '#f8fafc',
                         color: '#334155',
@@ -1072,6 +1074,7 @@ export const AdminUsersPage = () => {
 
                     <button
                       onClick={() => handleDeleteSingle(admin.id, fullName)}
+                      className="admin-mobile-action is-delete"
                       style={{
                         background: '#fef2f2',
                         color: '#dc2626',
@@ -1096,7 +1099,7 @@ export const AdminUsersPage = () => {
         </div>
 
         {/* 5. Pagination Footer */}
-        <div className="pagination-footer-responsive table-footer" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '18px', flexWrap: 'wrap', gap: '10px' }}>
+        <div className="pagination-footer-responsive table-footer admin-users-mobile-pagination" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '18px', flexWrap: 'wrap', gap: '10px' }}>
           <span style={{ fontSize: '13px', color: '#64748b' }}>
             Showing {filteredAndSorted.length === 0 ? 0 : (currentPage - 1) * entriesPerPage + 1} to{' '}
             {Math.min(currentPage * entriesPerPage, filteredAndSorted.length)} of {filteredAndSorted.length} administrators
@@ -1122,6 +1125,7 @@ export const AdminUsersPage = () => {
               <button
                 key={pageNum}
                 onClick={() => setCurrentPage(pageNum)}
+                aria-current={pageNum === currentPage ? 'page' : undefined}
                 style={{
                   width: 32,
                   height: 32,

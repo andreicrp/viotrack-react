@@ -642,30 +642,12 @@ export const ActivityLogsPage = () => {
                     borderRadius: '12px',
                     padding: '16px 20px',
                     display: 'flex',
-                    alignItems: 'flex-start',
-                    gap: '16px',
+                    flexDirection: 'column',
+                    gap: '10px',
                     boxShadow: '0 1px 3px rgba(0,0,0,0.03)',
                     transition: 'all 0.15s'
                   }}
                 >
-                  <div
-                    style={{
-                      width: 40,
-                      height: 40,
-                      borderRadius: '10px',
-                      background: badge.bg,
-                      color: badge.color,
-                      border: `1px solid ${badge.border}`,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      flexShrink: 0,
-                      marginTop: '2px'
-                    }}
-                  >
-                    {badge.icon}
-                  </div>
-
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
@@ -856,7 +838,7 @@ export const ActivityLogsPage = () => {
             >
               Prev
             </button>
-            <span style={{ padding: '6px 12px', background: 'var(--brand-blue, #0f172a)', color: '#ffffff', borderRadius: '6px', fontWeight: 700, fontSize: '12px' }}>
+            <span className="activity-pagination-current" aria-current="page" style={{ padding: '6px 12px', background: 'var(--brand-blue, #0f172a)', color: '#ffffff', borderRadius: '6px', fontWeight: 700, fontSize: '12px' }}>
               {currentPage} / {totalPages}
             </span>
             <button
@@ -941,7 +923,7 @@ export const ActivityLogsPage = () => {
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <ShieldCheck size={20} color="var(--brand-blue, #0f172a)" style={{ flexShrink: 0 }} />
+                  <ShieldCheck size={20} className="audit-inspector-shield-icon" style={{ flexShrink: 0, color: 'var(--brand-blue, #0f172a)' }} />
                   <div>
                     <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 700, letterSpacing: '-0.01em', color: 'var(--text-primary, #0f172a)' }}>
                       Audit Event Details
@@ -983,15 +965,13 @@ export const ActivityLogsPage = () => {
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
-                    background: '#f0fdf4',
-                    border: '1px solid #bbf7d0',
                     padding: '9px 12px',
                     borderRadius: '8px'
                   }}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
-                    <CheckCircle2 size={15} color="#16a34a" />
-                    <span style={{ color: '#166534', fontWeight: 600, fontSize: '12px' }}>
+                    <CheckCircle2 size={15} className="audit-inspector-verified-icon" />
+                    <span className="audit-inspector-verified-text" style={{ fontWeight: 600, fontSize: '12px' }}>
                       Verified System Record
                     </span>
                   </div>
@@ -1000,27 +980,13 @@ export const ActivityLogsPage = () => {
                     type="button"
                     onClick={() => handleCopy(auditId, 'auditId')}
                     className="audit-inspector-copy-id"
-                    style={{
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: '5px',
-                      background: '#ffffff',
-                      border: '1px solid #86efac',
-                      padding: '3px 8px',
-                      borderRadius: '6px',
-                      color: '#166534',
-                      fontFamily: 'monospace',
-                      fontWeight: 700,
-                      fontSize: '11px',
-                      cursor: 'pointer'
-                    }}
                     title="Copy Audit ID"
                   >
                     <span>{auditId}</span>
                     {copiedField === 'auditId' ? (
-                      <Check size={11} color="#16a34a" />
+                      <Check size={11} className="audit-inspector-copied-icon" />
                     ) : (
-                      <Copy size={11} color="#166534" />
+                      <Copy size={11} className="audit-inspector-copy-icon" />
                     )}
                   </button>
                 </div>
@@ -1039,7 +1005,7 @@ export const ActivityLogsPage = () => {
                       gap: '2px'
                     }}
                   >
-                    <span style={{ color: 'var(--text-muted, #64748b)', fontSize: '11px', fontWeight: 600, textTransform: 'uppercase' }}>
+                    <span className="audit-inspector-label" style={{ color: 'var(--text-muted, #64748b)', fontSize: '11px', fontWeight: 600, textTransform: 'uppercase' }}>
                       Authorized Actor
                     </span>
                     <strong style={{ color: 'var(--text-primary, #0f172a)', fontSize: '13px', marginTop: '1px' }}>
@@ -1074,7 +1040,7 @@ export const ActivityLogsPage = () => {
                       gap: '2px'
                     }}
                   >
-                    <span style={{ color: 'var(--text-muted, #64748b)', fontSize: '11px', fontWeight: 600, textTransform: 'uppercase' }}>
+                    <span className="audit-inspector-label" style={{ color: 'var(--text-muted, #64748b)', fontSize: '11px', fontWeight: 600, textTransform: 'uppercase' }}>
                       Origin Station
                     </span>
                     <strong style={{ color: 'var(--text-primary, #0f172a)', fontFamily: 'monospace', fontSize: '12.5px', marginTop: '1px' }}>
@@ -1097,7 +1063,7 @@ export const ActivityLogsPage = () => {
                   }}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
-                    <span style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-muted, #64748b)', textTransform: 'uppercase' }}>
+                    <span className="audit-inspector-label" style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-muted, #64748b)', textTransform: 'uppercase' }}>
                       Action Description
                     </span>
                   </div>
@@ -1111,7 +1077,7 @@ export const ActivityLogsPage = () => {
 
                 {/* Verification Hash Card */}
                 <div
-                  className="audit-inspector-card"
+                  className="audit-inspector-card audit-inspector-hash-box"
                   style={{
                     background: 'var(--bg-surface-elevated, #f8fafc)',
                     border: '1px solid var(--border-subtle, #e2e8f0)',
@@ -1120,7 +1086,7 @@ export const ActivityLogsPage = () => {
                   }}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
-                    <span style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-muted, #64748b)', textTransform: 'uppercase' }}>
+                    <span className="audit-inspector-label" style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-muted, #64748b)', textTransform: 'uppercase' }}>
                       Verification Hash (SHA-256)
                     </span>
 
@@ -1128,28 +1094,15 @@ export const ActivityLogsPage = () => {
                       type="button"
                       onClick={() => handleCopy(imHash, 'imHash')}
                       className="audit-inspector-copy-hash"
-                      style={{
-                        display: 'inline-flex',
-                        alignItems: 'center',
-                        gap: '4px',
-                        background: 'var(--bg-surface, #ffffff)',
-                        border: '1px solid var(--border-medium, #cbd5e1)',
-                        color: 'var(--text-primary, #0f172a)',
-                        padding: '2px 6px',
-                        borderRadius: '4px',
-                        fontSize: '11px',
-                        fontWeight: 600,
-                        cursor: 'pointer'
-                      }}
                     >
                       {copiedField === 'imHash' ? (
                         <>
-                          <Check size={11} color="#16a34a" />
+                          <Check size={11} className="audit-inspector-copied-icon" />
                           <span>Copied</span>
                         </>
                       ) : (
                         <>
-                          <Copy size={11} />
+                          <Copy size={11} className="audit-inspector-copy-icon" />
                           <span>Copy</span>
                         </>
                       )}
@@ -1157,7 +1110,7 @@ export const ActivityLogsPage = () => {
                   </div>
 
                   <div
-                    className="audit-inspector-footer"
+                    className="audit-inspector-hash-val"
                     style={{
                       color: 'var(--text-primary, #0f172a)',
                       fontFamily: 'monospace',
@@ -1170,6 +1123,7 @@ export const ActivityLogsPage = () => {
                   </div>
 
                   <div
+                    className="audit-inspector-time-row"
                     style={{
                       display: 'flex',
                       alignItems: 'center',
@@ -1189,6 +1143,7 @@ export const ActivityLogsPage = () => {
 
               {/* Footer */}
               <div
+                className="audit-inspector-dialog-footer"
                 style={{
                   background: 'var(--bg-surface-elevated, #f8fafc)',
                   borderTop: '1px solid var(--border-subtle, #f1f5f9)',
@@ -1218,12 +1173,12 @@ export const ActivityLogsPage = () => {
                 >
                   {copiedField === 'summary' ? (
                     <>
-                      <Check size={12} color="#16a34a" />
+                      <Check size={12} className="audit-inspector-copied-icon" />
                       <span>Copied Summary</span>
                     </>
                   ) : (
                     <>
-                      <Copy size={12} />
+                      <Copy size={12} className="audit-inspector-copy-icon" />
                       <span>Copy Summary</span>
                     </>
                   )}

@@ -2710,7 +2710,7 @@
 .dash-greeting-title {
     font-size: 22px;
     font-weight: 800;
-    color: #0f172a;
+    color: var(--text-primary, #0f172a);
     margin: 0;
     letter-spacing: -0.02em;
 }
@@ -2729,7 +2729,7 @@
 
 .dash-greeting-subtitle {
     font-size: 13.5px;
-    color: #64748b;
+    color: var(--text-muted, #64748b);
     margin: 0;
     font-weight: 500;
 }
@@ -4330,7 +4330,7 @@
     .dash-greeting-subtitle {
         font-size: 12px !important;
         line-height: 1.35 !important;
-        color: #64748b !important;
+        color: var(--text-muted, #64748b) !important;
         margin-top: 2px !important;
     }
 

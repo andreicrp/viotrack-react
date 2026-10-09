@@ -57,6 +57,7 @@ export const VerifyStudentPage = () => {
 
         {/* Protected Academic QR Code Notice */}
         <div
+          className="login-qr-protected-banner"
           style={{
             background: '#eff6ff',
             color: '#1e40af',
@@ -73,10 +74,10 @@ export const VerifyStudentPage = () => {
             boxSizing: 'border-box'
           }}
         >
-          <ShieldAlert size={22} color="#2563eb" style={{ flexShrink: 0 }} />
+          <ShieldAlert size={22} className="login-qr-protected-icon" color="#2563eb" style={{ flexShrink: 0 }} />
           <div>
-            <div style={{ fontWeight: 700, fontSize: '13px' }}>🔒 Protected Academic QR Code</div>
-            <div style={{ fontSize: '11.5px', fontWeight: 500, marginTop: '3px', color: '#3b82f6', lineHeight: 1.4 }}>
+            <div className="login-qr-protected-title" style={{ fontWeight: 700, fontSize: '13px' }}>🔒 Protected Academic QR Code</div>
+            <div className="login-qr-protected-subtitle" style={{ fontSize: '11.5px', fontWeight: 500, marginTop: '3px', color: '#3b82f6', lineHeight: 1.4 }}>
               You must sign in to an authorized school faculty or administrator account to scan this student record.
             </div>
           </div>

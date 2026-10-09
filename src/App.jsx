@@ -3,7 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-route
 import { Capacitor } from '@capacitor/core';
 import { StatusBar, Style } from '@capacitor/status-bar';
 import { AuthProvider, useAuth } from './context/AuthContext';
-import { ThemeProvider } from './context/ThemeContext';
+import { ThemeProvider, useTheme } from './context/ThemeContext';
 import { NotificationProvider } from './context/NotificationContext';
 import { Layout } from './components/layout/Layout';
 import { SplashScreen } from './components/common/SplashScreen';
@@ -54,6 +54,68 @@ const PageLoader = () => (
   </div>
 );
 
+const AuthenticatedStartupTasks = () => {
+  const { user, loading } = useAuth();
+
+  useEffect(() => {
+    if (loading || !user) return;
+
+    let idleCallbackId;
+    let timeoutId;
+    const runStartupTasks = () => {
+      void dataService.warmCache();
+      void dataService.checkAndRunScheduledBackup();
+    };
+
+    if (typeof window.requestIdleCallback === 'function') {
+      idleCallbackId = window.requestIdleCallback(runStartupTasks, { timeout: 3000 });
+    } else {
+      timeoutId = window.setTimeout(runStartupTasks, 250);
+    }
+
+    const backupInterval = window.setInterval(() => {
+      void dataService.checkAndRunScheduledBackup();
+    }, 60 * 60 * 1000);
+
+    return () => {
+      if (
+        idleCallbackId !== undefined &&
+        typeof window.cancelIdleCallback === 'function'
+      ) {
+        window.cancelIdleCallback(idleCallbackId);
+      }
+      if (timeoutId !== undefined) {
+        window.clearTimeout(timeoutId);
+      }
+      window.clearInterval(backupInterval);
+    };
+  }, [loading, user?.id]);
+
+  return null;
+};
+
+const NativeStatusBarTheme = () => {
+  const { isDark } = useTheme();
+
+  useEffect(() => {
+    if (!Capacitor.isNativePlatform()) return;
+
+    const configureStatusBar = async () => {
+      try {
+        await StatusBar.setOverlaysWebView({ overlay: false });
+        await StatusBar.setStyle({ style: isDark ? Style.Dark : Style.Light });
+        await StatusBar.setBackgroundColor({ color: isDark ? '#050b12' : '#ffffff' });
+      } catch (error) {
+        console.warn('Capacitor StatusBar configuration error:', error);
+      }
+    };
+
+    void configureStatusBar();
+  }, [isDark]);
+
+  return null;
+};
+
 export const ProtectedRoute = ({ children, requireAdmin = false }) => {
   const { user, isAuthenticated, loading } = useAuth();
   const location = useLocation();
@@ -85,37 +147,13 @@ export function App() {
     return Capacitor.isNativePlatform();
   });
 
-  useEffect(() => {
-    // Warm multi-tier cache in the background on startup
-    dataService.warmCache();
-
-    // Check automated backup schedule
-    dataService.checkAndRunScheduledBackup();
-    const backupInterval = setInterval(() => {
-      dataService.checkAndRunScheduledBackup();
-    }, 60 * 60 * 1000); // Check hourly
-
-    if (Capacitor.isNativePlatform()) {
-      const configureStatusBar = async () => {
-        try {
-          await StatusBar.setOverlaysWebView({ overlay: false });
-          await StatusBar.setStyle({ style: Style.Light });
-          await StatusBar.setBackgroundColor({ color: '#ffffff' });
-        } catch (e) {
-          console.warn('Capacitor StatusBar configuration error:', e);
-        }
-      };
-      configureStatusBar();
-    }
-
-    return () => clearInterval(backupInterval);
-  }, []);
-
   return (
     <ErrorBoundary>
       <AuthProvider>
         <ThemeProvider>
           <NotificationProvider>
+            <NativeStatusBarTheme />
+            <AuthenticatedStartupTasks />
             {showSplash && (
               <SplashScreen
                 mode="coded"

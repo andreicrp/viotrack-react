@@ -65,11 +65,13 @@ export const Modal = ({ isOpen, onClose, title, children, maxWidth = '600px', ic
         </div>
         
         <div
-          className="smooth-scroll-container"
+          className="modal-content-wrapper"
           style={{
             flex: 1,
             display: 'flex',
-            flexDirection: 'column'
+            flexDirection: 'column',
+            minHeight: 0,
+            overflow: 'hidden'
           }}
         >
           {children}

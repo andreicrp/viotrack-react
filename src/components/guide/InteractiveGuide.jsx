@@ -461,9 +461,9 @@ const TOUR_SCENARIOS = {
     route: '/',
     steps: [
       {
-        target: '.dash-header-bar, .dash-header-title-row, .page-header, h1',
+        target: '.dash-greeting-area, .dash-top-header, .dash-header-bar, .dash-header-title-row, .page-header, h1',
         title: 'Welcome to VioTrack',
-        content: 'VioTrack is the institutional Student Welfare and Disciplinary Management System for the University of Perpetual Help System Manila.',
+        content: 'VioTrack is a Student Monitoring System using QR Code and Dashboard for University of Perpetual Help System Manila.',
         badge: 'Getting Started',
         icon: Compass
       },
@@ -895,127 +895,37 @@ export const InteractiveTourGuide = () => {
         {isPillMinimized ? (
           <button
             type="button"
+            className="guide-trigger-bubble"
             onClick={() => setIsGuideMenuOpen(true)}
-            style={{
-              width: '40px',
-              height: '40px',
-              borderRadius: '50%',
-              background: '#ffffff',
-              color: '#07345f',
-              border: '1.5px solid #cbd5e1',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              cursor: 'pointer',
-              boxShadow: '0 4px 14px rgba(15, 23, 42, 0.12)',
-              position: 'relative',
-              transition: 'all 0.18s ease'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-2px)';
-              e.currentTarget.style.borderColor = '#07345f';
-              e.currentTarget.style.boxShadow = '0 6px 20px rgba(7, 52, 95, 0.18)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.borderColor = '#cbd5e1';
-              e.currentTarget.style.boxShadow = '0 4px 14px rgba(15, 23, 42, 0.12)';
-            }}
             title="Open VioTrack User Guide & SOPs"
           >
-            <HelpCircle size={20} color="#07345f" />
+            <HelpCircle size={20} className="guide-trigger-icon" />
             {completedTours.length > 0 && (
-              <span
-                style={{
-                  position: 'absolute',
-                  top: '-2px',
-                  right: '-2px',
-                  background: '#07345f',
-                  color: '#ffffff',
-                  fontSize: '9px',
-                  fontWeight: 800,
-                  padding: '1px 5px',
-                  borderRadius: '9999px',
-                  border: '1.5px solid #ffffff'
-                }}
-              >
+              <span className="guide-trigger-badge">
                 {completedTours.length}
               </span>
             )}
           </button>
         ) : (
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              background: '#ffffff',
-              borderRadius: '9999px',
-              border: '1.5px solid #cbd5e1',
-              boxShadow: '0 4px 16px rgba(15, 23, 42, 0.12)',
-              padding: '3px 4px 3px 12px',
-              gap: '8px',
-              transition: 'all 0.18s ease'
-            }}
-          >
+          <div className="guide-trigger-pill">
             <button
               type="button"
+              className="guide-trigger-pill-btn"
               onClick={() => setIsGuideMenuOpen(true)}
-              style={{
-                background: 'transparent',
-                border: 'none',
-                color: '#0f172a',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                fontSize: '12.5px',
-                fontWeight: 700,
-                cursor: 'pointer',
-                padding: '4px 0'
-              }}
               title="Open VioTrack User Guide & SOPs"
             >
-              <HelpCircle size={16} color="#07345f" />
+              <HelpCircle size={16} className="guide-trigger-icon" />
               <span>Interactive Guide</span>
-              <span
-                style={{
-                  background: '#f1f5f9',
-                  color: '#07345f',
-                  fontSize: '10.5px',
-                  padding: '1px 6px',
-                  borderRadius: '9999px',
-                  fontWeight: 800,
-                  border: '1px solid #e2e8f0'
-                }}
-              >
+              <span className="guide-trigger-pill-badge">
                 {completedTours.length}/{totalScenariosCount}
               </span>
             </button>
 
             <button
               type="button"
+              className="guide-trigger-pill-minimize"
               onClick={toggleMinimizePill}
-              style={{
-                background: '#f8fafc',
-                border: '1px solid #e2e8f0',
-                color: '#64748b',
-                width: '22px',
-                height: '22px',
-                borderRadius: '50%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                cursor: 'pointer',
-                marginLeft: '2px'
-              }}
               title="Minimize guide button"
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = '#e2e8f0';
-                e.currentTarget.style.color = '#0f172a';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = '#f8fafc';
-                e.currentTarget.style.color = '#64748b';
-              }}
             >
               <Minimize2 size={11} />
             </button>
@@ -1427,46 +1337,51 @@ export const InteractiveTourGuide = () => {
             pointerEvents: 'auto'
           }}
         >
-          {/* Dark Backdrop Spotlight with SVG Cutout */}
+          {/* Separate backdrop panels keep the highlighted target fully clear */}
           {targetRect ? (
             <>
-              <svg
-                style={{
-                  position: 'fixed',
+              {[
+                {
                   top: 0,
                   left: 0,
                   width: '100vw',
-                  height: '100vh',
-                  pointerEvents: 'none',
-                  zIndex: 10000
-                }}
-              >
-                <defs>
-                  <mask id="spotlight-mask">
-                    <rect x="0" y="0" width="100%" height="100%" fill="white" />
-                    <rect
-                      x={targetRect.left}
-                      y={targetRect.top}
-                      width={targetRect.width}
-                      height={targetRect.height}
-                      rx="14"
-                      ry="14"
-                      fill="black"
-                    />
-                  </mask>
-                </defs>
-                <rect
-                  x="0"
-                  y="0"
-                  width="100%"
-                  height="100%"
-                  fill="rgba(15, 23, 42, 0.72)"
-                  mask="url(#spotlight-mask)"
+                  height: `${targetRect.top}px`
+                },
+                {
+                  top: `${targetRect.top + targetRect.height}px`,
+                  left: 0,
+                  width: '100vw',
+                  height: `${Math.max(0, window.innerHeight - targetRect.top - targetRect.height)}px`
+                },
+                {
+                  top: `${targetRect.top}px`,
+                  left: 0,
+                  width: `${targetRect.left}px`,
+                  height: `${targetRect.height}px`
+                },
+                {
+                  top: `${targetRect.top}px`,
+                  left: `${targetRect.left + targetRect.width}px`,
+                  width: `${Math.max(0, window.innerWidth - targetRect.left - targetRect.width)}px`,
+                  height: `${targetRect.height}px`
+                }
+              ].map((panel, index) => (
+                <div
+                  key={index}
+                  aria-hidden="true"
+                  style={{
+                    position: 'fixed',
+                    ...panel,
+                    background: 'rgba(0, 0, 0, 0.82)',
+                    pointerEvents: 'none',
+                    zIndex: 10000
+                  }}
                 />
-              </svg>
+              ))}
 
               {/* Glowing Target Ring */}
               <div
+                className="guide-target-ring"
                 style={{
                   position: 'fixed',
                   top: `${targetRect.top}px`,
@@ -1474,8 +1389,8 @@ export const InteractiveTourGuide = () => {
                   width: `${targetRect.width}px`,
                   height: `${targetRect.height}px`,
                   borderRadius: '14px',
-                  border: '2.5px solid #38bdf8',
-                  boxShadow: '0 0 24px rgba(56, 189, 248, 0.6), inset 0 0 10px rgba(56, 189, 248, 0.2)',
+                  border: '2.5px solid #ffffff',
+                  boxShadow: '0 0 24px rgba(255, 255, 255, 0.4), inset 0 0 10px rgba(255, 255, 255, 0.15)',
                   pointerEvents: 'none',
                   zIndex: 10000,
                   transition: 'all 0.25s cubic-bezier(0.16, 1, 0.3, 1)'
@@ -1484,10 +1399,11 @@ export const InteractiveTourGuide = () => {
             </>
           ) : (
             <div
+              className="guide-backdrop-fullscreen"
               style={{
                 position: 'fixed',
                 inset: 0,
-                background: 'rgba(15, 23, 42, 0.65)',
+                background: 'rgba(0, 0, 0, 0.82)',
                 backdropFilter: 'blur(4px)',
                 zIndex: 10000
               }}
@@ -1496,6 +1412,7 @@ export const InteractiveTourGuide = () => {
 
           {/* Floating Guidance Card with Intelligent Screen Placement */}
           <div
+            className="guide-card-popover"
             style={{
               position: 'fixed',
               top: targetRect
@@ -1519,7 +1436,7 @@ export const InteractiveTourGuide = () => {
               background: '#ffffff',
               borderRadius: '18px',
               padding: '20px',
-              boxShadow: '0 20px 40px -10px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(0, 0, 0, 0.08)',
+              boxShadow: '0 20px 40px -10px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.1)',
               zIndex: 10001,
               transition: 'all 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
               display: 'flex',
@@ -1529,8 +1446,9 @@ export const InteractiveTourGuide = () => {
             }}
           >
             {/* Top Progress Bar */}
-            <div style={{ width: '100%', height: '4px', background: '#f1f5f9', borderRadius: '9999px', overflow: 'hidden' }}>
+            <div className="guide-card-progress-track" style={{ width: '100%', height: '4px', background: '#f1f5f9', borderRadius: '9999px', overflow: 'hidden' }}>
               <div
+                className="guide-card-progress-fill"
                 style={{
                   width: `${progressPercent}%`,
                   height: '100%',
@@ -1545,6 +1463,7 @@ export const InteractiveTourGuide = () => {
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                 <span
+                  className="guide-card-badge"
                   style={{
                     background: '#eff6ff',
                     color: '#2563eb',
@@ -1558,7 +1477,7 @@ export const InteractiveTourGuide = () => {
                 >
                   {currentStep.badge || 'Guide'}
                 </span>
-                <span style={{ fontSize: '11px', color: '#64748b', fontWeight: 700 }}>
+                <span className="guide-card-step-count" style={{ fontSize: '11px', color: '#64748b', fontWeight: 700 }}>
                   Step {currentStepIndex + 1} of {activeTour.steps.length}
                 </span>
               </div>
@@ -1566,6 +1485,7 @@ export const InteractiveTourGuide = () => {
               <button
                 type="button"
                 onClick={endTour}
+                className="guide-card-close-btn"
                 style={{
                   background: '#f8fafc',
                   border: '1px solid #e2e8f0',
@@ -1586,10 +1506,10 @@ export const InteractiveTourGuide = () => {
 
             {/* Title & Content */}
             <div>
-              <h4 style={{ margin: '0 0 6px 0', fontSize: '15px', fontWeight: 800, color: '#0f172a' }}>
+              <h4 className="guide-card-title" style={{ margin: '0 0 6px 0', fontSize: '15px', fontWeight: 800, color: '#0f172a' }}>
                 {currentStep.title}
               </h4>
-              <p style={{ margin: 0, fontSize: '12.5px', color: '#334155', lineHeight: 1.55 }}>
+              <p className="guide-card-content" style={{ margin: 0, fontSize: '12.5px', color: '#334155', lineHeight: 1.55 }}>
                 {currentStep.content}
               </p>
             </div>
@@ -1598,24 +1518,12 @@ export const InteractiveTourGuide = () => {
             <StepVisualPreview previewType={currentStep.previewType} />
 
             {/* Navigation Action Buttons */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '4px', paddingTop: '10px', borderTop: '1px solid #f1f5f9' }}>
+            <div className="guide-card-actions" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '4px', paddingTop: '10px' }}>
               <button
                 type="button"
                 onClick={handlePrevStep}
                 disabled={currentStepIndex === 0}
-                style={{
-                  padding: '7px 12px',
-                  borderRadius: '8px',
-                  background: '#ffffff',
-                  border: '1px solid #cbd5e1',
-                  color: currentStepIndex === 0 ? '#cbd5e1' : '#334155',
-                  fontSize: '12px',
-                  fontWeight: 700,
-                  cursor: currentStepIndex === 0 ? 'not-allowed' : 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '4px'
-                }}
+                className="guide-btn-prev"
               >
                 <ChevronLeft size={14} />
                 <span>Prev</span>
@@ -1624,20 +1532,7 @@ export const InteractiveTourGuide = () => {
               <button
                 type="button"
                 onClick={handleNextStep}
-                style={{
-                  padding: '7px 16px',
-                  borderRadius: '8px',
-                  background: '#07345f',
-                  border: 'none',
-                  color: '#ffffff',
-                  fontSize: '12px',
-                  fontWeight: 800,
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '6px',
-                  boxShadow: '0 2px 8px rgba(7, 52, 95, 0.3)'
-                }}
+                className="guide-btn-next"
               >
                 <span>{currentStepIndex === activeTour.steps.length - 1 ? 'Finish Tour' : 'Next Step'}</span>
                 <ChevronRight size={14} />

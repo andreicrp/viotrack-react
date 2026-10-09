@@ -364,78 +364,81 @@ export const BackupRestoreModal = ({ isOpen, onClose }) => {
 
                 {history.length === 0 ? (
                   <div
+                    className="backup-empty-state"
                     style={{
                       padding: '32px 20px',
                       textAlign: 'center',
-                      background: '#f8fafc',
+                      background: 'var(--bg-surface-elevated, #f8fafc)',
                       borderRadius: '14px',
-                      border: '1.5px dashed #cbd5e1',
+                      border: '1.5px dashed var(--border-medium, #cbd5e1)',
                       display: 'flex',
                       flexDirection: 'column',
                       alignItems: 'center',
                       gap: '8px'
                     }}
                   >
-                    <HardDrive size={32} color="#94a3b8" />
-                    <span style={{ fontSize: '13.5px', fontWeight: 700, color: '#334155' }}>
+                    <HardDrive size={32} color="var(--text-muted, #94a3b8)" />
+                    <span style={{ fontSize: '13.5px', fontWeight: 700, color: 'var(--text-secondary, #334155)' }}>
                       No snapshots created yet
                     </span>
-                    <span style={{ fontSize: '12px', color: '#64748b', maxWidth: '360px' }}>
+                    <span style={{ fontSize: '12px', color: 'var(--text-muted, #64748b)', maxWidth: '360px' }}>
                       Click "Download Backup" above to generate a complete backup file.
                     </span>
                   </div>
                 ) : (
                   <>
                     {/* Desktop Table */}
-                    <div className="backup-history-desktop" style={{ border: '1px solid #e2e8f0', borderRadius: '14px', overflowX: 'auto', WebkitOverflowScrolling: 'touch', boxShadow: '0 1px 3px rgba(0,0,0,0.02)' }}>
-                      <table style={{ width: '100%', minWidth: '640px', borderCollapse: 'collapse', fontSize: '13px', tableLayout: 'fixed' }}>
+                    <div className="backup-history-desktop" style={{ border: '1px solid var(--border-subtle, #e2e8f0)', borderRadius: '14px', overflow: 'hidden', boxShadow: '0 1px 3px rgba(0,0,0,0.02)', width: '100%', boxSizing: 'border-box' }}>
+                      <table className="backup-history-table" style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
                         <thead>
-                          <tr style={{ background: '#f8fafc', borderBottom: '1.5px solid #e2e8f0', textAlign: 'left' }}>
-                            <th style={{ width: '35%', padding: '12px 14px', fontWeight: 800, color: '#475569', textTransform: 'uppercase', fontSize: '11.5px', letterSpacing: '0.03em' }}>Snapshot ID</th>
-                            <th style={{ width: '22%', padding: '12px 14px', fontWeight: 800, color: '#475569', textTransform: 'uppercase', fontSize: '11.5px', letterSpacing: '0.03em' }}>Timestamp</th>
-                            <th style={{ width: '25%', padding: '12px 14px', fontWeight: 800, color: '#475569', textTransform: 'uppercase', fontSize: '11.5px', letterSpacing: '0.03em' }}>Payload Summary</th>
-                            <th style={{ width: '18%', padding: '12px 14px', fontWeight: 800, color: '#475569', textTransform: 'uppercase', fontSize: '11.5px', letterSpacing: '0.03em', textAlign: 'right' }}>Actions</th>
+                          <tr style={{ background: 'var(--bg-surface-elevated, #f8fafc)', borderBottom: '1.5px solid var(--border-subtle, #e2e8f0)', textAlign: 'left' }}>
+                            <th className="backup-history-th" style={{ padding: '12px 16px', fontWeight: 800, color: 'var(--text-secondary, #475569)', textTransform: 'uppercase', fontSize: '11px', letterSpacing: '0.04em' }}>Snapshot ID</th>
+                            <th className="backup-history-th" style={{ padding: '12px 14px', fontWeight: 800, color: 'var(--text-secondary, #475569)', textTransform: 'uppercase', fontSize: '11px', letterSpacing: '0.04em', whiteSpace: 'nowrap' }}>Timestamp</th>
+                            <th className="backup-history-th" style={{ padding: '12px 14px', fontWeight: 800, color: 'var(--text-secondary, #475569)', textTransform: 'uppercase', fontSize: '11px', letterSpacing: '0.04em' }}>Payload Summary</th>
+                            <th className="backup-history-th" style={{ padding: '12px 16px', fontWeight: 800, color: 'var(--text-secondary, #475569)', textTransform: 'uppercase', fontSize: '11px', letterSpacing: '0.04em', textAlign: 'right', width: '130px', whiteSpace: 'nowrap' }}>Actions</th>
                           </tr>
                         </thead>
                         <tbody>
                           {history.map((item) => (
-                            <tr key={item.id} style={{ borderBottom: '1px solid #f1f5f9', background: '#ffffff', transition: 'background 0.15s' }}>
-                              <td style={{ padding: '11px 14px' }}>
+                            <tr className="backup-history-tr" key={item.id} style={{ borderBottom: '1px solid var(--border-subtle, #f1f5f9)', background: 'var(--bg-surface, #ffffff)', transition: 'background 0.15s' }}>
+                              <td className="backup-history-td" style={{ padding: '12px 16px' }}>
                                 <div className="backup-snapshot-identity" style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '5px 8px' }}>
-                                  <span className="backup-snapshot-id" style={{ fontFamily: 'monospace', fontWeight: 800, color: '#0f172a', fontSize: '13px', whiteSpace: 'nowrap' }}>
+                                  <span className="backup-snapshot-id" style={{ fontFamily: 'monospace', fontWeight: 800, color: 'var(--text-primary, #0f172a)', fontSize: '12.5px', whiteSpace: 'nowrap' }}>
                                     {item.id}
                                   </span>
-                                  <span className="backup-snapshot-type" style={{ fontSize: '10.5px', fontWeight: 700, background: '#f1f5f9', border: '1px solid #e2e8f0', padding: '2px 6px', borderRadius: '4px', color: '#475569', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>
+                                  <span className="backup-snapshot-type" style={{ fontSize: '10px', fontWeight: 700, background: 'var(--bg-surface-elevated, #f1f5f9)', border: '1px solid var(--border-subtle, #e2e8f0)', padding: '2px 6px', borderRadius: '4px', color: 'var(--text-secondary, #475569)', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>
                                     {item.type}
                                   </span>
                                 </div>
                               </td>
-                              <td style={{ padding: '11px 14px', color: '#475569', fontSize: '13px' }}>
+                              <td className="backup-history-td backup-snapshot-timestamp" style={{ padding: '12px 14px', color: 'var(--text-secondary, #475569)', fontSize: '12.5px', whiteSpace: 'nowrap' }}>
                                 {new Date(item.created_at).toLocaleDateString([], { month: 'short', day: '2-digit', year: 'numeric' })},{' '}
                                 {new Date(item.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                               </td>
-                              <td style={{ padding: '11px 14px', color: '#334155', fontWeight: 600, fontSize: '13px', lineHeight: 1.45 }}>
+                              <td className="backup-history-td backup-snapshot-summary" style={{ padding: '12px 14px', color: 'var(--text-primary, #334155)', fontWeight: 600, fontSize: '12.5px', lineHeight: 1.45 }}>
                                 {item.counts?.records || 0} incidents • {item.counts?.students || 0} students ({item.size_kb || 0} KB)
                               </td>
-                              <td style={{ padding: '11px 14px', textAlign: 'right' }}>
-                                <div style={{ display: 'inline-flex', gap: '6px' }}>
+                              <td className="backup-history-td" style={{ padding: '12px 16px', textAlign: 'right', whiteSpace: 'nowrap', width: '130px' }}>
+                                <div style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'flex-end', gap: '6px' }}>
                                   <button
                                     type="button"
                                     onClick={() => handleExecuteRestore(item.snapshot)}
                                     disabled={loading}
                                     className="backup-snapshot-restore-btn"
                                     style={{
-                                      padding: '5px 12px',
+                                      padding: '6px 12px',
                                       borderRadius: '8px',
-                                      background: '#ecfdf5',
-                                      color: '#065f46',
-                                      border: '1px solid #a7f3d0',
+                                      background: 'var(--brand-blue, #0f172a)',
+                                      color: '#ffffff',
+                                      border: 'none',
                                       fontSize: '11.5px',
                                       fontWeight: 800,
                                       cursor: 'pointer',
                                       display: 'inline-flex',
                                       alignItems: 'center',
-                                      gap: '4px'
+                                      gap: '5px',
+                                      whiteSpace: 'nowrap',
+                                      flexShrink: 0
                                     }}
                                     title="Restore system directly from this snapshot"
                                   >
@@ -447,15 +450,16 @@ export const BackupRestoreModal = ({ isOpen, onClose }) => {
                                     onClick={() => handleDeleteSnapshot(item.id)}
                                     className="backup-snapshot-delete-btn"
                                     style={{
-                                      padding: '5px 8px',
+                                      padding: '6px 8px',
                                       borderRadius: '8px',
-                                      background: '#ffffff',
+                                      background: '#fef2f2',
                                       color: '#dc2626',
                                       border: '1px solid #fecaca',
                                       cursor: 'pointer',
                                       display: 'inline-flex',
                                       alignItems: 'center',
-                                      justifyContent: 'center'
+                                      justifyContent: 'center',
+                                      flexShrink: 0
                                     }}
                                     title="Delete from history"
                                   >
@@ -474,9 +478,10 @@ export const BackupRestoreModal = ({ isOpen, onClose }) => {
                       {history.map((item) => (
                         <div
                           key={item.id}
+                          className="backup-history-mobile-card"
                           style={{
-                            background: '#ffffff',
-                            border: '1px solid #e2e8f0',
+                            background: 'var(--bg-surface, #ffffff)',
+                            border: '1px solid var(--border-subtle, #e2e8f0)',
                             borderRadius: '12px',
                             padding: '12px',
                             display: 'flex',
@@ -486,35 +491,36 @@ export const BackupRestoreModal = ({ isOpen, onClose }) => {
                           }}
                         >
                           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                            <span style={{ fontFamily: 'monospace', fontWeight: 800, color: '#0f172a', fontSize: '12px' }}>
+                            <span className="backup-snapshot-id" style={{ fontFamily: 'monospace', fontWeight: 800, color: 'var(--text-primary, #0f172a)', fontSize: '12px' }}>
                               {item.id}
                             </span>
-                            <span style={{ fontSize: '10px', fontWeight: 700, background: '#f1f5f9', border: '1px solid #e2e8f0', padding: '2px 6px', borderRadius: '4px', color: '#475569', textTransform: 'uppercase' }}>
+                            <span className="backup-snapshot-type" style={{ fontSize: '10px', fontWeight: 700, background: 'var(--bg-surface-elevated, #f1f5f9)', border: '1px solid var(--border-subtle, #e2e8f0)', padding: '2px 6px', borderRadius: '4px', color: 'var(--text-secondary, #475569)', textTransform: 'uppercase' }}>
                               {item.type}
                             </span>
                           </div>
 
-                          <div style={{ fontSize: '11.5px', color: '#64748b' }}>
+                          <div className="backup-snapshot-timestamp" style={{ fontSize: '11.5px', color: 'var(--text-muted, #64748b)' }}>
                             {new Date(item.created_at).toLocaleDateString([], { month: 'short', day: '2-digit', year: 'numeric' })},{' '}
                             {new Date(item.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                           </div>
 
-                          <div style={{ fontSize: '12px', color: '#334155', fontWeight: 600 }}>
+                          <div className="backup-snapshot-summary" style={{ fontSize: '12px', color: 'var(--text-primary, #334155)', fontWeight: 600 }}>
                             {item.counts?.records || 0} incidents • {item.counts?.students || 0} students ({item.size_kb || 0} KB)
                           </div>
 
-                          <div style={{ display: 'flex', gap: '8px', marginTop: '4px', paddingTop: '8px', borderTop: '1px solid #f1f5f9' }}>
+                          <div style={{ display: 'flex', gap: '8px', marginTop: '4px', paddingTop: '8px', borderTop: '1px solid var(--border-subtle, #f1f5f9)' }}>
                             <button
                               type="button"
                               onClick={() => handleExecuteRestore(item.snapshot)}
                               disabled={loading}
+                              className="backup-snapshot-restore-btn"
                               style={{
                                 flex: 1,
                                 padding: '7px 12px',
                                 borderRadius: '8px',
-                                background: '#ecfdf5',
-                                color: '#065f46',
-                                border: '1px solid #a7f3d0',
+                                background: 'var(--brand-blue, #0f172a)',
+                                color: '#ffffff',
+                                border: 'none',
                                 fontSize: '12px',
                                 fontWeight: 800,
                                 cursor: 'pointer',
@@ -531,6 +537,7 @@ export const BackupRestoreModal = ({ isOpen, onClose }) => {
                             <button
                               type="button"
                               onClick={() => handleDeleteSnapshot(item.id)}
+                              className="backup-snapshot-delete-btn"
                               style={{
                                 padding: '7px 12px',
                                 borderRadius: '8px',

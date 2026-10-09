@@ -388,12 +388,12 @@ export const StudentsPage = () => {
 
   const renderSortIcon = (field) => {
     if (sortField !== field) {
-      return <ArrowUpDown size={13} color="#94a3b8" style={{ marginLeft: 4 }} />;
+      return <ArrowUpDown size={13} className="table-sort-icon is-inactive" color="currentColor" style={{ marginLeft: 4, color: 'var(--text-muted, #94a3b8)' }} />;
     }
     return sortOrder === 'asc' ? (
-      <ArrowUp size={13} color="#07345f" style={{ marginLeft: 4 }} />
+      <ArrowUp size={13} className="table-sort-icon is-active" color="currentColor" style={{ marginLeft: 4, color: 'var(--brand-blue, #07345f)' }} />
     ) : (
-      <ArrowDown size={13} color="#07345f" style={{ marginLeft: 4 }} />
+      <ArrowDown size={13} className="table-sort-icon is-active" color="currentColor" style={{ marginLeft: 4, color: 'var(--brand-blue, #07345f)' }} />
     );
   };
 
@@ -1312,13 +1312,13 @@ export const StudentsPage = () => {
                   </div>
 
                   <div className="entity-grid-meta">
-                    <div style={{ fontWeight: 700, color: '#1e293b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    <div className="entity-grid-meta-primary" style={{ fontWeight: 700, color: '#1e293b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                       {s.section}
                     </div>
-                    <div style={{ color: isSHS ? '#047857' : '#64748b', fontSize: '9.5px', marginTop: '1px', fontWeight: 600 }}>
+                    <div className={`entity-grid-meta-secondary${isSHS ? ' student-mobile-grid-strand' : ''}`} style={{ color: isSHS ? '#047857' : '#64748b', fontSize: '9.5px', marginTop: '1px', fontWeight: 600 }}>
                       {strand}
                     </div>
-                    <div style={{ fontSize: '9.5px', color: '#94a3b8', marginTop: '2px' }}>
+                    <div className="entity-grid-meta-tertiary" style={{ fontSize: '9.5px', color: '#94a3b8', marginTop: '2px' }}>
                       Student ID: {s.lrn}
                     </div>
                   </div>
@@ -1368,6 +1368,7 @@ export const StudentsPage = () => {
               return (
                 <div
                   key={s.id}
+                  className={`student-mobile-list-card${isChecked ? ' is-selected' : ''}`}
                   style={{
                     background: isChecked ? '#f0f4f8' : '#ffffff',
                     border: isChecked ? '1.5px solid #07345f' : '1px solid #e2e8f0',
@@ -1406,10 +1407,10 @@ export const StudentsPage = () => {
                         }}
                       />
                       <div style={{ minWidth: 0, flex: 1 }}>
-                        <div style={{ fontWeight: 700, fontSize: '13.5px', color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        <div className="student-mobile-list-name" style={{ fontWeight: 700, fontSize: '13.5px', color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                           {s.fname} {s.mname ? s.mname[0] + '. ' : ''}{s.lname}
                         </div>
-                        <div style={{ fontSize: '11px', color: '#64748b' }}>
+                        <div className="student-mobile-list-id" style={{ fontSize: '11px', color: '#64748b' }}>
                           Student ID: <strong style={{ color: '#334155' }}>{s.lrn}</strong> • {s.gender || 'Male'}
                         </div>
                       </div>
@@ -1432,14 +1433,14 @@ export const StudentsPage = () => {
                   </div>
 
                   {/* Academic details box */}
-                  <div style={{ background: '#f8fafc', padding: '10px 12px', borderRadius: '8px', border: '1px solid #f1f5f9', fontSize: '12px' }}>
+                  <div className="student-mobile-list-details" style={{ background: '#f8fafc', padding: '10px 12px', borderRadius: '8px', border: '1px solid #f1f5f9', fontSize: '12px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
                       <span style={{ color: '#64748b' }}>Section & SY:</span>
                       <strong style={{ color: '#1e293b' }}>{s.section} ({s.academicyear || '2025-2026'})</strong>
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
                       <span style={{ color: '#64748b' }}>Strand:</span>
-                      <strong style={{ color: isSHS ? '#047857' : '#475569' }}>{strand}</strong>
+                      <strong className="student-mobile-list-strand" style={{ color: isSHS ? '#047857' : '#475569' }}>{strand}</strong>
                     </div>
                     {s.parent_name && (
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '4px', paddingTop: '4px', borderTop: '1px dashed #e2e8f0' }}>
@@ -1450,7 +1451,7 @@ export const StudentsPage = () => {
                   </div>
 
                   {/* Footer Action Buttons */}
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '8px', paddingTop: '6px', borderTop: '1px dashed #e2e8f0', flexWrap: 'wrap' }}>
+                  <div className="student-mobile-list-actions" style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '8px', paddingTop: '6px', borderTop: '1px dashed #e2e8f0', flexWrap: 'wrap' }}>
                     <button
                       type="button"
                       onClick={() => setStudentForViewModal(s)}
@@ -1523,6 +1524,7 @@ export const StudentsPage = () => {
                       <button
                         type="button"
                         onClick={() => handleDeleteSingle(s.id, `${s.fname} ${s.lname}`)}
+                        className="is-delete"
                         style={{
                           background: '#ffffff',
                           border: '1px solid #cbd5e1',
@@ -1605,6 +1607,7 @@ export const StudentsPage = () => {
                     {showEllipsis && <span style={{ padding: '0 4px', color: 'var(--text-muted, #94a3b8)' }}>...</span>}
                     <button
                       onClick={() => setCurrentPage(p)}
+                      aria-current={p === currentPage ? 'page' : undefined}
                       style={{
                         padding: '6px 12px',
                         border: p === currentPage ? 'none' : '1px solid var(--border-subtle, #cbd5e1)',

@@ -480,10 +480,10 @@ export const BulkImportModal = ({ isOpen, onClose, onImported, initialFormat = '
         )}
       </div>
 
-      <div className="modal-footer" style={{ borderTop: '1px solid #e2e8f0', padding: '12px 22px', display: 'flex', justifyContent: 'flex-end', gap: '8px', background: '#f8fafc' }}>
+      <div className="modal-footer" style={{ flexShrink: 0, borderTop: '1px solid #e2e8f0', padding: '12px 22px', display: 'flex', justifyContent: 'flex-end', gap: '8px', background: '#f8fafc' }}>
         <button
           type="button"
-          className="btn btn-secondary"
+          className="btn btn-secondary modal-btn-secondary"
           onClick={onClose}
           disabled={loading || parsingPdf}
           style={{
@@ -491,9 +491,6 @@ export const BulkImportModal = ({ isOpen, onClose, onImported, initialFormat = '
             padding: '8px 16px',
             fontWeight: 600,
             fontSize: '12.5px',
-            background: '#ffffff',
-            border: '1px solid #cbd5e1',
-            color: '#0f172a',
             cursor: 'pointer'
           }}
         >
@@ -501,19 +498,16 @@ export const BulkImportModal = ({ isOpen, onClose, onImported, initialFormat = '
         </button>
         <button
           type="button"
+          className="btn btn-primary modal-btn-primary"
           style={{
-            background: '#0f172a',
-            color: '#ffffff',
             borderRadius: '8px',
             padding: '8px 20px',
             fontSize: '12.5px',
             fontWeight: 700,
-            border: 'none',
             display: 'inline-flex',
             alignItems: 'center',
             gap: '6px',
-            cursor: loading || parsingPdf || activeCandidateRoster.length === 0 ? 'not-allowed' : 'pointer',
-            boxShadow: '0 2px 8px rgba(15, 23, 42, 0.2)'
+            cursor: loading || parsingPdf || activeCandidateRoster.length === 0 ? 'not-allowed' : 'pointer'
           }}
           onClick={handleParseAndUpload}
           disabled={loading || parsingPdf || activeCandidateRoster.length === 0}

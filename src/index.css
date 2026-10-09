@@ -7,7 +7,6 @@
 @import './css/violation-record.css';
 @import './css/activity.css';
 @import './css/profile.css';
-@import './css/login.css';
 @import './css/status-modal.css';
 @import './css/violation.css';
 @import './css/violation-modal.css';
@@ -2392,4 +2391,85 @@ summary:focus-visible,
 [tabindex]:not([tabindex="-1"]):focus-visible {
   outline: 3px solid var(--border-focus, #2563eb) !important;
   outline-offset: 2px !important;
+}
+
+/* ==========================================================================
+   Custom Time Picker Component Styles
+   ========================================================================== */
+.custom-time-picker-trigger:hover {
+  border-color: var(--brand-blue, #2563eb) !important;
+}
+
+.custom-time-picker-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.custom-time-picker-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-time-picker-list::-webkit-scrollbar-thumb {
+  background: var(--border-medium, #cbd5e1);
+  border-radius: 4px;
+}
+
+.custom-time-picker-option-btn:hover {
+  background: var(--bg-surface-hover, #f1f5f9);
+  color: var(--brand-blue, #2563eb);
+}
+
+.custom-time-picker-option-btn[data-selected="true"]:hover {
+  background: var(--brand-blue, #2563eb);
+  color: #ffffff;
+}
+
+.custom-time-picker-preset-btn:hover {
+  background: var(--brand-blue, #2563eb) !important;
+  border-color: var(--brand-blue, #2563eb) !important;
+  color: #ffffff !important;
+}
+
+/* Consistent, slim scrollbars for the page and scrollable panels. */
+:root {
+  --scrollbar-track: #e8edf4;
+  --scrollbar-thumb: #94a3b8;
+  --scrollbar-thumb-hover: #64748b;
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+  scrollbar-width: thin;
+}
+
+:root[data-theme="dark"] {
+  --scrollbar-track: #101010;
+  --scrollbar-thumb: #626262;
+  --scrollbar-thumb-hover: #858585;
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+}
+
+* {
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+  scrollbar-width: thin;
+}
+
+*::-webkit-scrollbar {
+  width: 9px;
+  height: 9px;
+}
+
+*::-webkit-scrollbar-track {
+  background: var(--scrollbar-track) !important;
+  border-radius: 999px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb) !important;
+  border: 2px solid var(--scrollbar-track) !important;
+  border-radius: 999px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover) !important;
+}
+
+.custom-time-picker-done-btn:hover {
+  filter: brightness(1.08);
 }

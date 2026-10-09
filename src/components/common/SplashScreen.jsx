@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useTheme } from '../../context/ThemeContext';
 import './SplashScreen.css';
 
 /**
@@ -11,6 +12,7 @@ import './SplashScreen.css';
  * @param {number} [props.duration=2500] Duration in milliseconds before smooth fade-out (for 'coded' mode)
  */
 export function SplashScreen({ onFinish, mode = 'coded', duration = 2500 }) {
+  const { isDark } = useTheme();
   const [isExiting, setIsExiting] = useState(false);
   const [isMounted, setIsMounted] = useState(true);
   const videoRef = useRef(null);
@@ -54,7 +56,7 @@ export function SplashScreen({ onFinish, mode = 'coded', duration = 2500 }) {
   if (!isMounted) return null;
 
   return (
-    <div className={`viotrack-splash-overlay ${isExiting ? 'splash-exit' : ''}`}>
+    <div className={`viotrack-splash-overlay ${isDark ? 'is-dark' : ''} ${isExiting ? 'splash-exit' : ''}`}>
       {/* Subtle Corner Graphic Accents */}
       <div className="splash-bg-shape-top-left" />
       <div className="splash-bg-shape-bottom-right" />

@@ -308,12 +308,12 @@ export const TeachersPage = () => {
 
   const renderSortIcon = (field) => {
     if (sortField !== field) {
-      return <ArrowUpDown size={13} style={{ color: '#94a3b8', marginLeft: 4 }} />;
+      return <ArrowUpDown size={13} className="table-sort-icon is-inactive" color="currentColor" style={{ marginLeft: 4, color: 'var(--text-muted, #94a3b8)' }} />;
     }
     return sortOrder === 'asc' ? (
-      <ArrowUp size={13} style={{ color: '#07345f', marginLeft: 4 }} />
+      <ArrowUp size={13} className="table-sort-icon is-active" color="currentColor" style={{ marginLeft: 4, color: 'var(--brand-blue, #07345f)' }} />
     ) : (
-      <ArrowDown size={13} style={{ color: '#07345f', marginLeft: 4 }} />
+      <ArrowDown size={13} className="table-sort-icon is-active" color="currentColor" style={{ marginLeft: 4, color: 'var(--brand-blue, #07345f)' }} />
     );
   };
 
@@ -971,10 +971,10 @@ export const TeachersPage = () => {
                   </div>
 
                   <div className="entity-grid-meta">
-                    <div style={{ fontWeight: 700, color: '#1e293b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    <div className="entity-grid-meta-primary" style={{ fontWeight: 700, color: '#1e293b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                       {teacher.position || 'Teacher I'}
                     </div>
-                    <div style={{ color: '#64748b', fontSize: '9.5px', marginTop: '1px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    <div className="entity-grid-meta-secondary" style={{ color: '#64748b', fontSize: '9.5px', marginTop: '1px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                       {teacher.department || 'Faculty Dept'}
                     </div>
                   </div>
@@ -984,7 +984,7 @@ export const TeachersPage = () => {
                     <button
                       type="button"
                       onClick={() => setTeacherForAdviser(teacher)}
-                      className="entity-grid-btn"
+                      className="entity-grid-btn is-positive-action"
                       title={adv ? 'Adviser Assigned' : 'Appoint as Class Adviser'}
                       style={{ color: adv ? '#16a34a' : '#07345f', borderColor: adv ? '#bbf7d0' : '#cbd5e1', background: adv ? '#f0fdf4' : '#ffffff' }}
                     >
@@ -1005,7 +1005,7 @@ export const TeachersPage = () => {
                     <button
                       type="button"
                       onClick={() => handleRemoveTeacher(teacher.id, fullName)}
-                      className="entity-grid-btn"
+                      className="entity-grid-btn is-delete"
                       title="Delete Teacher Record"
                       style={{ flex: '0 0 28px', color: '#dc2626', borderColor: '#fecaca', background: '#fef2f2' }}
                     >
@@ -1025,6 +1025,7 @@ export const TeachersPage = () => {
               return (
                 <div
                   key={teacher.id}
+                  className={`teacher-mobile-list-card${isChecked ? ' is-selected' : ''}`}
                   style={{
                     background: isChecked ? '#f8fafc' : '#ffffff',
                     border: isChecked ? '1.5px solid #07345f' : '1px solid #e2e8f0',
@@ -1071,10 +1072,10 @@ export const TeachersPage = () => {
                         </div>
                       )}
                       <div style={{ minWidth: 0, flex: 1 }}>
-                        <div style={{ fontWeight: 800, fontSize: '13.5px', color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        <div className="teacher-mobile-list-name" style={{ fontWeight: 800, fontSize: '13.5px', color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                           {fullName}
                         </div>
-                        <div style={{ fontSize: '11.5px', color: '#64748b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        <div className="teacher-mobile-list-id" style={{ fontSize: '11.5px', color: '#64748b', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                           Faculty #{teacher.id} • {teacher.position || 'Teacher I'}
                         </div>
                       </div>
@@ -1114,7 +1115,7 @@ export const TeachersPage = () => {
                   </div>
 
                   {/* Middle Row: Department & Contact */}
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', background: '#f8fafc', padding: '8px 10px', borderRadius: '8px', fontSize: '12px', color: '#475569' }}>
+                  <div className="teacher-mobile-list-details" style={{ display: 'flex', flexDirection: 'column', gap: '4px', background: '#f8fafc', padding: '8px 10px', borderRadius: '8px', fontSize: '12px', color: '#475569' }}>
                     <div style={{ fontWeight: 600, color: '#334155' }}>
                       {teacher.department || 'Faculty Department'}
                     </div>
@@ -1125,9 +1126,10 @@ export const TeachersPage = () => {
                   </div>
 
                   {/* Actions Row */}
-                  <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '6px', paddingTop: '4px', borderTop: '1px solid #f1f5f9' }}>
+                  <div className="teacher-mobile-list-actions" style={{ display: 'flex', justifyContent: 'flex-end', gap: '6px', paddingTop: '4px', borderTop: '1px solid #f1f5f9' }}>
                     <button
                       onClick={() => setTeacherForAdviser(teacher)}
+                      className="is-positive-action"
                       style={{
                         background: adv ? '#f0fdf4' : '#f0f4f8',
                         color: adv ? '#16a34a' : '#07345f',
@@ -1169,6 +1171,7 @@ export const TeachersPage = () => {
 
                     <button
                       onClick={() => handleRemoveTeacher(teacher.id, fullName)}
+                      className="is-delete"
                       style={{
                         background: '#fef2f2',
                         color: '#dc2626',
@@ -1218,6 +1221,7 @@ export const TeachersPage = () => {
               <button
                 key={pageNum}
                 onClick={() => setCurrentPage(pageNum)}
+                aria-current={pageNum === currentPage ? 'page' : undefined}
                 style={{
                   width: 32,
                   height: 32,

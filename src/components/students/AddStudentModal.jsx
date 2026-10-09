@@ -235,6 +235,7 @@ export const AddStudentModal = ({ isOpen, onClose, studentToEdit = null, onSaved
   };
 
   const avatarUrl = formData.image || (formData.fname || formData.lname ? `https://ui-avatars.com/api/?name=${encodeURIComponent(`${formData.fname} ${formData.lname}`)}&background=0f172a&color=fff&size=90` : 'https://ui-avatars.com/api/?name=Student&background=e2e8f0&color=64748b&size=90');
+  const isDarkMode = typeof document !== 'undefined' && (document.documentElement.getAttribute('data-theme') === 'dark' || document.body.classList.contains('dark-theme') || document.documentElement.classList.contains('dark'));
 
   return (
     <Modal
@@ -244,8 +245,8 @@ export const AddStudentModal = ({ isOpen, onClose, studentToEdit = null, onSaved
       icon={UserPlus}
       maxWidth="780px"
     >
-      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-        <div style={{ padding: '20px 24px', maxHeight: '74vh', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, overflow: 'hidden' }}>
+        <div className="smooth-scroll-container modal-body" style={{ padding: '20px 24px', flex: 1, minHeight: 0, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '20px' }}>
           
           {/* Hidden File Input for Image Upload */}
           <input
@@ -750,10 +751,10 @@ export const AddStudentModal = ({ isOpen, onClose, studentToEdit = null, onSaved
         </div>
 
         {/* Modal Footer */}
-        <div style={{ padding: '14px 24px', borderTop: '1px solid var(--border-subtle, #e2e8f0)', background: 'var(--bg-surface, #f8fafc)', display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '10px' }}>
+        <div className="add-modal-footer modal-footer" style={{ flexShrink: 0, padding: '14px 24px', borderTop: '1px solid var(--border-subtle, #e2e8f0)', background: 'var(--bg-surface, #f8fafc)', display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '10px' }}>
           <button
             type="button"
-            className="btn btn-secondary"
+            className="btn btn-secondary modal-btn-secondary"
             onClick={onClose}
             disabled={loading}
             style={{
@@ -761,9 +762,6 @@ export const AddStudentModal = ({ isOpen, onClose, studentToEdit = null, onSaved
               borderRadius: '9px',
               fontWeight: 600,
               fontSize: '13px',
-              background: 'var(--bg-surface-elevated, #ffffff)',
-              border: '1px solid var(--border-subtle, #cbd5e1)',
-              color: 'var(--text-primary, #0f172a)',
               cursor: 'pointer'
             }}
           >
@@ -771,21 +769,17 @@ export const AddStudentModal = ({ isOpen, onClose, studentToEdit = null, onSaved
           </button>
           <button
             type="submit"
-            className="btn btn-primary"
+            className="btn btn-primary modal-btn-primary"
             disabled={loading}
             style={{
               padding: '9px 22px',
               borderRadius: '9px',
               fontWeight: 700,
               fontSize: '13px',
-              background: 'var(--brand-blue, #0f172a)',
-              color: '#ffffff',
-              border: 'none',
               cursor: loading ? 'not-allowed' : 'pointer',
               display: 'inline-flex',
               alignItems: 'center',
-              gap: '6px',
-              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.25)'
+              gap: '6px'
             }}
           >
             <UserPlus size={15} />

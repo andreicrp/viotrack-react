@@ -374,15 +374,14 @@ export const ViolationTypesPage = () => {
     setSaveAsModalOpen(true);
   };
 
-  // Render sort icon helper
   const renderSortIcon = (field) => {
     if (sortField !== field) {
-      return <ArrowUpDown size={13} style={{ color: '#94a3b8', marginLeft: 4 }} />;
+      return <ArrowUpDown size={13} className="table-sort-icon is-inactive" color="currentColor" style={{ color: 'var(--text-muted, #94a3b8)', marginLeft: 4 }} />;
     }
     return sortOrder === 'asc' ? (
-      <ArrowUp size={13} style={{ color: '#07345f', marginLeft: 4 }} />
+      <ArrowUp size={13} className="table-sort-icon is-active" color="currentColor" style={{ color: 'var(--brand-blue, #07345f)', marginLeft: 4 }} />
     ) : (
-      <ArrowDown size={13} style={{ color: '#07345f', marginLeft: 4 }} />
+      <ArrowDown size={13} className="table-sort-icon is-active" color="currentColor" style={{ color: 'var(--brand-blue, #07345f)', marginLeft: 4 }} />
     );
   };
 
@@ -1106,7 +1105,7 @@ export const ViolationTypesPage = () => {
                     <button
                       type="button"
                       onClick={() => handleDeleteSingle(v.id, v.title)}
-                      className="entity-grid-btn"
+                      className="entity-grid-btn is-delete"
                       title="Delete Violation Type"
                       style={{ flex: '0 0 34px', color: '#dc2626', borderColor: '#fecaca', background: '#fef2f2' }}
                     >
@@ -1171,9 +1170,10 @@ export const ViolationTypesPage = () => {
                     Sanction: <strong className="violation-catalog-sanction-value" style={{ color: '#07345f' }}>{v.default_sanction || '1st Warning / Conference'}</strong>
                   </div>
 
-                  <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '6px', paddingTop: '4px', borderTop: '1px dashed #e2e8f0' }}>
+                  <div className="violation-catalog-mobile-actions" style={{ display: 'flex', justifyContent: 'flex-end', gap: '6px', paddingTop: '4px', borderTop: '1px dashed #e2e8f0' }}>
                     <button
                       onClick={() => handleOpenEdit(v)}
+                      className="violation-catalog-mobile-action"
                       style={{
                         background: '#f8fafc',
                         color: '#07345f',
@@ -1192,6 +1192,7 @@ export const ViolationTypesPage = () => {
                     </button>
                     <button
                       onClick={() => handleDeleteSingle(v.id, v.title)}
+                      className="violation-catalog-mobile-action is-delete"
                       style={{
                         background: '#ffffff',
                         color: '#dc2626',
@@ -1243,6 +1244,7 @@ export const ViolationTypesPage = () => {
               <button
                 key={pageNum}
                 onClick={() => setCurrentPage(pageNum)}
+                aria-current={pageNum === currentPage ? 'page' : undefined}
                 style={{
                   width: 32,
                   height: 32,

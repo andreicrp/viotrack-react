@@ -412,12 +412,12 @@ export const ViolationsPage = () => {
 
   const renderSortIcon = (field) => {
     if (sortField !== field) {
-      return <ArrowUpDown size={13} color="#94a3b8" style={{ marginLeft: 4 }} />;
+      return <ArrowUpDown size={13} className="table-sort-icon is-inactive" color="currentColor" style={{ marginLeft: 4, color: 'var(--text-muted, #94a3b8)' }} />;
     }
     return sortOrder === 'asc' ? (
-      <ArrowUp size={13} color="#07345f" style={{ marginLeft: 4 }} />
+      <ArrowUp size={13} className="table-sort-icon is-active" color="currentColor" style={{ marginLeft: 4, color: 'var(--brand-blue, #07345f)' }} />
     ) : (
-      <ArrowDown size={13} color="#07345f" style={{ marginLeft: 4 }} />
+      <ArrowDown size={13} className="table-sort-icon is-active" color="currentColor" style={{ marginLeft: 4, color: 'var(--brand-blue, #07345f)' }} />
     );
   };
 
@@ -1443,6 +1443,7 @@ export const ViolationsPage = () => {
               return (
                 <div
                   key={rec.id}
+                  className={`violation-list-mobile-card${isChecked ? ' is-selected' : ''}`}
                   style={{
                     background: isChecked ? '#f8faff' : '#ffffff',
                     border: isChecked ? '1.5px solid #07345f' : '1px solid #e2e8f0',
@@ -1481,10 +1482,10 @@ export const ViolationsPage = () => {
                         }}
                       />
                       <div style={{ minWidth: 0, flex: 1 }}>
-                        <div style={{ fontWeight: 700, fontSize: '13.5px', color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        <div className="violation-list-mobile-name" style={{ fontWeight: 700, fontSize: '13.5px', color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                           {rec.student ? `${rec.student.fname} ${rec.student.lname}` : 'Enrolled Student'}
                         </div>
-                        <div style={{ fontSize: '11px', color: '#64748b' }}>
+                        <div className="violation-list-mobile-id" style={{ fontSize: '11px', color: '#64748b' }}>
                           Student ID: <strong style={{ color: '#334155' }}>{rec.student?.lrn || '22-0000-000'}</strong>
                         </div>
                       </div>
@@ -1500,7 +1501,7 @@ export const ViolationsPage = () => {
                       {rec.violation?.title || 'Violation Incident'}
                     </div>
                     <div className="violation-list-offense-grade" style={{ fontSize: '11.5px', color: '#64748b', marginTop: '4px' }}>
-                      <strong style={{ color: '#334155' }}>{rec.student?.grade || 'Grade 10'} - {rec.student?.section || 'Rizal'}</strong> (SY {rec.student?.academicyear || '2025-2026'})
+                      <strong className="violation-list-offense-grade-value" style={{ color: '#334155' }}>{rec.student?.grade || 'Grade 10'} - {rec.student?.section || 'Rizal'}</strong> (SY {rec.student?.academicyear || '2025-2026'})
                     </div>
                     {rec.sanction && (
                       <div className="violation-sanction-detail" style={{ fontSize: '11.5px', color: '#475569', marginTop: '4px' }}>
@@ -1518,7 +1519,7 @@ export const ViolationsPage = () => {
                       {renderStatusBadge(rec.status)}
                     </div>
 
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <div className="violation-list-mobile-actions" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                       {isAdmin && (
                         <button
                           type="button"
@@ -1679,6 +1680,7 @@ export const ViolationsPage = () => {
                     {showEllipsis && <span style={{ padding: '0 4px', color: '#94a3b8' }}>...</span>}
                     <button
                       onClick={() => setCurrentPage(p)}
+                      aria-current={p === currentPage ? 'page' : undefined}
                       style={{
                         padding: '6px 12px',
                         border: p === currentPage ? 'none' : '1px solid #cbd5e1',

@@ -878,7 +878,13 @@ export const DashboardPage = () => {
           {/* Greeting */}
           <div className="dash-greeting-area">
             <div className="dash-greeting-title-line">
-              <h1 className="dash-greeting-title">
+              <h1
+                className="dash-greeting-title"
+                style={{
+                  color: 'var(--text-primary, #ffffff)',
+                  WebkitTextFillColor: 'var(--text-primary, #ffffff)'
+                }}
+              >
                 Hi, {user?.name || 'System Admin'}
               </h1>
               {/* Auto-refresh indicator */}
@@ -890,7 +896,13 @@ export const DashboardPage = () => {
               </span>
             </div>
             {/* At-a-glance summary sentence */}
-            <p className="dash-greeting-subtitle">
+            <p
+              className="dash-greeting-subtitle"
+              style={{
+                color: 'var(--text-secondary, #cbd5e1)',
+                WebkitTextFillColor: 'var(--text-secondary, #cbd5e1)'
+              }}
+            >
               {todayStats.todayCount === 0 && todayStats.pending === 0
                 ? 'Campus conduct is clean — no violations recorded today.'
                 : `Today: ${todayStats.todayCount > 0 ? `${todayStats.todayCount} new violation${todayStats.todayCount !== 1 ? 's' : ''}` : 'no new violations'}
@@ -1471,7 +1483,7 @@ export const DashboardPage = () => {
               {/* Dynamic Insight Callout Box */}
               <div className="dash-insight-banner">
                 <div className="dash-insight-icon-wrap">
-                  <Lightbulb size={15} color="#ffffff" strokeWidth={2.2} />
+                  <Lightbulb size={15} strokeWidth={2.2} />
                 </div>
                 <div>
                   <h4 className="dash-insight-title">{disciplinaryInsight.title}</h4>

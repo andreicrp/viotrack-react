@@ -297,7 +297,7 @@ export const LoginPage = () => {
   const passwordFeedback = evaluatePasswordStrength(password);
 
   return (
-    <div className="login-body-bg">
+    <main id="main-content" tabIndex="-1" className="login-body-bg">
       {/* Background Graphic Accents */}
       <div className="login-bg-shape-top-left" />
       <div className="login-bg-shape-bottom-right" />
@@ -337,7 +337,7 @@ export const LoginPage = () => {
         {/* QR Security & Protected Record Access Banner */}
         {isQrProtected && (
           <div
-            className="login-reset-password-backdrop"
+            className="login-qr-protected-banner"
             style={{
               background: '#eff6ff',
               color: '#1e40af',
@@ -354,10 +354,10 @@ export const LoginPage = () => {
               boxSizing: 'border-box'
             }}
           >
-            <ShieldAlert size={22} color="#2563eb" style={{ flexShrink: 0 }} />
+            <ShieldAlert size={22} className="login-qr-protected-icon" color="#2563eb" style={{ flexShrink: 0 }} />
             <div>
-              <div style={{ fontWeight: 700 }}>🔒 Protected Academic QR Code</div>
-              <div style={{ fontSize: '11.5px', fontWeight: 500, marginTop: '2px', color: '#3b82f6' }}>
+              <div className="login-qr-protected-title" style={{ fontWeight: 700 }}>🔒 Protected Academic QR Code</div>
+              <div className="login-qr-protected-subtitle" style={{ fontSize: '11.5px', fontWeight: 500, marginTop: '2px', color: '#3b82f6' }}>
                 You must sign in to an authorized school faculty or administrator account to scan this student record.
               </div>
             </div>
@@ -627,9 +627,7 @@ export const LoginPage = () => {
           >
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <div style={{ background: '#e0f2fe', color: '#0369a1', padding: '8px', borderRadius: '10px' }}>
-                  <KeyRound size={20} />
-                </div>
+                <KeyRound size={20} className="login-reset-password-icon" color="currentColor" style={{ color: 'var(--brand-blue, #0369a1)' }} />
                 <h3 className="login-reset-password-title" style={{ fontSize: '18px', fontWeight: 700, color: '#0f172a', margin: 0 }}>Reset Password</h3>
               </div>
               <button
@@ -710,7 +708,7 @@ export const LoginPage = () => {
         onClose={() => setIsLegalModalOpen(false)}
         initialTab={legalModalTab}
       />
-    </div>
+    </main>
   );
 };
 

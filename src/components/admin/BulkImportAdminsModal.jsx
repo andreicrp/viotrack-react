@@ -334,15 +334,14 @@ export const BulkImportAdminsModal = ({ isOpen, onClose, onImported, initialForm
         )}
 
         {/* Footer Actions */}
-        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '8px' }}>
+        <div className="modal-footer" style={{ flexShrink: 0, display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '8px' }}>
           <button
             type="button"
+            className="btn btn-secondary modal-btn-secondary"
             onClick={onClose}
             style={{
               padding: '9px 18px',
               borderRadius: '8px',
-              border: '1px solid #cbd5e1',
-              background: '#ffffff',
               fontSize: '13px',
               fontWeight: 600,
               cursor: 'pointer'
@@ -352,14 +351,12 @@ export const BulkImportAdminsModal = ({ isOpen, onClose, onImported, initialForm
           </button>
           <button
             type="button"
+            className="btn btn-primary modal-btn-primary"
             onClick={handleParseAndUpload}
             disabled={loading || activeCandidateList.length === 0}
             style={{
               padding: '9px 20px',
               borderRadius: '8px',
-              border: 'none',
-              background: loading || activeCandidateList.length === 0 ? '#94a3b8' : '#07345f',
-              color: '#ffffff',
               fontSize: '13px',
               fontWeight: 700,
               cursor: loading || activeCandidateList.length === 0 ? 'not-allowed' : 'pointer',

@@ -10,7 +10,7 @@
 
 .official-id-card {
   width: 100%;
-  max-width: 480px;
+  max-width: 420px;
   background: #ffffff;
   border-radius: 14px;
   border: 1.5px solid #cbd5e1;
@@ -22,13 +22,15 @@
   position: relative;
   font-family: inherit;
   box-sizing: border-box;
+  transform: scale(0.94);
+  transform-origin: center top;
 }
 
 /* Institutional Header Bar */
 .id-header-band {
   background: #0f172a;
   border-bottom: 3px solid #f59e0b;
-  padding: 12px 18px;
+  padding: 10px 14px;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -73,23 +75,23 @@
 
 /* Card Body Section */
 .id-card-content {
-  padding: 16px 18px;
+  padding: 12px 14px;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 12px;
   background: #ffffff;
 }
 
 /* Student Bio Row */
 .id-student-row {
   display: flex;
-  gap: 16px;
+  gap: 12px;
   align-items: center;
 }
 
 .id-photo-container {
-  width: 90px;
-  height: 104px;
+  width: 76px;
+  height: 88px;
   border-radius: 8px;
   border: 2px solid #0f172a;
   overflow: hidden;
@@ -114,7 +116,7 @@
 }
 
 .id-student-name {
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 800;
   color: #0f172a;
   line-height: 1.25;
@@ -126,7 +128,7 @@
 .id-grade-badge {
   display: inline-block;
   align-self: flex-start;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
   background: #f0fdf4;
   border: 1px solid #bbf7d0;
@@ -156,11 +158,11 @@
   background: #f8fafc;
   border: 1.5px solid #cbd5e1;
   border-radius: 10px;
-  padding: 12px 14px;
+  padding: 10px 12px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 14px;
+  gap: 10px;
 }
 
 .id-guardian-block {
@@ -205,11 +207,11 @@
 
 /* Extra Large & High Contrast QR Code Holder */
 .id-qr-holder {
-  width: 132px;
+  width: 120px;
   background: #ffffff;
   border: 1.5px solid #0f172a;
   border-radius: 8px;
-  padding: 6px;
+  padding: 5px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -220,10 +222,10 @@
 }
 
 .id-qr-img {
-  width: 105px;
-  height: 105px;
-  max-width: 105px;
-  max-height: 105px;
+  width: 92px;
+  height: 92px;
+  max-width: 92px;
+  max-height: 92px;
   object-fit: contain;
   display: block;
   image-rendering: -webkit-optimize-contrast;
@@ -253,11 +255,11 @@
 .id-card-footer-band {
   background: #f1f5f9;
   border-top: 1px solid #e2e8f0;
-  padding: 7px 16px;
+  padding: 6px 12px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-size: 9px;
+  font-size: 8.5px;
   font-weight: 700;
   color: #64748b;
   letter-spacing: 0.06em;
