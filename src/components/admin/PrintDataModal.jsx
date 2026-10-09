@@ -1980,8 +1980,8 @@ export const PrintDataModal = ({ isOpen, onClose, records = [], students = [], t
     <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
       {/* 1. Date Period Preset */}
       <div>
-        <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11.5px', fontWeight: 800, color: '#0f172a', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '6px' }}>
-          <Calendar size={13} color="#07345f" /> Report Time Period
+        <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11.5px', fontWeight: 800, color: 'var(--text-primary, #0f172a)', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '6px' }}>
+          <Calendar size={13} color="var(--brand-blue, #07345f)" /> Report Time Period
         </label>
         
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '6px', marginBottom: '8px' }}>
@@ -2002,9 +2002,9 @@ export const PrintDataModal = ({ isOpen, onClose, records = [], students = [], t
                 style={{
                   padding: '7px 10px',
                   borderRadius: '7px',
-                  border: isSelected ? '2px solid #07345f' : '1px solid #cbd5e1',
-                  background: isSelected ? '#07345f' : '#ffffff',
-                  color: isSelected ? '#ffffff' : '#334155',
+                  border: isSelected ? '2px solid var(--brand-blue, #07345f)' : '1px solid var(--border-medium, #cbd5e1)',
+                  background: isSelected ? 'var(--brand-blue, #07345f)' : 'var(--bg-surface, #ffffff)',
+                  color: isSelected ? '#ffffff' : 'var(--text-primary, #0f172a)',
                   fontSize: '11.5px',
                   fontWeight: isSelected ? 800 : 600,
                   cursor: 'pointer',
@@ -2028,9 +2028,9 @@ export const PrintDataModal = ({ isOpen, onClose, records = [], students = [], t
             width: '100%',
             padding: '7px 10px',
             borderRadius: '7px',
-            border: periodPreset === 'custom' ? '2px solid #07345f' : '1px solid #cbd5e1',
-            background: periodPreset === 'custom' ? '#f0f4f8' : '#ffffff',
-            color: '#07345f',
+            border: periodPreset === 'custom' ? '2px solid var(--brand-blue, #07345f)' : '1px solid var(--border-medium, #cbd5e1)',
+            background: periodPreset === 'custom' ? 'var(--bg-input, #f0f4f8)' : 'var(--bg-surface, #ffffff)',
+            color: periodPreset === 'custom' ? 'var(--brand-blue, #07345f)' : 'var(--text-primary, #0f172a)',
             fontSize: '11.5px',
             fontWeight: 700,
             cursor: 'pointer',
@@ -2154,41 +2154,50 @@ export const PrintDataModal = ({ isOpen, onClose, records = [], students = [], t
 
       {/* 3. Criteria Filters */}
       <div>
-        <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11.5px', fontWeight: 800, color: '#0f172a', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '6px' }}>
-          <Filter size={13} color="#07345f" /> Scope Filters
+        <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11.5px', fontWeight: 800, color: 'var(--text-primary, #0f172a)', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '6px' }}>
+          <Filter size={13} color="var(--brand-blue, #07345f)" /> Scope Filters
         </label>
         
         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
           <div>
-            <span style={{ fontSize: '10.5px', color: '#64748b', display: 'block', marginBottom: '3px', fontWeight: 600 }}>Severity</span>
+            <span style={{ fontSize: '10.5px', color: 'var(--text-muted, #64748b)', display: 'block', marginBottom: '3px', fontWeight: 700 }}>Severity</span>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '4px' }}>
-              {['all', 'minor', 'serious', 'major'].map((s) => (
-                <button
-                  key={s}
-                  type="button"
-                  onClick={() => setSelectedSeverity(s)}
-                  className={`pdm-severity-filter pdm-severity-filter-${s}`}
-                  aria-pressed={selectedSeverity === s}
-                  style={{
-                    padding: '4px 6px',
-                    borderRadius: '6px',
-                    border: selectedSeverity === s ? '1.5px solid #0f172a' : '1px solid #cbd5e1',
-                    background: selectedSeverity === s ? '#0f172a' : '#ffffff',
-                    color: selectedSeverity === s ? '#ffffff' : '#334155',
-                    fontSize: '10.5px',
-                    fontWeight: 700,
-                    textTransform: 'capitalize',
-                    cursor: 'pointer'
-                  }}
-                >
-                  {s}
-                </button>
-              ))}
+              {[
+                { id: 'all', label: 'All', activeBg: 'var(--brand-blue, #07345f)', activeColor: '#ffffff', inactiveBg: 'var(--bg-surface, #ffffff)', inactiveBorder: 'var(--border-medium, #cbd5e1)', inactiveColor: 'var(--text-primary, #0f172a)' },
+                { id: 'minor', label: 'Minor', activeBg: '#16a34a', activeColor: '#ffffff', inactiveBg: 'rgba(34, 197, 94, 0.12)', inactiveBorder: 'rgba(34, 197, 94, 0.35)', inactiveColor: '#15803d' },
+                { id: 'serious', label: 'Serious', activeBg: '#d97706', activeColor: '#ffffff', inactiveBg: 'rgba(245, 158, 11, 0.12)', inactiveBorder: 'rgba(245, 158, 11, 0.35)', inactiveColor: '#a16207' },
+                { id: 'major', label: 'Major', activeBg: '#dc2626', activeColor: '#ffffff', inactiveBg: 'rgba(239, 68, 68, 0.12)', inactiveBorder: 'rgba(239, 68, 68, 0.35)', inactiveColor: '#b91c1c' }
+              ].map((s) => {
+                const isAct = selectedSeverity === s.id;
+                return (
+                  <button
+                    key={s.id}
+                    type="button"
+                    onClick={() => setSelectedSeverity(s.id)}
+                    className={`pdm-severity-filter pdm-severity-filter-${s.id}`}
+                    aria-pressed={isAct}
+                    style={{
+                      padding: '4px 6px',
+                      borderRadius: '6px',
+                      border: isAct ? `1.5px solid ${s.activeBg}` : `1px solid ${s.inactiveBorder}`,
+                      background: isAct ? s.activeBg : s.inactiveBg,
+                      color: isAct ? s.activeColor : s.inactiveColor,
+                      fontSize: '10.5px',
+                      fontWeight: 700,
+                      textTransform: 'capitalize',
+                      cursor: 'pointer',
+                      transition: 'all 0.12s ease'
+                    }}
+                  >
+                    {s.label}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
           <div>
-            <span style={{ fontSize: '10.5px', color: '#64748b', display: 'block', marginBottom: '3px', fontWeight: 600 }}>Grade Level</span>
+            <span style={{ fontSize: '10.5px', color: 'var(--text-muted, #64748b)', display: 'block', marginBottom: '3px', fontWeight: 700 }}>Grade Level</span>
             <select
               value={selectedGrade}
               onChange={(e) => setSelectedGrade(e.target.value)}
@@ -2196,11 +2205,11 @@ export const PrintDataModal = ({ isOpen, onClose, records = [], students = [], t
                 width: '100%',
                 padding: '6px 8px',
                 borderRadius: '6px',
-                border: '1px solid #cbd5e1',
+                border: '1px solid var(--border-medium, #cbd5e1)',
                 fontSize: '11.5px',
                 fontWeight: 600,
-                color: '#0f172a',
-                background: '#ffffff'
+                color: 'var(--text-primary, #0f172a)',
+                background: 'var(--bg-surface, #ffffff)'
               }}
             >
               <option value="all">All Grades (Junior &amp; Senior High)</option>
@@ -2781,10 +2790,11 @@ export const PrintDataModal = ({ isOpen, onClose, records = [], students = [], t
             <button
               type="button"
               onClick={handleDownloadPdf}
+              className="pdm-btn-pdf"
               style={{
-                background: '#ffffff',
-                border: '1px solid #cbd5e1',
-                color: '#0f172a',
+                background: 'var(--bg-surface, #ffffff)',
+                border: '1px solid var(--border-medium, #cbd5e1)',
+                color: 'var(--text-primary, #0f172a)',
                 cursor: 'pointer',
                 padding: '0 10px',
                 height: '32px',
@@ -2806,9 +2816,10 @@ export const PrintDataModal = ({ isOpen, onClose, records = [], students = [], t
             <button
               type="button"
               onClick={handlePrint}
+              className="pdm-btn-print"
               style={{
-                background: '#07345f',
-                border: '1px solid #07345f',
+                background: 'var(--brand-blue, #07345f)',
+                border: '1px solid var(--brand-blue, #07345f)',
                 color: '#ffffff',
                 cursor: 'pointer',
                 padding: '0 10px',
@@ -2831,10 +2842,11 @@ export const PrintDataModal = ({ isOpen, onClose, records = [], students = [], t
             <button
               type="button"
               onClick={onClose}
+              className="pdm-btn-close"
               style={{
-                background: '#f8fafc',
-                border: '1px solid #cbd5e1',
-                color: '#64748b',
+                background: 'var(--bg-surface-elevated, #f8fafc)',
+                border: '1px solid var(--border-medium, #cbd5e1)',
+                color: 'var(--text-secondary, #64748b)',
                 cursor: 'pointer',
                 width: '32px',
                 height: '32px',
@@ -2842,21 +2854,12 @@ export const PrintDataModal = ({ isOpen, onClose, records = [], students = [], t
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
+                flexShrink: 0,
                 transition: 'all 0.15s ease'
               }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.background = '#fee2e2';
-                e.currentTarget.style.borderColor = '#fca5a5';
-                e.currentTarget.style.color = '#dc2626';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.background = '#f8fafc';
-                e.currentTarget.style.borderColor = '#cbd5e1';
-                e.currentTarget.style.color = '#64748b';
-              }}
-              title="Close"
+              title="Close print preview"
             >
-              <X size={15} />
+              <X size={18} />
             </button>
           </div>
         </div>

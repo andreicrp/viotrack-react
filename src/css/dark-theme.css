@@ -6123,156 +6123,199 @@ html[data-theme="dark"] body .login-reset-password-card .login-reset-password-su
 
 [data-theme="dark"] .pdm-modal-backdrop .pdm-header-title,
 [data-theme="dark"] .pdm-modal-backdrop .pdm-header-sub {
-  color: #ffffff !important;
+  color: #94a3b8 !important;
 }
 
-[data-theme="dark"] .pdm-modal-backdrop .pdm-header-desktop button:not([title="Print Document"]) {
-  background: #080808 !important;
-  border-color: #404040 !important;
+[data-theme="dark"] .pdm-modal-backdrop .pdm-header-desktop .pdm-btn-pdf,
+[data-theme="dark"] .pdm-modal-backdrop .pdm-header-desktop button[title="Download PDF"] {
+  background: #1e293b !important;
+  border-color: #475569 !important;
   color: #ffffff !important;
   box-shadow: none !important;
 }
 
-[data-theme="dark"] .pdm-modal-backdrop .pdm-header-desktop button[title="Print Document"] {
-  background: #ffffff !important;
-  border-color: #ffffff !important;
-  color: #000000 !important;
-  box-shadow: none !important;
-}
-
-[data-theme="dark"] .pdm-modal-backdrop .pdm-header-desktop svg {
-  color: currentColor !important;
-  stroke: currentColor !important;
-}
-
-[data-theme="dark"] .pdm-modal-backdrop .pdm-body {
-  background: #000000 !important;
-}
-
-[data-theme="dark"] .pdm-modal-backdrop .pdm-left,
-[data-theme="dark"] .pdm-modal-backdrop .pdm-drawer-body {
-  background: #050505 !important;
-  border-color: #242424 !important;
+[data-theme="dark"] .pdm-modal-backdrop .pdm-header-desktop .pdm-btn-pdf span,
+[data-theme="dark"] .pdm-modal-backdrop .pdm-header-desktop button[title="Download PDF"] span {
   color: #ffffff !important;
 }
 
-[data-theme="dark"] .pdm-modal-backdrop .pdm-left *,
-[data-theme="dark"] .pdm-modal-backdrop .pdm-drawer-body * {
-  color: #f5f5f5 !important;
-}
-
-[data-theme="dark"] .pdm-modal-backdrop .pdm-left [style*="#64748b"],
-[data-theme="dark"] .pdm-modal-backdrop .pdm-left [style*="#475569"],
-[data-theme="dark"] .pdm-modal-backdrop .pdm-drawer-body [style*="#64748b"],
-[data-theme="dark"] .pdm-modal-backdrop .pdm-drawer-body [style*="#475569"] {
-  color: #a3a3a3 !important;
-}
-
-[data-theme="dark"] .pdm-modal-backdrop .pdm-left svg,
-[data-theme="dark"] .pdm-modal-backdrop .pdm-drawer-body svg {
+[data-theme="dark"] .pdm-modal-backdrop .pdm-header-desktop .pdm-btn-pdf svg,
+[data-theme="dark"] .pdm-modal-backdrop .pdm-header-desktop button[title="Download PDF"] svg {
   color: #ffffff !important;
   stroke: #ffffff !important;
 }
 
-[data-theme="dark"] .pdm-modal-backdrop .pdm-left button,
-[data-theme="dark"] .pdm-modal-backdrop .pdm-drawer-body button {
-  background: #080808 !important;
-  border-color: #404040 !important;
-  color: #ffffff !important;
+[data-theme="dark"] .pdm-modal-backdrop .pdm-header-desktop .pdm-btn-print,
+[data-theme="dark"] .pdm-modal-backdrop .pdm-header-desktop button[title="Print Document"] {
+  background: #ffffff !important;
+  border-color: #ffffff !important;
+  color: #0f172a !important;
   box-shadow: none !important;
+}
+
+[data-theme="dark"] .pdm-modal-backdrop .pdm-header-desktop .pdm-btn-print span,
+[data-theme="dark"] .pdm-modal-backdrop .pdm-header-desktop button[title="Print Document"] span {
+  color: #0f172a !important;
+}
+
+[data-theme="dark"] .pdm-modal-backdrop .pdm-header-desktop .pdm-btn-print svg,
+[data-theme="dark"] .pdm-modal-backdrop .pdm-header-desktop button[title="Print Document"] svg {
+  color: #0f172a !important;
+  stroke: #0f172a !important;
+}
+
+[data-theme="dark"] .pdm-modal-backdrop .pdm-header-desktop .pdm-btn-close {
+  background: #1e293b !important;
+  border-color: #475569 !important;
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .pdm-modal-backdrop .pdm-header-desktop .pdm-btn-close svg {
+  color: #ffffff !important;
+  stroke: #ffffff !important;
+}
+
+[data-theme="dark"] .pdm-modal-backdrop .pdm-body {
+  background: #090d16 !important;
+}
+
+[data-theme="dark"] .pdm-modal-backdrop .pdm-left,
+[data-theme="dark"] .pdm-modal-backdrop .pdm-drawer-body {
+  background: #0f172a !important;
+  border-color: #1e293b !important;
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .pdm-modal-backdrop .pdm-left label,
+[data-theme="dark"] .pdm-modal-backdrop .pdm-drawer-body label {
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .pdm-modal-backdrop .pdm-left svg,
+[data-theme="dark"] .pdm-modal-backdrop .pdm-drawer-body svg {
+  color: #38bdf8 !important;
+  stroke: #38bdf8 !important;
+}
+
+[data-theme="dark"] .pdm-modal-backdrop .pdm-left .pdm-period-preset,
+[data-theme="dark"] .pdm-modal-backdrop .pdm-drawer-body .pdm-period-preset {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+  color: #f1f5f9 !important;
 }
 
 [data-theme="dark"] .pdm-modal-backdrop .pdm-left .pdm-period-preset[aria-pressed="true"],
 [data-theme="dark"] .pdm-modal-backdrop .pdm-drawer-body .pdm-period-preset[aria-pressed="true"] {
   background: #ffffff !important;
   border-color: #ffffff !important;
-  color: #000000 !important;
+  color: #0f172a !important;
+  font-weight: 800 !important;
 }
 
 [data-theme="dark"] .pdm-modal-backdrop .pdm-left .pdm-period-preset[aria-pressed="true"] svg,
 [data-theme="dark"] .pdm-modal-backdrop .pdm-drawer-body .pdm-period-preset[aria-pressed="true"] svg {
-  color: #000000 !important;
-  stroke: #000000 !important;
+  color: #0f172a !important;
+  stroke: #0f172a !important;
 }
 
-[data-theme="dark"] .pdm-modal-backdrop .pdm-left button[style*="background: #07345f"],
-[data-theme="dark"] .pdm-modal-backdrop .pdm-left button[style*="background: #0f172a"],
-[data-theme="dark"] .pdm-modal-backdrop .pdm-drawer-body button[style*="background: #07345f"],
-[data-theme="dark"] .pdm-modal-backdrop .pdm-drawer-body button[style*="background: #0f172a"] {
-  background: #ffffff !important;
-  border-color: #ffffff !important;
-  color: #000000 !important;
+[data-theme="dark"] .pdm-modal-backdrop .pdm-left .pdm-period-preset-custom:not([aria-pressed="true"]) {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+  color: #38bdf8 !important;
+}
+
+[data-theme="dark"] .pdm-modal-backdrop .pdm-left .pdm-period-preset-custom:not([aria-pressed="true"]) svg {
+  color: #38bdf8 !important;
+  stroke: #38bdf8 !important;
 }
 
 [data-theme="dark"] .pdm-modal-backdrop .pdm-print-document-btn {
   background: #ffffff !important;
   border-color: #ffffff !important;
-  color: #000000 !important;
+  color: #0f172a !important;
   box-shadow: none !important;
 }
 
 [data-theme="dark"] .pdm-modal-backdrop .pdm-print-document-btn svg {
-  color: #000000 !important;
-  stroke: #000000 !important;
+  color: #0f172a !important;
+  stroke: #0f172a !important;
 }
 
 [data-theme="dark"] .pdm-modal-backdrop .pdm-print-document-btn:hover {
-  background: #e5e5e5 !important;
-  border-color: #e5e5e5 !important;
-  color: #000000 !important;
+  background: #e2e8f0 !important;
+  border-color: #e2e8f0 !important;
+  color: #0f172a !important;
 }
 
-[data-theme="dark"] .pdm-modal-backdrop .pdm-print-document-btn:hover svg {
-  color: #000000 !important;
-  stroke: #000000 !important;
+[data-theme="dark"] .pdm-modal-backdrop .pdm-left .pdm-chart-options {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+}
+
+[data-theme="dark"] .pdm-modal-backdrop .pdm-left .pdm-chart-option {
+  color: #f1f5f9 !important;
+}
+
+[data-theme="dark"] .pdm-modal-backdrop .pdm-left .pdm-chart-option span {
+  color: #f1f5f9 !important;
+}
+
+[data-theme="dark"] .pdm-modal-backdrop .pdm-left .pdm-chart-option span:last-child {
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .pdm-modal-backdrop .pdm-left select {
+  background: #1e293b !important;
+  border-color: #334155 !important;
+  color: #f1f5f9 !important;
 }
 
 [data-theme="dark"] .pdm-modal-backdrop .pdm-left .pdm-severity-filter-all {
-  background: #080808 !important;
-  border-color: #525252 !important;
-  color: #e5e5e5 !important;
+  background: #1e293b !important;
+  border-color: #334155 !important;
+  color: #f1f5f9 !important;
 }
 
 [data-theme="dark"] .pdm-modal-backdrop .pdm-left .pdm-severity-filter-all[aria-pressed="true"] {
-  background: #262626 !important;
-  border-color: #a3a3a3 !important;
-  color: #ffffff !important;
+  background: #ffffff !important;
+  border-color: #ffffff !important;
+  color: #0f172a !important;
 }
 
 [data-theme="dark"] .pdm-modal-backdrop .pdm-left .pdm-severity-filter-minor {
-  background: rgba(34, 197, 94, 0.12) !important;
+  background: rgba(34, 197, 94, 0.15) !important;
   border-color: rgba(74, 222, 128, 0.45) !important;
   color: #4ade80 !important;
 }
 
 [data-theme="dark"] .pdm-modal-backdrop .pdm-left .pdm-severity-filter-minor[aria-pressed="true"] {
-  background: rgba(34, 197, 94, 0.24) !important;
+  background: #16a34a !important;
   border-color: #4ade80 !important;
-  color: #86efac !important;
+  color: #ffffff !important;
 }
 
 [data-theme="dark"] .pdm-modal-backdrop .pdm-left .pdm-severity-filter-serious {
-  background: rgba(245, 158, 11, 0.12) !important;
+  background: rgba(245, 158, 11, 0.15) !important;
   border-color: rgba(251, 191, 36, 0.45) !important;
   color: #fbbf24 !important;
 }
 
 [data-theme="dark"] .pdm-modal-backdrop .pdm-left .pdm-severity-filter-serious[aria-pressed="true"] {
-  background: rgba(245, 158, 11, 0.24) !important;
+  background: #d97706 !important;
   border-color: #fbbf24 !important;
-  color: #fcd34d !important;
+  color: #ffffff !important;
 }
 
 [data-theme="dark"] .pdm-modal-backdrop .pdm-left .pdm-severity-filter-major {
-  background: rgba(239, 68, 68, 0.12) !important;
+  background: rgba(239, 68, 68, 0.15) !important;
   border-color: rgba(248, 113, 113, 0.45) !important;
   color: #f87171 !important;
 }
 
 [data-theme="dark"] .pdm-modal-backdrop .pdm-left .pdm-severity-filter-major[aria-pressed="true"] {
-  background: rgba(239, 68, 68, 0.24) !important;
+  background: #dc2626 !important;
   border-color: #f87171 !important;
-  color: #fca5a5 !important;
+  color: #ffffff !important;
 }
 
 [data-theme="dark"] .pdm-modal-backdrop .pdm-date-picker .custom-date-picker-trigger.is-open {
