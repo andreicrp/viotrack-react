@@ -35,9 +35,9 @@ import { useAuth } from '../../context/AuthContext';
 const SANCTIONS_MATRIX = [
   {
     level: 'Minor Offense',
-    color: '#10b981',
-    bg: '#ecfdf5',
-    border: '#a7f3d0',
+    color: '#15803d',
+    bg: '#f0fdf4',
+    border: '#86efac',
     examples: ['Improper Uniform / No ID', 'Tardiness / Loitering', 'Minor Classroom Disruption'],
     firstOffense: 'Verbal Warning & Counseling',
     secondOffense: 'Written Reflection & Adviser Notification',
@@ -45,9 +45,9 @@ const SANCTIONS_MATRIX = [
   },
   {
     level: 'Serious Offense',
-    color: '#f59e0b',
-    bg: '#fffbeb',
-    border: '#fde68a',
+    color: '#a16207',
+    bg: '#fefce8',
+    border: '#fde047',
     examples: ['Cutting Classes / Truancy', 'Disrespect toward School Personnel', 'Unauthorized Campus Exit'],
     firstOffense: 'Parent Summons & 2-Hour Campus Service',
     secondOffense: 'Formal Behavioral Contract & Counseling',
@@ -55,9 +55,9 @@ const SANCTIONS_MATRIX = [
   },
   {
     level: 'Major Offense',
-    color: '#ef4444',
+    color: '#b91c1c',
     bg: '#fef2f2',
-    border: '#fecaca',
+    border: '#fca5a5',
     examples: ['Bullying / Physical Altercation', 'Academic Dishonesty / Forgery', 'Vandalism / Property Damage'],
     firstOffense: 'Immediate Parent Summons & Disciplinary Board Hearing',
     secondOffense: 'Suspension / Behavioral Probation',
@@ -1288,36 +1288,37 @@ export const InteractiveTourGuide = () => {
                 <div
                   key={idx}
                   style={{
-                    background: 'var(--bg-surface-elevated, ' + item.bg + ')',
-                    border: `1px solid ${item.border}`,
+                    background: item.bg,
+                    border: `1.5px solid ${item.border}`,
                     borderRadius: '12px',
                     padding: '14px',
                     display: 'flex',
                     flexDirection: 'column',
-                    gap: '8px'
+                    gap: '8px',
+                    boxShadow: '0 2px 6px rgba(0,0,0,0.02)'
                   }}
                 >
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '6px' }}>
                     <span style={{ fontSize: '13px', fontWeight: 800, color: item.color, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                       {item.level}
                     </span>
-                    <span style={{ fontSize: '11px', color: 'var(--text-muted, #64748b)' }}>
-                      Typical Infractions: {item.examples.join(', ')}
+                    <span style={{ fontSize: '11px', color: 'var(--text-secondary, #334155)', fontWeight: 500 }}>
+                      Typical Infractions: <strong style={{ color: 'var(--text-primary, #0f172a)' }}>{item.examples.join(', ')}</strong>
                     </span>
                   </div>
 
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px', background: 'var(--bg-surface, #ffffff)', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--border-subtle, #e2e8f0)' }}>
                     <div>
-                      <span style={{ fontSize: '10px', fontWeight: 700, color: 'var(--text-muted, #64748b)', display: 'block', textTransform: 'uppercase' }}>1st Offense</span>
+                      <span style={{ fontSize: '10px', fontWeight: 800, color: 'var(--text-muted, #475569)', display: 'block', textTransform: 'uppercase' }}>1st Offense</span>
                       <span style={{ fontSize: '11.5px', fontWeight: 700, color: 'var(--text-primary, #0f172a)', display: 'block', marginTop: '2px' }}>{item.firstOffense}</span>
                     </div>
                     <div>
-                      <span style={{ fontSize: '10px', fontWeight: 700, color: 'var(--text-muted, #64748b)', display: 'block', textTransform: 'uppercase' }}>2nd Offense</span>
+                      <span style={{ fontSize: '10px', fontWeight: 800, color: 'var(--text-muted, #475569)', display: 'block', textTransform: 'uppercase' }}>2nd Offense</span>
                       <span style={{ fontSize: '11.5px', fontWeight: 700, color: 'var(--text-primary, #0f172a)', display: 'block', marginTop: '2px' }}>{item.secondOffense}</span>
                     </div>
                     <div>
-                      <span style={{ fontSize: '10px', fontWeight: 700, color: 'var(--text-muted, #64748b)', display: 'block', textTransform: 'uppercase' }}>3rd Offense</span>
-                      <span style={{ fontSize: '11.5px', fontWeight: 700, color: '#f87171', display: 'block', marginTop: '2px' }}>{item.thirdOffense}</span>
+                      <span style={{ fontSize: '10px', fontWeight: 800, color: '#b91c1c', display: 'block', textTransform: 'uppercase' }}>3rd Offense</span>
+                      <span style={{ fontSize: '11.5px', fontWeight: 700, color: '#b91c1c', display: 'block', marginTop: '2px' }}>{item.thirdOffense}</span>
                     </div>
                   </div>
                 </div>
