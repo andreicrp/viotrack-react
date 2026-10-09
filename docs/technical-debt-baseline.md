@@ -561,3 +561,10 @@ Clean latest main passed **22 tests across 5 test files**, lint (**446 warnings,
 Latest main is [`4756084d25f8549c332fd5872ce4bbd58cc5bde8`](https://github.com/andreicrp/viotrack-react/commit/4756084d25f8549c332fd5872ce4bbd58cc5bde8). It adjusts dark-theme styling for the Print Data modal's time-period, severity, and header controls in `PrintDataModal.jsx` and `dark-theme.css`; no data-service modules, tests, dependencies, or declarations changed.
 
 Clean latest main passed **22 tests across 5 test files**, lint (**446 warnings, 0 errors**), and production build (`vendor-react` 302.00 kB, gzip 96.16 kB; PDF worker 1,264.34 kB). The PR rebased onto this commit passed **46 tests across 6 files**, `npm run typecheck`, lint (**445 warnings, 0 errors**), and build with matching bundle sizes. Main has no JSDoc typecheck script.
+
+
+## Baseline after the 2026-10-10 parent summons and resolution dark-theme refinement
+
+Latest main is [`239ba553fc9eb45efb06ee865c1e5e08d84a4f9b`](https://github.com/andreicrp/viotrack-react/commit/239ba553fc9eb45efb06ee865c1e5e08d84a4f9b). It refines the monochrome dark theme in `PrintDataModal.jsx`, `ParentSummonsModal.jsx`, `ResolutionModal.jsx`, and `dark-theme.css`; no data-service modules, tests, dependencies, or declarations changed.
+
+Clean latest main passed **22 tests across 5 test files**, lint (**446 warnings, 0 errors**), and production build (`vendor-react` 302.00 kB, gzip 96.16 kB; PDF worker 1,264.34 kB). The PR rebased onto this commit passed **46 tests across 6 files**, `npm run typecheck`, lint (**445 warnings, 0 errors**), and build with matching bundle sizes. Main has no JSDoc typecheck script.
