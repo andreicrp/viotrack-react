@@ -526,3 +526,10 @@ Clean latest main passed **22 tests across 5 test files**, lint (**434 warnings,
 Latest main is [`692d9bb656e246b88f70b19aee64f3a932f0eb2e`](https://github.com/andreicrp/viotrack-react/commit/692d9bb656e246b88f70b19aee64f3a932f0eb2e). Since the prior baseline at `c2e8da6`, 18 commits added command-palette and QR-security updates, the interactive guide, broad dark-mode and UI-visibility improvements, package/Vite updates, the MySQL schema (`MYSql_vioTrack.sql` plus `VioTrack.sql`), and the greeting contrast fix. None changed `src/services/dataService/**`, the data-service tests, or the JSDoc type declarations; the MySQL schema files are not exercised by the app test suite.
 
 Clean latest main passed **22 tests across 5 test files**, lint (**445 warnings, 0 errors**), and production build (`vendor-react` 302.00 kB, gzip 96.16 kB; PDF worker 1,264.34 kB). The latest main does not define a JSDoc typecheck script. After rebasing and retaining the modular service plus deduplication regression tests, the PR passed **46 tests across 6 files**, `npm run typecheck`, lint (**444 warnings, 0 errors**), and build with matching bundle sizes. The build completed without an oversized-chunk warning in the captured output.
+
+
+## Baseline after the 2026-10-10 workstation inactivity auto-lock update
+
+Latest main is [`b67127ce051b68ee61e5c767a781ee3f02c203d0`](https://github.com/andreicrp/viotrack-react/commit/b67127ce051b68ee61e5c767a781ee3f02c203d0). It adds configurable inactivity timeout settings in `ProfilePage.jsx` and updates `AuthContext.jsx` / `ScreenLockModal.jsx`; it does not change the data-service modules, tests, or declarations.
+
+Clean latest main passed **22 tests across 5 test files**, lint (**446 warnings, 0 errors**), and production build (`vendor-react` 302.00 kB, gzip 96.16 kB; PDF worker 1,264.34 kB). The PR rebased onto this commit passed **46 tests across 6 files**, `npm run typecheck`, lint (**445 warnings, 0 errors**), and build with matching bundle sizes. Main still has no JSDoc typecheck script.
