@@ -1188,7 +1188,7 @@ export const InteractiveTourGuide = () => {
                                 {scenario.title}
                               </span>
                               {isDone && (
-                                <span style={{ fontSize: '9.5px', fontWeight: 700, color: '#4ade80', background: 'rgba(34, 197, 94, 0.15)', border: '1px solid rgba(34, 197, 94, 0.35)', padding: '1px 6px', borderRadius: '6px', display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+                                <span style={{ fontSize: '9.5px', fontWeight: 700, color: '#15803d', background: '#f0fdf4', border: '1px solid #86efac', padding: '1px 6px', borderRadius: '6px', display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
                                   <CheckCircle2 size={10} strokeWidth={2.5} /> Completed
                                 </span>
                               )}

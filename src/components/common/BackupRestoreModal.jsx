@@ -632,7 +632,7 @@ export const BackupRestoreModal = ({ isOpen, onClose }) => {
                         Snapshot Verified: {uploadedFilePayload.backup_id || 'Valid Backup'}
                       </strong>
                     </div>
-                    <span style={{ fontSize: '11px', fontWeight: 700, color: '#4ade80', background: 'rgba(34, 197, 94, 0.15)', padding: '3px 9px', borderRadius: '12px', border: '1px solid rgba(34, 197, 94, 0.35)' }}>
+                    <span className="badge-minor" style={{ fontSize: '11px', fontWeight: 700, color: '#15803d', background: '#f0fdf4', padding: '3px 9px', borderRadius: '12px', border: '1px solid #86efac' }}>
                       Integrity Check Passed
                     </span>
                   </div>
