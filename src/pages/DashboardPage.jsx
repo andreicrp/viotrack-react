@@ -878,13 +878,7 @@ export const DashboardPage = () => {
           {/* Greeting */}
           <div className="dash-greeting-area">
             <div className="dash-greeting-title-line">
-              <h1
-                className="dash-greeting-title"
-                style={{
-                  color: 'var(--text-primary, #ffffff)',
-                  WebkitTextFillColor: 'var(--text-primary, #ffffff)'
-                }}
-              >
+              <h1 className="dash-greeting-title">
                 Hi, {user?.name || 'System Admin'}
               </h1>
               {/* Auto-refresh indicator */}
@@ -896,13 +890,7 @@ export const DashboardPage = () => {
               </span>
             </div>
             {/* At-a-glance summary sentence */}
-            <p
-              className="dash-greeting-subtitle"
-              style={{
-                color: 'var(--text-secondary, #cbd5e1)',
-                WebkitTextFillColor: 'var(--text-secondary, #cbd5e1)'
-              }}
-            >
+            <p className="dash-greeting-subtitle">
               {todayStats.todayCount === 0 && todayStats.pending === 0
                 ? 'Campus conduct is clean — no violations recorded today.'
                 : `Today: ${todayStats.todayCount > 0 ? `${todayStats.todayCount} new violation${todayStats.todayCount !== 1 ? 's' : ''}` : 'no new violations'}

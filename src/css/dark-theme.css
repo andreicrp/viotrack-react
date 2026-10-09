@@ -31,6 +31,31 @@
   }
 }
 
+/* Root Variables for Light Mode Default */
+:root,
+[data-theme="light"],
+html:not(.dark):not([data-theme="dark"]) {
+  --bg-app: #f8fafc;
+  --bg-page: #f8fafc;
+  --bg-surface: #ffffff;
+  --bg-surface-elevated: #ffffff;
+  --bg-surface-hover: #f1f5f9;
+  --bg-input: #ffffff;
+  
+  --border-subtle: #e2e8f0;
+  --border-medium: #cbd5e1;
+  --border-focus: #0f172a;
+  
+  --text-primary: #0f172a;
+  --text-secondary: #334155;
+  --text-muted: #64748b;
+  --text-dim: #94a3b8;
+  
+  --brand-blue: #07345f;
+  --brand-blue-hover: #0f172a;
+  color-scheme: light;
+}
+
 /* Root Variables for Dark Mode */
 [data-theme="dark"],
 .dark-theme,
