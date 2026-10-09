@@ -473,19 +473,36 @@ export const Header = ({ onToggleSidebar, onOpenCommandPalette }) => {
                   className="user-dropdown-btn theme-toggle-btn"
                   onClick={(e) => {
                     e.stopPropagation();
-                    toggleTheme();
+                    toggleTheme(e);
                   }}
                   role="menuitem"
                   title={`Switch to ${isDark ? 'Light' : 'Dark'} Mode`}
                 >
-                  <div className="user-dropdown-btn-content">
+                  <div className="user-dropdown-btn-content" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     {isDark ? (
                       <Sun size={16} className="user-dropdown-icon text-amber-500" style={{ color: '#f59e0b' }} />
                     ) : (
                       <Moon size={16} className="user-dropdown-icon" />
                     )}
-                    <span className="user-dropdown-btn-label">
+                    <span className="user-dropdown-btn-label" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                       {isDark ? 'Light Mode' : 'Dark Mode'}
+                      <span
+                        className="user-dropdown-beta-badge"
+                        style={{
+                          fontSize: '9.5px',
+                          fontWeight: 800,
+                          padding: '1px 6px',
+                          borderRadius: '20px',
+                          background: isDark ? 'rgba(56, 189, 248, 0.18)' : '#e0f2fe',
+                          color: isDark ? '#38bdf8' : '#0369a1',
+                          border: isDark ? '1px solid rgba(56, 189, 248, 0.4)' : '1px solid #bae6fd',
+                          letterSpacing: '0.04em',
+                          lineHeight: 1.1,
+                          textTransform: 'uppercase'
+                        }}
+                      >
+                        BETA
+                      </span>
                     </span>
                   </div>
                   <div className={`theme-toggle-switch ${isDark ? 'active' : ''}`} aria-hidden="true">

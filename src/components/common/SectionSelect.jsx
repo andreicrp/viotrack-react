@@ -97,7 +97,7 @@ export const SectionSelect = ({
       <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
         <input
           type="text"
-          className="form-control"
+          className="form-control section-select-input"
           placeholder={placeholder}
           value={query}
           onChange={handleInputChange}
@@ -118,6 +118,7 @@ export const SectionSelect = ({
         />
         <button
           type="button"
+          className="section-select-toggle"
           onClick={() => setIsOpen(prev => !prev)}
           tabIndex={-1}
           style={{
@@ -144,6 +145,7 @@ export const SectionSelect = ({
 
       {isOpen && (
         <div
+          className="section-select-dropdown"
           style={{
             position: 'absolute',
             top: placement === 'bottom' ? 'calc(100% + 6px)' : 'auto',
@@ -160,7 +162,7 @@ export const SectionSelect = ({
             padding: '6px'
           }}
         >
-          <div style={{ padding: '6px 8px', fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+          <div className="section-select-heading" style={{ padding: '6px 8px', fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
             Sections for {normGrade} ({sectionList.length})
           </div>
 
@@ -176,6 +178,7 @@ export const SectionSelect = ({
             return (
               <div
                 key={sec}
+                className={`section-select-option${isSelected ? ' selected' : ''}`}
                 onClick={() => handleSelect(sec)}
                 style={{
                   display: 'flex',
@@ -194,26 +197,27 @@ export const SectionSelect = ({
                 onMouseLeave={(e) => { if (!isSelected) e.currentTarget.style.background = 'transparent'; }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <Layers size={14} color={isSelected ? '#07345f' : '#94a3b8'} />
+                  <Layers className="section-select-layer-icon" size={14} color={isSelected ? '#07345f' : '#94a3b8'} />
                   <span>{sec}</span>
                   {studentCount > 0 && (
-                    <span style={{ fontSize: '10.5px', background: '#e2e8f0', color: '#475569', padding: '1px 6px', borderRadius: '8px', display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+                    <span className="section-select-student-count" style={{ fontSize: '10.5px', background: '#e2e8f0', color: '#475569', padding: '1px 6px', borderRadius: '8px', display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
                       <Users size={10} /> {studentCount}
                     </span>
                   )}
                   {adviser && adviser.teacher && (
-                    <span style={{ fontSize: '10.5px', background: '#dbeafe', color: '#1d4ed8', padding: '1px 6px', borderRadius: '8px', display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+                    <span className="section-select-adviser" style={{ fontSize: '10.5px', background: '#dbeafe', color: '#1d4ed8', padding: '1px 6px', borderRadius: '8px', display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
                       <UserCheck size={10} /> {adviser.teacher.fname} {adviser.teacher.lname}
                     </span>
                   )}
                 </div>
-                {isSelected && <Check size={15} color="#07345f" strokeWidth={2.5} />}
+                {isSelected && <Check className="section-select-check" size={15} color="#07345f" strokeWidth={2.5} />}
               </div>
             );
           })}
 
           {query.trim() && !isExactMatch && (
             <div
+              className="section-select-create"
               onClick={() => handleSelect(query.trim())}
               style={{
                 display: 'flex',
@@ -236,7 +240,7 @@ export const SectionSelect = ({
           )}
 
           {filtered.length === 0 && !query.trim() && (
-            <div style={{ padding: '12px', textAlign: 'center', fontSize: '12px', color: '#94a3b8' }}>
+            <div className="section-select-empty" style={{ padding: '12px', textAlign: 'center', fontSize: '12px', color: '#94a3b8' }}>
               No sections found. Type to add one.
             </div>
           )}

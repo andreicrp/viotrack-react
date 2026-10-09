@@ -387,16 +387,16 @@ export const ViolationTypesPage = () => {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+    <div className="violation-types-page" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
       {/* 1. Top Banner & Primary Actions */}
       <div className="page-banner-header">
         <div className="page-banner-info">
-          <ShieldAlert size={26} color="#0f172a" strokeWidth={2.4} style={{ flexShrink: 0 }} />
+          <ShieldAlert size={26} strokeWidth={2.4} style={{ flexShrink: 0, color: 'var(--brand-blue, #07345f)' }} />
           <div>
-            <h2 style={{ fontSize: '20px', fontWeight: 800, margin: 0, color: '#0f172a', letterSpacing: '-0.02em' }}>
+            <h2 style={{ fontSize: '20px', fontWeight: 800, margin: 0, color: 'var(--text-primary, #0f172a)', letterSpacing: '-0.02em' }}>
               Violation Offenses Catalog
             </h2>
-            <p style={{ margin: '3px 0 0 0', fontSize: '13px', color: '#64748b' }}>
+            <p style={{ margin: '3px 0 0 0', fontSize: '13px', color: 'var(--text-muted, #64748b)' }}>
               Student Code of Conduct &amp; Handbook Policies, sanctions, and severity classifications.
             </p>
           </div>
@@ -863,10 +863,10 @@ export const ViolationTypesPage = () => {
                       {/* Severity Badge */}
                       <td style={{ padding: '14px 16px' }}>
                         <span
+                          className={isMajor ? 'badge-major' : isSerious ? 'badge-serious' : 'badge-minor'}
                           style={{
                             display: 'inline-flex',
                             alignItems: 'center',
-                            gap: '6px',
                             padding: '4px 10px',
                             borderRadius: '20px',
                             fontSize: '11.5px',
@@ -875,7 +875,6 @@ export const ViolationTypesPage = () => {
                             color: isMajor ? '#ef4444' : isSerious ? '#f59e0b' : '#10b981'
                           }}
                         >
-                          <span style={{ width: 6, height: 6, borderRadius: '50%', background: isMajor ? '#ef4444' : isSerious ? '#f59e0b' : '#22c55e' }} />
                           {v.type || 'Minor'}
                         </span>
                       </td>
@@ -993,6 +992,7 @@ export const ViolationTypesPage = () => {
                         </span>
                       </label>
                       <span
+                        className={isMajor ? 'badge-major' : isSerious ? 'badge-serious' : 'badge-minor'}
                         style={{
                           padding: '3px 10px',
                           borderRadius: '20px',
@@ -1002,11 +1002,9 @@ export const ViolationTypesPage = () => {
                           border: `1px solid ${isMajor ? '#fecaca' : isSerious ? '#fde047' : '#bbf7d0'}`,
                           color: isMajor ? '#dc2626' : isSerious ? '#a16207' : '#15803d',
                           display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: '4px'
+                          alignItems: 'center'
                         }}
                       >
-                        <span style={{ width: 6, height: 6, borderRadius: '50%', background: isMajor ? '#ef4444' : isSerious ? '#eab308' : '#22c55e' }} />
                         {v.type || 'Minor'}
                       </span>
                     </div>
@@ -1038,6 +1036,7 @@ export const ViolationTypesPage = () => {
 
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <h4
+                          className="violation-catalog-title"
                           style={{
                             margin: 0,
                             fontSize: '14.5px',
@@ -1058,6 +1057,7 @@ export const ViolationTypesPage = () => {
 
                     {/* Meta Details Box */}
                     <div
+                      className="violation-catalog-meta"
                       style={{
                         background: '#f8fafc',
                         border: '1px solid #e2e8f0',
@@ -1069,14 +1069,15 @@ export const ViolationTypesPage = () => {
                         textAlign: 'left'
                       }}
                     >
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11.5px', color: '#475569' }}>
-                        <Gavel size={13} color="#07345f" strokeWidth={2.2} />
-                        <span style={{ fontWeight: 600, color: '#64748b' }}>Sanction:</span>
-                        <strong style={{ color: '#07345f', fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      <div className="violation-catalog-sanction-row" style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11.5px', color: '#475569' }}>
+                        <Gavel className="violation-catalog-sanction-icon" size={13} color="#07345f" strokeWidth={2.2} />
+                        <span className="violation-catalog-sanction-label" style={{ fontWeight: 600, color: '#64748b' }}>Sanction:</span>
+                        <strong className="violation-catalog-sanction-value" style={{ color: '#07345f', fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                           {v.default_sanction || '1st Warning'}
                         </strong>
                       </div>
                       <div
+                        className="violation-catalog-description"
                         style={{
                           color: '#64748b',
                           fontSize: '11.5px',
@@ -1124,6 +1125,7 @@ export const ViolationTypesPage = () => {
               return (
                 <div
                   key={v.id}
+                  className={`violation-catalog-list-card${isChecked ? ' is-selected' : ''}`}
                   style={{
                     background: isChecked ? '#f8fafc' : '#ffffff',
                     border: isChecked ? '1.5px solid #07345f' : '1px solid #e2e8f0',
@@ -1161,12 +1163,12 @@ export const ViolationTypesPage = () => {
                     </span>
                   </div>
 
-                  <p style={{ margin: 0, fontSize: '12.5px', color: '#64748b', lineHeight: 1.4 }}>
+                  <p className="violation-catalog-mobile-description" style={{ margin: 0, fontSize: '12.5px', color: '#64748b', lineHeight: 1.4 }}>
                     {v.description || 'Standard handbook conduct policy infraction.'}
                   </p>
 
-                  <div style={{ background: '#f8fafc', padding: '8px 10px', borderRadius: '6px', fontSize: '12px', color: '#334155' }}>
-                    Sanction: <strong style={{ color: '#07345f' }}>{v.default_sanction || '1st Warning / Conference'}</strong>
+                  <div className="violation-catalog-mobile-sanction" style={{ background: '#f8fafc', padding: '8px 10px', borderRadius: '6px', fontSize: '12px', color: '#334155' }}>
+                    Sanction: <strong className="violation-catalog-sanction-value" style={{ color: '#07345f' }}>{v.default_sanction || '1st Warning / Conference'}</strong>
                   </div>
 
                   <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '6px', paddingTop: '4px', borderTop: '1px dashed #e2e8f0' }}>
@@ -1293,12 +1295,12 @@ export const ViolationTypesPage = () => {
         >
           <div
             style={{
-              background: '#ffffff',
+              background: 'var(--bg-surface, #ffffff)',
               borderRadius: '18px',
               width: '100%',
               maxWidth: '560px',
-              boxShadow: '0 25px 60px -15px rgba(0, 0, 0, 0.3)',
-              border: '1px solid #e2e8f0',
+              boxShadow: '0 25px 60px -15px rgba(0, 0, 0, 0.5)',
+              border: '1px solid var(--border-subtle, #e2e8f0)',
               overflow: 'hidden',
               display: 'flex',
               flexDirection: 'column',
@@ -1312,15 +1314,15 @@ export const ViolationTypesPage = () => {
                 justifyContent: 'space-between',
                 alignItems: 'center',
                 padding: '20px 24px',
-                borderBottom: '1px solid #f1f5f9',
-                background: '#ffffff'
+                borderBottom: '1px solid var(--border-subtle, #f1f5f9)',
+                background: 'var(--bg-surface, #ffffff)'
               }}
             >
               <div>
-                <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 800, color: '#0f172a', letterSpacing: '-0.3px' }}>
+                <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 800, color: 'var(--text-primary, #0f172a)', letterSpacing: '-0.3px' }}>
                   {editingViolation ? 'Edit Violation Offense' : 'Add Violation Offense'}
                 </h3>
-                <span style={{ fontSize: '12.5px', color: '#64748b' }}>
+                <span style={{ fontSize: '12.5px', color: 'var(--text-muted, #64748b)' }}>
                   Configure handbook policy, severity level & default sanction
                 </span>
               </div>
@@ -1331,17 +1333,15 @@ export const ViolationTypesPage = () => {
                   width: 32,
                   height: 32,
                   borderRadius: '8px',
-                  border: 'none',
-                  background: '#f1f5f9',
-                  color: '#64748b',
+                  border: '1px solid var(--border-subtle, transparent)',
+                  background: 'var(--bg-surface-elevated, #f1f5f9)',
+                  color: 'var(--text-muted, #64748b)',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   transition: 'all 0.15s'
                 }}
-                onMouseOver={(e) => { e.currentTarget.style.background = '#e2e8f0'; e.currentTarget.style.color = '#0f172a'; }}
-                onMouseOut={(e) => { e.currentTarget.style.background = '#f1f5f9'; e.currentTarget.style.color = '#64748b'; }}
               >
                 <X size={18} />
               </button>
@@ -1363,7 +1363,7 @@ export const ViolationTypesPage = () => {
               >
                 {/* Violation Title */}
                 <div>
-                  <label style={{ fontSize: '13px', fontWeight: 700, color: '#334155', display: 'block', marginBottom: '6px' }}>
+                  <label style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-secondary, #334155)', display: 'block', marginBottom: '6px' }}>
                     Violation Title <span style={{ color: '#ef4444' }}>*</span>
                   </label>
                   <input
@@ -1376,21 +1376,19 @@ export const ViolationTypesPage = () => {
                       width: '100%',
                       padding: '10px 14px',
                       borderRadius: '10px',
-                      border: '1.5px solid #cbd5e1',
+                      border: '1.5px solid var(--border-subtle, #cbd5e1)',
                       fontSize: '13.5px',
-                      color: '#0f172a',
+                      color: 'var(--text-primary, #0f172a)',
                       outline: 'none',
                       transition: 'border-color 0.2s',
-                      background: '#ffffff'
+                      background: 'var(--bg-input, #ffffff)'
                     }}
-                    onFocus={(e) => { e.currentTarget.style.borderColor = '#4338ca'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(99, 102, 241, 0.12)'; }}
-                    onBlur={(e) => { e.currentTarget.style.borderColor = '#cbd5e1'; e.currentTarget.style.boxShadow = 'none'; }}
                   />
                 </div>
 
                 {/* Interactive Severity Selection Cards */}
                 <div>
-                  <label style={{ fontSize: '13px', fontWeight: 700, color: '#334155', display: 'block', marginBottom: '8px' }}>
+                  <label style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-secondary, #334155)', display: 'block', marginBottom: '8px' }}>
                     Severity Classification <span style={{ color: '#ef4444' }}>*</span>
                   </label>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '10px' }}>
@@ -1401,8 +1399,8 @@ export const ViolationTypesPage = () => {
                         padding: '12px 10px',
                         borderRadius: '12px',
                         cursor: 'pointer',
-                        border: formData.type === 'Minor' ? '2px solid #16a34a' : '1.5px solid #e2e8f0',
-                        background: formData.type === 'Minor' ? '#f0fdf4' : '#f8fafc',
+                        border: formData.type === 'Minor' ? '2px solid #16a34a' : '1.5px solid var(--border-subtle, #e2e8f0)',
+                        background: formData.type === 'Minor' ? 'rgba(22, 163, 74, 0.15)' : 'var(--bg-surface-elevated, #f8fafc)',
                         textAlign: 'center',
                         transition: 'all 0.15s ease',
                         boxShadow: formData.type === 'Minor' ? '0 4px 12px rgba(22, 163, 74, 0.15)' : 'none'
@@ -1411,10 +1409,10 @@ export const ViolationTypesPage = () => {
                       <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '4px' }}>
                         <ShieldCheck size={20} color={formData.type === 'Minor' ? '#16a34a' : '#94a3b8'} />
                       </div>
-                      <span style={{ fontSize: '13px', fontWeight: 800, color: formData.type === 'Minor' ? '#166534' : '#475569', display: 'block' }}>
+                      <span style={{ fontSize: '13px', fontWeight: 800, color: formData.type === 'Minor' ? '#22c55e' : 'var(--text-secondary, #475569)', display: 'block' }}>
                         Minor
                       </span>
-                      <span style={{ fontSize: '10.5px', color: '#64748b' }}>Uniform / ID / Tardy</span>
+                      <span style={{ fontSize: '10.5px', color: 'var(--text-muted, #64748b)' }}>Uniform / ID / Tardy</span>
                     </div>
 
                     {/* Serious Card */}
@@ -1424,8 +1422,8 @@ export const ViolationTypesPage = () => {
                         padding: '12px 10px',
                         borderRadius: '12px',
                         cursor: 'pointer',
-                        border: formData.type === 'Serious' ? '2px solid #d97706' : '1.5px solid #e2e8f0',
-                        background: formData.type === 'Serious' ? '#fffbeb' : '#f8fafc',
+                        border: formData.type === 'Serious' ? '2px solid #d97706' : '1.5px solid var(--border-subtle, #e2e8f0)',
+                        background: formData.type === 'Serious' ? 'rgba(217, 119, 6, 0.15)' : 'var(--bg-surface-elevated, #f8fafc)',
                         textAlign: 'center',
                         transition: 'all 0.15s ease',
                         boxShadow: formData.type === 'Serious' ? '0 4px 12px rgba(217, 119, 6, 0.15)' : 'none'
@@ -1434,10 +1432,10 @@ export const ViolationTypesPage = () => {
                       <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '4px' }}>
                         <AlertTriangle size={20} color={formData.type === 'Serious' ? '#d97706' : '#94a3b8'} />
                       </div>
-                      <span style={{ fontSize: '13px', fontWeight: 800, color: formData.type === 'Serious' ? '#92400e' : '#475569', display: 'block' }}>
+                      <span style={{ fontSize: '13px', fontWeight: 800, color: formData.type === 'Serious' ? '#f59e0b' : 'var(--text-secondary, #475569)', display: 'block' }}>
                         Serious
                       </span>
-                      <span style={{ fontSize: '10.5px', color: '#64748b' }}>Disruption / Cutting</span>
+                      <span style={{ fontSize: '10.5px', color: 'var(--text-muted, #64748b)' }}>Disruption / Cutting</span>
                     </div>
 
                     {/* Major Card */}
@@ -1447,8 +1445,8 @@ export const ViolationTypesPage = () => {
                         padding: '12px 10px',
                         borderRadius: '12px',
                         cursor: 'pointer',
-                        border: formData.type === 'Major' ? '2px solid #dc2626' : '1.5px solid #e2e8f0',
-                        background: formData.type === 'Major' ? '#fef2f2' : '#f8fafc',
+                        border: formData.type === 'Major' ? '2px solid #dc2626' : '1.5px solid var(--border-subtle, #e2e8f0)',
+                        background: formData.type === 'Major' ? 'rgba(220, 38, 38, 0.15)' : 'var(--bg-surface-elevated, #f8fafc)',
                         textAlign: 'center',
                         transition: 'all 0.15s ease',
                         boxShadow: formData.type === 'Major' ? '0 4px 12px rgba(220, 38, 38, 0.15)' : 'none'
@@ -1457,17 +1455,17 @@ export const ViolationTypesPage = () => {
                       <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '4px' }}>
                         <ShieldAlert size={20} color={formData.type === 'Major' ? '#dc2626' : '#94a3b8'} />
                       </div>
-                      <span style={{ fontSize: '13px', fontWeight: 800, color: formData.type === 'Major' ? '#991b1b' : '#475569', display: 'block' }}>
+                      <span style={{ fontSize: '13px', fontWeight: 800, color: formData.type === 'Major' ? '#ef4444' : 'var(--text-secondary, #475569)', display: 'block' }}>
                         Major
                       </span>
-                      <span style={{ fontSize: '10.5px', color: '#64748b' }}>Weapons / Violence</span>
+                      <span style={{ fontSize: '10.5px', color: 'var(--text-muted, #64748b)' }}>Weapons / Violence</span>
                     </div>
                   </div>
                 </div>
 
                 {/* Description */}
                 <div>
-                  <label style={{ fontSize: '13px', fontWeight: 700, color: '#334155', display: 'block', marginBottom: '6px' }}>
+                  <label style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-secondary, #334155)', display: 'block', marginBottom: '6px' }}>
                     Policy Description & Scope <span style={{ color: '#ef4444' }}>*</span>
                   </label>
                   <textarea
@@ -1480,25 +1478,23 @@ export const ViolationTypesPage = () => {
                       width: '100%',
                       padding: '10px 14px',
                       borderRadius: '10px',
-                      border: '1.5px solid #cbd5e1',
+                      border: '1.5px solid var(--border-subtle, #cbd5e1)',
                       fontSize: '13px',
-                      color: '#0f172a',
+                      color: 'var(--text-primary, #0f172a)',
                       outline: 'none',
                       resize: 'vertical',
-                      background: '#ffffff'
+                      background: 'var(--bg-input, #ffffff)'
                     }}
-                    onFocus={(e) => { e.currentTarget.style.borderColor = '#4338ca'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(99, 102, 241, 0.12)'; }}
-                    onBlur={(e) => { e.currentTarget.style.borderColor = '#cbd5e1'; e.currentTarget.style.boxShadow = 'none'; }}
                   />
                 </div>
 
                 {/* Default Sanction / Consequence with Preset Chips */}
                 <div>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                    <label style={{ fontSize: '13px', fontWeight: 700, color: '#334155' }}>
+                    <label style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-secondary, #334155)' }}>
                       Default Sanction / Consequence
                     </label>
-                    <span style={{ fontSize: '11px', color: '#64748b' }}>Click presets to autofill:</span>
+                    <span style={{ fontSize: '11px', color: 'var(--text-muted, #64748b)' }}>Click presets to autofill:</span>
                   </div>
 
                   <input
@@ -1510,14 +1506,12 @@ export const ViolationTypesPage = () => {
                       width: '100%',
                       padding: '10px 14px',
                       borderRadius: '10px',
-                      border: '1.5px solid #cbd5e1',
+                      border: '1.5px solid var(--border-subtle, #cbd5e1)',
                       fontSize: '13px',
-                      color: '#0f172a',
+                      color: 'var(--text-primary, #0f172a)',
                       outline: 'none',
-                      background: '#ffffff'
+                      background: 'var(--bg-input, #ffffff)'
                     }}
-                    onFocus={(e) => { e.currentTarget.style.borderColor = '#4338ca'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(99, 102, 241, 0.12)'; }}
-                    onBlur={(e) => { e.currentTarget.style.borderColor = '#cbd5e1'; e.currentTarget.style.boxShadow = 'none'; }}
                   />
 
                   {/* Suggestion Chips */}
@@ -1538,14 +1532,12 @@ export const ViolationTypesPage = () => {
                           fontWeight: 600,
                           padding: '3px 9px',
                           borderRadius: '12px',
-                          border: '1px solid #e2e8f0',
-                          background: '#f8fafc',
-                          color: '#475569',
+                          border: '1px solid var(--border-subtle, #e2e8f0)',
+                          background: 'var(--bg-surface-elevated, #f8fafc)',
+                          color: 'var(--text-secondary, #475569)',
                           cursor: 'pointer',
                           transition: 'all 0.15s'
                         }}
-                        onMouseOver={(e) => { e.currentTarget.style.background = '#e0e7ff'; e.currentTarget.style.color = '#4338ca'; }}
-                        onMouseOut={(e) => { e.currentTarget.style.background = '#f8fafc'; e.currentTarget.style.color = '#475569'; }}
                       >
                         + {chip}
                       </button>
@@ -1561,11 +1553,11 @@ export const ViolationTypesPage = () => {
                   justifyContent: 'space-between',
                   alignItems: 'center',
                   padding: '16px 24px',
-                  borderTop: '1px solid #f1f5f9',
-                  background: '#f8fafc'
+                  borderTop: '1px solid var(--border-subtle, #f1f5f9)',
+                  background: 'var(--bg-surface-elevated, #f8fafc)'
                 }}
               >
-                <span style={{ fontSize: '12px', color: '#94a3b8' }}>
+                <span style={{ fontSize: '12px', color: 'var(--text-muted, #94a3b8)' }}>
                   <span style={{ color: '#ef4444' }}>*</span> Mandatory fields
                 </span>
 
@@ -1576,16 +1568,14 @@ export const ViolationTypesPage = () => {
                     style={{
                       padding: '9px 18px',
                       borderRadius: '9px',
-                      background: '#ffffff',
-                      border: '1.5px solid #cbd5e1',
-                      color: '#475569',
+                      background: 'var(--bg-surface, #ffffff)',
+                      border: '1.5px solid var(--border-subtle, #cbd5e1)',
+                      color: 'var(--text-secondary, #475569)',
                       fontWeight: 700,
                       fontSize: '13px',
                       cursor: 'pointer',
                       transition: 'all 0.15s'
                     }}
-                    onMouseOver={(e) => { e.currentTarget.style.background = '#f1f5f9'; }}
-                    onMouseOut={(e) => { e.currentTarget.style.background = '#ffffff'; }}
                   >
                     Cancel
                   </button>

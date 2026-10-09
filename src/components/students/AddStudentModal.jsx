@@ -259,8 +259,8 @@ export const AddStudentModal = ({ isOpen, onClose, studentToEdit = null, onSaved
           {/* Top Live Student Preview Card & Quick Photo Upload */}
           <div
             style={{
-              background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
-              border: '1.5px solid #e2e8f0',
+              background: 'var(--bg-surface-elevated, #f8fafc)',
+              border: '1.5px solid var(--border-subtle, #e2e8f0)',
               borderRadius: '14px',
               padding: '14px 18px',
               display: 'flex',
@@ -284,8 +284,8 @@ export const AddStudentModal = ({ isOpen, onClose, studentToEdit = null, onSaved
                     height: 54,
                     borderRadius: '14px',
                     objectFit: 'cover',
-                    border: '2px solid #0f172a',
-                    boxShadow: '0 4px 12px rgba(15, 23, 42, 0.15)',
+                    border: '2px solid var(--brand-blue, #0f172a)',
+                    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.25)',
                     display: 'block'
                   }}
                 />
@@ -297,7 +297,7 @@ export const AddStudentModal = ({ isOpen, onClose, studentToEdit = null, onSaved
                     width: 20,
                     height: 20,
                     borderRadius: '50%',
-                    background: '#0f172a',
+                    background: 'var(--brand-blue, #0f172a)',
                     color: '#ffffff',
                     display: 'flex',
                     alignItems: 'center',
@@ -310,11 +310,11 @@ export const AddStudentModal = ({ isOpen, onClose, studentToEdit = null, onSaved
               </div>
 
               <div style={{ flex: 1, minWidth: 0 }}>
-                <div style={{ fontSize: '15px', fontWeight: 800, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                <div style={{ fontSize: '15px', fontWeight: 800, color: 'var(--text-primary, #0f172a)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                   {formData.fname || formData.lname ? `${formData.fname} ${formData.mname ? formData.mname[0] + '. ' : ''}${formData.lname}` : 'Student Name Preview'}
                 </div>
-                <div style={{ fontSize: '12px', color: '#64748b', marginTop: '2px', display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-                  <span>Student ID: <strong style={{ color: '#0f172a' }}>{formData.lrn || 'Pending'}</strong></span>
+                <div style={{ fontSize: '12px', color: 'var(--text-muted, #64748b)', marginTop: '2px', display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                  <span>Student ID: <strong style={{ color: 'var(--brand-blue, #0f172a)' }}>{formData.lrn || 'Pending'}</strong></span>
                   <span>•</span>
                   <span>{formData.grade} – {formData.section || 'Section'}</span>
                   <span>•</span>
@@ -331,9 +331,9 @@ export const AddStudentModal = ({ isOpen, onClose, studentToEdit = null, onSaved
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
                 style={{
-                  background: '#ffffff',
-                  color: '#0f172a',
-                  border: '1.5px solid #cbd5e1',
+                  background: 'var(--bg-surface, #ffffff)',
+                  color: 'var(--text-primary, #0f172a)',
+                  border: '1.5px solid var(--border-subtle, #cbd5e1)',
                   padding: '7px 13px',
                   borderRadius: '8px',
                   fontSize: '12px',
@@ -345,8 +345,6 @@ export const AddStudentModal = ({ isOpen, onClose, studentToEdit = null, onSaved
                   boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
                   transition: 'all 0.15s'
                 }}
-                onMouseOver={(e) => { e.currentTarget.style.borderColor = '#0f172a'; }}
-                onMouseOut={(e) => { e.currentTarget.style.borderColor = '#cbd5e1'; }}
               >
                 <Upload size={13} /> Upload Photo
               </button>
@@ -651,19 +649,20 @@ export const AddStudentModal = ({ isOpen, onClose, studentToEdit = null, onSaved
 
             {/* Photo Upload Zone */}
             <div className="form-group" style={{ marginTop: '14px' }}>
-              <label className="form-label" style={{ fontSize: '12.5px', fontWeight: 700, color: '#1e293b', marginBottom: '5px', display: 'block' }}>
+              <label className="form-label" style={{ fontSize: '12.5px', fontWeight: 700, color: 'var(--text-primary, #1e293b)', marginBottom: '5px', display: 'block' }}>
                 Student Profile Picture
               </label>
               <div
+                className="file-dropzone"
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
                 onClick={() => fileInputRef.current?.click()}
                 style={{
-                  border: `2px dashed ${isDragging ? '#0f172a' : '#cbd5e1'}`,
+                  border: `2px dashed ${isDragging ? 'var(--brand-blue, #0f172a)' : 'var(--border-medium, #cbd5e1)'}`,
                   borderRadius: '12px',
                   padding: '14px 18px',
-                  background: isDragging ? '#f1f5f9' : '#f8fafc',
+                  background: isDragging ? 'var(--bg-surface-hover, #f1f5f9)' : 'var(--bg-surface-elevated, #f8fafc)',
                   textAlign: 'center',
                   cursor: 'pointer',
                   transition: 'all 0.2s ease',
@@ -679,22 +678,22 @@ export const AddStudentModal = ({ isOpen, onClose, studentToEdit = null, onSaved
                     width: 38,
                     height: 38,
                     borderRadius: '50%',
-                    background: '#ffffff',
-                    border: '1px solid #e2e8f0',
+                    background: 'var(--bg-surface, #ffffff)',
+                    border: '1px solid var(--border-subtle, #e2e8f0)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    color: '#0f172a',
+                    color: 'var(--brand-blue, #0f172a)',
                     boxShadow: '0 2px 6px rgba(0,0,0,0.04)'
                   }}
                 >
                   <Upload size={18} />
                 </div>
                 <div>
-                  <div style={{ fontSize: '12.5px', fontWeight: 700, color: '#0f172a' }}>
+                  <div style={{ fontSize: '12.5px', fontWeight: 700, color: 'var(--text-primary, #0f172a)' }}>
                     Click to browse or drag & drop student photo
                   </div>
-                  <div style={{ fontSize: '11px', color: '#64748b', marginTop: '1px' }}>
+                  <div style={{ fontSize: '11px', color: 'var(--text-muted, #64748b)', marginTop: '1px' }}>
                     Supports PNG, JPG, JPEG, WEBP (Max 5MB)
                   </div>
                 </div>
@@ -719,13 +718,13 @@ export const AddStudentModal = ({ isOpen, onClose, studentToEdit = null, onSaved
         <div
           style={{
             padding: '10px 24px',
-            background: '#f8fafc',
-            borderTop: '1px solid #e2e8f0',
+            background: 'var(--bg-surface-elevated, #f8fafc)',
+            borderTop: '1px solid var(--border-subtle, #e2e8f0)',
             display: 'flex',
             alignItems: 'center',
             gap: '10px',
             fontSize: '11.5px',
-            color: '#475569',
+            color: 'var(--text-muted, #475569)',
             lineHeight: 1.45
           }}
         >
@@ -734,24 +733,24 @@ export const AddStudentModal = ({ isOpen, onClose, studentToEdit = null, onSaved
               width: '24px',
               height: '24px',
               borderRadius: '6px',
-              background: '#ecfdf5',
-              border: '1px solid #a7f3d0',
+              background: 'rgba(16, 185, 129, 0.15)',
+              border: '1px solid rgba(16, 185, 129, 0.3)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               flexShrink: 0
             }}
           >
-            <ShieldCheck size={14} color="#059669" strokeWidth={2.5} />
+            <ShieldCheck size={14} color="#34d399" strokeWidth={2.5} />
           </div>
           <div style={{ flex: 1 }}>
-            <span style={{ fontWeight: 700, color: '#0f172a' }}>Data Privacy Consent (RA 10173): </span>
+            <span style={{ fontWeight: 700, color: 'var(--text-primary, #0f172a)' }}>Data Privacy Consent (RA 10173): </span>
             <span>By registering this student record, you certify that personal and contact details are collected strictly for legitimate academic administration, emergency guardian dispatch, and DepEd conduct records.</span>
           </div>
         </div>
 
         {/* Modal Footer */}
-        <div style={{ padding: '14px 24px', borderTop: '1px solid #e2e8f0', background: '#f8fafc', display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '10px' }}>
+        <div style={{ padding: '14px 24px', borderTop: '1px solid var(--border-subtle, #e2e8f0)', background: 'var(--bg-surface, #f8fafc)', display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: '10px' }}>
           <button
             type="button"
             className="btn btn-secondary"
@@ -762,9 +761,9 @@ export const AddStudentModal = ({ isOpen, onClose, studentToEdit = null, onSaved
               borderRadius: '9px',
               fontWeight: 600,
               fontSize: '13px',
-              background: '#ffffff',
-              border: '1px solid #cbd5e1',
-              color: '#0f172a',
+              background: 'var(--bg-surface-elevated, #ffffff)',
+              border: '1px solid var(--border-subtle, #cbd5e1)',
+              color: 'var(--text-primary, #0f172a)',
               cursor: 'pointer'
             }}
           >
@@ -779,14 +778,14 @@ export const AddStudentModal = ({ isOpen, onClose, studentToEdit = null, onSaved
               borderRadius: '9px',
               fontWeight: 700,
               fontSize: '13px',
-              background: '#0f172a',
+              background: 'var(--brand-blue, #0f172a)',
               color: '#ffffff',
               border: 'none',
               cursor: loading ? 'not-allowed' : 'pointer',
               display: 'inline-flex',
               alignItems: 'center',
               gap: '6px',
-              boxShadow: '0 4px 12px rgba(15, 23, 42, 0.25)'
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.25)'
             }}
           >
             <UserPlus size={15} />

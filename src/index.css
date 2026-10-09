@@ -41,21 +41,16 @@
   src: url('/fonts/sora-800.ttf') format('truetype');
 }
 
-.skip-to-content:focus {
+.skip-to-content:focus-visible {
   top: 16px !important;
-  outline: 2px solid #ffffff !important;
+  outline: 3px solid var(--border-focus, #2563eb) !important;
+  outline-offset: 2px !important;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25) !important;
 }
 
 /* Mobile Performance, Touch & Security Restrictions */
 *, *::before, *::after {
   -webkit-tap-highlight-color: transparent !important;
-  -webkit-touch-callout: none !important;
-  -webkit-user-select: none !important;
-  -khtml-user-select: none !important;
-  -moz-user-select: none !important;
-  -ms-user-select: none !important;
-  user-select: none !important;
   -webkit-user-drag: none !important;
   -khtml-user-drag: none !important;
   -moz-user-drag: none !important;
@@ -70,7 +65,7 @@ img, a, svg, span, p, h1, h2, h3, h4, h5, h6, div, header, nav, aside {
   -o-user-drag: none !important;
 }
 
-/* Allow text typing, selection, and copy-pasting EXCLUSIVELY in textboxes and textareas */
+/* Preserve native text editing and selection behavior on editable controls. */
 input,
 textarea,
 [contenteditable="true"],
@@ -80,13 +75,6 @@ textarea,
   -ms-user-select: text !important;
   user-select: text !important;
   -webkit-touch-callout: default !important;
-}
-
-/* Eliminate orange/blue browser focus rings on charts, SVGs, buttons, and containers */
-*:focus,
-*:focus-visible {
-  outline: none !important;
-  box-shadow: none;
 }
 
 .recharts-wrapper,
@@ -104,10 +92,7 @@ main,
 aside,
 nav,
 footer {
-  outline: none !important;
   -webkit-tap-highlight-color: transparent !important;
-  user-select: none !important;
-  -webkit-user-select: none !important;
 }
 
 button, a, input, select, textarea {
@@ -277,7 +262,6 @@ textarea {
   border: 1.5px solid #cbd5e1 !important;
   border-radius: 9px !important;
   transition: all 0.2s ease-in-out !important;
-  outline: none !important;
   box-sizing: border-box !important;
 }
 
@@ -302,7 +286,6 @@ textarea {
   border: 1.5px solid #cbd5e1 !important;
   border-radius: 9px !important;
   cursor: pointer !important;
-  outline: none !important;
   box-sizing: border-box !important;
   appearance: none !important;
   -webkit-appearance: none !important;
@@ -2232,26 +2215,26 @@ button:active,
 
 .backup-modal-header {
   background: #ffffff;
-  color: #0f172a;
+  color: var(--text-primary, #0f172a);
   padding: 18px 28px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid var(--border-subtle, #e2e8f0);
   gap: 12px;
 }
 
 .backup-modal-tabs-wrap {
   padding: 16px 28px 0 28px;
-  background: #ffffff;
+  background: var(--bg-surface, #ffffff);
 }
 
 .backup-modal-tabs {
   display: flex;
-  background: #f1f5f9;
+  background: var(--bg-input, #f1f5f9);
   padding: 4px;
   border-radius: 14px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--border-subtle, #e2e8f0);
   gap: 4px;
 }
 
@@ -2263,7 +2246,7 @@ button:active,
   border-radius: 10px;
   font-size: 13px;
   font-weight: 600;
-  color: #64748b;
+  color: var(--text-muted, #64748b);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -2274,9 +2257,9 @@ button:active,
 }
 
 .backup-modal-tab-btn.is-active {
-  background: #ffffff;
+  background: var(--bg-surface-elevated, #ffffff);
   font-weight: 800;
-  color: #0f172a;
+  color: var(--brand-blue, #0f172a);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
@@ -2398,8 +2381,15 @@ button:active,
   }
 }
 
-
-
-
-
-
+button:focus-visible,
+a[href]:focus-visible,
+area[href]:focus-visible,
+input:not([type="hidden"]):focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+summary:focus-visible,
+[role="button"]:focus-visible,
+[tabindex]:not([tabindex="-1"]):focus-visible {
+  outline: 3px solid var(--border-focus, #2563eb) !important;
+  outline-offset: 2px !important;
+}

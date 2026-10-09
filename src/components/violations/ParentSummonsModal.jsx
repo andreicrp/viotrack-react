@@ -1133,10 +1133,10 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
 
   // Render Left Column / Drawer Form Content
   const renderFormContent = () => (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+    <div className="psm-form-content" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
       {/* 1. Summons Basic Parameters */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #e2e8f0', paddingBottom: '6px' }}>
+      <div className="psm-form-section" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+        <div className="psm-form-section-heading" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #e2e8f0', paddingBottom: '6px' }}>
           <span style={{ fontSize: '11px', fontWeight: 800, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
             1. Conference Schedule &amp; Recipient
           </span>
@@ -1149,6 +1149,7 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
           </label>
           <input
             type="text"
+            className="psm-parent-name-input"
             value={parentName}
             onChange={(e) => setParentName(e.target.value)}
             style={{
@@ -1173,6 +1174,7 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
               value={conferenceDate}
               onChange={(val) => setConferenceDate(val)}
               placeholder="Select Date"
+              className="psm-conference-date-picker"
             />
           </div>
 
@@ -1185,6 +1187,7 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
               onChange={(val) => setConferenceTime(val)}
               placeholder="Select Time"
               align="right"
+              className="psm-conference-time-picker"
             />
           </div>
         </div>
@@ -1212,7 +1215,7 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
       </div>
 
       {/* 2. Multi-Violation Bundling Section */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '12px' }}>
+      <div className="psm-violation-panel" style={{ display: 'flex', flexDirection: 'column', gap: '8px', background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '12px' }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <span style={{ fontSize: '11px', fontWeight: 800, color: '#0f172a', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'flex', alignItems: 'center', gap: '5px' }}>
             <Layers size={13} color="#0f172a" /> Included Violations ({activeViolations.length})
@@ -1221,6 +1224,7 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
             <button
               type="button"
               onClick={selectAllViolations}
+              className="psm-select-all"
               style={{ background: 'none', border: 'none', color: '#2563eb', fontSize: '11px', fontWeight: 700, cursor: 'pointer', padding: 0 }}
             >
               Select All ({studentViolations.length})
@@ -1243,6 +1247,7 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
             return (
               <div
                 key={v.id}
+                className={`psm-violation-option${isChecked ? ' is-selected' : ''}`}
                 onClick={() => toggleSelectViolation(v.id)}
                 style={{
                   display: 'flex',
@@ -1263,11 +1268,12 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
                   style={{ marginTop: '2px', accentColor: '#0f172a', cursor: 'pointer' }}
                 />
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: '11.5px', fontWeight: 700, color: '#0f172a', lineHeight: 1.3 }}>
+                  <div className="psm-violation-title" style={{ fontSize: '11.5px', fontWeight: 700, color: '#0f172a', lineHeight: 1.3 }}>
                     {title}
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '2px' }}>
                     <span
+                      className={`psm-severity-badge ${isMajor ? 'is-major' : isSerious ? 'is-serious' : 'is-minor'}`}
                       style={{
                         background: badgeBg,
                         color: badgeColor,
@@ -1281,7 +1287,7 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
                     >
                       {sev}
                     </span>
-                    <span style={{ fontSize: '10.5px', color: '#64748b' }}>
+                    <span className="psm-violation-date" style={{ fontSize: '10.5px', color: '#64748b' }}>
                       {v.date_reported ? new Date(v.date_reported).toLocaleDateString([], { month: 'short', day: 'numeric' }) : 'Recorded'}
                     </span>
                   </div>
@@ -1293,24 +1299,25 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
       </div>
 
       {/* 3. Editable Signatories */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #e2e8f0', paddingBottom: '6px' }}>
+      <div className="psm-form-section" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+        <div className="psm-form-section-heading" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #e2e8f0', paddingBottom: '6px' }}>
           <span style={{ fontSize: '11px', fontWeight: 800, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
             2. Authorized Signatories
           </span>
-          <span style={{ fontSize: '10px', color: '#16a34a', fontWeight: 700 }}>
+          <span className="psm-signatory-status is-included" style={{ fontSize: '10px', color: '#16a34a', fontWeight: 700 }}>
             Fully Editable
           </span>
         </div>
 
         {/* Signatory 1 (Left - Prefect) */}
-        <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '10px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+        <div className="psm-signatory-card" style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '10px', padding: '10px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
           <span style={{ fontSize: '11px', fontWeight: 700, color: '#0f172a' }}>
             Signatory 1 (Left - Prefect / Discipline Head)
           </span>
           <div>
             <input
               type="text"
+              className="psm-signatory-input"
               value={signatory1Name}
               placeholder="Signatory 1 Name (e.g. Sheryl Gamboa)"
               onChange={(e) => setSignatory1Name(e.target.value)}
@@ -1327,6 +1334,7 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
             />
             <input
               type="text"
+              className="psm-signatory-input"
               value={signatory1Title}
               placeholder="Designation (e.g. Prefect of Discipline)"
               onChange={(e) => setSignatory1Title(e.target.value)}
@@ -1344,6 +1352,7 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
 
         {/* Signatory 2 (Right - Class Adviser / Dept Head) */}
         <div
+          className="psm-signatory-card"
           style={{
             background: '#ffffff',
             border: includeSignatory2 ? '1px solid #e2e8f0' : '1px dashed #cbd5e1',
@@ -1366,15 +1375,16 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
               />
               <span>Signatory 2 (Adviser / Head)</span>
             </label>
-            <span style={{ fontSize: '10px', fontWeight: 800, color: includeSignatory2 ? '#16a34a' : '#64748b' }}>
+            <span className={`psm-signatory-status${includeSignatory2 ? ' is-included' : ''}`} style={{ fontSize: '10px', fontWeight: 800, color: includeSignatory2 ? '#16a34a' : '#64748b' }}>
               {includeSignatory2 ? 'Included' : 'Removed'}
             </span>
           </div>
 
           {includeSignatory2 ? (
-            <div>
+            <div className="psm-form-notes">
               <input
                 type="text"
+                className="psm-signatory-input"
                 value={signatory2Name}
                 placeholder="Signatory 2 Name (e.g. Class Adviser)"
                 onChange={(e) => setSignatory2Name(e.target.value)}
@@ -1391,6 +1401,7 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
               />
               <input
                 type="text"
+                className="psm-signatory-input"
                 value={signatory2Title}
                 placeholder="Designation (e.g. Department Head)"
                 onChange={(e) => setSignatory2Title(e.target.value)}
@@ -1440,6 +1451,7 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
       <div style={{ marginTop: 'auto', paddingTop: '6px' }}>
         <button
           type="button"
+          className="psm-sms-button"
           onClick={handleSendSummonsSMS}
           disabled={isSendingSms}
           style={{
@@ -1464,7 +1476,7 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
           <span>{isSendingSms ? 'Dispatching...' : 'Send SMS Notice to Parent'}</span>
         </button>
         {defaultParentContact && defaultParentContact !== 'N/A' && (
-          <span style={{ fontSize: '10.5px', color: '#64748b', textAlign: 'center', display: 'block', marginTop: '4px' }}>
+          <span className="psm-sms-target" style={{ fontSize: '10.5px', color: '#64748b', textAlign: 'center', display: 'block', marginTop: '4px' }}>
             Target: {defaultParentContact}
           </span>
         )}
@@ -1476,7 +1488,7 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
 
   return (
     <div
-      className="modal-backdrop-smooth"
+      className="modal-backdrop-smooth summons-modal-backdrop"
       style={{
         position: 'fixed',
         inset: 0,
@@ -2011,6 +2023,7 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0, flex: 1, overflow: 'hidden' }}>
             <button
               type="button"
+              className="psm-header-back-btn"
               onClick={onClose}
               style={{
                 background: '#f8fafc',
@@ -2057,6 +2070,7 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
             {/* Download PDF Button */}
             <button
               type="button"
+              className="psm-header-download-btn"
               onClick={handleDownloadPDF}
               style={{
                 background: '#ffffff',
@@ -2083,6 +2097,7 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
             {/* Print Button */}
             <button
               type="button"
+              className="psm-header-print-btn"
               onClick={handlePrint}
               style={{
                 background: '#0f172a',
@@ -2115,6 +2130,7 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
             {/* Close Button */}
             <button
               type="button"
+              className="psm-header-close-btn"
               onClick={onClose}
               style={{
                 background: '#f8fafc',

@@ -600,31 +600,31 @@ export const ProfilePage = () => {
               </div>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '9px 12px', background: '#f8fafc', borderRadius: '10px', border: '1px solid #e2e8f0', fontSize: '12px' }}>
-                  <span style={{ color: '#64748b' }}>Last Login Timestamp:</span>
-                  <strong style={{ color: '#0f172a' }}>{new Date().toLocaleDateString()}</strong>
+                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '9px 12px', background: 'var(--bg-surface-elevated, #f8fafc)', borderRadius: '10px', border: '1px solid var(--border-subtle, #e2e8f0)', fontSize: '12px' }}>
+                  <span style={{ color: 'var(--text-muted, #64748b)' }}>Last Login Timestamp:</span>
+                  <strong style={{ color: 'var(--text-primary, #0f172a)' }}>{new Date().toLocaleDateString()}</strong>
                 </div>
 
-                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '9px 12px', background: '#f8fafc', borderRadius: '10px', border: '1px solid #e2e8f0', fontSize: '12px' }}>
-                  <span style={{ color: '#64748b' }}>Campus Subnet:</span>
-                  <strong style={{ color: '#0f172a' }}>192.168.1.104</strong>
+                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '9px 12px', background: 'var(--bg-surface-elevated, #f8fafc)', borderRadius: '10px', border: '1px solid var(--border-subtle, #e2e8f0)', fontSize: '12px' }}>
+                  <span style={{ color: 'var(--text-muted, #64748b)' }}>Campus Subnet:</span>
+                  <strong style={{ color: 'var(--text-primary, #0f172a)' }}>192.168.1.104</strong>
                 </div>
 
-                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '9px 12px', background: '#f8fafc', borderRadius: '10px', border: '1px solid #e2e8f0', fontSize: '12px' }}>
-                  <span style={{ color: '#64748b' }}>Two-Factor Status:</span>
-                  <span style={{ color: '#16a34a', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '9px 12px', background: 'var(--bg-surface-elevated, #f8fafc)', borderRadius: '10px', border: '1px solid var(--border-subtle, #e2e8f0)', fontSize: '12px' }}>
+                  <span style={{ color: 'var(--text-muted, #64748b)' }}>Two-Factor Status:</span>
+                  <span style={{ color: '#34d399', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px' }}>
                     <CheckCircle2 size={13} /> Active
                   </span>
                 </div>
 
-                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '9px 12px', background: '#f8fafc', borderRadius: '10px', border: '1px solid #e2e8f0', fontSize: '12px' }}>
-                  <span style={{ color: '#64748b' }}>Token Status:</span>
-                  <strong style={{ color: '#07345f' }}>Valid (8 Hours)</strong>
+                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '9px 12px', background: 'var(--bg-surface-elevated, #f8fafc)', borderRadius: '10px', border: '1px solid var(--border-subtle, #e2e8f0)', fontSize: '12px' }}>
+                  <span style={{ color: 'var(--text-muted, #64748b)' }}>Token Status:</span>
+                  <strong style={{ color: 'var(--brand-blue, #07345f)' }}>Valid (8 Hours)</strong>
                 </div>
               </div>
 
-              <div style={{ borderTop: '1px solid #f1f5f9', paddingTop: '10px' }}>
-                <div style={{ fontSize: '12px', color: '#64748b' }}>
+              <div style={{ borderTop: '1px solid var(--border-subtle, #f1f5f9)', paddingTop: '10px' }}>
+                <div style={{ fontSize: '12px', color: 'var(--text-muted, #64748b)' }}>
                   Need to log out from all other campus devices?
                 </div>
                 <button
@@ -636,9 +636,9 @@ export const ProfilePage = () => {
                   style={{
                     marginTop: '8px',
                     width: '100%',
-                    background: '#fef2f2',
-                    color: '#dc2626',
-                    border: '1px solid #fecaca',
+                    background: 'rgba(239, 68, 68, 0.15)',
+                    color: '#f87171',
+                    border: '1px solid rgba(239, 68, 68, 0.3)',
                     padding: '8px 12px',
                     borderRadius: '8px',
                     fontSize: '12px',
@@ -684,21 +684,21 @@ export const ProfilePage = () => {
                   style={{
                     padding: '14px',
                     borderRadius: '12px',
-                    border: '1px solid #e2e8f0',
-                    background: '#f8fafc',
+                    border: '1px solid var(--border-subtle, #e2e8f0)',
+                    background: 'var(--bg-surface-elevated, #f8fafc)',
                     display: 'flex',
                     alignItems: 'flex-start',
                     gap: '10px'
                   }}
                 >
-                  <div style={{ width: 26, height: 26, borderRadius: '50%', background: '#ecfdf5', color: '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: '2px' }}>
+                  <div style={{ width: 26, height: 26, borderRadius: '50%', background: 'rgba(16, 185, 129, 0.15)', color: '#34d399', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: '2px' }}>
                     <Check size={15} />
                   </div>
                   <div>
-                    <div style={{ fontSize: '13px', fontWeight: 700, color: '#0f172a' }}>
+                    <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-primary, #0f172a)' }}>
                       {p.title}
                     </div>
-                    <div style={{ fontSize: '11.5px', color: '#64748b', marginTop: '2px', lineHeight: 1.35 }}>
+                    <div style={{ fontSize: '11.5px', color: 'var(--text-muted, #64748b)', marginTop: '2px', lineHeight: 1.35 }}>
                       {p.desc}
                     </div>
                   </div>

@@ -94,17 +94,17 @@ export const ScreenLockModal = () => {
       }}
     >
       <div
-        className={`modal-content-smooth ${isShaking ? 'shake-animation' : ''}`}
+        className={`modal-content-smooth screen-lock-card ${isShaking ? 'shake-animation' : ''}`}
         style={{
           width: '100%',
           maxWidth: '380px',
-          background: '#ffffff',
-          borderRadius: '18px',
-          boxShadow: '0 25px 60px -15px rgba(0, 0, 0, 0.3)',
+          background: 'var(--bg-surface, #ffffff)',
+          borderRadius: '20px',
+          boxShadow: '0 25px 60px -15px rgba(0, 0, 0, 0.4)',
           overflow: 'hidden',
           display: 'flex',
           flexDirection: 'column',
-          border: '1px solid #e2e8f0'
+          border: '1px solid var(--border-subtle, #e2e8f0)'
         }}
       >
         {/* Simple Header with Avatar */}
@@ -118,13 +118,13 @@ export const ScreenLockModal = () => {
                 height: '68px',
                 borderRadius: '50%',
                 objectFit: 'cover',
-                border: '2.5px solid #0f172a',
+                border: '2.5px solid var(--brand-blue, #07345f)',
                 boxShadow: '0 4px 12px rgba(15, 23, 42, 0.12)',
-                background: '#ffffff'
+                background: 'var(--bg-surface-elevated, #ffffff)'
               }}
               onError={(e) => {
                 e.currentTarget.onerror = null;
-                e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=0f172a&color=fff&size=100&bold=true`;
+                e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(userName)}&background=07345f&color=fff&size=100&bold=true`;
               }}
             />
             <div
@@ -135,12 +135,12 @@ export const ScreenLockModal = () => {
                 width: '22px',
                 height: '22px',
                 borderRadius: '50%',
-                background: '#0f172a',
+                background: 'var(--brand-blue, #07345f)',
                 color: '#ffffff',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                border: '2px solid #ffffff'
+                border: '2px solid var(--bg-surface, #ffffff)'
               }}
               title="Session Locked"
             >
@@ -148,10 +148,10 @@ export const ScreenLockModal = () => {
             </div>
           </div>
 
-          <h2 style={{ margin: '0 0 2px', color: '#0f172a', fontSize: '18px', fontWeight: 800 }}>
+          <h2 style={{ margin: '0 0 2px', color: 'var(--text-primary, #0f172a)', fontSize: '18px', fontWeight: 800 }}>
             {userName}
           </h2>
-          <span style={{ fontSize: '12.5px', color: '#64748b' }}>
+          <span style={{ fontSize: '12.5px', color: 'var(--text-muted, #64748b)' }}>
             {isAdmin ? 'System Administrator' : 'Faculty Member'}
           </span>
         </div>
@@ -170,25 +170,26 @@ export const ScreenLockModal = () => {
                   setPassword(e.target.value);
                   setErrorMessage('');
                 }}
+                className="screen-lock-input-field"
                 style={{
                   width: '100%',
-                  padding: '10px 38px 10px 14px',
-                  borderRadius: '10px',
-                  border: errorMessage ? '1.5px solid #ef4444' : '1.5px solid #cbd5e1',
+                  padding: '11px 38px 11px 16px',
+                  borderRadius: '20px',
+                  border: errorMessage ? '1.5px solid #ef4444' : '1.5px solid var(--border-medium, #cbd5e1)',
                   fontSize: '13.5px',
                   outline: 'none',
-                  background: '#f8fafc',
-                  color: '#0f172a',
+                  background: 'var(--bg-input, #f8fafc)',
+                  color: 'var(--text-primary, #0f172a)',
                   boxSizing: 'border-box'
                 }}
                 onFocus={(e) => {
-                  e.target.style.borderColor = '#0f172a';
-                  e.target.style.background = '#ffffff';
+                  e.target.style.borderColor = 'var(--brand-blue, #07345f)';
+                  e.target.style.background = 'var(--bg-surface, #ffffff)';
                 }}
                 onBlur={(e) => {
                   if (!errorMessage) {
-                    e.target.style.borderColor = '#cbd5e1';
-                    e.target.style.background = '#f8fafc';
+                    e.target.style.borderColor = 'var(--border-medium, #cbd5e1)';
+                    e.target.style.background = 'var(--bg-input, #f8fafc)';
                   }
                 }}
               />
@@ -197,12 +198,12 @@ export const ScreenLockModal = () => {
                 onClick={() => setShowPassword(p => !p)}
                 style={{
                   position: 'absolute',
-                  right: '12px',
+                  right: '14px',
                   top: '50%',
                   transform: 'translateY(-50%)',
                   background: 'none',
                   border: 'none',
-                  color: '#94a3b8',
+                  color: 'var(--text-muted, #94a3b8)',
                   cursor: 'pointer',
                   padding: '2px'
                 }}
@@ -232,11 +233,12 @@ export const ScreenLockModal = () => {
             <button
               type="submit"
               disabled={isSubmitting}
+              className="screen-lock-unlock-btn"
               style={{
                 width: '100%',
                 padding: '11px',
-                borderRadius: '10px',
-                background: '#0f172a',
+                borderRadius: '20px',
+                background: 'var(--brand-blue, #07345f)',
                 color: '#ffffff',
                 border: 'none',
                 fontSize: '13px',
@@ -246,11 +248,9 @@ export const ScreenLockModal = () => {
                 alignItems: 'center',
                 justifyContent: 'center',
                 gap: '6px',
-                boxShadow: '0 2px 8px rgba(15, 23, 42, 0.2)',
+                boxShadow: '0 2px 8px rgba(7, 52, 95, 0.2)',
                 transition: 'all 0.15s ease'
               }}
-              onMouseOver={(e) => e.currentTarget.style.background = '#1e293b'}
-              onMouseOut={(e) => e.currentTarget.style.background = '#0f172a'}
             >
               <Unlock size={15} />
               <span>{isSubmitting ? 'Unlocking...' : 'Unlock Screen'}</span>
@@ -262,7 +262,7 @@ export const ScreenLockModal = () => {
             style={{
               marginTop: '16px',
               paddingTop: '12px',
-              borderTop: '1px solid #f1f5f9',
+              borderTop: '1px solid var(--border-subtle, #f1f5f9)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center'
@@ -274,18 +274,19 @@ export const ScreenLockModal = () => {
               style={{
                 background: 'none',
                 border: 'none',
-                color: '#64748b',
+                color: 'var(--text-muted, #64748b)',
                 fontSize: '12px',
                 fontWeight: 600,
                 cursor: 'pointer',
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '5px',
-                padding: '4px 8px',
-                borderRadius: '6px'
+                padding: '4px 10px',
+                borderRadius: '20px',
+                transition: 'all 0.15s ease'
               }}
-              onMouseOver={(e) => { e.currentTarget.style.color = '#ef4444'; e.currentTarget.style.background = '#fef2f2'; }}
-              onMouseOut={(e) => { e.currentTarget.style.color = '#64748b'; e.currentTarget.style.background = 'none'; }}
+              onMouseOver={(e) => { e.currentTarget.style.color = '#ef4444'; e.currentTarget.style.background = 'rgba(239, 68, 68, 0.1)'; }}
+              onMouseOut={(e) => { e.currentTarget.style.color = 'var(--text-muted, #64748b)'; e.currentTarget.style.background = 'none'; }}
             >
               <LogOut size={13} />
               <span>Sign Out</span>

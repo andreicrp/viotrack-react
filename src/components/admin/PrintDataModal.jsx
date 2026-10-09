@@ -1997,6 +1997,8 @@ export const PrintDataModal = ({ isOpen, onClose, records = [], students = [], t
                 key={p.id}
                 type="button"
                 onClick={() => setPeriodPreset(p.id)}
+                className={`pdm-period-preset pdm-period-preset-${p.id}`}
+                aria-pressed={isSelected}
                 style={{
                   padding: '7px 10px',
                   borderRadius: '7px',
@@ -2020,6 +2022,8 @@ export const PrintDataModal = ({ isOpen, onClose, records = [], students = [], t
         <button
           type="button"
           onClick={() => setPeriodPreset('custom')}
+          className="pdm-period-preset pdm-period-preset-custom"
+          aria-pressed={periodPreset === 'custom'}
           style={{
             width: '100%',
             padding: '7px 10px',
@@ -2051,6 +2055,7 @@ export const PrintDataModal = ({ isOpen, onClose, records = [], students = [], t
                 onChange={(val) => setCustomStartDate(val)}
                 placeholder="Start Date"
                 compact
+                className="pdm-date-picker"
               />
             </div>
             <div>
@@ -2061,8 +2066,8 @@ export const PrintDataModal = ({ isOpen, onClose, records = [], students = [], t
                 value={customEndDate}
                 onChange={(val) => setCustomEndDate(val)}
                 placeholder="End Date"
-                align="right"
                 compact
+                className="pdm-date-picker"
               />
             </div>
           </div>
@@ -2074,7 +2079,7 @@ export const PrintDataModal = ({ isOpen, onClose, records = [], students = [], t
         <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '11.5px', fontWeight: 800, color: '#0f172a', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '6px' }}>
           <Layers size={13} color="#07345f" /> Analytical Charts &amp; Layout
         </label>
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', background: '#f8fafc', padding: '8px 10px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+        <div className="pdm-chart-options" style={{ display: 'flex', flexDirection: 'column', gap: '4px', background: '#f8fafc', padding: '8px 10px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
           {[
             {
               checked: includeTrendsChart,
@@ -2114,6 +2119,7 @@ export const PrintDataModal = ({ isOpen, onClose, records = [], students = [], t
           ].map((item, idx) => (
             <label
               key={idx}
+              className="pdm-chart-option"
               style={{
                 display: 'flex',
                 alignItems: 'center',
@@ -2161,6 +2167,8 @@ export const PrintDataModal = ({ isOpen, onClose, records = [], students = [], t
                   key={s}
                   type="button"
                   onClick={() => setSelectedSeverity(s)}
+                  className={`pdm-severity-filter pdm-severity-filter-${s}`}
+                  aria-pressed={selectedSeverity === s}
                   style={{
                     padding: '4px 6px',
                     borderRadius: '6px',
@@ -2213,6 +2221,7 @@ export const PrintDataModal = ({ isOpen, onClose, records = [], students = [], t
       <button
         type="button"
         onClick={handlePrint}
+        className="pdm-print-document-btn"
         style={{
           marginTop: '4px',
           padding: '10px 16px',
@@ -2317,7 +2326,7 @@ export const PrintDataModal = ({ isOpen, onClose, records = [], students = [], t
 
   return (
     <div
-      className="modal-backdrop-smooth"
+      className="modal-backdrop-smooth pdm-modal-backdrop"
       style={{
         position: 'fixed',
         inset: 0,
@@ -3025,7 +3034,7 @@ export const PrintDataModal = ({ isOpen, onClose, records = [], students = [], t
                       
                       {/* Left Chart: Violation Trends (Spline Area Chart) */}
                       {includeTrendsChart && (
-                        <div style={{ border: '1px solid #cbd5e1', borderRadius: '8px', padding: '8px 10px', background: '#ffffff', boxShadow: '0 1px 3px rgba(0,0,0,0.02)' }}>
+                        <div className="pdm-preview-chart-card" style={{ border: '1px solid #cbd5e1', borderRadius: '8px', padding: '8px 10px', background: '#ffffff', boxShadow: '0 1px 3px rgba(0,0,0,0.02)' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '2px' }}>
                             <TrendingUp size={13} color="#07345f" />
                             <span style={{ fontSize: '10.5px', fontWeight: 800, color: '#07345f', textTransform: 'uppercase', letterSpacing: '0.4px' }}>
@@ -3096,7 +3105,7 @@ export const PrintDataModal = ({ isOpen, onClose, records = [], students = [], t
 
                       {/* Right Chart: Most Common Violations */}
                       {includeCommonViolationsChart && (
-                        <div style={{ border: '1px solid #cbd5e1', borderRadius: '8px', padding: '8px 10px', background: '#ffffff', boxShadow: '0 1px 3px rgba(0,0,0,0.02)' }}>
+                        <div className="pdm-preview-chart-card" style={{ border: '1px solid #cbd5e1', borderRadius: '8px', padding: '8px 10px', background: '#ffffff', boxShadow: '0 1px 3px rgba(0,0,0,0.02)' }}>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '2px' }}>
                             <PieChartIcon size={13} color="#07345f" />
                             <span style={{ fontSize: '10.5px', fontWeight: 800, color: '#07345f', textTransform: 'uppercase', letterSpacing: '0.4px' }}>

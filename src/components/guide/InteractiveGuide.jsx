@@ -1041,6 +1041,7 @@ export const InteractiveTourGuide = () => {
           onClick={() => setIsGuideMenuOpen(false)}
         >
           <div
+            className="guide-hub-dialog"
             style={{
               width: '100%',
               maxWidth: '720px',
@@ -1069,6 +1070,7 @@ export const InteractiveTourGuide = () => {
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                 <div
+                  className="guide-hub-icon-badge"
                   style={{
                     width: '38px',
                     height: '38px',
@@ -1125,24 +1127,26 @@ export const InteractiveTourGuide = () => {
             {/* Modal Body */}
             <div style={{ padding: '20px 22px', overflowY: 'auto', flex: 1, display: 'flex', flexDirection: 'column', gap: '14px' }}>
               {/* Progress Summary Strip */}
-              <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+              <div className="guide-hub-progress-card" style={{ background: 'var(--bg-surface-elevated, #f8fafc)', border: '1px solid var(--border-subtle, #e2e8f0)', borderRadius: '12px', padding: '12px 16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <BookOpen size={16} color="#07345f" />
-                    <span style={{ fontSize: '12.5px', fontWeight: 700, color: '#0f172a' }}>
+                    <BookOpen className="guide-hub-progress-icon" size={16} color="var(--brand-blue, #07345f)" />
+                    <span style={{ fontSize: '12.5px', fontWeight: 700, color: 'var(--text-primary, #0f172a)' }}>
                       Walkthrough Progress
                     </span>
                   </div>
-                  <span style={{ fontSize: '12px', fontWeight: 700, color: '#07345f' }}>
+                  <span className="guide-hub-progress-count" style={{ fontSize: '12px', fontWeight: 700, color: 'var(--brand-blue, #07345f)' }}>
                     {completedTours.length} of {totalScenariosCount} Complete ({completionPercent}%)
                   </span>
                 </div>
-                <div style={{ width: '100%', height: '5px', background: '#e2e8f0', borderRadius: '9999px', overflow: 'hidden' }}>
+                <div style={{ width: '100%', height: '5px', background: 'var(--bg-input, #e2e8f0)', borderRadius: '9999px', overflow: 'hidden' }}>
                   <div
+                    className="guide-hub-policy-card"
+                    data-complete={completedTours.length === totalScenariosCount}
                     style={{
                       width: `${completionPercent}%`,
                       height: '100%',
-                      background: completedTours.length === totalScenariosCount ? '#059669' : '#07345f',
+                      background: completedTours.length === totalScenariosCount ? '#10b981' : 'var(--brand-blue, #07345f)',
                       borderRadius: '9999px',
                       transition: 'width 0.4s ease'
                     }}
@@ -1153,8 +1157,8 @@ export const InteractiveTourGuide = () => {
               {/* Sanctions Cheat Sheet Quick Action */}
               <div
                 style={{
-                  background: '#ffffff',
-                  border: '1px solid #e2e8f0',
+                  background: 'var(--bg-surface-elevated, #ffffff)',
+                  border: '1px solid var(--border-subtle, #e2e8f0)',
                   borderRadius: '12px',
                   padding: '12px 16px',
                   display: 'flex',
@@ -1164,14 +1168,14 @@ export const InteractiveTourGuide = () => {
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <div style={{ width: '36px', height: '36px', borderRadius: '8px', background: '#f8fafc', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#07345f', flexShrink: 0 }}>
+                  <div className="guide-hub-policy-icon" style={{ width: '36px', height: '36px', borderRadius: '8px', background: 'var(--bg-input, #f8fafc)', border: '1px solid var(--border-subtle, #e2e8f0)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--brand-blue, #07345f)', flexShrink: 0 }}>
                     <BookOpen size={18} />
                   </div>
                   <div>
-                    <h4 style={{ margin: 0, fontSize: '13px', fontWeight: 700, color: '#0f172a' }}>
+                    <h4 style={{ margin: 0, fontSize: '13px', fontWeight: 700, color: 'var(--text-primary, #0f172a)' }}>
                       Institutional Sanctions Policy Matrix
                     </h4>
-                    <span style={{ fontSize: '11.5px', color: '#64748b' }}>
+                    <span style={{ fontSize: '11.5px', color: 'var(--text-muted, #64748b)' }}>
                       University handbook thresholds for Minor, Serious, and Major infractions.
                     </span>
                   </div>
@@ -1179,12 +1183,13 @@ export const InteractiveTourGuide = () => {
 
                 <button
                   type="button"
+                  className="guide-hub-matrix-btn"
                   onClick={() => {
                     setIsGuideMenuOpen(false);
                     setShowSanctionsModal(true);
                   }}
                   style={{
-                    background: '#07345f',
+                    background: 'var(--brand-blue, #07345f)',
                     color: '#ffffff',
                     border: 'none',
                     padding: '7px 13px',
@@ -1206,14 +1211,14 @@ export const InteractiveTourGuide = () => {
               {/* Guided Walkthroughs Section */}
               <div>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-                  <span style={{ fontSize: '11.5px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                  <span style={{ fontSize: '11.5px', fontWeight: 700, color: 'var(--text-muted, #64748b)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                     Available Walkthroughs
                   </span>
                   {completedTours.length > 0 && (
                     <button
                       type="button"
                       onClick={resetAllProgress}
-                      style={{ background: 'none', border: 'none', color: '#64748b', fontSize: '11px', cursor: 'pointer', textDecoration: 'underline' }}
+                      style={{ background: 'none', border: 'none', color: 'var(--text-muted, #64748b)', fontSize: '11px', cursor: 'pointer', textDecoration: 'underline' }}
                     >
                       Reset Progress
                     </button>
@@ -1227,6 +1232,7 @@ export const InteractiveTourGuide = () => {
 
                     return (
                       <div
+                        className="guide-hub-tour-card"
                         key={key}
                         onClick={() => startTour(key)}
                         style={{
@@ -1235,17 +1241,17 @@ export const InteractiveTourGuide = () => {
                           justifyContent: 'space-between',
                           padding: '12px 14px',
                           borderRadius: '12px',
-                          background: '#ffffff',
-                          border: '1px solid #e2e8f0',
+                          background: 'var(--bg-surface-elevated, #ffffff)',
+                          border: '1px solid var(--border-subtle, #e2e8f0)',
                           cursor: 'pointer',
                           transition: 'all 0.15s ease'
                         }}
                         onMouseEnter={(e) => {
-                          e.currentTarget.style.borderColor = '#cbd5e1';
+                          e.currentTarget.style.borderColor = 'var(--border-medium, #cbd5e1)';
                           e.currentTarget.style.boxShadow = '0 3px 10px rgba(0,0,0,0.04)';
                         }}
                         onMouseLeave={(e) => {
-                          e.currentTarget.style.borderColor = '#e2e8f0';
+                          e.currentTarget.style.borderColor = 'var(--border-subtle, #e2e8f0)';
                           e.currentTarget.style.boxShadow = 'none';
                         }}
                       >
@@ -1255,12 +1261,12 @@ export const InteractiveTourGuide = () => {
                               width: '36px',
                               height: '36px',
                               borderRadius: '8px',
-                              background: '#f8fafc',
-                              border: '1px solid #e2e8f0',
+                              background: 'var(--bg-input, #f8fafc)',
+                              border: '1px solid var(--border-subtle, #e2e8f0)',
                               display: 'flex',
                               alignItems: 'center',
                               justifyContent: 'center',
-                              color: '#07345f',
+                              color: 'var(--brand-blue, #07345f)',
                               flexShrink: 0
                             }}
                           >
@@ -1268,22 +1274,22 @@ export const InteractiveTourGuide = () => {
                           </div>
                           <div>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                              <span style={{ fontSize: '13px', fontWeight: 700, color: '#0f172a' }}>
+                              <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-primary, #0f172a)' }}>
                                 {scenario.title}
                               </span>
                               {isDone && (
-                                <span style={{ fontSize: '9.5px', fontWeight: 700, color: '#166534', background: '#f0fdf4', border: '1px solid #bbf7d0', padding: '1px 6px', borderRadius: '6px', display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+                                <span style={{ fontSize: '9.5px', fontWeight: 700, color: '#4ade80', background: 'rgba(34, 197, 94, 0.15)', border: '1px solid rgba(34, 197, 94, 0.35)', padding: '1px 6px', borderRadius: '6px', display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
                                   <CheckCircle2 size={10} strokeWidth={2.5} /> Completed
                                 </span>
                               )}
                             </div>
-                            <span style={{ fontSize: '11.5px', color: '#64748b', display: 'block', marginTop: '1px' }}>
+                            <span style={{ fontSize: '11.5px', color: 'var(--text-muted, #64748b)', display: 'block', marginTop: '1px' }}>
                               {scenario.description}
                             </span>
                           </div>
                         </div>
 
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#64748b', fontWeight: 600, fontSize: '11.5px', flexShrink: 0, paddingLeft: '12px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: 'var(--text-muted, #64748b)', fontWeight: 600, fontSize: '11.5px', flexShrink: 0, paddingLeft: '12px' }}>
                           <span>{scenario.steps.length} Steps</span>
                           <ChevronRight size={14} />
                         </div>
@@ -1304,7 +1310,7 @@ export const InteractiveTourGuide = () => {
             position: 'fixed',
             inset: 0,
             zIndex: 9999,
-            background: 'rgba(15, 23, 42, 0.55)',
+            background: 'rgba(15, 23, 42, 0.75)',
             backdropFilter: 'blur(4px)',
             display: 'flex',
             alignItems: 'center',
@@ -1318,13 +1324,13 @@ export const InteractiveTourGuide = () => {
               width: '100%',
               maxWidth: '800px',
               maxHeight: '88vh',
-              background: '#ffffff',
+              background: 'var(--bg-surface, #ffffff)',
               borderRadius: '16px',
-              boxShadow: '0 20px 40px -10px rgba(0, 0, 0, 0.25)',
+              boxShadow: '0 20px 40px -10px rgba(0, 0, 0, 0.4)',
               display: 'flex',
               flexDirection: 'column',
               overflow: 'hidden',
-              border: '1px solid #cbd5e1'
+              border: '1px solid var(--border-subtle, #cbd5e1)'
             }}
             onClick={(e) => e.stopPropagation()}
           >
@@ -1332,18 +1338,18 @@ export const InteractiveTourGuide = () => {
             <div
               style={{
                 padding: '18px 22px',
-                background: '#ffffff',
-                borderBottom: '1px solid #e2e8f0',
+                background: 'var(--bg-surface, #ffffff)',
+                borderBottom: '1px solid var(--border-subtle, #e2e8f0)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'space-between'
               }}
             >
               <div>
-                <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 800, color: '#0f172a' }}>
+                <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 800, color: 'var(--text-primary, #0f172a)' }}>
                   Institutional Infraction Severity &amp; Sanctions Matrix
                 </h3>
-                <span style={{ fontSize: '11.5px', color: '#64748b' }}>
+                <span style={{ fontSize: '11.5px', color: 'var(--text-muted, #64748b)' }}>
                   University of Perpetual Help System Manila • Student Handbook Guidelines
                 </span>
               </div>
@@ -1351,9 +1357,9 @@ export const InteractiveTourGuide = () => {
                 type="button"
                 onClick={() => setShowSanctionsModal(false)}
                 style={{
-                  background: '#f8fafc',
-                  border: '1px solid #e2e8f0',
-                  color: '#64748b',
+                  background: 'var(--bg-input, #f8fafc)',
+                  border: '1px solid var(--border-subtle, #e2e8f0)',
+                  color: 'var(--text-muted, #64748b)',
                   width: '32px',
                   height: '32px',
                   borderRadius: '8px',
@@ -1361,14 +1367,6 @@ export const InteractiveTourGuide = () => {
                   alignItems: 'center',
                   justifyContent: 'center',
                   cursor: 'pointer'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = '#e2e8f0';
-                  e.currentTarget.style.color = '#0f172a';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = '#f8fafc';
-                  e.currentTarget.style.color = '#64748b';
                 }}
               >
                 <X size={18} />
@@ -1380,7 +1378,7 @@ export const InteractiveTourGuide = () => {
                 <div
                   key={idx}
                   style={{
-                    background: item.bg,
+                    background: 'var(--bg-surface-elevated, ' + item.bg + ')',
                     border: `1px solid ${item.border}`,
                     borderRadius: '12px',
                     padding: '14px',
@@ -1393,23 +1391,23 @@ export const InteractiveTourGuide = () => {
                     <span style={{ fontSize: '13px', fontWeight: 800, color: item.color, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                       {item.level}
                     </span>
-                    <span style={{ fontSize: '11px', color: '#64748b' }}>
+                    <span style={{ fontSize: '11px', color: 'var(--text-muted, #64748b)' }}>
                       Typical Infractions: {item.examples.join(', ')}
                     </span>
                   </div>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px', background: '#ffffff', padding: '10px 12px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px', background: 'var(--bg-surface, #ffffff)', padding: '10px 12px', borderRadius: '8px', border: '1px solid var(--border-subtle, #e2e8f0)' }}>
                     <div>
-                      <span style={{ fontSize: '10px', fontWeight: 700, color: '#64748b', display: 'block', textTransform: 'uppercase' }}>1st Offense</span>
-                      <span style={{ fontSize: '11.5px', fontWeight: 700, color: '#0f172a', display: 'block', marginTop: '2px' }}>{item.firstOffense}</span>
+                      <span style={{ fontSize: '10px', fontWeight: 700, color: 'var(--text-muted, #64748b)', display: 'block', textTransform: 'uppercase' }}>1st Offense</span>
+                      <span style={{ fontSize: '11.5px', fontWeight: 700, color: 'var(--text-primary, #0f172a)', display: 'block', marginTop: '2px' }}>{item.firstOffense}</span>
                     </div>
                     <div>
-                      <span style={{ fontSize: '10px', fontWeight: 700, color: '#64748b', display: 'block', textTransform: 'uppercase' }}>2nd Offense</span>
-                      <span style={{ fontSize: '11.5px', fontWeight: 700, color: '#0f172a', display: 'block', marginTop: '2px' }}>{item.secondOffense}</span>
+                      <span style={{ fontSize: '10px', fontWeight: 700, color: 'var(--text-muted, #64748b)', display: 'block', textTransform: 'uppercase' }}>2nd Offense</span>
+                      <span style={{ fontSize: '11.5px', fontWeight: 700, color: 'var(--text-primary, #0f172a)', display: 'block', marginTop: '2px' }}>{item.secondOffense}</span>
                     </div>
                     <div>
-                      <span style={{ fontSize: '10px', fontWeight: 700, color: '#64748b', display: 'block', textTransform: 'uppercase' }}>3rd Offense</span>
-                      <span style={{ fontSize: '11.5px', fontWeight: 700, color: '#dc2626', display: 'block', marginTop: '2px' }}>{item.thirdOffense}</span>
+                      <span style={{ fontSize: '10px', fontWeight: 700, color: 'var(--text-muted, #64748b)', display: 'block', textTransform: 'uppercase' }}>3rd Offense</span>
+                      <span style={{ fontSize: '11.5px', fontWeight: 700, color: '#f87171', display: 'block', marginTop: '2px' }}>{item.thirdOffense}</span>
                     </div>
                   </div>
                 </div>

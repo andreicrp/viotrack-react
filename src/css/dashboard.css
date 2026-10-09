@@ -3222,9 +3222,19 @@
     border-radius: 10px;
     padding: 10px 14px;
     border: 1px solid #e2e8f0;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
     font-size: 12px;
     min-width: 150px;
+    color: #0f172a;
+}
+
+.dash-pie-tooltip-title {
+    color: #0f172a;
+    font-size: 13px;
+}
+
+.dash-pie-tooltip-sub {
+    color: #475569;
 }
 
 /* Hide pie tooltip popup on mobile & touch devices so it never gets stuck or overlaps the donut */
@@ -3723,8 +3733,8 @@
 .dash-section-tag {
     font-size: 11px;
     font-weight: 700;
-    padding: 3.5px 8px;
-    border-radius: 6px;
+    padding: 3.5px 10px;
+    border-radius: 20px;
     background: #f1f5f9;
     color: #1f2937;
     border: 1px solid #e2e8f0;

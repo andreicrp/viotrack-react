@@ -162,9 +162,11 @@ export const StatusModal = ({ isOpen, onClose, record, onUpdated }) => {
           maxHeight: '75vh',
           overflowY: 'auto'
         }}
+        className="incident-status-body"
       >
         {/* Incident Summary Card Header */}
         <div
+          className="incident-status-summary"
           style={{
             background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
             border: '1px solid #e2e8f0',
@@ -195,27 +197,27 @@ export const StatusModal = ({ isOpen, onClose, record, onUpdated }) => {
               }}
             />
             <div style={{ minWidth: 0, flex: 1 }}>
-              <div style={{ fontSize: '14px', fontWeight: 800, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              <div className="incident-status-student-name" style={{ fontSize: '14px', fontWeight: 800, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                 {studentName}
               </div>
-              <div style={{ fontSize: '12px', fontWeight: 600, color: '#475569', marginTop: '1px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              <div className="incident-status-violation-title" style={{ fontSize: '12px', fontWeight: 600, color: '#475569', marginTop: '1px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                 {violationTitle}
               </div>
-              <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '2px' }}>
+              <div className="incident-status-record-meta" style={{ fontSize: '11px', color: '#94a3b8', marginTop: '2px' }}>
                 {student.grade ? `${student.grade} • ${student.section || 'Section'}` : `Reported: ${new Date(record.date_reported || Date.now()).toLocaleDateString()}`}
               </div>
             </div>
           </div>
 
           <div style={{ textAlign: 'right', flexShrink: 0 }}>
-            <div style={{ fontSize: '10px', color: '#64748b', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+            <div className="incident-status-current-label" style={{ fontSize: '10px', color: '#64748b', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
               Current Status
             </div>
             <span
+              className="incident-status-current-pill"
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: '5px',
                 fontSize: '11.5px',
                 fontWeight: 800,
                 color: '#07345f',
@@ -226,7 +228,6 @@ export const StatusModal = ({ isOpen, onClose, record, onUpdated }) => {
                 marginTop: '3px'
               }}
             >
-              <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#0284c7' }} />
               {currentStatus}
             </span>
           </div>
@@ -234,6 +235,7 @@ export const StatusModal = ({ isOpen, onClose, record, onUpdated }) => {
 
         {/* Modern Segmented Tab Switcher */}
         <div
+          className="incident-status-categories"
           style={{
             display: 'flex',
             background: '#f1f5f9',
@@ -253,6 +255,7 @@ export const StatusModal = ({ isOpen, onClose, record, onUpdated }) => {
                 type="button"
                 key={tab.id}
                 onClick={() => setActiveCategory(tab.id)}
+                className={`incident-status-category-tab ${isActive ? 'is-active' : ''}`}
                 style={{
                   flex: 1,
                   padding: '7px 10px',
@@ -273,6 +276,7 @@ export const StatusModal = ({ isOpen, onClose, record, onUpdated }) => {
               >
                 <span>{tab.label}</span>
                 <span
+                  className="incident-status-category-count"
                   style={{
                     fontSize: '10.5px',
                     padding: '1px 5px',
@@ -300,6 +304,7 @@ export const StatusModal = ({ isOpen, onClose, record, onUpdated }) => {
               <div
                 key={opt.id}
                 onClick={() => setSelectedStatus(opt.id)}
+                className={`incident-status-option ${isSelected ? 'is-selected' : ''}`}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -317,6 +322,7 @@ export const StatusModal = ({ isOpen, onClose, record, onUpdated }) => {
               >
                 {/* Status Icon Box */}
                 <div
+                  className="incident-status-option-icon"
                   style={{
                     width: 38,
                     height: 38,
@@ -337,11 +343,12 @@ export const StatusModal = ({ isOpen, onClose, record, onUpdated }) => {
                 {/* Status Details */}
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                    <span style={{ fontSize: '13.5px', fontWeight: 800, color: isSelected ? opt.color : '#0f172a' }}>
+                    <span className="incident-status-option-title" style={{ fontSize: '13.5px', fontWeight: 800, color: isSelected ? opt.color : '#0f172a' }}>
                       {opt.title}
                     </span>
                     {opt.sessionBadge && (
                       <span
+                        className="incident-status-step-badge"
                         style={{
                           fontSize: '10px',
                           fontWeight: 800,
@@ -358,6 +365,7 @@ export const StatusModal = ({ isOpen, onClose, record, onUpdated }) => {
                     )}
                     {isCurrent && (
                       <span
+                        className="incident-status-current-badge"
                         style={{
                           fontSize: '10px',
                           fontWeight: 700,
@@ -372,13 +380,14 @@ export const StatusModal = ({ isOpen, onClose, record, onUpdated }) => {
                       </span>
                     )}
                   </div>
-                  <div style={{ fontSize: '11.5px', color: '#64748b', marginTop: '2px', lineHeight: 1.35 }}>
+                  <div className="incident-status-option-description" style={{ fontSize: '11.5px', color: '#64748b', marginTop: '2px', lineHeight: 1.35 }}>
                     {opt.desc}
                   </div>
                 </div>
 
                 {/* Right Selection Indicator */}
                 <div
+                  className="incident-status-option-radio"
                   style={{
                     width: 22,
                     height: 22,
@@ -404,7 +413,7 @@ export const StatusModal = ({ isOpen, onClose, record, onUpdated }) => {
 
       {/* Modal Footer */}
       <div
-        className="modal-footer"
+        className="modal-footer incident-status-footer"
         style={{
           padding: '14px 24px',
           borderTop: '1px solid #e2e8f0',

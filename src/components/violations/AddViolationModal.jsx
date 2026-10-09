@@ -280,7 +280,14 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
 
   return (
     <>
-    <Modal isOpen={isOpen} onClose={onClose} title="Log Student Violation" icon={AlertTriangle} maxWidth="540px">
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title="Log Student Violation"
+      icon={AlertTriangle}
+      maxWidth="540px"
+      dialogClassName="violation-entry-modal"
+    >
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
         
         {/* Step Progress Header */}

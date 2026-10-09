@@ -52,6 +52,7 @@ export const AppointAdviserModal = ({ isOpen, onClose, teacher, currentAdviser, 
 
   return (
     <div
+      className="appoint-adviser-modal-backdrop"
       style={{
         position: 'fixed',
         inset: 0,
@@ -66,6 +67,7 @@ export const AppointAdviserModal = ({ isOpen, onClose, teacher, currentAdviser, 
       onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
     >
       <div
+        className="appoint-adviser-modal"
         style={{
           background: '#ffffff',
           borderRadius: '18px',
@@ -82,6 +84,7 @@ export const AppointAdviserModal = ({ isOpen, onClose, teacher, currentAdviser, 
       >
         {/* Header */}
         <div
+          className="appoint-adviser-modal-header"
           style={{
             display: 'flex',
             justifyContent: 'space-between',
@@ -95,6 +98,7 @@ export const AppointAdviserModal = ({ isOpen, onClose, teacher, currentAdviser, 
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <div
+              className="appoint-adviser-modal-icon"
               style={{
                 width: 40,
                 height: 40,
@@ -109,10 +113,10 @@ export const AppointAdviserModal = ({ isOpen, onClose, teacher, currentAdviser, 
               <Award size={22} />
             </div>
             <div>
-              <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 800, color: '#0f172a', letterSpacing: '-0.3px' }}>
+              <h3 className="appoint-adviser-modal-title" style={{ margin: 0, fontSize: '18px', fontWeight: 800, color: '#0f172a', letterSpacing: '-0.3px' }}>
                 {isAlreadyAssigned ? 'Manage Advisory Assignment' : 'Appoint Class Adviser'}
               </h3>
-              <span style={{ fontSize: '12.5px', color: '#64748b' }}>
+              <span className="appoint-adviser-modal-subtitle" style={{ fontSize: '12.5px', color: '#64748b' }}>
                 {isAlreadyAssigned
                   ? `Update or reassign ${teacher.fname} ${teacher.lname}`
                   : `Assign ${teacher.fname} ${teacher.lname} to an advisory section`}
@@ -121,6 +125,7 @@ export const AppointAdviserModal = ({ isOpen, onClose, teacher, currentAdviser, 
           </div>
 
           <button
+            className="appoint-adviser-modal-close"
             onClick={onClose}
             style={{
               width: 32,
@@ -146,6 +151,7 @@ export const AppointAdviserModal = ({ isOpen, onClose, teacher, currentAdviser, 
             {/* Current Assignment Status Pill */}
             {isAlreadyAssigned && (
               <div
+                className="appoint-adviser-current-assignment"
                 style={{
                   background: '#f0fdf4',
                   border: '1px solid #bbf7d0',
@@ -158,12 +164,13 @@ export const AppointAdviserModal = ({ isOpen, onClose, teacher, currentAdviser, 
                 }}
               >
                 <div>
-                  <div style={{ fontWeight: 700, color: '#166534' }}>Currently Assigned Advisory:</div>
-                  <div style={{ color: '#15803d', fontWeight: 600, marginTop: '2px' }}>
+                  <div className="appoint-adviser-current-label" style={{ fontWeight: 700, color: '#166534' }}>Currently Assigned Advisory:</div>
+                  <div className="appoint-adviser-current-value" style={{ color: '#15803d', fontWeight: 600, marginTop: '2px' }}>
                     {currentAdviser.grade_level} — {currentAdviser.class_section}
                   </div>
                 </div>
                 <button
+                  className="appoint-adviser-unassign-btn"
                   type="button"
                   onClick={handleUnassignClick}
                   style={{
@@ -187,7 +194,7 @@ export const AppointAdviserModal = ({ isOpen, onClose, teacher, currentAdviser, 
 
             {/* Grade Level */}
             <div>
-              <label style={{ fontSize: '13px', fontWeight: 700, color: '#334155', display: 'block', marginBottom: '6px' }}>
+              <label className="appoint-adviser-field-label" style={{ fontSize: '13px', fontWeight: 700, color: '#334155', display: 'block', marginBottom: '6px' }}>
                 Academic Grade Level <span style={{ color: '#ef4444' }}>*</span>
               </label>
               <CustomSelect
@@ -206,7 +213,7 @@ export const AppointAdviserModal = ({ isOpen, onClose, teacher, currentAdviser, 
 
             {/* Class Section Selection */}
             <div>
-              <label style={{ fontSize: '13px', fontWeight: 700, color: '#334155', display: 'block', marginBottom: '6px' }}>
+              <label className="appoint-adviser-field-label" style={{ fontSize: '13px', fontWeight: 700, color: '#334155', display: 'block', marginBottom: '6px' }}>
                 Class Section Name <span style={{ color: '#ef4444' }}>*</span>
               </label>
               <SectionSelect
@@ -223,6 +230,7 @@ export const AppointAdviserModal = ({ isOpen, onClose, teacher, currentAdviser, 
 
           {/* Footer */}
           <div
+            className="appoint-adviser-modal-footer"
             style={{
               display: 'flex',
               justifyContent: 'flex-end',
@@ -235,6 +243,7 @@ export const AppointAdviserModal = ({ isOpen, onClose, teacher, currentAdviser, 
             }}
           >
             <button
+              className="appoint-adviser-cancel-btn"
               type="button"
               onClick={onClose}
               style={{
@@ -252,6 +261,7 @@ export const AppointAdviserModal = ({ isOpen, onClose, teacher, currentAdviser, 
             </button>
 
             <button
+              className="appoint-adviser-submit-btn"
               type="submit"
               style={{
                 padding: '9px 22px',

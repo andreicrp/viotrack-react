@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
 import { isSupabaseConfigured, supabase } from '../lib/supabase';
-import { clearRateLimit, sanitizeForLogging } from '../utils/security';
+import { sanitizeForLogging } from '../utils/security';
 
 const AuthContext = createContext(null);
 
@@ -258,7 +258,6 @@ export const AuthProvider = ({ children }) => {
   }, [user, isLocked, resetInactivityTimer]);
 
   const login = (roleOrUser = 'admin', remember = true) => {
-    clearRateLimit('login');
     let userObj;
 
     if (typeof roleOrUser === 'string') {

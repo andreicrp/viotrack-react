@@ -294,3 +294,87 @@
     flex-shrink: 0 !important;
   }
 }
+
+/* ==========================================================================
+   Dark Mode Support for CustomSelect
+   ========================================================================== */
+[data-theme="dark"] .custom-select-trigger,
+.dark-theme .custom-select-trigger,
+html.dark .custom-select-trigger {
+  background-color: #050505 !important;
+  border-color: #303030 !important;
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .custom-select-trigger:hover,
+.dark-theme .custom-select-trigger:hover,
+html.dark .custom-select-trigger:hover {
+  background-color: #111111 !important;
+  border-color: #ffffff !important;
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .custom-select-trigger.active,
+[data-theme="dark"] .custom-select-trigger:focus,
+.dark-theme .custom-select-trigger.active,
+.dark-theme .custom-select-trigger:focus {
+  background-color: #111111 !important;
+  border-color: #ffffff !important;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.12) !important;
+}
+
+[data-theme="dark"] .custom-select-prefix-icon,
+[data-theme="dark"] .custom-select-chevron {
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .custom-select-trigger.active .custom-select-chevron,
+[data-theme="dark"] .custom-select-chevron.rotate {
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .custom-select-label.is-placeholder {
+  color: #64748b !important;
+}
+
+[data-theme="dark"] .custom-select-menu,
+.dark-theme .custom-select-menu,
+html.dark .custom-select-menu {
+  background: #080808 !important;
+  border-color: #303030 !important;
+  box-shadow: 0 20px 45px -10px rgba(0, 0, 0, 0.9) !important;
+}
+
+[data-theme="dark"] .custom-select-option {
+  color: #cbd5e1 !important;
+}
+
+[data-theme="dark"] .custom-select-option-text {
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .custom-select-option:hover,
+[data-theme="dark"] .custom-select-option:focus {
+  background-color: #161616 !important;
+}
+
+[data-theme="dark"] .custom-select-option.selected {
+  background-color: #202020 !important;
+}
+
+[data-theme="dark"] .custom-select-option.selected .custom-select-option-text {
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .custom-select-badge {
+  background: #242424 !important;
+  color: #e5e5e5 !important;
+}
+
+[data-theme="dark"] .custom-select-check-icon {
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .custom-select-empty {
+  color: #64748b !important;
+}

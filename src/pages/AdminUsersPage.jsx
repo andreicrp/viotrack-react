@@ -383,12 +383,12 @@ export const AdminUsersPage = () => {
       {/* 1. Top Banner & Primary Actions */}
       <div className="page-banner-header">
         <div className="page-banner-info">
-          <ShieldCheck size={26} strokeWidth={2.4} color="#0f172a" style={{ flexShrink: 0 }} />
+          <ShieldCheck size={26} strokeWidth={2.4} style={{ flexShrink: 0, color: 'var(--brand-blue, #07345f)' }} />
           <div>
-            <h2 style={{ fontSize: '20px', fontWeight: 800, margin: 0, color: '#0f172a', letterSpacing: '-0.02em' }}>
+            <h2 style={{ fontSize: '20px', fontWeight: 800, margin: 0, color: 'var(--text-primary, #0f172a)', letterSpacing: '-0.02em' }}>
               System Administrators
             </h2>
-            <p style={{ margin: '3px 0 0 0', fontSize: '13px', color: '#64748b' }}>
+            <p style={{ margin: '3px 0 0 0', fontSize: '13px', color: 'var(--text-muted, #64748b)' }}>
               Configured administrative accounts, system access privileges, security oversight, and credentials.
             </p>
           </div>
@@ -654,7 +654,7 @@ export const AdminUsersPage = () => {
         )}
 
         {/* 4. Table (Desktop View) */}
-        <div className={`responsive-table-desktop ${viewMode === 'grid' ? 'force-hidden' : ''}`} style={{ marginTop: '16px', border: '1px solid #e2e8f0', borderRadius: '12px', overflow: 'hidden' }}>
+        <div className={`responsive-table-desktop admin-users-table-container ${viewMode === 'grid' ? 'force-hidden' : ''}`} style={{ marginTop: '16px', border: '1px solid #e2e8f0', borderRadius: '12px', overflow: 'hidden' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
             <thead>
               <tr style={{ background: '#f8fafc', borderBottom: '1.5px solid #e2e8f0' }}>
@@ -767,10 +767,10 @@ export const AdminUsersPage = () => {
                             </div>
                           )}
                           <div>
-                            <span style={{ fontSize: '14px', fontWeight: 800, color: '#0f172a', display: 'block' }}>
+                            <span style={{ fontSize: '14px', fontWeight: 800, color: 'var(--text-primary, #0f172a)', display: 'block' }}>
                               {fullName}
                             </span>
-                            <span style={{ fontSize: '12px', color: '#64748b' }}>
+                            <span style={{ fontSize: '12px', color: 'var(--text-muted, #64748b)' }}>
                               {admin.position || 'Discipline & Admin Personnel'}
                             </span>
                           </div>
@@ -783,24 +783,23 @@ export const AdminUsersPage = () => {
                           style={{
                             display: 'inline-flex',
                             alignItems: 'center',
-                            gap: '6px',
                             padding: '4px 10px',
                             borderRadius: '20px',
                             fontSize: '11.5px',
                             fontWeight: 700,
-                            background: isSuper ? '#f3e8ff' : '#f0f4f8',
-                            color: isSuper ? '#7e22ce' : '#07345f'
+                            background: isSuper ? 'rgba(168, 85, 247, 0.15)' : 'rgba(56, 189, 248, 0.15)',
+                            color: isSuper ? '#c084fc' : '#38bdf8',
+                            border: `1px solid ${isSuper ? 'rgba(168, 85, 247, 0.3)' : 'rgba(56, 189, 248, 0.3)'}`
                           }}
                         >
-                          <span style={{ width: 6, height: 6, borderRadius: '50%', background: isSuper ? '#a855f7' : '#07345f' }} />
                           {admin.role === 'Super Admin' ? 'Head Admin' : (admin.role || 'Admin')}
                         </span>
                       </td>
 
                       {/* Email */}
                       <td style={{ padding: '14px 16px' }}>
-                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: '#334155' }}>
-                          <Mail size={14} color="#94a3b8" />
+                        <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '13px', color: 'var(--text-secondary, #334155)' }}>
+                          <Mail size={14} color="var(--text-muted, #94a3b8)" />
                           <span>{admin.email}</span>
                         </div>
                       </td>
@@ -811,9 +810,9 @@ export const AdminUsersPage = () => {
                           <button
                             onClick={() => handleOpenEdit(admin)}
                             style={{
-                              background: '#f8fafc',
-                              color: '#334155',
-                              border: '1px solid #cbd5e1',
+                              background: 'var(--bg-surface-elevated, #f8fafc)',
+                              color: 'var(--text-secondary, #334155)',
+                              border: '1px solid var(--border-subtle, #cbd5e1)',
                               padding: '6px 12px',
                               borderRadius: '7px',
                               fontSize: '12px',
@@ -824,8 +823,6 @@ export const AdminUsersPage = () => {
                               gap: '5px',
                               transition: 'all 0.15s'
                             }}
-                            onMouseOver={(e) => e.currentTarget.style.background = '#f1f5f9'}
-                            onMouseOut={(e) => e.currentTarget.style.background = '#f8fafc'}
                           >
                             <Edit3 size={13} /> Edit
                           </button>
@@ -833,9 +830,9 @@ export const AdminUsersPage = () => {
                           <button
                             onClick={() => handleDeleteSingle(admin.id, fullName)}
                             style={{
-                              background: '#fef2f2',
-                              color: '#dc2626',
-                              border: '1px solid #fecaca',
+                              background: 'var(--bg-surface-elevated, #f8fafc)',
+                              color: 'var(--text-muted, #64748b)',
+                              border: '1px solid var(--border-subtle, #cbd5e1)',
                               padding: '6px 12px',
                               borderRadius: '7px',
                               fontSize: '12px',
@@ -846,8 +843,6 @@ export const AdminUsersPage = () => {
                               gap: '5px',
                               transition: 'all 0.15s'
                             }}
-                            onMouseOver={(e) => e.currentTarget.style.background = '#fee2e2'}
-                            onMouseOut={(e) => e.currentTarget.style.background = '#fef2f2'}
                           >
                             <Trash2 size={13} /> Remove
                           </button>
@@ -892,9 +887,10 @@ export const AdminUsersPage = () => {
                       style={{ cursor: 'pointer', width: '15px', height: '15px', accentColor: '#07345f' }}
                     />
                     <span
+                      className={isSuper ? 'badge-purple' : 'badge-blue'}
                       style={{
-                        padding: '2px 7px',
-                        borderRadius: '8px',
+                        padding: '2px 9px',
+                        borderRadius: '20px',
                         fontSize: '10px',
                         fontWeight: 700,
                         background: isSuper ? '#f3e8ff' : '#eff6ff',
@@ -1178,12 +1174,12 @@ export const AdminUsersPage = () => {
         >
           <div
             style={{
-              background: '#ffffff',
+              background: 'var(--bg-surface, #ffffff)',
               borderRadius: '18px',
               width: '100%',
               maxWidth: '540px',
-              boxShadow: '0 25px 60px -15px rgba(0, 0, 0, 0.3)',
-              border: '1px solid #e2e8f0',
+              boxShadow: '0 25px 60px -15px rgba(0, 0, 0, 0.5)',
+              border: '1px solid var(--border-subtle, #e2e8f0)',
               overflow: 'hidden',
               display: 'flex',
               flexDirection: 'column',
@@ -1197,15 +1193,15 @@ export const AdminUsersPage = () => {
                 justifyContent: 'space-between',
                 alignItems: 'center',
                 padding: '20px 24px',
-                borderBottom: '1px solid #f1f5f9',
-                background: '#ffffff'
+                borderBottom: '1px solid var(--border-subtle, #f1f5f9)',
+                background: 'var(--bg-surface, #ffffff)'
               }}
             >
               <div>
-                <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 800, color: '#0f172a', letterSpacing: '-0.3px' }}>
+                <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 800, color: 'var(--text-primary, #0f172a)', letterSpacing: '-0.3px' }}>
                   {editingAdmin ? 'Edit Administrator Details' : 'Add New Administrator'}
                 </h3>
-                <span style={{ fontSize: '12.5px', color: '#64748b' }}>
+                <span style={{ fontSize: '12.5px', color: 'var(--text-muted, #64748b)' }}>
                   Configure credentials, system privileges & profile information
                 </span>
               </div>
@@ -1216,17 +1212,15 @@ export const AdminUsersPage = () => {
                   width: 32,
                   height: 32,
                   borderRadius: '8px',
-                  border: 'none',
-                  background: '#f1f5f9',
-                  color: '#64748b',
+                  border: '1px solid var(--border-subtle, transparent)',
+                  background: 'var(--bg-surface-elevated, #f1f5f9)',
+                  color: 'var(--text-muted, #64748b)',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   transition: 'all 0.15s'
                 }}
-                onMouseOver={(e) => { e.currentTarget.style.background = '#e2e8f0'; e.currentTarget.style.color = '#0f172a'; }}
-                onMouseOut={(e) => { e.currentTarget.style.background = '#f1f5f9'; e.currentTarget.style.color = '#64748b'; }}
               >
                 <X size={18} />
               </button>
@@ -1238,7 +1232,7 @@ export const AdminUsersPage = () => {
                 {/* Name Row */}
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                   <div>
-                    <label style={{ fontSize: '13px', fontWeight: 700, color: '#334155', display: 'block', marginBottom: '6px' }}>
+                    <label style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-primary, #334155)', display: 'block', marginBottom: '6px' }}>
                       First Name <span style={{ color: '#ef4444' }}>*</span>
                     </label>
                     <input
@@ -1251,15 +1245,17 @@ export const AdminUsersPage = () => {
                         width: '100%',
                         padding: '9px 12px',
                         borderRadius: '9px',
-                        border: '1.5px solid #cbd5e1',
+                        border: '1.5px solid var(--border-subtle, #cbd5e1)',
                         fontSize: '13.5px',
-                        outline: 'none'
+                        outline: 'none',
+                        background: 'var(--bg-input, #ffffff)',
+                        color: 'var(--text-primary, #0f172a)'
                       }}
                     />
                   </div>
 
                   <div>
-                    <label style={{ fontSize: '13px', fontWeight: 700, color: '#334155', display: 'block', marginBottom: '6px' }}>
+                    <label style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-primary, #334155)', display: 'block', marginBottom: '6px' }}>
                       Last Name <span style={{ color: '#ef4444' }}>*</span>
                     </label>
                     <input
@@ -1272,9 +1268,11 @@ export const AdminUsersPage = () => {
                         width: '100%',
                         padding: '9px 12px',
                         borderRadius: '9px',
-                        border: '1.5px solid #cbd5e1',
+                        border: '1.5px solid var(--border-subtle, #cbd5e1)',
                         fontSize: '13.5px',
-                        outline: 'none'
+                        outline: 'none',
+                        background: 'var(--bg-input, #ffffff)',
+                        color: 'var(--text-primary, #0f172a)'
                       }}
                     />
                   </div>
@@ -1283,7 +1281,7 @@ export const AdminUsersPage = () => {
                 {/* Email & Position */}
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                   <div>
-                    <label style={{ fontSize: '13px', fontWeight: 700, color: '#334155', display: 'block', marginBottom: '6px' }}>
+                    <label style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-primary, #334155)', display: 'block', marginBottom: '6px' }}>
                       Institutional Email <span style={{ color: '#ef4444' }}>*</span>
                     </label>
                     <input
@@ -1296,15 +1294,17 @@ export const AdminUsersPage = () => {
                         width: '100%',
                         padding: '9px 12px',
                         borderRadius: '9px',
-                        border: '1.5px solid #cbd5e1',
+                        border: '1.5px solid var(--border-subtle, #cbd5e1)',
                         fontSize: '13.5px',
-                        outline: 'none'
+                        outline: 'none',
+                        background: 'var(--bg-input, #ffffff)',
+                        color: 'var(--text-primary, #0f172a)'
                       }}
                     />
                   </div>
 
                   <div>
-                    <label style={{ fontSize: '13px', fontWeight: 700, color: '#334155', display: 'block', marginBottom: '6px' }}>
+                    <label style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-primary, #334155)', display: 'block', marginBottom: '6px' }}>
                       Department / Title
                     </label>
                     <input
@@ -1316,9 +1316,11 @@ export const AdminUsersPage = () => {
                         width: '100%',
                         padding: '9px 12px',
                         borderRadius: '9px',
-                        border: '1.5px solid #cbd5e1',
+                        border: '1.5px solid var(--border-subtle, #cbd5e1)',
                         fontSize: '13.5px',
-                        outline: 'none'
+                        outline: 'none',
+                        background: 'var(--bg-input, #ffffff)',
+                        color: 'var(--text-primary, #0f172a)'
                       }}
                     />
                   </div>
@@ -1326,7 +1328,7 @@ export const AdminUsersPage = () => {
 
                 {/* Access Role Selection Cards */}
                 <div>
-                  <label style={{ fontSize: '13px', fontWeight: 700, color: '#334155', display: 'block', marginBottom: '8px' }}>
+                  <label style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-primary, #334155)', display: 'block', marginBottom: '8px' }}>
                     Privilege Role <span style={{ color: '#ef4444' }}>*</span>
                   </label>
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
@@ -1342,16 +1344,16 @@ export const AdminUsersPage = () => {
                           padding: '10px 8px',
                           borderRadius: '10px',
                           cursor: 'pointer',
-                          border: formData.role === r.id ? '2px solid #07345f' : '1.5px solid #e2e8f0',
-                          background: formData.role === r.id ? '#f0f4f8' : '#f8fafc',
+                          border: formData.role === r.id ? '2px solid var(--brand-blue, #07345f)' : '1.5px solid var(--border-subtle, #e2e8f0)',
+                          background: formData.role === r.id ? 'rgba(56, 189, 248, 0.15)' : 'var(--bg-surface-elevated, #f8fafc)',
                           textAlign: 'center',
                           transition: 'all 0.15s ease'
                         }}
                       >
-                        <span style={{ fontSize: '12.5px', fontWeight: 800, color: formData.role === r.id ? '#1e1b4b' : '#334155', display: 'block' }}>
+                        <span style={{ fontSize: '12.5px', fontWeight: 800, color: formData.role === r.id ? 'var(--brand-blue, #1e1b4b)' : 'var(--text-primary, #334155)', display: 'block' }}>
                           {r.label}
                         </span>
-                        <span style={{ fontSize: '10.5px', color: '#64748b' }}>{r.sub}</span>
+                        <span style={{ fontSize: '10.5px', color: 'var(--text-muted, #64748b)' }}>{r.sub}</span>
                       </div>
                     ))}
                   </div>
@@ -1359,7 +1361,7 @@ export const AdminUsersPage = () => {
 
                 {/* Password Field */}
                 <div>
-                  <label style={{ fontSize: '13px', fontWeight: 700, color: '#334155', display: 'block', marginBottom: '6px' }}>
+                  <label style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-primary, #334155)', display: 'block', marginBottom: '6px' }}>
                     {editingAdmin ? 'New Password (leave empty to keep current)' : 'Account Password *'}
                   </label>
                   <div style={{ position: 'relative' }}>
@@ -1373,9 +1375,11 @@ export const AdminUsersPage = () => {
                         width: '100%',
                         padding: '9px 38px 9px 12px',
                         borderRadius: '9px',
-                        border: '1.5px solid #cbd5e1',
+                        border: '1.5px solid var(--border-subtle, #cbd5e1)',
                         fontSize: '13.5px',
-                        outline: 'none'
+                        outline: 'none',
+                        background: 'var(--bg-input, #ffffff)',
+                        color: 'var(--text-primary, #0f172a)'
                       }}
                     />
                     <button
@@ -1388,7 +1392,7 @@ export const AdminUsersPage = () => {
                         transform: 'translateY(-50%)',
                         background: 'none',
                         border: 'none',
-                        color: '#94a3b8',
+                        color: 'var(--text-muted, #94a3b8)',
                         cursor: 'pointer'
                       }}
                     >
@@ -1405,11 +1409,11 @@ export const AdminUsersPage = () => {
                   justifyContent: 'space-between',
                   alignItems: 'center',
                   padding: '16px 24px',
-                  borderTop: '1px solid #f1f5f9',
-                  background: '#f8fafc'
+                  borderTop: '1px solid var(--border-subtle, #f1f5f9)',
+                  background: 'var(--bg-surface-elevated, #f8fafc)'
                 }}
               >
-                <span style={{ fontSize: '12px', color: '#94a3b8' }}>
+                <span style={{ fontSize: '12px', color: 'var(--text-muted, #94a3b8)' }}>
                   <span style={{ color: '#ef4444' }}>*</span> Mandatory fields
                 </span>
 
@@ -1420,9 +1424,9 @@ export const AdminUsersPage = () => {
                     style={{
                       padding: '9px 18px',
                       borderRadius: '9px',
-                      background: '#ffffff',
-                      border: '1.5px solid #cbd5e1',
-                      color: '#475569',
+                      background: 'var(--bg-surface, #ffffff)',
+                      border: '1.5px solid var(--border-subtle, #cbd5e1)',
+                      color: 'var(--text-secondary, #475569)',
                       fontWeight: 700,
                       fontSize: '13px',
                       cursor: 'pointer'
@@ -1436,7 +1440,7 @@ export const AdminUsersPage = () => {
                     style={{
                       padding: '9px 22px',
                       borderRadius: '9px',
-                      background: '#0f172a',
+                      background: 'var(--brand-blue, #0f172a)',
                       color: '#ffffff',
                       border: 'none',
                       fontWeight: 700,
@@ -1445,11 +1449,8 @@ export const AdminUsersPage = () => {
                       display: 'inline-flex',
                       alignItems: 'center',
                       gap: '8px',
-                      boxShadow: '0 4px 14px rgba(15, 23, 42, 0.25)',
-                      transition: 'all 0.15s ease'
+                      boxShadow: '0 4px 14px rgba(15, 23, 42, 0.3)'
                     }}
-                    onMouseOver={(e) => { e.currentTarget.style.background = '#1e293b'; }}
-                    onMouseOut={(e) => { e.currentTarget.style.background = '#0f172a'; }}
                   >
                     <Save size={16} />
                     <span>{editingAdmin ? 'Save Changes' : 'Create Admin'}</span>
@@ -1486,4 +1487,3 @@ export const AdminUsersPage = () => {
 };
 
 export default AdminUsersPage;
-

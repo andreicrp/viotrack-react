@@ -301,12 +301,12 @@ export const AdvisersPage = () => {
       {/* Top Banner & Action Header */}
       <div className="page-banner-header">
         <div className="page-banner-info">
-          <Award size={26} color="#0f172a" strokeWidth={2.4} style={{ flexShrink: 0 }} />
+          <Award size={26} strokeWidth={2.4} style={{ flexShrink: 0, color: 'var(--brand-blue, #07345f)' }} />
           <div>
-            <h2 style={{ fontSize: '20px', fontWeight: 800, margin: 0, color: '#0f172a', letterSpacing: '-0.02em' }}>
+            <h2 style={{ fontSize: '20px', fontWeight: 800, margin: 0, color: 'var(--text-primary, #0f172a)', letterSpacing: '-0.02em' }}>
               Adviser Management
             </h2>
-            <p style={{ margin: '3px 0 0 0', fontSize: '13px', color: '#64748b' }}>
+            <p style={{ margin: '3px 0 0 0', fontSize: '13px', color: 'var(--text-muted, #64748b)' }}>
               Assign, supervise, and inspect class advisers and student advisory section rosters.
             </p>
           </div>
@@ -835,12 +835,12 @@ export const AdvisersPage = () => {
         >
           <div
             style={{
-              background: '#ffffff',
+              background: 'var(--bg-surface, #ffffff)',
               borderRadius: '18px',
               width: '100%',
               maxWidth: '520px',
-              boxShadow: '0 25px 60px -15px rgba(0, 0, 0, 0.3)',
-              border: '1px solid #e2e8f0',
+              boxShadow: '0 25px 60px -15px rgba(0, 0, 0, 0.5)',
+              border: '1px solid var(--border-subtle, #e2e8f0)',
               overflow: 'visible',
               display: 'flex',
               flexDirection: 'column',
@@ -855,32 +855,32 @@ export const AdvisersPage = () => {
                 justifyContent: 'space-between',
                 alignItems: 'center',
                 padding: '20px 24px',
-                borderBottom: '1px solid #f1f5f9',
-                background: '#ffffff',
+                borderBottom: '1px solid var(--border-subtle, #f1f5f9)',
+                background: 'var(--bg-surface, #ffffff)',
                 borderTopLeftRadius: '18px',
                 borderTopRightRadius: '18px'
               }}
             >
               <div>
-                <h3 style={{ margin: 0, fontSize: '17px', fontWeight: 700, color: '#0f172a' }}>
+                <h3 style={{ margin: 0, fontSize: '17px', fontWeight: 700, color: 'var(--text-primary, #0f172a)' }}>
                   Appoint Section Adviser
                 </h3>
-                <p style={{ margin: '2px 0 0 0', fontSize: '12px', color: '#64748b' }}>
+                <p style={{ margin: '2px 0 0 0', fontSize: '12px', color: 'var(--text-muted, #64748b)' }}>
                   Assign a faculty member as class adviser for a grade and section
                 </p>
               </div>
               <button
                 onClick={() => setIsAppointModalOpen(false)}
                 style={{
-                  background: '#f1f5f9',
-                  border: 'none',
+                  background: 'var(--bg-surface-elevated, #f1f5f9)',
+                  border: '1px solid var(--border-subtle, transparent)',
                   borderRadius: '8px',
                   width: 32,
                   height: 32,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  color: '#64748b',
+                  color: 'var(--text-muted, #64748b)',
                   cursor: 'pointer'
                 }}
               >
@@ -892,18 +892,18 @@ export const AdvisersPage = () => {
             <form onSubmit={handleAppointSubmit} style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '18px' }}>
               {/* Teacher Selector */}
               <div>
-                <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: 'var(--text-primary, #334155)', marginBottom: '6px' }}>
                   Select Faculty Member <span style={{ color: '#ef4444' }}>*</span>
                 </label>
                 {teachers.length === 0 ? (
                   <div
                     style={{
-                      background: '#fffbeb',
-                      border: '1px solid #fde68a',
+                      background: 'rgba(245, 158, 11, 0.15)',
+                      border: '1px solid rgba(245, 158, 11, 0.3)',
                       borderRadius: '8px',
                       padding: '10px 12px',
                       fontSize: '12.5px',
-                      color: '#92400e',
+                      color: '#fbbf24',
                       lineHeight: 1.4
                     }}
                   >
@@ -919,14 +919,15 @@ export const AdvisersPage = () => {
                     />
                     {currentlyAssignedAdviser && (
                       <div
+                        className="advisers-reassignment-notice"
                         style={{
-                          background: '#eff6ff',
-                          border: '1px solid #bfdbfe',
+                          background: 'rgba(56, 189, 248, 0.12)',
+                          border: '1px solid rgba(56, 189, 248, 0.3)',
                           borderRadius: '8px',
                           padding: '9px 12px',
                           marginTop: '8px',
                           fontSize: '12px',
-                          color: '#1e40af',
+                          color: '#38bdf8',
                           lineHeight: 1.4
                         }}
                       >
@@ -939,7 +940,7 @@ export const AdvisersPage = () => {
 
               {/* Grade Level Selector */}
               <div>
-                <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: 'var(--text-primary, #334155)', marginBottom: '6px' }}>
                   Grade Level <span style={{ color: '#ef4444' }}>*</span>
                 </label>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
@@ -948,14 +949,15 @@ export const AdvisersPage = () => {
                     return (
                       <button
                         key={lvl}
+                        className={`advisers-grade-option${isSelected ? ' is-selected' : ''}`}
                         type="button"
                         onClick={() => setAppointGrade(lvl)}
                         style={{
                           padding: '8px 10px',
                           borderRadius: '8px',
-                          border: isSelected ? '2px solid #07345f' : '1px solid #e2e8f0',
-                          background: isSelected ? '#f0f4f8' : '#f8fafc',
-                          color: isSelected ? '#07345f' : '#475569',
+                          border: isSelected ? '2px solid var(--brand-blue, #07345f)' : '1px solid var(--border-subtle, #e2e8f0)',
+                          background: isSelected ? 'rgba(56, 189, 248, 0.15)' : 'var(--bg-surface-elevated, #f8fafc)',
+                          color: isSelected ? 'var(--brand-blue, #07345f)' : 'var(--text-secondary, #475569)',
                           fontWeight: isSelected ? 700 : 500,
                           fontSize: '12px',
                           cursor: 'pointer',
@@ -974,7 +976,7 @@ export const AdvisersPage = () => {
 
               {/* Class Section Selection */}
               <div>
-                <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: '#334155', marginBottom: '6px' }}>
+                <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, color: 'var(--text-primary, #334155)', marginBottom: '6px' }}>
                   Class Section Name <span style={{ color: '#ef4444' }}>*</span>
                 </label>
                 <SectionSelect
@@ -989,15 +991,15 @@ export const AdvisersPage = () => {
               </div>
 
               {/* Action Buttons */}
-              <div style={{ display: 'flex', gap: '10px', marginTop: '10px', borderTop: '1px solid #f1f5f9', paddingTop: '16px' }}>
+              <div style={{ display: 'flex', gap: '10px', marginTop: '10px', borderTop: '1px solid var(--border-subtle, #f1f5f9)', paddingTop: '16px' }}>
                 <button
                   type="button"
                   onClick={() => setIsAppointModalOpen(false)}
                   style={{
                     flex: 1,
-                    background: '#f1f5f9',
-                    color: '#475569',
-                    border: 'none',
+                    background: 'var(--bg-surface-elevated, #f1f5f9)',
+                    color: 'var(--text-secondary, #475569)',
+                    border: '1px solid var(--border-subtle, #cbd5e1)',
                     padding: '10px 16px',
                     borderRadius: '8px',
                     fontSize: '13px',
@@ -1012,15 +1014,14 @@ export const AdvisersPage = () => {
                   disabled={!selectedTeacherId || !appointSection.trim()}
                   style={{
                     flex: 1,
-                    background: (!selectedTeacherId || !appointSection.trim()) ? '#94a3b8' : '#07345f',
+                    background: (!selectedTeacherId || !appointSection.trim()) ? 'var(--text-dim, #94a3b8)' : 'var(--brand-blue, #07345f)',
                     color: '#ffffff',
                     border: 'none',
                     padding: '10px 16px',
                     borderRadius: '8px',
                     fontSize: '13px',
                     fontWeight: 700,
-                    cursor: (!selectedTeacherId || !appointSection.trim()) ? 'not-allowed' : 'pointer',
-                    boxShadow: (!selectedTeacherId || !appointSection.trim()) ? 'none' : '0 4px 12px rgba(7, 52, 95, 0.25)'
+                    cursor: (!selectedTeacherId || !appointSection.trim()) ? 'not-allowed' : 'pointer'
                   }}
                 >
                   Confirm Appointment

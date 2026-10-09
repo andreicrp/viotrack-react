@@ -96,12 +96,12 @@ export const EditTeacherModal = ({ isOpen, onClose, teacher, onSaved }) => {
     >
       <div
         style={{
-          background: '#ffffff',
+          background: 'var(--bg-surface, #ffffff)',
           borderRadius: '18px',
           width: '100%',
           maxWidth: '560px',
-          boxShadow: '0 25px 60px -15px rgba(0, 0, 0, 0.3)',
-          border: '1px solid #e2e8f0',
+          boxShadow: '0 25px 60px -15px rgba(0, 0, 0, 0.5)',
+          border: '1px solid var(--border-subtle, #e2e8f0)',
           overflow: 'hidden',
           display: 'flex',
           flexDirection: 'column',
@@ -115,8 +115,8 @@ export const EditTeacherModal = ({ isOpen, onClose, teacher, onSaved }) => {
             justifyContent: 'space-between',
             alignItems: 'center',
             padding: '20px 24px',
-            borderBottom: '1px solid #f1f5f9',
-            background: '#ffffff'
+            borderBottom: '1px solid var(--border-subtle, #f1f5f9)',
+            background: 'var(--bg-surface, #ffffff)'
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
@@ -125,8 +125,8 @@ export const EditTeacherModal = ({ isOpen, onClose, teacher, onSaved }) => {
                 width: 40,
                 height: 40,
                 borderRadius: '10px',
-                background: '#e0e7ff',
-                color: '#4338ca',
+                background: 'rgba(56, 189, 248, 0.15)',
+                color: 'var(--brand-blue, #38bdf8)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center'
@@ -135,10 +135,10 @@ export const EditTeacherModal = ({ isOpen, onClose, teacher, onSaved }) => {
               <GraduationCap size={22} />
             </div>
             <div>
-              <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 800, color: '#0f172a', letterSpacing: '-0.3px' }}>
+              <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 800, color: 'var(--text-primary, #0f172a)', letterSpacing: '-0.3px' }}>
                 {teacher ? 'Edit Faculty Teacher' : 'Add New Faculty Teacher'}
               </h3>
-              <span style={{ fontSize: '12.5px', color: '#64748b' }}>
+              <span style={{ fontSize: '12.5px', color: 'var(--text-muted, #64748b)' }}>
                 Teacher credentials, department & advisory profile
               </span>
             </div>
@@ -150,17 +150,15 @@ export const EditTeacherModal = ({ isOpen, onClose, teacher, onSaved }) => {
               width: 32,
               height: 32,
               borderRadius: '8px',
-              border: 'none',
-              background: '#f1f5f9',
-              color: '#64748b',
+              border: '1px solid var(--border-subtle, transparent)',
+              background: 'var(--bg-surface-elevated, #f1f5f9)',
+              color: 'var(--text-muted, #64748b)',
               cursor: 'pointer',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               transition: 'all 0.15s'
             }}
-            onMouseOver={(e) => { e.currentTarget.style.background = '#e2e8f0'; e.currentTarget.style.color = '#0f172a'; }}
-            onMouseOut={(e) => { e.currentTarget.style.background = '#f1f5f9'; e.currentTarget.style.color = '#64748b'; }}
           >
             <X size={18} />
           </button>
@@ -197,9 +195,9 @@ export const EditTeacherModal = ({ isOpen, onClose, teacher, onSaved }) => {
                 alignItems: 'center',
                 justifyContent: 'space-between',
                 padding: '12px 16px',
-                background: '#f8fafc',
+                background: 'var(--bg-surface-elevated, #f8fafc)',
                 borderRadius: '12px',
-                border: '1px solid #e2e8f0',
+                border: '1px solid var(--border-subtle, #e2e8f0)',
                 gap: '12px'
               }}
             >
@@ -217,15 +215,15 @@ export const EditTeacherModal = ({ isOpen, onClose, teacher, onSaved }) => {
                     height: 48,
                     borderRadius: '12px',
                     objectFit: 'cover',
-                    border: '2px solid #27367f',
+                    border: '2px solid var(--brand-blue, #27367f)',
                     flexShrink: 0
                   }}
                 />
                 <div>
-                  <div style={{ fontSize: '13.5px', fontWeight: 700, color: '#0f172a' }}>
+                  <div style={{ fontSize: '13.5px', fontWeight: 700, color: 'var(--text-primary, #0f172a)' }}>
                     {formData.fname ? `${formData.fname} ${formData.lname}` : 'Faculty Profile Picture'}
                   </div>
-                  <div style={{ fontSize: '11.5px', color: '#64748b' }}>
+                  <div style={{ fontSize: '11.5px', color: 'var(--text-muted, #64748b)' }}>
                     JPG, PNG, or WEBP (Max 5MB)
                   </div>
                 </div>
@@ -236,9 +234,9 @@ export const EditTeacherModal = ({ isOpen, onClose, teacher, onSaved }) => {
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
                   style={{
-                    background: '#ffffff',
-                    color: '#27367f',
-                    border: '1.5px solid #cbd5e1',
+                    background: 'var(--bg-surface, #ffffff)',
+                    color: 'var(--brand-blue, #27367f)',
+                    border: '1.5px solid var(--border-subtle, #cbd5e1)',
                     padding: '6px 12px',
                     borderRadius: '8px',
                     fontSize: '12px',
@@ -276,7 +274,7 @@ export const EditTeacherModal = ({ isOpen, onClose, teacher, onSaved }) => {
             {/* First & Last Name */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
               <div>
-                <label style={{ fontSize: '13px', fontWeight: 700, color: '#334155', display: 'block', marginBottom: '6px' }}>
+                <label style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-primary, #334155)', display: 'block', marginBottom: '6px' }}>
                   First Name <span style={{ color: '#ef4444' }}>*</span>
                 </label>
                 <input
@@ -285,12 +283,21 @@ export const EditTeacherModal = ({ isOpen, onClose, teacher, onSaved }) => {
                   placeholder="e.g. Juan"
                   value={formData.fname}
                   onChange={(e) => setFormData({ ...formData, fname: e.target.value })}
-                  style={{ width: '100%', padding: '9px 12px', borderRadius: '9px', border: '1.5px solid #cbd5e1', fontSize: '13.5px', outline: 'none' }}
+                  style={{
+                    width: '100%',
+                    padding: '9px 12px',
+                    borderRadius: '9px',
+                    border: '1.5px solid var(--border-subtle, #cbd5e1)',
+                    fontSize: '13.5px',
+                    outline: 'none',
+                    background: 'var(--bg-input, #ffffff)',
+                    color: 'var(--text-primary, #0f172a)'
+                  }}
                 />
               </div>
 
               <div>
-                <label style={{ fontSize: '13px', fontWeight: 700, color: '#334155', display: 'block', marginBottom: '6px' }}>
+                <label style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-primary, #334155)', display: 'block', marginBottom: '6px' }}>
                   Last Name <span style={{ color: '#ef4444' }}>*</span>
                 </label>
                 <input
@@ -299,7 +306,16 @@ export const EditTeacherModal = ({ isOpen, onClose, teacher, onSaved }) => {
                   placeholder="e.g. Dela Cruz"
                   value={formData.lname}
                   onChange={(e) => setFormData({ ...formData, lname: e.target.value })}
-                  style={{ width: '100%', padding: '9px 12px', borderRadius: '9px', border: '1.5px solid #cbd5e1', fontSize: '13.5px', outline: 'none' }}
+                  style={{
+                    width: '100%',
+                    padding: '9px 12px',
+                    borderRadius: '9px',
+                    border: '1.5px solid var(--border-subtle, #cbd5e1)',
+                    fontSize: '13.5px',
+                    outline: 'none',
+                    background: 'var(--bg-input, #ffffff)',
+                    color: 'var(--text-primary, #0f172a)'
+                  }}
                 />
               </div>
             </div>
@@ -307,7 +323,7 @@ export const EditTeacherModal = ({ isOpen, onClose, teacher, onSaved }) => {
             {/* Email & Contact */}
             <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '12px' }}>
               <div>
-                <label style={{ fontSize: '13px', fontWeight: 700, color: '#334155', display: 'block', marginBottom: '6px' }}>
+                <label style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-primary, #334155)', display: 'block', marginBottom: '6px' }}>
                   Institutional Email <span style={{ color: '#ef4444' }}>*</span>
                 </label>
                 <input
@@ -316,12 +332,21 @@ export const EditTeacherModal = ({ isOpen, onClose, teacher, onSaved }) => {
                   placeholder="juan.delacruz@phcmanila.edu.ph"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  style={{ width: '100%', padding: '9px 12px', borderRadius: '9px', border: '1.5px solid #cbd5e1', fontSize: '13.5px', outline: 'none' }}
+                  style={{
+                    width: '100%',
+                    padding: '9px 12px',
+                    borderRadius: '9px',
+                    border: '1.5px solid var(--border-subtle, #cbd5e1)',
+                    fontSize: '13.5px',
+                    outline: 'none',
+                    background: 'var(--bg-input, #ffffff)',
+                    color: 'var(--text-primary, #0f172a)'
+                  }}
                 />
               </div>
 
               <div>
-                <label style={{ fontSize: '13px', fontWeight: 700, color: '#334155', display: 'block', marginBottom: '6px' }}>
+                <label style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-primary, #334155)', display: 'block', marginBottom: '6px' }}>
                   Contact Number
                 </label>
                 <input
@@ -329,7 +354,16 @@ export const EditTeacherModal = ({ isOpen, onClose, teacher, onSaved }) => {
                   placeholder="09171234567"
                   value={formData.contact}
                   onChange={(e) => setFormData({ ...formData, contact: e.target.value })}
-                  style={{ width: '100%', padding: '9px 12px', borderRadius: '9px', border: '1.5px solid #cbd5e1', fontSize: '13.5px', outline: 'none' }}
+                  style={{
+                    width: '100%',
+                    padding: '9px 12px',
+                    borderRadius: '9px',
+                    border: '1.5px solid var(--border-subtle, #cbd5e1)',
+                    fontSize: '13.5px',
+                    outline: 'none',
+                    background: 'var(--bg-input, #ffffff)',
+                    color: 'var(--text-primary, #0f172a)'
+                  }}
                 />
               </div>
             </div>
@@ -337,7 +371,7 @@ export const EditTeacherModal = ({ isOpen, onClose, teacher, onSaved }) => {
             {/* Academic Position & Department */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
               <div>
-                <label style={{ fontSize: '13px', fontWeight: 700, color: '#334155', display: 'block', marginBottom: '6px' }}>
+                <label style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-primary, #334155)', display: 'block', marginBottom: '6px' }}>
                   Academic Position
                 </label>
                 <CustomSelect
@@ -355,7 +389,7 @@ export const EditTeacherModal = ({ isOpen, onClose, teacher, onSaved }) => {
               </div>
 
               <div>
-                <label style={{ fontSize: '13px', fontWeight: 700, color: '#334155', display: 'block', marginBottom: '6px' }}>
+                <label style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-primary, #334155)', display: 'block', marginBottom: '6px' }}>
                   Department
                 </label>
                 <CustomSelect
@@ -376,7 +410,7 @@ export const EditTeacherModal = ({ isOpen, onClose, teacher, onSaved }) => {
 
             {/* Password */}
             <div>
-              <label style={{ fontSize: '13px', fontWeight: 700, color: '#334155', display: 'block', marginBottom: '6px' }}>
+              <label style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-primary, #334155)', display: 'block', marginBottom: '6px' }}>
                 {teacher ? 'New Password (leave empty to keep current)' : 'Teacher Portal Password *'}
               </label>
               <div style={{ position: 'relative' }}>
@@ -390,9 +424,11 @@ export const EditTeacherModal = ({ isOpen, onClose, teacher, onSaved }) => {
                     width: '100%',
                     padding: '9px 38px 9px 12px',
                     borderRadius: '9px',
-                    border: '1.5px solid #cbd5e1',
+                    border: '1.5px solid var(--border-subtle, #cbd5e1)',
                     fontSize: '13.5px',
-                    outline: 'none'
+                    outline: 'none',
+                    background: 'var(--bg-input, #ffffff)',
+                    color: 'var(--text-primary, #0f172a)'
                   }}
                 />
                 <button
@@ -405,7 +441,7 @@ export const EditTeacherModal = ({ isOpen, onClose, teacher, onSaved }) => {
                     transform: 'translateY(-50%)',
                     background: 'none',
                     border: 'none',
-                    color: '#94a3b8',
+                    color: 'var(--text-muted, #94a3b8)',
                     cursor: 'pointer'
                   }}
                 >
@@ -422,11 +458,11 @@ export const EditTeacherModal = ({ isOpen, onClose, teacher, onSaved }) => {
               justifyContent: 'space-between',
               alignItems: 'center',
               padding: '16px 24px',
-              borderTop: '1px solid #f1f5f9',
-              background: '#f8fafc'
+              borderTop: '1px solid var(--border-subtle, #f1f5f9)',
+              background: 'var(--bg-surface-elevated, #f8fafc)'
             }}
           >
-            <span style={{ fontSize: '12px', color: '#94a3b8' }}>
+            <span style={{ fontSize: '12px', color: 'var(--text-muted, #94a3b8)' }}>
               <span style={{ color: '#ef4444' }}>*</span> Mandatory fields
             </span>
 
@@ -437,9 +473,9 @@ export const EditTeacherModal = ({ isOpen, onClose, teacher, onSaved }) => {
                 style={{
                   padding: '9px 18px',
                   borderRadius: '9px',
-                  background: '#ffffff',
-                  border: '1.5px solid #cbd5e1',
-                  color: '#475569',
+                  background: 'var(--bg-surface, #ffffff)',
+                  border: '1.5px solid var(--border-subtle, #cbd5e1)',
+                  color: 'var(--text-secondary, #475569)',
                   fontWeight: 700,
                   fontSize: '13px',
                   cursor: 'pointer'
@@ -453,7 +489,7 @@ export const EditTeacherModal = ({ isOpen, onClose, teacher, onSaved }) => {
                 style={{
                   padding: '9px 22px',
                   borderRadius: '9px',
-                  background: '#0f172a',
+                  background: 'var(--brand-blue, #0f172a)',
                   color: '#ffffff',
                   border: 'none',
                   fontWeight: 700,

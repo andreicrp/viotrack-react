@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { X } from 'lucide-react';
 import { lockBodyScroll, unlockBodyScroll } from '../../utils/scrollLock';
 
-export const Modal = ({ isOpen, onClose, title, children, maxWidth = '600px', icon: Icon }) => {
+export const Modal = ({ isOpen, onClose, title, children, maxWidth = '600px', icon: Icon, dialogClassName = '' }) => {
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === 'Escape' && isOpen) onClose();
@@ -27,7 +27,7 @@ export const Modal = ({ isOpen, onClose, title, children, maxWidth = '600px', ic
       style={{ zIndex: 3500 }}
     >
       <div
-        className="modal-dialog"
+        className={`modal-dialog ${dialogClassName}`.trim()}
         role="dialog"
         aria-modal="true"
         aria-label={typeof title === 'string' ? title : 'Dialog Modal'}

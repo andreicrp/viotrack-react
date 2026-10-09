@@ -893,12 +893,12 @@ export const ScanQRPage = () => {
       {/* 1. Standard App Page Banner Header */}
       <div className="page-banner-header">
         <div className="page-banner-info">
-          <QrCode size={26} color="#0f172a" strokeWidth={2.4} style={{ flexShrink: 0 }} />
+          <QrCode size={26} strokeWidth={2.4} style={{ flexShrink: 0, color: 'var(--brand-blue, #07345f)' }} />
           <div>
-            <h2 style={{ fontSize: '20px', fontWeight: 800, margin: 0, color: '#0f172a', letterSpacing: '-0.02em' }}>
+            <h2 style={{ fontSize: '20px', fontWeight: 800, margin: 0, color: 'var(--text-primary, #0f172a)', letterSpacing: '-0.02em' }}>
               Student QR Scanner &amp; Tracker
             </h2>
-            <p style={{ margin: '3px 0 0 0', fontSize: '13px', color: '#64748b' }}>
+            <p style={{ margin: '3px 0 0 0', fontSize: '13px', color: 'var(--text-muted, #64748b)' }}>
               Scan printed student ID badges using device camera or search via Student ID.
             </p>
           </div>

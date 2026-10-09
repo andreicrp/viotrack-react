@@ -491,20 +491,20 @@ export const StudentViolationDetailPage = () => {
     const s = (st || '').toLowerCase();
     if (s === 'resolved') {
       return (
-        <span style={{ background: '#ecfdf5', color: '#065f46', border: '1px solid #a7f3d0', padding: '3.5px 10px', borderRadius: '12px', fontSize: '11.5px', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+        <span className="badge-minor record-status-pill record-status-pill--resolved" style={{ background: '#ecfdf5', color: '#065f46', border: '1px solid #a7f3d0', padding: '3.5px 10px', borderRadius: '20px', fontSize: '11.5px', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
           <CheckCircle2 size={12} color="#059669" strokeWidth={2.4} /> Resolved
         </span>
       );
     }
     if (s === 'investigation') {
       return (
-        <span style={{ background: '#fffbeb', color: '#92400e', border: '1px solid #fde68a', padding: '3.5px 10px', borderRadius: '12px', fontSize: '11.5px', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+        <span className="badge-serious record-status-pill record-status-pill--investigation" style={{ background: '#fffbeb', color: '#92400e', border: '1px solid #fde68a', padding: '3.5px 10px', borderRadius: '20px', fontSize: '11.5px', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
           <Search size={12} color="#d97706" strokeWidth={2.4} /> In Review
         </span>
       );
     }
     return (
-      <span style={{ background: '#fef2f2', color: '#991b1b', border: '1px solid #fecaca', padding: '3.5px 10px', borderRadius: '12px', fontSize: '11.5px', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+      <span className="badge-major record-status-pill record-status-pill--pending" style={{ background: '#fef2f2', color: '#991b1b', border: '1px solid #fecaca', padding: '3.5px 10px', borderRadius: '20px', fontSize: '11.5px', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
         <Clock size={12} color="#dc2626" strokeWidth={2.4} /> Pending
       </span>
     );
@@ -514,20 +514,20 @@ export const StudentViolationDetailPage = () => {
     const t = (ty || '').toLowerCase();
     if (t === 'major') {
       return (
-        <span style={{ color: '#991b1b', fontWeight: 800, fontSize: '11.5px', display: 'inline-flex', alignItems: 'center', gap: '4px', background: '#fef2f2', border: '1px solid #fecaca', padding: '3px 8px', borderRadius: '6px' }}>
+        <span className="badge-major" style={{ color: '#991b1b', fontWeight: 800, fontSize: '11.5px', display: 'inline-flex', alignItems: 'center', gap: '4px', background: '#fef2f2', border: '1px solid #fecaca', padding: '3.5px 10px', borderRadius: '20px' }}>
           <ShieldAlert size={12} color="#dc2626" strokeWidth={2.2} /> Major
         </span>
       );
     }
     if (t === 'serious') {
       return (
-        <span style={{ color: '#9a3412', fontWeight: 800, fontSize: '11.5px', display: 'inline-flex', alignItems: 'center', gap: '4px', background: '#fff7ed', border: '1px solid #fed7aa', padding: '3px 8px', borderRadius: '6px' }}>
+        <span className="badge-serious" style={{ color: '#9a3412', fontWeight: 800, fontSize: '11.5px', display: 'inline-flex', alignItems: 'center', gap: '4px', background: '#fff7ed', border: '1px solid #fed7aa', padding: '3.5px 10px', borderRadius: '20px' }}>
           <AlertTriangle size={12} color="#ea580c" strokeWidth={2.2} /> Serious
         </span>
       );
     }
     return (
-      <span style={{ color: '#065f46', fontWeight: 800, fontSize: '11.5px', background: '#ecfdf5', border: '1px solid #a7f3d0', padding: '3px 8px', borderRadius: '6px', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+      <span className="badge-minor" style={{ color: '#065f46', fontWeight: 800, fontSize: '11.5px', background: '#ecfdf5', border: '1px solid #a7f3d0', padding: '3.5px 10px', borderRadius: '20px', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
         <CheckCircle2 size={12} color="#059669" strokeWidth={2.2} /> Minor
       </span>
     );
@@ -560,23 +560,23 @@ export const StudentViolationDetailPage = () => {
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+    <div className="student-violation-detail-page" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
       
       {/* Top Banner Header with Actions */}
       <div className="page-banner-header">
         <div className="page-banner-info">
-          <User size={26} strokeWidth={2.4} color="#0f172a" style={{ flexShrink: 0 }} />
+          <User size={26} strokeWidth={2.4} style={{ flexShrink: 0, color: 'var(--brand-blue, #07345f)' }} />
 
           <div style={{ minWidth: 0 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-              <h2 style={{ fontSize: '20px', fontWeight: 800, margin: 0, color: '#0f172a', letterSpacing: '-0.02em' }}>
+              <h2 style={{ fontSize: '20px', fontWeight: 800, margin: 0, color: 'var(--text-primary, #0f172a)', letterSpacing: '-0.02em' }}>
                 {student.fname} {student.lname}
               </h2>
               <span
                 style={{
-                  background: '#f1f5f9',
-                  color: '#0f172a',
-                  border: '1px solid #e2e8f0',
+                  background: 'var(--bg-input, #f1f5f9)',
+                  color: 'var(--text-primary, #0f172a)',
+                  border: '1px solid var(--border-subtle, #e2e8f0)',
                   fontSize: '11.5px',
                   fontWeight: 700,
                   padding: '2.5px 10px',
@@ -587,6 +587,7 @@ export const StudentViolationDetailPage = () => {
                 Student ID: {student.lrn}
               </span>
               <span
+                className={totalCount === 0 ? 'badge-minor' : totalCount <= 2 ? 'badge-serious' : 'badge-major'}
                 style={{
                   background: standing.bg,
                   color: standing.color,
@@ -606,7 +607,7 @@ export const StudentViolationDetailPage = () => {
                 {standing.text}
               </span>
             </div>
-            <p style={{ margin: '3px 0 0 0', fontSize: '13px', color: '#64748b' }}>
+            <p style={{ margin: '3px 0 0 0', fontSize: '13px', color: 'var(--text-muted, #64748b)' }}>
               {student.grade} - {student.section} &bull; Academic Year {student.academicyear || '2025–2026'}
             </p>
           </div>
@@ -638,6 +639,7 @@ export const StudentViolationDetailPage = () => {
                   setIsSummonsModalOpen(true);
                 }}
                 className="page-banner-btn-secondary"
+                aria-pressed={isSummonsModalOpen}
                 title="Generate formal printable Parent Summons notice letter"
               >
                 <FileText size={15} /> Parent Summons
@@ -663,22 +665,23 @@ export const StudentViolationDetailPage = () => {
 
       {/* 1. Student Information Profile Card (Clean, Balanced Hero Layout) */}
       <div
+        className="card"
         style={{
-          background: '#ffffff',
+          background: 'var(--bg-surface, #ffffff)',
           borderRadius: '16px',
-          border: '1px solid #e2e8f0',
+          border: '1px solid var(--border-subtle, #e2e8f0)',
           padding: '20px 24px',
           boxShadow: '0 4px 16px rgba(0,0,0,0.04)',
           position: 'relative'
         }}
       >
         {/* Card Header */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', borderBottom: '1px solid #f1f5f9', paddingBottom: '12px', flexWrap: 'wrap', gap: '10px' }}>
+        <div className="student-profile-card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', borderBottom: '1px solid var(--border-subtle, #f1f5f9)', paddingBottom: '12px', flexWrap: 'wrap', gap: '10px' }}>
           <h3
             style={{
               fontSize: '16px',
               fontWeight: 800,
-              color: '#0f172a',
+              color: 'var(--text-primary, #0f172a)',
               margin: 0,
               letterSpacing: '-0.02em',
               display: 'flex',
@@ -686,10 +689,10 @@ export const StudentViolationDetailPage = () => {
               gap: '8px'
             }}
           >
-            <GraduationCap size={20} color="#0f172a" /> Student Information Profile
+            <GraduationCap size={20} color="var(--brand-blue, #07345f)" /> Student Information Profile
           </h3>
 
-          <span style={{ fontSize: '12px', fontWeight: 700, color: '#1e293b', background: '#f8fafc', border: '1px solid #cbd5e1', padding: '4px 12px', borderRadius: '20px' }}>
+          <span style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-secondary, #1e293b)', background: 'var(--bg-surface-elevated, #f8fafc)', border: '1px solid var(--border-subtle, #cbd5e1)', padding: '4px 12px', borderRadius: '20px' }}>
             Academic Year {student.academicyear || '2025–2026'}
           </span>
         </div>
@@ -701,7 +704,7 @@ export const StudentViolationDetailPage = () => {
               <img
                 src={
                   student.image ||
-                  `https://ui-avatars.com/api/?name=${encodeURIComponent(student.fname + ' ' + student.lname)}&background=0f172a&color=fff&size=160`
+                  `https://ui-avatars.com/api/?name=${encodeURIComponent(student.fname + ' ' + student.lname)}&background=07345f&color=fff&size=160`
                 }
                 alt={student.fname}
                 style={{
@@ -709,8 +712,8 @@ export const StudentViolationDetailPage = () => {
                   height: 104,
                   borderRadius: '50%',
                   objectFit: 'cover',
-                  border: '3.5px solid #0f172a',
-                  boxShadow: '0 6px 18px rgba(15, 23, 42, 0.16)'
+                  border: '3.5px solid var(--brand-blue, #07345f)',
+                  boxShadow: '0 6px 18px rgba(7, 52, 95, 0.16)'
                 }}
               />
               <span
@@ -722,7 +725,7 @@ export const StudentViolationDetailPage = () => {
                   height: 18,
                   borderRadius: '50%',
                   background: '#10b981',
-                  border: '3px solid #ffffff',
+                  border: '3px solid var(--bg-surface, #ffffff)',
                   boxShadow: '0 2px 6px rgba(0,0,0,0.15)'
                 }}
                 title="Officially Enrolled"
@@ -730,20 +733,20 @@ export const StudentViolationDetailPage = () => {
             </div>
 
             <div style={{ minWidth: 0 }}>
-              <div style={{ fontSize: '11.5px', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '3px' }}>
+              <div style={{ fontSize: '11.5px', fontWeight: 800, color: 'var(--text-muted, #64748b)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: '3px' }}>
                 STUDENT PROFILE
               </div>
-              <div style={{ fontSize: '21px', fontWeight: 850, color: '#0f172a', lineHeight: '1.2', letterSpacing: '-0.02em' }}>
+              <div style={{ fontSize: '21px', fontWeight: 850, color: 'var(--text-primary, #0f172a)', lineHeight: '1.2', letterSpacing: '-0.02em' }}>
                 {student.fname} {student.lname}
               </div>
-              <div style={{ fontSize: '13.5px', color: '#475569', marginTop: '4px', fontWeight: 600 }}>
-                Student ID: <strong style={{ color: '#0f172a' }}>{student.lrn}</strong>
+              <div style={{ fontSize: '13.5px', color: 'var(--text-secondary, #475569)', marginTop: '4px', fontWeight: 600 }}>
+                Student ID: <strong style={{ color: 'var(--text-primary, #0f172a)' }}>{student.lrn}</strong>
               </div>
               <div style={{ fontSize: '12px', marginTop: '8px', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                <span style={{ background: '#f1f5f9', color: '#1e293b', border: '1px solid #cbd5e1', padding: '3.5px 10px', borderRadius: '6px', fontWeight: 700 }}>
+                <span style={{ background: 'var(--bg-input, #f1f5f9)', color: 'var(--text-primary, #1e293b)', border: '1px solid var(--border-subtle, #cbd5e1)', padding: '3.5px 10px', borderRadius: '20px', fontWeight: 700 }}>
                   {student.gender || 'Male'}
                 </span>
-                <span style={{ background: '#ecfdf5', color: '#065f46', border: '1px solid #a7f3d0', padding: '3.5px 10px', borderRadius: '6px', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                <span className="badge-minor" style={{ background: '#ecfdf5', color: '#065f46', border: '1px solid #a7f3d0', padding: '3.5px 10px', borderRadius: '20px', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
                   <Check size={13} strokeWidth={3} /> Active
                 </span>
               </div>
@@ -755,8 +758,8 @@ export const StudentViolationDetailPage = () => {
             {/* Academic Placement */}
             <div
               style={{
-                background: '#f8fafc',
-                border: '1px solid #e2e8f0',
+                background: 'var(--bg-surface-elevated, #f8fafc)',
+                border: '1px solid var(--border-subtle, #e2e8f0)',
                 borderRadius: '10px',
                 padding: '10px 14px',
                 display: 'flex',
@@ -765,13 +768,13 @@ export const StudentViolationDetailPage = () => {
                 gap: '2px'
               }}
             >
-              <div style={{ fontSize: '11px', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.04em', display: 'flex', alignItems: 'center', gap: '5px' }}>
-                <School size={13} color="#0f172a" /> ACADEMIC PLACEMENT
+              <div style={{ fontSize: '11px', fontWeight: 800, color: 'var(--text-muted, #64748b)', textTransform: 'uppercase', letterSpacing: '0.04em', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                <School size={13} color="var(--brand-blue, #07345f)" /> ACADEMIC PLACEMENT
               </div>
-              <div style={{ fontSize: '14px', fontWeight: 800, color: '#0f172a', marginTop: '2px' }}>
+              <div style={{ fontSize: '14px', fontWeight: 800, color: 'var(--text-primary, #0f172a)', marginTop: '2px' }}>
                 {student.grade} - {student.section}
               </div>
-              <div style={{ fontSize: '11px', color: '#64748b', display: 'flex', alignItems: 'center', gap: '4px', marginTop: '2px' }}>
+              <div style={{ fontSize: '11px', color: 'var(--text-muted, #64748b)', display: 'flex', alignItems: 'center', gap: '4px', marginTop: '2px' }}>
                 <CheckCircle2 size={11} color="#059669" /> Active & Registered
               </div>
             </div>
@@ -779,8 +782,8 @@ export const StudentViolationDetailPage = () => {
             {/* Guardian & Contact */}
             <div
               style={{
-                background: '#f8fafc',
-                border: '1px solid #e2e8f0',
+                background: 'var(--bg-surface-elevated, #f8fafc)',
+                border: '1px solid var(--border-subtle, #e2e8f0)',
                 borderRadius: '10px',
                 padding: '10px 14px',
                 display: 'flex',
@@ -789,10 +792,10 @@ export const StudentViolationDetailPage = () => {
                 gap: '2px'
               }}
             >
-              <div style={{ fontSize: '11px', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.04em', display: 'flex', alignItems: 'center', gap: '5px' }}>
-                <Users size={13} color="#0f172a" /> PARENT / GUARDIAN
+              <div style={{ fontSize: '11px', fontWeight: 800, color: 'var(--text-muted, #64748b)', textTransform: 'uppercase', letterSpacing: '0.04em', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                <Users size={13} color="var(--brand-blue, #07345f)" /> PARENT / GUARDIAN
               </div>
-              <div style={{ fontSize: '14px', fontWeight: 800, color: '#0f172a', marginTop: '2px' }}>
+              <div style={{ fontSize: '14px', fontWeight: 800, color: 'var(--text-primary, #0f172a)', marginTop: '2px' }}>
                 {student.parent_name || 'Guardian on File'}
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '2px' }}>
@@ -801,15 +804,15 @@ export const StudentViolationDetailPage = () => {
                   style={{
                     fontSize: '11.5px',
                     fontWeight: 700,
-                    color: '#0f172a',
+                    color: 'var(--text-primary, #0f172a)',
                     display: 'inline-flex',
                     alignItems: 'center',
                     gap: '4px',
                     textDecoration: 'none',
-                    background: '#ffffff',
-                    border: '1px solid #cbd5e1',
-                    padding: '2px 7px',
-                    borderRadius: '5px'
+                    background: 'var(--bg-surface, #ffffff)',
+                    border: '1px solid var(--border-subtle, #cbd5e1)',
+                    padding: '2px 8px',
+                    borderRadius: '20px'
                   }}
                   title="Guardian Contact"
                 >
@@ -821,8 +824,8 @@ export const StudentViolationDetailPage = () => {
             {/* Contact Details */}
             <div
               style={{
-                background: '#f8fafc',
-                border: '1px solid #e2e8f0',
+                background: 'var(--bg-surface-elevated, #f8fafc)',
+                border: '1px solid var(--border-subtle, #e2e8f0)',
                 borderRadius: '10px',
                 padding: '10px 14px',
                 display: 'flex',
@@ -831,15 +834,15 @@ export const StudentViolationDetailPage = () => {
                 gap: '2px'
               }}
             >
-              <div style={{ fontSize: '11px', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.04em', display: 'flex', alignItems: 'center', gap: '5px' }}>
-                <Mail size={13} color="#0f172a" /> INSTITUTIONAL EMAIL
+              <div style={{ fontSize: '11px', fontWeight: 800, color: 'var(--text-muted, #64748b)', textTransform: 'uppercase', letterSpacing: '0.04em', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                <Mail size={13} color="var(--brand-blue, #07345f)" /> INSTITUTIONAL EMAIL
               </div>
               <a
                 href={`mailto:${student.email || `${student.fname.toLowerCase()}@school.com`}`}
                 style={{
                   fontSize: '12px',
                   fontWeight: 600,
-                  color: '#0f172a',
+                  color: 'var(--text-primary, #0f172a)',
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: '4px',
@@ -850,14 +853,14 @@ export const StudentViolationDetailPage = () => {
                   whiteSpace: 'nowrap'
                 }}
               >
-                <Mail size={12} color="#64748b" style={{ flexShrink: 0 }} />
+                <Mail size={12} color="var(--text-muted, #64748b)" style={{ flexShrink: 0 }} />
                 <span style={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
                   {student.email || `${student.fname.toLowerCase()}@school.com`}
                 </span>
               </a>
               {student.contact && (
-                <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px' }}>
-                  Student Mobile: <strong style={{ color: '#334155' }}>{student.contact}</strong>
+                <div style={{ fontSize: '11px', color: 'var(--text-muted, #64748b)', marginTop: '2px' }}>
+                  Student Mobile: <strong style={{ color: 'var(--text-secondary, #334155)' }}>{student.contact}</strong>
                 </div>
               )}
             </div>
@@ -865,8 +868,8 @@ export const StudentViolationDetailPage = () => {
             {/* Address & Campus */}
             <div
               style={{
-                background: '#f8fafc',
-                border: '1px solid #e2e8f0',
+                background: 'var(--bg-surface-elevated, #f8fafc)',
+                border: '1px solid var(--border-subtle, #e2e8f0)',
                 borderRadius: '10px',
                 padding: '10px 14px',
                 display: 'flex',
@@ -875,13 +878,13 @@ export const StudentViolationDetailPage = () => {
                 gap: '2px'
               }}
             >
-              <div style={{ fontSize: '11px', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.04em', display: 'flex', alignItems: 'center', gap: '5px' }}>
-                <MapPin size={13} color="#0f172a" /> CAMPUS & RESIDENCE
+              <div style={{ fontSize: '11px', fontWeight: 800, color: 'var(--text-muted, #64748b)', textTransform: 'uppercase', letterSpacing: '0.04em', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                <MapPin size={13} color="var(--brand-blue, #07345f)" /> CAMPUS & RESIDENCE
               </div>
-              <div style={{ fontSize: '12px', fontWeight: 700, color: '#0f172a', marginTop: '2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              <div style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-primary, #0f172a)', marginTop: '2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                 {student.address || 'Sampaloc, Manila'}
               </div>
-              <div style={{ fontSize: '11px', color: '#64748b', marginTop: '2px' }}>
+              <div style={{ fontSize: '11px', color: 'var(--text-muted, #64748b)', marginTop: '2px' }}>
                 UPHSM Manila Campus
               </div>
             </div>
@@ -890,10 +893,11 @@ export const StudentViolationDetailPage = () => {
           {/* Column 3: High-Res QR Code Scanner Frame */}
           <div className="student-profile-hero-qr">
             <div
+              className="student-profile-qr-card"
               onClick={() => setIsQrModalOpen(true)}
               style={{
-                background: '#ffffff',
-                border: '1.5px solid #cbd5e1',
+                background: 'var(--bg-surface, #ffffff)',
+                border: '1.5px solid var(--border-subtle, #cbd5e1)',
                 borderRadius: '14px',
                 padding: '12px 14px',
                 cursor: 'pointer',
@@ -905,25 +909,25 @@ export const StudentViolationDetailPage = () => {
                 alignItems: 'center',
                 justifyContent: 'center'
               }}
-              onMouseOver={(e) => { e.currentTarget.style.borderColor = '#0f172a'; e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 6px 20px rgba(15, 23, 42, 0.12)'; }}
-              onMouseOut={(e) => { e.currentTarget.style.borderColor = '#cbd5e1'; e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 16px rgba(0,0,0,0.06)'; }}
+              onMouseOver={(e) => { e.currentTarget.style.borderColor = 'var(--brand-blue, #07345f)'; e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 6px 20px rgba(7, 52, 95, 0.12)'; }}
+              onMouseOut={(e) => { e.currentTarget.style.borderColor = 'var(--border-subtle, #cbd5e1)'; e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 4px 16px rgba(0,0,0,0.06)'; }}
               title="Click to view & print Student QR ID Pass"
             >
-              <div id="qrcode" style={{ width: '155px', height: '155px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div id="qrcode" style={{ width: '155px', height: '155px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#ffffff', padding: '6px', borderRadius: '10px' }}>
                 <img
                   src={qrUrl}
                   alt={`QR Pass for ${student.lrn}`}
                   style={{
-                    width: '155px',
-                    height: '155px',
-                    maxWidth: '155px',
-                    maxHeight: '155px',
-                    borderRadius: '8px',
+                    width: '143px',
+                    height: '143px',
+                    maxWidth: '143px',
+                    maxHeight: '143px',
+                    borderRadius: '6px',
                     display: 'block'
                   }}
                 />
               </div>
-              <span style={{ fontSize: '12px', fontWeight: 800, color: '#0f172a', marginTop: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+              <span className="student-profile-qr-label" style={{ fontSize: '12px', fontWeight: 800, color: 'var(--text-primary, #0f172a)', marginTop: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
                 <QrCode size={14} strokeWidth={2.4} /> Scan or Click to Print
               </span>
             </div>
@@ -935,6 +939,7 @@ export const StudentViolationDetailPage = () => {
       <div className="metric-cards-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '14px' }}>
         {/* Total Incidents */}
         <div
+          className={`student-violation-stat-card ${statusFilter === 'all' ? 'is-active' : ''}`}
           onClick={() => { setStatusFilter('all'); setCurrentPage(1); }}
           style={{
             background: statusFilter === 'all' ? '#f0f4f8' : '#ffffff',
@@ -975,6 +980,7 @@ export const StudentViolationDetailPage = () => {
 
         {/* Pending Review */}
         <div
+          className={`student-violation-stat-card ${statusFilter === 'pending' ? 'is-active' : ''}`}
           onClick={() => { setStatusFilter('pending'); setCurrentPage(1); }}
           style={{
             background: statusFilter === 'pending' ? '#f0f4f8' : '#ffffff',
@@ -1015,6 +1021,7 @@ export const StudentViolationDetailPage = () => {
 
         {/* In Review */}
         <div
+          className={`student-violation-stat-card ${statusFilter === 'investigation' ? 'is-active' : ''}`}
           onClick={() => { setStatusFilter('investigation'); setCurrentPage(1); }}
           style={{
             background: statusFilter === 'investigation' ? '#f0f4f8' : '#ffffff',
@@ -1055,6 +1062,7 @@ export const StudentViolationDetailPage = () => {
 
         {/* Resolved & Cleared */}
         <div
+          className={`student-violation-stat-card ${statusFilter === 'resolved' ? 'is-active' : ''}`}
           onClick={() => { setStatusFilter('resolved'); setCurrentPage(1); }}
           style={{
             background: statusFilter === 'resolved' ? '#f0f4f8' : '#ffffff',
@@ -1096,6 +1104,7 @@ export const StudentViolationDetailPage = () => {
 
       {/* 3. Violation Record Card */}
       <div
+        className="student-violation-record-card"
         style={{
           background: '#ffffff',
           borderRadius: '16px',
@@ -1188,6 +1197,7 @@ export const StudentViolationDetailPage = () => {
                 <button
                   key={tab.id}
                   onClick={() => { setStatusFilter(tab.id); setCurrentPage(1); }}
+                  className={`status-filter-tab ${statusFilter === tab.id ? 'is-active' : ''}`}
                   style={{
                     padding: '5px 12px',
                     borderRadius: '7px',
@@ -1402,6 +1412,8 @@ export const StudentViolationDetailPage = () => {
                                 setSummonsTargetRecord(r);
                                 setIsSummonsModalOpen(true);
                               }}
+                              className="violation-summons-action"
+                              aria-pressed={isSummonsModalOpen && summonsTargetRecord?.id === r.id}
                               style={{
                                 background: '#f8fafc',
                                 color: '#0f172a',
@@ -1427,6 +1439,8 @@ export const StudentViolationDetailPage = () => {
                           {isAdmin && (
                             <button
                               onClick={() => setSelectedRecordForResolution(r)}
+                              className="violation-proof-action"
+                              aria-pressed={selectedRecordForResolution?.id === r.id}
                               style={{
                                 background: '#eff6ff',
                                 color: '#2563eb',
@@ -1542,6 +1556,8 @@ export const StudentViolationDetailPage = () => {
                             setSummonsTargetRecord(r);
                             setIsSummonsModalOpen(true);
                           }}
+                          className="violation-summons-action"
+                          aria-pressed={isSummonsModalOpen && summonsTargetRecord?.id === r.id}
                           style={{
                             background: '#f8fafc',
                             color: '#0f172a',
@@ -1564,6 +1580,8 @@ export const StudentViolationDetailPage = () => {
                       {isAdmin && (
                         <button
                           onClick={() => setSelectedRecordForResolution(r)}
+                          className="violation-proof-action"
+                          aria-pressed={selectedRecordForResolution?.id === r.id}
                           style={{
                             background: '#eff6ff',
                             color: '#2563eb',
@@ -2157,4 +2175,3 @@ export const StudentViolationDetailPage = () => {
 };
 
 export default StudentViolationDetailPage;
-

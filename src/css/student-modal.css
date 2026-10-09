@@ -3,7 +3,9 @@
 .student-modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(15, 23, 42, 0.65);
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
@@ -12,7 +14,7 @@
   opacity: 0;
   visibility: hidden;
   will-change: opacity, visibility;
-  transition: opacity 0.15s ease, visibility 0.15s ease;
+  transition: opacity 0.2s ease, visibility 0.2s ease;
 }
 
 .student-modal-overlay.show {
@@ -185,16 +187,32 @@
   gap: 4px;
   font-size: 11px;
   font-weight: 600;
-  padding: 2.5px 7px;
-  border-radius: 6px;
+  padding: 3px 10px;
+  border-radius: 20px;
   white-space: nowrap;
   background: #ffffff;
   color: #334155;
   border: 1px solid #cbd5e1;
 }
 
+.student-hero-pill.grade-pill {
+  background: rgba(56, 189, 248, 0.12);
+  color: #0369a1;
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  font-weight: 700;
+}
+
 .student-hero-pill.lrn-pill {
+  background: #f1f5f9;
+  color: #07345f;
+  border: 1px solid #cbd5e1;
   font-family: monospace;
+}
+
+.student-hero-pill.sy-pill {
+  background: #f8fafc;
+  color: #64748b;
+  border: 1px solid #e2e8f0;
 }
 
 /* Details Grid - 2 columns */
@@ -461,4 +479,193 @@
   .student-modal-footer-primary {
     grid-template-columns: 1fr;
   }
+}
+
+/* ==========================================================================
+   VIEW STUDENT MODAL DARK MODE STYLING
+   ========================================================================== */
+[data-theme="dark"] .student-modal-overlay {
+  background: rgba(0, 0, 0, 0.82) !important;
+  backdrop-filter: blur(6px) !important;
+  -webkit-backdrop-filter: blur(6px) !important;
+}
+
+[data-theme="dark"] .student-modal-card {
+  background: #000000 !important;
+  border: 1px solid #242424 !important;
+  box-shadow: 0 25px 60px -10px rgba(0, 0, 0, 0.9) !important;
+}
+
+[data-theme="dark"] .student-modal-header {
+  background: #000000 !important;
+  border-bottom: 1px solid #242424 !important;
+}
+
+[data-theme="dark"] .student-modal-title {
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .student-modal-subtitle {
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .student-modal-close-btn {
+  background: #111111 !important;
+  border-color: #303030 !important;
+  color: #ffffff !important;
+  border-radius: 50% !important;
+}
+
+[data-theme="dark"] .student-modal-close-btn:hover {
+  background: #1a1a1a !important;
+  border-color: #ffffff !important;
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .student-hero-card {
+  background: #080808 !important;
+  border: 1px solid #303030 !important;
+  box-shadow: none !important;
+}
+
+[data-theme="dark"] .student-hero-avatar {
+  border-color: #404040 !important;
+  background: #111111 !important;
+}
+
+[data-theme="dark"] .student-avatar-badge {
+  background: #0284c7 !important;
+  color: #ffffff !important;
+  border-color: #080808 !important;
+}
+
+[data-theme="dark"] .student-hero-name {
+  color: #ffffff !important;
+  font-weight: 800 !important;
+}
+
+[data-theme="dark"] .student-hero-pill {
+  background: #111111 !important;
+  color: #ffffff !important;
+  border: 1px solid #303030 !important;
+  border-radius: 20px !important;
+  font-weight: 700 !important;
+}
+
+[data-theme="dark"] .student-hero-pill.grade-pill {
+  background: #111111 !important;
+  color: #ffffff !important;
+  border: 1px solid #404040 !important;
+  box-shadow: none !important;
+}
+
+[data-theme="dark"] .student-hero-pill.grade-pill svg {
+  color: #ffffff !important;
+  stroke: #ffffff !important;
+}
+
+[data-theme="dark"] .student-hero-pill.lrn-pill {
+  background: #111111 !important;
+  color: #ffffff !important;
+  border: 1px solid #303030 !important;
+}
+
+[data-theme="dark"] .student-hero-pill.lrn-pill strong {
+  color: #ffffff !important;
+  font-weight: 800 !important;
+}
+
+[data-theme="dark"] .student-hero-pill.sy-pill {
+  background: #111111 !important;
+  color: #ffffff !important;
+  border: 1px solid #303030 !important;
+}
+
+[data-theme="dark"] .student-info-item {
+  background: #050505 !important;
+  border: 1px solid #242424 !important;
+  border-radius: 12px !important;
+}
+
+[data-theme="dark"] .student-info-item:hover {
+  border-color: #404040 !important;
+  background: #0d0d0d !important;
+}
+
+[data-theme="dark"] .info-icon-box {
+  background: #111111 !important;
+  border: 1px solid #303030 !important;
+  color: #ffffff !important;
+  border-radius: 8px !important;
+}
+
+[data-theme="dark"] .info-icon-box svg {
+  color: #ffffff !important;
+  stroke: #ffffff !important;
+}
+
+[data-theme="dark"] .info-item-label {
+  color: #bdbdbd !important;
+  font-weight: 700 !important;
+}
+
+[data-theme="dark"] .info-item-value {
+  color: #ffffff !important;
+  font-weight: 700 !important;
+}
+
+[data-theme="dark"] .info-item-value.lrn-font {
+  color: #ffffff !important;
+  font-weight: 800 !important;
+}
+
+[data-theme="dark"] .info-item-link {
+  color: #ffffff !important;
+  font-weight: 700 !important;
+}
+
+[data-theme="dark"] .student-modal-footer {
+  background: #000000 !important;
+  border-top: 1px solid #242424 !important;
+}
+
+[data-theme="dark"] .student-modal-btn {
+  border-radius: 20px !important;
+  font-weight: 700 !important;
+}
+
+[data-theme="dark"] .student-modal-btn.btn-track {
+  background: #ffffff !important;
+  color: #000000 !important;
+  border: 1px solid #ffffff !important;
+  box-shadow: none !important;
+}
+
+[data-theme="dark"] .student-modal-btn.btn-track:hover {
+  background: #e5e5e5 !important;
+  border-color: #e5e5e5 !important;
+}
+
+[data-theme="dark"] .student-modal-btn.btn-profile {
+  background: #111111 !important;
+  color: #ffffff !important;
+  border: 1px solid #303030 !important;
+}
+
+[data-theme="dark"] .student-modal-btn.btn-profile:hover {
+  background: #1a1a1a !important;
+  border-color: #ffffff !important;
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .student-modal-btn.btn-close {
+  background: #111111 !important;
+  color: #ffffff !important;
+  border: 1px solid #303030 !important;
+}
+
+[data-theme="dark"] .student-modal-btn.btn-close:hover {
+  background: #1a1a1a !important;
+  border-color: #ffffff !important;
+  color: #ffffff !important;
 }

@@ -99,7 +99,7 @@ export const AddSchoolEventModal = ({ isOpen, onClose, initialDate, onEventSaved
       style={{ zIndex: 3600 }}
     >
       <div
-        className="modal-dialog"
+        className="modal-dialog add-school-event-dialog"
         role="dialog"
         aria-modal="true"
         aria-label="Schedule School Event"
@@ -108,7 +108,7 @@ export const AddSchoolEventModal = ({ isOpen, onClose, initialDate, onEventSaved
       >
         <div className="modal-header">
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <div style={{
+            <div className="add-school-event-icon" style={{
               width: 32,
               height: 32,
               borderRadius: '8px',
@@ -133,6 +133,7 @@ export const AddSchoolEventModal = ({ isOpen, onClose, initialDate, onEventSaved
             type="button"
             onClick={onClose}
             aria-label="Close dialog"
+            className="add-school-event-close"
             style={{
               background: '#f1f5f9',
               border: 'none',
@@ -150,7 +151,7 @@ export const AddSchoolEventModal = ({ isOpen, onClose, initialDate, onEventSaved
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} style={{ padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+        <form className="add-school-event-form" onSubmit={handleSubmit} style={{ padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
           {/* Event Title */}
           <div>
             <label style={{ display: 'block', fontSize: '11.5px', fontWeight: 700, color: '#475569', marginBottom: '5px', textTransform: 'uppercase', letterSpacing: '0.02em' }}>
@@ -290,6 +291,7 @@ export const AddSchoolEventModal = ({ isOpen, onClose, initialDate, onEventSaved
                   key={item}
                   type="button"
                   onClick={() => setFormData({ ...formData, attendees: item })}
+                  className={`add-school-event-attendee-chip ${formData.attendees === item ? 'is-selected' : ''}`}
                   style={{
                     padding: '2px 8px',
                     fontSize: '11px',
@@ -338,6 +340,7 @@ export const AddSchoolEventModal = ({ isOpen, onClose, initialDate, onEventSaved
             <button
               type="button"
               onClick={onClose}
+              className="add-school-event-cancel"
               style={{
                 padding: '8px 16px',
                 fontSize: '12.5px',
@@ -354,6 +357,7 @@ export const AddSchoolEventModal = ({ isOpen, onClose, initialDate, onEventSaved
             <button
               type="submit"
               disabled={isSubmitting}
+              className="add-school-event-submit"
               style={{
                 padding: '8px 20px',
                 fontSize: '12.5px',

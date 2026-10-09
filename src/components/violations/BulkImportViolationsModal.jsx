@@ -160,14 +160,14 @@ export const BulkImportViolationsModal = ({ isOpen, onClose, onImported, initial
       <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '14px', padding: '16px 22px', maxHeight: '76vh', overflowY: 'auto' }}>
         
         {/* Format Selector Tabs */}
-        <div style={{ display: 'flex', gap: '8px', background: '#f1f5f9', padding: '4px', borderRadius: '10px' }}>
+        <div style={{ display: 'flex', gap: '8px', background: 'var(--bg-input, #f1f5f9)', padding: '4px', borderRadius: '10px', border: '1px solid var(--border-subtle, transparent)' }}>
           <button
             type="button"
             onClick={() => setActiveTab('csv')}
             style={{
               flex: 1,
               padding: '8px 12px',
-              border: 'none',
+              border: activeTab === 'csv' ? '1px solid var(--border-medium, #cbd5e1)' : 'none',
               borderRadius: '7px',
               fontSize: '12.5px',
               fontWeight: 700,
@@ -176,13 +176,13 @@ export const BulkImportViolationsModal = ({ isOpen, onClose, onImported, initial
               justifyContent: 'center',
               gap: '6px',
               cursor: 'pointer',
-              background: activeTab === 'csv' ? '#ffffff' : 'transparent',
-              color: activeTab === 'csv' ? '#07345f' : '#64748b',
+              background: activeTab === 'csv' ? 'var(--bg-surface-elevated, #ffffff)' : 'transparent',
+              color: activeTab === 'csv' ? 'var(--brand-blue, #07345f)' : 'var(--text-muted, #64748b)',
               boxShadow: activeTab === 'csv' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
               transition: 'all 0.2s ease'
             }}
           >
-            <FileSpreadsheet size={15} color={activeTab === 'csv' ? '#07345f' : '#64748b'} />
+            <FileSpreadsheet size={15} color={activeTab === 'csv' ? 'var(--brand-blue, #07345f)' : 'var(--text-muted, #64748b)'} />
             CSV / Spreadsheet File
           </button>
 
@@ -192,7 +192,7 @@ export const BulkImportViolationsModal = ({ isOpen, onClose, onImported, initial
             style={{
               flex: 1,
               padding: '8px 12px',
-              border: 'none',
+              border: activeTab === 'pdf' ? '1px solid var(--border-medium, #cbd5e1)' : 'none',
               borderRadius: '7px',
               fontSize: '12.5px',
               fontWeight: 700,
@@ -201,13 +201,13 @@ export const BulkImportViolationsModal = ({ isOpen, onClose, onImported, initial
               justifyContent: 'center',
               gap: '6px',
               cursor: 'pointer',
-              background: activeTab === 'pdf' ? '#ffffff' : 'transparent',
-              color: activeTab === 'pdf' ? '#07345f' : '#64748b',
+              background: activeTab === 'pdf' ? 'var(--bg-surface-elevated, #ffffff)' : 'transparent',
+              color: activeTab === 'pdf' ? 'var(--brand-blue, #07345f)' : 'var(--text-muted, #64748b)',
               boxShadow: activeTab === 'pdf' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
               transition: 'all 0.2s ease'
             }}
           >
-            <FileType size={15} color={activeTab === 'pdf' ? '#07345f' : '#64748b'} />
+            <FileType size={15} color={activeTab === 'pdf' ? 'var(--brand-blue, #07345f)' : 'var(--text-muted, #64748b)'} />
             PDF Student Handbook / Policy Document
           </button>
         </div>
@@ -222,36 +222,36 @@ export const BulkImportViolationsModal = ({ isOpen, onClose, onImported, initial
         />
 
         <div
+          className="file-dropzone"
           onClick={() => fileInputRef.current?.click()}
           style={{
-            border: '2px dashed #cbd5e1',
+            border: `2px dashed ${fileName ? '#22c55e' : 'var(--border-medium, #cbd5e1)'}`,
             borderRadius: '12px',
             padding: '24px 20px',
             textAlign: 'center',
             cursor: 'pointer',
-            background: fileName ? '#f0fdf4' : '#fafafa',
-            borderColor: fileName ? '#22c55e' : '#cbd5e1',
+            background: fileName ? 'rgba(34, 197, 94, 0.1)' : 'var(--bg-input, #fafafa)',
             transition: 'all 0.2s'
           }}
         >
           {parsingPdf ? (
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
-              <RefreshCw size={32} color="#07345f" className="animate-spin" />
-              <div style={{ fontSize: '13px', fontWeight: 700, color: '#07345f' }}>Analyzing PDF Policy Document...</div>
+              <RefreshCw size={32} color="var(--brand-blue, #07345f)" className="animate-spin" />
+              <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--brand-blue, #07345f)' }}>Analyzing PDF Policy Document...</div>
             </div>
           ) : fileName ? (
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
               <FileCheck size={32} color="#16a34a" />
               <span style={{ fontSize: '13px', fontWeight: 700, color: '#16a34a' }}>{fileName}</span>
-              <span style={{ fontSize: '11px', color: '#64748b' }}>Click to choose a different file</span>
+              <span style={{ fontSize: '11px', color: 'var(--text-muted, #64748b)' }}>Click to choose a different file</span>
             </div>
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px' }}>
-              <Upload size={28} color="#07345f" />
-              <div style={{ fontSize: '13px', fontWeight: 700, color: '#1e293b' }}>
+              <Upload size={28} color="var(--brand-blue, #07345f)" />
+              <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-primary, #1e293b)' }}>
                 Click to upload {activeTab === 'pdf' ? 'PDF Violation Policy Catalog (.pdf)' : 'Violation Types CSV (.csv)'}
               </div>
-              <div style={{ fontSize: '11px', color: '#64748b' }}>
+              <div style={{ fontSize: '11px', color: 'var(--text-muted, #64748b)' }}>
                 {activeTab === 'pdf' ? 'Extracts infraction rules and disciplinary matrices from PDF handbook' : 'Standard comma-delimited violation catalog format'}
               </div>
             </div>
@@ -260,14 +260,15 @@ export const BulkImportViolationsModal = ({ isOpen, onClose, onImported, initial
 
         {/* Template download for CSV */}
         {activeTab === 'csv' && (
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: '#f8fafc', padding: '10px 14px', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-            <span style={{ fontSize: '12px', color: '#475569' }}>Download standard CSV format with sample infractions</span>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', background: 'var(--bg-surface-elevated, #f8fafc)', padding: '10px 14px', borderRadius: '8px', border: '1px solid var(--border-subtle, #e2e8f0)' }}>
+            <span style={{ fontSize: '12px', color: 'var(--text-secondary, #475569)' }}>Download standard CSV format with sample infractions</span>
             <button
               type="button"
               onClick={handleDownloadTemplate}
               style={{
-                background: '#ffffff',
-                border: '1px solid #cbd5e1',
+                background: 'var(--bg-surface, #ffffff)',
+                border: '1px solid var(--border-medium, #cbd5e1)',
+                color: 'var(--text-primary, #0f172a)',
                 padding: '5px 12px',
                 borderRadius: '6px',
                 fontSize: '11.5px',

@@ -70,6 +70,23 @@ const DashboardNoViolationsEmptyState = ({ IconComponent }) => (
   </div>
 );
 
+const createTrendPoint = (color, radius) => ({ cx, cy, value, index, payload }) => (
+  Number(value) > 0 && cx != null && cy != null
+    ? (
+      <circle
+        key={`${payload?.time ?? index}-${color}`}
+        className="dash-trend-point"
+        cx={cx}
+        cy={cy}
+        r={radius}
+        fill={color}
+        stroke="#ffffff"
+        strokeWidth={2}
+      />
+    )
+    : null
+);
+
 export const DashboardPage = () => {
   const { user } = useAuth();
   const isAdmin = user?.role === 'admin';
@@ -1169,8 +1186,8 @@ export const DashboardPage = () => {
                     strokeWidth={2.4}
                     fillOpacity={1}
                     fill="url(#minorGrad)"
-                    dot={{ r: 3, strokeWidth: 2, stroke: '#ffffff', fill: '#10b981' }}
-                    activeDot={{ r: 5, strokeWidth: 2, stroke: '#ffffff', fill: '#10b981' }}
+                    dot={createTrendPoint('#10b981', 4)}
+                    activeDot={createTrendPoint('#10b981', 6)}
                   />
                 )}
 
@@ -1183,8 +1200,8 @@ export const DashboardPage = () => {
                     strokeWidth={2.4}
                     fillOpacity={1}
                     fill="url(#seriousGrad)"
-                    dot={{ r: 3, strokeWidth: 2, stroke: '#ffffff', fill: '#f59e0b' }}
-                    activeDot={{ r: 5, strokeWidth: 2, stroke: '#ffffff', fill: '#f59e0b' }}
+                    dot={createTrendPoint('#f59e0b', 4)}
+                    activeDot={createTrendPoint('#f59e0b', 6)}
                   />
                 )}
 
@@ -1197,8 +1214,8 @@ export const DashboardPage = () => {
                     strokeWidth={2.4}
                     fillOpacity={1}
                     fill="url(#majorGrad)"
-                    dot={{ r: 3, strokeWidth: 2, stroke: '#ffffff', fill: '#ef4444' }}
-                    activeDot={{ r: 5, strokeWidth: 2, stroke: '#ffffff', fill: '#ef4444' }}
+                    dot={createTrendPoint('#ef4444', 4)}
+                    activeDot={createTrendPoint('#ef4444', 6)}
                   />
                 )}
               </AreaChart>
@@ -1303,15 +1320,15 @@ export const DashboardPage = () => {
                           const data = payload[0].payload;
                           return (
                             <div className="dash-pie-tooltip-box">
-                              <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 800, color: 'var(--text-primary, #f8fafc)', marginBottom: '4px' }}>
+                              <div className="dash-pie-tooltip-title" style={{ display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 800, marginBottom: '4px' }}>
                                 <span style={{ width: 8, height: 8, borderRadius: '50%', background: data.color }} />
                                 <span>{data.name}</span>
                               </div>
-                              <div style={{ color: 'var(--text-muted, #94a3b8)', fontSize: '11.5px', marginTop: '2px' }}>
-                                Incidents: <strong style={{ color: 'var(--text-primary, #f8fafc)' }}>{data.value}</strong> {data.value === 1 ? 'case' : 'cases'}
+                              <div className="dash-pie-tooltip-sub" style={{ fontSize: '11.5px', marginTop: '2px' }}>
+                                Incidents: <strong>{data.value}</strong> {data.value === 1 ? 'case' : 'cases'}
                               </div>
-                              <div style={{ fontSize: '11px', color: 'var(--text-dim, #64748b)', marginTop: '2px' }}>
-                                Severity: <span style={{ textTransform: 'capitalize', fontWeight: 600, color: data.severity === 'Major' ? '#f87171' : data.severity === 'Serious' ? '#fbbf24' : '#34d399' }}>{data.severity}</span>
+                              <div style={{ fontSize: '11px', marginTop: '2px', opacity: 0.85 }}>
+                                Severity: <span style={{ textTransform: 'capitalize', fontWeight: 700, color: data.severity === 'Major' ? '#ef4444' : data.severity === 'Serious' ? '#f59e0b' : '#10b981' }}>{data.severity}</span>
                               </div>
                             </div>
                           );
@@ -1608,7 +1625,7 @@ export const DashboardPage = () => {
           {/* Card B: High-Value Quick Actions */}
           <div className="dash-quick-actions-card">
             <h4 className="dash-quick-actions-title">
-              <Compass size={15} color="#0f172a" />
+              <Compass size={15} />
               <span>Quick Actions</span>
             </h4>
 
@@ -1619,7 +1636,7 @@ export const DashboardPage = () => {
                 onClick={() => navigate('/students')}
                 title="Manage student directory and profiles"
               >
-                <User size={18} color="#0f172a" />
+                <User size={18} />
                 <span>Manage Students</span>
               </button>
 
@@ -1630,7 +1647,7 @@ export const DashboardPage = () => {
                   onClick={handlePrintData}
                   title="Print report data"
                 >
-                  <Printer size={18} color="#0f172a" />
+                  <Printer size={18} />
                   <span>Print Data</span>
                 </button>
               )}
@@ -1641,7 +1658,7 @@ export const DashboardPage = () => {
                 onClick={() => navigate('/scan-qr')}
                 title="Open camera to scan student QR badges"
               >
-                <QrCode size={18} color="#0f172a" />
+                <QrCode size={18} />
                 <span>Scan QR</span>
               </button>
 
@@ -1651,7 +1668,7 @@ export const DashboardPage = () => {
                 onClick={() => setIsAddModalOpen(true)}
                 title="Log a new student violation infraction"
               >
-                <AlertTriangle size={18} color="#0f172a" />
+                <AlertTriangle size={18} />
                 <span>Log Violation</span>
               </button>
             </div>

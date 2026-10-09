@@ -426,27 +426,27 @@ export const ViolationsPage = () => {
     const s = (st || '').toLowerCase();
     if (s === 'resolved') {
       return (
-        <span style={{ background: '#ecfdf5', color: '#065f46', border: '1px solid #a7f3d0', padding: '3.5px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+        <span className="record-status-pill record-status-pill--resolved" style={{ background: '#ecfdf5', color: '#065f46', border: '1px solid #a7f3d0', padding: '3.5px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
           <CheckCircle2 size={12} color="#059669" strokeWidth={2.4} /> Resolved
         </span>
       );
     }
     if (s === 'investigation') {
       return (
-        <span style={{ background: '#fffbeb', color: '#92400e', border: '1px solid #fde68a', padding: '3.5px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+        <span className="record-status-pill record-status-pill--investigation" style={{ background: '#fffbeb', color: '#92400e', border: '1px solid #fde68a', padding: '3.5px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
           <Search size={12} color="#d97706" strokeWidth={2.4} /> In Review
         </span>
       );
     }
     if (s === 'escalated') {
       return (
-        <span style={{ background: '#f5f3ff', color: '#5b21b6', border: '1px solid #ddd6fe', padding: '3.5px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+        <span className="record-status-pill record-status-pill--escalated" style={{ background: '#f5f3ff', color: '#5b21b6', border: '1px solid #ddd6fe', padding: '3.5px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
           <AlertCircle size={12} color="#7c3aed" strokeWidth={2.4} /> Escalated
         </span>
       );
     }
     return (
-      <span style={{ background: '#fef2f2', color: '#991b1b', border: '1px solid #fecaca', padding: '3.5px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+      <span className="record-status-pill record-status-pill--pending" style={{ background: '#fef2f2', color: '#991b1b', border: '1px solid #fecaca', padding: '3.5px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
         <Clock size={12} color="#dc2626" strokeWidth={2.4} /> Pending
       </span>
     );
@@ -456,20 +456,20 @@ export const ViolationsPage = () => {
     const t = (ty || '').toLowerCase();
     if (t === 'major') {
       return (
-        <span style={{ background: '#fee2e2', color: '#dc2626', border: '1px solid #fecaca', padding: '3px 9px', borderRadius: '6px', fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+        <span className="badge-major" style={{ background: '#fee2e2', color: '#dc2626', border: '1px solid #fecaca', padding: '3.5px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
           <ShieldAlert size={12} color="#dc2626" strokeWidth={2.2} /> Major
         </span>
       );
     }
     if (t === 'serious') {
       return (
-        <span style={{ background: '#fef9c3', color: '#a16207', border: '1px solid #fde047', padding: '3px 9px', borderRadius: '6px', fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+        <span className="badge-serious" style={{ background: '#fef9c3', color: '#a16207', border: '1px solid #fde047', padding: '3.5px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
           <AlertTriangle size={12} color="#d97706" strokeWidth={2.2} /> Serious
         </span>
       );
     }
     return (
-      <span style={{ background: '#dcfce7', color: '#15803d', border: '1px solid #bbf7d0', padding: '3px 9px', borderRadius: '6px', fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+      <span className="badge-minor" style={{ background: '#dcfce7', color: '#15803d', border: '1px solid #bbf7d0', padding: '3.5px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
         <CheckCircle2 size={12} color="#16a34a" strokeWidth={2.2} /> Minor
       </span>
     );
@@ -480,12 +480,12 @@ export const ViolationsPage = () => {
       {/* Top Banner Header & Quick Actions */}
       <div className="page-banner-header">
         <div className="page-banner-info">
-          <ShieldAlert size={26} color="#0f172a" strokeWidth={2.4} style={{ flexShrink: 0 }} />
+          <ShieldAlert size={26} strokeWidth={2.4} style={{ flexShrink: 0, color: 'var(--brand-blue, #07345f)' }} />
           <div>
-            <h2 style={{ fontSize: '20px', fontWeight: 800, margin: 0, color: '#0f172a', letterSpacing: '-0.02em' }}>
+            <h2 style={{ fontSize: '20px', fontWeight: 800, margin: 0, color: 'var(--text-primary, #0f172a)', letterSpacing: '-0.02em' }}>
               Incident Registry
             </h2>
-            <p style={{ margin: '3px 0 0 0', fontSize: '13px', color: '#64748b' }}>
+            <p style={{ margin: '3px 0 0 0', fontSize: '13px', color: 'var(--text-muted, #64748b)' }}>
               Track, investigate, update status, and document disciplinary incident resolutions.
             </p>
           </div>
@@ -542,10 +542,10 @@ export const ViolationsPage = () => {
         <div
           onClick={() => { setStatusFilter('all'); setSeverityFilter('all'); setGradeFilter('all'); }}
           style={{
-            background: '#ffffff',
+            background: 'var(--bg-surface, #ffffff)',
             borderRadius: '12px',
             padding: '14px 16px',
-            border: statusFilter === 'all' && severityFilter === 'all' ? '2px solid #07345f' : '1.5px solid #cbd5e1',
+            border: statusFilter === 'all' && severityFilter === 'all' ? '2px solid var(--brand-blue, #07345f)' : '1.5px solid var(--border-subtle, #cbd5e1)',
             boxShadow: statusFilter === 'all' && severityFilter === 'all' ? '0 4px 14px rgba(7, 52, 95, 0.10)' : '0 1px 3px rgba(0,0,0,0.02)',
             cursor: 'pointer',
             transition: 'all 0.15s ease',
@@ -554,17 +554,17 @@ export const ViolationsPage = () => {
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
-              <div style={{ fontSize: '11.5px', fontWeight: 800, color: '#07345f', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+              <div style={{ fontSize: '11.5px', fontWeight: 800, color: 'var(--brand-blue, #07345f)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                 ALL INCIDENTS
               </div>
-              <div style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', margin: '4px 0 2px 0', lineHeight: 1.1 }}>
+              <div style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-primary, #0f172a)', margin: '4px 0 2px 0', lineHeight: 1.1 }}>
                 {stats.total}
               </div>
-              <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 500 }}>
+              <div style={{ fontSize: '11px', color: 'var(--text-muted, #64748b)', fontWeight: 500 }}>
                 Total logged records
               </div>
             </div>
-            <ShieldAlert size={20} color="#07345f" strokeWidth={2} />
+            <ShieldAlert size={20} color="var(--brand-blue, #07345f)" strokeWidth={2} />
           </div>
         </div>
 
@@ -572,10 +572,10 @@ export const ViolationsPage = () => {
         <div
           onClick={() => setStatusFilter(statusFilter === 'pending' ? 'all' : 'pending')}
           style={{
-            background: '#ffffff',
+            background: 'var(--bg-surface, #ffffff)',
             borderRadius: '12px',
             padding: '14px 16px',
-            border: statusFilter === 'pending' ? '2px solid #07345f' : '1.5px solid #cbd5e1',
+            border: statusFilter === 'pending' ? '2px solid var(--brand-blue, #07345f)' : '1.5px solid var(--border-subtle, #cbd5e1)',
             boxShadow: statusFilter === 'pending' ? '0 4px 14px rgba(7, 52, 95, 0.10)' : '0 1px 3px rgba(0,0,0,0.02)',
             cursor: 'pointer',
             transition: 'all 0.15s ease',
@@ -584,17 +584,17 @@ export const ViolationsPage = () => {
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
-              <div style={{ fontSize: '11.5px', fontWeight: 800, color: '#07345f', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+              <div style={{ fontSize: '11.5px', fontWeight: 800, color: 'var(--brand-blue, #07345f)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                 PENDING ACTION
               </div>
-              <div style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', margin: '4px 0 2px 0', lineHeight: 1.1 }}>
+              <div style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-primary, #0f172a)', margin: '4px 0 2px 0', lineHeight: 1.1 }}>
                 {stats.pending}
               </div>
-              <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 500 }}>
+              <div style={{ fontSize: '11px', color: 'var(--text-muted, #64748b)', fontWeight: 500 }}>
                 Awaiting resolution
               </div>
             </div>
-            <Clock size={20} color="#07345f" strokeWidth={2} />
+            <Clock size={20} color="var(--brand-blue, #07345f)" strokeWidth={2} />
           </div>
         </div>
 
@@ -602,10 +602,10 @@ export const ViolationsPage = () => {
         <div
           onClick={() => setStatusFilter(statusFilter === 'investigation' ? 'all' : 'investigation')}
           style={{
-            background: '#ffffff',
+            background: 'var(--bg-surface, #ffffff)',
             borderRadius: '12px',
             padding: '14px 16px',
-            border: statusFilter === 'investigation' ? '2px solid #07345f' : '1.5px solid #cbd5e1',
+            border: statusFilter === 'investigation' ? '2px solid var(--brand-blue, #07345f)' : '1.5px solid var(--border-subtle, #cbd5e1)',
             boxShadow: statusFilter === 'investigation' ? '0 4px 14px rgba(7, 52, 95, 0.10)' : '0 1px 3px rgba(0,0,0,0.02)',
             cursor: 'pointer',
             transition: 'all 0.15s ease',
@@ -614,17 +614,17 @@ export const ViolationsPage = () => {
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
-              <div style={{ fontSize: '11.5px', fontWeight: 800, color: '#07345f', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+              <div style={{ fontSize: '11.5px', fontWeight: 800, color: 'var(--brand-blue, #07345f)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                 INVESTIGATION
               </div>
-              <div style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', margin: '4px 0 2px 0', lineHeight: 1.1 }}>
+              <div style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-primary, #0f172a)', margin: '4px 0 2px 0', lineHeight: 1.1 }}>
                 {stats.investigation}
               </div>
-              <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 500 }}>
+              <div style={{ fontSize: '11px', color: 'var(--text-muted, #64748b)', fontWeight: 500 }}>
                 Under active review
               </div>
             </div>
-            <Search size={20} color="#07345f" strokeWidth={2} />
+            <Search size={20} color="var(--brand-blue, #07345f)" strokeWidth={2} />
           </div>
         </div>
 
@@ -632,10 +632,10 @@ export const ViolationsPage = () => {
         <div
           onClick={() => setStatusFilter(statusFilter === 'resolved' ? 'all' : 'resolved')}
           style={{
-            background: '#ffffff',
+            background: 'var(--bg-surface, #ffffff)',
             borderRadius: '12px',
             padding: '14px 16px',
-            border: statusFilter === 'resolved' ? '2px solid #07345f' : '1.5px solid #cbd5e1',
+            border: statusFilter === 'resolved' ? '2px solid var(--brand-blue, #07345f)' : '1.5px solid var(--border-subtle, #cbd5e1)',
             boxShadow: statusFilter === 'resolved' ? '0 4px 14px rgba(7, 52, 95, 0.10)' : '0 1px 3px rgba(0,0,0,0.02)',
             cursor: 'pointer',
             transition: 'all 0.15s ease',
@@ -644,17 +644,17 @@ export const ViolationsPage = () => {
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
-              <div style={{ fontSize: '11.5px', fontWeight: 800, color: '#07345f', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+              <div style={{ fontSize: '11.5px', fontWeight: 800, color: 'var(--brand-blue, #07345f)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                 RESOLVED CASES
               </div>
-              <div style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', margin: '4px 0 2px 0', lineHeight: 1.1 }}>
+              <div style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-primary, #0f172a)', margin: '4px 0 2px 0', lineHeight: 1.1 }}>
                 {stats.resolved}
               </div>
-              <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 500 }}>
+              <div style={{ fontSize: '11px', color: 'var(--text-muted, #64748b)', fontWeight: 500 }}>
                 Documented & closed
               </div>
             </div>
-            <ShieldCheck size={20} color="#07345f" strokeWidth={2} />
+            <ShieldCheck size={20} color="var(--brand-blue, #07345f)" strokeWidth={2} />
           </div>
         </div>
       </div>
@@ -662,9 +662,9 @@ export const ViolationsPage = () => {
       {/* Main Table Card with Integrated Search & Multi-Filters */}
       <div
         style={{
-          background: '#ffffff',
+          background: 'var(--bg-surface, #ffffff)',
           borderRadius: '16px',
-          border: '1px solid #e2e8f0',
+          border: '1px solid var(--border-subtle, #e2e8f0)',
           boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
           overflow: 'hidden'
         }}
@@ -673,7 +673,7 @@ export const ViolationsPage = () => {
         <div
           style={{
             padding: '14px 18px',
-            borderBottom: '1px solid #f1f5f9',
+            borderBottom: '1px solid var(--border-subtle, #f1f5f9)',
             display: 'flex',
             flexDirection: 'column',
             gap: '12px'
@@ -689,7 +689,7 @@ export const ViolationsPage = () => {
                   left: '12px',
                   top: '50%',
                   transform: 'translateY(-50%)',
-                  color: '#94a3b8'
+                  color: 'var(--text-muted, #94a3b8)'
                 }}
               />
               <input
@@ -703,16 +703,14 @@ export const ViolationsPage = () => {
                 style={{
                   width: '100%',
                   padding: '9px 34px 9px 38px',
-                  border: '1px solid #cbd5e1',
+                  border: '1px solid var(--border-subtle, #cbd5e1)',
                   borderRadius: '8px',
                   fontSize: '13px',
-                  color: '#0f172a',
-                  background: '#f8fafc',
+                  color: 'var(--text-primary, #0f172a)',
+                  background: 'var(--bg-input, #f8fafc)',
                   outline: 'none',
                   transition: 'all 0.2s'
                 }}
-                onFocus={(e) => { e.currentTarget.style.borderColor = '#07345f'; e.currentTarget.style.background = '#ffffff'; }}
-                onBlur={(e) => { e.currentTarget.style.borderColor = '#cbd5e1'; e.currentTarget.style.background = '#f8fafc'; }}
               />
               {searchTerm && (
                 <button
@@ -974,6 +972,7 @@ export const ViolationsPage = () => {
 
                 {/* Violation Title */}
                 <th
+                  className="violation-offense-detail-header"
                   style={{
                     padding: '14px 18px',
                     fontSize: '12px',
@@ -1146,11 +1145,11 @@ export const ViolationsPage = () => {
                             }}
                           />
                           <div>
-                            <div style={{ fontWeight: 700, fontSize: '13.5px', color: '#0f172a' }}>
+                            <div style={{ fontWeight: 700, fontSize: '13.5px', color: 'var(--text-primary, #0f172a)' }}>
                               {rec.student ? `${rec.student.fname} ${rec.student.lname}` : 'Enrolled Student'}
                             </div>
-                            <div style={{ fontSize: '11px', color: '#64748b', marginTop: '1px' }}>
-                              Student ID: <strong style={{ color: '#334155' }}>{rec.student?.lrn || '22-0000-000'}</strong>
+                            <div style={{ fontSize: '11px', color: 'var(--text-muted, #64748b)', marginTop: '1px' }}>
+                              Student ID: <strong style={{ color: 'var(--text-secondary, #334155)' }}>{rec.student?.lrn || '22-0000-000'}</strong>
                             </div>
                           </div>
                         </div>
@@ -1158,28 +1157,28 @@ export const ViolationsPage = () => {
 
                       {/* Grade & Section */}
                       <td style={{ padding: '14px 18px' }}>
-                        <div style={{ fontWeight: 600, fontSize: '13px', color: '#0f172a' }}>
+                        <div style={{ fontWeight: 600, fontSize: '13px', color: 'var(--text-primary, #0f172a)' }}>
                           {rec.student?.grade || 'Grade 10'} - {rec.student?.section || 'Rizal'}
                         </div>
-                        <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '1px' }}>
+                        <div style={{ fontSize: '11px', color: 'var(--text-muted, #94a3b8)', marginTop: '1px' }}>
                           SY {rec.student?.academicyear || '2025-2026'}
                         </div>
                       </td>
 
                       {/* Violation Title */}
                       <td style={{ padding: '14px 18px', maxWidth: '280px' }}>
-                        <div style={{ fontWeight: 600, fontSize: '13px', color: '#0f172a', lineHeight: 1.4 }}>
+                        <div style={{ fontWeight: 600, fontSize: '13px', color: 'var(--text-primary, #0f172a)', lineHeight: 1.4 }}>
                           {rec.violation?.title || 'Violation Incident'}
                         </div>
                         {rec.sanction && (
-                          <div style={{ fontSize: '11px', color: '#475569', marginTop: '2px' }}>
-                            Sanction: <span style={{ color: '#07345f', fontWeight: 600 }}>{rec.sanction}</span>
+                          <div className="violation-sanction-detail" style={{ fontSize: '11px', color: 'var(--text-muted, #475569)', marginTop: '2px' }}>
+                            Sanction: <span className="violation-sanction-value" style={{ color: 'var(--brand-blue, #07345f)', fontWeight: 600 }}>{rec.sanction}</span>
                           </div>
                         )}
                       </td>
 
                       {/* Date Reported */}
-                      <td style={{ padding: '14px 18px', fontSize: '12.5px', color: '#334155', whiteSpace: 'nowrap' }}>
+                      <td style={{ padding: '14px 18px', fontSize: '12.5px', color: 'var(--text-secondary, #334155)', whiteSpace: 'nowrap' }}>
                         <div style={{ fontWeight: 600 }}>
                           {new Date(rec.date_reported).toLocaleDateString('en-US', {
                             month: 'short',
@@ -1187,7 +1186,7 @@ export const ViolationsPage = () => {
                             year: 'numeric'
                           })}
                         </div>
-                        <div style={{ fontSize: '11px', color: '#94a3b8', marginTop: '1px' }}>
+                        <div style={{ fontSize: '11px', color: 'var(--text-muted, #94a3b8)', marginTop: '1px' }}>
                           {new Date(rec.date_reported).toLocaleTimeString('en-US', {
                             hour: '2-digit',
                             minute: '2-digit',
@@ -1214,9 +1213,9 @@ export const ViolationsPage = () => {
                               type="button"
                               onClick={() => setRecordForStatusChange(rec)}
                               style={{
-                                background: '#f8fafc',
-                                border: '1px solid #cbd5e1',
-                                color: '#07345f',
+                                background: 'var(--bg-surface-elevated, #f8fafc)',
+                                border: '1px solid var(--border-subtle, #cbd5e1)',
+                                color: 'var(--brand-blue, #07345f)',
                                 padding: '6px 11px',
                                 borderRadius: '7px',
                                 fontSize: '12px',
@@ -1227,11 +1226,9 @@ export const ViolationsPage = () => {
                                 gap: '5px',
                                 transition: 'all 0.15s'
                               }}
-                              onMouseOver={(e) => { e.currentTarget.style.background = '#f1f5f9'; }}
-                              onMouseOut={(e) => { e.currentTarget.style.background = '#f8fafc'; }}
                               title="Update Case Status"
                             >
-                              <Flag size={12} color="#07345f" strokeWidth={2} /> Status
+                              <Flag size={12} color="var(--brand-blue, #07345f)" strokeWidth={2} /> Status
                             </button>
                           )}
 
@@ -1239,10 +1236,12 @@ export const ViolationsPage = () => {
                             <button
                               type="button"
                               onClick={() => setSummonsTargetRecord(rec)}
+                              className="violation-summons-action"
+                              aria-pressed={summonsTargetRecord?.id === rec.id}
                               style={{
-                                background: '#f8fafc',
-                                border: '1px solid #cbd5e1',
-                                color: '#0f172a',
+                                background: 'var(--bg-surface-elevated, #f8fafc)',
+                                border: '1px solid var(--border-subtle, #cbd5e1)',
+                                color: 'var(--text-primary, #0f172a)',
                                 padding: '6px 10px',
                                 borderRadius: '7px',
                                 fontSize: '12px',
@@ -1253,11 +1252,9 @@ export const ViolationsPage = () => {
                                 gap: '4px',
                                 transition: 'all 0.15s'
                               }}
-                              onMouseOver={(e) => { e.currentTarget.style.background = '#e2e8f0'; }}
-                              onMouseOut={(e) => { e.currentTarget.style.background = '#f8fafc'; }}
                               title="Generate Printable Parent Summons Notice"
                             >
-                              <FileText size={12} color="#0f172a" strokeWidth={2} /> Summons
+                              <FileText size={12} color="var(--text-primary, #0f172a)" strokeWidth={2} /> Summons
                             </button>
                           )}
 
@@ -1265,10 +1262,12 @@ export const ViolationsPage = () => {
                             <button
                               type="button"
                               onClick={() => setSelectedRecordForResolution(rec)}
+                              className="violation-proof-action"
+                              aria-pressed={selectedRecordForResolution?.id === rec.id}
                               style={{
-                                background: '#f0fdf4',
-                                border: '1px solid #bbf7d0',
-                                color: '#15803d',
+                                background: 'rgba(16, 185, 129, 0.12)',
+                                border: '1px solid rgba(16, 185, 129, 0.3)',
+                                color: '#34d399',
                                 padding: '6px 11px',
                                 borderRadius: '7px',
                                 fontSize: '12px',
@@ -1374,10 +1373,10 @@ export const ViolationsPage = () => {
                   </div>
 
                   <div className="entity-grid-meta" style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-                    <div style={{ fontWeight: 700, color: '#07345f', fontSize: '12.5px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    <div className="violation-grid-offense-title" style={{ fontWeight: 700, color: '#07345f', fontSize: '12.5px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                       {rec.violation?.title || 'Violation Incident'}
                     </div>
-                    <div style={{ color: '#64748b', fontSize: '11px' }}>
+                    <div className="violation-grid-grade" style={{ color: '#64748b', fontSize: '11px' }}>
                       {rec.student?.grade || 'Grade 10'} • {rec.student?.section || 'Rizal'}
                     </div>
                     <div style={{ marginTop: '2px' }}>
@@ -1391,7 +1390,8 @@ export const ViolationsPage = () => {
                       <button
                         type="button"
                         onClick={() => setSummonsTargetRecord(rec)}
-                        className="entity-grid-btn"
+                        className="entity-grid-btn violation-grid-action-btn violation-summons-action"
+                        aria-pressed={summonsTargetRecord?.id === rec.id}
                         title="Generate Parent Summons Notice"
                         style={{ color: '#0f172a', borderColor: '#cbd5e1', background: '#f8fafc' }}
                       >
@@ -1402,7 +1402,7 @@ export const ViolationsPage = () => {
                       <button
                         type="button"
                         onClick={() => setRecordForStatusChange(rec)}
-                        className="entity-grid-btn"
+                        className="entity-grid-btn violation-grid-action-btn"
                         title="Update Status"
                       >
                         <Flag size={11} strokeWidth={2.2} /> Status
@@ -1412,7 +1412,8 @@ export const ViolationsPage = () => {
                       <button
                         type="button"
                         onClick={() => setSelectedRecordForResolution(rec)}
-                        className="entity-grid-btn"
+                        className="entity-grid-btn violation-grid-action-btn is-proof violation-proof-action"
+                        aria-pressed={selectedRecordForResolution?.id === rec.id}
                         title="View Resolution Proof"
                         style={{ color: '#15803d', borderColor: '#bbf7d0', background: '#f0fdf4' }}
                       >
@@ -1423,7 +1424,7 @@ export const ViolationsPage = () => {
                       <button
                         type="button"
                         onClick={() => handleDeleteSingle(rec.id)}
-                        className="entity-grid-btn"
+                        className="entity-grid-btn violation-grid-action-btn is-delete"
                         title="Delete Incident Record"
                         style={{ flex: '0 0 26px', padding: '6px 3px', color: '#dc2626', borderColor: '#fecaca' }}
                       >
@@ -1494,16 +1495,16 @@ export const ViolationsPage = () => {
                   </div>
 
                   {/* Offense & Grade Box */}
-                  <div style={{ background: '#f8fafc', padding: '10px 12px', borderRadius: '8px', border: '1px solid #f1f5f9' }}>
-                    <div style={{ fontWeight: 700, fontSize: '13px', color: '#1e293b', lineHeight: 1.4 }}>
+                  <div className="violation-list-offense-panel" style={{ background: '#f8fafc', padding: '10px 12px', borderRadius: '8px', border: '1px solid #f1f5f9' }}>
+                    <div className="violation-list-offense-title" style={{ fontWeight: 700, fontSize: '13px', color: '#1e293b', lineHeight: 1.4 }}>
                       {rec.violation?.title || 'Violation Incident'}
                     </div>
-                    <div style={{ fontSize: '11.5px', color: '#64748b', marginTop: '4px' }}>
+                    <div className="violation-list-offense-grade" style={{ fontSize: '11.5px', color: '#64748b', marginTop: '4px' }}>
                       <strong style={{ color: '#334155' }}>{rec.student?.grade || 'Grade 10'} - {rec.student?.section || 'Rizal'}</strong> (SY {rec.student?.academicyear || '2025-2026'})
                     </div>
                     {rec.sanction && (
-                      <div style={{ fontSize: '11.5px', color: '#475569', marginTop: '4px' }}>
-                        Sanction: <strong style={{ color: '#07345f' }}>{rec.sanction}</strong>
+                      <div className="violation-sanction-detail" style={{ fontSize: '11.5px', color: '#475569', marginTop: '4px' }}>
+                        Sanction: <strong className="violation-sanction-value" style={{ color: '#07345f' }}>{rec.sanction}</strong>
                       </div>
                     )}
                   </div>
@@ -1522,6 +1523,8 @@ export const ViolationsPage = () => {
                         <button
                           type="button"
                           onClick={() => setSummonsTargetRecord(rec)}
+                          className="violation-list-action-btn violation-summons-action"
+                          aria-pressed={summonsTargetRecord?.id === rec.id}
                           style={{
                             background: '#f8fafc',
                             border: '1px solid #cbd5e1',
@@ -1545,6 +1548,7 @@ export const ViolationsPage = () => {
                         <button
                           type="button"
                           onClick={() => setRecordForStatusChange(rec)}
+                          className="violation-list-action-btn"
                           style={{
                             background: '#f8fafc',
                             border: '1px solid #cbd5e1',
@@ -1567,6 +1571,8 @@ export const ViolationsPage = () => {
                         <button
                           type="button"
                           onClick={() => setSelectedRecordForResolution(rec)}
+                          className="violation-list-action-btn is-proof violation-proof-action"
+                          aria-pressed={selectedRecordForResolution?.id === rec.id}
                           style={{
                             background: '#f0fdf4',
                             border: '1px solid #bbf7d0',
@@ -1589,6 +1595,7 @@ export const ViolationsPage = () => {
                         <button
                           type="button"
                           onClick={() => handleDeleteSingle(rec.id)}
+                          className="violation-list-action-btn is-delete"
                           style={{
                             background: '#ffffff',
                             border: '1px solid #fecaca',

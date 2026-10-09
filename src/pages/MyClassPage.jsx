@@ -283,14 +283,14 @@ export const MyClassPage = () => {
 
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-              <h2 style={{ fontSize: '20px', fontWeight: 800, margin: 0, color: '#0f172a', letterSpacing: '-0.02em' }}>
+              <h2 style={{ fontSize: '20px', fontWeight: 800, margin: 0, color: 'var(--text-primary, #0f172a)', letterSpacing: '-0.02em' }}>
                 {teacherName}
               </h2>
               <span
                 style={{
-                  background: '#f1f5f9',
-                  color: '#0f172a',
-                  border: '1px solid #e2e8f0',
+                  background: 'var(--bg-input, #f1f5f9)',
+                  color: 'var(--text-secondary, #0f172a)',
+                  border: '1px solid var(--border-subtle, #e2e8f0)',
                   fontSize: '11px',
                   fontWeight: 700,
                   padding: '2.5px 10px',
@@ -302,9 +302,9 @@ export const MyClassPage = () => {
               </span>
               <span
                 style={{
-                  background: '#ecfdf5',
-                  color: '#065f46',
-                  border: '1px solid #a7f3d0',
+                  background: 'rgba(34, 197, 94, 0.15)',
+                  color: '#4ade80',
+                  border: '1px solid rgba(34, 197, 94, 0.35)',
                   fontSize: '11.5px',
                   fontWeight: 700,
                   padding: '2.5px 10px',
@@ -315,17 +315,17 @@ export const MyClassPage = () => {
               </span>
             </div>
 
-            <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginTop: '4px', flexWrap: 'wrap', fontSize: '13px', color: '#64748b' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '14px', marginTop: '4px', flexWrap: 'wrap', fontSize: '13px', color: 'var(--text-muted, #64748b)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                <Mail size={14} color="#64748b" />
+                <Mail size={14} color="var(--text-muted, #64748b)" />
                 <span>{teacherEmail}</span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                <School size={14} color="#64748b" />
+                <School size={14} color="var(--text-muted, #64748b)" />
                 <span>{teacherDept}</span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                <Calendar size={14} color="#64748b" />
+                <Calendar size={14} color="var(--text-muted, #64748b)" />
                 <span>AY 2025-2026</span>
               </div>
             </div>
@@ -374,10 +374,10 @@ export const MyClassPage = () => {
         <div
           onClick={() => setStatusFilter('all')}
           style={{
-            background: statusFilter === 'all' ? '#f0f4f8' : '#ffffff',
+            background: statusFilter === 'all' ? 'var(--bg-surface-elevated, #f0f4f8)' : 'var(--bg-surface, #ffffff)',
             borderRadius: '10px',
             padding: '12px 14px',
-            border: statusFilter === 'all' ? '2px solid #07345f' : '1px solid #e2e8f0',
+            border: statusFilter === 'all' ? '2px solid var(--brand-blue, #07345f)' : '1px solid var(--border-subtle, #e2e8f0)',
             boxShadow: '0 1px 4px rgba(0,0,0,0.02)',
             cursor: 'pointer',
             transition: 'all 0.2s',
@@ -386,20 +386,20 @@ export const MyClassPage = () => {
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
-              <div style={{ fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.03em' }}>
+              <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-muted, #64748b)', textTransform: 'uppercase', letterSpacing: '0.03em' }}>
                 Enrolled Students
               </div>
-              <div style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a', marginTop: '2px' }}>
+              <div style={{ fontSize: '20px', fontWeight: 800, color: 'var(--text-primary, #0f172a)', marginTop: '2px' }}>
                 {analytics.total}
               </div>
-              <div style={{ fontSize: '10px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
+              <div style={{ fontSize: '10px', color: 'var(--text-muted, #64748b)', marginTop: '2px', fontWeight: 500 }}>
                 {analytics.maleCount} Male • {analytics.femaleCount} Female
               </div>
             </div>
-            <Users size={20} color="#1f2937" strokeWidth={2} style={{ flexShrink: 0 }} />
+            <Users size={20} color="var(--brand-blue, #1f2937)" strokeWidth={2} style={{ flexShrink: 0 }} />
           </div>
           {statusFilter === 'all' && (
-            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 2.5, background: '#07345f' }}></div>
+            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 2.5, background: 'var(--brand-blue, #07345f)' }}></div>
           )}
         </div>
 
@@ -407,10 +407,10 @@ export const MyClassPage = () => {
         <div
           onClick={() => setStatusFilter(statusFilter === 'clean' ? 'all' : 'clean')}
           style={{
-            background: '#ffffff',
+            background: statusFilter === 'clean' ? 'var(--bg-surface-elevated, #f0f4f8)' : 'var(--bg-surface, #ffffff)',
             borderRadius: '10px',
             padding: '12px 14px',
-            border: statusFilter === 'clean' ? '2px solid #07345f' : '1px solid #e2e8f0',
+            border: statusFilter === 'clean' ? '2px solid var(--brand-blue, #07345f)' : '1px solid var(--border-subtle, #e2e8f0)',
             boxShadow: '0 1px 4px rgba(0,0,0,0.02)',
             cursor: 'pointer',
             transition: 'all 0.2s',
@@ -419,20 +419,20 @@ export const MyClassPage = () => {
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
-              <div style={{ fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.03em' }}>
+              <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-muted, #64748b)', textTransform: 'uppercase', letterSpacing: '0.03em' }}>
                 Good Standing
               </div>
-              <div style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a', marginTop: '2px' }}>
+              <div style={{ fontSize: '20px', fontWeight: 800, color: 'var(--text-primary, #0f172a)', marginTop: '2px' }}>
                 {analytics.cleanStudents}
               </div>
-              <div style={{ fontSize: '10px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
+              <div style={{ fontSize: '10px', color: 'var(--text-muted, #64748b)', marginTop: '2px', fontWeight: 500 }}>
                 {analytics.goodStandingRate}% Clean Disciplinary Record
               </div>
             </div>
-            <ShieldCheck size={20} color="#1f2937" strokeWidth={2} style={{ flexShrink: 0 }} />
+            <ShieldCheck size={20} color="var(--brand-blue, #1f2937)" strokeWidth={2} style={{ flexShrink: 0 }} />
           </div>
           {statusFilter === 'clean' && (
-            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 2.5, background: '#07345f' }}></div>
+            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 2.5, background: 'var(--brand-blue, #07345f)' }}></div>
           )}
         </div>
 
@@ -440,10 +440,10 @@ export const MyClassPage = () => {
         <div
           onClick={() => setStatusFilter(statusFilter === 'violations' ? 'all' : 'violations')}
           style={{
-            background: '#ffffff',
+            background: statusFilter === 'violations' ? 'var(--bg-surface-elevated, #f0f4f8)' : 'var(--bg-surface, #ffffff)',
             borderRadius: '10px',
             padding: '12px 14px',
-            border: statusFilter === 'violations' ? '2px solid #07345f' : '1px solid #e2e8f0',
+            border: statusFilter === 'violations' ? '2px solid var(--brand-blue, #07345f)' : '1px solid var(--border-subtle, #e2e8f0)',
             boxShadow: '0 1px 4px rgba(0,0,0,0.02)',
             cursor: 'pointer',
             transition: 'all 0.2s',
@@ -452,20 +452,20 @@ export const MyClassPage = () => {
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
-              <div style={{ fontSize: '11px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.03em' }}>
+              <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-muted, #64748b)', textTransform: 'uppercase', letterSpacing: '0.03em' }}>
                 Recorded Offenses
               </div>
-              <div style={{ fontSize: '20px', fontWeight: 800, color: '#0f172a', marginTop: '2px' }}>
+              <div style={{ fontSize: '20px', fontWeight: 800, color: 'var(--text-primary, #0f172a)', marginTop: '2px' }}>
                 {analytics.totalViolations}
               </div>
-              <div style={{ fontSize: '10px', color: '#64748b', marginTop: '2px', fontWeight: 500 }}>
+              <div style={{ fontSize: '10px', color: 'var(--text-muted, #64748b)', marginTop: '2px', fontWeight: 500 }}>
                 {analytics.studentsWithViolations} {analytics.studentsWithViolations === 1 ? 'student' : 'students'} with offenses
               </div>
             </div>
-            <ShieldAlert size={20} color="#1f2937" strokeWidth={2} style={{ flexShrink: 0 }} />
+            <ShieldAlert size={20} color="#f87171" strokeWidth={2} style={{ flexShrink: 0 }} />
           </div>
           {statusFilter === 'violations' && (
-            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 2.5, background: '#07345f' }}></div>
+            <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 2.5, background: 'var(--brand-blue, #07345f)' }}></div>
           )}
         </div>
       </div>
@@ -474,9 +474,9 @@ export const MyClassPage = () => {
       <div
         className="card"
         style={{
-          background: '#ffffff',
+          background: 'var(--bg-surface, #ffffff)',
           borderRadius: '16px',
-          border: '1px solid #e2e8f0',
+          border: '1px solid var(--border-subtle, #e2e8f0)',
           padding: '16px 20px',
           boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
           display: 'flex',
@@ -487,16 +487,16 @@ export const MyClassPage = () => {
         {/* Card Toolbar */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '14px' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <Users size={24} color="#07345f" strokeWidth={2.2} style={{ flexShrink: 0 }} />
+            <Users size={24} color="var(--brand-blue, #07345f)" strokeWidth={2.2} style={{ flexShrink: 0 }} />
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 800, color: '#0f172a' }}>
+                <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 800, color: 'var(--text-primary, #0f172a)' }}>
                   Class Advisory Roster
                 </h3>
                 <span
                   style={{
-                    background: '#f0f4f8',
-                    color: '#07345f',
+                    background: 'var(--bg-input, #f0f4f8)',
+                    color: 'var(--brand-blue, #07345f)',
                     fontSize: '11px',
                     fontWeight: 700,
                     padding: '2px 8px',
@@ -506,7 +506,7 @@ export const MyClassPage = () => {
                   {filteredStudents.length} {filteredStudents.length === 1 ? 'Student' : 'Students'}
                 </span>
               </div>
-              <p style={{ margin: '2px 0 0 0', fontSize: '12.5px', color: '#64748b' }}>
+              <p style={{ margin: '2px 0 0 0', fontSize: '12.5px', color: 'var(--text-muted, #64748b)' }}>
                 Section {gradeLabel} - {sectionLabel} enrolled student roster & conduct standing
               </p>
             </div>
@@ -522,7 +522,7 @@ export const MyClassPage = () => {
                   left: '12px',
                   top: '50%',
                   transform: 'translateY(-50%)',
-                  color: '#94a3b8'
+                  color: 'var(--text-muted, #94a3b8)'
                 }}
               />
               <input
@@ -533,15 +533,13 @@ export const MyClassPage = () => {
                 style={{
                   width: '100%',
                   padding: '9px 34px 9px 36px',
-                  border: '1.5px solid #cbd5e1',
+                  border: '1.5px solid var(--border-medium, #cbd5e1)',
                   borderRadius: '9px',
                   fontSize: '13px',
-                  color: '#0f172a',
-                  background: '#f8fafc',
+                  color: 'var(--text-primary, #0f172a)',
+                  background: 'var(--bg-input, #f8fafc)',
                   outline: 'none'
                 }}
-                onFocus={(e) => { e.currentTarget.style.borderColor = '#07345f'; e.currentTarget.style.background = '#ffffff'; }}
-                onBlur={(e) => { e.currentTarget.style.borderColor = '#cbd5e1'; e.currentTarget.style.background = '#f8fafc'; }}
               />
               {searchTerm && (
                 <button
@@ -553,7 +551,7 @@ export const MyClassPage = () => {
                     transform: 'translateY(-50%)',
                     background: 'transparent',
                     border: 'none',
-                    color: '#94a3b8',
+                    color: 'var(--text-muted, #94a3b8)',
                     cursor: 'pointer',
                     padding: 0
                   }}
@@ -564,13 +562,13 @@ export const MyClassPage = () => {
             </div>
 
             {/* Status Filter Buttons */}
-            <div style={{ display: 'flex', background: '#f1f5f9', padding: '3px', borderRadius: '9px', border: '1px solid #e2e8f0' }}>
+            <div style={{ display: 'flex', background: 'var(--bg-input, #f1f5f9)', padding: '3px', borderRadius: '9px', border: '1px solid var(--border-subtle, #e2e8f0)' }}>
               <button
                 type="button"
                 onClick={() => setStatusFilter('all')}
                 style={{
-                  background: statusFilter === 'all' ? '#ffffff' : 'transparent',
-                  color: statusFilter === 'all' ? '#07345f' : '#64748b',
+                  background: statusFilter === 'all' ? 'var(--bg-surface-elevated, #ffffff)' : 'transparent',
+                  color: statusFilter === 'all' ? 'var(--brand-blue, #07345f)' : 'var(--text-muted, #64748b)',
                   border: 'none',
                   padding: '6px 12px',
                   borderRadius: '7px',
@@ -587,8 +585,8 @@ export const MyClassPage = () => {
                 type="button"
                 onClick={() => setStatusFilter('clean')}
                 style={{
-                  background: statusFilter === 'clean' ? '#ffffff' : 'transparent',
-                  color: statusFilter === 'clean' ? '#16a34a' : '#64748b',
+                  background: statusFilter === 'clean' ? 'var(--bg-surface-elevated, #ffffff)' : 'transparent',
+                  color: statusFilter === 'clean' ? '#4ade80' : 'var(--text-muted, #64748b)',
                   border: 'none',
                   padding: '6px 12px',
                   borderRadius: '7px',
@@ -605,8 +603,8 @@ export const MyClassPage = () => {
                 type="button"
                 onClick={() => setStatusFilter('violations')}
                 style={{
-                  background: statusFilter === 'violations' ? '#ffffff' : 'transparent',
-                  color: statusFilter === 'violations' ? '#e11d48' : '#64748b',
+                  background: statusFilter === 'violations' ? 'var(--bg-surface-elevated, #ffffff)' : 'transparent',
+                  color: statusFilter === 'violations' ? '#f87171' : 'var(--text-muted, #64748b)',
                   border: 'none',
                   padding: '6px 12px',
                   borderRadius: '7px',
@@ -630,18 +628,18 @@ export const MyClassPage = () => {
               style={{
                 padding: '48px 20px',
                 textAlign: 'center',
-                background: '#f8fafc',
-                borderRadius: '12px',
-                border: '1px dashed #cbd5e1'
+                background: 'var(--bg-surface-elevated, #f8fafc)',
+                borderRadius: '16px',
+                border: '1px dashed var(--border-medium, #cbd5e1)'
               }}
             >
-              <div style={{ color: '#94a3b8', marginBottom: '8px' }}>
+              <div style={{ color: 'var(--text-muted, #94a3b8)', marginBottom: '8px' }}>
                 <Users size={32} />
               </div>
-              <div style={{ fontSize: '14px', fontWeight: 700, color: '#334155' }}>
+              <div style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary, #334155)' }}>
                 No students match your search or filter
               </div>
-              <div style={{ fontSize: '12px', color: '#64748b', marginTop: '4px' }}>
+              <div style={{ fontSize: '12px', color: 'var(--text-muted, #64748b)', marginTop: '4px' }}>
                 Try adjusting your search query or reset active filters.
               </div>
             </div>
@@ -654,9 +652,9 @@ export const MyClassPage = () => {
                 <div
                   key={student.id}
                   style={{
-                    background: '#ffffff',
-                    border: '1px solid #e2e8f0',
-                    borderRadius: '12px',
+                    background: 'var(--bg-surface-elevated, #ffffff)',
+                    border: '1px solid var(--border-subtle, #e2e8f0)',
+                    borderRadius: '14px',
                     padding: '14px 18px',
                     display: 'flex',
                     alignItems: 'center',
@@ -667,11 +665,11 @@ export const MyClassPage = () => {
                     flexWrap: 'wrap'
                   }}
                   onMouseOver={(e) => {
-                    e.currentTarget.style.borderColor = '#cbd5e1';
+                    e.currentTarget.style.borderColor = 'var(--border-medium, #cbd5e1)';
                     e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.05)';
                   }}
                   onMouseOut={(e) => {
-                    e.currentTarget.style.borderColor = '#e2e8f0';
+                    e.currentTarget.style.borderColor = 'var(--border-subtle, #e2e8f0)';
                     e.currentTarget.style.boxShadow = '0 2px 6px rgba(0,0,0,0.02)';
                   }}
                 >
@@ -688,28 +686,29 @@ export const MyClassPage = () => {
                         height: 46,
                         borderRadius: '50%',
                         objectFit: 'cover',
-                        border: '2px solid #e2e8f0',
+                        border: '2px solid var(--border-subtle, #e2e8f0)',
                         flexShrink: 0
                       }}
                     />
 
                     <div style={{ minWidth: 0 }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                        <h4 style={{ margin: 0, fontSize: '14.5px', fontWeight: 800, color: '#0f172a' }}>
+                        <h4 style={{ margin: 0, fontSize: '14.5px', fontWeight: 800, color: 'var(--text-primary, #0f172a)' }}>
                           {student.fname} {student.lname}
                         </h4>
 
                         {/* Disciplinary status badge */}
                         {isClean ? (
                           <span
+                            className="badge-minor"
                             style={{
                               background: '#ecfdf5',
                               color: '#065f46',
                               border: '1px solid #a7f3d0',
                               fontSize: '11px',
                               fontWeight: 700,
-                              padding: '2.5px 8px',
-                              borderRadius: '12px',
+                              padding: '2.5px 10px',
+                              borderRadius: '20px',
                               display: 'inline-flex',
                               alignItems: 'center',
                               gap: '4px'
@@ -719,14 +718,15 @@ export const MyClassPage = () => {
                           </span>
                         ) : (
                           <span
+                            className="badge-major"
                             style={{
                               background: '#fef2f2',
                               color: '#991b1b',
                               border: '1px solid #fecaca',
                               fontSize: '11px',
                               fontWeight: 700,
-                              padding: '2.5px 8px',
-                              borderRadius: '12px',
+                              padding: '2.5px 10px',
+                              borderRadius: '20px',
                               display: 'inline-flex',
                               alignItems: 'center',
                               gap: '4px'
@@ -737,15 +737,15 @@ export const MyClassPage = () => {
                         )}
                       </div>
 
-                      <div style={{ fontSize: '12px', color: '#64748b', marginTop: '3px', display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+                      <div style={{ fontSize: '12px', color: 'var(--text-muted, #64748b)', marginTop: '3px', display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
                         <div>
-                          Student ID: <strong style={{ color: '#0f172a' }}>{student.lrn}</strong>
+                          Student ID: <strong style={{ color: 'var(--text-primary, #0f172a)' }}>{student.lrn}</strong>
                         </div>
                         <div>
-                          Email: <span style={{ color: '#475569' }}>{student.email || `${student.fname.toLowerCase()}@school.com`}</span>
+                          Email: <span style={{ color: 'var(--text-secondary, #475569)' }}>{student.email || `${student.fname.toLowerCase()}@school.com`}</span>
                         </div>
                         <div>
-                          Gender: <span style={{ color: '#475569' }}>{student.gender || 'Male'}</span>
+                          Gender: <span style={{ color: 'var(--text-secondary, #475569)' }}>{student.gender || 'Male'}</span>
                         </div>
                       </div>
                     </div>
@@ -757,11 +757,11 @@ export const MyClassPage = () => {
                       type="button"
                       onClick={() => navigate(`/student-violation/${student.id}`)}
                       style={{
-                        background: '#f0f4f8',
-                        color: '#07345f',
-                        border: '1.5px solid #cbd5e1',
+                        background: 'var(--bg-surface, #f0f4f8)',
+                        color: 'var(--text-primary, #07345f)',
+                        border: '1.5px solid var(--border-medium, #cbd5e1)',
                         padding: '7px 14px',
-                        borderRadius: '8px',
+                        borderRadius: '20px',
                         fontSize: '12.5px',
                         fontWeight: 700,
                         cursor: 'pointer',
@@ -770,8 +770,6 @@ export const MyClassPage = () => {
                         gap: '6px',
                         transition: 'all 0.15s'
                       }}
-                      onMouseOver={(e) => { e.currentTarget.style.background = '#e2e8f0'; }}
-                      onMouseOut={(e) => { e.currentTarget.style.background = '#f0f4f8'; }}
                     >
                       <Eye size={14} /> View History
                     </button>
@@ -780,11 +778,11 @@ export const MyClassPage = () => {
                       type="button"
                       onClick={() => setSelectedStudentForViolation(student.id)}
                       style={{
-                        background: '#07345f',
+                        background: 'var(--brand-blue, #07345f)',
                         color: '#ffffff',
                         border: 'none',
                         padding: '7px 16px',
-                        borderRadius: '8px',
+                        borderRadius: '20px',
                         fontSize: '12.5px',
                         fontWeight: 700,
                         cursor: 'pointer',
@@ -795,8 +793,6 @@ export const MyClassPage = () => {
                         boxShadow: '0 2px 8px rgba(7, 52, 95, 0.25)',
                         transition: 'all 0.15s'
                       }}
-                      onMouseOver={(e) => { e.currentTarget.style.background = '#0b192c'; }}
-                      onMouseOut={(e) => { e.currentTarget.style.background = '#07345f'; }}
                     >
                       <Plus size={14} strokeWidth={2.5} /> Log Violation
                     </button>

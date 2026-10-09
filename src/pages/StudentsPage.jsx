@@ -402,12 +402,12 @@ export const StudentsPage = () => {
       {/* Top Banner & Primary Actions */}
       <div className="page-banner-header">
         <div className="page-banner-info">
-          <Users size={26} color="#0f172a" strokeWidth={2.4} style={{ flexShrink: 0 }} />
+          <Users size={26} strokeWidth={2.4} style={{ flexShrink: 0, color: 'var(--brand-blue, #07345f)' }} />
           <div>
-            <h2 style={{ fontSize: '20px', fontWeight: 800, margin: 0, color: '#0f172a', letterSpacing: '-0.02em' }}>
+            <h2 style={{ fontSize: '20px', fontWeight: 800, margin: 0, color: 'var(--text-primary, #0f172a)', letterSpacing: '-0.02em' }}>
               Student Directory
             </h2>
-            <p style={{ margin: '3px 0 0 0', fontSize: '13px', color: '#64748b' }}>
+            <p style={{ margin: '3px 0 0 0', fontSize: '13px', color: 'var(--text-muted, #64748b)' }}>
               View and manage student records, grades, levels, and academic strand information.
             </p>
           </div>
@@ -625,9 +625,9 @@ export const StudentsPage = () => {
       {/* Main Table Card with Integrated Search, Sort & Filters */}
       <div
         style={{
-          background: '#ffffff',
+          background: 'var(--bg-surface, #ffffff)',
           borderRadius: '16px',
-          border: '1px solid #e2e8f0',
+          border: '1px solid var(--border-subtle, #e2e8f0)',
           boxShadow: '0 2px 8px rgba(0,0,0,0.04)'
         }}
       >
@@ -635,7 +635,7 @@ export const StudentsPage = () => {
         <div
           style={{
             padding: '14px 18px',
-            borderBottom: '1px solid #f1f5f9',
+            borderBottom: '1px solid var(--border-subtle, #f1f5f9)',
             display: 'flex',
             flexDirection: 'column',
             gap: '12px'
@@ -651,7 +651,7 @@ export const StudentsPage = () => {
                   left: '12px',
                   top: '50%',
                   transform: 'translateY(-50%)',
-                  color: '#94a3b8'
+                  color: 'var(--text-muted, #94a3b8)'
                 }}
               />
               <input
@@ -665,16 +665,16 @@ export const StudentsPage = () => {
                 style={{
                   width: '100%',
                   padding: '9px 34px 9px 38px',
-                  border: '1px solid #cbd5e1',
+                  border: '1px solid var(--border-subtle, #cbd5e1)',
                   borderRadius: '8px',
                   fontSize: '13px',
-                  color: '#0f172a',
-                  background: '#f8fafc',
+                  color: 'var(--text-primary, #0f172a)',
+                  background: 'var(--bg-input, #f8fafc)',
                   outline: 'none',
                   transition: 'all 0.2s'
                 }}
-                onFocus={(e) => { e.currentTarget.style.borderColor = '#07345f'; e.currentTarget.style.background = '#ffffff'; }}
-                onBlur={(e) => { e.currentTarget.style.borderColor = '#cbd5e1'; e.currentTarget.style.background = '#f8fafc'; }}
+                onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--brand-blue, #07345f)'; e.currentTarget.style.background = 'var(--bg-surface, #ffffff)'; }}
+                onBlur={(e) => { e.currentTarget.style.borderColor = 'var(--border-subtle, #cbd5e1)'; e.currentTarget.style.background = 'var(--bg-input, #f8fafc)'; }}
               />
               {searchTerm && (
                 <button
@@ -1063,11 +1063,11 @@ export const StudentsPage = () => {
                             }}
                           />
                           <div>
-                            <div style={{ fontWeight: 700, fontSize: '13.5px', color: '#0f172a' }}>
+                            <div style={{ fontWeight: 700, fontSize: '13.5px', color: 'var(--text-primary, #0f172a)' }}>
                               {s.fname} {s.mname ? s.mname[0] + '. ' : ''}{s.lname}
                             </div>
-                            <div style={{ fontSize: '11px', color: '#64748b', marginTop: '1px' }}>
-                              Student ID: <strong style={{ color: '#334155' }}>{s.lrn}</strong> • {s.gender || 'Male'}
+                            <div style={{ fontSize: '11px', color: 'var(--text-muted, #64748b)', marginTop: '1px' }}>
+                              Student ID: <strong style={{ color: 'var(--text-secondary, #334155)' }}>{s.lrn}</strong> • {s.gender || 'Male'}
                             </div>
                           </div>
                         </div>
@@ -1076,12 +1076,13 @@ export const StudentsPage = () => {
                       {/* Grade Level Badge */}
                       <td style={{ padding: '14px 18px' }}>
                         <span
+                          className={isSHS ? 'badge-purple' : 'badge-blue'}
                           style={{
-                            background: isSHS ? '#f5f3ff' : '#eff6ff',
-                            color: isSHS ? '#7c3aed' : '#2563eb',
-                            border: `1px solid ${isSHS ? '#ddd6fe' : '#bfdbfe'}`,
+                            background: isSHS ? 'rgba(124, 58, 237, 0.15)' : 'rgba(37, 99, 235, 0.15)',
+                            color: isSHS ? '#a78bfa' : '#60a5fa',
+                            border: `1px solid ${isSHS ? 'rgba(124, 58, 237, 0.3)' : 'rgba(37, 99, 235, 0.3)'}`,
                             padding: '3px 10px',
-                            borderRadius: '12px',
+                            borderRadius: '20px',
                             fontSize: '11.5px',
                             fontWeight: 700,
                             display: 'inline-block'
@@ -1094,12 +1095,13 @@ export const StudentsPage = () => {
                       {/* Strand / Track Badge */}
                       <td style={{ padding: '14px 18px' }}>
                         <span
+                          className={isSHS ? 'badge-minor' : ''}
                           style={{
-                            background: isSHS ? '#ecfdf5' : '#f1f5f9',
-                            color: isSHS ? '#047857' : '#475569',
-                            border: `1px solid ${isSHS ? '#a7f3d0' : '#e2e8f0'}`,
+                            background: isSHS ? 'rgba(16, 185, 129, 0.15)' : 'var(--bg-surface-elevated, #f1f5f9)',
+                            color: isSHS ? '#34d399' : 'var(--text-secondary, #475569)',
+                            border: `1px solid ${isSHS ? 'rgba(16, 185, 129, 0.3)' : 'var(--border-subtle, #e2e8f0)'}`,
                             padding: '3px 10px',
-                            borderRadius: '8px',
+                            borderRadius: '20px',
                             fontSize: '11px',
                             fontWeight: 700,
                             display: 'inline-flex',
@@ -1112,15 +1114,15 @@ export const StudentsPage = () => {
                       </td>
 
                       {/* Section */}
-                      <td style={{ padding: '14px 18px', fontSize: '13px', color: '#334155' }}>
-                        <div style={{ fontWeight: 600 }}>{s.section}</div>
-                        <div style={{ fontSize: '11px', color: '#94a3b8' }}>{s.academicyear || '2025-2026'}</div>
+                      <td style={{ padding: '14px 18px', fontSize: '13px', color: 'var(--text-secondary, #334155)' }}>
+                        <div style={{ fontWeight: 600, color: 'var(--text-primary, #0f172a)' }}>{s.section}</div>
+                        <div style={{ fontSize: '11px', color: 'var(--text-muted, #94a3b8)' }}>{s.academicyear || '2025-2026'}</div>
                       </td>
 
                       {/* Guardian Info */}
                       <td style={{ padding: '14px 18px', fontSize: '13px' }}>
-                        <div style={{ color: '#0f172a', fontWeight: 600 }}>{s.parent_name || 'N/A'}</div>
-                        <div style={{ fontSize: '11px', color: '#64748b', marginTop: '1px' }}>
+                        <div style={{ color: 'var(--text-primary, #0f172a)', fontWeight: 600 }}>{s.parent_name || 'N/A'}</div>
+                        <div style={{ fontSize: '11px', color: 'var(--text-muted, #64748b)', marginTop: '1px' }}>
                           {s.parent_contact || 'No contact number'}
                         </div>
                       </td>
@@ -1132,10 +1134,11 @@ export const StudentsPage = () => {
                           <button
                             type="button"
                             onClick={() => setStudentForViewModal(s)}
+                            className="student-row-action-btn"
                             style={{
-                              background: '#ffffff',
-                              border: '1px solid #cbd5e1',
-                              color: '#07345f',
+                              background: 'var(--bg-surface-elevated, #ffffff)',
+                              border: '1px solid var(--border-subtle, #cbd5e1)',
+                              color: 'var(--brand-blue, #07345f)',
                               padding: '7px 13px',
                               borderRadius: '8px',
                               fontSize: '12.5px',
@@ -1147,21 +1150,20 @@ export const StudentsPage = () => {
                               transition: 'all 0.15s',
                               boxShadow: '0 1px 2px rgba(0,0,0,0.03)'
                             }}
-                            onMouseOver={(e) => { e.currentTarget.style.background = '#f8fafc'; e.currentTarget.style.borderColor = '#94a3b8'; }}
-                            onMouseOut={(e) => { e.currentTarget.style.background = '#ffffff'; e.currentTarget.style.borderColor = '#cbd5e1'; }}
                             title="View Student Full Profile"
                           >
-                            <Eye size={14} color="#07345f" strokeWidth={2.2} /> View
+                            <Eye size={14} color="var(--brand-blue, #07345f)" strokeWidth={2.2} /> View
                           </button>
 
                           {/* ID Card */}
                           <button
                             type="button"
                             onClick={() => setStudentForIdCard(s)}
+                            className="student-row-action-btn"
                             style={{
-                              background: '#ffffff',
-                              border: '1px solid #cbd5e1',
-                              color: '#334155',
+                              background: 'var(--bg-surface-elevated, #ffffff)',
+                              border: '1px solid var(--border-subtle, #cbd5e1)',
+                              color: 'var(--text-secondary, #334155)',
                               padding: '7px 13px',
                               borderRadius: '8px',
                               fontSize: '12.5px',
@@ -1173,11 +1175,9 @@ export const StudentsPage = () => {
                               transition: 'all 0.15s',
                               boxShadow: '0 1px 2px rgba(0,0,0,0.03)'
                             }}
-                            onMouseOver={(e) => { e.currentTarget.style.background = '#f8fafc'; e.currentTarget.style.borderColor = '#94a3b8'; }}
-                            onMouseOut={(e) => { e.currentTarget.style.background = '#ffffff'; e.currentTarget.style.borderColor = '#cbd5e1'; }}
-                            title="Generate Digital Student ID"
+                            title="Generate Official Student ID"
                           >
-                            <IdCard size={14} color="#475569" strokeWidth={2.2} /> ID Card
+                            <IdCard size={14} color="var(--text-muted, #475569)" strokeWidth={2.2} /> ID Card
                           </button>
 
                           {/* Edit */}
@@ -1188,10 +1188,11 @@ export const StudentsPage = () => {
                                 setStudentToEdit(s);
                                 setIsAddModalOpen(true);
                               }}
+                              className="student-row-action-btn"
                               style={{
-                                background: '#ffffff',
-                                border: '1px solid #cbd5e1',
-                                color: '#334155',
+                                background: 'var(--bg-surface-elevated, #ffffff)',
+                                border: '1px solid var(--border-subtle, #cbd5e1)',
+                                color: 'var(--text-secondary, #334155)',
                                 padding: '7px 13px',
                                 borderRadius: '8px',
                                 fontSize: '12.5px',
@@ -1203,11 +1204,9 @@ export const StudentsPage = () => {
                                 transition: 'all 0.15s',
                                 boxShadow: '0 1px 2px rgba(0,0,0,0.03)'
                               }}
-                              onMouseOver={(e) => { e.currentTarget.style.background = '#f8fafc'; e.currentTarget.style.borderColor = '#94a3b8'; }}
-                              onMouseOut={(e) => { e.currentTarget.style.background = '#ffffff'; e.currentTarget.style.borderColor = '#cbd5e1'; }}
                               title="Edit Student Info"
                             >
-                              <Edit3 size={14} color="#475569" strokeWidth={2.2} /> Edit
+                              <Edit3 size={14} color="var(--text-muted, #475569)" strokeWidth={2.2} /> Edit
                             </button>
                           )}
 
@@ -1216,10 +1215,11 @@ export const StudentsPage = () => {
                             <button
                               type="button"
                               onClick={() => handleDeleteSingle(s.id, `${s.fname} ${s.lname}`)}
+                              className="student-row-action-btn"
                               style={{
-                                background: '#ffffff',
-                                border: '1px solid #cbd5e1',
-                                color: '#64748b',
+                                background: 'var(--bg-surface-elevated, #ffffff)',
+                                border: '1px solid var(--border-subtle, #cbd5e1)',
+                                color: 'var(--text-muted, #64748b)',
                                 padding: '7px 11px',
                                 borderRadius: '8px',
                                 fontSize: '12.5px',
@@ -1231,8 +1231,6 @@ export const StudentsPage = () => {
                                 transition: 'all 0.15s',
                                 boxShadow: '0 1px 2px rgba(0,0,0,0.03)'
                               }}
-                              onMouseOver={(e) => { e.currentTarget.style.background = '#fee2e2'; e.currentTarget.style.borderColor = '#fca5a5'; e.currentTarget.style.color = '#ef4444'; }}
-                              onMouseOut={(e) => { e.currentTarget.style.background = '#ffffff'; e.currentTarget.style.borderColor = '#cbd5e1'; e.currentTarget.style.color = '#64748b'; }}
                               title="Delete Student"
                             >
                               <Trash2 size={14} strokeWidth={2.2} />
@@ -1282,12 +1280,13 @@ export const StudentsPage = () => {
                       style={{ cursor: 'pointer', width: '15px', height: '15px', accentColor: '#07345f' }}
                     />
                     <span
+                      className={isSHS ? 'badge-purple' : 'badge-blue'}
                       style={{
                         background: isSHS ? '#f5f3ff' : '#eff6ff',
                         color: isSHS ? '#7c3aed' : '#2563eb',
                         border: `1px solid ${isSHS ? '#ddd6fe' : '#bfdbfe'}`,
-                        padding: '1.5px 7px',
-                        borderRadius: '8px',
+                        padding: '2px 9px',
+                        borderRadius: '20px',
                         fontSize: '10px',
                         fontWeight: 700
                       }}
@@ -1581,10 +1580,10 @@ export const StudentsPage = () => {
               disabled={currentPage === 1}
               style={{
                 padding: '6px 12px',
-                border: '1px solid #cbd5e1',
+                border: '1px solid var(--border-subtle, #cbd5e1)',
                 borderRadius: '6px',
-                background: '#ffffff',
-                color: currentPage === 1 ? '#94a3b8' : '#334155',
+                background: 'var(--bg-surface-elevated, #ffffff)',
+                color: currentPage === 1 ? 'var(--text-muted, #94a3b8)' : 'var(--text-secondary, #334155)',
                 cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
                 fontSize: '12px',
                 fontWeight: 600,
@@ -1603,15 +1602,15 @@ export const StudentsPage = () => {
                 const showEllipsis = prev && p - prev > 1;
                 return (
                   <React.Fragment key={p}>
-                    {showEllipsis && <span style={{ padding: '0 4px', color: '#94a3b8' }}>...</span>}
+                    {showEllipsis && <span style={{ padding: '0 4px', color: 'var(--text-muted, #94a3b8)' }}>...</span>}
                     <button
                       onClick={() => setCurrentPage(p)}
                       style={{
                         padding: '6px 12px',
-                        border: p === currentPage ? 'none' : '1px solid #cbd5e1',
+                        border: p === currentPage ? 'none' : '1px solid var(--border-subtle, #cbd5e1)',
                         borderRadius: '6px',
-                        background: p === currentPage ? '#0f172a' : '#ffffff',
-                        color: p === currentPage ? '#ffffff' : '#334155',
+                        background: p === currentPage ? 'var(--brand-blue, #0f172a)' : 'var(--bg-surface-elevated, #ffffff)',
+                        color: p === currentPage ? '#ffffff' : 'var(--text-secondary, #334155)',
                         fontWeight: p === currentPage ? 700 : 500,
                         fontSize: '12px',
                         cursor: 'pointer'
@@ -1628,10 +1627,10 @@ export const StudentsPage = () => {
               disabled={currentPage === totalPages}
               style={{
                 padding: '6px 12px',
-                border: '1px solid #cbd5e1',
+                border: '1px solid var(--border-subtle, #cbd5e1)',
                 borderRadius: '6px',
-                background: '#ffffff',
-                color: currentPage === totalPages ? '#94a3b8' : '#334155',
+                background: 'var(--bg-surface-elevated, #ffffff)',
+                color: currentPage === totalPages ? 'var(--text-muted, #94a3b8)' : 'var(--text-secondary, #334155)',
                 cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
                 fontSize: '12px',
                 fontWeight: 600,

@@ -133,7 +133,7 @@ export const CustomDateRangeModal = ({
       style={{
         position: 'fixed',
         inset: 0,
-        background: 'rgba(15, 23, 42, 0.65)',
+        background: 'rgba(3, 7, 18, 0.75)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -147,12 +147,12 @@ export const CustomDateRangeModal = ({
     >
       <div
         style={{
-          background: '#ffffff',
+          background: 'var(--bg-surface, #ffffff)',
           borderRadius: '20px',
           width: '100%',
           maxWidth: '500px',
-          boxShadow: '0 25px 60px -15px rgba(0, 0, 0, 0.35)',
-          border: '1px solid #e2e8f0',
+          boxShadow: '0 25px 60px -15px rgba(0, 0, 0, 0.5)',
+          border: '1px solid var(--border-subtle, #e2e8f0)',
           overflow: 'visible',
           display: 'flex',
           flexDirection: 'column',
@@ -163,17 +163,17 @@ export const CustomDateRangeModal = ({
         <div
           style={{
             padding: '20px 24px 16px 24px',
-            borderBottom: '1px solid #f1f5f9',
+            borderBottom: '1px solid var(--border-subtle, #f1f5f9)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between'
           }}
         >
           <div>
-            <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 800, color: '#0f172a', letterSpacing: '-0.02em' }}>
+            <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 800, color: 'var(--text-primary, #0f172a)', letterSpacing: '-0.02em' }}>
               {title}
             </h3>
-            <p style={{ margin: '3px 0 0 0', fontSize: '12.5px', color: '#64748b' }}>
+            <p style={{ margin: '3px 0 0 0', fontSize: '12.5px', color: 'var(--text-muted, #64748b)' }}>
               Select a preset or custom date interval for analytics
             </p>
           </div>
@@ -182,20 +182,18 @@ export const CustomDateRangeModal = ({
             type="button"
             onClick={onClose}
             style={{
-              background: '#f1f5f9',
-              border: 'none',
+              background: 'var(--bg-surface-elevated, #f1f5f9)',
+              border: '1px solid var(--border-subtle, transparent)',
               borderRadius: '8px',
               width: '32px',
               height: '32px',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              color: '#64748b',
+              color: 'var(--text-muted, #64748b)',
               cursor: 'pointer',
               transition: 'all 0.15s ease'
             }}
-            onMouseOver={(e) => { e.currentTarget.style.background = '#e2e8f0'; e.currentTarget.style.color = '#0f172a'; }}
-            onMouseOut={(e) => { e.currentTarget.style.background = '#f1f5f9'; e.currentTarget.style.color = '#64748b'; }}
           >
             <X size={16} />
           </button>
@@ -207,10 +205,10 @@ export const CustomDateRangeModal = ({
           {/* Quick Presets Grid */}
           <div>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-              <label style={{ fontSize: '11.5px', fontWeight: 800, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+              <label style={{ fontSize: '11.5px', fontWeight: 800, color: 'var(--text-secondary, #475569)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
                 Quick Presets
               </label>
-              <span style={{ fontSize: '11px', color: '#94a3b8', fontWeight: 600 }}>One-click selection</span>
+              <span style={{ fontSize: '11px', color: 'var(--text-muted, #94a3b8)', fontWeight: 600 }}>One-click selection</span>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px' }}>
@@ -221,31 +219,18 @@ export const CustomDateRangeModal = ({
                     key={p.id}
                     type="button"
                     onClick={() => handleApplyPreset(p.id)}
+                    className={`date-preset-btn ${isSelected ? 'active' : ''}`}
                     style={{
                       padding: '9px 12px',
-                      borderRadius: '8px',
-                      border: isSelected ? '1.5px solid #0f172a' : '1px solid #e2e8f0',
-                      background: isSelected ? '#0f172a' : '#ffffff',
-                      color: isSelected ? '#ffffff' : '#334155',
+                      borderRadius: '20px',
+                      border: isSelected ? '1.5px solid var(--brand-blue, #07345f)' : '1px solid var(--border-subtle, #e2e8f0)',
+                      background: isSelected ? 'var(--brand-blue, #07345f)' : 'var(--bg-surface-elevated, #ffffff)',
+                      color: isSelected ? '#ffffff' : 'var(--text-primary, #334155)',
                       fontSize: '12.5px',
-                      fontWeight: isSelected ? 700 : 600,
+                      fontWeight: isSelected ? 800 : 600,
                       cursor: 'pointer',
                       textAlign: 'center',
                       transition: 'all 0.15s ease'
-                    }}
-                    onMouseOver={(e) => {
-                      if (!isSelected) {
-                        e.currentTarget.style.borderColor = '#cbd5e1';
-                        e.currentTarget.style.background = '#f8fafc';
-                        e.currentTarget.style.color = '#0f172a';
-                      }
-                    }}
-                    onMouseOut={(e) => {
-                      if (!isSelected) {
-                        e.currentTarget.style.borderColor = '#e2e8f0';
-                        e.currentTarget.style.background = '#ffffff';
-                        e.currentTarget.style.color = '#334155';
-                      }
                     }}
                   >
                     {p.label}
@@ -258,24 +243,24 @@ export const CustomDateRangeModal = ({
           {/* Date Range Interval Card */}
           <div
             style={{
-              background: '#f8fafc',
-              border: '1px solid #e2e8f0',
+              background: 'var(--bg-surface-elevated, #f8fafc)',
+              border: '1px solid var(--border-subtle, #e2e8f0)',
               borderRadius: '12px',
               padding: '16px'
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
-              <span style={{ fontSize: '11.5px', fontWeight: 800, color: '#334155', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+              <span style={{ fontSize: '11.5px', fontWeight: 800, color: 'var(--text-secondary, #334155)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
                 Date Range Interval
               </span>
-              <span style={{ fontSize: '11px', color: '#64748b', background: '#ffffff', border: '1px solid #e2e8f0', padding: '2px 8px', borderRadius: '6px', fontWeight: 600 }}>
+              <span style={{ fontSize: '11px', color: 'var(--brand-blue, #64748b)', background: 'var(--bg-surface, #ffffff)', border: '1px solid var(--border-subtle, #e2e8f0)', padding: '2px 8px', borderRadius: '6px', fontWeight: 600 }}>
                 Custom Interval
               </span>
             </div>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', width: '100%' }}>
               <div style={{ minWidth: 0, width: '100%' }}>
-                <span style={{ display: 'block', fontSize: '11px', color: '#64748b', marginBottom: '5px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                <span style={{ display: 'block', fontSize: '11px', color: 'var(--text-muted, #64748b)', marginBottom: '5px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                   Start Date
                 </span>
                 <CustomDatePicker
@@ -291,7 +276,7 @@ export const CustomDateRangeModal = ({
               </div>
 
               <div style={{ minWidth: 0, width: '100%' }}>
-                <span style={{ display: 'block', fontSize: '11px', color: '#64748b', marginBottom: '5px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                <span style={{ display: 'block', fontSize: '11px', color: 'var(--text-muted, #64748b)', marginBottom: '5px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                   End Date
                 </span>
                 <CustomDatePicker
@@ -311,8 +296,8 @@ export const CustomDateRangeModal = ({
           {/* Selected Range Preview Banner */}
           <div
             style={{
-              background: '#f0f4f8',
-              border: '1px solid #cbd5e1',
+              background: 'var(--bg-surface-elevated, #f0f4f8)',
+              border: '1px solid var(--border-subtle, #cbd5e1)',
               borderRadius: '10px',
               padding: '11px 14px',
               display: 'flex',
@@ -321,19 +306,21 @@ export const CustomDateRangeModal = ({
               gap: '12px'
             }}
           >
-            <div style={{ fontSize: '13px', color: '#0f172a', fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            <div style={{ fontSize: '13px', color: 'var(--text-primary, #0f172a)', fontWeight: 700, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
               <span>{formatHumanDate(startDate)}</span>
-              <span style={{ margin: '0 8px', color: '#64748b' }}>—</span>
+              <span style={{ margin: '0 8px', color: 'var(--text-muted, #64748b)' }}>—</span>
               <span>{formatHumanDate(endDate)}</span>
             </div>
 
             <span
+              className="badge-blue date-range-preview-badge"
               style={{
-                background: '#0f172a',
-                color: '#ffffff',
-                padding: '3px 9px',
-                borderRadius: '6px',
-                fontWeight: 700,
+                background: '#e0f2fe',
+                color: '#0369a1',
+                border: '1px solid #bae6fd',
+                padding: '3px 10px',
+                borderRadius: '20px',
+                fontWeight: 800,
                 fontSize: '11.5px',
                 whiteSpace: 'nowrap',
                 flexShrink: 0
@@ -358,36 +345,33 @@ export const CustomDateRangeModal = ({
               style={{
                 padding: '9px 16px',
                 borderRadius: '8px',
-                border: '1px solid #cbd5e1',
-                background: '#ffffff',
-                color: '#475569',
+                border: '1px solid var(--border-subtle, #cbd5e1)',
+                background: 'var(--bg-surface, #ffffff)',
+                color: 'var(--text-secondary, #475569)',
                 fontSize: '13px',
                 fontWeight: 600,
                 cursor: 'pointer',
                 transition: 'all 0.15s ease'
               }}
-              onMouseOver={(e) => { e.currentTarget.style.background = '#f8fafc'; e.currentTarget.style.color = '#0f172a'; }}
-              onMouseOut={(e) => { e.currentTarget.style.background = '#ffffff'; e.currentTarget.style.color = '#475569'; }}
             >
               Cancel
             </button>
 
             <button
               type="submit"
+              className="date-range-apply-btn"
               style={{
                 padding: '9px 22px',
                 borderRadius: '8px',
                 border: 'none',
-                background: '#0f172a',
+                background: '#07345f',
                 color: '#ffffff',
                 fontSize: '13px',
-                fontWeight: 700,
+                fontWeight: 800,
                 cursor: 'pointer',
-                boxShadow: '0 4px 12px rgba(15, 23, 42, 0.25)',
+                boxShadow: '0 4px 12px rgba(7, 52, 95, 0.25)',
                 transition: 'all 0.15s ease'
               }}
-              onMouseOver={(e) => { e.currentTarget.style.background = '#1e293b'; }}
-              onMouseOut={(e) => { e.currentTarget.style.background = '#0f172a'; }}
             >
               Apply Filter
             </button>

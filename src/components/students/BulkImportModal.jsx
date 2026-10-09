@@ -218,7 +218,7 @@ export const BulkImportModal = ({ isOpen, onClose, onImported, initialFormat = '
       <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '14px', padding: '16px 22px', maxHeight: '76vh', overflowY: 'auto' }}>
         
         {/* Format Selector Tabs */}
-        <div style={{ display: 'flex', background: '#f1f5f9', padding: '4px', borderRadius: '10px', gap: '4px' }}>
+        <div style={{ display: 'flex', background: 'var(--bg-input, #f1f5f9)', padding: '4px', borderRadius: '10px', gap: '4px', border: '1px solid var(--border-subtle, transparent)' }}>
           <button
             type="button"
             onClick={() => {
@@ -229,7 +229,7 @@ export const BulkImportModal = ({ isOpen, onClose, onImported, initialFormat = '
               flex: 1,
               padding: '8px 12px',
               borderRadius: '7px',
-              border: 'none',
+              border: activeTab === 'csv' ? '1px solid var(--border-medium, #cbd5e1)' : 'none',
               fontSize: '12.5px',
               fontWeight: 700,
               cursor: 'pointer',
@@ -237,13 +237,13 @@ export const BulkImportModal = ({ isOpen, onClose, onImported, initialFormat = '
               alignItems: 'center',
               justifyContent: 'center',
               gap: '6px',
-              background: activeTab === 'csv' ? '#ffffff' : 'transparent',
-              color: activeTab === 'csv' ? '#0f172a' : '#64748b',
+              background: activeTab === 'csv' ? 'var(--bg-surface-elevated, #ffffff)' : 'transparent',
+              color: activeTab === 'csv' ? 'var(--brand-blue, #0284c7)' : 'var(--text-muted, #64748b)',
               boxShadow: activeTab === 'csv' ? '0 1px 4px rgba(0,0,0,0.06)' : 'none',
               transition: 'all 0.15s ease'
             }}
           >
-            <FileSpreadsheet size={15} color={activeTab === 'csv' ? '#0284c7' : '#64748b'} />
+            <FileSpreadsheet size={15} color={activeTab === 'csv' ? 'var(--brand-blue, #0284c7)' : 'var(--text-muted, #64748b)'} />
             <span>CSV / Spreadsheet File</span>
           </button>
 
@@ -257,7 +257,7 @@ export const BulkImportModal = ({ isOpen, onClose, onImported, initialFormat = '
               flex: 1,
               padding: '8px 12px',
               borderRadius: '7px',
-              border: 'none',
+              border: activeTab === 'pdf' ? '1px solid var(--border-medium, #cbd5e1)' : 'none',
               fontSize: '12.5px',
               fontWeight: 700,
               cursor: 'pointer',
@@ -265,31 +265,31 @@ export const BulkImportModal = ({ isOpen, onClose, onImported, initialFormat = '
               alignItems: 'center',
               justifyContent: 'center',
               gap: '6px',
-              background: activeTab === 'pdf' ? '#ffffff' : 'transparent',
-              color: activeTab === 'pdf' ? '#0f172a' : '#64748b',
+              background: activeTab === 'pdf' ? 'var(--bg-surface-elevated, #ffffff)' : 'transparent',
+              color: activeTab === 'pdf' ? 'var(--brand-blue, #0284c7)' : 'var(--text-muted, #64748b)',
               boxShadow: activeTab === 'pdf' ? '0 1px 4px rgba(0,0,0,0.06)' : 'none',
               transition: 'all 0.15s ease'
             }}
           >
-            <FileType size={15} color={activeTab === 'pdf' ? '#dc2626' : '#64748b'} />
+            <FileType size={15} color={activeTab === 'pdf' ? 'var(--brand-blue, #0284c7)' : 'var(--text-muted, #64748b)'} />
             <span>PDF Roster Document</span>
           </button>
         </div>
 
         {/* Format Info & Template Download */}
-        <div style={{ background: '#f8fafc', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '12px 16px' }}>
+        <div style={{ background: 'var(--bg-surface-elevated, #f8fafc)', border: '1px solid var(--border-subtle, #e2e8f0)', borderRadius: '12px', padding: '12px 16px' }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
             <div style={{ flex: 1, minWidth: '220px' }}>
-              <strong style={{ fontSize: '12.5px', color: '#0f172a', display: 'flex', alignItems: 'center', gap: '5px' }}>
-                <Sparkles size={14} color="#0284c7" />
+              <strong style={{ fontSize: '12.5px', color: 'var(--text-primary, #0f172a)', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                <Sparkles size={14} color="var(--brand-blue, #0284c7)" />
                 {activeTab === 'pdf' ? 'Supported PDF Formats:' : 'Required CSV Columns:'}
               </strong>
               {activeTab === 'pdf' ? (
-                <div style={{ fontSize: '11.5px', color: '#475569', marginTop: '4px', lineHeight: 1.4 }}>
+                <div style={{ fontSize: '11.5px', color: 'var(--text-secondary, #475569)', marginTop: '4px', lineHeight: 1.4 }}>
                   Official School Forms (SF1), Class Rosters, DepEd Tables, or exported PDF student matrices.
                 </div>
               ) : (
-                <code style={{ fontSize: '11px', color: '#475569', background: '#f1f5f9', padding: '3px 8px', borderRadius: '6px', display: 'inline-block', marginTop: '4px', wordBreak: 'break-word', border: '1px solid #e2e8f0' }}>
+                <code style={{ fontSize: '11px', color: 'var(--text-secondary, #475569)', background: 'var(--bg-input, #f1f5f9)', padding: '3px 8px', borderRadius: '6px', display: 'inline-block', marginTop: '4px', wordBreak: 'break-word', border: '1px solid var(--border-subtle, #e2e8f0)' }}>
                   Student ID, First Name, Middle Name, Last Name, Grade, Section, Gender, Contact, Parent Name, Parent Contact, Strand
                 </code>
               )}
@@ -299,9 +299,9 @@ export const BulkImportModal = ({ isOpen, onClose, onImported, initialFormat = '
                 type="button"
                 onClick={handleDownloadTemplate}
                 style={{
-                  background: '#ffffff',
-                  border: '1.5px solid #cbd5e1',
-                  color: '#0f172a',
+                  background: 'var(--bg-surface, #ffffff)',
+                  border: '1.5px solid var(--border-medium, #cbd5e1)',
+                  color: 'var(--text-primary, #0f172a)',
                   fontSize: '11.5px',
                   fontWeight: 700,
                   padding: '7px 13px',
@@ -322,15 +322,15 @@ export const BulkImportModal = ({ isOpen, onClose, onImported, initialFormat = '
 
         {/* File Upload Zone */}
         <div
+          className="file-dropzone"
           onClick={() => fileInputRef.current?.click()}
           style={{
-            border: '2px dashed #cbd5e1',
+            border: `2px dashed ${fileName ? (fileType === 'pdf' ? '#f87171' : '#4ade80') : 'var(--border-medium, #cbd5e1)'}`,
             borderRadius: '12px',
             padding: '20px 14px',
             textAlign: 'center',
             cursor: 'pointer',
-            background: fileName ? (fileType === 'pdf' ? '#fef2f2' : '#f0fdf4') : '#fafafa',
-            borderColor: fileName ? (fileType === 'pdf' ? '#fca5a5' : '#86efac') : '#cbd5e1',
+            background: fileName ? (fileType === 'pdf' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(34, 197, 94, 0.1)') : 'var(--bg-input, #fafafa)',
             transition: 'background-color 0.15s ease, border-color 0.15s ease'
           }}
         >
@@ -342,18 +342,18 @@ export const BulkImportModal = ({ isOpen, onClose, onImported, initialFormat = '
             onChange={handleFileUpload}
           />
           {parsingPdf ? (
-            <RefreshCw size={26} className="spin" color="#dc2626" style={{ margin: '0 auto 6px auto', display: 'block' }} />
+            <RefreshCw size={26} className="spin" color="var(--brand-blue, #dc2626)" style={{ margin: '0 auto 6px auto', display: 'block' }} />
           ) : (
-            <Upload size={24} color={fileName ? (fileType === 'pdf' ? '#dc2626' : '#16a34a') : '#64748b'} style={{ margin: '0 auto 6px auto', display: 'block' }} />
+            <Upload size={24} color={fileName ? (fileType === 'pdf' ? '#f87171' : '#4ade80') : 'var(--brand-blue, #64748b)'} style={{ margin: '0 auto 6px auto', display: 'block' }} />
           )}
-          <div style={{ fontSize: '13px', fontWeight: 700, color: '#0f172a' }}>
+          <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-primary, #0f172a)' }}>
             {parsingPdf
               ? 'Analyzing & Extracting PDF Text...'
               : fileName
               ? `File Ready (${fileType.toUpperCase()}): ${fileName}`
               : `Tap or Drag & Drop Enrollment ${activeTab.toUpperCase()} File`}
           </div>
-          <div style={{ fontSize: '11.5px', color: '#64748b', marginTop: '2px' }}>
+          <div style={{ fontSize: '11.5px', color: 'var(--text-muted, #64748b)', marginTop: '2px' }}>
             {activeTab === 'pdf'
               ? 'Supports multi-page student lists, class lists, and PDF official rosters'
               : 'Supports CSV, Excel comma-separated exports, or text student tables'}
@@ -362,9 +362,9 @@ export const BulkImportModal = ({ isOpen, onClose, onImported, initialFormat = '
 
         {/* Pre-Import Validation & Preview Section */}
         {activeCandidateRoster.length > 0 && (
-          <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '12px', padding: '12px 14px' }}>
+          <div style={{ background: 'var(--bg-surface-elevated, #ffffff)', border: '1px solid var(--border-subtle, #e2e8f0)', borderRadius: '12px', padding: '12px 14px' }}>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-              <div style={{ fontSize: '12px', fontWeight: 700, color: '#0f172a', display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <div style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-primary, #0f172a)', display: 'flex', alignItems: 'center', gap: '6px' }}>
                 <FileCheck size={15} color="#16a34a" />
                 <span>Ready to Import: <strong style={{ color: '#16a34a' }}>{activeCandidateRoster.length} valid students ({fileType.toUpperCase()})</strong></span>
               </div>

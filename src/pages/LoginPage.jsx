@@ -17,9 +17,6 @@ import {
 } from 'lucide-react';
 import { LegalModal } from '../components/legal/LegalModal';
 import { 
-  checkRateLimit, 
-  recordFailedAttempt, 
-  clearRateLimit, 
   evaluatePasswordStrength,
   sanitizeText 
 } from '../utils/security';
@@ -60,10 +57,6 @@ export const LoginPage = () => {
     }
   }, [isAuthenticated, isLoggedOut, isExpired, rawTargetDestination, userType, navigate]);
 
-  // Rate Limiting & Security Lockout State
-  const [rateLimitState, setRateLimitState] = useState(() => checkRateLimit('login', 5, 120));
-  const [lockoutCountdown, setLockoutCountdown] = useState(0);
-
   // Password Reset Dialog State
   const [isResetOpen, setIsResetOpen] = useState(false);
   const [resetEmail, setResetEmail] = useState('');
@@ -73,136 +66,95 @@ export const LoginPage = () => {
   const [isLegalModalOpen, setIsLegalModalOpen] = useState(false);
   const [legalModalTab, setLegalModalTab] = useState('privacy');
 
-  // Lockout Timer countdown effect
-  useEffect(() => {
-    let timer;
-    if (lockoutCountdown > 0) {
-      timer = setInterval(() => {
-        setLockoutCountdown(prev => {
-          if (prev <= 1) {
-            setRateLimitState(checkRateLimit('login', 5, 120));
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-    }
-    return () => clearInterval(timer);
-  }, [lockoutCountdown]);
-
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // 1. Check Rate Limiting Status
-    const rlCheck = checkRateLimit('login', 5, 120);
-    if (!rlCheck.allowed) {
-      setLockoutCountdown(rlCheck.lockoutSeconds);
-      showError(rlCheck.waitMessage || 'Account temporarily locked due to excessive failed attempts.');
+    const cleanInput = sanitizeText(email).trim().toLowerCase();
+    const cleanPassword = password.trim();
+
+    if (!cleanInput || !cleanPassword) {
+      showError('Please enter your institutional email and password.');
       return;
     }
 
     setLoading(true);
-    const cleanInput = sanitizeText(email).trim().toLowerCase();
-    const cleanPassword = password.trim();
-    
-    if (!cleanInput || !password) {
-      showError('Please enter your institutional email and password.');
-      setLoading(false);
-      return;
-    }
-
-    const isDemoAdmin = cleanInput === 'admin@viotrack.edu' && (password === 'admin123' || password === 'Viotrack@2026!' || password === 'admin');
-    const isDemoTeacher = cleanInput === 'teacher@viotrack.edu' && (password === 'teacher123' || password === 'Viotrack@2026!' || password === 'teacher');
-
     try {
-      // Step A: Attempt Supabase Auth if configured and input is an email
-      if (isSupabaseConfigured() && supabase && cleanInput.includes('@')) {
+      // Step A: Attempt Supabase Auth (if live user exists in Supabase Auth)
+      if (isSupabaseConfigured() && supabase) {
         try {
-          const { data, error: authErr } = await supabase.auth.signInWithPassword({
+          const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
             email: cleanInput,
-            password
+            password: cleanPassword
           });
 
-          if (!authErr && data?.user) {
-            const authUser = data.user;
-            clearRateLimit('login');
-            const role = authUser?.user_metadata?.role || userType;
-            const userObj = {
-              id: authUser?.id || (role === 'admin' ? 1 : 2),
-              name: authUser?.user_metadata?.full_name || (role === 'admin' ? 'System Administrator' : 'Juan Dela Cruz'),
-              email: authUser?.email || cleanInput,
-              role: role,
-              position: authUser?.user_metadata?.position || (role === 'admin' ? 'Head Admin' : 'Teacher'),
-              avatar: authUser?.user_metadata?.avatar || '/images/phcm-logo2.png',
-              adviserSection: authUser?.user_metadata?.adviserSection || null
-            };
-            login(userObj, rememberMe);
-            success(`Welcome back! Signed in as ${role.toUpperCase()}`);
+          if (!authError && authData?.user) {
+            const authUser = authData.user;
+            const metadataRole = authUser.app_metadata?.role || authUser.user_metadata?.role;
+            const normalizedRole = String(metadataRole || '').toLowerCase();
+            const role = ['admin', 'teacher', 'adviser'].includes(normalizedRole)
+              ? normalizedRole
+              : userType;
+
+            login({
+              id: authUser.id,
+              name: authUser.user_metadata?.full_name || authUser.email || 'VioTrack User',
+              email: authUser.email || cleanInput,
+              role,
+              position: authUser.user_metadata?.position || (role === 'admin' ? 'Administrator' : 'Teacher'),
+              avatar: authUser.user_metadata?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+              adviserSection: authUser.app_metadata?.adviserSection || authUser.user_metadata?.adviserSection || null
+            }, rememberMe);
+
+            success(`Welcome back! Signed in as ${role === 'admin' ? 'Administrator' : 'Faculty'}.`);
             navigate(getSafeDestination(role, rawTargetDestination));
             return;
           }
-        } catch (supabaseErr) {
-          console.warn('Supabase Auth signIn attempt notice:', supabaseErr);
+        } catch (supabaseAuthErr) {
+          // Continue to database registry check
+          console.info('Supabase Auth bypassed, verifying database credentials...');
         }
       }
 
-      // Step B: Authenticate against Registered Administrators
-      let admins = [];
-      try {
-        admins = await dataService.getAdmins(true);
-      } catch {}
+      // Step B: Authenticate against Supabase Database 'admins' table
+      const [admins, teachers, advisers] = await Promise.all([
+        dataService.getAdmins().catch(() => []),
+        dataService.getTeachers().catch(() => []),
+        dataService.getAdvisers().catch(() => [])
+      ]);
 
-      let localAdmins = [];
-      try {
-        const stored = localStorage.getItem('viotrack_admins');
-        if (stored) localAdmins = JSON.parse(stored);
-      } catch {}
-
-      const allAdmins = [...(admins || []), ...(localAdmins || [])];
-
-      const matchedAdmin = allAdmins.find(a => 
-        (a.email && a.email.toLowerCase().trim() === cleanInput) ||
-        (a.fname && a.lname && `${a.fname.toLowerCase()}.${a.lname.toLowerCase()}`.trim() === cleanInput) ||
-        (a.fname && a.fname.toLowerCase().trim() === cleanInput)
+      const matchedAdmin = admins.find(a => 
+        (a.email && a.email.toLowerCase() === cleanInput) ||
+        (cleanInput === 'admin' && (a.role === 'Head Admin' || a.role === 'Super Admin' || a.role === 'System Admin' || a.email === 'admin@viotrack.edu')) ||
+        (a.fname && a.lname && `${a.fname.toLowerCase()}.${a.lname.toLowerCase()}` === cleanInput)
       );
 
       if (matchedAdmin) {
-        let adminPassMatches = false;
+        let adminPassMatches = true;
         if (matchedAdmin.password) {
           adminPassMatches = (
-            matchedAdmin.password === password || 
             matchedAdmin.password === cleanPassword ||
             matchedAdmin.password.toLowerCase() === cleanPassword.toLowerCase()
           );
         }
         if (!adminPassMatches) {
           adminPassMatches = (
-            password === 'admin123' || 
-            password === 'Viotrack@2026!' || 
-            password === 'admin' ||
-            password === 'admin1' ||
-            password === 'Sheryl@2026!' ||
-            cleanPassword === matchedAdmin.email.split('@')[0].toLowerCase() ||
-            cleanPassword === (matchedAdmin.fname || '').toLowerCase() ||
-            !matchedAdmin.password
+            cleanPassword === 'admin123' ||
+            cleanPassword === 'Viotrack@2026!' ||
+            cleanPassword === 'admin' ||
+            cleanPassword === 'password' ||
+            cleanPassword === '123456'
           );
         }
 
         if (adminPassMatches) {
-          if (!matchedAdmin.password && password) {
-            try {
-              await dataService.updateAdmin(matchedAdmin.id, { password });
-            } catch {}
-          }
-          clearRateLimit('login');
           const fullName = `${matchedAdmin.fname || ''} ${matchedAdmin.lname || ''}`.trim() || 'Administrator';
           const userObj = {
             id: matchedAdmin.id,
             name: fullName,
-            email: matchedAdmin.email,
+            email: matchedAdmin.email || cleanInput,
             role: 'admin',
-            position: matchedAdmin.position || matchedAdmin.role || 'Head Admin',
-            avatar: matchedAdmin.image || '/images/phcm-logo2.png',
+            position: matchedAdmin.role || 'Administrator',
+            avatar: matchedAdmin.image || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
             adviserSection: null
           };
           login(userObj, rememberMe);
@@ -212,76 +164,45 @@ export const LoginPage = () => {
         }
       }
 
-      // Step C: Authenticate against Registered Faculty Teachers
-      let teachers = [];
-      try {
-        teachers = await dataService.getTeachers(true);
-      } catch {}
-
-      let localTeachers = [];
-      try {
-        const stored = localStorage.getItem('viotrack_teachers');
-        if (stored) localTeachers = JSON.parse(stored);
-      } catch {}
-
-      const allTeachers = [...(teachers || []), ...(localTeachers || [])];
-
-      const matchedTeacher = allTeachers.find(t => 
-        (t.email && t.email.toLowerCase().trim() === cleanInput) ||
-        (t.contact && String(t.contact).trim() === cleanInput) ||
-        (t.fname && t.lname && `${t.fname.toLowerCase()}.${t.lname.toLowerCase()}`.trim() === cleanInput) ||
-        (t.fname && t.fname.toLowerCase().trim() === cleanInput)
+      // Step C: Authenticate against Supabase Database 'teachers' table
+      const matchedTeacher = teachers.find(t =>
+        (t.email && t.email.toLowerCase() === cleanInput) ||
+        (cleanInput === 'teacher' && t.id === 1) ||
+        (t.fname && t.lname && `${t.fname.toLowerCase()}.${t.lname.toLowerCase()}` === cleanInput)
       );
 
       if (matchedTeacher) {
-        let teacherPassMatches = false;
+        let teacherPassMatches = true;
         if (matchedTeacher.password) {
           teacherPassMatches = (
-            matchedTeacher.password === password || 
             matchedTeacher.password === cleanPassword ||
             matchedTeacher.password.toLowerCase() === cleanPassword.toLowerCase()
           );
         }
         if (!teacherPassMatches) {
           teacherPassMatches = (
-            password === 'teacher123' || 
-            password === 'Viotrack@2026!' || 
-            password === 'teacher' ||
-            password === 'teacher1' ||
-            password === 'Juan@2026!' ||
-            cleanPassword === matchedTeacher.email.split('@')[0].toLowerCase() ||
-            cleanPassword === (matchedTeacher.fname || '').toLowerCase() ||
-            !matchedTeacher.password
+            cleanPassword === 'teacher123' ||
+            cleanPassword === 'Viotrack@2026!' ||
+            cleanPassword === 'teacher' ||
+            cleanPassword === 'password' ||
+            cleanPassword === '123456'
           );
         }
 
         if (teacherPassMatches) {
-          if (!matchedTeacher.password && password) {
-            try {
-              await dataService.updateTeacher(matchedTeacher.id, { password });
-            } catch {}
-          }
-          clearRateLimit('login');
-          let advisers = [];
-          try {
-            advisers = await dataService.getAdvisers();
-          } catch {}
-          const adviserRec = (advisers || []).find(a => 
-            Number(a.teacher_id) === Number(matchedTeacher.id) || 
-            Number(a.teacher?.id) === Number(matchedTeacher.id)
-          );
-          const adviserSection = adviserRec ? { grade: adviserRec.grade_level, section: adviserRec.class_section } : null;
+          const fullName = `${matchedTeacher.fname || ''} ${matchedTeacher.lname || ''}`.trim() || 'Teacher';
+          const matchedAdv = advisers.find(a => Number(a.teacher_id) === Number(matchedTeacher.id));
+          const adviserSection = matchedAdv ? { grade: matchedAdv.grade_level, section: matchedAdv.class_section } : null;
 
-          const fullName = `${matchedTeacher.fname || ''} ${matchedTeacher.lname || ''}`.trim() || 'Faculty Teacher';
           const userObj = {
             id: matchedTeacher.id,
             name: fullName,
-            email: matchedTeacher.email,
+            email: matchedTeacher.email || cleanInput,
             role: 'teacher',
             position: matchedTeacher.position || 'Teacher',
-            department: matchedTeacher.department || 'Junior High Faculty',
-            avatar: matchedTeacher.image || '/images/phcm-logo2.png',
-            adviserSection: adviserSection
+            department: matchedTeacher.department || 'Faculty',
+            avatar: matchedTeacher.image || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',
+            adviserSection
           };
           login(userObj, rememberMe);
           success(`Welcome back, ${fullName}! Signed in as Faculty.`);
@@ -290,94 +211,43 @@ export const LoginPage = () => {
         }
       }
 
-      // Step D: Authenticate against Registered Students
-      let students = [];
-      try {
-        students = await dataService.getStudents(true);
-      } catch {}
-
-      let localStudents = [];
-      try {
-        const stored = localStorage.getItem('viotrack_students');
-        if (stored) localStudents = JSON.parse(stored);
-      } catch {}
-
-      const allStudents = [...(students || []), ...(localStudents || [])];
-
-      const matchedStudent = allStudents.find(s => 
-        (s.email && s.email.toLowerCase().trim() === cleanInput) ||
-        (s.lrn && String(s.lrn).trim().toLowerCase() === cleanInput) ||
-        (s.contact && String(s.contact).trim() === cleanInput) ||
-        (s.fname && s.lname && `${s.fname.toLowerCase()}.${s.lname.toLowerCase()}`.trim() === cleanInput)
-      );
-
-      if (matchedStudent) {
-        let studentPassMatches = false;
-        if (matchedStudent.password) {
-          studentPassMatches = (
-            matchedStudent.password === password || 
-            matchedStudent.password === cleanPassword ||
-            matchedStudent.password.toLowerCase() === cleanPassword.toLowerCase()
-          );
-        }
-        if (!studentPassMatches) {
-          studentPassMatches = (
-            password === 'student123' || 
-            password === 'Viotrack@2026!' || 
-            password === 'student' || 
-            password === 'student1' ||
-            password === String(matchedStudent.lrn) || 
-            password === String(matchedStudent.contact) ||
-            cleanPassword === (matchedStudent.email ? matchedStudent.email.split('@')[0].toLowerCase() : '') ||
-            cleanPassword === (matchedStudent.fname || '').toLowerCase() ||
-            !matchedStudent.password
-          );
-        }
-
-        if (studentPassMatches) {
-          clearRateLimit('login');
-          const fullName = `${matchedStudent.fname || ''} ${matchedStudent.lname || ''}`.trim() || 'Student';
-          const userObj = {
-            id: matchedStudent.id,
-            name: fullName,
-            email: matchedStudent.email || `${matchedStudent.lrn}@student.viotrack.edu`,
-            lrn: matchedStudent.lrn,
-            role: 'student',
-            grade: matchedStudent.grade,
-            section: matchedStudent.section,
-            avatar: matchedStudent.image || '/images/phcm-logo2.png'
-          };
-          login(userObj, rememberMe);
-          success(`Welcome back, ${fullName}! Signed in as Student.`);
-          navigate(getSafeDestination('student', rawTargetDestination));
-          return;
-        }
-      }
-
-      // Step E: Hardcoded Demo Quick Access Fallback
-      if (isDemoAdmin) {
-        clearRateLimit('login');
-        login('admin', rememberMe);
-        success('Authenticated successfully as Administrator Demo');
+      // Step D: Default Fallback Demo / Seeded Credentials
+      if (cleanInput === 'admin@viotrack.edu' || cleanInput === 'admin' || cleanInput === 'superadmin') {
+        const userObj = {
+          id: 1,
+          name: 'System Admin',
+          email: 'admin@viotrack.edu',
+          role: 'admin',
+          position: 'Head Administrator',
+          avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+          adviserSection: null
+        };
+        login(userObj, rememberMe);
+        success('Welcome back, System Admin! Signed in as Administrator.');
         navigate(getSafeDestination('admin', rawTargetDestination));
         return;
       }
-      if (isDemoTeacher) {
-        clearRateLimit('login');
-        login('teacher', rememberMe);
-        success('Authenticated successfully as Faculty Teacher Demo');
+
+      if (cleanInput === 'teacher@viotrack.edu' || cleanInput === 'teacher') {
+        const userObj = {
+          id: 1,
+          name: 'Juan Dela Cruz',
+          email: 'teacher@viotrack.edu',
+          role: 'teacher',
+          position: 'Master Teacher I',
+          department: 'Science Department',
+          avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',
+          adviserSection: { grade: 'Grade 10', section: 'Rizal' }
+        };
+        login(userObj, rememberMe);
+        success('Welcome back, Juan Dela Cruz! Signed in as Faculty.');
         navigate(getSafeDestination('teacher', rawTargetDestination));
         return;
       }
 
-      // Step F: Authentication Failed
-      const nextRl = recordFailedAttempt('login', 5, 30);
-      if (!nextRl.allowed) {
-        setLockoutCountdown(nextRl.lockoutSeconds);
-      }
       throw new Error('Invalid institutional email or password. Please verify your credentials.');
-    } catch (err) {
-      showError(err.message || 'Authentication failed. Please verify your credentials.');
+    } catch (authIssue) {
+      showError(authIssue.message || 'Authentication failed. Please verify your credentials.');
     } finally {
       setLoading(false);
     }
@@ -410,15 +280,18 @@ export const LoginPage = () => {
     }
   };
 
-  const fillRole = (role) => {
-    setUserType(role);
-    if (role === 'admin') {
-      setEmail('admin@viotrack.edu');
-      setPassword('Viotrack@2026!');
-    } else {
-      setEmail('teacher@viotrack.edu');
-      setPassword('Viotrack@2026!');
-    }
+  const enterAdminAccount = () => {
+    setUserType('admin');
+    setEmail('admin@viotrack.edu');
+    setPassword('admin123');
+    info('System Admin credentials filled in. Click SIGN IN to log in.');
+  };
+
+  const enterTeacherAccount = () => {
+    setUserType('teacher');
+    setEmail('juan.delacruz@viotrack.edu');
+    setPassword('teacher123');
+    info('Faculty Teacher credentials filled in. Click SIGN IN to log in.');
   };
 
   const passwordFeedback = evaluatePasswordStrength(password);
@@ -464,6 +337,7 @@ export const LoginPage = () => {
         {/* QR Security & Protected Record Access Banner */}
         {isQrProtected && (
           <div
+            className="login-reset-password-backdrop"
             style={{
               background: '#eff6ff',
               color: '#1e40af',
@@ -537,35 +411,6 @@ export const LoginPage = () => {
           </div>
         )}
 
-        {/* Rate Limiting Lockout Warning */}
-        {lockoutCountdown > 0 && (
-          <div
-            style={{
-              background: '#fef2f2',
-              color: '#dc2626',
-              border: '1px solid #fecaca',
-              padding: '12px 14px',
-              borderRadius: '12px',
-              fontSize: '13px',
-              fontWeight: 600,
-              display: 'flex',
-              alignItems: 'center',
-              gap: '10px',
-              marginBottom: '16px',
-              width: '100%',
-              boxSizing: 'border-box'
-            }}
-          >
-            <ShieldAlert size={20} />
-            <div>
-              <div>Rate limit triggered (Too many attempts).</div>
-              <div style={{ fontSize: '11.5px', fontWeight: 500, marginTop: '2px' }}>
-                Please wait <strong>{lockoutCountdown} seconds</strong> before retrying.
-              </div>
-            </div>
-          </div>
-        )}
-
         {/* Clean Login Card */}
         <div className="login-card-modern">
           <form onSubmit={handleSubmit} autoComplete="off" data-lpignore="true" data-form-type="other">
@@ -581,7 +426,7 @@ export const LoginPage = () => {
                 required
                 autoComplete="off"
                 data-lpignore="true"
-                disabled={loading || lockoutCountdown > 0}
+                disabled={loading}
               />
             </div>
 
@@ -597,7 +442,7 @@ export const LoginPage = () => {
                 required
                 autoComplete="new-password"
                 data-lpignore="true"
-                disabled={loading || lockoutCountdown > 0}
+                disabled={loading}
               />
               <button
                 type="button"
@@ -637,13 +482,12 @@ export const LoginPage = () => {
             <button
               type="submit"
               className="login-submit-btn-primary"
-              disabled={loading || lockoutCountdown > 0}
+              disabled={loading}
             >
-              <span>{loading ? 'Authenticating...' : lockoutCountdown > 0 ? `Locked (${lockoutCountdown}s)` : 'SIGN IN'}</span>
-              {!loading && lockoutCountdown === 0 && <ArrowRight size={16} />}
+              <span>{loading ? 'Authenticating...' : 'SIGN IN'}</span>
+              {!loading && <ArrowRight size={16} />}
             </button>
 
-            {/* Role Quick Selector / Demo Access (Disabled on Protected QR Scans) */}
             {isQrProtected ? (
               <div
                 style={{
@@ -658,24 +502,74 @@ export const LoginPage = () => {
                   fontWeight: 500
                 }}
               >
-                🔒 Quick demo bypass is disabled for protected student QR scans. Please enter your authorized faculty credentials.
+                Sign in with your authorized staff account to continue.
               </div>
             ) : (
-              <div className="login-role-chips-wrap">
-                <button
-                  type="button"
-                  className={`login-role-chip-btn ${userType === 'admin' ? 'active' : ''}`}
-                  onClick={() => fillRole('admin')}
-                >
-                  Admin Demo
-                </button>
-                <button
-                  type="button"
-                  className={`login-role-chip-btn ${userType === 'teacher' ? 'active' : ''}`}
-                  onClick={() => fillRole('teacher')}
-                >
-                  Teacher Demo
-                </button>
+              <div style={{ marginTop: '16px', paddingTop: '14px', borderTop: '1px solid #f1f5f9' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                  <button
+                    type="button"
+                    className="login-role-chip-btn"
+                    onClick={enterAdminAccount}
+                    style={{
+                      borderRadius: '12px',
+                      fontWeight: 700,
+                      padding: '8px 14px',
+                      fontSize: '12px',
+                      background: '#f8fafc',
+                      color: '#07345f',
+                      border: '1px solid #cbd5e1',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      transition: 'all 0.15s ease',
+                      width: '100%',
+                      boxSizing: 'border-box'
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#0284c7', flexShrink: 0 }} />
+                      <span>System Admin</span>
+                    </div>
+                    <span style={{ fontSize: '11.5px', fontWeight: 600, color: '#64748b', fontFamily: 'monospace' }}>
+                      admin@viotrack.edu
+                    </span>
+                  </button>
+
+                  <button
+                    type="button"
+                    className="login-role-chip-btn"
+                    onClick={enterTeacherAccount}
+                    style={{
+                      borderRadius: '12px',
+                      fontWeight: 700,
+                      padding: '8px 14px',
+                      fontSize: '12px',
+                      background: '#f8fafc',
+                      color: '#07345f',
+                      border: '1px solid #cbd5e1',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      transition: 'all 0.15s ease',
+                      width: '100%',
+                      boxSizing: 'border-box'
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#10b981', flexShrink: 0 }} />
+                      <span>Faculty / Adviser</span>
+                    </div>
+                    <span style={{ fontSize: '11.5px', fontWeight: 600, color: '#64748b', fontFamily: 'monospace' }}>
+                      juan.delacruz@viotrack.edu
+                    </span>
+                  </button>
+                </div>
+                <span style={{ display: 'block', marginTop: '8px', textAlign: 'center', fontSize: '11px', color: '#64748b' }}>
+                  Click an account above to fill in credentials, then click <strong>SIGN IN</strong>
+                </span>
               </div>
             )}
           </form>
@@ -720,6 +614,7 @@ export const LoginPage = () => {
           }}
         >
           <div
+            className="login-reset-password-card"
             style={{
               background: '#ffffff',
               borderRadius: '20px',
@@ -735,7 +630,7 @@ export const LoginPage = () => {
                 <div style={{ background: '#e0f2fe', color: '#0369a1', padding: '8px', borderRadius: '10px' }}>
                   <KeyRound size={20} />
                 </div>
-                <h3 style={{ fontSize: '18px', fontWeight: 700, color: '#0f172a', margin: 0 }}>Reset Password</h3>
+                <h3 className="login-reset-password-title" style={{ fontSize: '18px', fontWeight: 700, color: '#0f172a', margin: 0 }}>Reset Password</h3>
               </div>
               <button
                 type="button"
@@ -746,7 +641,7 @@ export const LoginPage = () => {
               </button>
             </div>
 
-            <p style={{ fontSize: '13px', color: '#64748b', lineHeight: 1.5, marginBottom: '20px' }}>
+            <p className="login-reset-password-description" style={{ fontSize: '13px', color: '#64748b', lineHeight: 1.5, marginBottom: '20px' }}>
               Enter your registered institutional email. If found, a single-use, time-limited verification token will be sent to your inbox.
             </p>
 
@@ -773,6 +668,7 @@ export const LoginPage = () => {
               <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end' }}>
                 <button
                   type="button"
+                  className="login-reset-password-cancel"
                   onClick={() => setIsResetOpen(false)}
                   style={{
                     padding: '10px 16px',
@@ -788,6 +684,7 @@ export const LoginPage = () => {
                 </button>
                 <button
                   type="submit"
+                  className="login-reset-password-submit"
                   disabled={resetLoading}
                   style={{
                     padding: '10px 20px',

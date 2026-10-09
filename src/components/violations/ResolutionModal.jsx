@@ -1035,9 +1035,10 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
 
   // Shared form content for both desktop sidebar and mobile slide-up drawer
   const renderFormContent = () => (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+    <div className="res-form-content" style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
       {/* Student & Incident Bio Card */}
       <div
+        className="res-student-card"
         style={{
           background: '#ffffff',
           border: '1.5px solid #e2e8f0',
@@ -1076,6 +1077,7 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
         </div>
 
         <div
+          className="res-violation-summary-card"
           style={{
             background: '#f8fafc',
             border: '1px solid #e2e8f0',
@@ -1087,10 +1089,11 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
             gap: '6px'
           }}
         >
-          <span style={{ fontSize: '11.5px', fontWeight: 700, color: '#0f172a', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+          <span className="res-violation-summary-title" style={{ fontSize: '11.5px', fontWeight: 700, color: '#0f172a', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
             {record.violation?.title || record.offense || 'Infraction'}
           </span>
           <span
+            className={`res-severity-badge ${severityStyle.color === '#dc2626' ? 'is-major' : severityStyle.color === '#a16207' ? 'is-serious' : 'is-minor'}`}
             style={{
               fontSize: '9.5px',
               fontWeight: 800,
@@ -1121,6 +1124,7 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
               <button
                 key={key}
                 type="button"
+                className={`res-status-option${isSelected ? ' is-selected' : ''} status-${key.toLowerCase()}`}
                 onClick={() => setStatus(key)}
                 style={{
                   display: 'flex',
@@ -1176,6 +1180,7 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
             <button
               key={idx}
               type="button"
+              className={`res-preset-button${sanction === p ? ' is-selected' : ''}`}
               onClick={() => handleApplyPreset(p)}
               style={{
                 background: sanction === p ? '#0f172a' : '#ffffff',
@@ -1229,6 +1234,7 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
             <button
               key={idx}
               type="button"
+              className="res-note-snippet"
               onClick={() => handleAppendSnippet(snip)}
               style={{
                 background: '#ffffff',
@@ -1250,7 +1256,7 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
       </div>
 
       {/* 4. Presiding Officer Signatory */}
-      <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '10px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+      <div className="res-officer-card" style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '10px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
         <span style={{ fontSize: '11px', fontWeight: 700, color: '#0f172a' }}>
           Presiding Officer Signatory
         </span>
@@ -1318,7 +1324,7 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
 
   return (
     <div
-      className="modal-backdrop-smooth"
+      className="modal-backdrop-smooth resolution-modal-backdrop"
       style={{
         position: 'fixed',
         inset: 0,
@@ -1711,6 +1717,7 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0, flex: 1, overflow: 'hidden' }}>
             <button
               type="button"
+              className="res-header-back-btn"
               onClick={onClose}
               style={{
                 background: '#f8fafc',
@@ -1757,6 +1764,7 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
             {/* Download PDF Button */}
             <button
               type="button"
+              className="res-header-download-btn"
               onClick={handleDownloadPDF}
               style={{
                 background: '#ffffff',
@@ -1782,6 +1790,7 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
 
             <button
               type="button"
+              className="res-header-print-btn"
               onClick={handlePrintResolutionCertificate}
               style={{
                 background: '#0f172a',
@@ -1813,6 +1822,7 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
 
             <button
               type="button"
+              className="res-header-close-btn"
               onClick={onClose}
               style={{
                 background: '#f8fafc',
@@ -1973,7 +1983,7 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '11px', color: '#64748b', marginBottom: '12px', fontFamily: 'inherit', borderBottom: '1px dotted #cbd5e1', paddingBottom: '4px', flexWrap: 'wrap', gap: '4px' }}>
                     <span>Control No: <strong style={{ color: '#0f172a', fontFamily: 'monospace' }}>{controlNumber}</strong></span>
                     <span>Date Issued: <strong style={{ color: '#0f172a' }}>{currentDateFormatted}</strong></span>
-                    <span>Status: <strong style={{ color: status === 'Resolved' ? '#15803d' : '#07345f', textTransform: 'uppercase' }}>{status}</strong></span>
+                    <span>Status: <strong className={`res-preview-status${status === 'Resolved' ? ' is-resolved' : ''}`} style={{ color: status === 'Resolved' ? '#15803d' : '#07345f', textTransform: 'uppercase' }}>{status}</strong></span>
                   </div>
 
                   {/* Document Certificate Title */}
@@ -2008,7 +2018,7 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
                         </tr>
                         <tr style={{ background: '#f8fafc' }}>
                           <td style={{ padding: '6px 10px', border: '1px solid #cbd5e1', fontWeight: 700, color: '#07345f' }}>Final Disposition:</td>
-                          <td style={{ padding: '6px 10px', border: '1px solid #cbd5e1', fontWeight: 800, color: status === 'Resolved' ? '#15803d' : '#07345f', textTransform: 'uppercase' }}>{status}</td>
+                          <td className={`res-preview-status${status === 'Resolved' ? ' is-resolved' : ''}`} style={{ padding: '6px 10px', border: '1px solid #cbd5e1', fontWeight: 800, color: status === 'Resolved' ? '#15803d' : '#07345f', textTransform: 'uppercase' }}>{status}</td>
                         </tr>
                       </tbody>
                     </table>

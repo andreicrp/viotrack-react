@@ -243,8 +243,8 @@ export const CommandPalette = ({
       title: isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode',
       subtitle: `Toggle visual theme (currently ${isDark ? 'Dark' : 'Light'})`,
       icon: isDark ? Sun : Moon,
-      action: () => {
-        toggleTheme();
+      action: (event) => {
+        toggleTheme(event);
       }
     }
   ], [onOpenAddViolation, onOpenPrintData, onOpenGuide, lockScreen, isDark, toggleTheme]);
@@ -315,7 +315,7 @@ export const CommandPalette = ({
       const item = filteredResults[selectedIndex];
       if (item && typeof item.action === 'function') {
         onClose();
-        item.action();
+        item.action(event);
       }
     } else if (e.key === 'Escape') {
       e.preventDefault();
@@ -341,8 +341,9 @@ export const CommandPalette = ({
         position: 'fixed',
         inset: 0,
         zIndex: 10000,
-        background: 'rgba(15, 23, 42, 0.55)',
-        backdropFilter: 'blur(5px)',
+        background: 'rgba(15, 23, 42, 0.65)',
+        backdropFilter: 'blur(6px)',
+        WebkitBackdropFilter: 'blur(6px)',
         display: 'flex',
         alignItems: 'flex-start',
         justifyContent: 'center',
@@ -352,12 +353,13 @@ export const CommandPalette = ({
       onClick={onClose}
     >
       <div
+        className="cmd-palette-card"
         style={{
           width: '100%',
           maxWidth: '640px',
-          background: '#ffffff',
+          background: 'var(--bg-surface, #ffffff)',
           borderRadius: '16px',
-          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 0 1px #cbd5e1',
+          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px var(--border-subtle, #cbd5e1)',
           overflow: 'hidden',
           display: 'flex',
           flexDirection: 'column',
@@ -367,16 +369,17 @@ export const CommandPalette = ({
       >
         {/* Search Header Input */}
         <div
+          className="cmd-palette-header"
           style={{
             display: 'flex',
             alignItems: 'center',
             gap: '12px',
             padding: '14px 18px',
-            borderBottom: '1px solid #e2e8f0',
-            background: '#ffffff'
+            borderBottom: '1px solid var(--border-subtle, #e2e8f0)',
+            background: 'var(--bg-surface, #ffffff)'
           }}
         >
-          <Search size={19} color="#07345f" style={{ flexShrink: 0 }} />
+          <Search size={19} color="var(--brand-blue, #07345f)" style={{ flexShrink: 0 }} />
           <input
             ref={inputRef}
             type="text"
@@ -384,12 +387,13 @@ export const CommandPalette = ({
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Search students by name or LRN, jump to page, or run action..."
+            className="cmd-palette-input"
             style={{
               flex: 1,
               border: 'none',
               outline: 'none',
               fontSize: '14.5px',
-              color: '#0f172a',
+              color: 'var(--text-primary, #0f172a)',
               background: 'transparent',
               fontWeight: 500
             }}
@@ -402,7 +406,7 @@ export const CommandPalette = ({
                 if (inputRef.current) inputRef.current.focus();
               }}
               style={{
-                background: '#f1f5f9',
+                background: 'var(--bg-surface-elevated, #f1f5f9)',
                 border: 'none',
                 borderRadius: '50%',
                 width: '22px',
@@ -411,7 +415,7 @@ export const CommandPalette = ({
                 alignItems: 'center',
                 justifyContent: 'center',
                 cursor: 'pointer',
-                color: '#64748b'
+                color: 'var(--text-muted, #64748b)'
               }}
             >
               <X size={12} />
@@ -420,11 +424,11 @@ export const CommandPalette = ({
             <kbd
               style={{
                 fontSize: '10.5px',
-                background: '#f1f5f9',
-                border: '1px solid #cbd5e1',
+                background: 'var(--bg-surface-elevated, #f1f5f9)',
+                border: '1px solid var(--border-subtle, #cbd5e1)',
                 borderRadius: '5px',
                 padding: '2px 6px',
-                color: '#64748b',
+                color: 'var(--text-muted, #64748b)',
                 fontWeight: 700,
                 fontFamily: 'monospace'
               }}
@@ -437,6 +441,7 @@ export const CommandPalette = ({
         {/* Results List */}
         <div
           ref={listRef}
+          className="cmd-palette-list"
           style={{
             overflowY: 'auto',
             padding: '8px',
@@ -447,11 +452,11 @@ export const CommandPalette = ({
           }}
         >
           {filteredResults.length === 0 ? (
-            <div style={{ padding: '36px 20px', textAlign: 'center', color: '#64748b' }}>
-              <div style={{ width: '42px', height: '42px', borderRadius: '50%', background: '#f8fafc', border: '1px solid #e2e8f0', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 10px', color: '#94a3b8' }}>
+            <div style={{ padding: '36px 20px', textAlign: 'center', color: 'var(--text-muted, #64748b)' }}>
+              <div style={{ width: '42px', height: '42px', borderRadius: '50%', background: 'var(--bg-surface-elevated, #f8fafc)', border: '1px solid var(--border-subtle, #e2e8f0)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 10px', color: 'var(--text-muted, #94a3b8)' }}>
                 <Search size={20} />
               </div>
-              <p style={{ margin: '0 0 4px', fontSize: '13.5px', fontWeight: 700, color: '#0f172a' }}>
+              <p style={{ margin: '0 0 4px', fontSize: '13.5px', fontWeight: 700, color: 'var(--text-primary, #0f172a)' }}>
                 No results found for "{query}"
               </p>
               <span style={{ fontSize: '12px' }}>
@@ -467,7 +472,8 @@ export const CommandPalette = ({
                 <div
                   key={item.id}
                   data-active={isActive}
-                  onClick={() => {
+                  className={`cmd-palette-item ${isActive ? 'active' : ''}`}
+                  onClick={(event) => {
                     onClose();
                     item.action();
                   }}
@@ -478,24 +484,25 @@ export const CommandPalette = ({
                     justifyContent: 'space-between',
                     padding: '10px 12px',
                     borderRadius: '10px',
-                    background: isActive ? '#f1f5f9' : 'transparent',
+                    background: isActive ? (isDark ? '#ffffff' : '#eff6ff') : 'transparent',
                     cursor: 'pointer',
                     transition: 'all 0.1s ease',
-                    border: isActive ? '1px solid #cbd5e1' : '1px solid transparent'
+                    border: isActive ? (isDark ? '1px solid #ffffff' : '1px solid #bfdbfe') : '1px solid transparent'
                   }}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: 0 }}>
                     <div
+                      className="cmd-item-icon-wrap"
                       style={{
                         width: '34px',
                         height: '34px',
                         borderRadius: '8px',
-                        background: isActive ? '#ffffff' : '#f8fafc',
-                        border: '1px solid #e2e8f0',
+                        background: isActive ? (isDark ? '#ffffff' : 'var(--brand-blue, #07345f)') : 'var(--bg-surface-elevated, #f8fafc)',
+                        border: '1px solid var(--border-subtle, #e2e8f0)',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
-                        color: '#07345f',
+                        color: isActive ? (isDark ? '#080808' : '#ffffff') : 'var(--brand-blue, #07345f)',
                         flexShrink: 0
                       }}
                     >
@@ -503,32 +510,33 @@ export const CommandPalette = ({
                     </div>
                     <div style={{ minWidth: 0 }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                        <span style={{ fontSize: '13.5px', fontWeight: 700, color: '#0f172a', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                        <span className="cmd-item-title" style={{ fontSize: '13.5px', fontWeight: 700, color: 'var(--text-primary, #0f172a)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                           {item.title}
                         </span>
                         <span
                           style={{
                             fontSize: '9.5px',
                             fontWeight: 700,
-                            color: item.category === 'Students' ? '#0369a1' : item.category === 'Quick Actions' ? '#059669' : '#64748b',
-                            background: item.category === 'Students' ? '#e0f2fe' : item.category === 'Quick Actions' ? '#ecfdf5' : '#f1f5f9',
-                            padding: '1px 6px',
-                            borderRadius: '4px',
+                            color: item.category === 'Students' ? (isDark ? '#38bdf8' : '#0369a1') : item.category === 'Quick Actions' ? (isDark ? '#34d399' : '#059669') : (isDark ? '#94a3b8' : '#64748b'),
+                            background: item.category === 'Students' ? (isDark ? 'rgba(56, 189, 248, 0.15)' : '#e0f2fe') : item.category === 'Quick Actions' ? (isDark ? 'rgba(16, 185, 129, 0.15)' : '#ecfdf5') : (isDark ? 'rgba(148, 163, 184, 0.15)' : '#f1f5f9'),
+                            padding: '1px 7px',
+                            borderRadius: '20px',
                             textTransform: 'uppercase',
                             letterSpacing: '0.03em',
-                            flexShrink: 0
+                            flexShrink: 0,
+                            border: item.category === 'Students' ? (isDark ? '1px solid rgba(56, 189, 248, 0.3)' : '1px solid #bae6fd') : item.category === 'Quick Actions' ? (isDark ? '1px solid rgba(16, 185, 129, 0.3)' : '1px solid #a7f3d0') : (isDark ? '1px solid rgba(148, 163, 184, 0.3)' : '1px solid #e2e8f0')
                           }}
                         >
                           {item.category}
                         </span>
                       </div>
-                      <span style={{ fontSize: '11.5px', color: '#64748b', display: 'block', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', marginTop: '1px' }}>
+                      <span className="cmd-item-subtitle" style={{ fontSize: '11.5px', color: isActive ? (isDark ? '#404040' : '#1e40af') : 'var(--text-muted, #64748b)', display: 'block', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', marginTop: '1px' }}>
                         {item.subtitle}
                       </span>
                     </div>
                   </div>
 
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: isActive ? '#07345f' : '#94a3b8', flexShrink: 0, paddingLeft: '8px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: isActive ? 'var(--brand-blue, #07345f)' : 'var(--text-muted, #94a3b8)', flexShrink: 0, paddingLeft: '8px' }}>
                     <CornerDownLeft size={13} />
                   </div>
                 </div>
@@ -539,34 +547,35 @@ export const CommandPalette = ({
 
         {/* Footer Shortcut Hints */}
         <div
+          className="cmd-palette-footer"
           style={{
             padding: '10px 16px',
-            background: '#f8fafc',
-            borderTop: '1px solid #e2e8f0',
+            background: 'var(--bg-surface-elevated, #f8fafc)',
+            borderTop: '1px solid var(--border-subtle, #e2e8f0)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
             fontSize: '11.5px',
-            color: '#64748b'
+            color: 'var(--text-muted, #64748b)'
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
             <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-              <kbd style={{ background: '#ffffff', border: '1px solid #cbd5e1', borderRadius: '4px', padding: '1px 5px', fontSize: '10px', color: '#0f172a' }}>↑</kbd>
-              <kbd style={{ background: '#ffffff', border: '1px solid #cbd5e1', borderRadius: '4px', padding: '1px 5px', fontSize: '10px', color: '#0f172a' }}>↓</kbd>
+              <kbd style={{ background: 'var(--bg-surface, #ffffff)', border: '1px solid var(--border-medium, #cbd5e1)', borderRadius: '4px', padding: '1px 5px', fontSize: '10px', color: 'var(--text-primary, #0f172a)' }}>↑</kbd>
+              <kbd style={{ background: 'var(--bg-surface, #ffffff)', border: '1px solid var(--border-medium, #cbd5e1)', borderRadius: '4px', padding: '1px 5px', fontSize: '10px', color: 'var(--text-primary, #0f172a)' }}>↓</kbd>
               <span>to navigate</span>
             </span>
             <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-              <kbd style={{ background: '#ffffff', border: '1px solid #cbd5e1', borderRadius: '4px', padding: '1px 5px', fontSize: '10px', color: '#0f172a' }}>↵</kbd>
+              <kbd style={{ background: 'var(--bg-surface, #ffffff)', border: '1px solid var(--border-medium, #cbd5e1)', borderRadius: '4px', padding: '1px 5px', fontSize: '10px', color: 'var(--text-primary, #0f172a)' }}>↵</kbd>
               <span>to select</span>
             </span>
             <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-              <kbd style={{ background: '#ffffff', border: '1px solid #cbd5e1', borderRadius: '4px', padding: '1px 5px', fontSize: '10px', color: '#0f172a' }}>ESC</kbd>
+              <kbd style={{ background: 'var(--bg-surface, #ffffff)', border: '1px solid var(--border-medium, #cbd5e1)', borderRadius: '4px', padding: '1px 5px', fontSize: '10px', color: 'var(--text-primary, #0f172a)' }}>ESC</kbd>
               <span>to close</span>
             </span>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', fontWeight: 600, color: '#07345f' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '11px', fontWeight: 600, color: 'var(--brand-blue, #07345f)' }}>
             <Command size={12} />
             <span>VioTrack Quick Command</span>
           </div>

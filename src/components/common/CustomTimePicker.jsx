@@ -178,6 +178,7 @@ export const CustomTimePicker = ({
         type="button"
         disabled={disabled}
         onClick={() => !disabled && setIsOpen(!isOpen)}
+        className={isOpen ? 'custom-time-picker-trigger is-open' : 'custom-time-picker-trigger'}
         style={{
           width: '100%',
           display: 'flex',
@@ -215,6 +216,7 @@ export const CustomTimePicker = ({
       {isOpen && typeof document !== 'undefined' && createPortal(
         <div
           ref={popoverRef}
+          className={className.split(/\s+/).includes('psm-conference-time-picker') ? 'psm-conference-time-popover' : undefined}
           style={{
             position: 'fixed',
             top: `${popoverCoords.top}px`,
@@ -249,7 +251,7 @@ export const CustomTimePicker = ({
             <span style={{ fontSize: '10.5px', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
               Selected Time
             </span>
-            <span style={{ fontSize: '13px', fontWeight: 800, color: '#07345f' }}>
+            <span className="psm-time-selected-label" style={{ fontSize: '13px', fontWeight: 800, color: '#07345f' }}>
               {displayLabel}
             </span>
           </div>
@@ -464,6 +466,7 @@ export const CustomTimePicker = ({
                     <button
                       key={p}
                       type="button"
+                      data-selected={isSelected ? 'true' : 'false'}
                       onClick={() => handleSelectPeriod(p)}
                       style={{
                         padding: '8px 0',
@@ -509,6 +512,7 @@ export const CustomTimePicker = ({
                 <button
                   key={preset.value}
                   type="button"
+                  className="psm-time-picker-preset"
                   onClick={() => handlePreset(preset.value)}
                   style={{
                     padding: '2.5px 6px',
@@ -533,6 +537,7 @@ export const CustomTimePicker = ({
           {/* Done Button */}
           <button
             type="button"
+            className="psm-time-picker-done"
             onClick={() => setIsOpen(false)}
             style={{
               width: '100%',
@@ -562,5 +567,3 @@ export const CustomTimePicker = ({
     </div>
   );
 };
-
-

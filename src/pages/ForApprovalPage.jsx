@@ -408,7 +408,7 @@ export const ForApprovalPage = () => {
     const headers = ['Student Name', 'Student ID', 'Grade', 'Section', 'Offense', 'Severity', 'Sanction', 'Reported By', 'Approval Status', 'Date Reported', 'Remarks'];
     const rows = filteredRecords.map(r => [
       `${r.student?.fname || ''} ${r.student?.lname || ''}`.trim(),
-      r.student?.lrn || 'N/A',
+      r.student?.student_id || r.student?.lrn || 'N/A',
       r.student?.grade || 'N/A',
       r.student?.section || 'N/A',
       r.violation?.title || 'N/A',
@@ -484,12 +484,12 @@ export const ForApprovalPage = () => {
   const getSeverityBadge = (type) => {
     const t = (type || 'Minor').toLowerCase();
     if (t.includes('major')) {
-      return { bg: '#fef2f2', color: '#dc2626', border: '#fecaca', label: 'Major Offense' };
+      return { className: 'badge-major', bg: '#fef2f2', color: '#dc2626', border: '#fecaca', label: 'Major Offense' };
     }
     if (t.includes('serious')) {
-      return { bg: '#fef9c3', color: '#a16207', border: '#fde047', label: 'Serious Offense' };
+      return { className: 'badge-serious', bg: '#fef9c3', color: '#a16207', border: '#fde047', label: 'Serious Offense' };
     }
-    return { bg: '#f0fdf4', color: '#16a34a', border: '#bbf7d0', label: 'Minor Offense' };
+    return { className: 'badge-minor', bg: '#f0fdf4', color: '#16a34a', border: '#bbf7d0', label: 'Minor Offense' };
   };
 
   return (
@@ -497,12 +497,12 @@ export const ForApprovalPage = () => {
       {/* 1. Page Banner Header */}
       <div className="page-banner-header">
         <div className="page-banner-info">
-          <ShieldAlert size={26} strokeWidth={2.4} color="#0f172a" style={{ flexShrink: 0 }} />
+          <ShieldAlert size={26} strokeWidth={2.4} style={{ flexShrink: 0, color: 'var(--brand-blue, #07345f)' }} />
           <div>
-            <h2 style={{ fontSize: '20px', fontWeight: 800, margin: 0, color: '#0f172a', letterSpacing: '-0.02em' }}>
+            <h2 style={{ fontSize: '20px', fontWeight: 800, margin: 0, color: 'var(--text-primary, #0f172a)', letterSpacing: '-0.02em' }}>
               Violations For Approval
             </h2>
-            <p style={{ margin: '3px 0 0 0', fontSize: '13px', color: '#64748b' }}>
+            <p style={{ margin: '3px 0 0 0', fontSize: '13px', color: 'var(--text-muted, #64748b)' }}>
               Review, verify, approve, or reject violation reports submitted by teaching faculty before sanctions take effect.
             </p>
           </div>
@@ -553,7 +553,7 @@ export const ForApprovalPage = () => {
       </div>
 
       {/* Main Container */}
-      <div className="card" style={{ padding: '22px', background: '#ffffff', borderRadius: '16px', border: '1px solid #e2e8f0', boxShadow: '0 4px 20px rgba(0, 0, 0, 0.04)' }}>
+      <div className="card" style={{ padding: '22px', background: 'var(--bg-surface, #ffffff)', borderRadius: '16px', border: '1px solid var(--border-subtle, #e2e8f0)', boxShadow: '0 4px 20px rgba(0, 0, 0, 0.04)' }}>
         
         {/* 2. Stat Filter Cards */}
         <div className="metric-cards-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))', gap: '12px', marginBottom: '20px' }}>
@@ -562,29 +562,29 @@ export const ForApprovalPage = () => {
           <div
             onClick={() => { setApprovalFilter('Under Approval'); setCurrentPage(1); }}
             style={{
-              background: '#ffffff',
-              border: approvalFilter === 'Under Approval' ? '2px solid #07345f' : '1.5px solid #cbd5e1',
+              background: 'var(--bg-surface-elevated, #ffffff)',
+              border: approvalFilter === 'Under Approval' ? '2px solid var(--brand-blue, #07345f)' : '1.5px solid var(--border-subtle, #cbd5e1)',
               borderRadius: '12px',
               padding: '14px 16px',
               cursor: 'pointer',
               transition: 'all 0.15s ease',
-              boxShadow: approvalFilter === 'Under Approval' ? '0 4px 14px rgba(7, 52, 95, 0.10)' : '0 1px 3px rgba(0,0,0,0.02)',
+              boxShadow: approvalFilter === 'Under Approval' ? '0 4px 14px rgba(56, 189, 248, 0.15)' : '0 1px 3px rgba(0,0,0,0.02)',
               position: 'relative'
             }}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div>
-                <div style={{ fontSize: '11.5px', fontWeight: 800, color: '#07345f', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                <div style={{ fontSize: '11.5px', fontWeight: 800, color: 'var(--brand-blue, #07345f)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                   Under Approval
                 </div>
-                <div style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', margin: '4px 0 2px 0', lineHeight: 1.1 }}>
+                <div style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-primary, #0f172a)', margin: '4px 0 2px 0', lineHeight: 1.1 }}>
                   {stats.pending}
                 </div>
-                <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 500 }}>
+                <div style={{ fontSize: '11px', color: 'var(--text-muted, #64748b)', fontWeight: 500 }}>
                   Awaiting review
                 </div>
               </div>
-              <Clock size={20} color="#07345f" strokeWidth={2} />
+              <Clock size={20} color="var(--brand-blue, #07345f)" strokeWidth={2} />
             </div>
           </div>
 
@@ -592,29 +592,29 @@ export const ForApprovalPage = () => {
           <div
             onClick={() => { setApprovalFilter('Approved'); setCurrentPage(1); }}
             style={{
-              background: '#ffffff',
-              border: approvalFilter === 'Approved' ? '2px solid #07345f' : '1.5px solid #cbd5e1',
+              background: 'var(--bg-surface-elevated, #ffffff)',
+              border: approvalFilter === 'Approved' ? '2px solid var(--brand-blue, #07345f)' : '1.5px solid var(--border-subtle, #cbd5e1)',
               borderRadius: '12px',
               padding: '14px 16px',
               cursor: 'pointer',
               transition: 'all 0.15s ease',
-              boxShadow: approvalFilter === 'Approved' ? '0 4px 14px rgba(7, 52, 95, 0.10)' : '0 1px 3px rgba(0,0,0,0.02)',
+              boxShadow: approvalFilter === 'Approved' ? '0 4px 14px rgba(56, 189, 248, 0.15)' : '0 1px 3px rgba(0,0,0,0.02)',
               position: 'relative'
             }}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div>
-                <div style={{ fontSize: '11.5px', fontWeight: 800, color: '#07345f', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                <div style={{ fontSize: '11.5px', fontWeight: 800, color: 'var(--brand-blue, #07345f)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                   Approved Cases
                 </div>
-                <div style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', margin: '4px 0 2px 0', lineHeight: 1.1 }}>
+                <div style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-primary, #0f172a)', margin: '4px 0 2px 0', lineHeight: 1.1 }}>
                   {stats.approved}
                 </div>
-                <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 500 }}>
+                <div style={{ fontSize: '11px', color: 'var(--text-muted, #64748b)', fontWeight: 500 }}>
                   Sanctions active
                 </div>
               </div>
-              <ShieldCheck size={20} color="#07345f" strokeWidth={2} />
+              <ShieldCheck size={20} color="var(--brand-blue, #07345f)" strokeWidth={2} />
             </div>
           </div>
 
@@ -622,29 +622,29 @@ export const ForApprovalPage = () => {
           <div
             onClick={() => { setApprovalFilter('Rejected'); setCurrentPage(1); }}
             style={{
-              background: '#ffffff',
-              border: approvalFilter === 'Rejected' ? '2px solid #07345f' : '1.5px solid #cbd5e1',
+              background: 'var(--bg-surface-elevated, #ffffff)',
+              border: approvalFilter === 'Rejected' ? '2px solid var(--brand-blue, #07345f)' : '1.5px solid var(--border-subtle, #cbd5e1)',
               borderRadius: '12px',
               padding: '14px 16px',
               cursor: 'pointer',
               transition: 'all 0.15s ease',
-              boxShadow: approvalFilter === 'Rejected' ? '0 4px 14px rgba(7, 52, 95, 0.10)' : '0 1px 3px rgba(0,0,0,0.02)',
+              boxShadow: approvalFilter === 'Rejected' ? '0 4px 14px rgba(56, 189, 248, 0.15)' : '0 1px 3px rgba(0,0,0,0.02)',
               position: 'relative'
             }}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div>
-                <div style={{ fontSize: '11.5px', fontWeight: 800, color: '#07345f', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                <div style={{ fontSize: '11.5px', fontWeight: 800, color: 'var(--brand-blue, #07345f)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                   Rejected Reports
                 </div>
-                <div style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', margin: '4px 0 2px 0', lineHeight: 1.1 }}>
+                <div style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-primary, #0f172a)', margin: '4px 0 2px 0', lineHeight: 1.1 }}>
                   {stats.rejected}
                 </div>
-                <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 500 }}>
+                <div style={{ fontSize: '11px', color: 'var(--text-muted, #64748b)', fontWeight: 500 }}>
                   Returned to teacher
                 </div>
               </div>
-              <UserX size={20} color="#07345f" strokeWidth={2} />
+              <UserX size={20} color="var(--brand-blue, #07345f)" strokeWidth={2} />
             </div>
           </div>
 
@@ -652,29 +652,29 @@ export const ForApprovalPage = () => {
           <div
             onClick={() => { setApprovalFilter('all'); setCurrentPage(1); }}
             style={{
-              background: '#ffffff',
-              border: approvalFilter === 'all' ? '2px solid #07345f' : '1.5px solid #cbd5e1',
+              background: 'var(--bg-surface-elevated, #ffffff)',
+              border: approvalFilter === 'all' ? '2px solid var(--brand-blue, #07345f)' : '1.5px solid var(--border-subtle, #cbd5e1)',
               borderRadius: '12px',
               padding: '14px 16px',
               cursor: 'pointer',
               transition: 'all 0.15s ease',
-              boxShadow: approvalFilter === 'all' ? '0 4px 14px rgba(7, 52, 95, 0.10)' : '0 1px 3px rgba(0,0,0,0.02)',
+              boxShadow: approvalFilter === 'all' ? '0 4px 14px rgba(56, 189, 248, 0.15)' : '0 1px 3px rgba(0,0,0,0.02)',
               position: 'relative'
             }}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
               <div>
-                <div style={{ fontSize: '11.5px', fontWeight: 800, color: '#07345f', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                <div style={{ fontSize: '11.5px', fontWeight: 800, color: 'var(--brand-blue, #07345f)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                   All Submissions
                 </div>
-                <div style={{ fontSize: '24px', fontWeight: 800, color: '#0f172a', margin: '4px 0 2px 0', lineHeight: 1.1 }}>
+                <div style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-primary, #0f172a)', margin: '4px 0 2px 0', lineHeight: 1.1 }}>
                   {stats.total}
                 </div>
-                <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 500 }}>
+                <div style={{ fontSize: '11px', color: 'var(--text-muted, #64748b)', fontWeight: 500 }}>
                   Total logged reports
                 </div>
               </div>
-              <Layers size={20} color="#07345f" strokeWidth={2} />
+              <Layers size={20} color="var(--brand-blue, #07345f)" strokeWidth={2} />
             </div>
           </div>
 
@@ -695,14 +695,15 @@ export const ForApprovalPage = () => {
                 width: '100%',
                 padding: '9px 12px 9px 36px',
                 borderRadius: '10px',
-                border: '1.5px solid #cbd5e1',
+                border: '1.5px solid var(--border-subtle, #cbd5e1)',
                 fontSize: '13.5px',
                 outline: 'none',
-                background: '#f8fafc',
+                color: 'var(--text-primary, #0f172a)',
+                background: 'var(--bg-input, #f8fafc)',
                 transition: 'border-color 0.15s'
               }}
-              onFocus={(e) => { e.target.style.borderColor = '#07345f'; e.target.style.background = '#fff'; }}
-              onBlur={(e) => { e.target.style.borderColor = '#cbd5e1'; e.target.style.background = '#f8fafc'; }}
+              onFocus={(e) => { e.target.style.borderColor = 'var(--brand-blue, #07345f)'; e.target.style.background = 'var(--bg-surface, #fff)'; }}
+              onBlur={(e) => { e.target.style.borderColor = 'var(--border-subtle, #cbd5e1)'; e.target.style.background = 'var(--bg-input, #f8fafc)'; }}
             />
             {searchTerm && (
               <button
@@ -825,6 +826,7 @@ export const ForApprovalPage = () => {
         {loading ? (
           <div style={{ padding: '60px 0', textAlign: 'center' }}>
             <div
+              className="approval-empty-state"
               style={{
                 width: '36px',
                 height: '36px',
@@ -847,11 +849,11 @@ export const ForApprovalPage = () => {
               border: '1.5px dashed #cbd5e1'
             }}
           >
-            <ShieldCheck size={42} color="#94a3b8" style={{ margin: '0 auto 10px auto' }} />
-            <h4 style={{ margin: '0 0 6px 0', fontSize: '16px', fontWeight: 800, color: '#334155' }}>
+            <ShieldCheck className="approval-empty-icon" size={42} color="#94a3b8" style={{ margin: '0 auto 10px auto' }} />
+            <h4 className="approval-empty-title" style={{ margin: '0 0 6px 0', fontSize: '16px', fontWeight: 800, color: '#334155' }}>
               No Records Matching Filter
             </h4>
-            <p style={{ margin: 0, fontSize: '13px', color: '#64748b' }}>
+            <p className="approval-empty-description" style={{ margin: 0, fontSize: '13px', color: '#64748b' }}>
               {approvalFilter === 'Under Approval'
                 ? 'All teacher-submitted incident reports have been reviewed and approved!'
                 : 'Try adjusting your search keywords or severity filter.'}
@@ -861,7 +863,7 @@ export const ForApprovalPage = () => {
           <>
             {/* Desktop View Table */}
             <div
-              className={`responsive-table-desktop table-container ${viewMode === 'grid' ? 'force-hidden' : ''}`}
+              className={`responsive-table-desktop table-container approval-table-container ${viewMode === 'grid' ? 'force-hidden' : ''}`}
               style={{ overflowX: 'auto', border: '1px solid #e2e8f0', borderRadius: '12px' }}
             >
               <table className="custom-table" style={{ width: '100%', borderCollapse: 'collapse' }}>
@@ -969,12 +971,13 @@ export const ForApprovalPage = () => {
                               {v.title || v.name || 'Disciplinary Violation'}
                             </span>
                             <span
+                              className={sevBadge.className}
                               style={{
                                 display: 'inline-flex',
                                 alignItems: 'center',
                                 width: 'fit-content',
-                                padding: '2px 7px',
-                                borderRadius: '6px',
+                                padding: '3px 9px',
+                                borderRadius: '20px',
                                 fontSize: '10.5px',
                                 fontWeight: 700,
                                 background: sevBadge.bg,
@@ -1011,10 +1014,10 @@ export const ForApprovalPage = () => {
                         <td style={{ padding: '12px 14px' }}>
                           {isPending && (
                             <span
+                              className="approval-status-pill approval-status-pill--pending"
                               style={{
                                 display: 'inline-flex',
                                 alignItems: 'center',
-                                gap: '6px',
                                 background: '#fffbeb',
                                 color: '#d97706',
                                 border: '1px solid #fde68a',
@@ -1024,12 +1027,12 @@ export const ForApprovalPage = () => {
                                 fontWeight: 800
                               }}
                             >
-                              <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#d97706', animation: 'pulse 1.5s infinite' }} />
                               Under Approval
                             </span>
                           )}
                           {isApproved && (
                             <span
+                              className="approval-status-pill approval-status-pill--approved"
                               style={{
                                 display: 'inline-flex',
                                 alignItems: 'center',
@@ -1049,6 +1052,7 @@ export const ForApprovalPage = () => {
                           )}
                           {isRejected && (
                             <span
+                              className="approval-status-pill approval-status-pill--rejected"
                               title={r.rejection_reason || 'Declined'}
                               style={{
                                 display: 'inline-flex',
@@ -1077,7 +1081,7 @@ export const ForApprovalPage = () => {
                             <button
                               type="button"
                               onClick={() => setInspectRecord(r)}
-                              className="entity-grid-btn"
+                              className="entity-grid-btn approval-row-view-btn"
                               title="Inspect Details"
                               style={{ padding: '5px 8px', borderRadius: '6px', fontSize: '11.5px', border: '1px solid #cbd5e1', background: '#f8fafc' }}
                             >
@@ -1090,6 +1094,7 @@ export const ForApprovalPage = () => {
                                 <button
                                   type="button"
                                   onClick={() => handleOpenApproveModal(r)}
+                                  className="approval-row-approve-btn"
                                   style={{
                                     padding: '5px 10px',
                                     borderRadius: '6px',
@@ -1112,6 +1117,7 @@ export const ForApprovalPage = () => {
                                 <button
                                   type="button"
                                   onClick={() => handleOpenRejectModal(r)}
+                                  className="approval-row-reject-btn"
                                   style={{
                                     padding: '5px 10px',
                                     borderRadius: '6px',
@@ -1178,6 +1184,7 @@ export const ForApprovalPage = () => {
                           style={{ cursor: 'pointer', width: '16px', height: '16px', accentColor: '#07345f' }}
                         />
                         <span
+                          className={`approval-status-pill ${isPending ? 'approval-status-pill--pending' : isApproved ? 'approval-status-pill--approved' : 'approval-status-pill--rejected'}`}
                           style={{
                             fontSize: '10.5px',
                             fontWeight: 800,
@@ -1223,13 +1230,15 @@ export const ForApprovalPage = () => {
                         </div>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '4px' }}>
                           <span
+                            className={sevBadge.className}
                             style={{
                               fontSize: '10px',
                               fontWeight: 700,
-                              padding: '1px 6px',
-                              borderRadius: '4px',
+                              padding: '2px 8px',
+                              borderRadius: '20px',
                               background: sevBadge.bg,
-                              color: sevBadge.color
+                              color: sevBadge.color,
+                              border: `1px solid ${sevBadge.border}`
                             }}
                           >
                             {sevBadge.label}
@@ -1382,6 +1391,7 @@ export const ForApprovalPage = () => {
                         </div>
                         <div style={{ flexShrink: 0 }}>
                           <span
+                            className={`approval-status-pill ${isPending ? 'approval-status-pill--pending' : isApproved ? 'approval-status-pill--approved' : 'approval-status-pill--rejected'}`}
                             style={{
                               fontSize: '10.5px',
                               fontWeight: 800,
@@ -1525,8 +1535,8 @@ export const ForApprovalPage = () => {
         )}
 
         {/* 5. Pagination Footer */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '18px', paddingTop: '14px', borderTop: '1px solid #f1f5f9', flexWrap: 'wrap', gap: '10px' }}>
-          <span style={{ fontSize: '13px', color: '#64748b' }}>
+        <div className="approval-pagination-footer" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '18px', paddingTop: '14px', borderTop: '1px solid #f1f5f9', flexWrap: 'wrap', gap: '10px' }}>
+          <span className="approval-pagination-count" style={{ fontSize: '13px', color: '#64748b' }}>
             Showing {filteredRecords.length === 0 ? 0 : (currentPage - 1) * entriesPerPage + 1} to{' '}
             {Math.min(currentPage * entriesPerPage, filteredRecords.length)} of {filteredRecords.length} records
           </span>
@@ -1715,10 +1725,11 @@ export const ForApprovalPage = () => {
             icon={FileText}
             maxWidth="620px"
           >
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', padding: '16px 20px 20px 20px' }}>
+            <div className="approval-inspection-dialog" style={{ display: 'flex', flexDirection: 'column', gap: '14px', padding: '16px 20px 20px 20px' }}>
               
               {/* 1. Student Info Card */}
               <div
+                className="approval-inspection-student-card"
                 style={{
                   background: '#ffffff',
                   borderRadius: '10px',
@@ -1770,7 +1781,7 @@ export const ForApprovalPage = () => {
                       </span>
 
                       <span style={{ fontSize: '11.5px', color: '#64748b' }}>
-                        Student ID: <strong style={{ color: '#334155' }}>{inspectRecord.student?.lrn || 'N/A'}</strong>
+                        Student ID: <strong style={{ color: '#334155' }}>{inspectRecord.student?.student_id || inspectRecord.student?.lrn || 'N/A'}</strong>
                       </span>
                     </div>
                   </div>
@@ -1792,9 +1803,6 @@ export const ForApprovalPage = () => {
                       gap: '5px'
                     }}
                   >
-                    {isUnderApproval && (
-                      <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#d97706' }} />
-                    )}
                     {isApproved && (
                       <Check size={12} strokeWidth={2.5} />
                     )}
@@ -1810,6 +1818,7 @@ export const ForApprovalPage = () => {
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
                 {/* Offense Card */}
                 <div
+                  className="approval-inspection-offense-card"
                   style={{
                     background: '#ffffff',
                     border: '1px solid #e2e8f0',
@@ -1852,6 +1861,7 @@ export const ForApprovalPage = () => {
 
                 {/* Sanction Card */}
                 <div
+                  className="approval-inspection-sanction-card"
                   style={{
                     background: '#ffffff',
                     border: '1px solid #e2e8f0',
@@ -1878,6 +1888,7 @@ export const ForApprovalPage = () => {
 
               {/* 3. Teacher Statement Card */}
               <div
+                className="approval-inspection-statement-card"
                 style={{
                   background: '#ffffff',
                   border: '1px solid #e2e8f0',
@@ -1890,6 +1901,7 @@ export const ForApprovalPage = () => {
                 </div>
 
                 <div
+                  className="approval-inspection-statement-quote"
                   style={{
                     fontSize: '12.5px',
                     color: '#334155',
@@ -1905,6 +1917,7 @@ export const ForApprovalPage = () => {
 
                 {gpsCoords && (
                   <div
+                    className="approval-inspection-summary"
                     style={{
                       display: 'inline-flex',
                       alignItems: 'center',
@@ -1926,6 +1939,7 @@ export const ForApprovalPage = () => {
 
               {/* 4. Reporter & Case Details Grid (3 columns) */}
               <div
+                className="approval-inspection-footer"
                 style={{
                   display: 'grid',
                   gridTemplateColumns: 'repeat(3, 1fr)',
@@ -1984,6 +1998,7 @@ export const ForApprovalPage = () => {
                   <button
                     type="button"
                     onClick={() => setInspectRecord(null)}
+                    className="approval-inspection-close-btn"
                     style={{
                       padding: '7px 16px',
                       borderRadius: '6px',
@@ -2003,6 +2018,7 @@ export const ForApprovalPage = () => {
                       <button
                         type="button"
                         onClick={() => handleOpenRejectModal(inspectRecord)}
+                        className="approval-inspection-reject-btn"
                         style={{
                           padding: '7px 14px',
                           borderRadius: '6px',
@@ -2024,6 +2040,7 @@ export const ForApprovalPage = () => {
                       <button
                         type="button"
                         onClick={() => handleOpenApproveModal(inspectRecord)}
+                        className="approval-inspection-approve-btn"
                         style={{
                           padding: '7px 18px',
                           borderRadius: '6px',

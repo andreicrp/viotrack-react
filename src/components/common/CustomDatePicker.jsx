@@ -1,4 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback, useLayoutEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { Calendar as CalendarIcon, ChevronLeft, ChevronRight, X, Check } from 'lucide-react';
 
 const MONTH_NAMES = [
@@ -24,7 +25,30 @@ export const CustomDatePicker = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [resolvedAlign, setResolvedAlign] = useState(align === 'right' ? 'right' : 'left');
+  const [popoverPosition, setPopoverPosition] = useState({ top: 0, left: 0, width: 236 });
   const containerRef = useRef(null);
+  const popoverRef = useRef(null);
+  const classNames = className.split(/\s+/);
+  const shouldPortalPopover = classNames.includes('pdm-date-picker') || classNames.includes('psm-conference-date-picker');
+  const popoverScopeClass = classNames.includes('pdm-date-picker')
+    ? 'pdm-date-picker-popover'
+    : classNames.includes('psm-conference-date-picker')
+      ? 'psm-conference-date-popover'
+      : '';
+
+  const updatePopoverPosition = useCallback(() => {
+    if (!containerRef.current) return;
+    const triggerRect = containerRef.current.getBoundingClientRect();
+    const width = Math.max(0, Math.min(236, window.innerWidth - 24));
+    const left = Math.max(12, Math.min(triggerRect.left, window.innerWidth - width - 12));
+    const popoverHeight = popoverRef.current?.getBoundingClientRect().height || 290;
+    const belowTop = triggerRect.bottom + 4;
+    const top = belowTop + popoverHeight > window.innerHeight - 12
+      ? Math.max(12, triggerRect.top - popoverHeight - 4)
+      : belowTop;
+
+    setPopoverPosition({ top, left, width });
+  }, []);
 
   useEffect(() => {
     if (isOpen && containerRef.current) {
@@ -37,6 +61,19 @@ export const CustomDatePicker = ({
       }
     }
   }, [isOpen, align]);
+
+  useLayoutEffect(() => {
+    if (!isOpen || !shouldPortalPopover) return undefined;
+
+    updatePopoverPosition();
+    window.addEventListener('resize', updatePopoverPosition);
+    window.addEventListener('scroll', updatePopoverPosition, true);
+
+    return () => {
+      window.removeEventListener('resize', updatePopoverPosition);
+      window.removeEventListener('scroll', updatePopoverPosition, true);
+    };
+  }, [isOpen, shouldPortalPopover, updatePopoverPosition]);
 
   // Parse initial date or default to current / September 2026
   const parseDate = (dateStr) => {
@@ -62,7 +99,10 @@ export const CustomDatePicker = ({
   // Close on outside click
   useEffect(() => {
     const handleClickOutside = (e) => {
-      if (containerRef.current && !containerRef.current.contains(e.target)) {
+      if (
+        !containerRef.current?.contains(e.target) &&
+        !popoverRef.current?.contains(e.target)
+      ) {
         setIsOpen(false);
       }
     };
@@ -161,17 +201,17 @@ export const CustomDatePicker = ({
       {/* Input Trigger */}
       <div
         onClick={() => !disabled && setIsOpen(!isOpen)}
-        className="custom-date-picker-trigger"
+        className={`custom-date-picker-trigger${isOpen ? ' is-open' : ''}`}
         style={{
           display: 'flex',
           alignItems: 'center',
           gap: '8px',
           padding: compact ? '7px 10px' : '9px 12px',
-          background: disabled ? '#f8fafc' : '#ffffff',
-          border: isOpen ? '1.5px solid #07345f' : '1.5px solid #cbd5e1',
+          background: disabled ? 'var(--bg-surface-elevated, #f8fafc)' : 'var(--bg-input, #ffffff)',
+          border: isOpen ? '1.5px solid var(--brand-blue, #07345f)' : '1.5px solid var(--border-subtle, #cbd5e1)',
           borderRadius: '10px',
           cursor: disabled ? 'not-allowed' : 'pointer',
-          boxShadow: isOpen ? '0 0 0 3px rgba(7, 52, 95, 0.12)' : '0 1px 2px rgba(0,0,0,0.03)',
+          boxShadow: isOpen ? '0 0 0 3px rgba(56, 189, 248, 0.2)' : '0 1px 2px rgba(0,0,0,0.03)',
           transition: 'all 0.15s ease',
           userSelect: 'none',
           boxSizing: 'border-box',
@@ -179,13 +219,13 @@ export const CustomDatePicker = ({
         }}
       >
         {showIcon && (
-          <CalendarIcon size={15} color="#0f172a" style={{ flexShrink: 0 }} />
+          <CalendarIcon size={15} color="var(--brand-blue, #0f172a)" style={{ flexShrink: 0 }} />
         )}
         <span
           style={{
             fontSize: compact ? '12px' : '13px',
             fontWeight: value ? 700 : 500,
-            color: value ? '#0f172a' : '#94a3b8',
+            color: value ? 'var(--text-primary, #0f172a)' : 'var(--text-muted, #94a3b8)',
             flex: 1,
             whiteSpace: 'nowrap'
           }}
@@ -199,7 +239,7 @@ export const CustomDatePicker = ({
             style={{
               border: 'none',
               background: 'transparent',
-              color: '#94a3b8',
+              color: 'var(--text-muted, #94a3b8)',
               cursor: 'pointer',
               padding: '0 2px',
               display: 'flex',
@@ -207,7 +247,7 @@ export const CustomDatePicker = ({
               flexShrink: 0
             }}
             onMouseOver={(e) => e.currentTarget.style.color = '#ef4444'}
-            onMouseOut={(e) => e.currentTarget.style.color = '#94a3b8'}
+            onMouseOut={(e) => e.currentTarget.style.color = 'var(--text-muted, #94a3b8)'}
           >
             <X size={12} />
           </button>
@@ -215,20 +255,29 @@ export const CustomDatePicker = ({
       </div>
 
       {/* Popover Custom Calendar */}
-      {isOpen && (
+      {isOpen && (() => {
+        const popover = (
         <div
-          className="custom-date-picker-popover"
+          ref={popoverRef}
+          className={`custom-date-picker-popover${shouldPortalPopover ? ` ${popoverScopeClass}` : ''}`}
           style={{
-            position: 'absolute',
-            top: 'calc(100% + 4px)',
-            ...(resolvedAlign === 'right' ? { right: 0, left: 'auto' } : { left: 0, right: 'auto' }),
+            position: shouldPortalPopover ? 'fixed' : 'absolute',
+            top: shouldPortalPopover ? `${popoverPosition.top}px` : 'calc(100% + 4px)',
+            ...(shouldPortalPopover
+              ? { left: `${popoverPosition.left}px`, right: 'auto' }
+              : resolvedAlign === 'right'
+                ? { right: 0, left: 'auto' }
+                : { left: 0, right: 'auto' }),
             zIndex: 100005,
-            background: '#ffffff',
+            background: 'var(--bg-surface, #ffffff)',
             borderRadius: '12px',
-            boxShadow: '0 14px 36px -4px rgba(15, 23, 42, 0.22), 0 0 0 1px rgba(226, 232, 240, 0.95)',
-            border: '1px solid #e2e8f0',
-            width: '236px',
+            boxShadow: '0 14px 36px -4px rgba(0, 0, 0, 0.5), 0 0 0 1px var(--border-subtle, rgba(226, 232, 240, 0.95))',
+            border: '1px solid var(--border-subtle, #e2e8f0)',
+            width: shouldPortalPopover ? `${popoverPosition.width}px` : '236px',
+            boxSizing: shouldPortalPopover ? 'border-box' : undefined,
             maxWidth: 'calc(100vw - 20px)',
+            maxHeight: shouldPortalPopover ? 'calc(100dvh - 24px)' : undefined,
+            overflowY: shouldPortalPopover ? 'auto' : undefined,
             padding: '10px 11px',
             animation: 'fadeInUp 0.12s ease-out'
           }}
@@ -236,10 +285,10 @@ export const CustomDatePicker = ({
           {/* Header with Month / Year & Prev / Next */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-              <span style={{ fontSize: '13px', fontWeight: 800, color: '#0f172a', letterSpacing: '-0.2px' }}>
+              <span style={{ fontSize: '13px', fontWeight: 800, color: 'var(--text-primary, #0f172a)', letterSpacing: '-0.2px' }}>
                 {MONTH_NAMES[currentMonth]}
               </span>
-              <span style={{ fontSize: '13px', fontWeight: 600, color: '#64748b' }}>
+              <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-muted, #64748b)' }}>
                 {currentYear}
               </span>
             </div>
@@ -252,17 +301,15 @@ export const CustomDatePicker = ({
                   width: 24,
                   height: 24,
                   borderRadius: '6px',
-                  border: '1px solid #e2e8f0',
-                  background: '#ffffff',
-                  color: '#475569',
+                  border: '1px solid var(--border-subtle, #e2e8f0)',
+                  background: 'var(--bg-surface-elevated, #ffffff)',
+                  color: 'var(--text-secondary, #475569)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   cursor: 'pointer',
                   transition: 'all 0.15s'
                 }}
-                onMouseOver={(e) => e.currentTarget.style.background = '#f1f5f9'}
-                onMouseOut={(e) => e.currentTarget.style.background = '#ffffff'}
               >
                 <ChevronLeft size={13} />
               </button>
@@ -273,17 +320,15 @@ export const CustomDatePicker = ({
                   width: 24,
                   height: 24,
                   borderRadius: '6px',
-                  border: '1px solid #e2e8f0',
-                  background: '#ffffff',
-                  color: '#475569',
+                  border: '1px solid var(--border-subtle, #e2e8f0)',
+                  background: 'var(--bg-surface-elevated, #ffffff)',
+                  color: 'var(--text-secondary, #475569)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   cursor: 'pointer',
                   transition: 'all 0.15s'
                 }}
-                onMouseOver={(e) => e.currentTarget.style.background = '#f1f5f9'}
-                onMouseOut={(e) => e.currentTarget.style.background = '#ffffff'}
               >
                 <ChevronRight size={13} />
               </button>
@@ -293,7 +338,7 @@ export const CustomDatePicker = ({
           {/* Weekdays Row */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', textAlign: 'center', marginBottom: '4px' }}>
             {DAYS_OF_WEEK.map((d) => (
-              <span key={d} style={{ fontSize: '10px', fontWeight: 800, color: '#94a3b8', padding: '1px 0' }}>
+              <span key={d} style={{ fontSize: '10px', fontWeight: 800, color: 'var(--text-muted, #94a3b8)', padding: '1px 0' }}>
                 {d}
               </span>
             ))}
@@ -312,7 +357,7 @@ export const CustomDatePicker = ({
                       alignItems: 'center',
                       justifyContent: 'center',
                       fontSize: '11px',
-                      color: '#cbd5e1',
+                      color: 'var(--text-dim, #cbd5e1)',
                       userSelect: 'none'
                     }}
                   >
@@ -333,6 +378,7 @@ export const CustomDatePicker = ({
                 <div
                   key={index}
                   onClick={() => handleSelectDay(item.day)}
+                  className={`custom-date-picker-day${isSelected ? ' is-selected' : ''}${isToday ? ' is-today' : ''}`}
                   style={{
                     height: 26,
                     borderRadius: '6px',
@@ -343,24 +389,13 @@ export const CustomDatePicker = ({
                     fontWeight: isSelected ? 800 : isToday ? 700 : 500,
                     cursor: 'pointer',
                     background: isSelected
-                      ? 'linear-gradient(135deg, #27367f 0%, #1a2557 100%)'
+                      ? 'var(--brand-blue, #27367f)'
                       : isToday
-                      ? '#e0e7ff'
-                      : '#ffffff',
-                    color: isSelected ? '#ffffff' : isToday ? '#27367f' : '#1e293b',
-                    border: isSelected ? 'none' : isToday ? '1px solid #c7d2fe' : '1px solid transparent',
-                    transition: 'all 0.12s ease',
-                    boxShadow: isSelected ? '0 2px 6px rgba(39, 54, 127, 0.3)' : 'none'
-                  }}
-                  onMouseOver={(e) => {
-                    if (!isSelected) {
-                      e.currentTarget.style.background = '#f1f5f9';
-                    }
-                  }}
-                  onMouseOut={(e) => {
-                    if (!isSelected) {
-                      e.currentTarget.style.background = isToday ? '#e0e7ff' : '#ffffff';
-                    }
+                      ? 'rgba(56, 189, 248, 0.2)'
+                      : 'transparent',
+                    color: isSelected ? '#ffffff' : isToday ? 'var(--brand-blue, #27367f)' : 'var(--text-primary, #1e293b)',
+                    border: isSelected ? 'none' : isToday ? '1px solid var(--border-focus, #c7d2fe)' : '1px solid transparent',
+                    transition: 'all 0.12s ease'
                   }}
                 >
                   {item.day}
@@ -374,7 +409,7 @@ export const CustomDatePicker = ({
             style={{
               marginTop: '8px',
               paddingTop: '8px',
-              borderTop: '1px solid #f1f5f9',
+              borderTop: '1px solid var(--border-subtle, #f1f5f9)',
               display: 'flex',
               justifyContent: 'space-between',
               alignItems: 'center'
@@ -386,15 +421,13 @@ export const CustomDatePicker = ({
               style={{
                 background: 'transparent',
                 border: 'none',
-                color: '#27367f',
+                color: 'var(--brand-blue, #27367f)',
                 fontSize: '11px',
                 fontWeight: 700,
                 cursor: 'pointer',
                 padding: '2px 5px',
                 borderRadius: '4px'
               }}
-              onMouseOver={(e) => e.currentTarget.style.background = '#e0e7ff'}
-              onMouseOut={(e) => e.currentTarget.style.background = 'transparent'}
             >
               Today
             </button>
@@ -403,9 +436,9 @@ export const CustomDatePicker = ({
               type="button"
               onClick={() => setIsOpen(false)}
               style={{
-                background: '#f8fafc',
-                border: '1px solid #cbd5e1',
-                color: '#475569',
+                background: 'var(--bg-surface-elevated, #f8fafc)',
+                border: '1px solid var(--border-subtle, #cbd5e1)',
+                color: 'var(--text-secondary, #475569)',
                 fontSize: '11px',
                 fontWeight: 600,
                 cursor: 'pointer',
@@ -417,7 +450,9 @@ export const CustomDatePicker = ({
             </button>
           </div>
         </div>
-      )}
+        );
+        return shouldPortalPopover ? createPortal(popover, document.body) : popover;
+      })()}
     </div>
   );
 };

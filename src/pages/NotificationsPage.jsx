@@ -604,7 +604,7 @@ export const NotificationsPage = () => {
           {/* Priority Breakdown Card */}
           <div className="notif-side-card">
             <h4 className="notif-side-title">
-              <ShieldAlert size={15} color="#0f172a" />
+              <ShieldAlert size={15} style={{ color: 'var(--brand-blue, #07345f)' }} />
               <span>Alert Breakdown</span>
             </h4>
             <div className="notif-breakdown-list">
@@ -645,7 +645,7 @@ export const NotificationsPage = () => {
           {/* Quick Actions Shortcuts */}
           <div className="notif-side-card">
             <h4 className="notif-side-title">
-              <Sparkles size={15} color="#0f172a" />
+              <Sparkles size={15} style={{ color: 'var(--brand-blue, #07345f)' }} />
               <span>Quick Navigation</span>
             </h4>
             <div className="notif-shortcuts-list">

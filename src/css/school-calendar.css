@@ -765,3 +765,125 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ==========================================================================
+   School Calendar Dark Mode Overrides
+   ========================================================================== */
+[data-theme="dark"] .school-cal-modal-wrap {
+  background: #0f172a !important;
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .school-cal-top-bar {
+  background: #0f172a !important;
+  border-bottom-color: #1e293b !important;
+}
+
+[data-theme="dark"] .school-cal-month-title {
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .school-cal-arrow-btn,
+[data-theme="dark"] .school-cal-today-btn {
+  background: #151f36 !important;
+  border-color: #2a3854 !important;
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .school-cal-arrow-btn:hover,
+[data-theme="dark"] .school-cal-today-btn:hover {
+  background: #1e293b !important;
+  border-color: #38bdf8 !important;
+}
+
+[data-theme="dark"] .school-cal-view-tabs {
+  background: #0b1120 !important;
+}
+
+[data-theme="dark"] .school-cal-tab-btn {
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .school-cal-tab-btn.active {
+  background: #151f36 !important;
+  color: #38bdf8 !important;
+}
+
+[data-theme="dark"] .school-cal-add-event-btn {
+  background: #38bdf8 !important;
+  color: #030712 !important;
+  font-weight: 800 !important;
+}
+
+[data-theme="dark"] .school-cal-categories-bar {
+  background: #0b1120 !important;
+  border-bottom-color: #1e293b !important;
+}
+
+[data-theme="dark"] .school-cal-cat-chip {
+  background: #151f36 !important;
+  border-color: #2a3854 !important;
+  color: #cbd5e1 !important;
+}
+
+[data-theme="dark"] .school-cal-cat-chip.active {
+  background: #1e293b !important;
+  border-color: #38bdf8 !important;
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .school-cal-content-body {
+  background: #080d1a !important;
+}
+
+[data-theme="dark"] .school-cal-card {
+  background: #0f172a !important;
+  border-color: #1e293b !important;
+}
+
+[data-theme="dark"] .school-cal-weekday {
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .school-cal-day-cell {
+  background: #0f172a !important;
+  border-color: #1e293b !important;
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .school-cal-day-cell:hover {
+  background: #151f36 !important;
+  border-color: #38bdf8 !important;
+}
+
+[data-theme="dark"] .school-cal-day-cell.is-selected {
+  background: #151f36 !important;
+  border-color: #38bdf8 !important;
+  color: #38bdf8 !important;
+}
+
+[data-theme="dark"] .school-cal-agenda-title {
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .school-cal-agenda-count {
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .school-cal-agenda-event-card {
+  background: #151f36 !important;
+  border-color: #2a3854 !important;
+}
+
+[data-theme="dark"] .school-cal-agenda-event-card-title {
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .school-cal-meta-item {
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .school-cal-event-desc {
+  color: #cbd5e1 !important;
+}
+

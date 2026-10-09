@@ -322,12 +322,12 @@ export const TeachersPage = () => {
       {/* 1. Top Banner & Primary Actions */}
       <div className="page-banner-header">
         <div className="page-banner-info">
-          <Users size={26} strokeWidth={2.4} color="#0f172a" style={{ flexShrink: 0 }} />
+          <Users size={26} strokeWidth={2.4} style={{ flexShrink: 0, color: 'var(--brand-blue, #07345f)' }} />
           <div>
-            <h2 style={{ fontSize: '20px', fontWeight: 800, margin: 0, color: '#0f172a', letterSpacing: '-0.02em' }}>
+            <h2 style={{ fontSize: '20px', fontWeight: 800, margin: 0, color: 'var(--text-primary, #0f172a)', letterSpacing: '-0.02em' }}>
               Faculty Teachers &amp; Advisers
             </h2>
-            <p style={{ margin: '3px 0 0 0', fontSize: '13px', color: '#64748b' }}>
+            <p style={{ margin: '3px 0 0 0', fontSize: '13px', color: 'var(--text-muted, #64748b)' }}>
               Comprehensive faculty roster, advisory appointments, department heads, and academic educators.
             </p>
           </div>
@@ -623,7 +623,7 @@ export const TeachersPage = () => {
         )}
 
         {/* 4. Table (Desktop View) */}
-        <div className={`responsive-table-desktop ${viewMode === 'grid' ? 'force-hidden' : ''}`} style={{ marginTop: '16px', border: '1px solid #e2e8f0', borderRadius: '12px', overflow: 'hidden' }}>
+        <div className={`responsive-table-desktop teacher-table-container ${viewMode === 'grid' ? 'force-hidden' : ''}`} style={{ marginTop: '16px', border: '1px solid #e2e8f0', borderRadius: '12px', overflow: 'hidden' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
             <thead>
               <tr style={{ background: '#f8fafc', borderBottom: '1.5px solid #e2e8f0' }}>
@@ -740,10 +740,10 @@ export const TeachersPage = () => {
                             </div>
                           )}
                           <div>
-                            <span style={{ fontSize: '14px', fontWeight: 800, color: '#0f172a', display: 'block' }}>
+                            <span style={{ fontSize: '14px', fontWeight: 800, color: 'var(--text-primary, #0f172a)', display: 'block' }}>
                               {fullName}
                             </span>
-                            <span style={{ fontSize: '12px', color: '#64748b' }}>
+                            <span style={{ fontSize: '12px', color: 'var(--text-muted, #64748b)' }}>
                               Faculty ID: #{teacher.id}
                             </span>
                           </div>
@@ -753,10 +753,10 @@ export const TeachersPage = () => {
                       {/* Position & Department */}
                       <td style={{ padding: '14px 16px' }}>
                         <div>
-                          <span style={{ fontSize: '13px', fontWeight: 700, color: '#1e293b', display: 'block' }}>
+                          <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-primary, #1e293b)', display: 'block' }}>
                             {teacher.position || 'Teacher I'}
                           </span>
-                          <span style={{ fontSize: '12px', color: '#64748b' }}>
+                          <span style={{ fontSize: '12px', color: 'var(--text-muted, #64748b)' }}>
                             {teacher.department || 'Junior High Faculty'}
                           </span>
                         </div>
@@ -766,23 +766,23 @@ export const TeachersPage = () => {
                       <td style={{ padding: '14px 16px' }}>
                         {adv ? (
                           <span
+                            className="badge-minor"
                             style={{
                               display: 'inline-flex',
                               alignItems: 'center',
-                              gap: '6px',
                               padding: '4px 10px',
                               borderRadius: '20px',
                               fontSize: '11.5px',
                               fontWeight: 700,
-                              background: '#dcfce7',
-                              color: '#15803d'
+                              background: 'rgba(34, 197, 94, 0.15)',
+                              color: '#4ade80',
+                              border: '1px solid rgba(34, 197, 94, 0.3)'
                             }}
                           >
-                            <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#22c55e' }} />
                             {adv.grade_level} - {adv.class_section}
                           </span>
                         ) : (
-                          <span style={{ fontSize: '12px', color: '#94a3b8', fontStyle: 'italic' }}>
+                          <span style={{ fontSize: '12px', color: 'var(--text-dim, #94a3b8)', fontStyle: 'italic' }}>
                             None (Subject Teacher)
                           </span>
                         )}
@@ -791,13 +791,13 @@ export const TeachersPage = () => {
                       {/* Contact & Email */}
                       <td style={{ padding: '14px 16px' }}>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
-                          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '12.5px', color: '#334155' }}>
-                            <Mail size={13} color="#94a3b8" />
+                          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '12.5px', color: 'var(--text-secondary, #334155)' }}>
+                            <Mail size={13} color="var(--text-muted, #94a3b8)" />
                             <span>{teacher.email}</span>
                           </div>
                           {teacher.contact && (
-                            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: '#64748b' }}>
-                              <Phone size={13} color="#94a3b8" />
+                            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: 'var(--text-muted, #64748b)' }}>
+                              <Phone size={13} color="var(--text-muted, #94a3b8)" />
                               <span>{teacher.contact}</span>
                             </div>
                           )}
@@ -810,9 +810,9 @@ export const TeachersPage = () => {
                           <button
                             onClick={() => setTeacherForAdviser(teacher)}
                             style={{
-                              background: adv ? '#f0fdf4' : '#f0f4f8',
-                              color: adv ? '#16a34a' : '#07345f',
-                              border: adv ? '1px solid #bbf7d0' : '1px solid #cbd5e1',
+                              background: adv ? 'rgba(34, 197, 94, 0.12)' : 'var(--bg-surface-elevated, #f0f4f8)',
+                              color: adv ? '#4ade80' : 'var(--brand-blue, #07345f)',
+                              border: adv ? '1px solid rgba(34, 197, 94, 0.3)' : '1px solid var(--border-subtle, #cbd5e1)',
                               padding: '6px 10px',
                               borderRadius: '7px',
                               fontSize: '12px',
@@ -834,9 +834,9 @@ export const TeachersPage = () => {
                               setIsEditModalOpen(true);
                             }}
                             style={{
-                              background: '#f8fafc',
-                              color: '#334155',
-                              border: '1px solid #cbd5e1',
+                              background: 'var(--bg-surface-elevated, #f8fafc)',
+                              color: 'var(--text-secondary, #334155)',
+                              border: '1px solid var(--border-subtle, #cbd5e1)',
                               padding: '6px 10px',
                               borderRadius: '7px',
                               fontSize: '12px',
@@ -852,11 +852,11 @@ export const TeachersPage = () => {
                           </button>
 
                           <button
-                            onClick={() => handleRemoveTeacher(teacher.id, fullName)}
+                            onClick={() => handleDeleteTeacher(teacher.id, fullName)}
                             style={{
-                              background: '#fef2f2',
-                              color: '#dc2626',
-                              border: '1px solid #fecaca',
+                              background: 'var(--bg-surface-elevated, #f8fafc)',
+                              color: 'var(--text-muted, #64748b)',
+                              border: '1px solid var(--border-subtle, #cbd5e1)',
                               padding: '6px 10px',
                               borderRadius: '7px',
                               fontSize: '12px',
@@ -912,9 +912,10 @@ export const TeachersPage = () => {
                     />
                     {adv ? (
                       <span
+                        className="badge-minor"
                         style={{
-                          padding: '2px 7px',
-                          borderRadius: '8px',
+                          padding: '2px 9px',
+                          borderRadius: '20px',
                           fontSize: '10px',
                           fontWeight: 700,
                           background: '#dcfce7',
@@ -927,8 +928,8 @@ export const TeachersPage = () => {
                     ) : (
                       <span
                         style={{
-                          padding: '2px 7px',
-                          borderRadius: '8px',
+                          padding: '2px 9px',
+                          borderRadius: '20px',
                           fontSize: '10px',
                           fontWeight: 600,
                           background: '#f1f5f9',
