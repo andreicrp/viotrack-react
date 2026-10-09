@@ -4,11 +4,11 @@ import { sanitizeForLogging } from '../utils/security';
 
 const AuthContext = createContext(null);
 
-const INACTIVITY_AUTO_LOCK_MS = 15 * 60 * 1000; // Exactly 15 Minutes Inactivity Screen Lock
 const INACTIVITY_TIMEOUT_MS = 60 * 60 * 1000; // 60 Minutes Inactivity Hard Session Timeout
 const AUTH_STORAGE_KEY = 'viotrack_auth_v3';
 const AUTH_ACTIVE_KEY = 'viotrack_active_v3';
 const AUTH_LOCKED_KEY = 'viotrack_locked_v3';
+const AUTOLOCK_STORAGE_KEY = 'viotrack_autolock_minutes';
 
 // Helper to determine initial user from session or local storage with timeout check
 const getInitialUser = () => {
@@ -56,9 +56,23 @@ export const AuthProvider = ({ children }) => {
   const [isLocked, setIsLocked] = useState(() => {
     return sessionStorage.getItem(AUTH_LOCKED_KEY) === 'true';
   });
+  const [autoLockMinutes, setAutoLockMinutesState] = useState(() => {
+    try {
+      const saved = localStorage.getItem(AUTOLOCK_STORAGE_KEY);
+      return saved !== null ? parseInt(saved, 10) : 15;
+    } catch {
+      return 15;
+    }
+  });
   const inactivityTimerRef = useRef(null);
   const hardTimeoutTimerRef = useRef(null);
   const lastActiveThrottleRef = useRef(0);
+
+  const setAutoLockMinutes = useCallback((minutes) => {
+    const num = Math.max(0, parseInt(minutes, 10) || 0);
+    setAutoLockMinutesState(num);
+    localStorage.setItem(AUTOLOCK_STORAGE_KEY, String(num));
+  }, []);
 
   // Synchronize state changes to active storage
   useEffect(() => {
@@ -220,11 +234,14 @@ export const AuthProvider = ({ children }) => {
         }
       }
 
-      // Auto-lock screen after 15 minutes
-      inactivityTimerRef.current = setTimeout(() => {
-        console.warn('Screen auto-locked due to 15 minutes of inactivity.');
-        lockScreen();
-      }, INACTIVITY_AUTO_LOCK_MS);
+      // Auto-lock screen after configured minutes
+      if (autoLockMinutes > 0) {
+        const lockMs = autoLockMinutes * 60 * 1000;
+        inactivityTimerRef.current = setTimeout(() => {
+          console.warn(`Screen auto-locked due to ${autoLockMinutes} minutes of inactivity.`);
+          lockScreen();
+        }, lockMs);
+      }
 
       // Complete session timeout after 60 minutes
       hardTimeoutTimerRef.current = setTimeout(() => {
@@ -232,7 +249,7 @@ export const AuthProvider = ({ children }) => {
         logout('expired');
       }, INACTIVITY_TIMEOUT_MS);
     }
-  }, [user, isLocked, lockScreen, logout]);
+  }, [user, isLocked, autoLockMinutes, lockScreen, logout]);
 
   useEffect(() => {
     if (!user || isLocked) return;
@@ -340,6 +357,8 @@ export const AuthProvider = ({ children }) => {
         isLocked,
         lockScreen,
         unlockScreen,
+        autoLockMinutes,
+        setAutoLockMinutes,
         isAuthenticated: !!user,
         isAdmin,
         isTeacher,

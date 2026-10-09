@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 
 export const ScreenLockModal = () => {
-  const { user, isLocked, unlockScreen, logout } = useAuth();
+  const { user, isLocked, unlockScreen, logout, autoLockMinutes } = useAuth();
   const { success, error } = useNotification();
 
   const [password, setPassword] = useState('');
@@ -151,9 +151,14 @@ export const ScreenLockModal = () => {
           <h2 style={{ margin: '0 0 2px', color: 'var(--text-primary, #0f172a)', fontSize: '18px', fontWeight: 800 }}>
             {userName}
           </h2>
-          <span style={{ fontSize: '12.5px', color: 'var(--text-muted, #64748b)' }}>
-            {isAdmin ? 'System Administrator' : 'Faculty Member'}
-          </span>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginTop: '3px' }}>
+            <span style={{ fontSize: '12px', color: 'var(--text-muted, #64748b)' }}>
+              {isAdmin ? 'System Administrator' : 'Faculty Member'}
+            </span>
+            <span style={{ fontSize: '10.5px', color: '#38bdf8', background: 'rgba(56, 189, 248, 0.12)', border: '1px solid rgba(56, 189, 248, 0.25)', padding: '1px 6px', borderRadius: '4px', display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+              <Clock size={10} /> {autoLockMinutes > 0 ? `${autoLockMinutes}m Idle Lock` : 'Manual Lock'}
+            </span>
+          </div>
         </div>
 
         {/* Unlock Form */}

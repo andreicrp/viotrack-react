@@ -18,9 +18,9 @@ import {
   BadgeCheck,
   Building2,
   Upload,
-  Check,
   Fingerprint,
-  FileText
+  FileText,
+  Clock
 } from 'lucide-react';
 import { LegalModal } from '../components/legal/LegalModal';
 import { isSupabaseConfigured, supabase } from '../lib/supabase';
@@ -28,7 +28,7 @@ import { evaluatePasswordStrength, validateUploadedFile } from '../utils/securit
 import '../css/profile.css';
 
 export const ProfilePage = () => {
-  const { user, setUser, logout } = useAuth();
+  const { user, setUser, logout, autoLockMinutes, setAutoLockMinutes, lockScreen } = useAuth();
   const { success, error } = useNotification();
   const navigate = useNavigate();
 
@@ -578,6 +578,109 @@ export const ProfilePage = () => {
                     className="profile-input-icon-right-btn"
                   >
                     {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Workstation Inactivity Auto-Lock Settings Card */}
+            <div className="profile-card">
+              <div className="profile-card-header">
+                <div className="profile-card-icon">
+                  <Clock size={18} />
+                </div>
+                <div>
+                  <h3 className="profile-card-title">
+                    Workstation Inactivity Auto-Lock
+                  </h3>
+                  <p className="profile-card-subtitle">
+                    Prevent unauthorized student access on unattended faculty workstations
+                  </p>
+                </div>
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <div style={{ fontSize: '12.5px', color: 'var(--text-secondary, #475569)', lineHeight: 1.45 }}>
+                  Automatically locks the screen when no keyboard, mouse, or touch activity is detected. Enter your account password or PIN to resume your session.
+                </div>
+
+                <div>
+                  <label className="profile-form-label" style={{ marginBottom: '8px', display: 'block' }}>
+                    Auto-Lock Idle Timeout Threshold
+                  </label>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '8px' }}>
+                    {[
+                      { label: '5 Minutes', value: 5, desc: 'High Security' },
+                      { label: '10 Minutes', value: 10, desc: 'Fast Lock' },
+                      { label: '15 Minutes', value: 15, desc: 'Recommended' },
+                      { label: '30 Minutes', value: 30, desc: 'Extended Desk' },
+                      { label: '60 Minutes', value: 60, desc: 'Long Session' },
+                      { label: 'Disabled', value: 0, desc: 'Manual Only' }
+                    ].map((opt) => {
+                      const isSelected = autoLockMinutes === opt.value;
+                      return (
+                        <button
+                          key={opt.value}
+                          type="button"
+                          onClick={() => {
+                            setAutoLockMinutes(opt.value);
+                            success(`Inactivity auto-lock updated to ${opt.value === 0 ? 'Disabled (Manual Only)' : `${opt.value} minutes`}.`);
+                          }}
+                          style={{
+                            padding: '10px 12px',
+                            borderRadius: '10px',
+                            border: isSelected ? '2px solid var(--brand-blue, #07345f)' : '1px solid var(--border-subtle, #e2e8f0)',
+                            background: isSelected ? 'rgba(7, 52, 95, 0.08)' : 'var(--bg-surface-elevated, #ffffff)',
+                            color: isSelected ? 'var(--brand-blue, #07345f)' : 'var(--text-primary, #0f172a)',
+                            cursor: 'pointer',
+                            textAlign: 'left',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '2px',
+                            transition: 'all 0.15s ease'
+                          }}
+                        >
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+                            <span style={{ fontWeight: 800, fontSize: '12.5px' }}>{opt.label}</span>
+                            {isSelected && <CheckCircle2 size={14} color="var(--brand-blue, #07345f)" />}
+                          </div>
+                          <span style={{ fontSize: '10.5px', color: 'var(--text-muted, #64748b)', fontWeight: 500 }}>
+                            {opt.desc}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--bg-surface-elevated, #f8fafc)', border: '1px solid var(--border-subtle, #e2e8f0)', padding: '10px 14px', borderRadius: '10px', marginTop: '4px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <Shield size={16} color="var(--brand-blue, #07345f)" />
+                    <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-primary, #0f172a)' }}>
+                      Current Policy: {autoLockMinutes === 0 ? 'Manual Lock Only' : `Auto-locks after ${autoLockMinutes} minutes idle`}
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      success('Workstation manually locked.');
+                      lockScreen();
+                    }}
+                    style={{
+                      background: 'var(--brand-blue, #07345f)',
+                      color: '#ffffff',
+                      border: 'none',
+                      padding: '6px 12px',
+                      borderRadius: '7px',
+                      fontSize: '11.5px',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '5px'
+                    }}
+                  >
+                    <Lock size={12} /> Lock Now
                   </button>
                 </div>
               </div>
