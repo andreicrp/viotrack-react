@@ -533,3 +533,10 @@ Clean latest main passed **22 tests across 5 test files**, lint (**445 warnings,
 Latest main is [`b67127ce051b68ee61e5c767a781ee3f02c203d0`](https://github.com/andreicrp/viotrack-react/commit/b67127ce051b68ee61e5c767a781ee3f02c203d0). It adds configurable inactivity timeout settings in `ProfilePage.jsx` and updates `AuthContext.jsx` / `ScreenLockModal.jsx`; it does not change the data-service modules, tests, or declarations.
 
 Clean latest main passed **22 tests across 5 test files**, lint (**446 warnings, 0 errors**), and production build (`vendor-react` 302.00 kB, gzip 96.16 kB; PDF worker 1,264.34 kB). The PR rebased onto this commit passed **46 tests across 6 files**, `npm run typecheck`, lint (**445 warnings, 0 errors**), and build with matching bundle sizes. Main still has no JSDoc typecheck script.
+
+
+## Baseline after the 2026-10-10 light-mode badge and button contrast update
+
+Latest main is [`2f08830a9c9dda9560080b94623b85782e905b86`](https://github.com/andreicrp/viotrack-react/commit/2f08830a9c9dda9560080b94623b85782e905b86). It updates shared light-theme styles and badge/button colors on activity logs, approvals, class, student, teacher, violation-type, and violation pages; data-service modules, tests, and declarations are unchanged.
+
+Clean latest main passed **22 tests across 5 test files**, lint (**446 warnings, 0 errors**), and production build (`vendor-react` 302.00 kB, gzip 96.16 kB; PDF worker 1,264.34 kB). The rebased PR passed **46 tests across 6 files**, `npm run typecheck`, lint (**445 warnings, 0 errors**), and build with matching bundle sizes. Main has no JSDoc typecheck script.
