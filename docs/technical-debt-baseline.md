@@ -547,3 +547,10 @@ Clean latest main passed **22 tests across 5 test files**, lint (**446 warnings,
 Latest main is [`96cab2118a8c3ee1a758764f546e803d53170b08`](https://github.com/andreicrp/viotrack-react/commit/96cab2118a8c3ee1a758764f546e803d53170b08). It adjusts the Completed and Integrity Check badge colors in `BackupRestoreModal.jsx` and `InteractiveGuide.jsx`; no data-service modules, tests, dependencies, or declarations changed.
 
 Clean latest main passed **22 tests across 5 test files**, lint (**446 warnings, 0 errors**), and production build (`vendor-react` 302.00 kB, gzip 96.16 kB; PDF worker 1,264.34 kB). The PR rebased onto this commit passed **46 tests across 6 files**, `npm run typecheck`, lint (**445 warnings, 0 errors**), and build with matching bundle sizes. Main has no JSDoc typecheck script.
+
+
+## Baseline after the 2026-10-10 Institutional Sanctions Policy Matrix contrast update
+
+Latest main is [`1074405d9e8e2b02027417cd674cdce5f9c35bb9`](https://github.com/andreicrp/viotrack-react/commit/1074405d9e8e2b02027417cd674cdce5f9c35bb9). It improves light-mode text contrast and wrapping in the sanctions-policy matrix in `InteractiveGuide.jsx`; data-service modules, tests, dependencies, and declarations are unchanged.
+
+Clean latest main passed **22 tests across 5 test files**, lint (**446 warnings, 0 errors**), and production build (`vendor-react` 302.00 kB, gzip 96.16 kB; PDF worker 1,264.34 kB). The PR rebased onto this commit passed **46 tests across 6 files**, `npm run typecheck`, lint (**445 warnings, 0 errors**), and build with matching bundle sizes. Main has no JSDoc typecheck script.
