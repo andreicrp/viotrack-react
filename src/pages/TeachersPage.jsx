@@ -773,10 +773,10 @@ export const TeachersPage = () => {
                               padding: '4px 10px',
                               borderRadius: '20px',
                               fontSize: '11.5px',
-                              fontWeight: 700,
-                              background: 'rgba(34, 197, 94, 0.15)',
-                              color: '#4ade80',
-                              border: '1px solid rgba(34, 197, 94, 0.3)'
+                              fontWeight: 750,
+                              background: '#f0fdf4',
+                              color: '#15803d',
+                              border: '1px solid #86efac'
                             }}
                           >
                             {adv.grade_level} - {adv.class_section}
@@ -810,13 +810,13 @@ export const TeachersPage = () => {
                           <button
                             onClick={() => setTeacherForAdviser(teacher)}
                             style={{
-                              background: adv ? 'rgba(34, 197, 94, 0.12)' : 'var(--bg-surface-elevated, #f0f4f8)',
-                              color: adv ? '#4ade80' : 'var(--brand-blue, #07345f)',
-                              border: adv ? '1px solid rgba(34, 197, 94, 0.3)' : '1px solid var(--border-subtle, #cbd5e1)',
+                              background: adv ? '#f0fdf4' : 'var(--bg-surface-elevated, #f0f4f8)',
+                              color: adv ? '#15803d' : 'var(--brand-blue, #07345f)',
+                              border: adv ? '1px solid #86efac' : '1px solid var(--border-subtle, #cbd5e1)',
                               padding: '6px 10px',
                               borderRadius: '7px',
                               fontSize: '12px',
-                              fontWeight: 700,
+                              fontWeight: 750,
                               cursor: 'pointer',
                               display: 'inline-flex',
                               alignItems: 'center',

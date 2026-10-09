@@ -1265,9 +1265,9 @@ export const ViolationsPage = () => {
                               className="violation-proof-action"
                               aria-pressed={selectedRecordForResolution?.id === rec.id}
                               style={{
-                                background: 'rgba(16, 185, 129, 0.12)',
-                                border: '1px solid rgba(16, 185, 129, 0.3)',
-                                color: '#34d399',
+                                background: '#f0fdf4',
+                                border: '1px solid #86efac',
+                                color: '#15803d',
                                 padding: '6px 11px',
                                 borderRadius: '7px',
                                 fontSize: '12px',

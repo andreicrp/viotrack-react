@@ -1078,9 +1078,9 @@ export const StudentsPage = () => {
                         <span
                           className={isSHS ? 'badge-purple' : 'badge-blue'}
                           style={{
-                            background: isSHS ? 'rgba(124, 58, 237, 0.15)' : 'rgba(37, 99, 235, 0.15)',
-                            color: isSHS ? '#a78bfa' : '#60a5fa',
-                            border: `1px solid ${isSHS ? 'rgba(124, 58, 237, 0.3)' : 'rgba(37, 99, 235, 0.3)'}`,
+                            background: isSHS ? '#f5f3ff' : '#eff6ff',
+                            color: isSHS ? '#6d28d9' : '#1d4ed8',
+                            border: `1px solid ${isSHS ? '#c4b5fd' : '#bfdbfe'}`,
                             padding: '3px 10px',
                             borderRadius: '20px',
                             fontSize: '11.5px',
@@ -1095,11 +1095,11 @@ export const StudentsPage = () => {
                       {/* Strand / Track Badge */}
                       <td style={{ padding: '14px 18px' }}>
                         <span
-                          className={isSHS ? 'badge-minor' : ''}
+                          className={isSHS ? 'badge-minor' : 'badge-neutral'}
                           style={{
-                            background: isSHS ? 'rgba(16, 185, 129, 0.15)' : 'var(--bg-surface-elevated, #f1f5f9)',
-                            color: isSHS ? '#34d399' : 'var(--text-secondary, #475569)',
-                            border: `1px solid ${isSHS ? 'rgba(16, 185, 129, 0.3)' : 'var(--border-subtle, #e2e8f0)'}`,
+                            background: isSHS ? '#f0fdf4' : 'var(--bg-surface-elevated, #f8fafc)',
+                            color: isSHS ? '#15803d' : 'var(--text-secondary, #334155)',
+                            border: `1px solid ${isSHS ? '#86efac' : 'var(--border-subtle, #cbd5e1)'}`,
                             padding: '3px 10px',
                             borderRadius: '20px',
                             fontSize: '11px',

@@ -672,7 +672,7 @@ export const ActivityLogsPage = () => {
                         <span style={{ fontSize: '11px', color: 'var(--text-muted, #64748b)', background: 'var(--bg-input, #f1f5f9)', padding: '2px 8px', borderRadius: '4px', border: '1px solid var(--border-subtle, transparent)' }}>
                           {log.user_role || 'Admin'}
                         </span>
-                        <span style={{ fontSize: '10.5px', fontFamily: 'monospace', fontWeight: 700, background: 'rgba(16, 185, 129, 0.15)', color: '#34d399', border: '1px solid rgba(16, 185, 129, 0.3)', padding: '1px 6px', borderRadius: '4px' }}>
+                        <span style={{ fontSize: '10.5px', fontFamily: 'monospace', fontWeight: 700, background: '#f0fdf4', color: '#15803d', border: '1px solid #86efac', padding: '1px 6px', borderRadius: '4px' }}>
                           {auditId}
                         </span>
                         <span style={{ fontSize: '10.5px', color: 'var(--text-muted, #64748b)', background: 'var(--bg-input, #f8fafc)', border: '1px solid var(--border-subtle, #e2e8f0)', padding: '1px 6px', borderRadius: '4px' }}>

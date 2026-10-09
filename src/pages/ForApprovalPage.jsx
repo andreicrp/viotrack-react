@@ -484,12 +484,12 @@ export const ForApprovalPage = () => {
   const getSeverityBadge = (type) => {
     const t = (type || 'Minor').toLowerCase();
     if (t.includes('major')) {
-      return { className: 'badge-major', bg: '#fef2f2', color: '#dc2626', border: '#fecaca', label: 'Major Offense' };
+      return { className: 'badge-major', bg: '#fef2f2', color: '#b91c1c', border: '#fca5a5', label: 'Major Offense' };
     }
     if (t.includes('serious')) {
-      return { className: 'badge-serious', bg: '#fef9c3', color: '#a16207', border: '#fde047', label: 'Serious Offense' };
+      return { className: 'badge-serious', bg: '#fefce8', color: '#a16207', border: '#fde047', label: 'Serious Offense' };
     }
-    return { className: 'badge-minor', bg: '#f0fdf4', color: '#16a34a', border: '#bbf7d0', label: 'Minor Offense' };
+    return { className: 'badge-minor', bg: '#f0fdf4', color: '#15803d', border: '#86efac', label: 'Minor Offense' };
   };
 
   return (

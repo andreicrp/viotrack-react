@@ -301,10 +301,11 @@ export const MyClassPage = () => {
                 {teacherPos}
               </span>
               <span
+                className="badge-minor"
                 style={{
-                  background: 'rgba(34, 197, 94, 0.15)',
-                  color: '#4ade80',
-                  border: '1px solid rgba(34, 197, 94, 0.35)',
+                  background: '#f0fdf4',
+                  color: '#15803d',
+                  border: '1px solid #86efac',
                   fontSize: '11.5px',
                   fontWeight: 700,
                   padding: '2.5px 10px',
@@ -586,7 +587,7 @@ export const MyClassPage = () => {
                 onClick={() => setStatusFilter('clean')}
                 style={{
                   background: statusFilter === 'clean' ? 'var(--bg-surface-elevated, #ffffff)' : 'transparent',
-                  color: statusFilter === 'clean' ? '#4ade80' : 'var(--text-muted, #64748b)',
+                  color: statusFilter === 'clean' ? '#15803d' : 'var(--text-muted, #64748b)',
                   border: 'none',
                   padding: '6px 12px',
                   borderRadius: '7px',
@@ -604,7 +605,7 @@ export const MyClassPage = () => {
                 onClick={() => setStatusFilter('violations')}
                 style={{
                   background: statusFilter === 'violations' ? 'var(--bg-surface-elevated, #ffffff)' : 'transparent',
-                  color: statusFilter === 'violations' ? '#f87171' : 'var(--text-muted, #64748b)',
+                  color: statusFilter === 'violations' ? '#b91c1c' : 'var(--text-muted, #64748b)',
                   border: 'none',
                   padding: '6px 12px',
                   borderRadius: '7px',

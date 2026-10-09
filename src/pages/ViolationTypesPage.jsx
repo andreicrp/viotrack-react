@@ -870,8 +870,9 @@ export const ViolationTypesPage = () => {
                             borderRadius: '20px',
                             fontSize: '11.5px',
                             fontWeight: 700,
-                            background: isMajor ? 'rgba(239, 68, 68, 0.15)' : isSerious ? 'rgba(245, 158, 11, 0.15)' : 'rgba(16, 185, 129, 0.15)',
-                            color: isMajor ? '#ef4444' : isSerious ? '#f59e0b' : '#10b981'
+                            background: isMajor ? '#fef2f2' : isSerious ? '#fefce8' : '#f0fdf4',
+                            border: `1px solid ${isMajor ? '#fca5a5' : isSerious ? '#fde047' : '#86efac'}`,
+                            color: isMajor ? '#b91c1c' : isSerious ? '#a16207' : '#15803d'
                           }}
                         >
                           {v.type || 'Minor'}
