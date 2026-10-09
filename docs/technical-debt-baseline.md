@@ -554,3 +554,10 @@ Clean latest main passed **22 tests across 5 test files**, lint (**446 warnings,
 Latest main is [`1074405d9e8e2b02027417cd674cdce5f9c35bb9`](https://github.com/andreicrp/viotrack-react/commit/1074405d9e8e2b02027417cd674cdce5f9c35bb9). It improves light-mode text contrast and wrapping in the sanctions-policy matrix in `InteractiveGuide.jsx`; data-service modules, tests, dependencies, and declarations are unchanged.
 
 Clean latest main passed **22 tests across 5 test files**, lint (**446 warnings, 0 errors**), and production build (`vendor-react` 302.00 kB, gzip 96.16 kB; PDF worker 1,264.34 kB). The PR rebased onto this commit passed **46 tests across 6 files**, `npm run typecheck`, lint (**445 warnings, 0 errors**), and build with matching bundle sizes. Main has no JSDoc typecheck script.
+
+
+## Baseline after the 2026-10-10 PrintDataModal dark-mode visibility fix
+
+Latest main is [`4756084d25f8549c332fd5872ce4bbd58cc5bde8`](https://github.com/andreicrp/viotrack-react/commit/4756084d25f8549c332fd5872ce4bbd58cc5bde8). It adjusts dark-theme styling for the Print Data modal's time-period, severity, and header controls in `PrintDataModal.jsx` and `dark-theme.css`; no data-service modules, tests, dependencies, or declarations changed.
+
+Clean latest main passed **22 tests across 5 test files**, lint (**446 warnings, 0 errors**), and production build (`vendor-react` 302.00 kB, gzip 96.16 kB; PDF worker 1,264.34 kB). The PR rebased onto this commit passed **46 tests across 6 files**, `npm run typecheck`, lint (**445 warnings, 0 errors**), and build with matching bundle sizes. Main has no JSDoc typecheck script.
