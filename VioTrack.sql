@@ -311,3 +311,9 @@ INSERT INTO activity_logs (user_name, user_role, action, details, ip_address, wo
 ('Juan Dela Cruz', 'Faculty Teacher', 'Add Violation', 'Reported Minor infraction for Alexander Mendoza (ID: 109283746101)', '192.168.1.45', 'Staff Workstation #04', 'b2c92e93b1b9e2815ff8e2a39281a65dfc2d4b1fa3d677284addd200126d9101'),
 ('System Admin', 'Head Admin', 'Status Update', 'Marked incident record #1 as Resolved following compliance', '192.168.1.10', 'Windows 11 / Chrome 124', 'a89c2e93b1b9e2815ff8e2a39281a65dfc2d4b1fa3d677284addd200126d9202'),
 ('Elena Reyes', 'Faculty Teacher', 'SMS Notification', 'Dispatched official summons SMS to parent Carlos Mendoza', '192.168.1.52', 'Staff Workstation #12', 'c91e2e93b1b9e2815ff8e2a39281a65dfc2d4b1fa3d677284addd200126d9303');
+
+-- 6.9 Sample School Calendar Events
+INSERT INTO school_events (title, description, event_date, event_time, venue, event_type) VALUES
+('General Faculty & Discipline Assembly', 'Mandatory orientation on DepEd Order 40 & campus welfare protocol', CURRENT_DATE + INTERVAL '2 days', '08:30', 'University Auditorium', 'Institutional'),
+('Quarterly Parent-Teacher Disciplinary Review', 'Formal conference for students with multiple unresolved infraction points', CURRENT_DATE + INTERVAL '5 days', '10:00', 'Prefect Conference Room 204', 'Guidance');
+
