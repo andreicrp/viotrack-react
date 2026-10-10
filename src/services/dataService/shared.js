@@ -4,18 +4,6 @@ import { broadcastRecordChange, startMutation, endMutation } from '../../utils/d
 
 export { supabase, isSupabaseConfigured, smsService, broadcastRecordChange, startMutation, endMutation };
 
-// Remove the original demo data once so it cannot appear as current local data.
-try {
-  const cachedRecords = localStorage.getItem('viotrack_records');
-  if (cachedRecords && (cachedRecords.includes('Alexander Mendoza') || cachedRecords.includes('"101"') || cachedRecords.includes('"id":101'))) {
-    localStorage.removeItem('viotrack_records');
-  }
-  const cachedStudents = localStorage.getItem('viotrack_students');
-  if (cachedStudents && cachedStudents.includes('109283746101')) {
-    localStorage.removeItem('viotrack_students');
-  }
-} catch {}
-
 export const CACHE_CONFIG = {
   FRESH_TTL: 60 * 1000,       // 60 seconds fresh (instant 0ms synchronous hits)
   STALE_TTL: 15 * 60 * 1000,   // 15 minutes stale-while-revalidate window

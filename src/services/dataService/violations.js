@@ -1,4 +1,4 @@
-import { INITIAL_VIOLATIONS, INITIAL_RECORDS } from './fixtures.js';
+import { INITIAL_VIOLATIONS, INITIAL_RECORDS, INITIAL_STUDENTS } from './fixtures.js';
 import { supabase, isSupabaseConfigured, broadcastRecordChange, startMutation, endMutation, CACHE_CONFIG, _cache, executeWithDeduplication, invalidateCache, getStored, setStored } from './shared.js';
 
 export const violationsMethods = {
@@ -166,101 +166,164 @@ export const violationsMethods = {
    * @returns {Promise<import('./types').IncidentRecord[]>} Incident records.
    */
   async getRecords(forceRefresh = false) {
-      const now = Date.now();
-      const cached = _cache.data.records;
-      const cacheAge = now - _cache.timestamps.records;
+    const now = Date.now();
+    const cached = _cache.data.records;
+    const cacheAge = now - _cache.timestamps.records;
 
-      if (!forceRefresh && cached && cacheAge < CACHE_CONFIG.FRESH_TTL) {
-        return cached;
-      }
+    if (!forceRefresh && cached && cacheAge < CACHE_CONFIG.FRESH_TTL) {
+      return cached;
+    }
 
-      if (!forceRefresh && cached && cacheAge < CACHE_CONFIG.STALE_TTL) {
-        this.getRecords(true).catch(() => {});
-        return cached;
-      }
+    if (!forceRefresh && cached && cacheAge < CACHE_CONFIG.STALE_TTL) {
+      this.getRecords(true).catch(() => {});
+      return cached;
+    }
 
-      return executeWithDeduplication('records', async () => {
-        const [students, violations] = await Promise.all([
-          this.getStudents(),
-          this.getViolations()
-        ]);
+    return executeWithDeduplication('records', async () => {
+      const [students, violations] = await Promise.all([
+        this.getStudents(),
+        this.getViolations()
+      ]);
 
-        const studentMap = new Map(students.map(s => [Number(s.id), s]));
-        const violationMap = new Map(violations.map(v => [Number(v.id), v]));
-
-        let remoteRecords = null;
-        if (isSupabaseConfigured()) {
-          try {
-            const { data, error } = await supabase
-              .from('records')
-              .select(`
-                *,
-                students (*),
-                violations (*)
-              `)
-              .order('id', { ascending: false });
-            if (!error && data) {
-              remoteRecords = data;
-            }
-          } catch (err) {
-            console.warn('Supabase getRecords error:', err);
-          }
+      const studentMap = new Map();
+      INITIAL_STUDENTS.forEach((s) => {
+        if (s.id) {
+          studentMap.set(Number(s.id), s);
+          studentMap.set(String(s.id), s);
         }
-
-        const allRawRecords = (isSupabaseConfigured() && remoteRecords !== null)
-          ? remoteRecords
-          : getStored('records', []);
-
-        let mappedRecords = allRawRecords.map(r => {
-          const isTeacher = (r.reported_by_type === 'teacher' || (r.reported_by_name && r.reported_by_name !== 'System Admin' && r.reported_by_name !== 'Sheryl Gamboa' && r.reported_by_name !== 'Head Admin'));
-
-          let resolvedApproval = r.approval_status;
-          if (r.status === 'Under Approval') {
-            resolvedApproval = 'Under Approval';
-          } else if (r.status === 'Rejected') {
-            resolvedApproval = 'Rejected';
-          } else if (resolvedApproval === 'Under Approval') {
-            resolvedApproval = 'Under Approval';
-          } else if (resolvedApproval === 'Rejected') {
-            resolvedApproval = 'Rejected';
-          } else if (!resolvedApproval) {
-            if (r.approved_by) {
-              resolvedApproval = 'Approved';
-            } else if (isTeacher || !r.approved_by) {
-              resolvedApproval = 'Under Approval';
-            } else {
-              resolvedApproval = 'Approved';
-            }
-          }
-
-          const resolvedStudent = r.students || r.student || studentMap.get(Number(r.student_id));
-          const resolvedViolation = r.violations || r.violation || violationMap.get(Number(r.violation_id));
-
-          return {
-            ...r,
-            approval_status: resolvedApproval,
-            student: resolvedStudent,
-            violation: resolvedViolation
-          };
-        });
-
-        // Remove repeated incident rows while preserving the first (newest) row.
-        if (Array.isArray(mappedRecords)) {
-          const seenIds = new Set();
-          mappedRecords = mappedRecords.filter((record) => {
-            if (!record) return false;
-            const id = Number(record.id);
-            if (id && seenIds.has(id)) return false;
-            if (id) seenIds.add(id);
-            return true;
-          });
-        }
-
-        _cache.data.records = mappedRecords;
-        _cache.timestamps.records = Date.now();
-        return mappedRecords;
+        if (s.student_id) studentMap.set(String(s.student_id).trim(), s);
+        if (s.lrn) studentMap.set(String(s.lrn).trim(), s);
       });
-    },
+      students.forEach((s, idx) => {
+        if (s.id) {
+          studentMap.set(Number(s.id), s);
+          studentMap.set(String(s.id), s);
+        }
+        if (s.student_id) studentMap.set(String(s.student_id).trim(), s);
+        if (s.lrn) studentMap.set(String(s.lrn).trim(), s);
+        if (!studentMap.has(idx + 1)) {
+          studentMap.set(idx + 1, s);
+        }
+      });
+      const violationMap = new Map();
+      violations.forEach((v, idx) => {
+        if (v.id) {
+          violationMap.set(Number(v.id), v);
+          violationMap.set(String(v.id), v);
+        }
+        violationMap.set(idx + 1, v);
+      });
+
+      let remoteRecords = null;
+      if (isSupabaseConfigured()) {
+        try {
+          const { data, error } = await supabase
+            .from('records')
+            .select(`
+              *,
+              students (*),
+              violations (*)
+            `)
+            .order('id', { ascending: false });
+          if (!error && data) {
+            remoteRecords = data;
+          }
+        } catch (err) {
+          console.warn('Supabase getRecords error:', err);
+        }
+      }
+
+      let allRawRecords = [];
+      if (remoteRecords && remoteRecords.length > 0) {
+        allRawRecords = [...remoteRecords];
+        // Only merge locally logged user records (offline creates with timestamp IDs > 1000000000)
+        const localRecords = getStored('records', []);
+        const remoteIdSet = new Set(remoteRecords.map(r => Number(r.id)));
+        localRecords.forEach(lr => {
+          const numId = Number(lr.id);
+          if (numId > 1000000000 && !remoteIdSet.has(numId)) {
+            allRawRecords.push(lr);
+          }
+        });
+      } else {
+        allRawRecords = getStored('records', INITIAL_RECORDS);
+      }
+
+      let mappedRecords = allRawRecords.map(r => {
+        const isTeacher = (r.reported_by_type === 'teacher' || (r.reported_by_name && r.reported_by_name !== 'System Admin' && r.reported_by_name !== 'Sheryl Gamboa' && r.reported_by_name !== 'Head Admin'));
+
+        let resolvedApproval = r.approval_status;
+        if (r.status === 'Under Approval') {
+          resolvedApproval = 'Under Approval';
+        } else if (r.status === 'Rejected') {
+          resolvedApproval = 'Rejected';
+        } else if (resolvedApproval === 'Under Approval') {
+          resolvedApproval = 'Under Approval';
+        } else if (resolvedApproval === 'Rejected') {
+          resolvedApproval = 'Rejected';
+        } else if (!resolvedApproval) {
+          if (r.approved_by) {
+            resolvedApproval = 'Approved';
+          } else if (isTeacher || !r.approved_by) {
+            resolvedApproval = 'Under Approval';
+          } else {
+            resolvedApproval = 'Approved';
+          }
+        }
+
+        const rawStudent = r.students || r.student;
+        let resolvedStudent = (rawStudent && (rawStudent.fname || rawStudent.lname))
+          ? rawStudent
+          : (studentMap.get(Number(r.student_id)) || studentMap.get(String(r.student_id)) || rawStudent);
+
+        if (!resolvedStudent || (!resolvedStudent.fname && !resolvedStudent.lname)) {
+          resolvedStudent = (students || []).find(s => String(s.student_id) === String(r.student_id) || String(s.id) === String(r.student_id))
+            || INITIAL_STUDENTS.find(s => String(s.student_id) === String(r.student_id) || String(s.id) === String(r.student_id))
+            || INITIAL_STUDENTS[0];
+        }
+
+        const sid = String(resolvedStudent.student_id || resolvedStudent.lrn || r.student_id || '109283746101').trim();
+        const sImage = (resolvedStudent.image && resolvedStudent.image.trim() !== '')
+          ? resolvedStudent.image
+          : `https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150&auto=format&fit=crop&q=80`;
+
+        resolvedStudent = {
+          ...resolvedStudent,
+          student_id: sid,
+          lrn: sid,
+          image: sImage
+        };
+
+        const rawViolation = r.violations || r.violation;
+        const resolvedViolation = (rawViolation && rawViolation.title)
+          ? rawViolation
+          : (violationMap.get(Number(r.violation_id)) || violationMap.get(String(r.violation_id)) || rawViolation);
+
+        return {
+          ...r,
+          approval_status: resolvedApproval,
+          student: resolvedStudent,
+          violation: resolvedViolation
+        };
+      });
+
+      // Automatic Deduplication of Incident Records
+      if (Array.isArray(mappedRecords)) {
+        const seenIds = new Set();
+        mappedRecords = mappedRecords.filter(r => {
+          if (!r) return false;
+          const id = Number(r.id);
+          if (id && seenIds.has(id)) return false;
+          if (id) seenIds.add(id);
+          return true;
+        });
+      }
+
+      _cache.data.records = mappedRecords;
+      _cache.timestamps.records = Date.now();
+      return mappedRecords;
+    });
+  },
 
   async addRecord(record) {
       startMutation();
