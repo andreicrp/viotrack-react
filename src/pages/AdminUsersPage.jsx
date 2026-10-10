@@ -116,8 +116,8 @@ export const AdminUsersPage = () => {
   const loadAdmins = async () => {
     setLoading(true);
     try {
-      const data = await dataService.getAdmins();
-      if (data && data.length > 0) {
+      const data = await dataService.getAdmins(true);
+      if (Array.isArray(data)) {
         setAdminUsers(data);
       }
     } catch (err) {
@@ -165,7 +165,7 @@ export const AdminUsersPage = () => {
         for (const id of selectedIds) {
           await dataService.deleteAdmin(id);
         }
-        setAdminUsers(adminUsers.filter(a => !selectedIds.includes(a.id)));
+        setAdminUsers(prev => prev.filter(a => !selectedIds.map(String).includes(String(a.id))));
         setSelectedIds([]);
         success('Selected administrators removed.');
         loadAdmins();
@@ -179,8 +179,8 @@ export const AdminUsersPage = () => {
     if (window.confirm(`Are you sure you want to remove admin user: "${name}"?`)) {
       try {
         await dataService.deleteAdmin(id);
-        setAdminUsers(adminUsers.filter(a => a.id !== id));
-        setSelectedIds(prev => prev.filter(x => x !== id));
+        setAdminUsers(prev => prev.filter(a => String(a.id) !== String(id)));
+        setSelectedIds(prev => prev.filter(x => String(x) !== String(id)));
         success('Administrator removed successfully.');
         loadAdmins();
       } catch (err) {
@@ -188,6 +188,8 @@ export const AdminUsersPage = () => {
       }
     }
   };
+
+  const handleRemoveAdmin = handleDeleteSingle;
 
   const handleOpenAdd = () => {
     setEditingAdmin(null);

@@ -6,9 +6,71 @@ import { broadcastRecordChange, startMutation, endMutation } from '../utils/data
 import INITIAL_VIOLATIONS from '../data/violations.json';
 
 const INITIAL_STUDENTS = [];
-const INITIAL_TEACHERS = [];
+const INITIAL_TEACHERS = [
+  {
+    id: 1,
+    fname: 'Juan',
+    lname: 'Dela Cruz',
+    email: 'juan.delacruz@viotrack.edu',
+    position: 'Master Teacher I',
+    department: 'Science Department',
+    contact: '09171234567',
+    image: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80'
+  },
+  {
+    id: 2,
+    fname: 'Elena',
+    lname: 'Reyes',
+    email: 'elena.reyes@viotrack.edu',
+    position: 'Teacher III',
+    department: 'Mathematics Department',
+    contact: '09181234568',
+    image: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&auto=format&fit=crop&q=80'
+  },
+  {
+    id: 3,
+    fname: 'Roberto',
+    lname: 'Aquino',
+    email: 'roberto.aquino@viotrack.edu',
+    position: 'Teacher II',
+    department: 'English Department',
+    contact: '09191234569',
+    image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&auto=format&fit=crop&q=80'
+  }
+];
 const INITIAL_ADVISERS = [];
-const INITIAL_ADMINS = [];
+const INITIAL_ADMINS = [
+  {
+    id: 1,
+    fname: 'Sheryl',
+    mname: 'B.',
+    lname: 'Gamboa',
+    email: 'admin@phcmanila.edu.ph',
+    role: 'Head Admin',
+    position: 'Head of Student Affairs',
+    image: '/images/phcm-logo2.png'
+  },
+  {
+    id: 2,
+    fname: 'System',
+    mname: '',
+    lname: 'Administrator',
+    email: 'system.admin@viotrack.local',
+    role: 'System Admin',
+    position: 'IT & Security Lead',
+    image: ''
+  },
+  {
+    id: 3,
+    fname: 'Maria',
+    mname: 'L.',
+    lname: 'Santos',
+    email: 'm.santos@phcmanila.edu.ph',
+    role: 'Discipline Officer',
+    position: 'Guidance & Conduct Officer',
+    image: ''
+  }
+];
 const getDynamicInitialRecords = () => [];
 const INITIAL_RECORDS = [];
 const INITIAL_LOGS = [];
@@ -1109,9 +1171,17 @@ export const dataService = {
         }
       }
 
+      const localList = getStored('teachers', INITIAL_TEACHERS);
+      const localMap = new Map(localList.map(t => [String(t.email || t.id).toLowerCase(), t]));
       const list = (isSupabaseConfigured() && remoteList !== null)
-        ? remoteList
-        : getStored('teachers', []);
+        ? remoteList.map(r => {
+            const local = localMap.get(String(r.email || r.id).toLowerCase());
+            return {
+              ...r,
+              password: r.password || local?.password || 'Viotrack@2026!'
+            };
+          })
+        : localList;
 
       _cache.data.teachers = list;
       _cache.timestamps.teachers = Date.now();
@@ -1321,23 +1391,47 @@ export const dataService = {
   },
 
   async deleteTeacher(id) {
-    if (isSupabaseConfigured()) {
-      try {
-        const { error } = await supabase.from('teachers').delete().eq('id', Number(id));
-        if (error) console.error('Supabase deleteTeacher error:', error);
-      } catch (err) {
-        console.warn('Supabase deleteTeacher error:', err);
+    startMutation();
+    try {
+      const numericId = Number(id);
+      const hasNumeric = !isNaN(numericId) && numericId > 0;
+
+      if (isSupabaseConfigured()) {
+        try {
+          if (hasNumeric) {
+            // Remove associated advisory assignments first to ensure foreign key integrity
+            await supabase.from('advisers').delete().eq('teacher_id', numericId);
+            const { error } = await supabase.from('teachers').delete().eq('id', numericId);
+            if (error) console.warn('Supabase deleteTeacher notice:', error);
+          } else {
+            await supabase.from('teachers').delete().eq('email', String(id));
+          }
+        } catch (err) {
+          console.warn('Supabase deleteTeacher error:', err);
+        }
       }
+
+      // Also remove any local adviser appointments for this teacher
+      const currentAdvisers = getStored('advisers', INITIAL_ADVISERS);
+      const updatedAdvisers = currentAdvisers.filter(a => String(a.teacher_id) !== String(id));
+      setStored('advisers', updatedAdvisers);
+
+      const current = getStored('teachers', INITIAL_TEACHERS);
+      const target = current.find(t => String(t.id) === String(id) || String(t.email) === String(id));
+      const name = target ? `${target.fname} ${target.lname}` : `ID #${id}`;
+      const updated = current.filter(t => String(t.id) !== String(id) && String(t.email) !== String(id));
+      setStored('teachers', updated);
+      invalidateCache('teachers');
+      invalidateCache('advisers');
+      if (_cache.data.teachers) {
+        _cache.data.teachers = _cache.data.teachers.filter(t => String(t.id) !== String(id) && String(t.email) !== String(id));
+      }
+      await this.addActivityLog('Delete Teacher', `Removed faculty member ${name}`);
+      broadcastRecordChange('delete', 'teacher', { id });
+      return true;
+    } finally {
+      endMutation();
     }
-    const current = getStored('teachers', INITIAL_TEACHERS);
-    const target = current.find(t => t.id === Number(id));
-    const name = target ? `${target.fname} ${target.lname}` : `ID #${id}`;
-    const updated = current.filter(t => t.id !== Number(id));
-    setStored('teachers', updated);
-    invalidateCache('teachers');
-    invalidateCache('advisers');
-    await this.addActivityLog('Delete Teacher', `Removed faculty member ${name}`);
-    return true;
   },
 
   async getAdvisers(forceRefresh = false) {
@@ -1467,9 +1561,17 @@ export const dataService = {
         }
       }
 
+      const localList = getStored('admins', INITIAL_ADMINS);
+      const localMap = new Map(localList.map(a => [String(a.email || a.id).toLowerCase(), a]));
       const list = (isSupabaseConfigured() && remoteList !== null)
-        ? remoteList
-        : getStored('admins', []);
+        ? remoteList.map(r => {
+            const local = localMap.get(String(r.email || r.id).toLowerCase());
+            return {
+              ...r,
+              password: r.password || local?.password || 'Viotrack@2026!'
+            };
+          })
+        : localList;
 
       _cache.data.admins = list;
       _cache.timestamps.admins = Date.now();
@@ -1478,98 +1580,182 @@ export const dataService = {
   },
 
   async addAdmin(admin) {
-    let result = null;
-    const cleanAdmin = {
-      fname: String(admin.fname || '').trim(),
-      mname: String(admin.mname || '').trim(),
-      lname: String(admin.lname || '').trim(),
-      email: String(admin.email || '').trim().toLowerCase(),
-      role: String(admin.role || 'Head Admin').trim(),
-      position: String(admin.position || 'Discipline Staff').trim(),
-      password: String(admin.password || 'Viotrack@2026!').trim(),
-      image: String(admin.image || '').trim()
-    };
+    startMutation();
+    try {
+      let result = null;
+      const cleanAdmin = {
+        fname: String(admin.fname || '').trim(),
+        mname: String(admin.mname || '').trim(),
+        lname: String(admin.lname || '').trim(),
+        email: String(admin.email || '').trim().toLowerCase(),
+        role: String(admin.role || 'Head Admin').trim(),
+        position: String(admin.position || 'Discipline Staff').trim(),
+        password: String(admin.password || 'Viotrack@2026!').trim(),
+        image: String(admin.image || '').trim()
+      };
 
-    if (isSupabaseConfigured()) {
-      try {
-        const supabasePayload = {
-          fname: cleanAdmin.fname,
-          lname: cleanAdmin.lname,
-          email: cleanAdmin.email,
-          password: cleanAdmin.password,
-          role: cleanAdmin.role,
-          image: cleanAdmin.image
-        };
-        const { data, error } = await supabase.from('admins').insert([supabasePayload]).select();
-        if (!error && data?.[0]) {
-          result = { ...cleanAdmin, ...data[0] };
-        } else if (error) {
-          console.warn('Supabase addAdmin notice:', error.message || error);
+      if (isSupabaseConfigured()) {
+        try {
+          const supabasePayload = {
+            fname: cleanAdmin.fname,
+            lname: cleanAdmin.lname,
+            email: cleanAdmin.email,
+            password: cleanAdmin.password,
+            role: cleanAdmin.role,
+            image: cleanAdmin.image
+          };
+
+          let toSend = { ...supabasePayload };
+          let res = await supabase.from('admins').insert([toSend]).select();
+
+          while (res.error && res.error.code === 'PGRST204') {
+            const match = res.error.message?.match(/Could not find the '([^']+)' column/);
+            if (match && match[1] && match[1] in toSend) {
+              delete toSend[match[1]];
+              res = await supabase.from('admins').insert([toSend]).select();
+            } else {
+              break;
+            }
+          }
+
+          if (!res.error && res.data?.[0]) {
+            result = { ...cleanAdmin, ...res.data[0] };
+          } else if (res.error) {
+            console.warn('Supabase addAdmin notice:', res.error);
+          }
+        } catch (err) {
+          console.warn('Supabase addAdmin error:', err);
         }
-      } catch (err) {
-        console.warn('Supabase addAdmin error:', err);
       }
+
+      if (!result) {
+        result = { ...cleanAdmin, id: Date.now(), created_at: new Date().toISOString() };
+      }
+
+      const current = getStored('admins', INITIAL_ADMINS);
+      const updated = [result, ...current.filter(a => a.email !== cleanAdmin.email)];
+      setStored('admins', updated);
+      invalidateCache('admins');
+      if (_cache.data.admins) {
+        _cache.data.admins = updated;
+      }
+      await this.addActivityLog('Add Admin', `Created administrator account for ${cleanAdmin.fname} ${cleanAdmin.lname} (${cleanAdmin.role})`);
+      broadcastRecordChange('create', 'admin', result);
+      return result;
+    } finally {
+      endMutation();
     }
-    const current = getStored('admins', INITIAL_ADMINS);
-    if (!result) {
-      result = { ...cleanAdmin, id: Date.now(), created_at: new Date().toISOString() };
-    }
-    const updated = [result, ...current.filter(a => a.email !== cleanAdmin.email)];
-    setStored('admins', updated);
-    invalidateCache('admins');
-    await this.addActivityLog('Add Admin', `Created administrator account for ${cleanAdmin.fname} ${cleanAdmin.lname} (${cleanAdmin.role})`);
-    return result;
   },
 
   async updateAdmin(id, updates) {
-    let result = null;
-    const cleanUpdates = {};
-    const allowed = ['fname', 'mname', 'lname', 'email', 'role', 'position', 'password', 'image'];
-    for (const key of allowed) {
-      if (updates[key] !== undefined) {
-        if (key === 'password' && !String(updates[key]).trim()) {
-          // Skip empty password update to prevent wiping existing password
-          continue;
+    startMutation();
+    try {
+      let result = null;
+      const cleanUpdates = {};
+      const allowed = ['fname', 'mname', 'lname', 'email', 'role', 'position', 'password', 'image'];
+      for (const key of allowed) {
+        if (updates[key] !== undefined) {
+          if (key === 'password' && !String(updates[key]).trim()) {
+            continue;
+          }
+          cleanUpdates[key] = updates[key];
         }
-        cleanUpdates[key] = updates[key];
       }
-    }
 
-    if (isSupabaseConfigured()) {
-      try {
-        const { data, error } = await supabase.from('admins').update(cleanUpdates).eq('id', Number(id)).select();
-        if (!error && data?.[0]) result = data[0];
-        else if (error) console.error('Supabase updateAdmin error:', error);
-      } catch (err) {
-        console.warn('Supabase updateAdmin error:', err);
+      if (isSupabaseConfigured()) {
+        try {
+          const allowedSupabaseCols = ['fname', 'lname', 'email', 'role', 'image', 'password'];
+          let toSend = {};
+          for (const key of allowedSupabaseCols) {
+            if (cleanUpdates[key] !== undefined) {
+              toSend[key] = cleanUpdates[key];
+            }
+          }
+
+          const numericId = Number(id);
+          const hasNumeric = !isNaN(numericId) && numericId > 0;
+
+          let res;
+          if (hasNumeric) {
+            res = await supabase.from('admins').update(toSend).eq('id', numericId).select();
+          } else {
+            res = await supabase.from('admins').update(toSend).eq('email', String(id)).select();
+          }
+
+          while (res.error && res.error.code === 'PGRST204') {
+            const match = res.error.message?.match(/Could not find the '([^']+)' column/);
+            if (match && match[1] && match[1] in toSend) {
+              delete toSend[match[1]];
+              if (hasNumeric) {
+                res = await supabase.from('admins').update(toSend).eq('id', numericId).select();
+              } else {
+                res = await supabase.from('admins').update(toSend).eq('email', String(id)).select();
+              }
+            } else {
+              break;
+            }
+          }
+
+          if (!res.error && res.data?.[0]) {
+            result = { ...cleanUpdates, ...res.data[0] };
+          } else if (res.error) {
+            console.warn('Supabase updateAdmin notice:', res.error);
+          }
+        } catch (err) {
+          console.warn('Supabase updateAdmin error:', err);
+        }
       }
+
+      const current = getStored('admins', INITIAL_ADMINS);
+      const updated = current.map(a => (String(a.id) === String(id) || String(a.email) === String(id) ? { ...a, ...cleanUpdates, ...(result || {}) } : a));
+      setStored('admins', updated);
+      invalidateCache('admins');
+      if (!result) result = updated.find(a => String(a.id) === String(id) || String(a.email) === String(id));
+      if (_cache.data.admins) {
+        _cache.data.admins = updated;
+      }
+      await this.addActivityLog('Update Admin', `Updated admin profile for ${updates.fname || ''} ${updates.lname || ''} (${updates.role || 'Admin'})`);
+      broadcastRecordChange('update', 'admin', result);
+      return result;
+    } finally {
+      endMutation();
     }
-    const current = getStored('admins', INITIAL_ADMINS);
-    const updated = current.map(a => (a.id === Number(id) ? { ...a, ...cleanUpdates } : a));
-    setStored('admins', updated);
-    invalidateCache('admins');
-    if (!result) result = updated.find(a => a.id === Number(id));
-    await this.addActivityLog('Update Admin', `Updated admin profile for ${updates.fname || ''} ${updates.lname || ''} (${updates.role || 'Admin'})`);
-    return result;
   },
 
   async deleteAdmin(id) {
-    if (isSupabaseConfigured()) {
-      try {
-        const { error } = await supabase.from('admins').delete().eq('id', Number(id));
-        if (error) console.error('Supabase deleteAdmin error:', error);
-      } catch (err) {
-        console.warn('Supabase deleteAdmin error:', err);
+    startMutation();
+    try {
+      const numericId = Number(id);
+      const hasNumeric = !isNaN(numericId) && numericId > 0;
+
+      if (isSupabaseConfigured()) {
+        try {
+          let res;
+          if (hasNumeric) {
+            res = await supabase.from('admins').delete().eq('id', numericId);
+          } else {
+            res = await supabase.from('admins').delete().eq('email', String(id));
+          }
+          if (res?.error) console.warn('Supabase deleteAdmin notice:', res.error);
+        } catch (err) {
+          console.warn('Supabase deleteAdmin error:', err);
+        }
       }
+      const current = getStored('admins', INITIAL_ADMINS);
+      const target = current.find(a => String(a.id) === String(id) || String(a.email) === String(id));
+      const name = target ? `${target.fname} ${target.lname}` : `ID #${id}`;
+      const updated = current.filter(a => String(a.id) !== String(id) && String(a.email) !== String(id));
+      setStored('admins', updated);
+      invalidateCache('admins');
+      if (_cache.data.admins) {
+        _cache.data.admins = _cache.data.admins.filter(a => String(a.id) !== String(id) && String(a.email) !== String(id));
+      }
+      await this.addActivityLog('Delete Admin', `Removed administrator account for ${name}`);
+      broadcastRecordChange('delete', 'admin', { id });
+      return true;
+    } finally {
+      endMutation();
     }
-    const current = getStored('admins', INITIAL_ADMINS);
-    const target = current.find(a => a.id === Number(id));
-    const name = target ? `${target.fname} ${target.lname}` : `ID #${id}`;
-    const updated = current.filter(a => a.id !== Number(id));
-    setStored('admins', updated);
-    invalidateCache('admins');
-    await this.addActivityLog('Delete Admin', `Removed administrator account for ${name}`);
-    return true;
   },
 
   // --- ACTIVITY LOGS ---
@@ -1698,8 +1884,11 @@ export const dataService = {
       let remoteList = null;
       if (isSupabaseConfigured()) {
         try {
-          const { data, error } = await supabase.from('school_events').select('*').order('date', { ascending: true });
-          if (!error && data) remoteList = data;
+          let res = await supabase.from('calendar_events').select('*').order('date', { ascending: true });
+          if (res.error && res.error.code === 'PGRST205') {
+            res = await supabase.from('school_events').select('*').order('date', { ascending: true });
+          }
+          if (!res.error && res.data) remoteList = res.data;
         } catch (err) {
           console.warn('Supabase getSchoolEvents error:', err);
         }
@@ -1717,8 +1906,11 @@ export const dataService = {
     let result = null;
     if (isSupabaseConfigured()) {
       try {
-        const { data, error } = await supabase.from('school_events').insert([event]).select();
-        if (!error && data?.[0]) result = data[0];
+        let res = await supabase.from('calendar_events').insert([event]).select();
+        if (res.error && res.error.code === 'PGRST205') {
+          res = await supabase.from('school_events').insert([event]).select();
+        }
+        if (!res.error && res.data?.[0]) result = res.data[0];
       } catch (err) {
         console.warn('Supabase addSchoolEvent error:', err);
       }
@@ -1743,7 +1935,10 @@ export const dataService = {
   async deleteSchoolEvent(id) {
     if (isSupabaseConfigured()) {
       try {
-        await supabase.from('school_events').delete().eq('id', id);
+        let res = await supabase.from('calendar_events').delete().eq('id', id);
+        if (res.error && res.error.code === 'PGRST205') {
+          await supabase.from('school_events').delete().eq('id', id);
+        }
       } catch (err) {
         console.warn('Supabase deleteSchoolEvent error:', err);
       }

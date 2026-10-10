@@ -2078,6 +2078,7 @@ export const StudentViolationDetailPage = () => {
             {/* Printable ID badge format */}
             <div
               id="printable-qr-card"
+              className="printable-qr-card"
               style={{
                 width: '100%',
                 background: '#ffffff',
@@ -2089,7 +2090,10 @@ export const StudentViolationDetailPage = () => {
                 position: 'relative'
               }}
             >
-              <div style={{ fontSize: '11px', fontWeight: 800, color: '#07345f', letterSpacing: '0.08em', textTransform: 'uppercase' }}>
+              <div
+                className="qr-pass-brand"
+                style={{ fontSize: '11px', fontWeight: 800, letterSpacing: '0.08em', textTransform: 'uppercase' }}
+              >
                 VIOTRACK
               </div>
               <div style={{ fontSize: '17px', fontWeight: 800, color: '#0f172a', marginTop: '4px' }}>
@@ -2117,7 +2121,10 @@ export const StudentViolationDetailPage = () => {
                 />
               </div>
 
-              <div style={{ fontSize: '14px', fontWeight: 800, color: '#07345f', letterSpacing: '0.04em' }}>
+              <div
+                className="qr-pass-student-id"
+                style={{ fontSize: '14px', fontWeight: 800, letterSpacing: '0.04em' }}
+              >
                 Student ID: {student.lrn}
               </div>
               <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px' }}>
@@ -2129,11 +2136,12 @@ export const StudentViolationDetailPage = () => {
               <button
                 type="button"
                 onClick={() => window.print()}
+                className="qr-pass-print-btn"
                 style={{
                   flex: 1,
-                  background: '#07345f',
-                  color: '#ffffff',
-                  border: 'none',
+                  background: '#ffffff',
+                  color: '#07345f',
+                  border: '1.5px solid #cbd5e1',
                   padding: '11px 16px',
                   borderRadius: '10px',
                   fontWeight: 700,
@@ -2143,7 +2151,7 @@ export const StudentViolationDetailPage = () => {
                   alignItems: 'center',
                   justifyContent: 'center',
                   gap: '6px',
-                  boxShadow: '0 4px 14px rgba(7, 52, 95, 0.25)'
+                  boxShadow: '0 2px 8px rgba(0, 0, 0, 0.06)'
                 }}
               >
                 <Printer size={15} /> Print QR Pass Badge
@@ -2151,6 +2159,7 @@ export const StudentViolationDetailPage = () => {
               <button
                 type="button"
                 onClick={() => setIsQrModalOpen(false)}
+                className="qr-pass-close-btn"
                 style={{
                   background: '#f1f5f9',
                   color: '#475569',

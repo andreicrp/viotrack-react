@@ -129,21 +129,19 @@ export const LoginPage = () => {
       );
 
       if (matchedAdmin) {
-        let adminPassMatches = true;
+        let adminPassMatches = false;
         if (matchedAdmin.password) {
           adminPassMatches = (
             matchedAdmin.password === cleanPassword ||
-            matchedAdmin.password.toLowerCase() === cleanPassword.toLowerCase()
+            matchedAdmin.password.toLowerCase() === cleanPassword.toLowerCase() ||
+            ((matchedAdmin.email?.toLowerCase() === 'admin@viotrack.edu' || cleanInput === 'admin') &&
+              (cleanPassword === 'admin123' || cleanPassword === 'Viotrack@2026!'))
           );
-        }
-        if (!adminPassMatches) {
-          adminPassMatches = (
-            cleanPassword === 'admin123' ||
-            cleanPassword === 'Viotrack@2026!' ||
-            cleanPassword === 'admin' ||
-            cleanPassword === 'password' ||
-            cleanPassword === '123456'
-          );
+        } else {
+          const isSeededAdmin = (matchedAdmin.email?.toLowerCase() === 'admin@viotrack.edu' || cleanInput === 'admin');
+          adminPassMatches = isSeededAdmin
+            ? (cleanPassword === 'admin123' || cleanPassword === 'Viotrack@2026!')
+            : (cleanPassword === 'Viotrack@2026!');
         }
 
         if (adminPassMatches) {
@@ -161,6 +159,8 @@ export const LoginPage = () => {
           success(`Welcome back, ${fullName}! Signed in as Administrator.`);
           navigate(getSafeDestination('admin', rawTargetDestination));
           return;
+        } else {
+          throw new Error('Invalid institutional email or password. Please verify your credentials.');
         }
       }
 
@@ -172,21 +172,19 @@ export const LoginPage = () => {
       );
 
       if (matchedTeacher) {
-        let teacherPassMatches = true;
+        let teacherPassMatches = false;
         if (matchedTeacher.password) {
           teacherPassMatches = (
             matchedTeacher.password === cleanPassword ||
-            matchedTeacher.password.toLowerCase() === cleanPassword.toLowerCase()
+            matchedTeacher.password.toLowerCase() === cleanPassword.toLowerCase() ||
+            ((matchedTeacher.email?.toLowerCase() === 'teacher@viotrack.edu' || cleanInput === 'teacher' || matchedTeacher.email?.toLowerCase() === 'juan.delacruz@viotrack.edu') &&
+              (cleanPassword === 'teacher123' || cleanPassword === 'Viotrack@2026!'))
           );
-        }
-        if (!teacherPassMatches) {
-          teacherPassMatches = (
-            cleanPassword === 'teacher123' ||
-            cleanPassword === 'Viotrack@2026!' ||
-            cleanPassword === 'teacher' ||
-            cleanPassword === 'password' ||
-            cleanPassword === '123456'
-          );
+        } else {
+          const isSeededTeacher = (matchedTeacher.email?.toLowerCase() === 'teacher@viotrack.edu' || cleanInput === 'teacher' || matchedTeacher.email?.toLowerCase() === 'juan.delacruz@viotrack.edu');
+          teacherPassMatches = isSeededTeacher
+            ? (cleanPassword === 'teacher123' || cleanPassword === 'Viotrack@2026!')
+            : (cleanPassword === 'Viotrack@2026!');
         }
 
         if (teacherPassMatches) {
@@ -208,41 +206,59 @@ export const LoginPage = () => {
           success(`Welcome back, ${fullName}! Signed in as Faculty.`);
           navigate(getSafeDestination('teacher', rawTargetDestination));
           return;
+        } else {
+          throw new Error('Invalid institutional email or password. Please verify your credentials.');
         }
       }
 
-      // Step D: Default Fallback Demo / Seeded Credentials
+      // Step D: Default Fallback Demo / Seeded Credentials (verified strictly against seeded passwords)
       if (cleanInput === 'admin@viotrack.edu' || cleanInput === 'admin' || cleanInput === 'superadmin') {
-        const userObj = {
-          id: 1,
-          name: 'System Admin',
-          email: 'admin@viotrack.edu',
-          role: 'admin',
-          position: 'Head Administrator',
-          avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
-          adviserSection: null
-        };
-        login(userObj, rememberMe);
-        success('Welcome back, System Admin! Signed in as Administrator.');
-        navigate(getSafeDestination('admin', rawTargetDestination));
-        return;
+        const isDefaultAdminPass = (
+          cleanPassword === 'admin123' ||
+          cleanPassword === 'Viotrack@2026!'
+        );
+        if (isDefaultAdminPass) {
+          const userObj = {
+            id: 1,
+            name: 'System Admin',
+            email: 'admin@viotrack.edu',
+            role: 'admin',
+            position: 'Head Administrator',
+            avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+            adviserSection: null
+          };
+          login(userObj, rememberMe);
+          success('Welcome back, System Admin! Signed in as Administrator.');
+          navigate(getSafeDestination('admin', rawTargetDestination));
+          return;
+        } else {
+          throw new Error('Invalid institutional email or password. Please verify your credentials.');
+        }
       }
 
       if (cleanInput === 'teacher@viotrack.edu' || cleanInput === 'teacher') {
-        const userObj = {
-          id: 1,
-          name: 'Juan Dela Cruz',
-          email: 'teacher@viotrack.edu',
-          role: 'teacher',
-          position: 'Master Teacher I',
-          department: 'Science Department',
-          avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',
-          adviserSection: { grade: 'Grade 10', section: 'Rizal' }
-        };
-        login(userObj, rememberMe);
-        success('Welcome back, Juan Dela Cruz! Signed in as Faculty.');
-        navigate(getSafeDestination('teacher', rawTargetDestination));
-        return;
+        const isDefaultTeacherPass = (
+          cleanPassword === 'teacher123' ||
+          cleanPassword === 'Viotrack@2026!'
+        );
+        if (isDefaultTeacherPass) {
+          const userObj = {
+            id: 1,
+            name: 'Juan Dela Cruz',
+            email: 'teacher@viotrack.edu',
+            role: 'teacher',
+            position: 'Master Teacher I',
+            department: 'Science Department',
+            avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',
+            adviserSection: { grade: 'Grade 10', section: 'Rizal' }
+          };
+          login(userObj, rememberMe);
+          success('Welcome back, Juan Dela Cruz! Signed in as Faculty.');
+          navigate(getSafeDestination('teacher', rawTargetDestination));
+          return;
+        } else {
+          throw new Error('Invalid institutional email or password. Please verify your credentials.');
+        }
       }
 
       throw new Error('Invalid institutional email or password. Please verify your credentials.');

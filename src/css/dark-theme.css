@@ -10630,6 +10630,104 @@ html[data-theme="dark"] body .guide-btn-next path {
   stroke: #000000 !important;
 }
 
+/* ==========================================================================
+   OFFICIAL STUDENT QR PASS PREVIEW & PRINT MODAL
+   ========================================================================== */
+
+.qr-pass-brand {
+  color: #07345f;
+  transition: color 0.2s ease;
+}
+
+.qr-pass-student-id {
+  color: #07345f;
+  transition: color 0.2s ease;
+}
+
+[data-theme="dark"] .qr-pass-brand,
+[data-theme="dark"] #printable-qr-card .qr-pass-brand,
+.dark-theme .qr-pass-brand,
+html.dark .qr-pass-brand,
+html[data-theme="dark"] body .qr-pass-brand {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+[data-theme="dark"] .qr-pass-student-id,
+[data-theme="dark"] #printable-qr-card .qr-pass-student-id,
+.dark-theme .qr-pass-student-id,
+html.dark .qr-pass-student-id,
+html[data-theme="dark"] body .qr-pass-student-id {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+.qr-pass-print-btn {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  color: #07345f !important;
+  -webkit-text-fill-color: #07345f !important;
+  border: 1.5px solid #cbd5e1 !important;
+  transition: all 0.18s ease;
+}
+
+.qr-pass-print-btn:hover {
+  background: #f8fafc !important;
+  background-color: #f8fafc !important;
+}
+
+[data-theme="dark"] .qr-pass-print-btn,
+.dark-theme .qr-pass-print-btn,
+html.dark .qr-pass-print-btn,
+html[data-theme="dark"] body .qr-pass-print-btn {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+  border: 1px solid #ffffff !important;
+  box-shadow: 0 4px 14px rgba(255, 255, 255, 0.15) !important;
+}
+
+[data-theme="dark"] .qr-pass-print-btn:hover,
+.dark-theme .qr-pass-print-btn:hover,
+html.dark .qr-pass-print-btn:hover,
+html[data-theme="dark"] body .qr-pass-print-btn:hover {
+  background: #e5e5e5 !important;
+  background-color: #e5e5e5 !important;
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+  border-color: #ffffff !important;
+}
+
+[data-theme="dark"] .qr-pass-print-btn svg,
+[data-theme="dark"] .qr-pass-print-btn path,
+html[data-theme="dark"] body .qr-pass-print-btn svg,
+html[data-theme="dark"] body .qr-pass-print-btn path {
+  color: #000000 !important;
+  stroke: #000000 !important;
+}
+
+@media print {
+  .qr-modal-backdrop {
+    background: transparent !important;
+    padding: 0 !important;
+    position: static !important;
+  }
+  .qr-pass-print-btn,
+  .qr-pass-close-btn,
+  .qr-modal-backdrop button {
+    display: none !important;
+  }
+  .qr-pass-brand,
+  .qr-pass-student-id,
+  #printable-qr-card .qr-pass-brand,
+  #printable-qr-card .qr-pass-student-id {
+    color: #07345f !important;
+    -webkit-text-fill-color: #07345f !important;
+  }
+}
+
+
 
 
 

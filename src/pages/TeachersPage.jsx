@@ -156,8 +156,8 @@ export const TeachersPage = () => {
     if (window.confirm(`Are you sure you want to remove teacher: ${name}?`)) {
       try {
         await dataService.deleteTeacher(id);
-        setTeachers(teachers.filter(t => t.id !== id));
-        setSelectedIds(prev => prev.filter(x => x !== id));
+        setTeachers(prev => prev.filter(t => String(t.id) !== String(id)));
+        setSelectedIds(prev => prev.filter(x => String(x) !== String(id)));
         success('Teacher removed from faculty.');
         loadData();
       } catch (err) {
@@ -166,12 +166,15 @@ export const TeachersPage = () => {
     }
   };
 
+  const handleDeleteTeacher = handleRemoveTeacher;
+
   const handleDeleteSelected = async () => {
     if (window.confirm(`Are you sure you want to remove ${selectedIds.length} selected teacher(s)?`)) {
       try {
         for (const id of selectedIds) {
           await dataService.deleteTeacher(id);
         }
+        setTeachers(prev => prev.filter(t => !selectedIds.map(String).includes(String(t.id))));
         setSelectedIds([]);
         success('Selected teachers removed.');
         loadData();
