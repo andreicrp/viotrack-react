@@ -266,19 +266,19 @@ export const AppointAdviserModal = ({ isOpen, onClose, teacher, currentAdviser, 
               style={{
                 padding: '9px 22px',
                 borderRadius: '9px',
-                background: '#0f172a',
-                color: '#ffffff',
-                border: 'none',
+                background: '#ffffff',
+                color: '#000000',
+                border: '1px solid #ffffff',
                 fontWeight: 700,
                 fontSize: '13px',
                 cursor: 'pointer',
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '8px',
-                boxShadow: '0 4px 14px rgba(15, 23, 42, 0.3)'
+                boxShadow: '0 4px 14px rgba(255, 255, 255, 0.15)'
               }}
             >
-              <Check size={16} />
+              <Check size={16} color="#000000" />
               <span>{isAlreadyAssigned ? 'Update Assignment' : 'Confirm Appointment'}</span>
             </button>
           </div>

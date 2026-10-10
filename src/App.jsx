@@ -23,6 +23,7 @@ const ScanQRPage = lazy(() => import('./pages/ScanQRPage').then(m => ({ default:
 const TeachersPage = lazy(() => import('./pages/TeachersPage').then(m => ({ default: m.TeachersPage || m.default })));
 const AdvisersPage = lazy(() => import('./pages/AdvisersPage').then(m => ({ default: m.AdvisersPage || m.default })));
 const TrackLocationPage = lazy(() => import('./pages/TrackLocationPage').then(m => ({ default: m.TrackLocationPage || m.default })));
+const AdminDashboardPage = lazy(() => import('./pages/AdminDashboardPage').then(m => ({ default: m.AdminDashboardPage || m.default })));
 const AdminUsersPage = lazy(() => import('./pages/AdminUsersPage').then(m => ({ default: m.AdminUsersPage || m.default })));
 const ForApprovalPage = lazy(() => import('./pages/ForApprovalPage').then(m => ({ default: m.ForApprovalPage || m.default })));
 const ActivityLogsPage = lazy(() => import('./pages/ActivityLogsPage').then(m => ({ default: m.ActivityLogsPage || m.default })));
@@ -63,7 +64,6 @@ const AuthenticatedStartupTasks = () => {
     let idleCallbackId;
     let timeoutId;
     const runStartupTasks = () => {
-      void dataService.warmCache();
       void dataService.checkAndRunScheduledBackup();
     };
 
@@ -215,6 +215,14 @@ export function App() {
                     } 
                   />
                   <Route 
+                    path="admin-dashboard"
+                    element={
+                      <ProtectedRoute requireAdmin>
+                        <AdminDashboardPage />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
                     path="admin-users" 
                     element={
                       <ProtectedRoute requireAdmin>

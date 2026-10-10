@@ -192,7 +192,7 @@ export const ViolationsPage = () => {
       if (!query) return true;
 
       const sName = `${student.fname || ''} ${student.lname || ''}`.toLowerCase();
-      const sLrn = (student.lrn || '').toLowerCase();
+      const sLrn = (student.student_id || student.lrn || '').toLowerCase();
       const sSection = (student.section || '').toLowerCase();
       const vTitle = (r.violation?.title || '').toLowerCase();
 
@@ -1130,9 +1130,14 @@ export const ViolationsPage = () => {
                           <img
                             src={
                               rec.student?.image ||
-                              `https://ui-avatars.com/api/?name=${encodeURIComponent(rec.student?.fname || 'Student')}&background=07345f&color=fff&size=38`
+                              `https://ui-avatars.com/api/?name=${encodeURIComponent(((rec.student?.fname || '') + ' ' + (rec.student?.lname || '')).trim() || 'Student')}&background=07345f&color=fff&size=38&bold=true`
                             }
-                            alt="Student"
+                            alt={rec.student ? `${rec.student.fname} ${rec.student.lname}` : 'Student'}
+                            onError={(e) => {
+                              const sName = rec.student ? `${rec.student.fname} ${rec.student.lname || ''}`.trim() : 'Student';
+                              e.currentTarget.onerror = null;
+                              e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(sName || 'Student')}&background=07345f&color=fff&size=38&bold=true`;
+                            }}
                             loading="lazy"
                             decoding="async"
                             style={{
@@ -1149,7 +1154,7 @@ export const ViolationsPage = () => {
                               {rec.student ? `${rec.student.fname} ${rec.student.lname}` : 'Enrolled Student'}
                             </div>
                             <div style={{ fontSize: '11px', color: 'var(--text-muted, #64748b)', marginTop: '1px' }}>
-                              Student ID: <strong style={{ color: 'var(--text-secondary, #334155)' }}>{rec.student?.lrn || '22-0000-000'}</strong>
+                              Student ID: <strong style={{ color: 'var(--text-secondary, #334155)' }}>{rec.student?.student_id || rec.student?.lrn || '109283746101'}</strong>
                             </div>
                           </div>
                         </div>
@@ -1360,9 +1365,14 @@ export const ViolationsPage = () => {
                   <img
                     src={
                       rec.student?.image ||
-                      `https://ui-avatars.com/api/?name=${encodeURIComponent(rec.student?.fname || 'Student')}&background=07345f&color=fff&size=48`
+                      `https://ui-avatars.com/api/?name=${encodeURIComponent(((rec.student?.fname || '') + ' ' + (rec.student?.lname || '')).trim() || 'Student')}&background=07345f&color=fff&size=48&bold=true`
                     }
-                    alt="Student"
+                    alt={rec.student ? `${rec.student.fname} ${rec.student.lname}` : 'Student'}
+                    onError={(e) => {
+                      const sName = rec.student ? `${rec.student.fname} ${rec.student.lname || ''}`.trim() : 'Student';
+                      e.currentTarget.onerror = null;
+                      e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(sName || 'Student')}&background=07345f&color=fff&size=48&bold=true`;
+                    }}
                     loading="lazy"
                     decoding="async"
                     className="entity-grid-avatar"
@@ -1467,9 +1477,14 @@ export const ViolationsPage = () => {
                       <img
                         src={
                           rec.student?.image ||
-                          `https://ui-avatars.com/api/?name=${encodeURIComponent(rec.student?.fname || 'Student')}&background=07345f&color=fff&size=36`
+                          `https://ui-avatars.com/api/?name=${encodeURIComponent(((rec.student?.fname || '') + ' ' + (rec.student?.lname || '')).trim() || 'Student')}&background=07345f&color=fff&size=36&bold=true`
                         }
-                        alt="Student"
+                        alt={rec.student ? `${rec.student.fname} ${rec.student.lname}` : 'Student'}
+                        onError={(e) => {
+                          const sName = rec.student ? `${rec.student.fname} ${rec.student.lname || ''}`.trim() : 'Student';
+                          e.currentTarget.onerror = null;
+                          e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(sName || 'Student')}&background=07345f&color=fff&size=36&bold=true`;
+                        }}
                         loading="lazy"
                         decoding="async"
                         style={{
@@ -1486,7 +1501,7 @@ export const ViolationsPage = () => {
                           {rec.student ? `${rec.student.fname} ${rec.student.lname}` : 'Enrolled Student'}
                         </div>
                         <div className="violation-list-mobile-id" style={{ fontSize: '11px', color: '#64748b' }}>
-                          Student ID: <strong style={{ color: '#334155' }}>{rec.student?.lrn || '22-0000-000'}</strong>
+                          Student ID: <strong style={{ color: '#334155' }}>{rec.student?.student_id || rec.student?.lrn || '109283746101'}</strong>
                         </div>
                       </div>
                     </div>

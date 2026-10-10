@@ -2583,3 +2583,24 @@ summary:focus-visible,
 .custom-time-picker-done-btn:hover {
   filter: brightness(1.08);
 }
+
+/* Screen Lock Modal Idle Badge */
+.screen-lock-idle-badge {
+  font-size: 10.5px;
+  color: #0369a1;
+  background: rgba(3, 105, 161, 0.08);
+  border: 1px solid rgba(3, 105, 161, 0.25);
+  padding: 1.5px 8px;
+  border-radius: 9999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 3.5px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+.screen-lock-idle-badge svg {
+  color: currentColor;
+  stroke: currentColor;
+}
+

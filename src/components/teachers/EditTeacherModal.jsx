@@ -486,12 +486,13 @@ export const EditTeacherModal = ({ isOpen, onClose, teacher, onSaved }) => {
 
               <button
                 type="submit"
+                className="teacher-modal-submit-btn"
                 style={{
                   padding: '9px 22px',
                   borderRadius: '9px',
                   background: 'var(--brand-blue, #0f172a)',
-                  color: '#ffffff',
-                  border: 'none',
+                  color: 'var(--brand-btn-text, #ffffff)',
+                  border: '1px solid var(--brand-blue, #0f172a)',
                   fontWeight: 700,
                   fontSize: '13px',
                   cursor: 'pointer',

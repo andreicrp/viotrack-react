@@ -285,7 +285,7 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
       onClose={onClose}
       title="Log Student Violation"
       icon={AlertTriangle}
-      maxWidth="540px"
+      maxWidth="680px"
       dialogClassName="violation-entry-modal"
     >
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
@@ -352,7 +352,6 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
                 color: step === 2 ? '#ffffff' : step > 2 ? '#34d399' : 'var(--text-muted, #475569)',
                 cursor: selectedStudentIds.length > 0 ? 'pointer' : 'not-allowed',
                 transition: 'all 0.15s ease',
-                opacity: selectedStudentIds.length === 0 ? 0.6 : 1,
                 fontFamily: 'inherit'
               }}
             >
@@ -394,7 +393,6 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
                 color: step === 3 ? '#ffffff' : 'var(--text-muted, #475569)',
                 cursor: (selectedStudentIds.length > 0 && selectedViolationIds.length > 0) ? 'pointer' : 'not-allowed',
                 transition: 'all 0.15s ease',
-                opacity: (selectedStudentIds.length === 0 || selectedViolationIds.length === 0) ? 0.6 : 1,
                 fontFamily: 'inherit'
               }}
             >
@@ -422,19 +420,19 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
         </div>
 
         {/* Modal Step Content Body */}
-        <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '12px', padding: '16px', minHeight: '260px', maxHeight: '78vh', overflowY: 'auto' }}>
+        <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '16px', padding: '20px', minHeight: '260px', maxHeight: '78vh', overflowY: 'auto' }}>
           
           {/* ================= STEP 1: STUDENT SELECTION ================= */}
           {step === 1 && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            <div className="violation-student-step" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <div>
-                <label style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-primary, #0f172a)', marginBottom: '6px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <label style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary, #0f172a)', marginBottom: '8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                   <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
                     <Users size={14} color="var(--brand-blue, #0f172a)" />
                     Select Student(s) <span style={{ color: '#ef4444' }}>*</span>
                   </span>
-                  <span style={{ fontSize: '11px', color: selectedStudentIds.length > 0 ? 'var(--brand-blue, #0f172a)' : 'var(--text-muted, #64748b)', fontWeight: 600 }}>
-                    {selectedStudentIds.length} Selected
+                  <span className="student-selection-count" style={{ fontSize: '12px', color: selectedStudentIds.length > 0 ? 'var(--brand-blue, #0f172a)' : 'var(--text-muted, #64748b)', fontWeight: 700 }}>
+                    {selectedStudentIds.length} {selectedStudentIds.length === 1 ? 'student' : 'students'} selected
                   </span>
                 </label>
                 <SearchableStudentSelect
@@ -443,20 +441,20 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
                   onChange={(newIds) => setSelectedStudentIds(newIds)}
                   isMulti={true}
                   inline={true}
-                  maxListHeight="340px"
+                  maxListHeight="min(42vh, 360px)"
                   placeholder="Search student by name, Student ID, or section..."
                 />
               </div>
 
               {selectedStudents.length > 0 && (
-                <div style={{ background: 'var(--bg-surface-elevated, #f8fafc)', border: '1px solid var(--border-subtle, #e2e8f0)', borderRadius: '8px', padding: '8px 10px' }}>
-                  <div style={{ fontSize: '10.5px', fontWeight: 700, color: 'var(--text-muted, #64748b)', textTransform: 'uppercase', marginBottom: '4px' }}>
-                    Selected ({selectedStudents.length})
+                <div className="violation-selected-students" style={{ background: 'var(--bg-surface-elevated, #f8fafc)', border: '1px solid var(--border-subtle, #e2e8f0)', borderRadius: '10px', padding: '10px 12px' }}>
+                  <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-muted, #64748b)', marginBottom: '7px' }}>
+                    Ready to log for
                   </div>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', maxHeight: '65px', overflowY: 'auto' }}>
+                  <div className="violation-selected-students-list" style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', maxHeight: '72px', overflowY: 'auto' }}>
                     {selectedStudents.map(s => (
-                      <div key={s.id} style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', background: 'var(--bg-surface, #ffffff)', border: '1px solid var(--border-subtle, #cbd5e1)', borderRadius: '5px', padding: '2px 6px' }}>
-                        <span style={{ fontSize: '11.5px', fontWeight: 600, color: 'var(--text-primary, #0f172a)' }}>
+                      <div key={s.id} style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', background: 'var(--bg-surface, #ffffff)', border: '1px solid var(--border-subtle, #cbd5e1)', borderRadius: '6px', padding: '4px 8px' }}>
+                        <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-primary, #0f172a)' }}>
                           {s.fname} {s.lname}
                         </span>
                         <span style={{ fontSize: '10px', color: 'var(--text-muted, #64748b)' }}>

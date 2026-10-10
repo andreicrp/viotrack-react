@@ -722,6 +722,60 @@
     font-weight: 500;
 }
 
+.violation-entry-modal .student-picker-header {
+    background: #f5f8fc !important;
+}
+
+.violation-entry-modal .student-picker-header .searchable-select-input {
+    min-height: 42px;
+    font-size: 13px !important;
+}
+
+.violation-entry-modal .student-picker-row {
+    min-height: 62px;
+    border-radius: 9px !important;
+    text-align: left;
+}
+
+.violation-entry-modal .student-picker-row:hover {
+    background: #f5f8fc !important;
+    border-color: #cbd5e1 !important;
+}
+
+.violation-entry-modal .student-picker-row:focus-visible {
+    outline: 3px solid rgba(15, 52, 95, 0.25);
+    outline-offset: 1px;
+}
+
+.violation-entry-modal .student-picker-row.selected {
+    background: #edf4fb !important;
+    border-color: #0f345f !important;
+}
+
+.violation-entry-modal .student-picker-row.selected > div:first-child {
+    color: #0f172a;
+}
+
+.violation-entry-modal .student-selection-count {
+    border-radius: 999px;
+    padding: 5px 10px;
+    background: #edf4fb;
+}
+
+.violation-entry-modal .violation-selected-students-list > div {
+    max-width: 100%;
+}
+
+@media (max-width: 600px) {
+    .violation-entry-modal .student-picker-header {
+        padding: 12px !important;
+    }
+
+    .violation-entry-modal .student-picker-row {
+        padding: 9px !important;
+    }
+}
+
 /* Form Select */
 .addrecord-form-select {
     padding: 10px 14px;

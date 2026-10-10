@@ -31,7 +31,7 @@ export const Sidebar = ({ isCollapsed, isMobileOpen, onCloseMobile }) => {
   const isTeacher = user?.role === 'teacher';
 
   const isManagementActive = location.pathname.includes('/violations') || location.pathname.includes('/violation-types');
-  const isAdminActive = location.pathname.includes('/admin-users') || location.pathname.includes('/for-approval') || location.pathname.includes('/activity-logs');
+  const isAdminActive = location.pathname.includes('/admin-dashboard') || location.pathname.includes('/admin-users') || location.pathname.includes('/for-approval') || location.pathname.includes('/activity-logs');
 
   useEffect(() => {
     const updateCount = async () => {
@@ -240,6 +240,7 @@ export const Sidebar = ({ isCollapsed, isMobileOpen, onCloseMobile }) => {
                     href="#admin"
                     className="nav-link submenu-toggle"
                     onMouseEnter={() => {
+                      preloadRoute('/admin-dashboard');
                       preloadRoute('/admin-users');
                       preloadRoute('/for-approval');
                       preloadRoute('/activity-logs');
@@ -247,7 +248,7 @@ export const Sidebar = ({ isCollapsed, isMobileOpen, onCloseMobile }) => {
                     onClick={(e) => {
                       e.preventDefault();
                       if (isCollapsed) {
-                        navigate('/admin-users');
+                        navigate('/admin-dashboard');
                         handleLinkClick();
                       } else {
                         setAdminOpen(!adminOpen);
@@ -263,6 +264,12 @@ export const Sidebar = ({ isCollapsed, isMobileOpen, onCloseMobile }) => {
                     </span>
                   </a>
                   <ul className={`submenu ${adminOpen ? 'show' : ''}`}>
+                    <li className={`submenu-item ${location.pathname === '/admin-dashboard' ? 'active' : ''}`}>
+                      <NavLink to="/admin-dashboard" className="submenu-link" onClick={handleLinkClick} onMouseEnter={() => preloadRoute('/admin-dashboard')}>
+                        <span className="submenu-bullet"></span>
+                        <span className="submenu-text">Overview</span>
+                      </NavLink>
+                    </li>
                     <li className={`submenu-item ${location.pathname === '/admin-users' ? 'active' : ''}`}>
                       <NavLink to="/admin-users" className="submenu-link" onClick={handleLinkClick} onMouseEnter={() => preloadRoute('/admin-users')}>
                         <span className="submenu-bullet"></span>

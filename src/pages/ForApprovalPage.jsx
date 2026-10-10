@@ -826,7 +826,7 @@ export const ForApprovalPage = () => {
         {loading ? (
           <div style={{ padding: '60px 0', textAlign: 'center' }}>
             <div
-              className="approval-empty-state"
+              className="approval-loading-spinner"
               style={{
                 width: '36px',
                 height: '36px',
@@ -841,6 +841,7 @@ export const ForApprovalPage = () => {
           </div>
         ) : filteredRecords.length === 0 ? (
           <div
+            className="approval-empty-state"
             style={{
               padding: '50px 20px',
               textAlign: 'center',

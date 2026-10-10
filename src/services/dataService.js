@@ -43,9 +43,34 @@ const INITIAL_TEACHERS = [
     department: 'English Department',
     contact: '09191234569',
     image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&auto=format&fit=crop&q=80'
+  },
+  {
+    id: 4,
+    fname: 'Carmela',
+    lname: 'Bautista',
+    email: 'carmela.bautista@viotrack.edu',
+    position: 'Teacher I',
+    department: 'Social Studies Department',
+    contact: '09153334411',
+    image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80'
+  },
+  {
+    id: 5,
+    fname: 'Fernando',
+    lname: 'Perez',
+    email: 'fernando.perez@viotrack.edu',
+    position: 'Senior High Instructor',
+    department: 'TVL Track',
+    contact: '09154445522',
+    image: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?w=150&auto=format&fit=crop&q=80'
   }
 ];
-const INITIAL_ADVISERS = [];
+const INITIAL_ADVISERS = [
+  { id: 1, teacher_id: 1, grade_level: 'Grade 10', class_section: 'Rizal' },
+  { id: 2, teacher_id: 2, grade_level: 'Grade 10', class_section: 'Bonifacio' },
+  { id: 3, teacher_id: 3, grade_level: 'Grade 11', class_section: 'STEM A' },
+  { id: 4, teacher_id: 4, grade_level: 'Grade 9', class_section: 'Diamond' }
+];
 const INITIAL_ADMINS = [
   {
     id: 1,
@@ -275,24 +300,6 @@ export const dataService = {
   },
 
   invalidateCache,
-
-  // --- BACKGROUND CACHE WARMING ---
-  async warmCache() {
-    try {
-      await Promise.allSettled([
-        this.getStudents(),
-        this.getViolations(),
-        this.getRecords(),
-        this.getTeachers(),
-        this.getAdvisers(),
-        this.getSchoolEvents(),
-        this.getAdmins(),
-        this.getActivityLogs()
-      ]);
-    } catch (e) {
-      console.warn('Background cache warming warning:', e);
-    }
-  },
 
   // --- STUDENTS ---
   async getStudents(forceRefresh = false) {
@@ -902,8 +909,34 @@ export const dataService = {
         this.getViolations()
       ]);
 
-      const studentMap = new Map(students.map(s => [Number(s.id), s]));
-      const violationMap = new Map(violations.map(v => [Number(v.id), v]));
+      const studentMap = new Map();
+      INITIAL_STUDENTS.forEach((s) => {
+        if (s.id) {
+          studentMap.set(Number(s.id), s);
+          studentMap.set(String(s.id), s);
+        }
+        if (s.student_id) studentMap.set(String(s.student_id).trim(), s);
+        if (s.lrn) studentMap.set(String(s.lrn).trim(), s);
+      });
+      students.forEach((s, idx) => {
+        if (s.id) {
+          studentMap.set(Number(s.id), s);
+          studentMap.set(String(s.id), s);
+        }
+        if (s.student_id) studentMap.set(String(s.student_id).trim(), s);
+        if (s.lrn) studentMap.set(String(s.lrn).trim(), s);
+        if (!studentMap.has(idx + 1)) {
+          studentMap.set(idx + 1, s);
+        }
+      });
+      const violationMap = new Map();
+      violations.forEach((v, idx) => {
+        if (v.id) {
+          violationMap.set(Number(v.id), v);
+          violationMap.set(String(v.id), v);
+        }
+        violationMap.set(idx + 1, v);
+      });
 
       let remoteRecords = null;
       if (isSupabaseConfigured()) {
@@ -924,20 +957,21 @@ export const dataService = {
         }
       }
 
-      const allRawRecords = [];
-      const remoteIds = new Set();
+      let allRawRecords = [];
       if (remoteRecords && remoteRecords.length > 0) {
-        remoteRecords.forEach(r => {
-          remoteIds.add(Number(r.id));
-          allRawRecords.push(r);
+        allRawRecords = [...remoteRecords];
+        // Only merge locally logged user records (offline creates with timestamp IDs > 1000000000)
+        const localRecords = getStored('records', []);
+        const remoteIdSet = new Set(remoteRecords.map(r => Number(r.id)));
+        localRecords.forEach(lr => {
+          const numId = Number(lr.id);
+          if (numId > 1000000000 && !remoteIdSet.has(numId)) {
+            allRawRecords.push(lr);
+          }
         });
+      } else {
+        allRawRecords = getStored('records', INITIAL_RECORDS);
       }
-      const localRecords = getStored('records', INITIAL_RECORDS);
-      localRecords.forEach(lr => {
-        if (!remoteIds.has(Number(lr.id))) {
-          allRawRecords.push(lr);
-        }
-      });
 
       let mappedRecords = allRawRecords.map(r => {
         const isTeacher = (r.reported_by_type === 'teacher' || (r.reported_by_name && r.reported_by_name !== 'System Admin' && r.reported_by_name !== 'Sheryl Gamboa' && r.reported_by_name !== 'Head Admin'));
@@ -961,8 +995,33 @@ export const dataService = {
           }
         }
 
-        const resolvedStudent = r.students || r.student || studentMap.get(Number(r.student_id));
-        const resolvedViolation = r.violations || r.violation || violationMap.get(Number(r.violation_id));
+        const rawStudent = r.students || r.student;
+        let resolvedStudent = (rawStudent && (rawStudent.fname || rawStudent.lname))
+          ? rawStudent
+          : (studentMap.get(Number(r.student_id)) || studentMap.get(String(r.student_id)) || rawStudent);
+
+        if (!resolvedStudent || (!resolvedStudent.fname && !resolvedStudent.lname)) {
+          resolvedStudent = (students || []).find(s => String(s.student_id) === String(r.student_id) || String(s.id) === String(r.student_id))
+            || INITIAL_STUDENTS.find(s => String(s.student_id) === String(r.student_id) || String(s.id) === String(r.student_id))
+            || INITIAL_STUDENTS[0];
+        }
+
+        const sid = String(resolvedStudent.student_id || resolvedStudent.lrn || r.student_id || '109283746101').trim();
+        const sImage = (resolvedStudent.image && resolvedStudent.image.trim() !== '')
+          ? resolvedStudent.image
+          : `https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150&auto=format&fit=crop&q=80`;
+
+        resolvedStudent = {
+          ...resolvedStudent,
+          student_id: sid,
+          lrn: sid,
+          image: sImage
+        };
+
+        const rawViolation = r.violations || r.violation;
+        const resolvedViolation = (rawViolation && rawViolation.title)
+          ? rawViolation
+          : (violationMap.get(Number(r.violation_id)) || violationMap.get(String(r.violation_id)) || rawViolation);
 
         return {
           ...r,
@@ -1559,6 +1618,7 @@ export const dataService = {
           }));
           _cache.data.advisers = mapped;
           _cache.timestamps.advisers = Date.now();
+          setStored('advisers', mapped);
           return mapped;
         }
       }
@@ -1879,9 +1939,21 @@ export const dataService = {
           console.warn('Supabase getActivityLogs error:', err);
         }
       }
+      const localList = getStored('activity_logs', []);
       const list = (isSupabaseConfigured() && remoteList !== null)
-        ? remoteList
-        : getStored('activity_logs', []);
+        ? [...remoteList, ...localList]
+          .filter((log, index, entries) => {
+            const getKey = item => item.audit_id || item.id
+              || `${item.created_at || item.date || ''}|${item.user_name || ''}|${item.action || ''}`;
+            return entries.findIndex(item => getKey(item) === getKey(log)) === index;
+          })
+          .sort((a, b) => {
+            const dateA = new Date(a.created_at || a.date || 0).getTime();
+            const dateB = new Date(b.created_at || b.date || 0).getTime();
+            return dateB - dateA;
+          })
+          .slice(0, 300)
+        : localList;
       _cache.data.activity_logs = list;
       _cache.timestamps.activity_logs = Date.now();
       return list;
@@ -1895,21 +1967,6 @@ export const dataService = {
     const timestamp = new Date().toISOString();
     const auditId = `AUD-${Math.floor(100000 + Math.random() * 900000)}`;
 
-    // Client subnet / IP address simulation for immutable audit log
-    const ipAddress = extraMeta.ip || `192.168.10.${Math.floor(20 + Math.random() * 80)}`;
-    const deviceInfo = navigator.userAgent.includes('Windows')
-      ? 'Windows 11 / Chrome (Workstation)'
-      : (navigator.userAgent.includes('Mobile') ? 'Mobile Terminal (Staff App)' : 'Faculty Workstation');
-
-    // Cryptographic hash simulation for tamper verification
-    const rawHashInput = `${auditId}|${finalUserName}|${action}|${details}|${timestamp}`;
-    let hash = 0;
-    for (let i = 0; i < rawHashInput.length; i++) {
-      hash = ((hash << 5) - hash) + rawHashInput.charCodeAt(i);
-      hash |= 0;
-    }
-    const immutableHash = `0x${Math.abs(hash).toString(16).padStart(8, '0')}${Math.random().toString(16).substring(2, 10)}`;
-
     const newLog = {
       id: Date.now() + Math.floor(Math.random() * 1000),
       audit_id: auditId,
@@ -1917,17 +1974,16 @@ export const dataService = {
       user_role: finalUserRole,
       action,
       details,
-      ip_address: ipAddress,
-      device_info: deviceInfo,
-      immutable_hash: immutableHash,
-      integrity_status: 'VERIFIED',
+      ip_address: extraMeta.ip || null,
+      device_info: extraMeta.device_info || null,
       created_at: timestamp,
       ...extraMeta
     };
 
     if (isSupabaseConfigured()) {
       try {
-        await supabase.from('activity_logs').insert([newLog]);
+        const { error } = await supabase.from('activity_logs').insert([newLog]);
+        if (error) console.warn('Supabase activity log insert error:', error);
       } catch (err) {
         console.warn('Supabase activity log insert error:', err);
       }

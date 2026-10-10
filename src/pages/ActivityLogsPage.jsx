@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useDeferredValue } from 'react';
+import React, { useState, useEffect, useMemo, useDeferredValue, useCallback } from 'react';
 import { dataService } from '../services/dataService';
 import { CustomSelect } from '../components/common/CustomSelect';
 import { BackupRestoreModal } from '../components/common/BackupRestoreModal';
@@ -7,47 +7,41 @@ import {
   Activity,
   Search,
   RefreshCw,
-  Download,
   Upload,
-  Calendar,
   Clock,
-  User,
   ShieldCheck,
   ShieldAlert,
-  FileSpreadsheet,
-  Layers,
-  ArrowUpDown,
   ArrowUp,
   ArrowDown,
   X,
-  Filter,
-  CheckCircle2,
-  AlertTriangle,
   FileText,
-  UserCheck,
   Trash2,
   LogIn,
   Edit3,
   PlusCircle,
   Eye,
   Database,
-  Shield,
-  Fingerprint,
   Check,
-  Copy,
-  Laptop,
-  Globe
+  Copy
 } from 'lucide-react';
 import { getJsPDF } from '../utils/pdfHelper';
-import { exportToCsv } from '../utils/csvHelper';
 import { SaveAsModal } from '../components/common/SaveAsModal';
 import { useAuth } from '../context/AuthContext';
 
+const getLogTimestamp = (log) => {
+  const timestamp = log.created_at || log.date;
+  if (!timestamp) return null;
+  const date = new Date(timestamp);
+  return Number.isNaN(date.getTime()) ? null : date;
+};
+
 export const ActivityLogsPage = () => {
   const { user } = useAuth();
-  const { success, error, info } = useNotification();
+  const { success, error } = useNotification();
   const [logs, setLogs] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState('');
+  const [refreshing, setRefreshing] = useState(false);
   const [inspectLog, setInspectLog] = useState(null);
   const [isBackupModalOpen, setIsBackupModalOpen] = useState(false);
   const [copiedField, setCopiedField] = useState(null);
@@ -62,11 +56,17 @@ export const ActivityLogsPage = () => {
     title: 'Save Activity Audit Logs As'
   });
 
-  const handleCopy = (text, fieldKey) => {
-    if (navigator?.clipboard?.writeText) {
-      navigator.clipboard.writeText(text);
+  const handleCopy = async (text, fieldKey) => {
+    try {
+      if (!navigator.clipboard?.writeText) {
+        throw new Error('Clipboard access is unavailable in this browser.');
+      }
+      await navigator.clipboard.writeText(text);
       setCopiedField(fieldKey);
       setTimeout(() => setCopiedField(null), 2000);
+      success('Copied to clipboard.');
+    } catch (err) {
+      error(err.message || 'Could not copy to clipboard.');
     }
   };
 
@@ -74,6 +74,7 @@ export const ActivityLogsPage = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const deferredSearch = useDeferredValue(searchTerm);
   const [actionCategory, setActionCategory] = useState('all'); // 'all' | 'violations' | 'users' | 'status' | 'deletions'
+  const [timeFilter, setTimeFilter] = useState('all');
   const [viewMode, setViewMode] = useState('timeline'); // 'timeline' | 'table'
 
   // Sorting
@@ -84,42 +85,57 @@ export const ActivityLogsPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [entriesPerPage, setEntriesPerPage] = useState(15);
 
-  useEffect(() => {
-    loadLogs();
+  const loadLogs = useCallback(async (forceRefresh = false) => {
+    if (forceRefresh) setRefreshing(true);
+    else setLoading(true);
+    setLoadError('');
+    try {
+      const data = await dataService.getActivityLogs(forceRefresh);
+      setLogs(data || []);
+      return true;
+    } catch (err) {
+      const message = `Failed to load activity logs: ${err.message}`;
+      setLoadError(message);
+      error(message);
+      return false;
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }, [error]);
 
-    const handleNewActivity = (e) => {
-      if (e?.detail) {
-        setLogs(prev => [e.detail, ...prev.filter(item => item.id !== e.detail.id)]);
+  const handleRefresh = async () => {
+    if (await loadLogs(true)) success('Activity log refreshed.');
+  };
+
+  useEffect(() => {
+    let isMounted = true;
+    queueMicrotask(() => {
+      if (isMounted) loadLogs();
+    });
+    const handleNewActivity = (event) => {
+      if (event?.detail) {
+        setLogs(previous => [event.detail, ...previous.filter(item => item.id !== event.detail.id)]);
+        setCurrentPage(1);
       } else {
-        loadLogs();
+        loadLogs(true);
       }
     };
 
     window.addEventListener('viotrack_activity_logged', handleNewActivity);
     return () => {
+      isMounted = false;
       window.removeEventListener('viotrack_activity_logged', handleNewActivity);
     };
-  }, []);
-
-  const loadLogs = async () => {
-    setLoading(true);
-    try {
-      const data = await dataService.getActivityLogs();
-      setLogs(data || []);
-    } catch (err) {
-      error('Failed to load activity logs: ' + err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [loadLogs]);
 
   // Metric Statistics
   const stats = useMemo(() => {
     const total = logs.length;
     const now = new Date();
     const todayCount = logs.filter(l => {
-      const d = new Date(l.created_at || l.date);
-      return d.toDateString() === now.toDateString();
+      const date = getLogTimestamp(l);
+      return date?.toDateString() === now.toDateString();
     }).length;
 
     const violationEvents = logs.filter(l => {
@@ -143,13 +159,20 @@ export const ActivityLogsPage = () => {
       const desc = (log.details || log.description || '').toLowerCase();
       const user = (log.user_name || '').toLowerCase();
       const role = (log.user_role || '').toLowerCase();
+      const auditId = (log.audit_id || '').toLowerCase();
+      const ipAddress = (log.ip_address || '').toLowerCase();
+      const timestamp = getLogTimestamp(log);
+      const matchesTime = timeFilter === 'all'
+        || (timeFilter === 'today' && timestamp?.toDateString() === new Date().toDateString());
 
       const matchesSearch =
         !query ||
         act.includes(query) ||
         desc.includes(query) ||
         user.includes(query) ||
-        role.includes(query);
+        role.includes(query) ||
+        auditId.includes(query) ||
+        ipAddress.includes(query);
 
       let matchesCategory = true;
       if (actionCategory === 'violations') {
@@ -162,23 +185,31 @@ export const ActivityLogsPage = () => {
         matchesCategory = act.includes('delete') || act.includes('remove');
       }
 
-      return matchesSearch && matchesCategory;
+      return matchesSearch && matchesCategory && matchesTime;
     });
 
     result.sort((a, b) => {
-      const timeA = new Date(a.created_at || a.date || 0).getTime();
-      const timeB = new Date(b.created_at || b.date || 0).getTime();
-      return sortOrder === 'asc' ? timeA - timeB : timeB - timeA;
+      let comparison = 0;
+      if (sortField === 'action') {
+        comparison = String(a.action || '').localeCompare(String(b.action || ''));
+      } else if (sortField === 'actor') {
+        comparison = String(a.user_name || '').localeCompare(String(b.user_name || ''));
+      } else if (sortField === 'role') {
+        comparison = String(a.user_role || '').localeCompare(String(b.user_role || ''));
+      } else {
+        comparison = (getLogTimestamp(a)?.getTime() || 0) - (getLogTimestamp(b)?.getTime() || 0);
+      }
+      return sortOrder === 'asc' ? comparison : -comparison;
     });
 
     return result;
-  }, [logs, deferredSearch, actionCategory, sortOrder]);
+  }, [logs, deferredSearch, actionCategory, timeFilter, sortField, sortOrder]);
 
   // Save As Export Handler
   const handleOpenExportSaveAs = (defaultFormat = 'csv') => {
     const headers = ['Timestamp', 'Actor / User', 'Role', 'Action Type', 'Event Details'];
     const rows = filteredAndSortedLogs.map(l => [
-      new Date(l.created_at || l.date).toLocaleString(),
+      getLogTimestamp(l)?.toLocaleString() || 'Date unavailable',
       l.user_name || 'System Admin',
       l.user_role || 'Admin',
       l.action || 'Action',
@@ -197,7 +228,7 @@ export const ActivityLogsPage = () => {
 
       const tableData = filteredAndSortedLogs.map((l, idx) => [
         idx + 1,
-        new Date(l.created_at || l.date).toLocaleString([], { month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit' }),
+        getLogTimestamp(l)?.toLocaleString([], { month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit' }) || 'Date unavailable',
         l.user_name || 'System Admin',
         l.user_role || 'Admin',
         l.action || 'Action',
@@ -230,10 +261,21 @@ export const ActivityLogsPage = () => {
 
   // Pagination
   const totalPages = Math.ceil(filteredAndSortedLogs.length / entriesPerPage) || 1;
-  const paginatedLogs = filteredAndSortedLogs.slice((currentPage - 1) * entriesPerPage, currentPage * entriesPerPage);
+  const visiblePage = Math.min(currentPage, totalPages);
+  const paginatedLogs = filteredAndSortedLogs.slice((visiblePage - 1) * entriesPerPage, visiblePage * entriesPerPage);
+
+  const handleSortFieldChange = (event) => {
+    setSortField(event.target.value);
+    setCurrentPage(1);
+  };
+
+  const handlePageSizeChange = (event) => {
+    setEntriesPerPage(Number(event.target.value));
+    setCurrentPage(1);
+  };
 
   // Helper for Event Icon & Color
-  const getActionBadge = (action = '', details = '') => {
+  const getActionBadge = (action = '') => {
     const act = (action || '').toLowerCase();
     if (act.includes('delete') || act.includes('remove')) {
       return {
@@ -286,7 +328,7 @@ export const ActivityLogsPage = () => {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+    <div className="activity-logs-page" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
       {/* Top Banner & Quick Actions */}
       <div className="page-banner-header">
         <div className="page-banner-info">
@@ -330,13 +372,13 @@ export const ActivityLogsPage = () => {
           </div>
 
           <button
-            onClick={() => {
-              loadLogs();
-              success('Activity log refreshed.');
-            }}
+            type="button"
+            onClick={handleRefresh}
+            disabled={refreshing}
             className="page-banner-primary-btn"
           >
-            <RefreshCw size={16} strokeWidth={2.5} /> Refresh Audit
+            <RefreshCw size={16} strokeWidth={2.5} className={refreshing ? 'activity-refreshing' : ''} />
+            {refreshing ? 'Refreshing…' : 'Refresh audit'}
           </button>
         </div>
       </div>
@@ -352,13 +394,28 @@ export const ActivityLogsPage = () => {
       >
         {/* Total Activities */}
         <div
-          onClick={() => setActionCategory('all')}
+          role="button"
+          tabIndex={0}
+          aria-pressed={actionCategory === 'all' && timeFilter === 'all'}
+          onKeyDown={(event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+              event.preventDefault();
+              setActionCategory('all');
+              setTimeFilter('all');
+              setCurrentPage(1);
+            }
+          }}
+          onClick={() => {
+            setActionCategory('all');
+            setTimeFilter('all');
+            setCurrentPage(1);
+          }}
           style={{
             background: 'var(--bg-surface, #ffffff)',
             borderRadius: '12px',
             padding: '14px 16px',
-            border: actionCategory === 'all' ? '2px solid var(--brand-blue, #07345f)' : '1.5px solid var(--border-subtle, #cbd5e1)',
-            boxShadow: actionCategory === 'all' ? '0 4px 14px rgba(7, 52, 95, 0.10)' : '0 1px 3px rgba(0,0,0,0.02)',
+            border: actionCategory === 'all' && timeFilter === 'all' ? '2px solid var(--brand-blue, #07345f)' : '1.5px solid var(--border-subtle, #cbd5e1)',
+            boxShadow: actionCategory === 'all' && timeFilter === 'all' ? '0 4px 14px rgba(7, 52, 95, 0.10)' : '0 1px 3px rgba(0,0,0,0.02)',
             cursor: 'pointer',
             transition: 'all 0.15s ease',
             position: 'relative'
@@ -382,25 +439,40 @@ export const ActivityLogsPage = () => {
 
         {/* Today's Events */}
         <div
+          role="button"
+          tabIndex={0}
+          aria-pressed={timeFilter === 'today'}
+          onKeyDown={(event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+              event.preventDefault();
+              setTimeFilter(current => current === 'today' ? 'all' : 'today');
+              setCurrentPage(1);
+            }
+          }}
+          onClick={() => {
+            setTimeFilter(current => current === 'today' ? 'all' : 'today');
+            setCurrentPage(1);
+          }}
           style={{
             background: 'var(--bg-surface, #ffffff)',
             borderRadius: '12px',
             padding: '14px 16px',
-            border: '1.5px solid var(--border-subtle, #cbd5e1)',
+            border: timeFilter === 'today' ? '2px solid var(--brand-blue, #07345f)' : '1.5px solid var(--border-subtle, #cbd5e1)',
             boxShadow: '0 1px 3px rgba(0,0,0,0.02)',
-            position: 'relative'
+            position: 'relative',
+            cursor: 'pointer'
           }}
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
             <div>
               <div style={{ fontSize: '11.5px', fontWeight: 800, color: 'var(--brand-blue, #07345f)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                TODAY'S ACTIONS
+                RECORDED TODAY
               </div>
               <div style={{ fontSize: '24px', fontWeight: 800, color: 'var(--text-primary, #0f172a)', margin: '4px 0 2px 0', lineHeight: 1.1 }}>
                 {stats.todayCount}
               </div>
               <div style={{ fontSize: '11px', color: 'var(--text-muted, #64748b)', fontWeight: 500 }}>
-                Logged in last 24 hours
+                Filter to today's events
               </div>
             </div>
             <Clock size={20} color="var(--brand-blue, #07345f)" strokeWidth={2} style={{ flexShrink: 0 }} />
@@ -409,7 +481,22 @@ export const ActivityLogsPage = () => {
 
         {/* Disciplinary Events */}
         <div
-          onClick={() => setActionCategory(actionCategory === 'violations' ? 'all' : 'violations')}
+          role="button"
+          tabIndex={0}
+          aria-pressed={actionCategory === 'violations'}
+          onKeyDown={(event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+              event.preventDefault();
+              setActionCategory(actionCategory === 'violations' ? 'all' : 'violations');
+              setTimeFilter('all');
+              setCurrentPage(1);
+            }
+          }}
+          onClick={() => {
+            setActionCategory(actionCategory === 'violations' ? 'all' : 'violations');
+            setTimeFilter('all');
+            setCurrentPage(1);
+          }}
           style={{
             background: 'var(--bg-surface, #ffffff)',
             borderRadius: '12px',
@@ -439,7 +526,22 @@ export const ActivityLogsPage = () => {
 
         {/* Admin Governance */}
         <div
-          onClick={() => setActionCategory(actionCategory === 'users' ? 'all' : 'users')}
+          role="button"
+          tabIndex={0}
+          aria-pressed={actionCategory === 'users'}
+          onKeyDown={(event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+              event.preventDefault();
+              setActionCategory(actionCategory === 'users' ? 'all' : 'users');
+              setTimeFilter('all');
+              setCurrentPage(1);
+            }
+          }}
+          onClick={() => {
+            setActionCategory(actionCategory === 'users' ? 'all' : 'users');
+            setTimeFilter('all');
+            setCurrentPage(1);
+          }}
           style={{
             background: 'var(--bg-surface, #ffffff)',
             borderRadius: '12px',
@@ -491,7 +593,7 @@ export const ActivityLogsPage = () => {
         >
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '14px' }}>
             {/* Search Input */}
-            <div style={{ position: 'relative', flex: 1, minWidth: '280px', maxWidth: '420px' }}>
+            <div style={{ position: 'relative', flex: 1, minWidth: '240px', maxWidth: '420px' }}>
               <Search
                 size={16}
                 style={{
@@ -504,7 +606,7 @@ export const ActivityLogsPage = () => {
               />
               <input
                 type="text"
-                placeholder="Search audit trail by user, action, or description..."
+                placeholder="Search user, action, details, audit ID, or IP…"
                 value={searchTerm}
                 onChange={(e) => {
                   setSearchTerm(e.target.value);
@@ -526,7 +628,9 @@ export const ActivityLogsPage = () => {
               />
               {searchTerm && (
                 <button
+                  type="button"
                   onClick={() => setSearchTerm('')}
+                  aria-label="Clear search"
                   style={{
                     position: 'absolute',
                     right: '10px',
@@ -545,7 +649,7 @@ export const ActivityLogsPage = () => {
             </div>
 
             {/* View Mode & Category Controls */}
-            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center' }}>
+            <div className="activity-log-toolbar-controls" style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', alignItems: 'center' }}>
               {/* Category Filter */}
               <div style={{ minWidth: '200px' }}>
                 <CustomSelect
@@ -564,11 +668,37 @@ export const ActivityLogsPage = () => {
                 />
               </div>
 
+              <div className="activity-log-sort-controls">
+                <CustomSelect
+                  value={sortField}
+                  onChange={handleSortFieldChange}
+                  options={[
+                    { value: 'date', label: 'Sort: date' },
+                    { value: 'actor', label: 'Sort: actor' },
+                    { value: 'action', label: 'Sort: action' },
+                    { value: 'role', label: 'Sort: role' }
+                  ]}
+                />
+                <button
+                  type="button"
+                  className="activity-log-sort-order"
+                  onClick={() => {
+                    setSortOrder(current => current === 'asc' ? 'desc' : 'asc');
+                    setCurrentPage(1);
+                  }}
+                  aria-label={`Sort ${sortOrder === 'asc' ? 'ascending' : 'descending'}`}
+                  title={`Sort ${sortOrder === 'asc' ? 'ascending' : 'descending'}`}
+                >
+                  {sortOrder === 'asc' ? <ArrowUp size={15} /> : <ArrowDown size={15} />}
+                </button>
+              </div>
+
               {/* View Switch: Timeline vs Table */}
               <div style={{ display: 'flex', background: 'var(--bg-input, #f1f5f9)', padding: '3px', borderRadius: '8px', border: '1px solid var(--border-subtle, transparent)' }}>
                 <button
                   type="button"
                   onClick={() => setViewMode('timeline')}
+                  aria-pressed={viewMode === 'timeline'}
                   style={{
                     background: viewMode === 'timeline' ? 'var(--bg-surface-elevated, #ffffff)' : 'transparent',
                     color: viewMode === 'timeline' ? 'var(--brand-blue, #07345f)' : 'var(--text-muted, #64748b)',
@@ -586,6 +716,7 @@ export const ActivityLogsPage = () => {
                 <button
                   type="button"
                   onClick={() => setViewMode('table')}
+                  aria-pressed={viewMode === 'table'}
                   style={{
                     background: viewMode === 'table' ? 'var(--bg-surface-elevated, #ffffff)' : 'transparent',
                     color: viewMode === 'table' ? 'var(--brand-blue, #07345f)' : 'var(--text-muted, #64748b)',
@@ -613,24 +744,42 @@ export const ActivityLogsPage = () => {
               <span style={{ fontSize: '14px', fontWeight: 500 }}>Loading activity logs...</span>
             </div>
           </div>
+        ) : loadError ? (
+          <div className="activity-log-empty-state" role="alert">
+            <ShieldAlert size={30} />
+            <strong>Could not load activity logs</strong>
+            <span>{loadError}</span>
+            <button type="button" className="page-banner-primary-btn" onClick={() => loadLogs(true)}>
+              Try again
+            </button>
+          </div>
         ) : filteredAndSortedLogs.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '60px 20px', color: 'var(--text-muted, #64748b)' }}>
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '10px' }}>
-              <ShieldCheck size={36} color="var(--brand-blue, #94a3b8)" />
-              <span style={{ fontSize: '15px', fontWeight: 600, color: 'var(--text-primary, #1e293b)' }}>No audit events found</span>
-              <span style={{ fontSize: '13px', color: 'var(--text-muted, #64748b)' }}>
-                Try adjusting search keywords or category filters.
+              {logs.length ? <Search size={32} color="var(--text-muted, #94a3b8)" /> : <ShieldCheck size={36} color="var(--text-muted, #94a3b8)" />}
+              <span style={{ fontSize: '15px', fontWeight: 600, color: 'var(--text-primary, #1e293b)' }}>
+                {logs.length ? 'No matching events' : 'No activity has been recorded yet'}
               </span>
+              <span style={{ fontSize: '13px', color: 'var(--text-muted, #64748b)' }}>
+                {logs.length ? 'Try changing your search or action filter.' : 'Actions recorded in VioTrack will appear here.'}
+              </span>
+              {logs.length > 0 && (searchTerm || actionCategory !== 'all' || timeFilter !== 'all') && (
+                <button type="button" className="activity-log-clear-filters" onClick={() => {
+                  setSearchTerm('');
+                  setActionCategory('all');
+                  setTimeFilter('all');
+                  setCurrentPage(1);
+                }}>Clear filters</button>
+              )}
             </div>
           </div>
         ) : viewMode === 'timeline' ? (
           /* Timeline View */
           <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
             {paginatedLogs.map((log) => {
-              const badge = getActionBadge(log.action, log.details);
-              const dateObj = new Date(log.created_at || log.date || Date.now());
-              const auditId = log.audit_id || `AUD-${String(log.id).slice(-6)}`;
-              const ipAddr = log.ip_address || `192.168.10.${(log.id % 70) + 15}`;
+              const badge = getActionBadge(log.action);
+              const dateObj = getLogTimestamp(log);
+              const auditId = log.audit_id || (log.id ? `Local #${log.id}` : 'ID unavailable');
 
               return (
                 <div
@@ -667,25 +816,28 @@ export const ActivityLogsPage = () => {
                             textTransform: 'uppercase'
                           }}
                         >
-                          {log.action}
+                          {badge.label}
                         </span>
                         <span style={{ fontSize: '11px', color: 'var(--text-muted, #64748b)', background: 'var(--bg-input, #f1f5f9)', padding: '2px 8px', borderRadius: '4px', border: '1px solid var(--border-subtle, transparent)' }}>
                           {log.user_role || 'Admin'}
                         </span>
-                        <span style={{ fontSize: '10.5px', fontFamily: 'monospace', fontWeight: 700, background: '#f0fdf4', color: '#15803d', border: '1px solid #86efac', padding: '1px 6px', borderRadius: '4px' }}>
+                        <span style={{ fontSize: '10.5px', fontFamily: 'monospace', fontWeight: 700, background: 'var(--bg-input, #f8fafc)', color: 'var(--text-muted, #64748b)', border: '1px solid var(--border-subtle, #e2e8f0)', padding: '1px 6px', borderRadius: '4px' }}>
                           {auditId}
                         </span>
-                        <span style={{ fontSize: '10.5px', color: 'var(--text-muted, #64748b)', background: 'var(--bg-input, #f8fafc)', border: '1px solid var(--border-subtle, #e2e8f0)', padding: '1px 6px', borderRadius: '4px' }}>
-                          IP: {ipAddr}
-                        </span>
+                        {log.ip_address && (
+                          <span style={{ fontSize: '10.5px', color: 'var(--text-muted, #64748b)', background: 'var(--bg-input, #f8fafc)', border: '1px solid var(--border-subtle, #e2e8f0)', padding: '1px 6px', borderRadius: '4px' }}>
+                            IP: {log.ip_address}
+                          </span>
+                        )}
                       </div>
 
                       <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                         <div style={{ fontSize: '12px', color: 'var(--text-muted, #64748b)', display: 'flex', alignItems: 'center', gap: '5px' }}>
                           <Clock size={12} color="var(--brand-blue, #94a3b8)" />
                           <span>
-                            {dateObj.toLocaleDateString([], { month: 'short', day: '2-digit', year: 'numeric' })} at{' '}
-                            {dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            {dateObj
+                              ? `${dateObj.toLocaleDateString([], { month: 'short', day: '2-digit', year: 'numeric' })} at ${dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
+                              : 'Date unavailable'}
                           </span>
                         </div>
                         <button
@@ -730,15 +882,14 @@ export const ActivityLogsPage = () => {
                   <th style={{ padding: '14px 18px', fontSize: '12px', fontWeight: 700, color: 'var(--text-secondary, #475569)', textTransform: 'uppercase' }}>Role</th>
                   <th style={{ padding: '14px 18px', fontSize: '12px', fontWeight: 700, color: 'var(--text-secondary, #475569)', textTransform: 'uppercase' }}>Action</th>
                   <th style={{ padding: '14px 18px', fontSize: '12px', fontWeight: 700, color: 'var(--text-secondary, #475569)', textTransform: 'uppercase' }}>Event Details</th>
-                  <th style={{ padding: '14px 18px', fontSize: '12px', fontWeight: 700, color: 'var(--text-secondary, #475569)', textTransform: 'uppercase', textAlign: 'right' }}>Verify</th>
+                  <th style={{ padding: '14px 18px', fontSize: '12px', fontWeight: 700, color: 'var(--text-secondary, #475569)', textTransform: 'uppercase', textAlign: 'right' }}>Details</th>
                 </tr>
               </thead>
               <tbody>
                 {paginatedLogs.map((log) => {
-                  const badge = getActionBadge(log.action, log.details);
-                  const dateObj = new Date(log.created_at || log.date || Date.now());
-                  const auditId = log.audit_id || `AUD-${String(log.id).slice(-6)}`;
-                  const ipAddr = log.ip_address || `192.168.10.${(log.id % 70) + 15}`;
+                  const badge = getActionBadge(log.action);
+                  const dateObj = getLogTimestamp(log);
+                  const auditId = log.audit_id || (log.id ? `Local #${log.id}` : 'ID unavailable');
 
                   return (
                     <tr key={log.id} style={{ borderBottom: '1px solid var(--border-subtle, #f1f5f9)' }}>
@@ -747,12 +898,13 @@ export const ActivityLogsPage = () => {
                           {auditId}
                         </div>
                         <div style={{ fontSize: '11px', color: 'var(--text-muted, #64748b)' }}>
-                          {ipAddr}
+                          {log.ip_address || 'IP not recorded'}
                         </div>
                       </td>
                       <td style={{ padding: '14px 18px', fontSize: '12.5px', color: 'var(--text-secondary, #475569)', whiteSpace: 'nowrap' }}>
-                        {dateObj.toLocaleDateString([], { month: 'short', day: '2-digit' })},{' '}
-                        {dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        {dateObj
+                          ? `${dateObj.toLocaleDateString([], { month: 'short', day: '2-digit' })}, ${dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`
+                          : 'Date unavailable'}
                       </td>
                       <td style={{ padding: '14px 18px', fontSize: '13px', fontWeight: 700, color: 'var(--text-primary, #0f172a)' }}>
                         {log.user_name || 'System User'}
@@ -762,7 +914,7 @@ export const ActivityLogsPage = () => {
                       </td>
                       <td style={{ padding: '14px 18px' }}>
                         <span className={badge.className} style={{ fontSize: '11px', fontWeight: 700, padding: '3px 10px', borderRadius: '20px', background: badge.bg, color: badge.color, border: `1px solid ${badge.border}` }}>
-                          {log.action}
+                          {badge.label}
                         </span>
                       </td>
                       <td style={{ padding: '14px 18px', fontSize: '13px', color: 'var(--text-secondary, #334155)' }}>
@@ -783,7 +935,7 @@ export const ActivityLogsPage = () => {
                             cursor: 'pointer'
                           }}
                         >
-                          Verify
+                          Inspect
                         </button>
                       </td>
                     </tr>
@@ -812,26 +964,40 @@ export const ActivityLogsPage = () => {
           <div>
             Showing{' '}
             <strong style={{ color: 'var(--text-primary, #0f172a)' }}>
-              {filteredAndSortedLogs.length > 0 ? (currentPage - 1) * entriesPerPage + 1 : 0}
+              {filteredAndSortedLogs.length > 0 ? (visiblePage - 1) * entriesPerPage + 1 : 0}
             </strong>{' '}
             to{' '}
             <strong style={{ color: 'var(--text-primary, #0f172a)' }}>
-              {Math.min(currentPage * entriesPerPage, filteredAndSortedLogs.length)}
+              {Math.min(visiblePage * entriesPerPage, filteredAndSortedLogs.length)}
             </strong>{' '}
             of <strong style={{ color: 'var(--text-primary, #0f172a)' }}>{filteredAndSortedLogs.length}</strong> events
           </div>
 
           <div className="pagination-btn-group" style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+            <label className="activity-log-page-size">
+              <span>Rows</span>
+              <CustomSelect
+                value={String(entriesPerPage)}
+                onChange={handlePageSizeChange}
+                options={[
+                  { value: '10', label: '10' },
+                  { value: '15', label: '15' },
+                  { value: '25', label: '25' },
+                  { value: '50', label: '50' }
+                ]}
+              />
+            </label>
             <button
-              onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-              disabled={currentPage === 1}
+              type="button"
+              onClick={() => setCurrentPage(Math.max(1, visiblePage - 1))}
+              disabled={visiblePage === 1}
               style={{
                 padding: '6px 12px',
                 border: '1px solid var(--border-subtle, #cbd5e1)',
                 borderRadius: '6px',
                 background: 'var(--bg-surface-elevated, #ffffff)',
-                color: currentPage === 1 ? 'var(--text-muted, #94a3b8)' : 'var(--text-secondary, #334155)',
-                cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                color: visiblePage === 1 ? 'var(--text-muted, #94a3b8)' : 'var(--text-secondary, #334155)',
+                cursor: visiblePage === 1 ? 'not-allowed' : 'pointer',
                 fontSize: '12px',
                 fontWeight: 600
               }}
@@ -839,18 +1005,19 @@ export const ActivityLogsPage = () => {
               Prev
             </button>
             <span className="activity-pagination-current" aria-current="page" style={{ padding: '6px 12px', background: 'var(--brand-blue, #0f172a)', color: '#ffffff', borderRadius: '6px', fontWeight: 700, fontSize: '12px' }}>
-              {currentPage} / {totalPages}
+              {visiblePage} / {totalPages}
             </span>
             <button
-              onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-              disabled={currentPage === totalPages}
+              type="button"
+              onClick={() => setCurrentPage(Math.min(totalPages, visiblePage + 1))}
+              disabled={visiblePage === totalPages}
               style={{
                 padding: '6px 12px',
                 border: '1px solid var(--border-subtle, #cbd5e1)',
                 borderRadius: '6px',
                 background: 'var(--bg-surface-elevated, #ffffff)',
-                color: currentPage === totalPages ? 'var(--text-muted, #94a3b8)' : 'var(--text-secondary, #334155)',
-                cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                color: visiblePage === totalPages ? 'var(--text-muted, #94a3b8)' : 'var(--text-secondary, #334155)',
+                cursor: visiblePage === totalPages ? 'not-allowed' : 'pointer',
                 fontSize: '12px',
                 fontWeight: 600
               }}
@@ -863,12 +1030,13 @@ export const ActivityLogsPage = () => {
 
       {/* Immutable Audit Record Inspector Modal */}
       {inspectLog && (() => {
-        const auditId = inspectLog.audit_id || `AUD-${String(inspectLog.id).slice(-6)}`;
-        const ipAddr = inspectLog.ip_address || `192.168.10.${(inspectLog.id % 70) + 15}`;
-        const devInfo = inspectLog.device_info || 'Faculty Workstation (Windows 11)';
-        const imHash = inspectLog.immutable_hash || `0x${(inspectLog.id * 31).toString(16).padEnd(16, 'f')}`;
-        const timestampIso = inspectLog.created_at || new Date(inspectLog.date || Date.now()).toISOString();
-        const formattedDate = new Date(inspectLog.date || timestampIso).toLocaleString('en-US', {
+        const auditId = inspectLog.audit_id || (inspectLog.id ? `Local #${inspectLog.id}` : 'ID unavailable');
+        const ipAddr = inspectLog.ip_address || 'Not recorded';
+        const devInfo = inspectLog.device_info || 'Not recorded';
+        const imHash = inspectLog.immutable_hash || null;
+        const date = getLogTimestamp(inspectLog);
+        const timestampIso = date?.toISOString() || 'Date unavailable';
+        const formattedDate = date?.toLocaleString('en-US', {
           month: 'short',
           day: 'numeric',
           year: 'numeric',
@@ -876,9 +1044,19 @@ export const ActivityLogsPage = () => {
           minute: '2-digit',
           second: '2-digit',
           hour12: true
-        });
+        }) || 'Date unavailable';
 
-        const certificateSummary = `[VIOTRACK AUDIT EVENT]\nAudit ID: ${auditId}\nStatus: Verified Record\nActor: ${inspectLog.user_name || 'System Admin'} (${inspectLog.user_role || 'Admin'})\nOrigin IP: ${ipAddr}\nWorkstation: ${devInfo}\nAction: ${inspectLog.action}\nDetails: ${inspectLog.details || inspectLog.description || 'Action committed.'}\nTimestamp: ${timestampIso}\nHash: ${imHash}`;
+        const certificateSummary = [
+          '[VIOTRACK ACTIVITY RECORD]',
+          `Audit ID: ${auditId}`,
+          `Actor: ${inspectLog.user_name || 'System User'} (${inspectLog.user_role || 'Role not recorded'})`,
+          `Origin IP: ${ipAddr}`,
+          `Device: ${devInfo}`,
+          `Action: ${inspectLog.action || 'Action not recorded'}`,
+          `Details: ${inspectLog.details || inspectLog.description || 'No details recorded.'}`,
+          `Timestamp: ${timestampIso}`,
+          imHash ? `Stored integrity value: ${imHash}` : 'Stored integrity value: Not recorded'
+        ].join('\n');
 
         return (
           <div
@@ -923,13 +1101,13 @@ export const ActivityLogsPage = () => {
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <ShieldCheck size={20} className="audit-inspector-shield-icon" style={{ flexShrink: 0, color: 'var(--brand-blue, #0f172a)' }} />
+                  <Activity size={20} className="audit-inspector-shield-icon" style={{ flexShrink: 0, color: 'var(--brand-blue, #0f172a)' }} />
                   <div>
                     <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 700, letterSpacing: '-0.01em', color: 'var(--text-primary, #0f172a)' }}>
                       Audit Event Details
                     </h3>
                     <span style={{ fontSize: '12px', color: 'var(--text-muted, #64748b)', display: 'block', marginTop: '1px' }}>
-                      System activity record and verification details
+                      Details stored with this activity event
                     </span>
                   </div>
                 </div>
@@ -958,7 +1136,7 @@ export const ActivityLogsPage = () => {
 
               {/* Body */}
               <div className="audit-inspector-body" style={{ padding: '20px 22px', display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '13px' }}>
-                {/* Audit ID & Verified Row */}
+                {/* Audit ID and stored integrity metadata */}
                 <div
                   className="audit-inspector-verified"
                   style={{
@@ -970,9 +1148,9 @@ export const ActivityLogsPage = () => {
                   }}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
-                    <CheckCircle2 size={15} className="audit-inspector-verified-icon" />
+                    <Activity size={15} className="audit-inspector-verified-icon" />
                     <span className="audit-inspector-verified-text" style={{ fontWeight: 600, fontSize: '12px' }}>
-                      Verified System Record
+                      {imHash ? 'Integrity value stored' : 'Activity record'}
                     </span>
                   </div>
 
@@ -1041,7 +1219,7 @@ export const ActivityLogsPage = () => {
                     }}
                   >
                     <span className="audit-inspector-label" style={{ color: 'var(--text-muted, #64748b)', fontSize: '11px', fontWeight: 600, textTransform: 'uppercase' }}>
-                      Origin Station
+                      Origin IP
                     </span>
                     <strong style={{ color: 'var(--text-primary, #0f172a)', fontFamily: 'monospace', fontSize: '12.5px', marginTop: '1px' }}>
                       {ipAddr}
@@ -1087,26 +1265,28 @@ export const ActivityLogsPage = () => {
                 >
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
                     <span className="audit-inspector-label" style={{ fontSize: '11px', fontWeight: 600, color: 'var(--text-muted, #64748b)', textTransform: 'uppercase' }}>
-                      Verification Hash (SHA-256)
+                      Stored integrity value
                     </span>
 
-                    <button
-                      type="button"
-                      onClick={() => handleCopy(imHash, 'imHash')}
-                      className="audit-inspector-copy-hash"
-                    >
-                      {copiedField === 'imHash' ? (
-                        <>
-                          <Check size={11} className="audit-inspector-copied-icon" />
-                          <span>Copied</span>
-                        </>
-                      ) : (
-                        <>
-                          <Copy size={11} className="audit-inspector-copy-icon" />
-                          <span>Copy</span>
-                        </>
-                      )}
-                    </button>
+                    {imHash && (
+                      <button
+                        type="button"
+                        onClick={() => handleCopy(imHash, 'imHash')}
+                        className="audit-inspector-copy-hash"
+                      >
+                        {copiedField === 'imHash' ? (
+                          <>
+                            <Check size={11} className="audit-inspector-copied-icon" />
+                            <span>Copied</span>
+                          </>
+                        ) : (
+                          <>
+                            <Copy size={11} className="audit-inspector-copy-icon" />
+                            <span>Copy</span>
+                          </>
+                        )}
+                      </button>
+                    )}
                   </div>
 
                   <div
@@ -1119,7 +1299,7 @@ export const ActivityLogsPage = () => {
                       wordBreak: 'break-all'
                     }}
                   >
-                    {imHash}
+                    {imHash || 'No integrity value was stored for this event.'}
                   </div>
 
                   <div

@@ -14,6 +14,7 @@ const prefetchMap = {
   '/teachers': () => import('../pages/TeachersPage'),
   '/advisers': () => import('../pages/AdvisersPage'),
   '/track-location': () => import('../pages/TrackLocationPage'),
+  '/admin-dashboard': () => import('../pages/AdminDashboardPage'),
   '/admin-users': () => import('../pages/AdminUsersPage'),
   '/for-approval': () => import('../pages/ForApprovalPage'),
   '/activity-logs': () => import('../pages/ActivityLogsPage'),
@@ -24,6 +25,12 @@ const preloadedSet = new Set();
 
 export const preloadRoute = (path) => {
   if (!path) return;
+  const connection = typeof navigator !== 'undefined' ? navigator.connection : null;
+  if (
+    connection?.saveData
+    || ['slow-2g', '2g'].includes(connection?.effectiveType)
+  ) return;
+
   const cleanPath = path.split('?')[0].split('#')[0];
   if (preloadedSet.has(cleanPath)) return;
 

@@ -154,7 +154,7 @@ export const SearchableStudentSelect = ({
       }
     >
       {/* Search & Filter Header */}
-      <div className="searchable-select-header" style={{ padding: '10px 12px', background: 'var(--bg-surface-elevated, #f8fafc)', borderBottom: '1px solid var(--border-subtle, #e2e8f0)', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+      <div className="searchable-select-header student-picker-header" style={{ padding: '14px 16px', background: 'var(--bg-surface-elevated, #f8fafc)', borderBottom: '1px solid var(--border-subtle, #e2e8f0)', display: 'flex', flexDirection: 'column', gap: '10px' }}>
         <div style={{ position: 'relative', width: '100%' }}>
           <input
             ref={searchInputRef}
@@ -166,7 +166,7 @@ export const SearchableStudentSelect = ({
             style={{
               width: '100%',
               boxSizing: 'border-box',
-              padding: '8px 12px 8px 32px',
+              padding: '10px 38px 10px 36px',
               borderRadius: '8px',
               border: '1px solid var(--border-subtle, #cbd5e1)',
               fontSize: '13px',
@@ -209,7 +209,7 @@ export const SearchableStudentSelect = ({
                   onClick={() => setGradeFilter(g)}
                   className={`searchable-filter-chip ${isActive ? 'active' : ''}`}
                   style={{
-                    padding: '5px 10px',
+                    padding: '6px 11px',
                     borderRadius: '6px',
                     border: isActive ? '1.5px solid var(--brand-blue, #0f172a)' : '1px solid var(--border-subtle, #cbd5e1)',
                     background: isActive ? 'var(--brand-blue, #0f172a)' : 'var(--bg-surface, #ffffff)',
@@ -250,7 +250,7 @@ export const SearchableStudentSelect = ({
       </div>
 
       {/* Student List */}
-      <div className="searchable-select-list" style={{ overflowY: 'auto', maxHeight: inline ? maxListHeight : '240px', minHeight: '140px', flex: 1, padding: '4px', background: 'var(--bg-surface, #ffffff)' }}>
+      <div className="searchable-select-list student-picker-list" style={{ overflowY: 'auto', maxHeight: inline ? maxListHeight : '240px', minHeight: '180px', flex: 1, padding: '8px', background: 'var(--bg-surface, #ffffff)' }}>
         {filtered.length === 0 ? (
           <div style={{ padding: '16px 12px', textAlign: 'center', color: 'var(--text-muted, #64748b)', fontSize: '12px' }}>
             No students found.
@@ -263,27 +263,37 @@ export const SearchableStudentSelect = ({
                 <div
                   key={s.id}
                   onClick={() => handleToggle(s)}
-                  className={`searchable-item-row ${isSelected ? 'selected' : ''}`}
+                  onKeyDown={(event) => {
+                    if (event.key === 'Enter' || event.key === ' ') {
+                      event.preventDefault();
+                      handleToggle(s);
+                    }
+                  }}
+                  role={isMulti ? 'checkbox' : 'button'}
+                  aria-checked={isMulti ? isSelected : undefined}
+                  aria-pressed={!isMulti ? isSelected : undefined}
+                  tabIndex={0}
+                  className={`searchable-item-row student-picker-row ${isSelected ? 'selected' : ''}`}
                   style={{
-                    padding: '6px 8px',
+                    padding: '10px 12px',
                     borderRadius: '6px',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
                     cursor: 'pointer',
-                    background: isSelected ? 'var(--bg-surface-hover, #f1f5f9)' : 'transparent',
-                    border: isSelected ? '1px solid var(--border-subtle, #cbd5e1)' : '1px solid transparent',
-                    marginBottom: '2px',
+                    background: isSelected ? 'var(--bg-surface-hover, #f1f5f9)' : 'var(--bg-surface, #ffffff)',
+                    border: isSelected ? '1px solid var(--brand-blue, #0f172a)' : '1px solid var(--border-subtle, #e2e8f0)',
+                    marginBottom: '5px',
                     transition: 'all 0.12s ease'
                   }}
                 >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: 0 }}>
                     {isMulti ? (
                       <div
                         style={{
-                          width: 16,
-                          height: 16,
-                          borderRadius: '3px',
+                          width: 19,
+                          height: 19,
+                          borderRadius: '5px',
                           border: isSelected ? '1.5px solid var(--brand-blue, #0f172a)' : '1.5px solid var(--border-subtle, #cbd5e1)',
                           background: isSelected ? 'var(--brand-blue, #0f172a)' : 'var(--bg-input, #ffffff)',
                           display: 'flex',
@@ -302,14 +312,14 @@ export const SearchableStudentSelect = ({
                         `https://ui-avatars.com/api/?name=${encodeURIComponent(s.fname + ' ' + s.lname)}&background=0f172a&color=fff&size=50`
                       }
                       alt={s.fname}
-                      style={{ width: 24, height: 24, borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }}
+                      style={{ width: 36, height: 36, borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }}
                     />
-                    <div>
-                      <div style={{ fontSize: '12.5px', fontWeight: isSelected ? 700 : 600, color: 'var(--text-primary, #0f172a)' }}>
+                    <div style={{ minWidth: 0 }}>
+                      <div style={{ fontSize: '13px', fontWeight: isSelected ? 700 : 600, color: 'var(--text-primary, #0f172a)' }}>
                         {s.fname} {s.lname}
                       </div>
-                      <div style={{ fontSize: '11px', color: 'var(--text-muted, #64748b)' }}>
-                        Student ID: {s.lrn} • {s.grade} - {s.section}
+                      <div style={{ fontSize: '11.5px', color: 'var(--text-muted, #64748b)', marginTop: '2px' }}>
+                        ID {s.lrn} <span aria-hidden="true">·</span> Grade {s.grade}, {s.section}
                       </div>
                     </div>
                   </div>

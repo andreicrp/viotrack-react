@@ -82,10 +82,10 @@ export const AdvisersPage = () => {
     setLoading(true);
     try {
       const [aList, tList, sList, rList] = await Promise.all([
-        dataService.getAdvisers(),
-        dataService.getTeachers(),
-        dataService.getStudents(),
-        dataService.getRecords()
+        dataService.getAdvisers(true),
+        dataService.getTeachers(true),
+        dataService.getStudents(true),
+        dataService.getRecords(true)
       ]);
       setAdvisers(aList || []);
       setTeachers(tList || []);
@@ -120,8 +120,8 @@ export const AdvisersPage = () => {
     advisers.forEach(adv => {
       const gNum = (adv.grade_level || '').replace(/\D/g, '');
       const secStudents = students.filter(s =>
-        s.grade.replace(/\D/g, '') === gNum &&
-        s.section.toLowerCase().trim() === (adv.class_section || '').toLowerCase().trim()
+        (s.grade || '').replace(/\D/g, '') === gNum &&
+        (s.section || '').toLowerCase().trim() === (adv.class_section || '').toLowerCase().trim()
       );
       assignedStudentCount += secStudents.length;
     });
@@ -587,10 +587,11 @@ export const AdvisersPage = () => {
       {/* Advisers Card Grid */}
       {filteredAdvisers.length === 0 ? (
         <div
+          className="advisers-empty-state"
           style={{
-            background: '#ffffff',
+            background: 'var(--bg-surface, #ffffff)',
             borderRadius: '16px',
-            border: '1px dashed #cbd5e1',
+            border: '1px dashed var(--border-subtle, #cbd5e1)',
             padding: '48px 20px',
             textAlign: 'center',
             display: 'flex',
@@ -601,12 +602,13 @@ export const AdvisersPage = () => {
           }}
         >
           <div
+            className="advisers-empty-state-icon"
             style={{
               width: 56,
               height: 56,
               borderRadius: '50%',
-              background: '#f1f5f9',
-              color: '#64748b',
+              background: 'var(--bg-surface-elevated, #f1f5f9)',
+              color: 'var(--text-muted, #64748b)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center'
@@ -615,17 +617,17 @@ export const AdvisersPage = () => {
             <UserMinus size={26} />
           </div>
           <div>
-            <h4 style={{ fontSize: '15px', fontWeight: 700, color: '#1e293b', margin: '0 0 3px 0' }}>
+            <h4 style={{ fontSize: '15px', fontWeight: 700, color: 'var(--text-primary, #1e293b)', margin: '0 0 3px 0' }}>
               No advisers match your current search or filter
             </h4>
-            <p style={{ fontSize: '12.5px', color: '#64748b', margin: 0 }}>
+            <p style={{ fontSize: '12.5px', color: 'var(--text-secondary, #64748b)', margin: 0 }}>
               Try adjusting your search criteria, or appoint a new teacher as section adviser.
             </p>
           </div>
           <button
             onClick={() => setIsAppointModalOpen(true)}
             className="advisers-btn-primary"
-            style={{ marginTop: '6px', background: '#07345f', color: '#ffffff', borderColor: '#07345f' }}
+            style={{ marginTop: '6px' }}
           >
             <Plus size={14} /> Appoint Adviser
           </button>
@@ -643,8 +645,8 @@ export const AdvisersPage = () => {
             // Find enrolled students matching Grade & Section
             const gNum = (adv.grade_level || '').replace(/\D/g, '');
             const sectionStudents = students.filter(s =>
-              s.grade.replace(/\D/g, '') === gNum &&
-              s.section.toLowerCase().trim() === (adv.class_section || '').toLowerCase().trim()
+              (s.grade || '').replace(/\D/g, '') === gNum &&
+              (s.section || '').toLowerCase().trim() === (adv.class_section || '').toLowerCase().trim()
             );
 
             // Compute violation statistics for this section
@@ -737,17 +739,7 @@ export const AdvisersPage = () => {
                   </div>
 
                   {sectionStudents.length === 0 ? (
-                    <div
-                      style={{
-                        padding: '14px',
-                        background: '#f8fafc',
-                        borderRadius: '8px',
-                        border: '1px dashed #cbd5e1',
-                        textAlign: 'center',
-                        fontSize: '11.5px',
-                        color: '#64748b'
-                      }}
-                    >
+                    <div className="adviser-roster-empty">
                       No students currently registered under this section.
                     </div>
                   ) : (
@@ -955,9 +947,10 @@ export const AdvisersPage = () => {
                         style={{
                           padding: '8px 10px',
                           borderRadius: '8px',
-                          border: isSelected ? '2px solid var(--brand-blue, #07345f)' : '1px solid var(--border-subtle, #e2e8f0)',
-                          background: isSelected ? 'rgba(56, 189, 248, 0.15)' : 'var(--bg-surface-elevated, #f8fafc)',
-                          color: isSelected ? 'var(--brand-blue, #07345f)' : 'var(--text-secondary, #475569)',
+                          border: isSelected ? '2px solid #ffffff' : '1px solid var(--border-subtle, #27272a)',
+                          background: isSelected ? 'rgba(255, 255, 255, 0.12)' : 'var(--bg-surface-elevated, #080808)',
+                          color: isSelected ? '#ffffff' : 'var(--text-secondary, #475569)',
+                          boxShadow: isSelected ? '0 0 0 1px #ffffff, 0 4px 12px rgba(255, 255, 255, 0.15)' : 'none',
                           fontWeight: isSelected ? 700 : 500,
                           fontSize: '12px',
                           cursor: 'pointer',
@@ -967,7 +960,7 @@ export const AdvisersPage = () => {
                           gap: '6px'
                         }}
                       >
-                        <School size={14} /> {lvl}
+                        <School size={14} color={isSelected ? '#ffffff' : 'currentColor'} /> {lvl}
                       </button>
                     );
                   })}
@@ -991,15 +984,15 @@ export const AdvisersPage = () => {
               </div>
 
               {/* Action Buttons */}
-              <div style={{ display: 'flex', gap: '10px', marginTop: '10px', borderTop: '1px solid var(--border-subtle, #f1f5f9)', paddingTop: '16px' }}>
+              <div style={{ display: 'flex', gap: '10px', marginTop: '10px', borderTop: '1px solid var(--border-subtle, #27272a)', paddingTop: '16px' }}>
                 <button
                   type="button"
                   onClick={() => setIsAppointModalOpen(false)}
                   style={{
                     flex: 1,
-                    background: 'var(--bg-surface-elevated, #f1f5f9)',
-                    color: 'var(--text-secondary, #475569)',
-                    border: '1px solid var(--border-subtle, #cbd5e1)',
+                    background: 'var(--bg-surface-elevated, #111111)',
+                    color: 'var(--text-secondary, #cbd5e1)',
+                    border: '1px solid var(--border-subtle, #333333)',
                     padding: '10px 16px',
                     borderRadius: '8px',
                     fontSize: '13px',
@@ -1012,16 +1005,20 @@ export const AdvisersPage = () => {
                 <button
                   type="submit"
                   disabled={!selectedTeacherId || !appointSection.trim()}
+                  className="appoint-adviser-confirm-btn"
                   style={{
                     flex: 1,
-                    background: (!selectedTeacherId || !appointSection.trim()) ? 'var(--text-dim, #94a3b8)' : 'var(--brand-blue, #07345f)',
-                    color: '#ffffff',
-                    border: 'none',
+                    background: '#ffffff',
+                    color: '#000000',
+                    border: '1px solid #ffffff',
                     padding: '10px 16px',
                     borderRadius: '8px',
                     fontSize: '13px',
                     fontWeight: 700,
-                    cursor: (!selectedTeacherId || !appointSection.trim()) ? 'not-allowed' : 'pointer'
+                    opacity: (!selectedTeacherId || !appointSection.trim()) ? 0.6 : 1,
+                    cursor: (!selectedTeacherId || !appointSection.trim()) ? 'not-allowed' : 'pointer',
+                    boxShadow: '0 4px 14px rgba(255, 255, 255, 0.15)',
+                    transition: 'all 0.15s ease'
                   }}
                 >
                   Confirm Appointment

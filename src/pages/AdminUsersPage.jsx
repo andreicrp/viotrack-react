@@ -1342,26 +1342,31 @@ export const AdminUsersPage = () => {
                       { id: 'Head Admin', label: 'Head Admin', sub: 'Full System Access' },
                       { id: 'System Admin', label: 'System Admin', sub: 'IT & Logs Master' },
                       { id: 'Discipline Officer', label: 'Discipline Officer', sub: 'Hearings & Records' }
-                    ].map((r) => (
-                      <div
-                        key={r.id}
-                        onClick={() => setFormData({ ...formData, role: r.id })}
-                        style={{
-                          padding: '10px 8px',
-                          borderRadius: '10px',
-                          cursor: 'pointer',
-                          border: formData.role === r.id ? '2px solid var(--brand-blue, #07345f)' : '1.5px solid var(--border-subtle, #e2e8f0)',
-                          background: formData.role === r.id ? 'rgba(56, 189, 248, 0.15)' : 'var(--bg-surface-elevated, #f8fafc)',
-                          textAlign: 'center',
-                          transition: 'all 0.15s ease'
-                        }}
-                      >
-                        <span style={{ fontSize: '12.5px', fontWeight: 800, color: formData.role === r.id ? 'var(--brand-blue, #1e1b4b)' : 'var(--text-primary, #334155)', display: 'block' }}>
-                          {r.label}
-                        </span>
-                        <span style={{ fontSize: '10.5px', color: 'var(--text-muted, #64748b)' }}>{r.sub}</span>
-                      </div>
-                    ))}
+                    ].map((r) => {
+                      const isSelected = formData.role === r.id;
+                      return (
+                        <div
+                          key={r.id}
+                          onClick={() => setFormData({ ...formData, role: r.id })}
+                          className={`admin-role-select-card ${isSelected ? 'selected' : ''}`}
+                          style={{
+                            padding: '10px 8px',
+                            borderRadius: '10px',
+                            cursor: 'pointer',
+                            border: isSelected ? '2px solid #ffffff' : '1.5px solid var(--border-subtle, #27272a)',
+                            background: isSelected ? 'rgba(255, 255, 255, 0.12)' : 'var(--bg-surface-elevated, #080808)',
+                            boxShadow: isSelected ? '0 0 0 1px #ffffff, 0 4px 14px rgba(255, 255, 255, 0.15)' : 'none',
+                            textAlign: 'center',
+                            transition: 'all 0.15s ease'
+                          }}
+                        >
+                          <span style={{ fontSize: '12.5px', fontWeight: 800, color: isSelected ? '#ffffff' : 'var(--text-primary, #334155)', display: 'block' }}>
+                            {r.label}
+                          </span>
+                          <span style={{ fontSize: '10.5px', color: isSelected ? '#cbd5e1' : 'var(--text-muted, #64748b)' }}>{r.sub}</span>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
 
@@ -1443,12 +1448,13 @@ export const AdminUsersPage = () => {
 
                   <button
                     type="submit"
+                    className="admin-modal-submit-btn"
                     style={{
                       padding: '9px 22px',
                       borderRadius: '9px',
                       background: 'var(--brand-blue, #0f172a)',
-                      color: '#ffffff',
-                      border: 'none',
+                      color: 'var(--brand-btn-text, #ffffff)',
+                      border: '1px solid var(--brand-blue, #0f172a)',
                       fontWeight: 700,
                       fontSize: '13px',
                       cursor: 'pointer',

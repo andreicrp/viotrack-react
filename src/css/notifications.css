@@ -5,10 +5,10 @@
 .notifications-page-root {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 18px;
   width: 100%;
   margin: 0;
-  padding-bottom: 40px;
+  padding-bottom: 24px;
   animation: fadeIn 0.2s ease-out;
 }
 
@@ -210,8 +210,8 @@
 /* 3. Main Grid Layout & Sidebar */
 .notif-page-layout-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 290px;
-  gap: 14px;
+  grid-template-columns: minmax(0, 1fr) 264px;
+  gap: 16px;
   align-items: start;
   width: 100%;
 }
@@ -219,7 +219,7 @@
 .notif-main-col {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
   min-width: 0;
 }
 
@@ -392,26 +392,28 @@
   background: #ffffff;
   border-radius: 12px;
   border: 1px solid #e2e8f0;
-  padding: 10px 14px;
+  padding: 12px;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  flex-wrap: wrap;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 10px;
 }
 
 .notif-category-tabs {
   display: flex;
   align-items: center;
-  gap: 6px;
-  flex-wrap: wrap;
+  gap: 7px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  padding: 1px 1px 4px;
+  scrollbar-width: thin;
 }
 
 .notif-tab-btn {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 5px 11px;
+  padding: 7px 12px;
   font-size: 12px;
   font-weight: 600;
   color: #64748b;
@@ -452,12 +454,13 @@
 .notif-search-and-toggles {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   flex-wrap: wrap;
 }
 
 .notif-search-box {
   position: relative;
+  flex: 1;
   min-width: 220px;
 }
 
@@ -509,6 +512,7 @@
   cursor: pointer;
   user-select: none;
   white-space: nowrap;
+  min-height: 34px;
 }
 
 .notif-unread-checkbox {
@@ -526,23 +530,23 @@
 .notif-cards-stack {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 9px;
 }
 
 .notif-card-item {
   background: #ffffff;
-  border-radius: 10px;
+  border-radius: 11px;
   border: 1px solid #e2e8f0;
-  padding: 10px 14px;
+  padding: 12px 14px;
   display: flex;
   flex-direction: row;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 12px;
+  gap: 14px;
   position: relative;
   transition: all 0.15s ease;
   cursor: pointer;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+  box-shadow: none;
 }
 
 .notif-card-item:hover {
@@ -654,7 +658,7 @@
 }
 
 .notif-card-title {
-  font-size: 13px;
+  font-size: 13.5px;
   font-weight: 700;
   color: #0f172a;
   line-height: 1.3;
@@ -681,7 +685,7 @@
 }
 
 .notif-card-message {
-  font-size: 12px;
+  font-size: 12.5px;
   color: #475569;
   margin: 0;
   line-height: 1.4;
@@ -701,7 +705,7 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  height: 28px;
+  height: 32px;
   padding: 0 12px;
   font-size: 11.5px;
   font-weight: 700;
@@ -722,8 +726,8 @@
 }
 
 .notif-icon-btn {
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   display: inline-flex;
   align-items: center;
@@ -758,7 +762,7 @@
 
 /* Empty & Loading States */
 .notif-empty-state {
-  padding: 48px 20px;
+  padding: 56px 20px;
   background: #ffffff;
   border-radius: 12px;
   border: 1px dashed #cbd5e1;
@@ -838,12 +842,12 @@
   }
 
   .notif-category-tabs {
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     gap: 6px;
   }
 
   .notif-tab-btn {
-    flex-grow: 1;
+    flex: 0 0 auto;
     justify-content: center;
     font-size: 11.5px;
     padding: 5px 8px;
@@ -851,12 +855,13 @@
 
   .notif-search-and-toggles {
     width: 100%;
-    flex-direction: column;
-    align-items: stretch;
+    flex-direction: row;
+    align-items: center;
     gap: 8px;
   }
 
   .notif-search-box {
+    flex: 1;
     width: 100%;
     min-width: auto;
   }
@@ -885,5 +890,108 @@
     width: 100%;
     justify-content: flex-end;
     margin-top: 4px;
+  }
+}
+
+/* Dark-mode feed stays quiet; unread state is marked without bright outlines. */
+[data-theme="dark"] .notifications-page-root .notif-controls-bar,
+[data-theme="dark"] .notifications-page-root .notif-side-card {
+  background: #080808 !important;
+  border-color: #242424 !important;
+  box-shadow: none !important;
+}
+
+[data-theme="dark"] .notifications-page-root .notif-card-item,
+[data-theme="dark"] .notifications-page-root .notif-card-item.read {
+  background: #050505 !important;
+  border: 1px solid #242424 !important;
+  box-shadow: none !important;
+}
+
+[data-theme="dark"] .notifications-page-root .notif-card-item.unread {
+  background: #0a0a0a !important;
+  border: 1px solid #343434 !important;
+  box-shadow: none !important;
+}
+
+[data-theme="dark"] .notifications-page-root .notif-card-item:hover,
+[data-theme="dark"] .notifications-page-root .notif-card-item.unread:hover {
+  background: #101010 !important;
+  border-color: #454545 !important;
+  box-shadow: none !important;
+}
+
+[data-theme="dark"] .notifications-page-root .notif-empty-state {
+  background: #080808 !important;
+  border: 1px solid #303030 !important;
+}
+
+[data-theme="dark"] .notifications-page-root .notif-empty-icon-wrap {
+  background: #101010 !important;
+}
+
+[data-theme="dark"] .notifications-page-root .notif-empty-title {
+  color: #f5f5f5 !important;
+}
+
+[data-theme="dark"] .notifications-page-root .notif-empty-desc {
+  color: #a3a3a3 !important;
+}
+
+[data-theme="dark"] .notifications-page-root .notif-empty-reset-btn {
+  background: #141414 !important;
+  border-color: #383838 !important;
+  color: #e5e5e5 !important;
+}
+
+[data-theme="dark"] .notifications-page-root .notif-empty-reset-btn:hover {
+  background: #202020 !important;
+  border-color: #505050 !important;
+}
+
+[data-theme="dark"] .notifications-page-root .notif-empty-icon-wrap svg {
+  color: #a3a3a3 !important;
+  stroke: #a3a3a3 !important;
+}
+
+[data-theme="dark"] .notifications-page-root .notif-tab-btn.active {
+  background: #f5f5f5 !important;
+  border-color: #f5f5f5 !important;
+  color: #080808 !important;
+}
+
+[data-theme="dark"] .notifications-page-root .notif-tab-btn.active .notif-tab-badge {
+  background: #dedede !important;
+  color: #080808 !important;
+}
+
+[data-theme="dark"] .notifications-page-root .notif-tab-btn:not(.active):hover,
+[data-theme="dark"] .notifications-page-root .notif-shortcut-btn:hover {
+  border-color: #454545 !important;
+}
+
+@media (max-width: 480px) {
+  .notifications-page-root {
+    gap: 14px;
+  }
+
+  .notif-search-and-toggles {
+    align-items: stretch;
+  }
+
+  .notif-unread-toggle-label {
+    min-height: 30px;
+  }
+
+  .notif-card-item {
+    padding: 10px;
+  }
+
+  .notif-header-line {
+    align-items: flex-start;
+  }
+
+  .notif-time-tag {
+    font-size: 10px;
   }
 }

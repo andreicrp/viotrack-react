@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 
 const ThemeContext = createContext({
   theme: 'light',
@@ -8,6 +8,7 @@ const ThemeContext = createContext({
 });
 
 export const ThemeProvider = ({ children }) => {
+  const fallbackTransitionTimer = useRef(null);
   const [theme, setThemeState] = useState(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('viotrack_theme');
@@ -44,6 +45,21 @@ export const ThemeProvider = ({ children }) => {
     const startViewTransition = document.startViewTransition;
 
     if (typeof startViewTransition !== 'function' || reducedMotion) {
+      if (!reducedMotion) {
+        root.classList.add('theme-transitioning');
+        void root.offsetWidth;
+        applyTheme(newTheme);
+        window.clearTimeout(fallbackTransitionTimer.current);
+        fallbackTransitionTimer.current = window.setTimeout(() => {
+          window.clearTimeout(fallbackTransitionTimer.current);
+          fallbackTransitionTimer.current = null;
+          root.classList.remove('theme-transitioning');
+          fallbackTransitionTimer.current = null;
+        }, 320);
+        return;
+      }
+
+      root.classList.remove('theme-transitioning');
       applyTheme(newTheme);
       return;
     }
@@ -86,6 +102,11 @@ export const ThemeProvider = ({ children }) => {
       localStorage.setItem('viotrack_theme', 'light');
     }
   }, [theme]);
+
+  useEffect(() => () => {
+    window.clearTimeout(fallbackTransitionTimer.current);
+    document.documentElement.classList.remove('theme-transitioning');
+  }, []);
 
   const toggleTheme = (event) => {
     changeTheme(theme === 'dark' ? 'light' : 'dark', event);
