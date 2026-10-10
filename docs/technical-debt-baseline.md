@@ -568,3 +568,29 @@ Clean latest main passed **22 tests across 5 test files**, lint (**446 warnings,
 Latest main is [`239ba553fc9eb45efb06ee865c1e5e08d84a4f9b`](https://github.com/andreicrp/viotrack-react/commit/239ba553fc9eb45efb06ee865c1e5e08d84a4f9b). It refines the monochrome dark theme in `PrintDataModal.jsx`, `ParentSummonsModal.jsx`, `ResolutionModal.jsx`, and `dark-theme.css`; no data-service modules, tests, dependencies, or declarations changed.
 
 Clean latest main passed **22 tests across 5 test files**, lint (**446 warnings, 0 errors**), and production build (`vendor-react` 302.00 kB, gzip 96.16 kB; PDF worker 1,264.34 kB). The PR rebased onto this commit passed **46 tests across 6 files**, `npm run typecheck`, lint (**445 warnings, 0 errors**), and build with matching bundle sizes. Main has no JSDoc typecheck script.
+
+
+## Baseline after the 2026-10-10 student registration and synchronization fix
+Latest main at this point was [`b33dceb3ccbeacc7dee0885e4a944a5c93493003`](https://github.com/andreicrp/viotrack-react/commit/b33dceb3ccbeacc7dee0885e4a944a5c93493003). It hardened student registration, sync, and Supabase payload sanitization; the modular student implementation was ported and tested on the technical-debt branch.
+
+Clean main passed **22 tests across 5 files**, lint (**444 warnings, 0 errors**), and production build (`vendor-react` 302.00 kB, gzip 96.16 kB; PDF worker 1,264.34 kB). Main has no JSDoc typecheck script.
+
+## Baseline after the 2026-10-10 teacher/admin handling and password-verification update
+Latest main was [`375a277489f3e111fbe932c802474bef86df528e`](https://github.com/andreicrp/viotrack-react/commit/375a277489f3e111fbe932c802474bef86df528e). Its service changes updated `getTeachers`, `deleteTeacher`, and the four admin read/write methods, and added resilient event-table fallback behavior in `getSchoolEvents`, `addSchoolEvent`, and `deleteSchoolEvent`. Those current-main methods were ported into `teachers.js`, `admins.js`, and `events.js`.
+
+Clean main passed **22 tests across 5 files**, lint (**443 warnings, 0 errors**), and production build (`vendor-react` 302.00 kB, gzip 96.16 kB; PDF worker 1,264.34 kB). Main has no JSDoc typecheck script.
+
+## Baseline after the 2026-10-10 records seed and local-merge update
+Latest main was [`cc13d0c27d8737a09ca412a8a54be4389f1ee917`](https://github.com/andreicrp/viotrack-react/commit/cc13d0c27d8737a09ca412a8a54be4389f1ee917). It restored the initial student/record/faculty/adviser/admin fixtures and updated `getRecords` to hydrate records against the seeded student and violation catalogs. The modular fixtures and record service now reflect this behavior; the old one-time purge of the restored demo cache was removed to match main.
+
+Clean main passed **22 tests across 5 files**, lint (**442 warnings, 0 errors**), and production build (`vendor-react` 302.00 kB, gzip 96.16 kB; PDF worker 1,264.34 kB). Main has no JSDoc typecheck script.
+
+## Baseline after the 2026-10-11 admin analytics and core-workflows update
+Latest main is [`f432fb3c7795224cea9bfac7ec0d551c6cadabca`](https://github.com/andreicrp/viotrack-react/commit/f432fb3c7795224cea9bfac7ec0d551c6cadabca). It further revised `getRecords`, `getAdvisers`, `getActivityLogs`, and `addActivityLog`. Across the three commits since `b33dceb`, all 13 distinct changed service methods and the current seed fixtures were synchronized into their corresponding modules. Regression tests now cover restored offline seed rows, record hydration and deduplication, local/remote activity-log merge/sort/deduplication, admin/teacher password fallback, and the calendar-events-to-school-events fallback.
+
+Clean main passed **22 tests across 5 files**, lint (**415 warnings, 0 errors**), and production build (`vendor-react` 302.25 kB, gzip 96.21 kB; PDF worker 1,264.34 kB). Main has no JSDoc typecheck script. The rebased PR snapshot passed **52 tests across 6 files**, `npm run typecheck`, lint (**415 warnings, 0 errors**), and production build with identical path-neutral bundle sizes (`vendor-react` 302.25 kB, gzip 96.21 kB; PDF worker 1,264.34 kB). The project’s manual chunk rule matches the substring `react` anywhere in a resolved module path, so a build from `/home/ubuntu/viotrack-react` reports a misleading 2.68 MB `vendor-react` chunk; clean main and the PR were compared from path-neutral worktrees to avoid that workspace-path artifact.
+
+### SQL schema compatibility review
+No MySQL client, driver, or runtime adapter is present in `package.json` or the application source; `dataService` talks to Supabase/PostgreSQL through `supabase-js`. The MySQL files therefore define database setup shapes but do not make the current browser service MySQL-compatible, and no MySQL-specific client adjustment was added.
+
+The schema review did uncover field drift to account for before any future direct MySQL/API integration: `MYSql_vioTrack.sql` and `VioTrack.sql` name the school-event date `event_date`, while `src/lib/mysql-schema.sql` names it `date` and the current service orders by `date`; the newer schemas also use `event_time`/`venue`/`event_type` while the older MySQL schema uses `time`/`location`/`category`. For activity logs, both current SQL schemas use `workstation`/`audit_hash` and omit `audit_id`/`device_info`, which the latest upstream service payload can include. These mismatches need a defined API/schema mapping (and a MySQL-capable server-side adapter if direct MySQL is intended); they cannot be solved by changing the existing Supabase client alone.
