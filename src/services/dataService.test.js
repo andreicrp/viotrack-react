@@ -46,6 +46,8 @@ describe('dataService data sources', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
     localStorage.clear();
+    ['students', 'records', 'teachers', 'advisers', 'admins', 'activity_logs', 'school_events']
+      .forEach((key) => localStorage.setItem(`viotrack_${key}`, '[]'));
     sessionStorage.clear();
     supabaseState.configured = false;
     supabaseState.responses = {};
@@ -53,15 +55,26 @@ describe('dataService data sources', () => {
     dataService.invalidateCache();
   });
 
-  it('does not synthesize demo students, records, or other offline seed rows', async () => {
-    expect(await dataService.getStudents(true)).toEqual([]);
-    expect(await dataService.getRecords(true)).toEqual([]);
-    expect(await dataService.getTeachers(true)).toEqual([]);
-    expect(await dataService.getAdvisers(true)).toEqual([]);
-    expect(await dataService.getAdmins(true)).toEqual([]);
+  it('uses upstream student, incident, faculty, adviser, and admin seed rows when local data is absent', async () => {
+    localStorage.clear();
+    dataService.invalidateCache();
+
+    const students = await dataService.getStudents(true);
+    const records = await dataService.getRecords(true);
+    const teachers = await dataService.getTeachers(true);
+    const advisers = await dataService.getAdvisers(true);
+    const admins = await dataService.getAdmins(true);
+
+    expect(students).toHaveLength(6);
+    expect(records).toHaveLength(6);
+    expect(records[0].student).toMatchObject({ student_id: '109283746101', fname: 'Alexander' });
+    expect(records[0].violation).toHaveProperty('title');
+    expect(teachers).toHaveLength(5);
+    expect(advisers).toHaveLength(4);
+    expect(admins).toHaveLength(3);
     expect(await dataService.getActivityLogs(true)).toEqual([]);
     expect(await dataService.getSchoolEvents(true)).toEqual([]);
-    expect(localStorage.getItem('viotrack_students')).toBeNull();
+    expect(JSON.parse(localStorage.getItem('viotrack_students'))).toEqual(students);
     expect(localStorage.getItem('viotrack_records')).toBeNull();
   });
 
@@ -160,14 +173,37 @@ describe('dataService data sources', () => {
     expect(result.hasPrevPage).toBe(false);
   });
 
-  it('treats a successful empty live student query as authoritative over local rows', async () => {
+  it('preserves locally-created students until they appear in the live database', async () => {
     supabaseState.configured = true;
     supabaseState.responses.students = { data: [], error: null };
     localStorage.setItem('viotrack_students', JSON.stringify([
-      { id: 99, student_id: 'LOCAL-ONLY', fname: 'Old', lname: 'Cache' }
+      { id: 99, student_id: 'LOCAL-ONLY', fname: 'Local', lname: 'Student' }
     ]));
 
-    expect(await dataService.getStudents(true)).toEqual([]);
+    const students = await dataService.getStudents(true);
+
+    expect(students).toHaveLength(1);
+    expect(students[0]).toMatchObject({ id: 99, student_id: 'LOCAL-ONLY', lrn: 'LOCAL-ONLY' });
+    expect(JSON.parse(localStorage.getItem('viotrack_students'))).toEqual(students);
+  });
+
+  it('merges matching local fields into remote students and keeps unsynced rows visible', async () => {
+    supabaseState.configured = true;
+    supabaseState.responses.students = {
+      data: [{ id: 1, student_id: 'SYNCED-1', fname: 'Remote', lname: 'Student' }],
+      error: null
+    };
+    localStorage.setItem('viotrack_students', JSON.stringify([
+      { id: 1, student_id: 'SYNCED-1', fname: 'Stale', lname: 'Student', image: 'local-image.png' },
+      { id: 2, student_id: 'PENDING-2', fname: 'Pending', lname: 'Sync' }
+    ]));
+
+    const students = await dataService.getStudents(true);
+
+    expect(students).toHaveLength(2);
+    expect(students[0]).toMatchObject({ student_id: 'PENDING-2', fname: 'Pending' });
+    expect(students[1]).toMatchObject({ student_id: 'SYNCED-1', fname: 'Remote', image: 'local-image.png' });
+    expect(JSON.parse(localStorage.getItem('viotrack_students'))).toEqual(students);
   });
 
   it('retries the student read without ordering when the lname column is unsupported', async () => {
@@ -186,11 +222,20 @@ describe('dataService data sources', () => {
     expect(readCalls[1].ordering).toBeUndefined();
   });
 
-  it('retries student inserts without optional columns and then without an unsupported student_id', async () => {
+  it('requires a student ID before attempting a registration', async () => {
+    const addActivityLog = vi.spyOn(dataService, 'addActivityLog');
+
+    await expect(dataService.addStudent({ fname: 'Missing', lname: 'ID' })).rejects.toThrow('Student ID is required.');
+
+    expect(supabaseState.calls).toEqual([]);
+    expect(addActivityLog).not.toHaveBeenCalled();
+  });
+
+  it('sanitizes student inserts and retries by removing unsupported schema columns', async () => {
     supabaseState.configured = true;
     supabaseState.responses.students = [
-      { data: null, error: { message: 'schema rejected insert' } },
-      { data: null, error: { message: 'column student_id does not exist' } },
+      { data: null, error: { code: 'PGRST204', message: "Could not find the 'academicyear' column" } },
+      { data: null, error: { code: 'PGRST204', message: "Could not find the 'student_id' column" } },
       { data: [{ id: 21 }], error: null }
     ];
 
@@ -205,7 +250,12 @@ describe('dataService data sources', () => {
     const inserts = supabaseState.calls.filter((call) => call.table === 'students' && call.operation === 'insert');
 
     expect(inserts).toHaveLength(3);
-    expect(inserts[0].payload[0]).toMatchObject({ student_id: 'SCHEMA-21', track: 'SHS', strand: 'STEM', academicyear: '2026-2027' });
+    expect(inserts[0].payload[0]).toMatchObject({ student_id: 'SCHEMA-21', academicyear: '2026-2027' });
+    expect(inserts[0].payload[0]).not.toHaveProperty('lrn');
+    expect(inserts[0].payload[0]).not.toHaveProperty('email');
+    expect(inserts[0].payload[0]).not.toHaveProperty('track');
+    expect(inserts[0].payload[0]).not.toHaveProperty('strand');
+    expect(inserts[0].payload[0]).not.toHaveProperty('password');
     expect(inserts[1].payload[0]).not.toHaveProperty('track');
     expect(inserts[1].payload[0]).not.toHaveProperty('strand');
     expect(inserts[1].payload[0]).not.toHaveProperty('academicyear');
@@ -214,10 +264,25 @@ describe('dataService data sources', () => {
     expect(student).toMatchObject({ student_id: 'SCHEMA-21', lrn: 'SCHEMA-21', fname: 'Schema' });
   });
 
-  it('retries bulk student inserts after removing schema-optional roster columns', async () => {
+  it('rejects duplicate student registration without writing a local duplicate', async () => {
+    supabaseState.configured = true;
+    supabaseState.responses.students = {
+      data: null,
+      error: { code: '23505', message: 'duplicate key value violates unique constraint' }
+    };
+    const addActivityLog = vi.spyOn(dataService, 'addActivityLog');
+
+    await expect(dataService.addStudent({ student_id: 'DUP-1', fname: 'Duplicate', lname: 'Student' }))
+      .rejects.toThrow('Student ID / LRN "DUP-1" is already registered in the system.');
+
+    expect(JSON.parse(localStorage.getItem('viotrack_students'))).toEqual([]);
+    expect(addActivityLog).not.toHaveBeenCalled();
+  });
+
+  it('sanitizes bulk student payloads and removes unsupported schema columns on retry', async () => {
     supabaseState.configured = true;
     supabaseState.responses.students = [
-      { data: null, error: { message: 'schema rejected roster columns' } },
+      { data: null, error: { code: 'PGRST204', message: "Could not find the 'academicyear' column" } },
       { data: [{ id: 31 }], error: null }
     ];
 
@@ -227,43 +292,71 @@ describe('dataService data sources', () => {
       lname: 'Learner',
       track: 'SHS',
       strand: 'HUMSS',
-      academicyear: '2026-2027'
+      academic_year: '2026-2027',
+      email: 'private@example.test',
+      password: 'private-password'
     }]);
     const inserts = supabaseState.calls.filter((call) => call.table === 'students' && call.operation === 'insert');
 
     expect(result.insertedCount).toBe(1);
     expect(inserts).toHaveLength(2);
     expect(inserts[0].payload[0]).toHaveProperty('academicyear', '2026-2027');
-    expect(inserts[1].payload[0]).not.toHaveProperty('track');
-    expect(inserts[1].payload[0]).not.toHaveProperty('strand');
+    expect(inserts[0].payload[0]).not.toHaveProperty('lrn');
+    expect(inserts[0].payload[0]).not.toHaveProperty('email');
+    expect(inserts[0].payload[0]).not.toHaveProperty('track');
+    expect(inserts[0].payload[0]).not.toHaveProperty('strand');
+    expect(inserts[0].payload[0]).not.toHaveProperty('password');
     expect(inserts[1].payload[0]).not.toHaveProperty('academicyear');
   });
 
-  it('falls back from student_id to LRN and prunes optional columns when updating', async () => {
+  it('sanitizes student updates and retries missing schema columns by student_id', async () => {
     supabaseState.configured = true;
     supabaseState.responses.students = [
-      { data: [], error: null },
-      { data: null, error: { message: 'column track does not exist' } },
-      { data: [], error: null },
-      { data: [{ id: 41, student_id: 'LRN-41' }], error: null }
+      { data: null, error: { code: 'PGRST204', message: "Could not find the 'grade' column" } },
+      { data: [{ id: 41, student_id: 'LRN-41', fname: 'Server Name' }], error: null }
     ];
     localStorage.setItem('viotrack_students', JSON.stringify([
       { id: 41, student_id: 'LRN-41', lrn: 'LRN-41', fname: 'Before', lname: 'Update' }
     ]));
 
-    const result = await dataService.updateStudent('LRN-41', { fname: 'After', track: 'SHS' });
+    const result = await dataService.updateStudent('LRN-41', {
+      fname: 'After',
+      grade: 'Grade 10',
+      track: 'SHS',
+      email: 'private@example.test',
+      password: 'private-password'
+    });
     const updates = supabaseState.calls.filter((call) => call.table === 'students' && call.operation === 'update');
 
-    expect(updates).toHaveLength(4);
+    expect(updates).toHaveLength(2);
     expect(updates.map((call) => call.filters[0])).toEqual([
       ['student_id', 'LRN-41'],
-      ['lrn', 'LRN-41'],
-      ['student_id', 'LRN-41'],
-      ['lrn', 'LRN-41']
+      ['student_id', 'LRN-41']
     ]);
-    expect(updates[0].payload).toHaveProperty('track', 'SHS');
-    expect(updates[2].payload).not.toHaveProperty('track');
-    expect(result).toMatchObject({ student_id: 'LRN-41', lrn: 'LRN-41', track: 'SHS' });
+    expect(updates[0].payload).toMatchObject({ fname: 'After', grade: 'Grade 10' });
+    expect(updates[0].payload).not.toHaveProperty('track');
+    expect(updates[0].payload).not.toHaveProperty('email');
+    expect(updates[0].payload).not.toHaveProperty('password');
+    expect(updates[0].payload).not.toHaveProperty('lrn');
+    expect(updates[1].payload).not.toHaveProperty('grade');
+    expect(result).toMatchObject({ student_id: 'LRN-41', lrn: 'LRN-41', fname: 'Server Name', track: 'SHS' });
+  });
+
+  it('rejects duplicate student-ID updates without mutating the local profile', async () => {
+    supabaseState.configured = true;
+    supabaseState.responses.students = {
+      data: null,
+      error: { code: '23505', message: 'duplicate key violates unique constraint' }
+    };
+    const initial = [{ id: 42, student_id: 'LRN-42', lrn: 'LRN-42', fname: 'Before', lname: 'Update' }];
+    localStorage.setItem('viotrack_students', JSON.stringify(initial));
+    const addActivityLog = vi.spyOn(dataService, 'addActivityLog');
+
+    await expect(dataService.updateStudent('LRN-42', { student_id: 'ALREADY-USED' }))
+      .rejects.toThrow('Student ID / LRN "ALREADY-USED" is already registered to another student.');
+
+    expect(JSON.parse(localStorage.getItem('viotrack_students'))).toEqual(initial);
+    expect(addActivityLog).not.toHaveBeenCalled();
   });
 
   it('retries non-numeric student deletion by LRN when student_id deletion errors', async () => {
@@ -298,24 +391,58 @@ describe('dataService data sources', () => {
       { id: 4, email: 'local-admin@example.test' }
     ]));
 
-    expect(await dataService.getTeachers(true)).toEqual([{ id: 2, email: 'db-teacher@example.test' }]);
-    expect(await dataService.getAdmins(true)).toEqual([{ id: 3, email: 'db-admin@example.test' }]);
+    expect(await dataService.getTeachers(true)).toEqual([{ id: 2, email: 'db-teacher@example.test', password: 'Viotrack@2026!' }]);
+    expect(await dataService.getAdmins(true)).toEqual([{ id: 3, email: 'db-admin@example.test', password: 'Viotrack@2026!' }]);
   });
 
-  it('treats successful empty live activity-log and school-event reads as authoritative', async () => {
+  it('merges local activity logs while treating successful empty calendar reads as authoritative', async () => {
     supabaseState.configured = true;
     supabaseState.responses = {
       activity_logs: { data: [], error: null },
-      school_events: { data: [], error: null }
+      calendar_events: { data: [], error: null }
     };
     localStorage.setItem('viotrack_activity_logs', JSON.stringify([{ id: 10, action: 'Stale' }]));
     localStorage.setItem('viotrack_school_events', JSON.stringify([{ id: 11, title: 'Stale' }]));
 
-    expect(await dataService.getActivityLogs(true)).toEqual([]);
+    expect(await dataService.getActivityLogs(true)).toMatchObject([{ id: 10, action: 'Stale' }]);
     expect(await dataService.getSchoolEvents(true)).toEqual([]);
   });
 
-  it('does not merge local incidents into a successful empty live records result', async () => {
+  it('deduplicates and sorts merged remote and local activity logs', async () => {
+    supabaseState.configured = true;
+    supabaseState.responses.activity_logs = {
+      data: [
+        { id: 3, action: 'Remote copy', created_at: '2026-01-03T00:00:00Z' },
+        { id: 2, action: 'Older remote', created_at: '2026-01-02T00:00:00Z' }
+      ],
+      error: null
+    };
+    localStorage.setItem('viotrack_activity_logs', JSON.stringify([
+      { id: 3, action: 'Stale local copy', created_at: '2026-01-01T00:00:00Z' },
+      { id: 1, action: 'Local-only', created_at: '2026-01-04T00:00:00Z' }
+    ]));
+
+    const logs = await dataService.getActivityLogs(true);
+
+    expect(logs.map((entry) => entry.id)).toEqual([1, 3, 2]);
+    expect(logs.find((entry) => entry.id === 3).action).toBe('Remote copy');
+  });
+
+  it('falls back to school_events when the calendar_events table is unavailable', async () => {
+    supabaseState.configured = true;
+    supabaseState.responses = {
+      calendar_events: { data: null, error: { code: 'PGRST205', message: 'table not found' } },
+      school_events: { data: [{ id: 21, title: 'Campus Assembly' }], error: null }
+    };
+
+    const events = await dataService.getSchoolEvents(true);
+    const eventReads = supabaseState.calls.filter((call) => ['calendar_events', 'school_events'].includes(call.table));
+
+    expect(events).toEqual([{ id: 21, title: 'Campus Assembly' }]);
+    expect(eventReads.map((call) => call.table)).toEqual(['calendar_events', 'school_events']);
+  });
+
+  it('uses local incidents as the baseline when the live database has no record rows', async () => {
     supabaseState.configured = true;
     supabaseState.responses = {
       students: { data: [], error: null },
@@ -325,7 +452,12 @@ describe('dataService data sources', () => {
       { id: 999, student_id: 1, violation_id: 1, remarks: 'Local-only cache row' }
     ]));
 
-    expect(await dataService.getRecords(true)).toEqual([]);
+    const result = await dataService.getRecords(true);
+
+    expect(result).toHaveLength(1);
+    expect(result[0]).toMatchObject({ id: 999, remarks: 'Local-only cache row' });
+    expect(result[0].student).toMatchObject({ student_id: '109283746101', fname: 'Alexander' });
+    expect(result[0].violation).toHaveProperty('title');
   });
 
   it('deduplicates live incident records by numeric ID and keeps the first record', async () => {
@@ -349,19 +481,21 @@ describe('dataService data sources', () => {
     expect(result[0].remarks).toBe('newest copy');
   });
 
-  it('purges the known legacy demo student and incident caches at module startup', async () => {
-    localStorage.setItem('viotrack_records', JSON.stringify([
+  it('preserves local student and incident rows when loading the service module', async () => {
+    const legacyRecords = [
       { id: 101, reported_by_name: 'Alexander Mendoza' }
-    ]));
-    localStorage.setItem('viotrack_students', JSON.stringify([
+    ];
+    const seededStudents = [
       { student_id: '109283746101' }
-    ]));
+    ];
+    localStorage.setItem('viotrack_records', JSON.stringify(legacyRecords));
+    localStorage.setItem('viotrack_students', JSON.stringify(seededStudents));
 
     vi.resetModules();
     await import('./dataService.js');
 
-    expect(localStorage.getItem('viotrack_records')).toBeNull();
-    expect(localStorage.getItem('viotrack_students')).toBeNull();
+    expect(JSON.parse(localStorage.getItem('viotrack_records'))).toEqual(legacyRecords);
+    expect(JSON.parse(localStorage.getItem('viotrack_students'))).toEqual(seededStudents);
   });
 
   it('updates and deletes students when addressed by LRN', async () => {

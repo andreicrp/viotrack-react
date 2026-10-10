@@ -43,10 +43,38 @@ export const studentsMethods = {
           }
         }
 
-        const list = (isSupabaseConfigured() && remoteList !== null)
-          ? remoteList
-          : getStored('students', []);
-        const processed = list.map(s => {
+        const stored = getStored('students', INITIAL_STUDENTS);
+        const storedMap = new Map();
+        stored.forEach(s => {
+          const sid = String(s.student_id || s.lrn || '').trim();
+          if (sid) storedMap.set(sid, s);
+        });
+
+        let combinedList = [];
+        if (isSupabaseConfigured() && remoteList !== null) {
+          const remoteIds = new Set();
+          combinedList = remoteList.map(remoteItem => {
+            const sid = String(remoteItem.student_id || remoteItem.lrn || '').trim();
+            if (sid) remoteIds.add(sid);
+            const localItem = storedMap.get(sid) || {};
+            return {
+              ...localItem,
+              ...remoteItem,
+              student_id: sid,
+              lrn: sid,
+              image: remoteItem.image || localItem.image
+            };
+          });
+          // Keep locally-created rows visible until the remote insert succeeds.
+          stored.forEach(localItem => {
+            const sid = String(localItem.student_id || localItem.lrn || '').trim();
+            if (sid && !remoteIds.has(sid)) combinedList.unshift(localItem);
+          });
+        } else {
+          combinedList = stored;
+        }
+
+        const processed = combinedList.map(s => {
           const sid = String(s.student_id || s.lrn || '').trim();
           return {
             ...s,
@@ -56,6 +84,7 @@ export const studentsMethods = {
           };
         });
 
+        setStored('students', processed);
         _cache.data.students = processed;
         _cache.timestamps.students = Date.now();
         return processed;
@@ -72,6 +101,9 @@ export const studentsMethods = {
       try {
         let result = null;
         const studentIdVal = String(student.student_id || student.lrn || '').trim();
+        if (!studentIdVal) {
+          throw new Error('Student ID is required.');
+        }
         const cleanStudent = {
           student_id: studentIdVal,
           lrn: studentIdVal,
@@ -79,11 +111,11 @@ export const studentsMethods = {
           mname: String(student.mname || '').trim(),
           lname: String(student.lname || '').trim(),
           email: String(student.email || '').trim().toLowerCase(),
-          grade: String(student.grade || '').trim(),
-          track: String(student.track || '').trim(),
-          strand: String(student.strand || '').trim(),
-          section: String(student.section || '').trim(),
-          academicyear: String(student.academicyear || '2025-2026').trim(),
+          grade: String(student.grade || 'Grade 10').trim(),
+          track: String(student.track || 'JHS').trim(),
+          strand: String(student.strand || 'JHS').trim(),
+          section: String(student.section || 'General').trim(),
+          academicyear: String(student.academicyear || student.academic_year || '2025-2026').trim(),
           gender: String(student.gender || 'Male').trim(),
           contact: String(student.contact || '').trim(),
           parent_name: String(student.parent_name || '').trim(),
@@ -95,40 +127,57 @@ export const studentsMethods = {
 
         if (isSupabaseConfigured()) {
           try {
-            let payload = { ...cleanStudent };
-            let res = await supabase.from('students').insert([payload]).select();
-            if (res.error) {
-              // Optional fields vary across deployed student-table schemas.
-              const pruned = { ...payload };
-              delete pruned.track;
-              delete pruned.strand;
-              delete pruned.academicyear;
-              res = await supabase.from('students').insert([pruned]).select();
-              if (res.error && res.error.message?.includes('student_id')) {
-                delete pruned.student_id;
-                res = await supabase.from('students').insert([pruned]).select();
-              } else if (res.error && res.error.message?.includes('lrn')) {
-                delete pruned.lrn;
-                res = await supabase.from('students').insert([pruned]).select();
+            /** @type {Record<string, unknown>} */
+            const supabasePayload = {
+              student_id: studentIdVal,
+              fname: cleanStudent.fname,
+              mname: cleanStudent.mname,
+              lname: cleanStudent.lname,
+              grade: cleanStudent.grade,
+              section: cleanStudent.section,
+              academicyear: cleanStudent.academicyear,
+              gender: cleanStudent.gender,
+              contact: cleanStudent.contact,
+              parent_name: cleanStudent.parent_name,
+              parent_contact: cleanStudent.parent_contact,
+              address: cleanStudent.address,
+              image: cleanStudent.image
+            };
+            const toSend = { ...supabasePayload };
+            let res = await supabase.from('students').insert([toSend]).select();
+            while (res.error && res.error.code === 'PGRST204') {
+              const match = res.error.message?.match(/Could not find the '([^']+)' column/);
+              if (match?.[1] && Object.prototype.hasOwnProperty.call(toSend, match[1])) {
+                delete toSend[match[1]];
+                res = await supabase.from('students').insert([toSend]).select();
+              } else {
+                break;
               }
             }
-            if (!res.error && res.data?.[0]) {
-              result = { ...res.data[0], ...cleanStudent, student_id: studentIdVal, lrn: studentIdVal };
-            } else if (res.error) {
-              console.warn('Supabase addStudent fallback to local store:', res.error);
+            if (res.error) {
+              if (res.error.code === '23505' || res.error.message?.includes('duplicate key') || res.error.message?.includes('unique constraint')) {
+                throw new Error(`Student ID / LRN "${studentIdVal}" is already registered in the system.`);
+              }
+              console.warn('Supabase addStudent notice:', res.error);
+            } else if (res.data?.[0]) {
+              result = { ...cleanStudent, ...res.data[0], student_id: studentIdVal, lrn: studentIdVal };
             }
           } catch (err) {
+            if (err.message && err.message.includes('already registered')) throw err;
             console.warn('Supabase addStudent error:', err);
           }
         }
         if (!result) {
-          const current = getStored('students', INITIAL_STUDENTS);
           result = { ...cleanStudent, id: Date.now(), created_at: new Date().toISOString() };
-          const updated = [result, ...current];
-          setStored('students', updated);
         }
+        const current = getStored('students', INITIAL_STUDENTS);
+        const filtered = current.filter(s => String(s.student_id || s.lrn || '').trim() !== studentIdVal);
+        setStored('students', [result, ...filtered]);
         invalidateCache('students');
         invalidateCache('records');
+        if (_cache.data.students) {
+          _cache.data.students = [result, ..._cache.data.students.filter(s => String(s.student_id || s.lrn || '').trim() !== studentIdVal)];
+        }
         await this.addActivityLog('Add Student', `Enrolled student ${cleanStudent.fname} ${cleanStudent.lname} (ID: ${studentIdVal || 'No Student ID'}, ${cleanStudent.grade || ''} ${cleanStudent.section || ''})`);
         broadcastRecordChange('create', 'student', result);
         return result;
@@ -161,7 +210,7 @@ export const studentsMethods = {
             track: String(student.track || 'JHS').trim(),
             strand: String(student.strand || 'JHS').trim(),
             section: String(student.section || 'General').trim(),
-            academicyear: String(student.academicyear || '2025-2026').trim(),
+            academicyear: String(student.academicyear || student.academic_year || '2025-2026').trim(),
             gender: String(student.gender || 'Male').trim(),
             contact: String(student.contact || '').trim(),
             parent_name: String(student.parent_name || '').trim(),
@@ -181,15 +230,35 @@ export const studentsMethods = {
             for (let i = 0; i < total; i += CHUNK_SIZE) {
               const chunk = cleanStudents.slice(i, i + CHUNK_SIZE);
               /** @type {Array<Record<string, unknown>>} */
-              let payload = chunk.map(s => ({ ...s }));
+              let payload = chunk.map(s => ({
+                student_id: s.student_id,
+                fname: s.fname,
+                mname: s.mname,
+                lname: s.lname,
+                grade: s.grade,
+                section: s.section,
+                academicyear: s.academicyear,
+                gender: s.gender,
+                contact: s.contact,
+                parent_name: s.parent_name,
+                parent_contact: s.parent_contact,
+                address: s.address,
+                image: s.image
+              }));
 
               let res = await supabase.from('students').insert(payload).select();
-                if (res.error) {
+              while (res.error && res.error.code === 'PGRST204') {
+                const match = res.error.message?.match(/Could not find the '([^']+)' column/);
+                if (match?.[1] && payload.some(p => Object.prototype.hasOwnProperty.call(p, match[1]))) {
                   payload = payload.map(p => {
-                    const { track, strand, academicyear, ...rest } = p;
-                    return rest;
+                    const copy = { ...p };
+                    delete copy[match[1]];
+                    return copy;
                   });
                   res = await supabase.from('students').insert(payload).select();
+                } else {
+                  break;
+                }
               }
 
               totalInserted += (res.data ? res.data.length : chunk.length);
@@ -263,38 +332,44 @@ export const studentsMethods = {
 
         if (isSupabaseConfigured()) {
           try {
+            const allowedSupabaseCols = ['student_id', 'fname', 'mname', 'lname', 'grade', 'section', 'academicyear', 'gender', 'contact', 'parent_name', 'parent_contact', 'address', 'image'];
             /** @type {Record<string, unknown>} */
-            let payload = { ...cleanUpdates };
+            const toSend = {};
+            for (const key of allowedSupabaseCols) {
+              if (cleanUpdates[key] !== undefined) toSend[key] = cleanUpdates[key];
+            }
             const numericId = Number(id);
             const hasNumericId = !isNaN(numericId) && numericId > 0;
             let res;
             if (hasNumericId) {
-              res = await supabase.from('students').update(payload).eq('id', numericId).select();
+              res = await supabase.from('students').update(toSend).eq('id', numericId).select();
             } else {
-              res = await supabase.from('students').update(payload).eq('student_id', id).select();
-              if (res.error || !res.data?.length) {
-                res = await supabase.from('students').update(payload).eq('lrn', id).select();
+              res = await supabase.from('students').update(toSend).eq('student_id', String(id)).select();
+            }
+            while (res.error && res.error.code === 'PGRST204') {
+              const match = res.error.message?.match(/Could not find the '([^']+)' column/);
+              if (match?.[1] && Object.prototype.hasOwnProperty.call(toSend, match[1])) {
+                delete toSend[match[1]];
+                if (hasNumericId) {
+                  res = await supabase.from('students').update(toSend).eq('id', numericId).select();
+                } else {
+                  res = await supabase.from('students').update(toSend).eq('student_id', String(id)).select();
+                }
+              } else {
+                break;
               }
             }
             if (res.error) {
-              const pruned = { ...payload };
-              delete pruned.track;
-              delete pruned.strand;
-              delete pruned.academicyear;
-              if (hasNumericId) {
-                res = await supabase.from('students').update(pruned).eq('id', numericId).select();
-              } else {
-                res = await supabase.from('students').update(pruned).eq('student_id', id).select();
-                if (res.error || !res.data?.length) {
-                  res = await supabase.from('students').update(pruned).eq('lrn', id).select();
-                }
+              if (res.error.code === '23505' || res.error.message?.includes('duplicate key') || res.error.message?.includes('unique constraint')) {
+                throw new Error(`Student ID / LRN "${cleanUpdates.student_id || id}" is already registered to another student.`);
               }
-            }
-            if (!res.error && res.data?.[0]) {
+              console.warn('Supabase updateStudent notice:', res.error);
+            } else if (res.data?.[0]) {
               const sid = res.data[0].student_id || res.data[0].lrn || cleanUpdates.student_id || id;
-              result = { ...res.data[0], ...cleanUpdates, student_id: sid, lrn: sid };
+              result = { ...cleanUpdates, ...res.data[0], student_id: sid, lrn: sid };
             }
           } catch (err) {
+            if (err.message && err.message.includes('already registered')) throw err;
             console.warn('Supabase updateStudent error:', err);
           }
         }
@@ -306,7 +381,7 @@ export const studentsMethods = {
             String(s.student_id) === String(id) ||
             String(s.lrn) === String(id) ||
             (targetLrn && (String(s.lrn) === String(targetLrn) || String(s.student_id) === String(targetLrn)));
-          return isMatch ? { ...s, ...cleanUpdates } : s;
+          return isMatch ? { ...s, ...cleanUpdates, ...(result || {}) } : s;
         });
         setStored('students', updated);
         if (!result) {

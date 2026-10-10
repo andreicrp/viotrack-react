@@ -27,6 +27,7 @@ export interface StudentInput {
   strand?: string;
   section?: string;
   academicyear?: string;
+  academic_year?: string;
   gender?: string;
   contact?: string;
   parent_name?: string;

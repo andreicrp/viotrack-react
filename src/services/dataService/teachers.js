@@ -1,5 +1,5 @@
 import { INITIAL_TEACHERS, INITIAL_ADVISERS } from './fixtures.js';
-import { supabase, isSupabaseConfigured, CACHE_CONFIG, _cache, executeWithDeduplication, invalidateCache, getStored, setStored } from './shared.js';
+import { supabase, isSupabaseConfigured, broadcastRecordChange, startMutation, endMutation, CACHE_CONFIG, _cache, executeWithDeduplication, invalidateCache, getStored, setStored } from './shared.js';
 
 export const teachersMethods = {
   /**
@@ -8,39 +8,47 @@ export const teachersMethods = {
    * @returns {Promise<import('./types').Teacher[]>} Teacher rows.
    */
   async getTeachers(forceRefresh = false) {
-      const now = Date.now();
-      const cached = _cache.data.teachers;
-      const cacheAge = now - _cache.timestamps.teachers;
+    const now = Date.now();
+    const cached = _cache.data.teachers;
+    const cacheAge = now - _cache.timestamps.teachers;
 
-      if (!forceRefresh && cached && cacheAge < CACHE_CONFIG.FRESH_TTL) {
-        return cached;
-      }
+    if (!forceRefresh && cached && cacheAge < CACHE_CONFIG.FRESH_TTL) {
+      return cached;
+    }
 
-      if (!forceRefresh && cached && cacheAge < CACHE_CONFIG.STALE_TTL) {
-        this.getTeachers(true).catch(() => {});
-        return cached;
-      }
+    if (!forceRefresh && cached && cacheAge < CACHE_CONFIG.STALE_TTL) {
+      this.getTeachers(true).catch(() => {});
+      return cached;
+    }
 
-      return executeWithDeduplication('teachers', async () => {
-        let remoteList = null;
-        if (isSupabaseConfigured()) {
-          try {
-            const { data, error } = await supabase.from('teachers').select('*').order('lname', { ascending: true });
-            if (!error && data && data.length > 0) remoteList = data;
-          } catch (e) {
-            console.warn('Supabase getTeachers notice:', e);
-          }
+    return executeWithDeduplication('teachers', async () => {
+      let remoteList = null;
+      if (isSupabaseConfigured()) {
+        try {
+          const { data, error } = await supabase.from('teachers').select('*').order('lname', { ascending: true });
+          if (!error && data && data.length > 0) remoteList = data;
+        } catch (e) {
+          console.warn('Supabase getTeachers notice:', e);
         }
+      }
 
-        const list = (isSupabaseConfigured() && remoteList !== null)
-          ? remoteList
-          : getStored('teachers', []);
+      const localList = getStored('teachers', INITIAL_TEACHERS);
+      const localMap = new Map(localList.map(t => [String(t.email || t.id).toLowerCase(), t]));
+      const list = (isSupabaseConfigured() && remoteList !== null)
+        ? remoteList.map(r => {
+            const local = localMap.get(String(r.email || r.id).toLowerCase());
+            return {
+              ...r,
+              password: r.password || local?.password || 'Viotrack@2026!'
+            };
+          })
+        : localList;
 
-        _cache.data.teachers = list;
-        _cache.timestamps.teachers = Date.now();
-        return list;
-      });
-    },
+      _cache.data.teachers = list;
+      _cache.timestamps.teachers = Date.now();
+      return list;
+    });
+  },
 
   async addTeacher(teacher) {
       let result = null;
@@ -124,64 +132,89 @@ export const teachersMethods = {
     },
 
   async deleteTeacher(id) {
+    startMutation();
+    try {
+      const numericId = Number(id);
+      const hasNumeric = !isNaN(numericId) && numericId > 0;
+
       if (isSupabaseConfigured()) {
         try {
-          const { error } = await supabase.from('teachers').delete().eq('id', Number(id));
-          if (error) console.error('Supabase deleteTeacher error:', error);
+          if (hasNumeric) {
+            // Remove associated advisory assignments first to ensure foreign key integrity
+            await supabase.from('advisers').delete().eq('teacher_id', numericId);
+            const { error } = await supabase.from('teachers').delete().eq('id', numericId);
+            if (error) console.warn('Supabase deleteTeacher notice:', error);
+          } else {
+            await supabase.from('teachers').delete().eq('email', String(id));
+          }
         } catch (err) {
           console.warn('Supabase deleteTeacher error:', err);
         }
       }
+
+      // Also remove any local adviser appointments for this teacher
+      const currentAdvisers = getStored('advisers', INITIAL_ADVISERS);
+      const updatedAdvisers = currentAdvisers.filter(a => String(a.teacher_id) !== String(id));
+      setStored('advisers', updatedAdvisers);
+
       const current = getStored('teachers', INITIAL_TEACHERS);
-      const target = current.find(t => t.id === Number(id));
+      const target = current.find(t => String(t.id) === String(id) || String(t.email) === String(id));
       const name = target ? `${target.fname} ${target.lname}` : `ID #${id}`;
-      const updated = current.filter(t => t.id !== Number(id));
+      const updated = current.filter(t => String(t.id) !== String(id) && String(t.email) !== String(id));
       setStored('teachers', updated);
       invalidateCache('teachers');
       invalidateCache('advisers');
+      if (_cache.data.teachers) {
+        _cache.data.teachers = _cache.data.teachers.filter(t => String(t.id) !== String(id) && String(t.email) !== String(id));
+      }
       await this.addActivityLog('Delete Teacher', `Removed faculty member ${name}`);
+      broadcastRecordChange('delete', 'teacher', { id });
       return true;
-    },
+    } finally {
+      endMutation();
+    }
+  },
 
   async getAdvisers(forceRefresh = false) {
-      const now = Date.now();
-      const cached = _cache.data.advisers;
-      const cacheAge = now - _cache.timestamps.advisers;
+    const now = Date.now();
+    const cached = _cache.data.advisers;
+    const cacheAge = now - _cache.timestamps.advisers;
 
-      if (!forceRefresh && cached && cacheAge < CACHE_CONFIG.FRESH_TTL) {
-        return cached;
-      }
+    if (!forceRefresh && cached && cacheAge < CACHE_CONFIG.FRESH_TTL) {
+      return cached;
+    }
 
-      if (!forceRefresh && cached && cacheAge < CACHE_CONFIG.STALE_TTL) {
-        this.getAdvisers(true).catch(() => {});
-        return cached;
-      }
+    if (!forceRefresh && cached && cacheAge < CACHE_CONFIG.STALE_TTL) {
+      this.getAdvisers(true).catch(() => {});
+      return cached;
+    }
 
-      return executeWithDeduplication('advisers', async () => {
-        if (isSupabaseConfigured()) {
-          const { data, error } = await supabase.from('advisers').select('*, teachers(*)');
-          if (!error && data) {
-            const mapped = data.map(a => ({
-              ...a,
-              teacher: a.teachers
-            }));
-            _cache.data.advisers = mapped;
-            _cache.timestamps.advisers = Date.now();
-            return mapped;
-          }
+    return executeWithDeduplication('advisers', async () => {
+      if (isSupabaseConfigured()) {
+        const { data, error } = await supabase.from('advisers').select('*, teachers(*)');
+        if (!error && data) {
+          const mapped = data.map(a => ({
+            ...a,
+            teacher: a.teachers
+          }));
+          _cache.data.advisers = mapped;
+          _cache.timestamps.advisers = Date.now();
+          setStored('advisers', mapped);
+          return mapped;
         }
-        const advisers = getStored('advisers', INITIAL_ADVISERS);
-        const teachers = await this.getTeachers();
-        const teacherMap = new Map(teachers.map(t => [Number(t.id), t]));
-        const mapped = advisers.map(a => ({
-          ...a,
-          teacher: teacherMap.get(Number(a.teacher_id))
-        }));
-        _cache.data.advisers = mapped;
-        _cache.timestamps.advisers = Date.now();
-        return mapped;
-      });
-    },
+      }
+      const advisers = getStored('advisers', INITIAL_ADVISERS);
+      const teachers = await this.getTeachers();
+      const teacherMap = new Map(teachers.map(t => [Number(t.id), t]));
+      const mapped = advisers.map(a => ({
+        ...a,
+        teacher: teacherMap.get(Number(a.teacher_id))
+      }));
+      _cache.data.advisers = mapped;
+      _cache.timestamps.advisers = Date.now();
+      return mapped;
+    });
+  },
 
   async saveAdviserAssignment(teacher_id, grade_level, class_section) {
       const cleanPayload = {
