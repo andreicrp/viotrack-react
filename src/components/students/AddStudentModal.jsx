@@ -192,9 +192,21 @@ export const AddStudentModal = ({ isOpen, onClose, studentToEdit = null, onSaved
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.lrn || !formData.fname || !formData.lname) {
+    const trimmedLrn = String(formData.lrn || '').trim();
+    const trimmedFname = String(formData.fname || '').trim();
+    const trimmedLname = String(formData.lname || '').trim();
+
+    if (!trimmedLrn || !trimmedFname || !trimmedLname) {
       error('Please complete all required fields (Student ID, First Name, Last Name).');
       return;
+    }
+
+    if (!studentToEdit) {
+      const isDuplicate = existingStudents.some(s => String(s.student_id || s.lrn || '').trim().toLowerCase() === trimmedLrn.toLowerCase());
+      if (isDuplicate) {
+        error(`Student ID "${trimmedLrn}" is already registered in the system. Please use a unique Student ID.`);
+        return;
+      }
     }
 
     setLoading(true);
@@ -214,16 +226,24 @@ export const AddStudentModal = ({ isOpen, onClose, studentToEdit = null, onSaved
 
         const updated = await dataService.updateStudent(studentId, {
           ...formData,
+          student_id: trimmedLrn,
+          lrn: trimmedLrn,
+          fname: trimmedFname,
+          lname: trimmedLname,
           image: finalImageUrl
         });
-        success(`Student ${formData.fname} ${formData.lname} updated successfully!`);
+        success(`Student ${trimmedFname} ${trimmedLname} updated successfully!`);
         onSaved?.(updated);
       } else {
         const created = await dataService.addStudent({
           ...formData,
-          image: finalImageUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(`${formData.fname} ${formData.lname}`)}&background=27367f&color=fff&size=100`
+          student_id: trimmedLrn,
+          lrn: trimmedLrn,
+          fname: trimmedFname,
+          lname: trimmedLname,
+          image: finalImageUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(`${trimmedFname} ${trimmedLname}`)}&background=27367f&color=fff&size=100`
         });
-        success(`Student ${formData.fname} ${formData.lname} registered successfully!`);
+        success(`Student ${trimmedFname} ${trimmedLname} registered successfully!`);
         onSaved?.(created);
       }
       onClose();

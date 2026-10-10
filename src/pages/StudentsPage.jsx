@@ -1662,8 +1662,19 @@ export const StudentsPage = () => {
           setIsAddModalOpen(false);
           setStudentToEdit(null);
         }}
-        studentToEdit={studentToEdit}
-        onSaved={() => {
+        onSaved={(savedStudent) => {
+          if (savedStudent) {
+            setStudents(prev => {
+              const sid = String(savedStudent.student_id || savedStudent.lrn || '').trim();
+              const exists = prev.some(s => String(s.student_id || s.lrn || '').trim() === sid);
+              if (exists) {
+                return prev.map(s => String(s.student_id || s.lrn || '').trim() === sid ? { ...s, ...savedStudent } : s);
+              }
+              return [savedStudent, ...prev];
+            });
+            setSearchTerm('');
+            setCurrentPage(1);
+          }
           loadStudents(true);
           setStudentToEdit(null);
         }}
