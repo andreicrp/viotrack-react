@@ -442,7 +442,7 @@ describe('dataService data sources', () => {
     expect(eventReads.map((call) => call.table)).toEqual(['calendar_events', 'school_events']);
   });
 
-  it('uses local incidents as the baseline when the live database has no record rows', async () => {
+  it('treats successful empty Supabase record reads as authoritative and clears stale local rows', async () => {
     supabaseState.configured = true;
     supabaseState.responses = {
       students: { data: [], error: null },
@@ -454,10 +454,25 @@ describe('dataService data sources', () => {
 
     const result = await dataService.getRecords(true);
 
-    expect(result).toHaveLength(1);
-    expect(result[0]).toMatchObject({ id: 999, remarks: 'Local-only cache row' });
-    expect(result[0].student).toMatchObject({ student_id: '109283746101', fname: 'Alexander' });
-    expect(result[0].violation).toHaveProperty('title');
+    expect(result).toEqual([]);
+    expect(JSON.parse(localStorage.getItem('viotrack_records'))).toEqual([]);
+  });
+
+  it('propagates Supabase record-read errors instead of falling back to local rows', async () => {
+    supabaseState.configured = true;
+    supabaseState.responses = {
+      students: { data: [], error: null },
+      records: { data: null, error: { message: 'database unavailable' } }
+    };
+    const localRecords = [{ id: 999, student_id: 1, violation_id: 1, remarks: 'Local-only cache row' }];
+    localStorage.setItem('viotrack_records', JSON.stringify(localRecords));
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+    await expect(dataService.getRecords(true))
+      .rejects.toThrow('Unable to load violation records from Supabase: database unavailable');
+
+    expect(JSON.parse(localStorage.getItem('viotrack_records'))).toEqual(localRecords);
+    expect(consoleError).toHaveBeenCalled();
   });
 
   it('deduplicates live incident records by numeric ID and keeps the first record', async () => {
@@ -474,11 +489,15 @@ describe('dataService data sources', () => {
         error: null
       }
     };
+    localStorage.setItem('viotrack_records', JSON.stringify([
+      { id: 1700000000000, student_id: 1, violation_id: 2, remarks: 'stale offline row' }
+    ]));
 
     const result = await dataService.getRecords(true);
 
     expect(result.map((record) => record.id)).toEqual([12, 11]);
     expect(result[0].remarks).toBe('newest copy');
+    expect(result.some((record) => record.remarks === 'stale offline row')).toBe(false);
   });
 
   it('preserves local student and incident rows when loading the service module', async () => {

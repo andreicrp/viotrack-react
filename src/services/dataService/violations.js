@@ -217,7 +217,7 @@ export const violationsMethods = {
       let remoteRecords = null;
       if (isSupabaseConfigured()) {
         try {
-          const { data, error } = await supabase
+          const { data, error: recordsError } = await supabase
             .from('records')
             .select(`
               *,
@@ -225,26 +225,22 @@ export const violationsMethods = {
               violations (*)
             `)
             .order('id', { ascending: false });
-          if (!error && data) {
-            remoteRecords = data;
+          if (recordsError) {
+            throw new Error(`Unable to load violation records from Supabase: ${recordsError.message}`);
           }
+          remoteRecords = Array.isArray(data) ? data : [];
         } catch (err) {
-          console.warn('Supabase getRecords error:', err);
+          console.error('Supabase getRecords error:', err);
+          throw err;
         }
       }
 
       let allRawRecords = [];
-      if (remoteRecords && remoteRecords.length > 0) {
+      if (remoteRecords !== null) {
         allRawRecords = [...remoteRecords];
-        // Only merge locally logged user records (offline creates with timestamp IDs > 1000000000)
-        const localRecords = getStored('records', []);
-        const remoteIdSet = new Set(remoteRecords.map(r => Number(r.id)));
-        localRecords.forEach(lr => {
-          const numId = Number(lr.id);
-          if (numId > 1000000000 && !remoteIdSet.has(numId)) {
-            allRawRecords.push(lr);
-          }
-        });
+        // Supabase is authoritative when configured. Remove stale browser-only records
+        // so local and hosted clients resolve the same dataset.
+        setStored('records', allRawRecords);
       } else {
         allRawRecords = getStored('records', INITIAL_RECORDS);
       }
