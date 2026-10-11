@@ -4,11 +4,10 @@ import { sanitizeForLogging } from '../utils/security';
 
 const AuthContext = createContext(null);
 
-const INACTIVITY_TIMEOUT_MS = 60 * 60 * 1000; // 60 Minutes Inactivity Hard Session Timeout
+const INACTIVITY_TIMEOUT_MS = 30 * 60 * 1000; // 30 Minutes Inactivity Session Timeout
 const AUTH_STORAGE_KEY = 'viotrack_auth_v3';
 const AUTH_ACTIVE_KEY = 'viotrack_active_v3';
 const AUTH_LOCKED_KEY = 'viotrack_locked_v3';
-const AUTOLOCK_STORAGE_KEY = 'viotrack_autolock_minutes';
 
 // Helper to determine initial user from session or local storage with timeout check
 const getInitialUser = () => {
@@ -56,23 +55,9 @@ export const AuthProvider = ({ children }) => {
   const [isLocked, setIsLocked] = useState(() => {
     return sessionStorage.getItem(AUTH_LOCKED_KEY) === 'true';
   });
-  const [autoLockMinutes, setAutoLockMinutesState] = useState(() => {
-    try {
-      const saved = localStorage.getItem(AUTOLOCK_STORAGE_KEY);
-      return saved !== null ? parseInt(saved, 10) : 15;
-    } catch {
-      return 15;
-    }
-  });
   const inactivityTimerRef = useRef(null);
   const hardTimeoutTimerRef = useRef(null);
   const lastActiveThrottleRef = useRef(0);
-
-  const setAutoLockMinutes = useCallback((minutes) => {
-    const num = Math.max(0, parseInt(minutes, 10) || 0);
-    setAutoLockMinutesState(num);
-    localStorage.setItem(AUTOLOCK_STORAGE_KEY, String(num));
-  }, []);
 
   // Synchronize state changes to active storage
   useEffect(() => {
@@ -213,7 +198,7 @@ export const AuthProvider = ({ children }) => {
     return true;
   }, []);
 
-  // Secure Inactivity Monitor: Auto lock after 15 minutes of idle time
+  // Secure inactivity monitor: log out after 30 minutes without activity.
   const resetInactivityTimer = useCallback(() => {
     if (inactivityTimerRef.current) {
       clearTimeout(inactivityTimerRef.current);
@@ -234,22 +219,12 @@ export const AuthProvider = ({ children }) => {
         }
       }
 
-      // Auto-lock screen after configured minutes
-      if (autoLockMinutes > 0) {
-        const lockMs = autoLockMinutes * 60 * 1000;
-        inactivityTimerRef.current = setTimeout(() => {
-          console.warn(`Screen auto-locked due to ${autoLockMinutes} minutes of inactivity.`);
-          lockScreen();
-        }, lockMs);
-      }
-
-      // Complete session timeout after 60 minutes
       hardTimeoutTimerRef.current = setTimeout(() => {
-        console.warn('Session expired after 60 minutes of inactivity.');
+        console.warn('Session expired after 30 minutes of inactivity.');
         logout('expired');
       }, INACTIVITY_TIMEOUT_MS);
     }
-  }, [user, isLocked, autoLockMinutes, lockScreen, logout]);
+  }, [user, isLocked, logout]);
 
   useEffect(() => {
     if (!user || isLocked) return;
@@ -357,8 +332,6 @@ export const AuthProvider = ({ children }) => {
         isLocked,
         lockScreen,
         unlockScreen,
-        autoLockMinutes,
-        setAutoLockMinutes,
         isAuthenticated: !!user,
         isAdmin,
         isTeacher,

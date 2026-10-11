@@ -91,19 +91,19 @@
 /* 4. Header Profile Dropdown in Dark Mode */
 [data-theme="dark"] .header-user-dropdown {
   background: #000000 !important;
-  border: 1px solid #202020 !important;
+  border: none !important;
   box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.9) !important;
 }
 
 [data-theme="dark"] .user-dropdown-header {
   background: #050505 !important;
-  border: 1px solid #202020 !important;
+  border: none !important;
 }
 
 html[data-theme="dark"] body .header-avatar-ring,
 html[data-theme="dark"] body .user-dropdown-avatar {
-  border-color: #ffffff !important;
-  box-shadow: 0 0 0 1px #ffffff !important;
+  border: none !important;
+  box-shadow: none !important;
 }
 
 [data-theme="dark"] .user-dropdown-name {

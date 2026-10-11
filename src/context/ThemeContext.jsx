@@ -8,7 +8,10 @@ const ThemeContext = createContext({
 });
 
 export const ThemeProvider = ({ children }) => {
-  const fallbackTransitionTimer = useRef(null);
+  const themeMessageTimer = useRef(null);
+  const themeOverlayCloseTimer = useRef(null);
+  const [isChangingTheme, setIsChangingTheme] = useState(false);
+  const [isClosingThemeOverlay, setIsClosingThemeOverlay] = useState(false);
   const [theme, setThemeState] = useState(() => {
     if (typeof window !== 'undefined') {
       const saved = localStorage.getItem('viotrack_theme');
@@ -41,53 +44,21 @@ export const ThemeProvider = ({ children }) => {
     if (newTheme === theme) return;
 
     const root = document.documentElement;
-    const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-    const startViewTransition = document.startViewTransition;
-
-    if (typeof startViewTransition !== 'function' || reducedMotion) {
-      if (!reducedMotion) {
-        root.classList.add('theme-transitioning');
-        void root.offsetWidth;
-        applyTheme(newTheme);
-        window.clearTimeout(fallbackTransitionTimer.current);
-        fallbackTransitionTimer.current = window.setTimeout(() => {
-          window.clearTimeout(fallbackTransitionTimer.current);
-          fallbackTransitionTimer.current = null;
-          root.classList.remove('theme-transitioning');
-          fallbackTransitionTimer.current = null;
-        }, 320);
-        return;
-      }
-
-      root.classList.remove('theme-transitioning');
-      applyTheme(newTheme);
-      return;
-    }
-
-    const rect = event?.currentTarget?.getBoundingClientRect?.();
-    const hasPointerPosition = event?.detail > 0;
-    const x = hasPointerPosition
-      ? event.clientX
-      : rect
-        ? rect.left + rect.width / 2
-        : window.innerWidth / 2;
-    const y = hasPointerPosition
-      ? event.clientY
-      : rect
-        ? rect.top + rect.height / 2
-        : window.innerHeight / 2;
-    const radius = Math.max(
-      Math.hypot(x, y),
-      Math.hypot(window.innerWidth - x, y),
-      Math.hypot(x, window.innerHeight - y),
-      Math.hypot(window.innerWidth - x, window.innerHeight - y)
-    );
-
-    root.style.setProperty('--theme-transition-x', `${x}px`);
-    root.style.setProperty('--theme-transition-y', `${y}px`);
-    root.style.setProperty('--theme-transition-radius', `${radius}px`);
-
-    startViewTransition.call(document, () => applyTheme(newTheme));
+    root.classList.remove('theme-transitioning');
+    applyTheme(newTheme);
+    setIsChangingTheme(true);
+    setIsClosingThemeOverlay(false);
+    window.clearTimeout(themeMessageTimer.current);
+    window.clearTimeout(themeOverlayCloseTimer.current);
+    themeMessageTimer.current = window.setTimeout(() => {
+      setIsClosingThemeOverlay(true);
+      themeOverlayCloseTimer.current = window.setTimeout(() => {
+        setIsChangingTheme(false);
+        setIsClosingThemeOverlay(false);
+        themeOverlayCloseTimer.current = null;
+      }, 320);
+      themeMessageTimer.current = null;
+    }, 3000);
   };
 
   useEffect(() => {
@@ -104,8 +75,8 @@ export const ThemeProvider = ({ children }) => {
   }, [theme]);
 
   useEffect(() => () => {
-    window.clearTimeout(fallbackTransitionTimer.current);
-    document.documentElement.classList.remove('theme-transitioning');
+    window.clearTimeout(themeMessageTimer.current);
+    window.clearTimeout(themeOverlayCloseTimer.current);
   }, []);
 
   const toggleTheme = (event) => {
@@ -119,6 +90,42 @@ export const ThemeProvider = ({ children }) => {
   return (
     <ThemeContext.Provider value={{ theme, isDark, toggleTheme, setTheme }}>
       {children}
+      {isChangingTheme && (
+        <div
+          className={`theme-change-overlay ${isDark ? 'theme-change-overlay-dark' : 'theme-change-overlay-light'} ${isClosingThemeOverlay ? 'theme-change-overlay-closing' : ''}`}
+          role="status"
+          aria-live="polite"
+        >
+          <div className="theme-change-orbit theme-change-orbit-one" />
+          <div className="theme-change-orbit theme-change-orbit-two" />
+          <div className="theme-change-card">
+            <div className="theme-change-icon" aria-hidden="true">
+              {isDark ? (
+                <span className="theme-change-moon" />
+              ) : (
+                <>
+                  <span className="theme-change-sun-core" />
+                  <span className="theme-change-sun-ray theme-change-sun-ray-one" />
+                  <span className="theme-change-sun-ray theme-change-sun-ray-two" />
+                  <span className="theme-change-sun-ray theme-change-sun-ray-three" />
+                  <span className="theme-change-sun-ray theme-change-sun-ray-four" />
+                  <span className="theme-change-sun-ray theme-change-sun-ray-five" />
+                  <span className="theme-change-sun-ray theme-change-sun-ray-six" />
+                  <span className="theme-change-sun-ray theme-change-sun-ray-seven" />
+                  <span className="theme-change-sun-ray theme-change-sun-ray-eight" />
+                </>
+              )}
+            </div>
+            <div className="theme-change-copy">
+              <strong>Changing theme</strong>
+              <span>Preparing your workspace</span>
+            </div>
+            <div className="theme-change-progress" aria-hidden="true">
+              <span />
+            </div>
+          </div>
+        </div>
+      )}
     </ThemeContext.Provider>
   );
 };

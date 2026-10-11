@@ -1545,7 +1545,7 @@ export const ViolationsPage = () => {
                   </div>
 
                   {/* Footer: Date & Status & Action Buttons */}
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px', paddingTop: '6px', borderTop: '1px dashed #e2e8f0' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px', paddingTop: '6px' }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                       <span style={{ fontSize: '11.5px', color: '#64748b' }}>
                         {new Date(rec.date_reported).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' })}

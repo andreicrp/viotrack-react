@@ -712,8 +712,8 @@ export const StudentViolationDetailPage = () => {
                   height: 104,
                   borderRadius: '50%',
                   objectFit: 'cover',
-                  border: '3.5px solid var(--brand-blue, #07345f)',
-                  boxShadow: '0 6px 18px rgba(7, 52, 95, 0.16)'
+                  border: 'none',
+                  boxShadow: 'none'
                 }}
               />
               <span

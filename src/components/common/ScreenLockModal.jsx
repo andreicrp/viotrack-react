@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 
 export const ScreenLockModal = () => {
-  const { user, isLocked, unlockScreen, logout, autoLockMinutes } = useAuth();
+  const { user, isLocked, unlockScreen, logout } = useAuth();
   const { success, error } = useNotification();
 
   const [password, setPassword] = useState('');
@@ -156,7 +156,7 @@ export const ScreenLockModal = () => {
               {isAdmin ? 'System Administrator' : 'Faculty Member'}
             </span>
             <span className="screen-lock-idle-badge">
-              <Clock size={10} /> {autoLockMinutes > 0 ? `${autoLockMinutes}m Idle Lock` : 'Manual Lock'}
+              <Clock size={10} /> Manual Screen Lock
             </span>
           </div>
         </div>

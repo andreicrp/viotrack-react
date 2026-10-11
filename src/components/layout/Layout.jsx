@@ -6,6 +6,8 @@ import { MobileBottomNav } from './MobileBottomNav';
 import { AddViolationModal } from '../violations/AddViolationModal';
 import { InteractiveTourGuide } from '../guide/InteractiveGuide';
 import { CommandPalette } from '../common/CommandPalette';
+import { Breadcrumbs } from '../common/Breadcrumbs';
+import { NetworkStatusBanner } from '../common/NetworkStatusBanner';
 
 export const Layout = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -54,8 +56,11 @@ export const Layout = () => {
       />
 
       <main id="main-content" tabIndex="-1" className={`main-content ${isCollapsed ? 'expanded' : ''}`}>
+        <Breadcrumbs />
         <Outlet />
       </main>
+
+      <NetworkStatusBanner />
 
       {/* Global Quick Command Palette (Ctrl + K / Cmd + K) */}
       <CommandPalette
@@ -83,4 +88,3 @@ export const Layout = () => {
     </>
   );
 };
-

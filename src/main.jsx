@@ -1,6 +1,7 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
+import './css/mobile-accessibility.css'
 import App from './App.jsx'
 
 import { runAll43SecurityChecks } from './utils/securityAuditor'

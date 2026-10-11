@@ -1,0 +1,78 @@
+/* Shared mobile-first interaction and accessibility layer. */
+.network-status-banner {
+  position: fixed;
+  top: max(10px, env(safe-area-inset-top));
+  left: 50%;
+  z-index: 12000;
+  transform: translateX(-50%);
+  width: min(calc(100% - 24px), 680px);
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 11px 13px;
+  border-radius: 12px;
+  box-shadow: 0 10px 28px rgba(15, 23, 42, 0.18);
+  font-size: 12px;
+  font-weight: 600;
+}
+.network-status-banner span { flex: 1; min-width: 0; line-height: 1.35; }
+.network-status-banner button {
+  min-height: 36px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 10px;
+  border: 0;
+  border-radius: 8px;
+  background: rgba(255,255,255,.18);
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+.network-status-offline { background: #7f1d1d; color: #fff; }
+.network-status-online { background: #065f46; color: #fff; }
+.is-spinning { animation: mobile-spin .8s linear infinite; }
+@keyframes mobile-spin { to { transform: rotate(360deg); } }
+
+.app-breadcrumbs {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  margin: 0 0 12px;
+  color: var(--text-muted, #64748b);
+  font-size: 12px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.app-breadcrumbs::-webkit-scrollbar { display: none; }
+.app-breadcrumbs a, .app-breadcrumbs span { white-space: nowrap; }
+.app-breadcrumbs a { color: inherit; text-decoration: none; }
+.app-breadcrumbs a:hover, .app-breadcrumbs a:focus-visible { color: var(--text-primary, #0f172a); text-decoration: underline; }
+.app-breadcrumbs a:first-child { display: inline-flex; align-items: center; gap: 5px; }
+
+button, a, input, select, textarea { touch-action: manipulation; }
+button, .btn, .button, [role="button"] { min-height: 40px; }
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+  outline: 3px solid #60a5fa;
+  outline-offset: 2px;
+}
+.table-responsive, .table-container, .custom-table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+table { min-width: 620px; }
+@media (max-width: 768px) {
+  .main-content { padding-bottom: calc(84px + env(safe-area-inset-bottom, 0px)) !important; }
+  .network-status-banner { top: max(8px, env(safe-area-inset-top)); font-size: 11.5px; }
+  .app-breadcrumbs { margin-bottom: 10px; }
+  .app-breadcrumbs a, .app-breadcrumbs span { font-size: 11.5px; }
+  input, select, textarea { min-height: 44px; font-size: 16px !important; }
+  button, .btn, .button, [role="button"] { min-height: 44px; }
+  .modal, [role="dialog"] { max-height: calc(100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px) - 24px); overflow-y: auto; }
+  .dashboard-chart, .recharts-responsive-container { min-height: 230px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; transition-duration: .01ms !important; }
+}

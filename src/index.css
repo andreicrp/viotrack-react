@@ -176,6 +176,118 @@ html, body {
   display: inline-block;
 }
 
+.page-loader {
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+  background: #f8fafc;
+  color: #0f172a;
+}
+
+.page-loader-dark {
+  background: #080808;
+  color: #f8fafc;
+}
+
+.page-loader-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  min-width: 170px;
+  padding: 28px 34px;
+  border: 1px solid #e2e8f0;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
+}
+
+.page-loader-dark .page-loader-content {
+  border-color: #2f2f2f;
+  background: #111111;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.28);
+}
+
+.page-loader-spinner {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 4px solid rgba(15, 23, 42, 0.18);
+  border-top-color: #000000;
+  border-right-color: #000000;
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+}
+
+.page-loader-spinner span {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #000000;
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.24);
+}
+
+.page-loader-dark .page-loader-spinner {
+  border-color: rgba(255, 255, 255, 0.24);
+  border-top-color: #ffffff;
+  border-right-color: #ffffff;
+}
+
+.page-loader-dark .page-loader-spinner span {
+  background: #ffffff;
+  box-shadow: 0 0 14px rgba(255, 255, 255, 0.5);
+}
+
+.page-loader-label {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.page-loader-light .page-loader-label {
+  color: #000000;
+}
+
+.page-loader-dark .page-loader-label {
+  color: #ffffff;
+}
+
+.page-loader-dots {
+  display: inline-flex;
+  gap: 4px;
+  height: 5px;
+}
+
+.page-loader-dots i {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #000000;
+  animation: page-loader-dot 1.1s ease-in-out infinite;
+}
+
+.page-loader-dots i:nth-child(2) { animation-delay: 0.14s; }
+.page-loader-dots i:nth-child(3) { animation-delay: 0.28s; }
+
+.page-loader-dark .page-loader-dots i {
+  background: #ffffff;
+}
+
+@keyframes page-loader-dot {
+  0%, 70%, 100% { opacity: 0.35; transform: translateY(0); }
+  35% { opacity: 1; transform: translateY(-3px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-loader-spinner,
+  .page-loader-dots i {
+    animation: none;
+  }
+}
+
 /* Global Typography & Font Family - Sora SemiBold Universally */
 html,
 body,

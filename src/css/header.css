@@ -930,8 +930,8 @@ body {
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    border: 2.5px solid #07345f;
-    box-shadow: 0 2px 8px rgba(7, 52, 95, 0.2);
+    border: none;
+    box-shadow: none;
     overflow: visible;
 }
 
@@ -972,7 +972,7 @@ body {
     right: 0;
     width: 240px;
     background: #ffffff;
-    border: 1px solid #e2e8f0;
+    border: none;
     border-radius: 14px;
     box-shadow: 0 16px 36px -8px rgba(15, 23, 42, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.03);
     padding: 6px;
@@ -990,7 +990,7 @@ body {
     background: #f8fafc;
     border-radius: 10px;
     margin-bottom: 4px;
-    border: 1px solid #e2e8f0;
+    border: none;
 }
 
 .user-dropdown-avatar {
@@ -998,8 +998,8 @@ body {
     height: 36px;
     border-radius: 50%;
     object-fit: cover;
-    border: 2px solid #0f172a;
-    box-shadow: 0 1px 4px rgba(15, 23, 42, 0.12);
+    border: none;
+    box-shadow: none;
     flex-shrink: 0;
 }
 

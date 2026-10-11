@@ -3026,11 +3026,11 @@
     color: #1f2937 !important;
 }
 
-.dash-stat-icon-circle.minor { background: transparent !important; color: #1f2937 !important; }
-.dash-stat-icon-circle.serious { background: transparent !important; color: #1f2937 !important; }
-.dash-stat-icon-circle.major { background: transparent !important; color: #1f2937 !important; }
-.dash-stat-icon-circle.students { background: transparent !important; color: #1f2937 !important; }
-.dash-stat-icon-circle.violations { background: transparent !important; color: #1f2937 !important; }
+.dash-stat-icon-circle.minor { background: transparent !important; color: #10b981 !important; }
+.dash-stat-icon-circle.serious { background: transparent !important; color: #f59e0b !important; }
+.dash-stat-icon-circle.major { background: transparent !important; color: #ef4444 !important; }
+.dash-stat-icon-circle.students { background: transparent !important; color: #60a5fa !important; }
+.dash-stat-icon-circle.violations { background: transparent !important; color: #a78bfa !important; }
 
 .dash-stat-center-info {
     display: flex;

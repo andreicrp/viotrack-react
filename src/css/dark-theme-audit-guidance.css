@@ -1011,6 +1011,41 @@ html[data-theme="dark"] body .sidebar {
   border-right-color: #242424 !important;
 }
 
+html[data-theme="dark"] body .sidebar .mobile-drawer-header {
+  background: #0b0b0b !important;
+  border-bottom-color: #242424 !important;
+}
+
+html[data-theme="dark"] body .sidebar .mobile-drawer-avatar {
+  box-shadow: none !important;
+}
+
+html[data-theme="dark"] body .sidebar .mobile-drawer-username {
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] body .sidebar .role-chip {
+  background: #1b1b1b !important;
+  border-color: #303030 !important;
+  color: #cbd5e1 !important;
+}
+
+html[data-theme="dark"] body .sidebar .mobile-online-indicator {
+  border-color: #0b0b0b !important;
+}
+
+html[data-theme="dark"] body .sidebar .mobile-drawer-close-btn {
+  background: #161616 !important;
+  border-color: #303030 !important;
+  color: #a3a3a3 !important;
+}
+
+html[data-theme="dark"] body .sidebar .mobile-drawer-close-btn:hover,
+html[data-theme="dark"] body .sidebar .mobile-drawer-close-btn:active {
+  background: #242424 !important;
+  color: #ffffff !important;
+}
+
 html[data-theme="dark"] body .sidebar .nav-list {
   padding-left: 10px !important;
   padding-right: 10px !important;

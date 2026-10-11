@@ -42,6 +42,8 @@ export const CommandPalette = ({
   const { isDark, toggleTheme } = useTheme();
   const [query, setQuery] = useState('');
   const [students, setStudents] = useState([]);
+  const [records, setRecords] = useState([]);
+  const [users, setUsers] = useState([]);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const inputRef = useRef(null);
   const listRef = useRef(null);
@@ -53,10 +55,19 @@ export const CommandPalette = ({
     let isMounted = true;
     const loadStudents = async () => {
       try {
-        const data = await dataService.getStudents();
-        if (isMounted && Array.isArray(data)) {
-          setStudents(data);
-        }
+        const [studentData, recordData, teacherData, adminData] = await Promise.all([
+          dataService.getStudents(),
+          dataService.getRecords(),
+          dataService.getTeachers(),
+          dataService.getAdmins()
+        ]);
+        if (!isMounted) return;
+        if (Array.isArray(studentData)) setStudents(studentData);
+        if (Array.isArray(recordData)) setRecords(recordData);
+        setUsers([
+          ...(Array.isArray(teacherData) ? teacherData.map(item => ({ ...item, userType: 'Teacher' })) : []),
+          ...(Array.isArray(adminData) ? adminData.map(item => ({ ...item, userType: 'Administrator' })) : [])
+        ]);
       } catch (err) {
         console.warn('Command palette student load error:', err);
       }
@@ -280,22 +291,65 @@ export const CommandPalette = ({
       };
     });
 
-    // 2. Search Pages
+    // 2. Search violations
+    const matchedRecords = records.filter(record => {
+      const text = [
+        record.id,
+        record.status,
+        record.approval_status,
+        record.reported_by_name,
+        record.remarks,
+        record.sanction
+      ].filter(Boolean).join(' ').toLowerCase();
+      return text.includes(q);
+    }).slice(0, 6).map(record => ({
+      id: `record_${record.id}`,
+      category: 'Violations',
+      title: `Violation #${record.id}`,
+      subtitle: `${record.status || 'Unclassified'} • ${record.remarks || record.sanction || 'Open record'}`,
+      icon: AlertTriangle,
+      action: () => navigate('/violations')
+    }));
+
+    // 3. Search staff and administrators
+    const matchedUsers = users.filter(item => {
+      const text = [
+        item.fname,
+        item.mname,
+        item.lname,
+        item.email,
+        item.position,
+        item.role,
+        item.department
+      ].filter(Boolean).join(' ').toLowerCase();
+      return text.includes(q);
+    }).slice(0, 6).map(item => ({
+      id: `user_${item.userType}_${item.id}`,
+      category: 'Users',
+      title: `${item.fname || ''} ${item.lname || ''}`.trim() || 'User',
+      subtitle: `${item.userType} • ${item.email || item.position || item.role || 'Account'}`,
+      icon: User,
+      action: () => navigate(item.userType === 'Teacher' ? '/teachers' : '/admin-users')
+    }));
+
+    // 4. Search Pages
     const matchedPages = PAGES.filter(p => {
       return p.title.toLowerCase().includes(q) || p.subtitle.toLowerCase().includes(q);
     });
 
-    // 3. Search Actions
+    // 5. Search Actions
     const matchedActions = ACTIONS.filter(a => {
       return a.title.toLowerCase().includes(q) || a.subtitle.toLowerCase().includes(q);
     });
 
     return [
       ...matchedStudents,
+      ...matchedRecords,
+      ...matchedUsers,
       ...matchedActions,
       ...matchedPages
     ];
-  }, [query, students, PAGES, ACTIONS, navigate]);
+  }, [query, students, records, users, PAGES, ACTIONS, navigate]);
 
   // Keep selection within bounds
   useEffect(() => {
@@ -386,7 +440,7 @@ export const CommandPalette = ({
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Search students by name or LRN, jump to page, or run action..."
+            placeholder="Search students, violations, users, notifications, or pages..."
             className="cmd-palette-input"
             style={{
               flex: 1,
@@ -460,7 +514,7 @@ export const CommandPalette = ({
                 No results found for "{query}"
               </p>
               <span style={{ fontSize: '12px' }}>
-                Try searching for student names, 12-digit LRNs, or navigation pages.
+                Try a name, LRN, violation number, staff member, notification, or page.
               </span>
             </div>
           ) : (

@@ -928,11 +928,11 @@
   position: relative;
   inset: auto;
   width: 100%;
-  background: #ffffff;
+  background: #f8fafc;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 22px 18px;
+  padding: 28px 18px;
   z-index: 20;
   animation: fadeInNotice 0.25s ease-out;
   box-sizing: border-box;
@@ -945,27 +945,28 @@
 
 .camera-notice-card {
   width: 100%;
-  max-width: 360px;
-  background: transparent;
-  border: none;
-  box-shadow: none;
-  border-radius: 0;
-  padding: 0;
+  max-width: 420px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 16px 34px rgba(15, 23, 42, 0.1);
+  border-radius: 20px;
+  padding: 26px 24px 22px;
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: 13px;
+  gap: 15px;
+  box-sizing: border-box;
 }
 
 .camera-notice-icon-wrap {
   position: relative;
-  width: 50px;
-  height: 50px;
+  width: 54px;
+  height: 54px;
   border-radius: 50%;
   background: #fef3c7;
   border: 1.5px solid #fde68a;
-  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.15);
+  box-shadow: 0 6px 16px rgba(37, 99, 235, 0.14);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -990,13 +991,13 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 5px;
+  gap: 7px;
   width: 100%;
 }
 
 .camera-notice-title {
   color: #0f172a;
-  font-size: 16px;
+  font-size: 17px;
   font-weight: 800;
   letter-spacing: -0.02em;
   margin: 0;
@@ -1004,10 +1005,10 @@
 
 .camera-notice-text {
   color: #64748b;
-  font-size: 12px;
-  line-height: 1.48;
+  font-size: 12.5px;
+  line-height: 1.55;
   margin: 0;
-  max-width: 290px;
+  max-width: 340px;
 }
 
 .camera-detected-device-pill {
@@ -1117,7 +1118,7 @@
 .camera-notice-actions {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   width: 100%;
   margin-top: 2px;
 }
@@ -1128,10 +1129,11 @@
   align-items: center;
   justify-content: center;
   gap: 6px;
-  padding: 9px 14px;
-  font-size: 12.5px;
+  min-height: 42px;
+  padding: 10px 14px;
+  font-size: 12px;
   font-weight: 700;
-  border-radius: 11px;
+  border-radius: 12px;
   cursor: pointer;
   transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
   border: none;
@@ -1156,10 +1158,10 @@
 }
 
 .camera-notice-btn.secondary {
-  background: #f8fafc;
+  background: #ffffff;
   color: #334155;
-  border: 1px solid #cbd5e1;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  border: 1px solid #d7dee8;
+  box-shadow: 0 2px 5px rgba(15, 23, 42, 0.05);
 }
 
 .camera-notice-btn.secondary:hover {
@@ -1181,6 +1183,7 @@
   background: #f8fafc;
   border: 1px solid #e2e8f0;
   border-radius: 9px;
+  min-height: 34px;
   padding: 7px 12px;
   color: #64748b;
   font-size: 11px;
@@ -1190,6 +1193,12 @@
   width: 100%;
   font-family: inherit;
   outline: none;
+}
+
+.camera-notice-btn:focus-visible,
+.camera-notice-hint-btn:focus-visible {
+  outline: 3px solid rgba(37, 99, 235, 0.25);
+  outline-offset: 2px;
 }
 
 .camera-notice-hint-btn:hover {
@@ -2749,9 +2758,9 @@ div[id*="reader"] video {
   }
 
   .camera-notice-card {
-    padding: 0;
-    gap: 10px;
-    border-radius: 0;
+    padding: 20px 16px 16px;
+    gap: 11px;
+    border-radius: 16px;
     border: none;
     box-shadow: none;
     background: transparent;

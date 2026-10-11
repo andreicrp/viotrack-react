@@ -37,23 +37,25 @@ import { ServerErrorPage } from './pages/ServerErrorPage';
 const ErrorTestPage = lazy(() => import('./pages/ErrorTestPage').then(m => ({ default: m.ErrorTestPage || m.default })));
 
 // Lightweight Route Loading Spinner
-const PageLoader = () => (
-  <div style={{ minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
-      <div 
-        style={{ 
-          width: '36px', 
-          height: '36px', 
-          border: '3px solid #e2e8f0', 
-          borderTopColor: '#07345f', 
-          borderRadius: '50%', 
-          animation: 'spin 0.8s linear infinite' 
-        }} 
-      />
-      <span style={{ fontSize: '12px', fontWeight: 700, color: '#64748b' }}>Loading VioTrack...</span>
+const PageLoader = () => {
+  const { isDark } = useTheme();
+
+  return (
+    <div className={`page-loader ${isDark ? 'page-loader-dark' : 'page-loader-light'}`} role="status" aria-live="polite">
+      <div className="page-loader-content">
+        <div className="page-loader-spinner" aria-hidden="true">
+          <span />
+        </div>
+        <span className="page-loader-label">Loading VioTrack</span>
+        <span className="page-loader-dots" aria-hidden="true">
+          <i />
+          <i />
+          <i />
+        </span>
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 const AuthenticatedStartupTasks = () => {
   const { user, loading } = useAuth();

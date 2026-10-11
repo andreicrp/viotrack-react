@@ -27,7 +27,7 @@ import { Filesystem, Directory } from '@capacitor/filesystem';
 import { Share } from '@capacitor/share';
 import { useNotification } from '../../context/NotificationContext';
 import { useAuth } from '../../context/AuthContext';
-import { isMobileDevice, isNativeApp, blobToBase64 } from '../../utils/mobilePrintHelper';
+import { isNativeApp, blobToBase64 } from '../../utils/mobilePrintHelper';
 import { sanitizeCsvCell } from '../../utils/security';
 
 /**
@@ -90,57 +90,7 @@ export const SaveAsModal = ({
 
   useEffect(() => {
     if (isOpen) {
-      // 1. If on Website / Desktop Browser -> Auto download immediately and close without showing modal
-      if (!isNativeApp() && !isMobileDevice()) {
-        const executeWebDownload = async () => {
-          try {
-            const cleanFilename = (defaultFilename || 'Viotrack_Export').replace(/\.(csv|pdf|xlsx)$/i, '').trim();
-            const format = defaultFormat || 'csv';
-            const fullFilename = `${cleanFilename}.${format}`;
-            let blob;
-
-            if (format === 'pdf') {
-              if (typeof generatePdfBlob === 'function') {
-                const pdfOutput = await generatePdfBlob();
-                if (pdfOutput instanceof Blob) blob = pdfOutput;
-                else if (pdfOutput && typeof pdfOutput.output === 'function') blob = pdfOutput.output('blob');
-                else if (pdfOutput instanceof ArrayBuffer) blob = new Blob([pdfOutput], { type: 'application/pdf' });
-              } else {
-                const text = headers.join(', ') + '\n' + rows.map(r => (Array.isArray(r) ? r : Object.values(r)).join(', ')).join('\n');
-                blob = new Blob([text], { type: 'application/pdf' });
-              }
-            } else if (format === 'xlsx') {
-              blob = generateExcelBlob();
-            } else {
-              blob = generateCsvBlob();
-            }
-
-            if (blob) {
-              const url = URL.createObjectURL(blob);
-              const link = document.createElement('a');
-              link.href = url;
-              link.setAttribute('download', fullFilename);
-              link.target = '_self';
-              link.style.display = 'none';
-              document.body.appendChild(link);
-              link.click();
-              document.body.removeChild(link);
-              URL.revokeObjectURL(url);
-              success(`Downloaded ${fullFilename}`);
-            }
-          } catch (err) {
-            console.error('Web auto-download error:', err);
-            error('Failed to download export file.');
-          } finally {
-            onClose();
-          }
-        };
-
-        executeWebDownload();
-        return;
-      }
-
-      // 2. Mobile / APK workflow -> Initialize mobile modal view
+      // Initialize the Save As page for desktop browsers and native/mobile workflows.
       setCurrentView('places');
       setSelectedFolder('Documents');
       setFilename(defaultFilename.replace(/\.(csv|pdf|xlsx)$/i, ''));
@@ -271,7 +221,7 @@ export const SaveAsModal = ({
     return { bg: '#f1f5f9', icon: <GenericFileIcon size={22} color="#475569" />, isDir: false };
   };
 
-  if (!isOpen || (!isNativeApp() && !isMobileDevice())) return null;
+  if (!isOpen) return null;
 
   const handleSaveFile = async (destinationType = 'device') => {
     if (!filename.trim()) {
@@ -450,6 +400,7 @@ export const SaveAsModal = ({
         fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", sans-serif',
         animation: 'fadeIn 0.2s ease-out'
       }}
+      className="saveas-modal"
     >
       <style>{`
         @keyframes fadeIn {
@@ -507,6 +458,208 @@ export const SaveAsModal = ({
           border-color: #2563eb;
           box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
         }
+        .saveas-body {
+          flex: 1;
+          overflow-y: auto;
+          background: #f8fafc;
+          padding: 20px 16px 32px;
+        }
+        .saveas-view {
+          max-width: 720px;
+          margin: 0 auto;
+        }
+        .saveas-section-label {
+          padding: 0 4px 10px;
+          font-size: 11px;
+          font-weight: 800;
+          color: #64748b;
+          text-transform: uppercase;
+          letter-spacing: 0.08em;
+        }
+        .saveas-list {
+          overflow: hidden;
+          background: #ffffff;
+          border: 1px solid #e2e8f0;
+          border-radius: 14px;
+          box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
+        }
+        .saveas-item-light {
+          min-height: 72px;
+        }
+        .saveas-icon-tile {
+          width: 44px;
+          height: 44px;
+          border-radius: 12px;
+        }
+        .saveas-action-bar {
+          gap: 10px !important;
+          padding: 14px 20px max(18px, env(safe-area-inset-bottom, 18px)) !important;
+        }
+        .saveas-file-input {
+          min-width: 0;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+        @media (min-width: 768px) {
+          .saveas-body {
+            padding: 32px 24px 48px;
+          }
+          .saveas-action-bar {
+            padding-left: max(24px, calc((100% - 720px) / 2)) !important;
+            padding-right: max(24px, calc((100% - 720px) / 2)) !important;
+          }
+        }
+
+        [data-theme="dark"] .saveas-modal {
+          background: #080808 !important;
+          color: #f8fafc !important;
+        }
+        [data-theme="dark"] .saveas-modal .saveas-body {
+          background: #080808 !important;
+        }
+        [data-theme="dark"] .saveas-modal .saveas-list {
+          background: #111111 !important;
+          border-color: #2f2f2f !important;
+          box-shadow: 0 10px 28px rgba(0, 0, 0, 0.2);
+        }
+        [data-theme="dark"] .saveas-modal .saveas-section-label {
+          color: #9ca3af !important;
+        }
+        [data-theme="dark"] .saveas-modal .saveas-action-bar {
+          background: #0b0b0b !important;
+          border-top-color: #2f2f2f !important;
+          box-shadow: 0 -8px 24px rgba(0, 0, 0, 0.24) !important;
+        }
+        [data-theme="dark"] .saveas-modal > div {
+          background: #080808 !important;
+          border-color: #262626 !important;
+          color: #f8fafc !important;
+        }
+        [data-theme="dark"] .saveas-modal .saveas-item-light {
+          background: #111111 !important;
+          border-bottom-color: #2f2f2f !important;
+          color: #f8fafc !important;
+        }
+        [data-theme="dark"] .saveas-modal [style*="borderTop"],
+        [data-theme="dark"] .saveas-modal [style*="borderBottom"] {
+          border-color: #2f2f2f !important;
+        }
+        [data-theme="dark"] .saveas-modal [style*="text-transform: uppercase"] {
+          color: #a8b4c4 !important;
+          -webkit-text-fill-color: #a8b4c4 !important;
+        }
+        [data-theme="dark"] .saveas-modal .saveas-item-light > div:nth-child(2) > div:first-child,
+        [data-theme="dark"] .saveas-modal .saveas-item-light > div:nth-child(2)[style*="font-size"] {
+          color: #f8fafc !important;
+          -webkit-text-fill-color: #f8fafc !important;
+        }
+        [data-theme="dark"] .saveas-modal .saveas-item-light > div:nth-child(2) > div:nth-child(2) {
+          color: #a8b4c4 !important;
+          -webkit-text-fill-color: #a8b4c4 !important;
+        }
+        [data-theme="dark"] .saveas-modal .saveas-item-light:hover,
+        [data-theme="dark"] .saveas-modal .saveas-item-light:active {
+          background: #1b1b1b !important;
+        }
+        [data-theme="dark"] .saveas-modal .saveas-input-box {
+          background: transparent !important;
+          border: none !important;
+          box-shadow: none !important;
+        }
+        [data-theme="dark"] .saveas-modal .saveas-input-box:focus-within {
+          border: none !important;
+          box-shadow: none !important;
+        }
+        [data-theme="dark"] .saveas-modal input,
+        [data-theme="dark"] .saveas-modal button,
+        [data-theme="dark"] .saveas-modal span,
+        [data-theme="dark"] .saveas-modal strong {
+          color: #f8fafc !important;
+          -webkit-text-fill-color: #f8fafc !important;
+        }
+        [data-theme="dark"] .saveas-modal input::placeholder {
+          color: #9ca3af !important;
+          -webkit-text-fill-color: #9ca3af !important;
+        }
+        [data-theme="dark"] .saveas-modal .saveas-header-icon {
+          color: #dbeafe !important;
+          stroke: currentColor !important;
+        }
+        [data-theme="dark"] .saveas-modal .saveas-back-button,
+        [data-theme="dark"] .saveas-modal .saveas-clear-button {
+          color: #cbd5e1 !important;
+          -webkit-text-fill-color: #cbd5e1 !important;
+        }
+        [data-theme="dark"] .saveas-modal .saveas-places-button {
+          background: #1a1a1a !important;
+          border-color: #4b5563 !important;
+          color: #e5e7eb !important;
+          -webkit-text-fill-color: #e5e7eb !important;
+        }
+        [data-theme="dark"] .saveas-modal .saveas-places-button .saveas-header-icon {
+          color: #bfdbfe !important;
+        }
+        [data-theme="dark"] .saveas-modal .saveas-item-light > svg {
+          color: #cbd5e1 !important;
+        }
+        [data-theme="dark"] .saveas-modal .saveas-format-badge-light {
+          background: #ffffff !important;
+          border-color: #ffffff !important;
+          color: #0f172a !important;
+          -webkit-text-fill-color: #0f172a !important;
+        }
+        [data-theme="dark"] .saveas-modal .saveas-format-badge-light span {
+          color: #0f172a !important;
+          -webkit-text-fill-color: #0f172a !important;
+        }
+        [data-theme="dark"] .saveas-modal .saveas-format-badge-light:hover {
+          background: #f1f5f9 !important;
+          border-color: #f1f5f9 !important;
+        }
+        [data-theme="dark"] .saveas-modal .saveas-modal-format-menu {
+          background: #111111 !important;
+          border-color: #444444 !important;
+        }
+        [data-theme="dark"] .saveas-modal .saveas-modal-format-menu button:hover,
+        [data-theme="dark"] .saveas-modal .saveas-modal-format-menu button[aria-pressed="true"] {
+          background: #1d4ed8 !important;
+        }
+        [data-theme="dark"] .saveas-modal .saveas-modal-format-menu button {
+          color: #e5e7eb !important;
+          -webkit-text-fill-color: #e5e7eb !important;
+        }
+        [data-theme="dark"] .saveas-modal .saveas-modal-format-menu button[aria-current="true"] {
+          background: #ffffff !important;
+          color: #0f172a !important;
+          -webkit-text-fill-color: #0f172a !important;
+        }
+        [data-theme="dark"] .saveas-modal .saveas-modal-format-menu button[aria-current="true"] span {
+          color: #0f172a !important;
+          -webkit-text-fill-color: #0f172a !important;
+        }
+        [data-theme="dark"] .saveas-modal .saveas-modal-format-menu button svg {
+          color: #bfdbfe !important;
+        }
+        [data-theme="dark"] .saveas-modal .saveas-modal-format-menu button[aria-current="true"] svg {
+          color: #0f172a !important;
+        }
+        [data-theme="dark"] .saveas-modal .saveas-modal-save-button {
+          background: #ffffff !important;
+          border: 1px solid #ffffff !important;
+          color: #0f172a !important;
+          -webkit-text-fill-color: #0f172a !important;
+        }
+        [data-theme="dark"] .saveas-modal .saveas-modal-save-button:hover {
+          background: #f1f5f9 !important;
+          border-color: #f1f5f9 !important;
+        }
+        [data-theme="dark"] .saveas-modal .saveas-modal-save-button:disabled {
+          background: #374151 !important;
+          border-color: #4b5563 !important;
+          color: #9ca3af !important;
+          -webkit-text-fill-color: #9ca3af !important;
+        }
       `}</style>
 
       {/* Top App Bar (Light Mode Header) */}
@@ -540,9 +693,10 @@ export const SaveAsModal = ({
               padding: '6px',
               borderRadius: '8px'
             }}
+            className="saveas-back-button"
             title="Back"
           >
-            <ArrowLeft size={22} color="#0f172a" />
+            <ArrowLeft size={22} color="#0f172a" className="saveas-header-icon" />
           </button>
 
           <span style={{ fontSize: '18px', fontWeight: 800, color: '#0f172a', letterSpacing: '-0.01em' }}>
@@ -570,29 +724,30 @@ export const SaveAsModal = ({
               padding: '6px 12px',
               borderRadius: '8px'
             }}
+            className="saveas-places-button"
           >
-            <FolderOpen size={16} color="#475569" />
+            <FolderOpen size={16} color="#475569" className="saveas-header-icon" />
             <span>Places</span>
           </button>
         )}
       </div>
 
       {/* Center Body: Navigation Views */}
-      <div style={{ flex: 1, overflowY: 'auto', background: '#f8fafc' }}>
+      <div className="saveas-body">
         {/* VIEW 1: PLACES */}
         {currentView === 'places' && (
-          <div style={{ maxWidth: '720px', margin: '0 auto', padding: '10px 0' }}>
-            <div style={{ padding: '14px 20px 8px 20px', fontSize: '11.5px', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+          <div className="saveas-view">
+            <div className="saveas-section-label">
               Places
             </div>
 
-            <div style={{ background: '#ffffff', borderTop: '1px solid #e2e8f0', borderBottom: '1px solid #e2e8f0' }}>
+            <div className="saveas-list">
               {/* Cloud Storage / Google Drive / OneDrive */}
               <div
                 className="saveas-item-light"
                 onClick={() => handleSaveFile('cloud')}
               >
-                <div style={{ width: '42px', height: '42px', borderRadius: '10px', background: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <div className="saveas-icon-tile" style={{ background: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                   <Cloud size={22} color="#2563eb" />
                 </div>
                 <div style={{ flex: 1, marginLeft: '12px' }}>
@@ -611,7 +766,7 @@ export const SaveAsModal = ({
                 className="saveas-item-light"
                 onClick={() => setCurrentView('device')}
               >
-                <div style={{ width: '42px', height: '42px', borderRadius: '10px', background: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <div className="saveas-icon-tile" style={{ background: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                   <Smartphone size={22} color="#475569" />
                 </div>
                 <div style={{ flex: 1, marginLeft: '12px' }}>
@@ -630,7 +785,7 @@ export const SaveAsModal = ({
                 className="saveas-item-light"
                 onClick={() => handleSaveFile('browse')}
               >
-                <div style={{ width: '42px', height: '42px', borderRadius: '10px', background: '#fef3c7', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <div className="saveas-icon-tile" style={{ background: '#fef3c7', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                   <Folder size={22} color="#d97706" />
                 </div>
                 <div style={{ flex: 1, marginLeft: '12px' }}>
@@ -650,7 +805,7 @@ export const SaveAsModal = ({
                 style={{ borderBottom: 'none' }}
                 onClick={() => info('Connect additional cloud accounts in System Settings.')}
               >
-                <div style={{ width: '42px', height: '42px', borderRadius: '10px', background: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <div className="saveas-icon-tile" style={{ background: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                   <Plus size={22} color="#2563eb" />
                 </div>
                 <div style={{ flex: 1, marginLeft: '12px' }}>
@@ -668,12 +823,12 @@ export const SaveAsModal = ({
 
         {/* VIEW 2: THIS DEVICE FOLDERS */}
         {currentView === 'device' && (
-          <div style={{ maxWidth: '720px', margin: '0 auto', padding: '10px 0' }}>
-            <div style={{ padding: '14px 20px 8px 20px', fontSize: '11.5px', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+          <div className="saveas-view">
+            <div className="saveas-section-label">
               Device Storage Locations
             </div>
 
-            <div style={{ background: '#ffffff', borderTop: '1px solid #e2e8f0', borderBottom: '1px solid #e2e8f0' }}>
+            <div className="saveas-list">
               {/* Documents Folder */}
               <div
                 className="saveas-item-light"
@@ -683,7 +838,7 @@ export const SaveAsModal = ({
                   setCurrentView('folder');
                 }}
               >
-                <div style={{ width: '42px', height: '42px', borderRadius: '10px', background: '#fef3c7', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <div className="saveas-icon-tile" style={{ background: '#fef3c7', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                   <Folder size={22} color="#d97706" />
                 </div>
                 <div style={{ flex: 1, marginLeft: '12px', fontSize: '15px', fontWeight: 700, color: '#0f172a' }}>
@@ -701,7 +856,7 @@ export const SaveAsModal = ({
                   setCurrentView('folder');
                 }}
               >
-                <div style={{ width: '42px', height: '42px', borderRadius: '10px', background: '#fef3c7', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <div className="saveas-icon-tile" style={{ background: '#fef3c7', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                   <Folder size={22} color="#d97706" />
                 </div>
                 <div style={{ flex: 1, marginLeft: '12px', fontSize: '15px', fontWeight: 700, color: '#0f172a' }}>
@@ -720,7 +875,7 @@ export const SaveAsModal = ({
                   setCurrentView('folder');
                 }}
               >
-                <div style={{ width: '42px', height: '42px', borderRadius: '10px', background: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <div className="saveas-icon-tile" style={{ background: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                   <HardDrive size={22} color="#475569" />
                 </div>
                 <div style={{ flex: 1, marginLeft: '12px', fontSize: '15px', fontWeight: 700, color: '#0f172a' }}>
@@ -734,12 +889,12 @@ export const SaveAsModal = ({
 
         {/* VIEW 3: INSIDE SELECTED FOLDER */}
         {currentView === 'folder' && (
-          <div style={{ maxWidth: '720px', margin: '0 auto', padding: '10px 0' }}>
-            <div style={{ padding: '14px 20px 8px 20px', fontSize: '11.5px', fontWeight: 800, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+          <div className="saveas-view">
+            <div className="saveas-section-label">
               Files in {selectedFolder}
             </div>
 
-            <div style={{ background: '#ffffff', borderTop: '1px solid #e2e8f0', borderBottom: '1px solid #e2e8f0' }}>
+            <div className="saveas-list">
               {savedFilesList.length === 0 ? (
                 <div style={{ padding: '40px 20px', textAlign: 'center', color: '#64748b', fontSize: '13px' }}>
                   Folder is empty. Tap <b>Save</b> below to export file directly here.
@@ -797,6 +952,7 @@ export const SaveAsModal = ({
       {/* Format Switcher Tray (Light Mode Popover) */}
       {showFormatDropdown && (
         <div
+          className="saveas-modal-format-menu"
           style={{
             position: 'absolute',
             bottom: '75px',
@@ -822,9 +978,10 @@ export const SaveAsModal = ({
                 setShowFormatDropdown(false);
               }}
               style={{
-                background: selectedFormat === fmt ? '#eff6ff' : 'transparent',
+                background: selectedFormat === fmt ? '#ffffff' : 'transparent',
                 border: 'none',
-                color: selectedFormat === fmt ? '#1d4ed8' : '#0f172a',
+                color: '#0f172a',
+                WebkitTextFillColor: '#0f172a',
                 padding: '9px 14px',
                 borderRadius: '8px',
                 fontSize: '13px',
@@ -838,7 +995,7 @@ export const SaveAsModal = ({
               }}
             >
               <span>.{fmt.toUpperCase()}</span>
-              {selectedFormat === fmt && <Check size={15} color="#2563eb" strokeWidth={2.5} />}
+              {selectedFormat === fmt && <Check size={15} color="#0f172a" strokeWidth={2.5} />}
             </button>
           ))}
         </div>
@@ -846,6 +1003,7 @@ export const SaveAsModal = ({
 
       {/* Bottom Sticky Action Bar: Filename Input + Extension Badge + Save Button */}
       <div
+        className="saveas-action-bar"
         style={{
           display: 'flex',
           alignItems: 'center',
@@ -859,6 +1017,7 @@ export const SaveAsModal = ({
         {/* Filename Input Container */}
         <div className="saveas-input-box">
           <input
+            className="saveas-file-input"
             type="text"
             value={filename}
             onChange={(e) => setFilename(e.target.value)}
@@ -888,6 +1047,7 @@ export const SaveAsModal = ({
                 display: 'flex',
                 alignItems: 'center'
               }}
+              className="saveas-clear-button"
             >
               <X size={15} />
             </button>
@@ -907,6 +1067,7 @@ export const SaveAsModal = ({
         {/* Save Button */}
         <button
           type="button"
+          className="saveas-modal-save-button"
           onClick={() => handleSaveFile('device')}
           disabled={isSaving}
           style={{
@@ -947,6 +1108,7 @@ export const SaveAsModal = ({
             justifyContent: 'center',
             padding: '24px'
           }}
+          aria-current={selectedFormat === fmt ? 'true' : undefined}
         >
           <div
             style={{

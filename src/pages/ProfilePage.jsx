@@ -29,7 +29,7 @@ import { evaluatePasswordStrength, validateUploadedFile } from '../utils/securit
 import '../css/profile.css';
 
 export const ProfilePage = () => {
-  const { user, setUser, logout, autoLockMinutes, setAutoLockMinutes, lockScreen } = useAuth();
+  const { user, setUser, logout, lockScreen } = useAuth();
   const { success, error } = useNotification();
   const navigate = useNavigate();
 
@@ -592,73 +592,36 @@ export const ProfilePage = () => {
                 </div>
                 <div>
                   <h3 className="profile-card-title">
-                    Workstation Inactivity Auto-Lock
+                    Workstation Inactivity Auto-Logout
                   </h3>
                   <p className="profile-card-subtitle">
                     Prevent unauthorized student access on unattended faculty workstations
                   </p>
-                </div>
               </div>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                 <div style={{ fontSize: '12.5px', color: 'var(--text-secondary, #475569)', lineHeight: 1.45 }}>
-                  Automatically locks the screen when no keyboard, mouse, or touch activity is detected. Enter your account password or PIN to resume your session.
+                  Automatically signs out after 30 minutes without keyboard, mouse, or touch activity. This protects student records on unattended devices.
                 </div>
 
                 <div>
-                  <label className="profile-form-label" style={{ marginBottom: '8px', display: 'block' }}>
-                    Auto-Lock Idle Timeout Threshold
-                  </label>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '8px' }}>
-                    {[
-                      { label: '5 Minutes', value: 5, desc: 'High Security' },
-                      { label: '10 Minutes', value: 10, desc: 'Fast Lock' },
-                      { label: '15 Minutes', value: 15, desc: 'Recommended' },
-                      { label: '30 Minutes', value: 30, desc: 'Extended Desk' },
-                      { label: '60 Minutes', value: 60, desc: 'Long Session' },
-                      { label: 'Disabled', value: 0, desc: 'Manual Only' }
-                    ].map((opt) => {
-                      const isSelected = autoLockMinutes === opt.value;
-                      return (
-                        <button
-                          key={opt.value}
-                          type="button"
-                          onClick={() => {
-                            setAutoLockMinutes(opt.value);
-                            success(`Inactivity auto-lock updated to ${opt.value === 0 ? 'Disabled (Manual Only)' : `${opt.value} minutes`}.`);
-                          }}
-                          style={{
-                            padding: '10px 12px',
-                            borderRadius: '10px',
-                            border: isSelected ? '2px solid var(--brand-blue, #07345f)' : '1px solid var(--border-subtle, #e2e8f0)',
-                            background: isSelected ? 'rgba(7, 52, 95, 0.08)' : 'var(--bg-surface-elevated, #ffffff)',
-                            color: isSelected ? 'var(--brand-blue, #07345f)' : 'var(--text-primary, #0f172a)',
-                            cursor: 'pointer',
-                            textAlign: 'left',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            gap: '2px',
-                            transition: 'all 0.15s ease'
-                          }}
-                        >
-                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
-                            <span style={{ fontWeight: 800, fontSize: '12.5px' }}>{opt.label}</span>
-                            {isSelected && <CheckCircle2 size={14} color="var(--brand-blue, #07345f)" />}
-                          </div>
-                          <span style={{ fontSize: '10.5px', color: 'var(--text-muted, #64748b)', fontWeight: 500 }}>
-                            {opt.desc}
-                          </span>
-                        </button>
-                      );
-                    })}
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--bg-surface-elevated, #f8fafc)', border: '1px solid var(--border-subtle, #e2e8f0)', padding: '10px 14px', borderRadius: '10px', marginTop: '4px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                      <Shield size={16} color="var(--brand-blue, #07345f)" />
+                      <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-primary, #0f172a)' }}>
+                        Current Policy: Automatic sign-out after 30 minutes idle
+                      </span>
+                    </div>
+                    <CheckCircle2 size={16} color="#16a34a" aria-label="Enabled" />
                   </div>
+                </div>
                 </div>
 
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--bg-surface-elevated, #f8fafc)', border: '1px solid var(--border-subtle, #e2e8f0)', padding: '10px 14px', borderRadius: '10px', marginTop: '4px' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <Shield size={16} color="var(--brand-blue, #07345f)" />
                     <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-primary, #0f172a)' }}>
-                      Current Policy: {autoLockMinutes === 0 ? 'Manual Lock Only' : `Auto-locks after ${autoLockMinutes} minutes idle`}
+                      Manual screen lock is also available
                     </span>
                   </div>
                   <button
