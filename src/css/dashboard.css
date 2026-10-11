@@ -3500,23 +3500,27 @@
 }
 
 .dash-dist-bar-track {
+    display: block;
     width: 100%;
-    height: 4px;
+    height: 5px;
     background: #e2e8f0;
-    border-radius: 2px;
+    border-radius: 999px;
     overflow: hidden;
+    position: relative;
+    margin-top: 4px;
 }
 
 .dash-dist-bar-fill {
+    display: block;
     height: 100%;
-    border-radius: 2px;
+    border-radius: 999px;
     transition: width 0.4s ease, filter 160ms ease, box-shadow 160ms ease;
 }
 
 .dash-distribution-item:hover .dash-dist-bar-fill,
 .dash-distribution-item[aria-pressed="true"] .dash-dist-bar-fill {
-    filter: saturate(1.2);
-    box-shadow: 0 0 10px color-mix(in srgb, var(--dist-color) 50%, transparent);
+    filter: saturate(1.3);
+    box-shadow: 0 0 10px color-mix(in srgb, var(--dist-color) 60%, transparent);
 }
 
 .dash-trends-header {

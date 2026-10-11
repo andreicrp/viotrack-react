@@ -77,7 +77,7 @@ export const ViolationsPage = () => {
   const [statusFilter, setStatusFilter] = useState('all'); // 'all' | 'pending' | 'investigation' | '1st conference' | '2nd conference' | '3rd conference' | 'resolved' | 'escalated'
   const [severityFilter, setSeverityFilter] = useState('all'); // 'all' | 'minor' | 'serious' | 'major'
   const [gradeFilter, setGradeFilter] = useState('all');
-  const [exportDate, setExportDate] = useState('2026-09-25');
+  const [dateFilter, setDateFilter] = useState('');
 
   // Sorting: 'date' | 'name' | 'severity' | 'status' | 'grade'
   const [sortField, setSortField] = useState('date');
@@ -171,6 +171,16 @@ export const ViolationsPage = () => {
     const targetStatus = statusFilter.toLowerCase();
     const targetSeverity = severityFilter.toLowerCase();
     const targetGrade = gradeFilter.toLowerCase();
+    const dateKey = (value) => {
+      if (!value) return '';
+      if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value)) return value;
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return '';
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    };
 
     // 1. Filter
     const result = records.filter(r => {
@@ -183,6 +193,8 @@ export const ViolationsPage = () => {
       const student = r.student || {};
       const sGrade = (student.grade || '').toLowerCase();
       if (!isAllGrade && sGrade !== targetGrade) return false;
+
+      if (dateFilter && dateKey(r.date_reported || r.created_at) !== dateFilter) return false;
 
       if (!isAllYear) {
         const itemYear = new Date(r.date_reported || r.created_at).getFullYear().toString();
@@ -236,7 +248,7 @@ export const ViolationsPage = () => {
     });
 
     return result;
-  }, [records, deferredSearch, statusFilter, severityFilter, gradeFilter, sortField, sortOrder]);
+  }, [records, deferredSearch, yearFilter, statusFilter, severityFilter, gradeFilter, dateFilter, sortField, sortOrder]);
 
   // Bulk Selection Handlers
   const handleSelectAll = (e) => {
@@ -344,6 +356,8 @@ export const ViolationsPage = () => {
 
   // Open Save As Modal for Export
   const handleOpenExportSaveAs = (defaultFormat = 'csv') => {
+    const now = new Date();
+    const dateStamp = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
     const headers = ['Record ID', 'Student ID', 'Student Name', 'Grade', 'Section', 'Offense', 'Severity', 'Reported By', 'Reporter Type', 'Date Reported', 'Sanction', 'Status', 'Remarks', 'Resolution Notes'];
     const rows = filteredAndSortedRecords.map(r => [
       r.id,
@@ -370,7 +384,7 @@ export const ViolationsPage = () => {
 
       doc.setFontSize(10);
       doc.setTextColor(100, 116, 139);
-      doc.text(`Export Date: ${exportDate || new Date().toLocaleDateString()} | Total Incidents: ${filteredAndSortedRecords.length}`, 14, 23);
+      doc.text(`Export Date: ${new Date().toLocaleDateString()} | Total Incidents: ${filteredAndSortedRecords.length}`, 14, 23);
 
       const tableData = filteredAndSortedRecords.map((r, idx) => [
         idx + 1,
@@ -395,7 +409,7 @@ export const ViolationsPage = () => {
     };
 
     setSaveAsConfig({
-      defaultFilename: `Viotrack_Violations_${exportDate || new Date().toISOString().slice(0, 10)}`,
+      defaultFilename: `Viotrack_Violations_${dateStamp}`,
       defaultFormat,
       availableFormats: ['csv', 'xlsx', 'pdf'],
       headers,
@@ -476,7 +490,7 @@ export const ViolationsPage = () => {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+    <div className="violations-page" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
       {/* Top Banner Header & Quick Actions */}
       <div className="page-banner-header">
         <div className="page-banner-info">
@@ -497,8 +511,11 @@ export const ViolationsPage = () => {
             <div className="page-banner-secondary-group">
               <div className="page-banner-datepicker-wrapper">
                 <CustomDatePicker
-                  value={exportDate}
-                  onChange={setExportDate}
+                  value={dateFilter}
+                  onChange={(value) => {
+                    setDateFilter(value);
+                    setCurrentPage(1);
+                  }}
                   placeholder="Filter by date..."
                   style={{ width: '100%' }}
                 />
@@ -1217,6 +1234,7 @@ export const ViolationsPage = () => {
                             <button
                               type="button"
                               onClick={() => setRecordForStatusChange(rec)}
+                              className="violation-action-button"
                               style={{
                                 background: 'var(--bg-surface-elevated, #f8fafc)',
                                 border: '1px solid var(--border-subtle, #cbd5e1)',
@@ -1241,7 +1259,7 @@ export const ViolationsPage = () => {
                             <button
                               type="button"
                               onClick={() => setSummonsTargetRecord(rec)}
-                              className="violation-summons-action"
+                              className="violation-action-button violation-summons-action"
                               aria-pressed={summonsTargetRecord?.id === rec.id}
                               style={{
                                 background: 'var(--bg-surface-elevated, #f8fafc)',
@@ -1267,7 +1285,7 @@ export const ViolationsPage = () => {
                             <button
                               type="button"
                               onClick={() => setSelectedRecordForResolution(rec)}
-                              className="violation-proof-action"
+                              className="violation-action-button violation-proof-action"
                               aria-pressed={selectedRecordForResolution?.id === rec.id}
                               style={{
                                 background: '#f0fdf4',
@@ -1295,6 +1313,7 @@ export const ViolationsPage = () => {
                             <button
                               type="button"
                               onClick={() => handleDeleteSingle(rec.id)}
+                              className="violation-action-button violation-action-delete"
                               style={{
                                 background: '#ffffff',
                                 border: '1px solid #fecaca',
@@ -1400,7 +1419,7 @@ export const ViolationsPage = () => {
                       <button
                         type="button"
                         onClick={() => setSummonsTargetRecord(rec)}
-                        className="entity-grid-btn violation-grid-action-btn violation-summons-action"
+                        className="entity-grid-btn violation-grid-action-btn violation-action-button violation-summons-action"
                         aria-pressed={summonsTargetRecord?.id === rec.id}
                         title="Generate Parent Summons Notice"
                         style={{ color: '#0f172a', borderColor: '#cbd5e1', background: '#f8fafc' }}
@@ -1412,7 +1431,7 @@ export const ViolationsPage = () => {
                       <button
                         type="button"
                         onClick={() => setRecordForStatusChange(rec)}
-                        className="entity-grid-btn violation-grid-action-btn"
+                        className="entity-grid-btn violation-grid-action-btn violation-action-button"
                         title="Update Status"
                       >
                         <Flag size={11} strokeWidth={2.2} /> Status
@@ -1422,7 +1441,7 @@ export const ViolationsPage = () => {
                       <button
                         type="button"
                         onClick={() => setSelectedRecordForResolution(rec)}
-                        className="entity-grid-btn violation-grid-action-btn is-proof violation-proof-action"
+                        className="entity-grid-btn violation-grid-action-btn is-proof violation-action-button violation-proof-action"
                         aria-pressed={selectedRecordForResolution?.id === rec.id}
                         title="View Resolution Proof"
                         style={{ color: '#15803d', borderColor: '#bbf7d0', background: '#f0fdf4' }}
@@ -1434,7 +1453,7 @@ export const ViolationsPage = () => {
                       <button
                         type="button"
                         onClick={() => handleDeleteSingle(rec.id)}
-                        className="entity-grid-btn violation-grid-action-btn is-delete"
+                        className="entity-grid-btn violation-grid-action-btn is-delete violation-action-button violation-action-delete"
                         title="Delete Incident Record"
                         style={{ flex: '0 0 26px', padding: '6px 3px', color: '#dc2626', borderColor: '#fecaca' }}
                       >
@@ -1539,7 +1558,7 @@ export const ViolationsPage = () => {
                         <button
                           type="button"
                           onClick={() => setSummonsTargetRecord(rec)}
-                          className="violation-list-action-btn violation-summons-action"
+                          className="violation-list-action-btn violation-action-button violation-summons-action"
                           aria-pressed={summonsTargetRecord?.id === rec.id}
                           style={{
                             background: '#f8fafc',
@@ -1564,7 +1583,7 @@ export const ViolationsPage = () => {
                         <button
                           type="button"
                           onClick={() => setRecordForStatusChange(rec)}
-                          className="violation-list-action-btn"
+                          className="violation-list-action-btn violation-action-button"
                           style={{
                             background: '#f8fafc',
                             border: '1px solid #cbd5e1',
@@ -1587,7 +1606,7 @@ export const ViolationsPage = () => {
                         <button
                           type="button"
                           onClick={() => setSelectedRecordForResolution(rec)}
-                          className="violation-list-action-btn is-proof violation-proof-action"
+                          className="violation-list-action-btn is-proof violation-action-button violation-proof-action"
                           aria-pressed={selectedRecordForResolution?.id === rec.id}
                           style={{
                             background: '#f0fdf4',
@@ -1611,7 +1630,7 @@ export const ViolationsPage = () => {
                         <button
                           type="button"
                           onClick={() => handleDeleteSingle(rec.id)}
-                          className="violation-list-action-btn is-delete"
+                          className="violation-list-action-btn is-delete violation-action-button violation-action-delete"
                           style={{
                             background: '#ffffff',
                             border: '1px solid #fecaca',

@@ -1291,9 +1291,9 @@ export const StudentViolationDetailPage = () => {
                         onClick={() => setIsAddViolationOpen(true)}
                         style={{
                           marginTop: '8px',
-                          background: '#eff6ff',
-                          color: '#2563eb',
-                          border: '1px solid #bfdbfe',
+                          background: '#ecfdf5',
+                          color: '#047857',
+                          border: '1px solid #a7f3d0',
                           padding: '7px 16px',
                           borderRadius: '8px',
                           fontWeight: 700,
@@ -1391,6 +1391,7 @@ export const StudentViolationDetailPage = () => {
                       <td style={{ padding: '12px 14px' }}>
                         <button
                           onClick={() => setRecordForStatusChange(r)}
+                          className="student-record-status-trigger"
                           style={{
                             background: 'transparent',
                             border: 'none',
@@ -1415,9 +1416,9 @@ export const StudentViolationDetailPage = () => {
                               className="violation-summons-action"
                               aria-pressed={isSummonsModalOpen && summonsTargetRecord?.id === r.id}
                               style={{
-                                background: '#f8fafc',
-                                color: '#0f172a',
-                                border: '1px solid #cbd5e1',
+                                background: '#eff6ff',
+                                color: '#1d4ed8',
+                                border: '1px solid #bfdbfe',
                                 padding: '5px 9px',
                                 borderRadius: '8px',
                                 fontSize: '11.5px',
@@ -1428,8 +1429,8 @@ export const StudentViolationDetailPage = () => {
                                 gap: '4px',
                                 transition: 'all 0.15s ease'
                               }}
-                              onMouseOver={(e) => { e.currentTarget.style.background = '#e2e8f0'; }}
-                              onMouseOut={(e) => { e.currentTarget.style.background = '#f8fafc'; }}
+                              onMouseOver={(e) => { e.currentTarget.style.background = '#dbeafe'; }}
+                              onMouseOut={(e) => { e.currentTarget.style.background = '#eff6ff'; }}
                               title="Generate printable Parent Summons letter for this incident"
                             >
                               <FileText size={12} /> Summons
@@ -1506,14 +1507,14 @@ export const StudentViolationDetailPage = () => {
                   key={r.id}
                   className="student-violation-mobile-card"
                   style={{
-                    background: isSelected ? 'var(--bg-surface-hover, #161616)' : 'var(--bg-surface, #080808)',
-                    border: isSelected ? '1.5px solid var(--border-focus, #ffffff)' : '1px solid var(--border-subtle, #202020)',
+                    background: isSelected ? 'var(--bg-surface-hover, #f8fafc)' : 'var(--bg-surface, #ffffff)',
+                    border: isSelected ? '1.5px solid var(--border-focus, #2563eb)' : '1px solid var(--border-subtle, #e2e8f0)',
                     borderRadius: '14px',
                     padding: '14px',
                     display: 'flex',
                     flexDirection: 'column',
                     gap: '10px',
-                    boxShadow: '0 2px 6px rgba(0,0,0,0.2)'
+                    boxShadow: '0 2px 6px rgba(0,0,0,0.06)'
                   }}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -1522,35 +1523,40 @@ export const StudentViolationDetailPage = () => {
                         type="checkbox"
                         checked={isSelected}
                         onChange={() => handleToggleSelect(r.id)}
-                        style={{ cursor: 'pointer', accentColor: 'var(--brand-blue, #ffffff)', width: '16px', height: '16px' }}
+                        style={{ cursor: 'pointer', accentColor: 'var(--brand-blue, #0f172a)', width: '16px', height: '16px' }}
                       />
-                      <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-primary, #ffffff)' }}>
+                      <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-primary, #0f172a)' }}>
                         {r.violation?.title || 'Infraction'}
                       </span>
                     </div>
                     {renderSeverityBadge(r.violation?.type)}
                   </div>
 
-                  <div className="student-violation-mobile-details" style={{ background: 'var(--bg-surface-elevated, #111111)', border: '1px solid var(--border-subtle, #202020)', padding: '10px 12px', borderRadius: '8px', fontSize: '12px' }}>
-                    <div style={{ color: 'var(--text-muted, #888888)' }}>
+                  <div className="student-violation-mobile-details" style={{ background: 'var(--bg-surface-elevated, #f8fafc)', border: '1px solid var(--border-subtle, #e2e8f0)', padding: '10px 12px', borderRadius: '8px', fontSize: '12px' }}>
+                    <div style={{ color: 'var(--text-muted, #64748b)' }}>
                       {new Date(r.date_reported).toLocaleDateString([], { month: 'short', day: '2-digit', year: 'numeric' })} at {new Date(r.date_reported).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </div>
-                    {r.sanction && (
-                      <div style={{ color: 'var(--text-secondary, #cccccc)', marginTop: '4px' }}>
-                        Sanction: <strong style={{ color: '#ffffff', fontWeight: 700 }}>{r.sanction}</strong>
+                    {r.sanction ? (
+                      <div style={{ color: 'var(--text-secondary, #475569)', marginTop: '4px' }}>
+                        Sanction: <strong style={{ color: 'var(--text-primary, #0f172a)', fontWeight: 700 }}>{r.sanction}</strong>
+                      </div>
+                    ) : (
+                      <div style={{ color: 'var(--text-muted, #94a3b8)', marginTop: '4px' }}>
+                        Sanction: <span style={{ fontStyle: 'italic', fontWeight: 500 }}>None recorded</span>
                       </div>
                     )}
                   </div>
 
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: '4px', borderTop: '1px dashed var(--border-subtle, #202020)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: '6px', borderTop: '1px dashed var(--border-subtle, #e2e8f0)' }}>
                     <button
                       onClick={() => setRecordForStatusChange(r)}
+                      className="student-record-status-trigger"
                       style={{ background: 'transparent', border: 'none', padding: 0, cursor: 'pointer' }}
                     >
                       {renderStatusBadge(r.status)}
                     </button>
 
-                    <div style={{ display: 'flex', gap: '6px' }}>
+                    <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
                       {isAdmin && (
                         <button
                           type="button"
@@ -1561,21 +1567,22 @@ export const StudentViolationDetailPage = () => {
                           className="violation-summons-action"
                           aria-pressed={isSummonsModalOpen && summonsTargetRecord?.id === r.id}
                           style={{
-                            background: '#181818',
-                            color: '#ffffff',
-                            border: '1px solid #303030',
-                            padding: '5px 10px',
+                            background: '#eff6ff',
+                            color: '#1d4ed8',
+                            border: '1px solid #bfdbfe',
+                            padding: '6px 11px',
                             borderRadius: '7px',
                             fontSize: '11.5px',
                             fontWeight: 700,
                             cursor: 'pointer',
                             display: 'inline-flex',
                             alignItems: 'center',
-                            gap: '5px'
+                            gap: '5px',
+                            transition: 'all 0.15s ease'
                           }}
                           title="Generate summons letter"
                         >
-                          <FileText size={11} color="#ffffff" /> Summons
+                          <FileText size={12} /> Summons
                         </button>
                       )}
 
@@ -1586,20 +1593,22 @@ export const StudentViolationDetailPage = () => {
                           className="violation-proof-action"
                           aria-pressed={selectedRecordForResolution?.id === r.id}
                           style={{
-                            background: '#181818',
-                            color: '#ffffff',
-                            border: '1px solid #303030',
-                            padding: '5px 10px',
+                            background: '#ecfdf5',
+                            color: '#047857',
+                            border: '1px solid #a7f3d0',
+                            padding: '6px 11px',
                             borderRadius: '7px',
                             fontSize: '11.5px',
                             fontWeight: 700,
                             cursor: 'pointer',
                             display: 'inline-flex',
                             alignItems: 'center',
-                            gap: '5px'
+                            gap: '5px',
+                            transition: 'all 0.15s ease'
                           }}
+                          title="Resolve or document case"
                         >
-                          <FileText size={11} color="#ffffff" /> Resolve
+                          <FileText size={12} /> Resolve
                         </button>
                       )}
 
@@ -1609,21 +1618,22 @@ export const StudentViolationDetailPage = () => {
                           onClick={() => handleRemoveRecord(r.id)}
                           className="student-violation-card-delete-btn"
                           style={{
-                            background: '#141414',
-                            color: '#ef4444',
-                            border: '1.5px solid #ef4444',
-                            padding: '5px 8px',
+                            background: '#fef2f2',
+                            color: '#dc2626',
+                            border: '1px solid #fecaca',
+                            padding: '6px 9px',
                             borderRadius: '7px',
                             fontSize: '11.5px',
                             fontWeight: 700,
                             cursor: 'pointer',
                             display: 'inline-flex',
                             alignItems: 'center',
-                            justifyContent: 'center'
+                            justifyContent: 'center',
+                            transition: 'all 0.15s ease'
                           }}
                           title="Delete record"
                         >
-                          <Trash2 size={12} color="#ef4444" strokeWidth={2.2} />
+                          <Trash2 size={13} color="#dc2626" strokeWidth={2} />
                         </button>
                       )}
                     </div>

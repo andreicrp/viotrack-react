@@ -38,7 +38,7 @@ export const CookieConsentBanner = () => {
 
   return (
     <>
-      {isVisible && (
+      {isVisible && !isLegalModalOpen && (
         <aside
           className="cookie-consent-bar"
           role="region"

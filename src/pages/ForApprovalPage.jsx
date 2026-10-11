@@ -994,10 +994,10 @@ export const ForApprovalPage = () => {
                         {/* Reported By */}
                         <td style={{ padding: '12px 14px' }}>
                           <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
-                            <span style={{ fontWeight: 700, color: '#334155', fontSize: '13px' }}>
+                            <span className="approval-reporter-name" style={{ fontWeight: 700, color: '#334155', fontSize: '13px' }}>
                               {r.reported_by_name || 'Faculty Member'}
                             </span>
-                            <span style={{ fontSize: '11px', color: '#64748b' }}>
+                            <span className="approval-reporter-role" style={{ fontSize: '11px', color: '#64748b' }}>
                               {r.reported_by_type === 'teacher' ? 'Teaching Faculty' : 'Administrator'}
                             </span>
                           </div>
@@ -1773,6 +1773,7 @@ export const ForApprovalPage = () => {
                     
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '3px', flexWrap: 'wrap' }}>
                       <span
+                        className="approve-incident-case-badge"
                         style={{
                           fontSize: '11px',
                           fontWeight: 600,
@@ -1796,6 +1797,7 @@ export const ForApprovalPage = () => {
                 {/* Status Badge */}
                 <div>
                   <span
+                    className={`approve-incident-severity-badge ${sevBadge.className}`}
                     style={{
                       fontSize: '11.5px',
                       fontWeight: 600,
@@ -2089,6 +2091,7 @@ export const ForApprovalPage = () => {
             title="Approve Incident Report"
             icon={CheckCircle2}
             maxWidth="500px"
+            dialogClassName="approve-incident-dialog"
           >
             <div style={{ display: 'flex', flexDirection: 'column', gap: '14px', padding: '16px 20px 20px 20px' }}>
               

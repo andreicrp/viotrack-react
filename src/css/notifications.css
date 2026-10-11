@@ -533,6 +533,68 @@
   gap: 9px;
 }
 
+.notif-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 14px;
+  padding: 11px 2px 0;
+  border-top: 1px solid #e2e8f0;
+}
+
+.notif-pagination-summary {
+  color: #64748b;
+  font-size: 11.5px;
+  font-weight: 600;
+}
+
+.notif-pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.notif-pagination-btn,
+.notif-pagination-page {
+  min-height: 30px;
+  border-radius: 7px;
+  font-size: 11.5px;
+  font-weight: 700;
+}
+
+.notif-pagination-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 9px;
+  color: #334155;
+  background: #ffffff;
+  border: 1px solid #cbd5e1;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.notif-pagination-btn:hover:not(:disabled) {
+  color: #0f172a;
+  background: #f8fafc;
+  border-color: #94a3b8;
+}
+
+.notif-pagination-btn:disabled {
+  color: #cbd5e1;
+  background: #f8fafc;
+  cursor: not-allowed;
+}
+
+.notif-pagination-page {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 7px;
+  color: #0f172a;
+  white-space: nowrap;
+}
+
 .notif-card-item {
   background: #ffffff;
   border-radius: 11px;
@@ -921,6 +983,34 @@
   box-shadow: none !important;
 }
 
+[data-theme="dark"] .notifications-page-root .notif-pagination {
+  border-top-color: #242424;
+}
+
+[data-theme="dark"] .notifications-page-root .notif-pagination-summary {
+  color: #a3a3a3;
+}
+
+[data-theme="dark"] .notifications-page-root .notif-pagination-btn {
+  color: #e5e5e5;
+  background: #0a0a0a;
+  border-color: #383838;
+}
+
+[data-theme="dark"] .notifications-page-root .notif-pagination-btn:hover:not(:disabled) {
+  background: #171717;
+  border-color: #555555;
+}
+
+[data-theme="dark"] .notifications-page-root .notif-pagination-btn:disabled {
+  color: #555555;
+  background: #101010;
+}
+
+[data-theme="dark"] .notifications-page-root .notif-pagination-page {
+  color: #f5f5f5;
+}
+
 [data-theme="dark"] .notifications-page-root .notif-empty-state {
   background: #080808 !important;
   border: 1px solid #303030 !important;
@@ -977,6 +1067,15 @@
 
   .notif-search-and-toggles {
     align-items: stretch;
+  }
+
+  .notif-pagination {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .notif-pagination-controls {
+    justify-content: space-between;
   }
 
   .notif-unread-toggle-label {

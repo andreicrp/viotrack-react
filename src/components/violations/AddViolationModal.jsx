@@ -288,10 +288,10 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
       maxWidth="680px"
       dialogClassName="violation-entry-modal"
     >
-      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, height: '100%', overflow: 'hidden' }}>
         
         {/* Step Progress Header */}
-        <div className="modal-stepper-header" style={{ padding: '10px 16px', background: 'var(--bg-surface-elevated, #f8fafc)', borderBottom: '1px solid var(--border-subtle, #e2e8f0)' }}>
+        <div className="modal-stepper-header" style={{ padding: '10px 16px', background: 'var(--bg-surface-elevated, #f8fafc)', borderBottom: '1px solid var(--border-subtle, #e2e8f0)', flexShrink: 0 }}>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '6px' }}>
             
             {/* Step 1: Student */}
@@ -306,27 +306,30 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
                 gap: '6px',
                 padding: '8px 6px',
                 borderRadius: '8px',
-                border: step === 1 ? '1.5px solid var(--brand-blue, #0f172a)' : step > 1 ? '1px solid #10b981' : '1px solid var(--border-subtle, #e2e8f0)',
-                background: step === 1 ? 'var(--brand-blue, #0f172a)' : step > 1 ? 'rgba(16, 185, 129, 0.15)' : 'var(--bg-surface, #ffffff)',
+                border: step === 1 ? '1.5px solid #2563eb' : step > 1 ? '1px solid #10b981' : '1px solid var(--border-subtle, #e2e8f0)',
+                background: step === 1 ? '#2563eb' : step > 1 ? 'rgba(16, 185, 129, 0.15)' : 'var(--bg-surface, #ffffff)',
                 color: step === 1 ? '#ffffff' : step > 1 ? '#34d399' : 'var(--text-muted, #475569)',
                 cursor: 'pointer',
                 transition: 'all 0.15s ease',
                 fontFamily: 'inherit'
               }}
             >
-              <div style={{
-                width: 20,
-                height: 20,
-                borderRadius: '50%',
-                background: step === 1 ? '#ffffff' : step > 1 ? '#10b981' : 'var(--bg-surface-hover, #f1f5f9)',
-                color: step === 1 ? 'var(--brand-blue, #0f172a)' : step > 1 ? '#ffffff' : 'var(--text-muted, #64748b)',
-                fontSize: '11px',
-                fontWeight: 800,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                flexShrink: 0
-              }}>
+              <div
+                className="violation-step-badge"
+                style={{
+                  width: 20,
+                  height: 20,
+                  borderRadius: '50%',
+                  background: step === 1 ? '#ffffff' : step > 1 ? '#10b981' : 'var(--bg-surface-hover, #f1f5f9)',
+                  color: step === 1 ? '#2563eb' : step > 1 ? '#ffffff' : 'var(--text-muted, #64748b)',
+                  fontSize: '11px',
+                  fontWeight: 800,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0
+                }}
+              >
                 {step > 1 ? <Check size={12} strokeWidth={3} /> : '1'}
               </div>
               <span style={{ fontSize: '12px', fontWeight: 700, whiteSpace: 'nowrap' }}>
@@ -347,27 +350,30 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
                 gap: '6px',
                 padding: '8px 6px',
                 borderRadius: '8px',
-                border: step === 2 ? '1.5px solid var(--brand-blue, #0f172a)' : step > 2 ? '1px solid #10b981' : '1px solid var(--border-subtle, #e2e8f0)',
-                background: step === 2 ? 'var(--brand-blue, #0f172a)' : step > 2 ? 'rgba(16, 185, 129, 0.15)' : 'var(--bg-surface, #ffffff)',
+                border: step === 2 ? '1.5px solid #2563eb' : step > 2 ? '1px solid #10b981' : '1px solid var(--border-subtle, #e2e8f0)',
+                background: step === 2 ? '#2563eb' : step > 2 ? 'rgba(16, 185, 129, 0.15)' : 'var(--bg-surface, #ffffff)',
                 color: step === 2 ? '#ffffff' : step > 2 ? '#34d399' : 'var(--text-muted, #475569)',
                 cursor: selectedStudentIds.length > 0 ? 'pointer' : 'not-allowed',
                 transition: 'all 0.15s ease',
                 fontFamily: 'inherit'
               }}
             >
-              <div style={{
-                width: 20,
-                height: 20,
-                borderRadius: '50%',
-                background: step === 2 ? '#ffffff' : step > 2 ? '#10b981' : 'var(--bg-surface-hover, #f1f5f9)',
-                color: step === 2 ? 'var(--brand-blue, #0f172a)' : step > 2 ? '#ffffff' : 'var(--text-muted, #64748b)',
-                fontSize: '11px',
-                fontWeight: 800,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                flexShrink: 0
-              }}>
+              <div
+                className="violation-step-badge"
+                style={{
+                  width: 20,
+                  height: 20,
+                  borderRadius: '50%',
+                  background: step === 2 ? '#ffffff' : step > 2 ? '#10b981' : 'var(--bg-surface-hover, #f1f5f9)',
+                  color: step === 2 ? '#2563eb' : step > 2 ? '#ffffff' : 'var(--text-muted, #64748b)',
+                  fontSize: '11px',
+                  fontWeight: 800,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0
+                }}
+              >
                 {step > 2 ? <Check size={12} strokeWidth={3} /> : '2'}
               </div>
               <span style={{ fontSize: '12px', fontWeight: 700, whiteSpace: 'nowrap' }}>
@@ -388,27 +394,30 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
                 gap: '6px',
                 padding: '8px 6px',
                 borderRadius: '8px',
-                border: step === 3 ? '1.5px solid var(--brand-blue, #0f172a)' : '1px solid var(--border-subtle, #e2e8f0)',
-                background: step === 3 ? 'var(--brand-blue, #0f172a)' : 'var(--bg-surface, #ffffff)',
+                border: step === 3 ? '1.5px solid #2563eb' : '1px solid var(--border-subtle, #e2e8f0)',
+                background: step === 3 ? '#2563eb' : 'var(--bg-surface, #ffffff)',
                 color: step === 3 ? '#ffffff' : 'var(--text-muted, #475569)',
                 cursor: (selectedStudentIds.length > 0 && selectedViolationIds.length > 0) ? 'pointer' : 'not-allowed',
                 transition: 'all 0.15s ease',
                 fontFamily: 'inherit'
               }}
             >
-              <div style={{
-                width: 20,
-                height: 20,
-                borderRadius: '50%',
-                background: step === 3 ? '#ffffff' : 'var(--bg-surface-hover, #f1f5f9)',
-                color: step === 3 ? 'var(--brand-blue, #0f172a)' : 'var(--text-muted, #64748b)',
-                fontSize: '11px',
-                fontWeight: 800,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                flexShrink: 0
-              }}>
+              <div
+                className="violation-step-badge"
+                style={{
+                  width: 20,
+                  height: 20,
+                  borderRadius: '50%',
+                  background: step === 3 ? '#ffffff' : 'var(--bg-surface-hover, #f1f5f9)',
+                  color: step === 3 ? '#2563eb' : 'var(--text-muted, #64748b)',
+                  fontSize: '11px',
+                  fontWeight: 800,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0
+                }}
+              >
                 3
               </div>
               <span style={{ fontSize: '12px', fontWeight: 700, whiteSpace: 'nowrap' }}>
@@ -420,7 +429,7 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
         </div>
 
         {/* Modal Step Content Body */}
-        <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '16px', padding: '20px', minHeight: '260px', maxHeight: '78vh', overflowY: 'auto' }}>
+        <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '14px', padding: '16px', flex: 1, minHeight: 0, overflowY: 'auto', WebkitOverflowScrolling: 'touch' }}>
           
           {/* ================= STEP 1: STUDENT SELECTION ================= */}
           {step === 1 && (
@@ -441,7 +450,7 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
                   onChange={(newIds) => setSelectedStudentIds(newIds)}
                   isMulti={true}
                   inline={true}
-                  maxListHeight="min(42vh, 360px)"
+                  maxListHeight="min(28vh, 220px)"
                   placeholder="Search student by name, Student ID, or section..."
                 />
               </div>
@@ -487,7 +496,7 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
                   onChange={handleViolationsChange}
                   isMulti={true}
                   inline={true}
-                  maxListHeight="280px"
+                  maxListHeight="min(26vh, 200px)"
                   placeholder="Search and choose infraction(s)..."
                 />
               </div>
@@ -553,7 +562,7 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
                 <label style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-primary, #0f172a)', marginBottom: '6px', display: 'block' }}>
                   Initial Case Status
                 </label>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '6px' }}>
+                <div className="violation-status-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '6px' }}>
                   {[
                     { id: 'Under Approval', label: '⏳ Under Approval', color: '#d97706' },
                     { id: 'Pending', label: 'Pending Action', color: '#ef4444' },

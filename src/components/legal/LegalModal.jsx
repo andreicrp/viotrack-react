@@ -19,6 +19,7 @@ export const LegalModal = ({ isOpen, onClose, initialTab = 'privacy' }) => {
       onClose={onClose}
       title="Legal & Regulatory Compliance"
       maxWidth="720px"
+      overlayZIndex={10001}
     >
       <div className="legal-modal-container">
         {/* Navigation Tabs */}

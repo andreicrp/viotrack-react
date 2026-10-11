@@ -21,6 +21,8 @@ export const ViewModeToggle = ({ viewMode = 'list', onChange, size = 'sm' }) => 
         type="button"
         onClick={() => onChange('list')}
         title="List View"
+        aria-label="List View"
+        aria-pressed={viewMode === 'list'}
         style={{
           display: 'flex',
           alignItems: 'center',
@@ -45,6 +47,8 @@ export const ViewModeToggle = ({ viewMode = 'list', onChange, size = 'sm' }) => 
         type="button"
         onClick={() => onChange('grid')}
         title="Grid View"
+        aria-label="Grid View"
+        aria-pressed={viewMode === 'grid'}
         style={{
           display: 'flex',
           alignItems: 'center',

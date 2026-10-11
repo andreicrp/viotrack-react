@@ -14,7 +14,10 @@ export const DashboardDistributionChart = ({
   setSelectedPieSlice,
   setHoveredPieSlice
 }) => {
-  const maxValue = Math.max(...violationDistribution.map(item => item.value), 1);
+  const maxValue = Math.max(
+    ...violationDistribution.map(item => Math.max(0, Number(item.value) || 0)),
+    1
+  );
 
   return (
     <div className="dash-distribution-content">
@@ -98,7 +101,10 @@ export const DashboardDistributionChart = ({
 
       <div className="dash-distribution-list">
         {violationDistribution.map((item, index) => {
-          const barWidth = Math.max(12, Math.round((item.value / maxValue) * 100));
+          const incidentCount = Math.max(0, Number(item.value) || 0);
+          const barWidth = incidentCount > 0
+            ? Math.max(8, Math.min(100, Math.round((incidentCount / maxValue) * 100)))
+            : 0;
           return (
             <button
               key={`${item.name}-${index}`}
@@ -124,9 +130,13 @@ export const DashboardDistributionChart = ({
               <span className="dash-dist-bar-track">
                 <span
                   className="dash-dist-bar-fill"
+                  aria-hidden="true"
                   style={{
+                    display: 'block',
                     width: `${barWidth}%`,
+                    height: '100%',
                     background: item.color,
+                    backgroundColor: item.color,
                     '--dist-color': item.color
                   }}
                 />

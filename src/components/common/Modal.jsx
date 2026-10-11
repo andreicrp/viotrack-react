@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { X } from 'lucide-react';
 import { lockBodyScroll, unlockBodyScroll } from '../../utils/scrollLock';
 
-export const Modal = ({ isOpen, onClose, title, children, maxWidth = '600px', icon: Icon, dialogClassName = '' }) => {
+export const Modal = ({ isOpen, onClose, title, children, maxWidth = '600px', icon: Icon, dialogClassName = '', overlayZIndex = 3500 }) => {
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (e.key === 'Escape' && isOpen) onClose();
@@ -24,7 +24,7 @@ export const Modal = ({ isOpen, onClose, title, children, maxWidth = '600px', ic
       className="modal-overlay"
       onClick={onClose}
       role="presentation"
-      style={{ zIndex: 3500 }}
+      style={{ zIndex: overlayZIndex }}
     >
       <div
         className={`modal-dialog ${dialogClassName}`.trim()}

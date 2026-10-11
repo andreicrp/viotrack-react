@@ -26,12 +26,15 @@ import { lockBodyScroll, unlockBodyScroll } from '../../utils/scrollLock';
 import { CustomTimePicker } from './CustomTimePicker';
 import { CustomSelect } from './CustomSelect';
 
+const BACKUP_HISTORY_PAGE_SIZE = 5;
+
 export const BackupRestoreModal = ({ isOpen, onClose }) => {
   const { success, error, info } = useNotification();
   const fileInputRef = useRef(null);
 
   const [activeTab, setActiveTab] = useState('create'); // 'create' | 'restore' | 'schedule'
   const [history, setHistory] = useState([]);
+  const [historyPage, setHistoryPage] = useState(1);
   const [liveCounts, setLiveCounts] = useState({
     students: 0,
     records: 0,
@@ -54,6 +57,7 @@ export const BackupRestoreModal = ({ isOpen, onClose }) => {
       loadHistoryAndSettings();
       setUploadedFilePayload(null);
       setConfirmRestoreCheck(false);
+      setHistoryPage(1);
     }
     return () => {
       if (isOpen) {
@@ -67,6 +71,10 @@ export const BackupRestoreModal = ({ isOpen, onClose }) => {
       const list = dataService.getBackupHistory();
       const sched = dataService.getBackupScheduleSettings();
       setHistory(list);
+      setHistoryPage(currentPage => Math.min(
+        currentPage,
+        Math.max(1, Math.ceil(list.length / BACKUP_HISTORY_PAGE_SIZE))
+      ));
       setSchedule(sched);
 
       const [students, records, teachers, logs] = await Promise.all([
@@ -88,6 +96,11 @@ export const BackupRestoreModal = ({ isOpen, onClose }) => {
   };
 
   if (!isOpen) return null;
+  const historyPageCount = Math.ceil(history.length / BACKUP_HISTORY_PAGE_SIZE);
+  const paginatedHistory = history.slice(
+    (historyPage - 1) * BACKUP_HISTORY_PAGE_SIZE,
+    historyPage * BACKUP_HISTORY_PAGE_SIZE
+  );
 
   // 1. Create and Download Snapshot
   const handleCreateBackup = async (type = 'manual') => {
@@ -267,6 +280,7 @@ export const BackupRestoreModal = ({ isOpen, onClose }) => {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
               {/* Main Snapshot Hero Card */}
               <div
+                className="backup-hero-card"
                 style={{
                   background: 'var(--bg-surface-elevated, #f8fafc)',
                   border: '1.5px solid var(--border-subtle, #e2e8f0)',
@@ -399,7 +413,7 @@ export const BackupRestoreModal = ({ isOpen, onClose }) => {
                           </tr>
                         </thead>
                         <tbody>
-                          {history.map((item) => (
+                          {paginatedHistory.map((item) => (
                             <tr className="backup-history-tr" key={item.id} style={{ borderBottom: '1px solid var(--border-subtle, #f1f5f9)', background: 'var(--bg-surface, #ffffff)', transition: 'background 0.15s' }}>
                               <td className="backup-history-td" style={{ padding: '12px 16px' }}>
                                 <div className="backup-snapshot-identity" style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '5px 8px' }}>
@@ -475,7 +489,7 @@ export const BackupRestoreModal = ({ isOpen, onClose }) => {
 
                     {/* Mobile Cards */}
                     <div className="backup-history-mobile">
-                      {history.map((item) => (
+                      {paginatedHistory.map((item) => (
                         <div
                           key={item.id}
                           className="backup-history-mobile-card"
@@ -556,6 +570,36 @@ export const BackupRestoreModal = ({ isOpen, onClose }) => {
                         </div>
                       ))}
                     </div>
+
+                    {historyPageCount > 1 && (
+                      <nav className="backup-history-pagination" aria-label="Snapshot history pagination">
+                        <span className="backup-history-page-summary" aria-live="polite">
+                          Showing {(historyPage - 1) * BACKUP_HISTORY_PAGE_SIZE + 1}–
+                          {Math.min(historyPage * BACKUP_HISTORY_PAGE_SIZE, history.length)} of {history.length}
+                        </span>
+                        <div className="backup-history-page-controls">
+                          <button
+                            type="button"
+                            onClick={() => setHistoryPage(page => Math.max(1, page - 1))}
+                            disabled={historyPage === 1}
+                            aria-label="Previous snapshots page"
+                          >
+                            Previous
+                          </button>
+                          <span className="backup-history-page-number" aria-current="page">
+                            {historyPage} / {historyPageCount}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => setHistoryPage(page => Math.min(historyPageCount, page + 1))}
+                            disabled={historyPage === historyPageCount}
+                            aria-label="Next snapshots page"
+                          >
+                            Next
+                          </button>
+                        </div>
+                      </nav>
+                    )}
                   </>
                 )}
               </div>

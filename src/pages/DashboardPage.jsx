@@ -18,7 +18,6 @@ import {
   FileText,
   Compass,
   CheckCircle2,
-  Download,
   PieChart as PieChartIcon,
   TrendingDown,
   RefreshCw,
@@ -32,9 +31,6 @@ import { useNotification } from '../context/NotificationContext';
 import { AddViolationModal } from '../components/violations/AddViolationModal';
 import { SchoolCalendarModal } from '../components/common/SchoolCalendarModal';
 import { CustomDateRangeModal } from '../components/common/CustomDateRangeModal';
-import { getJsPDF } from '../utils/pdfHelper';
-import { exportToCsv } from '../utils/csvHelper';
-import { SaveAsModal } from '../components/common/SaveAsModal';
 import { PrintDataModal } from '../components/admin/PrintDataModal';
 import { LazyDashboardChart } from '../components/dashboard/LazyDashboardChart';
 
@@ -104,16 +100,6 @@ export const DashboardPage = () => {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isCalendarModalOpen, setIsCalendarModalOpen] = useState(false);
   const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
-  const [saveAsModalOpen, setSaveAsModalOpen] = useState(false);
-  const [saveAsConfig, setSaveAsConfig] = useState({
-    defaultFilename: 'Viotrack_Executive_Report',
-    defaultFormat: 'pdf',
-    availableFormats: ['pdf', 'csv', 'xlsx'],
-    headers: [],
-    rows: [],
-    generatePdfBlob: null,
-    title: 'Save Executive Summary As'
-  });
 
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -752,89 +738,6 @@ export const DashboardPage = () => {
     };
   }, [calendarMonth, selectedCalendarDate, schoolEvents]);
 
-  // Export Executive Report via SaveAs
-  const handleOpenExportSaveAs = (defaultFormat = 'pdf') => {
-    const headers = ['Record ID', 'Student ID', 'Student Name', 'Grade', 'Section', 'Offense', 'Severity', 'Status', 'Reported By', 'Date Reported', 'Sanction'];
-    const rows = records.map(r => [
-      r.id,
-      r.student?.lrn || '',
-      r.student ? `${r.student.fname} ${r.student.lname}` : '',
-      r.student?.grade || '',
-      r.student?.section || '',
-      r.violation?.title || r.title || '',
-      r.violation?.type || r.type || 'Minor',
-      r.status || 'Pending',
-      r.reported_by_name || '',
-      r.date_reported || r.created_at || '',
-      r.sanction || ''
-    ]);
-
-    const generatePdfBlob = async () => {
-      const doc = await getJsPDF();
-      doc.setFillColor(11, 25, 44);
-      doc.rect(0, 0, 210, 26, 'F');
-
-      doc.setTextColor(255, 255, 255);
-      doc.setFontSize(15);
-      doc.setFont('helvetica', 'bold');
-      doc.text('VIOTRACK - Executive School Disciplinary Report', 14, 12);
-      doc.setFontSize(9);
-      doc.setFont('helvetica', 'normal');
-      doc.text(`Generated: ${new Date().toLocaleString('en-US', { dateStyle: 'medium', timeStyle: 'short' })} | Status: Live Sync`, 14, 20);
-
-      doc.setTextColor(30, 41, 59);
-      doc.autoTable({
-        head: [['Key Disciplinary Metric', 'Count', 'Resolution & Status']],
-        body: [
-          ['Minor Offense', metrics.minorCount, 'Informal / Active Warning Logs'],
-          ['Serious Offense', metrics.seriousCount, 'Faculty Interventions Required'],
-          ['Major Offense', metrics.majorCount, 'Guidance Hearing & Formal Cases'],
-          ['Total Enrolled Students', metrics.totalStudentsCount, 'Active Student Database'],
-          ['Total Logged Incidents', metrics.totalViolationsCount, `${metrics.resolvedRate}% Overall Resolution Rate`]
-        ],
-        startY: 34,
-        theme: 'grid',
-        headStyles: { fillColor: [11, 25, 44], fontStyle: 'bold' }
-      });
-
-      const finalY = doc.lastAutoTable.finalY + 10;
-      doc.setFontSize(12);
-      doc.setFont('helvetica', 'bold');
-      doc.text('Repeat & Priority Intervention Students', 14, finalY);
-
-      const tableData = repeatStudentsList.length > 0
-        ? repeatStudentsList.map(s => [
-            `#${s.rank}`,
-            s.name,
-            s.grade,
-            s.infractionLabel,
-            s.pendingCount > 0 ? `${s.pendingCount} Pending` : 'All Resolved'
-          ])
-        : [['-', 'No repeat offenders recorded', '-', '-', 'Optimal']];
-
-      doc.autoTable({
-        head: [['Rank', 'Student Name', 'Grade & Section', 'Status / Incidents', 'Pending Cases']],
-        body: tableData,
-        startY: finalY + 4,
-        theme: 'striped',
-        headStyles: { fillColor: [30, 58, 138] }
-      });
-
-      return doc.output('blob');
-    };
-
-    setSaveAsConfig({
-      defaultFilename: `Viotrack_Executive_Report_${new Date().toISOString().slice(0, 10)}`,
-      defaultFormat,
-      availableFormats: ['pdf', 'csv', 'xlsx'],
-      headers,
-      rows,
-      generatePdfBlob,
-      title: 'Save Executive Summary As'
-    });
-    setSaveAsModalOpen(true);
-  };
-
   // Open Customizable Print Data Modal
   const handlePrintData = () => {
     setIsPrintModalOpen(true);
@@ -871,16 +774,6 @@ export const DashboardPage = () => {
 
           {/* Top Right Controls */}
           <div className="dash-top-actions-right">
-            <button
-              type="button"
-              className="dash-export-pdf-btn"
-              onClick={() => handleOpenExportSaveAs('pdf')}
-              id="exportDashboardPdfBtn"
-              title="Save As dashboard executive report"
-            >
-              <Download size={15} strokeWidth={2.4} />
-              <span>Export PDF</span>
-            </button>
             <button
               type="button"
               className="dash-log-violation-btn"
@@ -1504,19 +1397,6 @@ export const DashboardPage = () => {
         />
       )}
 
-      {/* Save As / Export Modal */}
-      <SaveAsModal
-        isOpen={saveAsModalOpen}
-        onClose={() => setSaveAsModalOpen(false)}
-        defaultFilename={saveAsConfig.defaultFilename}
-        defaultFormat={saveAsConfig.defaultFormat}
-        availableFormats={saveAsConfig.availableFormats}
-        headers={saveAsConfig.headers}
-        rows={saveAsConfig.rows}
-        generatePdfBlob={saveAsConfig.generatePdfBlob}
-        userEmail={user?.email || 'viotrack.cloud@gmail.com'}
-        title={saveAsConfig.title}
-      />
     </div>
   );
 };

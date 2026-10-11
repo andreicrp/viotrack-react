@@ -72,6 +72,7 @@ const StepVisualPreview = ({ previewType }) => {
   if (previewType === 'summons_letterhead') {
     return (
       <div
+        className="guide-spotlight-overlay"
         style={{
           background: '#ffffff',
           borderRadius: '12px',
@@ -727,6 +728,10 @@ export const InteractiveTourGuide = () => {
 
   // Calculate Target Spotlight Rectangle
   const updateTargetRect = useCallback(() => {
+    document.querySelectorAll('.guide-highlighted-target').forEach((element) => {
+      element.classList.remove('guide-highlighted-target');
+    });
+
     if (!activeTour) {
       setTargetRect(null);
       return;
@@ -754,6 +759,8 @@ export const InteractiveTourGuide = () => {
       }
 
       if (el) {
+        el.classList.add('guide-highlighted-target');
+
         // Scroll target element smoothly into view if needed
         el.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
 
@@ -774,7 +781,8 @@ export const InteractiveTourGuide = () => {
             rawBottom: rect.bottom,
             rawTop: rect.top,
             rawLeft: rect.left,
-            rawWidth: rect.width
+            rawWidth: rect.width,
+            isSidebarTarget: el.matches('.sidebar, .sidebar-nav, nav, .mobile-bottom-nav')
           });
           return;
         }
@@ -802,6 +810,9 @@ export const InteractiveTourGuide = () => {
       clearTimeout(t1);
       clearTimeout(t2);
       clearTimeout(t3);
+      document.querySelectorAll('.guide-highlighted-target').forEach((element) => {
+        element.classList.remove('guide-highlighted-target');
+      });
     };
   }, [activeTour, currentStepIndex, updateTargetRect, location.pathname]);
 
@@ -874,6 +885,22 @@ export const InteractiveTourGuide = () => {
   const progressPercent = activeTour
     ? Math.round(((currentStepIndex + 1) / activeTour.steps.length) * 100)
     : 0;
+  const guideCardDefaultWidth = currentStep?.previewType ? 440 : 380;
+  const isSidebarTarget = Boolean(targetRect?.isSidebarTarget);
+  const guideCardLeft = isSidebarTarget
+    ? targetRect.left + targetRect.width + 16
+    : targetRect
+      ? Math.max(
+          16,
+          Math.min(
+            window.innerWidth - guideCardDefaultWidth - 16,
+            targetRect.rawLeft + (targetRect.rawWidth - guideCardDefaultWidth) / 2
+          )
+        )
+      : 0;
+  const guideCardWidth = isSidebarTarget
+    ? Math.max(0, Math.min(guideCardDefaultWidth, window.innerWidth - guideCardLeft - 16))
+    : guideCardDefaultWidth;
 
   const totalScenariosCount = Object.keys(TOUR_SCENARIOS).length;
   const completionPercent = Math.round((completedTours.length / totalScenariosCount) * 100);
@@ -1369,6 +1396,7 @@ export const InteractiveTourGuide = () => {
               ].map((panel, index) => (
                 <div
                   key={index}
+                  className="guide-spotlight-panel"
                   aria-hidden="true"
                   style={{
                     position: 'fixed',
@@ -1417,20 +1445,20 @@ export const InteractiveTourGuide = () => {
             style={{
               position: 'fixed',
               top: targetRect
-                ? (window.innerHeight - targetRect.rawBottom >= 230
+                ? (isSidebarTarget
+                    ? '80px'
+                    : window.innerHeight - targetRect.rawBottom >= 230
                     ? `${targetRect.rawBottom + 16}px`
                     : targetRect.rawTop >= 230
                       ? `${Math.max(16, targetRect.rawTop - 220)}px`
                       : 'auto')
                 : '50%',
-              bottom: targetRect && window.innerHeight - targetRect.rawBottom < 230 && targetRect.rawTop < 230
+              bottom: targetRect && !isSidebarTarget && window.innerHeight - targetRect.rawBottom < 230 && targetRect.rawTop < 230
                 ? '24px'
                 : 'auto',
-              left: targetRect
-                ? `${Math.max(16, Math.min(window.innerWidth - (currentStep.previewType ? 456 : 396), targetRect.rawLeft + (targetRect.rawWidth - (currentStep.previewType ? 440 : 380)) / 2))}px`
-                : '50%',
+              left: targetRect ? `${guideCardLeft}px` : '50%',
               transform: !targetRect ? 'translate(-50%, -50%)' : 'none',
-              width: currentStep.previewType ? '440px' : '380px',
+              width: `${guideCardWidth}px`,
               maxWidth: 'calc(100vw - 32px)',
               maxHeight: '90vh',
               overflowY: 'auto',

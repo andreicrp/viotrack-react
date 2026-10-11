@@ -1,0 +1,908 @@
+/* ==========================================================================
+   UNIVERSAL WHITE OUTLINES FOR ALL ACTION BUTTONS & TABLE ROWS (ALL PAGES)
+   ========================================================================== */
+[data-theme="dark"] table tbody td button,
+[data-theme="dark"] .table tbody td button,
+[data-theme="dark"] .responsive-table-desktop td button,
+[data-theme="dark"] .responsive-cards-mobile button,
+[data-theme="dark"] .entity-grid-actions button,
+[data-theme="dark"] .entity-grid-btn,
+[data-theme="dark"] .student-row-action-btn,
+[data-theme="dark"] .violation-grid-action-btn,
+[data-theme="dark"] .violation-list-action-btn,
+[data-theme="dark"] .notif-action-btn,
+[data-theme="dark"] .dash-btn-view-offender,
+[data-theme="dark"] .dash-btn-view-section,
+[data-theme="dark"] .action-buttons button,
+[data-theme="dark"] [style*="justifyContent: 'flex-end'"] button,
+[data-theme="dark"] [style*="justify-content: flex-end"] button,
+[data-theme="dark"] [style*="justify-content:flex-end"] button,
+[data-theme="dark"] .appoint-adviser-unassign-btn,
+[data-theme="dark"] .appoint-adviser-cancel-btn {
+  background: #ffffff !important;
+  border: 1.5px solid #ffffff !important;
+  border-color: #ffffff !important;
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+}
+
+[data-theme="dark"] table tbody td button svg,
+[data-theme="dark"] .table tbody td button svg,
+[data-theme="dark"] .responsive-table-desktop td button svg,
+[data-theme="dark"] .responsive-cards-mobile button svg,
+[data-theme="dark"] .entity-grid-actions button svg,
+[data-theme="dark"] .entity-grid-btn svg,
+[data-theme="dark"] .student-row-action-btn svg,
+[data-theme="dark"] .violation-grid-action-btn svg,
+[data-theme="dark"] .violation-list-action-btn svg,
+[data-theme="dark"] .dash-btn-view-offender svg,
+[data-theme="dark"] .dash-btn-view-section svg,
+[data-theme="dark"] .action-buttons button svg,
+[data-theme="dark"] [style*="justifyContent: 'flex-end'"] button svg,
+[data-theme="dark"] [style*="justify-content: flex-end"] button svg {
+  color: #000000 !important;
+  stroke: #000000 !important;
+}
+
+[data-theme="dark"] table tbody td button:hover,
+[data-theme="dark"] .table tbody td button:hover,
+[data-theme="dark"] .responsive-table-desktop td button:hover,
+[data-theme="dark"] .responsive-cards-mobile button:hover,
+[data-theme="dark"] .entity-grid-actions button:hover,
+[data-theme="dark"] .entity-grid-btn:hover,
+[data-theme="dark"] .student-row-action-btn:hover,
+[data-theme="dark"] .violation-grid-action-btn:hover,
+[data-theme="dark"] .violation-list-action-btn:hover,
+[data-theme="dark"] .dash-btn-view-offender:hover,
+[data-theme="dark"] .dash-btn-view-section:hover,
+[data-theme="dark"] .action-buttons button:hover,
+[data-theme="dark"] [style*="justifyContent: 'flex-end'"] button:hover,
+[data-theme="dark"] [style*="justify-content: flex-end"] button:hover {
+  background: #e5e5e5 !important;
+  border: 1.5px solid #ffffff !important;
+  border-color: #ffffff !important;
+  outline: 1.5px solid #ffffff !important;
+  outline-offset: 0 !important;
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+}
+
+html[data-theme="dark"] body .date-range-apply-btn {
+  background: #ffffff !important;
+  border-color: #ffffff !important;
+  color: #000000 !important;
+}
+
+html[data-theme="dark"] body .date-range-apply-btn:hover {
+  background: #e5e7eb !important;
+  border-color: #e5e7eb !important;
+  color: #000000 !important;
+}
+
+html[data-theme="dark"] body button[style*="background: #fff"],
+html[data-theme="dark"] body button[style*="background: #ffffff"],
+html[data-theme="dark"] body button[style*="background: white"],
+html[data-theme="dark"] body button[style*="background: rgb(255, 255, 255)"],
+html[data-theme="dark"] body button[style*="var(--brand-blue"],
+html[data-theme="dark"] body button[style*="brand-blue"],
+[data-theme="dark"] button[style*="var(--brand-blue"],
+[data-theme="dark"] button[style*="brand-blue"],
+html[data-theme="dark"] body .admin-modal-submit-btn,
+[data-theme="dark"] .admin-modal-submit-btn,
+html[data-theme="dark"] body .teacher-modal-submit-btn,
+[data-theme="dark"] .teacher-modal-submit-btn {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  border: 1px solid #ffffff !important;
+  border-color: #ffffff !important;
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+  box-shadow: 0 4px 14px rgba(255, 255, 255, 0.15) !important;
+}
+
+html[data-theme="dark"] body button[style*="background: #fff"] *,
+html[data-theme="dark"] body button[style*="background: #ffffff"] *,
+html[data-theme="dark"] body button[style*="background: white"] *,
+html[data-theme="dark"] body button[style*="background: rgb(255, 255, 255)"] *,
+html[data-theme="dark"] body button[style*="var(--brand-blue"] *,
+html[data-theme="dark"] body button[style*="brand-blue"] *,
+[data-theme="dark"] button[style*="var(--brand-blue"] *,
+[data-theme="dark"] button[style*="brand-blue"] *,
+html[data-theme="dark"] body .admin-modal-submit-btn *,
+[data-theme="dark"] .admin-modal-submit-btn *,
+html[data-theme="dark"] body .teacher-modal-submit-btn *,
+[data-theme="dark"] .teacher-modal-submit-btn * {
+  color: #000000 !important;
+  stroke: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+}
+
+html[data-theme="dark"] body button[style*="var(--brand-blue"]:hover,
+html[data-theme="dark"] body button[style*="brand-blue"]:hover,
+[data-theme="dark"] button[style*="var(--brand-blue"]:hover,
+[data-theme="dark"] button[style*="brand-blue"]:hover,
+html[data-theme="dark"] body .admin-modal-submit-btn:hover,
+[data-theme="dark"] .admin-modal-submit-btn:hover,
+html[data-theme="dark"] body .teacher-modal-submit-btn:hover,
+[data-theme="dark"] .teacher-modal-submit-btn:hover {
+  background: #e2e8f0 !important;
+  background-color: #e2e8f0 !important;
+  border-color: #e2e8f0 !important;
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+}
+
+html[data-theme="dark"] body .entity-grid-actions .entity-grid-btn:not(.is-proof):not(.is-delete),
+html[data-theme="dark"] body .entity-grid-btn:not(.is-proof):not(.is-delete) {
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+}
+
+html[data-theme="dark"] body .entity-grid-actions .entity-grid-btn:not(.is-proof):not(.is-delete) *,
+html[data-theme="dark"] body .entity-grid-btn:not(.is-proof):not(.is-delete) * {
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+}
+
+html[data-theme="dark"] body .entity-grid-actions .entity-grid-btn:not(.is-proof):not(.is-delete):hover,
+html[data-theme="dark"] body .entity-grid-btn:not(.is-proof):not(.is-delete):hover {
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+}
+
+html[data-theme="dark"] body .dash-btn-view-offender,
+html[data-theme="dark"] body .dash-repeat-btn-view,
+html[data-theme="dark"] body .dash-btn-view-offender:hover,
+html[data-theme="dark"] body .dash-repeat-btn-view:hover {
+  background: #ffffff !important;
+  border-color: #ffffff !important;
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+}
+
+html[data-theme="dark"] body .dash-btn-view-offender *,
+html[data-theme="dark"] body .dash-repeat-btn-view * {
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+}
+
+html[data-theme="dark"] body .approval-mobile-card-actions button {
+  background: #ffffff !important;
+  border-color: #ffffff !important;
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+}
+
+html[data-theme="dark"] body .approval-mobile-card-actions button:hover,
+html[data-theme="dark"] body .approval-mobile-card-actions button:focus-visible {
+  background: #e5e5e5 !important;
+  border-color: #e5e5e5 !important;
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+}
+
+html[data-theme="dark"] body .approval-mobile-card-actions button svg {
+  color: #000000 !important;
+  stroke: #000000 !important;
+}
+
+html[data-theme="dark"] body .approval-mobile-card-actions button > .approval-mobile-action-label {
+  display: inline !important;
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+@media (max-width: 768px) {
+  [data-theme="dark"] .admin-mobile-list-card {
+    background: #080808 !important;
+    border-color: #292929 !important;
+    color: #e5e5e5 !important;
+    box-shadow: none !important;
+  }
+
+  [data-theme="dark"] .admin-mobile-list-card.is-selected {
+    background: #101010 !important;
+    border-color: #737373 !important;
+  }
+
+  [data-theme="dark"] .admin-mobile-list-name {
+    color: #f5f5f5 !important;
+  }
+
+  [data-theme="dark"] .admin-mobile-list-position {
+    color: #a3a3a3 !important;
+  }
+
+  [data-theme="dark"] .admin-mobile-list-email {
+    background: #050505 !important;
+    color: #d4d4d4 !important;
+  }
+
+  [data-theme="dark"] .admin-mobile-list-email svg {
+    color: #a3a3a3 !important;
+    stroke: #a3a3a3 !important;
+  }
+
+  [data-theme="dark"] .admin-mobile-list-actions {
+    border-color: #292929 !important;
+  }
+
+  html[data-theme="dark"] body .admin-users-mobile-cards .admin-mobile-list-actions button.admin-mobile-action:not(.is-delete),
+  html[data-theme="dark"] body .admin-users-mobile-cards .admin-mobile-list-actions button.admin-mobile-action:not(.is-delete):hover,
+  html[data-theme="dark"] body .admin-users-mobile-cards .admin-mobile-list-actions button.admin-mobile-action:not(.is-delete):focus-visible {
+    background: #ffffff !important;
+    border-color: #ffffff !important;
+    color: #000000 !important;
+    -webkit-text-fill-color: #000000 !important;
+  }
+
+  html[data-theme="dark"] body .admin-users-mobile-cards .admin-mobile-list-actions button.admin-mobile-action:not(.is-delete) svg {
+    color: #000000 !important;
+    stroke: #000000 !important;
+  }
+
+  html[data-theme="dark"] body .admin-users-mobile-cards .admin-mobile-list-actions button.admin-mobile-action.is-delete,
+  html[data-theme="dark"] body .admin-users-mobile-cards .admin-mobile-list-actions button.admin-mobile-action.is-delete:hover,
+  html[data-theme="dark"] body .admin-users-mobile-cards .admin-mobile-list-actions button.admin-mobile-action.is-delete:focus-visible {
+    background: #2a1111 !important;
+    border-color: #7f3030 !important;
+    color: #fca5a5 !important;
+    -webkit-text-fill-color: #fca5a5 !important;
+  }
+
+  html[data-theme="dark"] body .admin-users-mobile-cards .admin-mobile-list-actions button.admin-mobile-action.is-delete svg {
+    color: #fca5a5 !important;
+    stroke: #fca5a5 !important;
+  }
+
+  [data-theme="dark"] .admin-users-mobile-pagination > span {
+    color: #a3a3a3 !important;
+  }
+
+  [data-theme="dark"] .admin-users-mobile-pagination .pagination-btn-group button {
+    background: #080808 !important;
+    border-color: #4a4a4a !important;
+    color: #e5e5e5 !important;
+  }
+
+  [data-theme="dark"] .admin-users-mobile-pagination .pagination-btn-group button:disabled {
+    background: #050505 !important;
+    border-color: #292929 !important;
+    color: #737373 !important;
+  }
+
+  [data-theme="dark"] .admin-users-mobile-pagination .pagination-btn-group button[aria-current="page"] {
+    background: #ffffff !important;
+    border-color: #ffffff !important;
+    color: #000000 !important;
+  }
+
+  [data-theme="dark"] .admin-users-mobile-pagination .pagination-btn-group button:not(:disabled):hover {
+    border-color: #b3b3b3 !important;
+  }
+
+  [data-theme="dark"] .student-mobile-list-card,
+  [data-theme="dark"] .teacher-mobile-list-card,
+  [data-theme="dark"] .violation-list-mobile-card {
+    background: #080808 !important;
+    border-color: #292929 !important;
+    color: #e5e5e5 !important;
+    box-shadow: none !important;
+  }
+
+  [data-theme="dark"] .student-mobile-list-card.is-selected,
+  [data-theme="dark"] .teacher-mobile-list-card.is-selected,
+  [data-theme="dark"] .violation-list-mobile-card.is-selected {
+    background: #101010 !important;
+    border-color: #737373 !important;
+  }
+
+  [data-theme="dark"] .student-mobile-list-name,
+  [data-theme="dark"] .teacher-mobile-list-name,
+  [data-theme="dark"] .violation-list-mobile-name {
+    color: #f5f5f5 !important;
+  }
+
+  [data-theme="dark"] .student-mobile-list-id,
+  [data-theme="dark"] .teacher-mobile-list-id,
+  [data-theme="dark"] .violation-list-mobile-id {
+    color: #a3a3a3 !important;
+  }
+
+  [data-theme="dark"] .entity-grid-meta-primary {
+    color: #f5f5f5 !important;
+  }
+
+  [data-theme="dark"] .entity-grid-meta-secondary {
+    color: #b3b3b3 !important;
+  }
+
+  [data-theme="dark"] .entity-grid-meta-tertiary {
+    color: #8a8a8a !important;
+  }
+
+  [data-theme="dark"] .entity-grid-meta .student-mobile-grid-strand {
+    color: #86efac !important;
+  }
+
+  [data-theme="dark"] .student-mobile-list-id strong,
+  [data-theme="dark"] .teacher-mobile-list-details > div:first-child,
+  [data-theme="dark"] .violation-list-mobile-id strong {
+    color: #e5e5e5 !important;
+  }
+
+  [data-theme="dark"] .student-mobile-list-details,
+  [data-theme="dark"] .teacher-mobile-list-details {
+    background: #050505 !important;
+    border: 1px solid #292929 !important;
+    color: #b3b3b3 !important;
+  }
+
+  [data-theme="dark"] .student-mobile-list-details span,
+  [data-theme="dark"] .teacher-mobile-list-details span {
+    color: #a3a3a3 !important;
+  }
+
+  [data-theme="dark"] .student-mobile-list-details strong,
+  [data-theme="dark"] .student-mobile-list-details > div > span:last-child,
+  [data-theme="dark"] .teacher-mobile-list-details > div > span:last-child {
+    color: #e5e5e5 !important;
+  }
+
+  [data-theme="dark"] .student-mobile-list-details .student-mobile-list-strand {
+    color: #86efac !important;
+  }
+
+  [data-theme="dark"] .student-mobile-list-details > div:last-child,
+  [data-theme="dark"] .teacher-mobile-list-details > div + div {
+    border-top-color: #292929 !important;
+  }
+
+  [data-theme="dark"] .teacher-mobile-list-details svg {
+    color: #a3a3a3 !important;
+    stroke: #a3a3a3 !important;
+  }
+
+  [data-theme="dark"] .student-mobile-list-actions,
+  [data-theme="dark"] .teacher-mobile-list-actions,
+  [data-theme="dark"] .violation-list-mobile-actions,
+  [data-theme="dark"] .violation-catalog-mobile-actions {
+    border-color: #292929 !important;
+  }
+
+  [data-theme="dark"] .student-mobile-list-actions button:not(.is-delete),
+  [data-theme="dark"] .teacher-mobile-list-actions button:not(.is-delete):not(.is-positive-action),
+  [data-theme="dark"] .violation-catalog-mobile-actions .violation-catalog-mobile-action:not(.is-delete),
+  [data-theme="dark"] .violation-list-action-btn:not(.is-proof):not(.is-delete),
+  [data-theme="dark"] .violation-grid-action-btn:not(.is-proof):not(.is-delete),
+  [data-theme="dark"] .entity-grid-actions .entity-grid-btn:not(.is-delete):not(.is-positive-action) {
+    background: #ffffff !important;
+    border-color: #ffffff !important;
+    color: #000000 !important;
+    -webkit-text-fill-color: #000000 !important;
+  }
+
+  [data-theme="dark"] .student-mobile-list-actions button:not(.is-delete) svg,
+  [data-theme="dark"] .teacher-mobile-list-actions button:not(.is-delete):not(.is-positive-action) svg,
+  [data-theme="dark"] .violation-catalog-mobile-actions .violation-catalog-mobile-action:not(.is-delete) svg,
+  [data-theme="dark"] .violation-list-action-btn:not(.is-proof):not(.is-delete) svg,
+  [data-theme="dark"] .violation-grid-action-btn:not(.is-proof):not(.is-delete) svg,
+  [data-theme="dark"] .entity-grid-actions .entity-grid-btn:not(.is-delete):not(.is-positive-action) svg {
+    color: #000000 !important;
+    stroke: #000000 !important;
+  }
+
+  [data-theme="dark"] .teacher-mobile-list-actions button.is-positive-action,
+  [data-theme="dark"] .entity-grid-actions .entity-grid-btn.is-positive-action,
+  [data-theme="dark"] .violation-list-action-btn.is-proof,
+  [data-theme="dark"] .violation-grid-action-btn.is-proof,
+  [data-theme="dark"] .student-mobile-list-actions button.is-delete,
+  [data-theme="dark"] .teacher-mobile-list-actions button.is-delete,
+  [data-theme="dark"] .violation-catalog-mobile-actions .violation-catalog-mobile-action.is-delete,
+  [data-theme="dark"] .violation-list-action-btn.is-delete,
+  [data-theme="dark"] .violation-grid-action-btn.is-delete,
+  [data-theme="dark"] .entity-grid-actions .entity-grid-btn.is-delete {
+    background: #ffffff !important;
+    border-color: #ffffff !important;
+    color: #000000 !important;
+    -webkit-text-fill-color: #000000 !important;
+  }
+
+  [data-theme="dark"] .teacher-mobile-list-actions button.is-positive-action svg,
+  [data-theme="dark"] .entity-grid-actions .entity-grid-btn.is-positive-action svg,
+  [data-theme="dark"] .violation-list-action-btn.is-proof svg,
+  [data-theme="dark"] .violation-grid-action-btn.is-proof svg,
+  [data-theme="dark"] .student-mobile-list-actions button.is-delete svg,
+  [data-theme="dark"] .teacher-mobile-list-actions button.is-delete svg,
+  [data-theme="dark"] .violation-catalog-mobile-actions .violation-catalog-mobile-action.is-delete svg,
+  [data-theme="dark"] .violation-list-action-btn.is-delete svg,
+  [data-theme="dark"] .violation-grid-action-btn.is-delete svg,
+  [data-theme="dark"] .entity-grid-actions .entity-grid-btn.is-delete svg {
+    color: #000000 !important;
+    stroke: #000000 !important;
+  }
+
+  [data-theme="dark"] .student-mobile-list-actions button:not(.is-delete):hover,
+  [data-theme="dark"] .teacher-mobile-list-actions button:not(.is-delete):hover,
+  [data-theme="dark"] .violation-catalog-mobile-actions .violation-catalog-mobile-action:not(.is-delete):hover,
+  [data-theme="dark"] .violation-list-action-btn:not(.is-proof):not(.is-delete):hover,
+  [data-theme="dark"] .violation-grid-action-btn:not(.is-proof):not(.is-delete):hover,
+  [data-theme="dark"] .entity-grid-actions .entity-grid-btn:not(.is-delete):not(.is-positive-action):hover {
+    background: #e5e5e5 !important;
+    color: #000000 !important;
+  }
+}
+
+[data-theme="dark"] .violations-page .violation-action-button,
+[data-theme="dark"] .violations-page .violation-action-button:hover,
+[data-theme="dark"] .violations-page .violation-action-button:focus-visible,
+[data-theme="dark"] .violations-page .violation-action-button:active,
+[data-theme="dark"] .violations-page .violation-action-button[aria-pressed="true"] {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  border: 1px solid #ffffff !important;
+  border-color: #ffffff !important;
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+  box-shadow: 0 1px 3px rgba(255, 255, 255, 0.12) !important;
+}
+
+[data-theme="dark"] .violations-page .violation-action-button svg,
+[data-theme="dark"] .violations-page .violation-action-button:hover svg,
+[data-theme="dark"] .violations-page .violation-action-button:focus-visible svg,
+[data-theme="dark"] .violations-page .violation-action-button:active svg,
+[data-theme="dark"] .violations-page .violation-action-button[aria-pressed="true"] svg {
+  color: #000000 !important;
+  stroke: #000000 !important;
+}
+
+/* High-contrast pagination states for keyboard and touch navigation. */
+html[data-theme="dark"] body .pagination-btn-group button,
+html[data-theme="dark"] body .page-btn,
+html[data-theme="dark"] body .pagination button,
+html[data-theme="dark"] body .pagination-buttons button,
+html[data-theme="dark"] body .pagination-controls button,
+html[data-theme="dark"] body .pagination-footer-responsive button,
+html[data-theme="dark"] body .table-footer button {
+  min-width: 38px !important;
+  min-height: 38px !important;
+  height: auto !important;
+  padding: 7px 11px !important;
+  border: 1px solid #505050 !important;
+  border-radius: 8px !important;
+  background: #141414 !important;
+  color: #e5e5e5 !important;
+  -webkit-text-fill-color: #e5e5e5 !important;
+  box-shadow: none !important;
+  font-weight: 600 !important;
+  transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease !important;
+}
+
+html[data-theme="dark"] body .pagination-btn-group button:not(:disabled):not([aria-current="page"]):hover,
+html[data-theme="dark"] body .page-btn:not(:disabled):not(.active):hover,
+html[data-theme="dark"] body .pagination button:not(:disabled):not([aria-current="page"]):hover,
+html[data-theme="dark"] body .pagination-buttons button:not(:disabled):not([aria-current="page"]):hover,
+html[data-theme="dark"] body .pagination-controls button:not(:disabled):not([aria-current="page"]):hover,
+html[data-theme="dark"] body .pagination-footer-responsive button:not(:disabled):not([aria-current="page"]):hover,
+html[data-theme="dark"] body .table-footer button:not(:disabled):not([aria-current="page"]):hover {
+  background: #252525 !important;
+  border-color: #b3b3b3 !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+html[data-theme="dark"] body .pagination-btn-group button:disabled,
+html[data-theme="dark"] body .page-btn:disabled,
+html[data-theme="dark"] body .pagination button:disabled,
+html[data-theme="dark"] body .pagination-buttons button:disabled,
+html[data-theme="dark"] body .pagination-controls button:disabled,
+html[data-theme="dark"] body .pagination-footer-responsive button:disabled,
+html[data-theme="dark"] body .table-footer button:disabled {
+  background: #080808 !important;
+  border-color: #303030 !important;
+  color: #737373 !important;
+  -webkit-text-fill-color: #737373 !important;
+  cursor: not-allowed !important;
+  opacity: 1 !important;
+}
+
+html[data-theme="dark"] body .pagination-btn-group button[aria-current="page"],
+html[data-theme="dark"] body .page-btn.active,
+html[data-theme="dark"] body .pagination button[aria-current="page"],
+html[data-theme="dark"] body .pagination-buttons button[aria-current="page"],
+html[data-theme="dark"] body .pagination-controls button[aria-current="page"],
+html[data-theme="dark"] body .pagination-footer-responsive button[aria-current="page"],
+html[data-theme="dark"] body .table-footer button[aria-current="page"],
+html[data-theme="dark"] body .pagination-btn-group button.active {
+  background: #ffffff !important;
+  border-color: #ffffff !important;
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+  font-weight: 750 !important;
+}
+
+html[data-theme="dark"] body .pagination-btn-group button[aria-current="page"]:hover,
+html[data-theme="dark"] body .page-btn.active:hover,
+html[data-theme="dark"] body .pagination button[aria-current="page"]:hover,
+html[data-theme="dark"] body .pagination-buttons button[aria-current="page"]:hover,
+html[data-theme="dark"] body .pagination-controls button[aria-current="page"]:hover,
+html[data-theme="dark"] body .pagination-footer-responsive button[aria-current="page"]:hover,
+html[data-theme="dark"] body .table-footer button[aria-current="page"]:hover,
+html[data-theme="dark"] body .pagination-btn-group button.active:hover {
+  background: #e5e5e5 !important;
+  border-color: #e5e5e5 !important;
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+}
+
+html[data-theme="dark"] body .pagination-btn-group button:focus-visible,
+html[data-theme="dark"] body .page-btn:focus-visible,
+html[data-theme="dark"] body .pagination button:focus-visible,
+html[data-theme="dark"] body .pagination-buttons button:focus-visible,
+html[data-theme="dark"] body .pagination-controls button:focus-visible,
+html[data-theme="dark"] body .pagination-footer-responsive button:focus-visible,
+html[data-theme="dark"] body .table-footer button:focus-visible {
+  outline: 2px solid #ffffff !important;
+  outline-offset: 2px !important;
+  z-index: 1;
+}
+
+html[data-theme="dark"] body .pagination-btn-group button svg,
+html[data-theme="dark"] body .pagination-footer-responsive button svg,
+html[data-theme="dark"] body .table-footer button svg {
+  color: currentColor !important;
+  stroke: currentColor !important;
+}
+
+html[data-theme="dark"] body .admin-users-mobile-pagination .pagination-btn-group button {
+  background: #141414 !important;
+  border-color: #505050 !important;
+  color: #e5e5e5 !important;
+  -webkit-text-fill-color: #e5e5e5 !important;
+}
+
+html[data-theme="dark"] body .admin-users-mobile-pagination .pagination-btn-group button:disabled {
+  background: #080808 !important;
+  border-color: #303030 !important;
+  color: #737373 !important;
+  -webkit-text-fill-color: #737373 !important;
+}
+
+html[data-theme="dark"] body .admin-users-mobile-pagination .pagination-btn-group button[aria-current="page"] {
+  background: #ffffff !important;
+  border-color: #ffffff !important;
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+}
+
+@media (max-width: 768px) {
+  html[data-theme="dark"] body .pagination-btn-group {
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+    gap: 8px !important;
+  }
+}
+
+html[data-theme="dark"] body .login-body-bg {
+  background: #000000 !important;
+}
+
+html[data-theme="dark"] body .login-body-bg .login-bg-shape-top-left,
+html[data-theme="dark"] body .login-body-bg .login-bg-shape-bottom-right {
+  background: rgba(255, 255, 255, 0.012) !important;
+}
+
+html[data-theme="dark"] body .login-body-bg .login-card-modern {
+  background: #030303 !important;
+  border-color: #1c1c1c !important;
+  box-shadow: 0 20px 55px rgba(0, 0, 0, 0.9) !important;
+}
+
+html[data-theme="dark"] body .login-body-bg .login-text-input-clean,
+html[data-theme="dark"] body .login-body-bg .login-text-input-clean:focus {
+  background: #000000 !important;
+  border-color: #292929 !important;
+}
+
+html[data-theme="dark"] body .login-body-bg .login-submit-btn-primary,
+html[data-theme="dark"] body .login-body-bg .login-submit-btn-primary:hover:not(:disabled),
+html[data-theme="dark"] body .login-body-bg .login-role-chip-btn,
+html[data-theme="dark"] body .login-body-bg .login-role-chip-btn.active,
+html[data-theme="dark"] body .login-body-bg .login-role-chip-btn:hover:not(.active),
+html[data-theme="dark"] body .login-reset-password-card .login-reset-password-cancel,
+html[data-theme="dark"] body .login-reset-password-card .login-reset-password-cancel:hover,
+html[data-theme="dark"] body .login-reset-password-card .login-reset-password-submit {
+  background: #ffffff !important;
+  border-color: #ffffff !important;
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+  box-shadow: none !important;
+}
+
+html[data-theme="dark"] body .login-body-bg .login-submit-btn-primary:disabled {
+  background: #cfcfcf !important;
+  border-color: #cfcfcf !important;
+  color: #333333 !important;
+  -webkit-text-fill-color: #333333 !important;
+  box-shadow: none !important;
+}
+
+html[data-theme="dark"] body .login-body-bg .login-submit-btn-primary svg,
+html[data-theme="dark"] body .login-body-bg .login-role-chip-btn svg,
+html[data-theme="dark"] body .login-reset-password-card .login-reset-password-cancel svg,
+html[data-theme="dark"] body .login-reset-password-card .login-reset-password-submit svg {
+  color: #000000 !important;
+  stroke: #000000 !important;
+}
+
+html[data-theme="dark"] body .login-body-bg .login-role-chip-btn > div > span:first-child + span,
+html[data-theme="dark"] body .login-body-bg .login-role-chip-btn > div > span:last-child,
+html[data-theme="dark"] body .login-body-bg .login-role-chip-btn > span:last-child {
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+}
+
+html[data-theme="dark"] body .login-body-bg .login-role-chip-btn:hover:not(.active) {
+  background: #e5e5e5 !important;
+  border-color: #e5e5e5 !important;
+}
+
+html[data-theme="dark"] body .login-body-bg .login-submit-btn-primary:focus-visible,
+html[data-theme="dark"] body .login-body-bg .login-role-chip-btn:focus-visible,
+html[data-theme="dark"] body .login-reset-password-card .login-reset-password-cancel:focus-visible,
+html[data-theme="dark"] body .login-reset-password-card .login-reset-password-submit:focus-visible {
+  outline: 2px solid #ffffff !important;
+  outline-offset: 3px !important;
+}
+
+@media (max-width: 768px) {
+  [data-theme="dark"] .approval-mobile-record-card {
+    background: #080808 !important;
+    border-color: #303030 !important;
+    color: #e5e5e5 !important;
+    box-shadow: none !important;
+  }
+
+  [data-theme="dark"] .approval-mobile-record-card.is-selected {
+    background: #101010 !important;
+    border-color: #737373 !important;
+  }
+
+  [data-theme="dark"] .approval-mobile-student-name {
+    color: #f5f5f5 !important;
+  }
+
+  [data-theme="dark"] .approval-mobile-student-detail,
+  [data-theme="dark"] .approval-mobile-record-meta {
+    color: #a3a3a3 !important;
+  }
+
+  [data-theme="dark"] .approval-mobile-offense-panel {
+    background: #050505 !important;
+    border-color: #303030 !important;
+    color: #d4d4d4 !important;
+  }
+
+  [data-theme="dark"] .approval-mobile-offense-label {
+    color: #a3a3a3 !important;
+  }
+
+  [data-theme="dark"] .approval-mobile-offense-title {
+    color: #f5f5f5 !important;
+  }
+
+  [data-theme="dark"] .approval-mobile-offense-remarks {
+    color: #c4c4c4 !important;
+  }
+
+  [data-theme="dark"] .approval-mobile-reporter {
+    color: #e5e5e5 !important;
+  }
+
+  [data-theme="dark"] .approval-mobile-record-date svg {
+    color: #a3a3a3 !important;
+    stroke: #a3a3a3 !important;
+  }
+
+  [data-theme="dark"] .approval-mobile-record-card .approval-mobile-card-actions {
+    border-top-color: #303030 !important;
+  }
+}
+
+html[data-theme="dark"] body .activity-pagination-current {
+  min-width: 58px !important;
+  min-height: 38px !important;
+  padding: 7px 12px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: #ffffff !important;
+  border: 1px solid #ffffff !important;
+  border-radius: 8px !important;
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+  font-weight: 750 !important;
+  box-shadow: none !important;
+}
+
+/* Strict Overrides for Student Violation Mobile Cards in Dark Mode */
+html[data-theme="dark"] body .student-violation-mobile-details strong,
+html[data-theme="dark"] body .student-violation-mobile-card .student-violation-mobile-details strong {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+html[data-theme="dark"] body .student-violation-mobile-card .violation-summons-action,
+html[data-theme="dark"] body .student-violation-mobile-card .violation-proof-action,
+html[data-theme="dark"] body .student-violation-mobile-card .student-violation-card-delete-btn {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  border: 1px solid #ffffff !important;
+  border-color: #ffffff !important;
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+}
+
+html[data-theme="dark"] body .student-violation-mobile-card .violation-summons-action:hover,
+html[data-theme="dark"] body .student-violation-mobile-card .violation-proof-action:hover,
+html[data-theme="dark"] body .student-violation-mobile-card .student-violation-card-delete-btn:hover {
+  background: #e5e5e5 !important;
+  background-color: #e5e5e5 !important;
+  border-color: #ffffff !important;
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+}
+
+html[data-theme="dark"] body .student-violation-mobile-card .violation-summons-action svg,
+html[data-theme="dark"] body .student-violation-mobile-card .violation-proof-action svg,
+html[data-theme="dark"] body .student-violation-mobile-card .student-violation-card-delete-btn svg {
+  color: #000000 !important;
+  stroke: #000000 !important;
+}
+
+html[data-theme="dark"] body .status-filter-tab.is-active,
+html[data-theme="dark"] body .student-violation-detail-page .status-filter-tab.is-active {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+  border: 1.5px solid #ffffff !important;
+  border-color: #ffffff !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+html[data-theme="dark"] body .status-filter-tab:focus,
+html[data-theme="dark"] body .status-filter-tab:focus-visible,
+html[data-theme="dark"] body .student-violation-detail-page .status-filter-tab:focus,
+html[data-theme="dark"] body .student-violation-detail-page .status-filter-tab:focus-visible {
+  outline: 2px solid #ffffff !important;
+  outline-offset: 1px !important;
+  border-color: #ffffff !important;
+  box-shadow: none !important;
+}
+
+/* Strict Legal Modal Overrides in Dark Mode */
+html[data-theme="dark"] body .legal-tab-btn.active {
+  background: #181818 !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  border: 1.5px solid #ffffff !important;
+  border-color: #ffffff !important;
+  box-shadow: none !important;
+}
+
+html[data-theme="dark"] body .legal-tab-btn.active svg {
+  color: #ffffff !important;
+  stroke: #ffffff !important;
+}
+
+html[data-theme="dark"] body .legal-btn-close {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  border: 1px solid #ffffff !important;
+  border-color: #ffffff !important;
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+  font-weight: 750 !important;
+  box-shadow: none !important;
+}
+
+html[data-theme="dark"] body .legal-btn-close:hover {
+  background: #e5e5e5 !important;
+  background-color: #e5e5e5 !important;
+  border-color: #ffffff !important;
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+}
+
+/* Table Header Sort Icons in Dark Mode */
+[data-theme="dark"] table thead th svg,
+[data-theme="dark"] .table thead th svg,
+[data-theme="dark"] .responsive-table-desktop th svg,
+[data-theme="dark"] th svg,
+html[data-theme="dark"] body th svg,
+html[data-theme="dark"] body .table-sort-icon.is-active,
+[data-theme="dark"] .table-sort-icon.is-active {
+  color: #ffffff !important;
+  stroke: #ffffff !important;
+}
+
+html[data-theme="dark"] body .table-sort-icon.is-inactive,
+[data-theme="dark"] .table-sort-icon.is-inactive {
+  color: #888888 !important;
+  stroke: #888888 !important;
+}
+
+/* Keep row/card action colors consistent across desktop, grid, and mobile layouts. */
+html[data-theme="dark"] body .responsive-table-desktop tbody td button,
+html[data-theme="dark"] body .entity-grid-actions button,
+html[data-theme="dark"] body .action-buttons button,
+html[data-theme="dark"] body .student-row-action-btn,
+html[data-theme="dark"] body .student-mobile-list-actions button,
+html[data-theme="dark"] body .teacher-mobile-list-actions button,
+html[data-theme="dark"] body .admin-mobile-list-actions button,
+html[data-theme="dark"] body .admin-mobile-action,
+html[data-theme="dark"] body .approval-mobile-card-actions button,
+html[data-theme="dark"] body .violation-list-mobile-actions button,
+html[data-theme="dark"] body .violation-catalog-mobile-actions button,
+html[data-theme="dark"] body .adviser-btn-remove {
+  background: #ffffff !important;
+  background-color: #ffffff !important;
+  border-color: #ffffff !important;
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+}
+
+html[data-theme="dark"] body .responsive-table-desktop tbody td button svg,
+html[data-theme="dark"] body .entity-grid-actions button svg,
+html[data-theme="dark"] body .action-buttons button svg,
+html[data-theme="dark"] body .student-row-action-btn svg,
+html[data-theme="dark"] body .student-mobile-list-actions button svg,
+html[data-theme="dark"] body .teacher-mobile-list-actions button svg,
+html[data-theme="dark"] body .admin-mobile-list-actions button svg,
+html[data-theme="dark"] body .admin-mobile-action svg,
+html[data-theme="dark"] body .approval-mobile-card-actions button svg,
+html[data-theme="dark"] body .violation-list-mobile-actions button svg,
+html[data-theme="dark"] body .violation-catalog-mobile-actions button svg,
+html[data-theme="dark"] body .adviser-btn-remove svg {
+  color: #000000 !important;
+  stroke: #000000 !important;
+}
+
+html[data-theme="dark"] body .responsive-table-desktop tbody td button:hover,
+html[data-theme="dark"] body .entity-grid-actions button:hover,
+html[data-theme="dark"] body .action-buttons button:hover,
+html[data-theme="dark"] body .student-row-action-btn:hover,
+html[data-theme="dark"] body .student-mobile-list-actions button:hover,
+html[data-theme="dark"] body .teacher-mobile-list-actions button:hover,
+html[data-theme="dark"] body .admin-mobile-list-actions button:hover,
+html[data-theme="dark"] body .admin-mobile-action:hover,
+html[data-theme="dark"] body .approval-mobile-card-actions button:hover,
+html[data-theme="dark"] body .violation-list-mobile-actions button:hover,
+html[data-theme="dark"] body .violation-catalog-mobile-actions button:hover,
+html[data-theme="dark"] body .adviser-btn-remove:hover {
+  background: #e5e5e5 !important;
+  background-color: #e5e5e5 !important;
+  border-color: #ffffff !important;
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+}
+
+html[data-theme="dark"] body .responsive-table-desktop tbody td button:hover svg,
+html[data-theme="dark"] body .entity-grid-actions button:hover svg,
+html[data-theme="dark"] body .action-buttons button:hover svg,
+html[data-theme="dark"] body .student-row-action-btn:hover svg,
+html[data-theme="dark"] body .student-mobile-list-actions button:hover svg,
+html[data-theme="dark"] body .teacher-mobile-list-actions button:hover svg,
+html[data-theme="dark"] body .admin-mobile-list-actions button:hover svg,
+html[data-theme="dark"] body .admin-mobile-action:hover svg,
+html[data-theme="dark"] body .approval-mobile-card-actions button:hover svg,
+html[data-theme="dark"] body .violation-list-mobile-actions button:hover svg,
+html[data-theme="dark"] body .violation-catalog-mobile-actions button:hover svg,
+html[data-theme="dark"] body .adviser-btn-remove:hover svg {
+  color: #000000 !important;
+  stroke: #000000 !important;
+}

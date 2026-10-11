@@ -75,24 +75,27 @@ export const CustomDatePicker = ({
     };
   }, [isOpen, shouldPortalPopover, updatePopoverPosition]);
 
-  // Parse initial date or default to current / September 2026
+  // Parse a date-only value as local time to avoid timezone shifts.
   const parseDate = (dateStr) => {
-    if (!dateStr) return new Date(2026, 8, 1);
-    const parts = dateStr.split('-');
+    if (!dateStr) return new Date();
+    if (dateStr instanceof Date) return dateStr;
+    const parts = typeof dateStr === 'string' ? dateStr.split('-') : [];
     if (parts.length === 3) {
       return new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
     }
     const d = new Date(dateStr);
-    return isNaN(d.getTime()) ? new Date(2026, 8, 1) : d;
+    return isNaN(d.getTime()) ? new Date() : d;
   };
 
   const selectedDate = value ? parseDate(value) : null;
-  const [viewDate, setViewDate] = useState(() => selectedDate || new Date(2026, 8, 1));
+  const [viewDate, setViewDate] = useState(() => selectedDate || new Date());
 
   // Sync viewDate when value changes
   useEffect(() => {
     if (value) {
       setViewDate(parseDate(value));
+    } else {
+      setViewDate(new Date());
     }
   }, [value]);
 
@@ -123,17 +126,17 @@ export const CustomDatePicker = ({
     setViewDate(new Date(currentYear, currentMonth + 1, 1));
   };
 
-  const handleSelectDay = (day) => {
-    const monthFormatted = String(currentMonth + 1).padStart(2, '0');
-    const dayFormatted = String(day).padStart(2, '0');
-    const dateStr = `${currentYear}-${monthFormatted}-${dayFormatted}`;
+  const handleSelectDay = (day, monthOffset = 0) => {
+    const selected = new Date(currentYear, currentMonth + monthOffset, day);
+    const monthFormatted = String(selected.getMonth() + 1).padStart(2, '0');
+    const dayFormatted = String(selected.getDate()).padStart(2, '0');
+    const dateStr = `${selected.getFullYear()}-${monthFormatted}-${dayFormatted}`;
     onChange(dateStr);
     setIsOpen(false);
   };
 
   const handleSelectToday = () => {
-    // Default to September 25, 2026 or today's equivalent
-    const today = new Date(2026, 8, 25);
+    const today = new Date();
     const monthFormatted = String(today.getMonth() + 1).padStart(2, '0');
     const dayFormatted = String(today.getDate()).padStart(2, '0');
     const dateStr = `${today.getFullYear()}-${monthFormatted}-${dayFormatted}`;
@@ -158,15 +161,14 @@ export const CustomDatePicker = ({
   for (let i = firstDayIndex - 1; i >= 0; i--) {
     days.push({
       day: daysInPrevMonth - i,
-      isCurrentMonth: false,
-      isPrev: true
+      monthOffset: -1
     });
   }
   // Current month days
   for (let i = 1; i <= daysInMonth; i++) {
     days.push({
       day: i,
-      isCurrentMonth: true
+      monthOffset: 0
     });
   }
   // Next month leading days
@@ -174,8 +176,7 @@ export const CustomDatePicker = ({
   for (let i = 1; i <= remainingCells; i++) {
     days.push({
       day: i,
-      isCurrentMonth: false,
-      isNext: true
+      monthOffset: 1
     });
   }
 
@@ -347,45 +348,37 @@ export const CustomDatePicker = ({
           {/* Days Grid */}
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '2px' }}>
             {days.map((item, index) => {
-              if (!item.isCurrentMonth) {
-                return (
-                  <div
-                    key={index}
-                    style={{
-                      height: 26,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: '11px',
-                      color: 'var(--text-dim, #cbd5e1)',
-                      userSelect: 'none'
-                    }}
-                  >
-                    {item.day}
-                  </div>
-                );
-              }
+              const itemDate = new Date(currentYear, currentMonth + item.monthOffset, item.day);
 
               const isSelected =
                 selectedDate &&
-                selectedDate.getFullYear() === currentYear &&
-                selectedDate.getMonth() === currentMonth &&
-                selectedDate.getDate() === item.day;
+                selectedDate.getFullYear() === itemDate.getFullYear() &&
+                selectedDate.getMonth() === itemDate.getMonth() &&
+                selectedDate.getDate() === itemDate.getDate();
 
-              const isToday = currentYear === 2026 && currentMonth === 8 && item.day === 25;
+              const today = new Date();
+              const isToday =
+                today.getFullYear() === itemDate.getFullYear() &&
+                today.getMonth() === itemDate.getMonth() &&
+                today.getDate() === itemDate.getDate();
 
               return (
-                <div
+                <button
+                  type="button"
                   key={index}
-                  onClick={() => handleSelectDay(item.day)}
+                  onClick={() => handleSelectDay(item.day, item.monthOffset)}
                   className={`custom-date-picker-day${isSelected ? ' is-selected' : ''}${isToday ? ' is-today' : ''}`}
+                  aria-label={itemDate.toLocaleDateString()}
+                  aria-pressed={Boolean(isSelected)}
                   style={{
                     height: 26,
+                    padding: 0,
                     borderRadius: '6px',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     fontSize: '11.5px',
+                    fontFamily: 'inherit',
                     fontWeight: isSelected ? 800 : isToday ? 700 : 500,
                     cursor: 'pointer',
                     background: isSelected
@@ -393,13 +386,19 @@ export const CustomDatePicker = ({
                       : isToday
                       ? 'rgba(56, 189, 248, 0.2)'
                       : 'transparent',
-                    color: isSelected ? '#ffffff' : isToday ? 'var(--brand-blue, #27367f)' : 'var(--text-primary, #1e293b)',
+                    color: isSelected
+                      ? '#ffffff'
+                      : isToday
+                        ? 'var(--brand-blue, #27367f)'
+                        : item.monthOffset === 0
+                          ? 'var(--text-primary, #1e293b)'
+                          : 'var(--text-dim, #cbd5e1)',
                     border: isSelected ? 'none' : isToday ? '1px solid var(--border-focus, #c7d2fe)' : '1px solid transparent',
                     transition: 'all 0.12s ease'
                   }}
                 >
                   {item.day}
-                </div>
+                </button>
               );
             })}
           </div>

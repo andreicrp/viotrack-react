@@ -250,7 +250,7 @@ export const SearchableStudentSelect = ({
       </div>
 
       {/* Student List */}
-      <div className="searchable-select-list student-picker-list" style={{ overflowY: 'auto', maxHeight: inline ? maxListHeight : '240px', minHeight: '180px', flex: 1, padding: '8px', background: 'var(--bg-surface, #ffffff)' }}>
+      <div className="searchable-select-list student-picker-list" style={{ overflowY: 'auto', maxHeight: inline ? maxListHeight : '240px', minHeight: '100px', flex: 1, padding: '8px', background: 'var(--bg-surface, #ffffff)' }}>
         {filtered.length === 0 ? (
           <div style={{ padding: '16px 12px', textAlign: 'center', color: 'var(--text-muted, #64748b)', fontSize: '12px' }}>
             No students found.

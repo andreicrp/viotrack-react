@@ -58,7 +58,7 @@ export const buildPrintReportHtml = ({
   records = [],
   metrics = {},
   dateRangeLabel = '',
-  reportTitle = 'OFFICIAL DISCIPLINARY & STUDENT WELFARE ANALYTICS REPORT',
+  reportTitle = 'OFFICIAL DISCIPLINARY & STUDENT ANALYTICS REPORT',
   officerName = 'Sheryl B. Gamboa, LPT',
   officerTitle = 'Prefect of Discipline',
   includeTrendsChart = true,
@@ -853,7 +853,7 @@ export const PrintDataModal = ({ isOpen, onClose, records = [], students = [], t
   const [includeRecordsTable, setIncludeRecordsTable] = useState(true);
 
   // Report Metadata
-  const [reportTitle, setReportTitle] = useState('OFFICIAL DISCIPLINARY & STUDENT WELFARE ANALYTICS REPORT');
+  const [reportTitle, setReportTitle] = useState('OFFICIAL DISCIPLINARY & STUDENT ANALYTICS REPORT');
 
   // Mobile Drawer Toggle
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);

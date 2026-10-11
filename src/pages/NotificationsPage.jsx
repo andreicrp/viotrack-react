@@ -12,6 +12,7 @@ import {
   AlertTriangle,
   Info,
   Calendar,
+  ChevronLeft,
   ChevronRight,
   Trash2,
   Eye,
@@ -42,6 +43,7 @@ export const NotificationsPage = () => {
   const [activeTab, setActiveTab] = useState('all'); // 'all' | 'approvals' | 'sms' | 'conduct' | 'system'
   const [searchQuery, setSearchQuery] = useState('');
   const [filterUnreadOnly, setFilterUnreadOnly] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
   const [selectedCategoryFilter, setSelectedCategoryFilter] = useState('all');
   const [readNotifIds, setReadNotifIds] = useState(() => {
     try {
@@ -267,6 +269,22 @@ export const NotificationsPage = () => {
       return true;
     });
   }, [allNotifications, activeTab, filterUnreadOnly, searchQuery, readNotifIds]);
+
+  const notificationsPerPage = 10;
+  const totalPages = Math.max(1, Math.ceil(filteredNotifications.length / notificationsPerPage));
+  const visiblePage = Math.min(currentPage, totalPages);
+  const paginatedNotifications = useMemo(() => {
+    const startIndex = (visiblePage - 1) * notificationsPerPage;
+    return filteredNotifications.slice(startIndex, startIndex + notificationsPerPage);
+  }, [filteredNotifications, visiblePage]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeTab, filterUnreadOnly, searchQuery]);
+
+  useEffect(() => {
+    setCurrentPage(page => Math.min(page, totalPages));
+  }, [totalPages]);
 
   // Helper actions
   const markAsRead = (id) => {
@@ -508,7 +526,7 @@ export const NotificationsPage = () => {
               </div>
             ) : (
               <div className="notif-cards-stack">
-                {filteredNotifications.map((notif) => {
+                {paginatedNotifications.map((notif) => {
                   const isRead = readNotifIds.includes(notif.id);
                   const gradeText = notif.grade
                     ? `${String(notif.grade).toLowerCase().startsWith('grade') ? notif.grade : `Grade ${notif.grade}`}${notif.section ? ` – ${notif.section}` : ''}`
@@ -595,6 +613,39 @@ export const NotificationsPage = () => {
                   );
                 })}
               </div>
+            )}
+
+            {!loading && filteredNotifications.length > notificationsPerPage && (
+              <nav className="notif-pagination" aria-label="Notifications pagination">
+                <span className="notif-pagination-summary">
+                  Showing {(visiblePage - 1) * notificationsPerPage + 1}–{Math.min(visiblePage * notificationsPerPage, filteredNotifications.length)} of {filteredNotifications.length}
+                </span>
+                <div className="notif-pagination-controls">
+                  <button
+                    type="button"
+                    className="notif-pagination-btn"
+                    onClick={() => setCurrentPage(page => Math.max(1, page - 1))}
+                    disabled={visiblePage === 1}
+                    aria-label="Go to previous page"
+                  >
+                    <ChevronLeft size={14} />
+                    <span>Previous</span>
+                  </button>
+                  <span className="notif-pagination-page" aria-current="page">
+                    Page {visiblePage} of {totalPages}
+                  </span>
+                  <button
+                    type="button"
+                    className="notif-pagination-btn"
+                    onClick={() => setCurrentPage(page => Math.min(totalPages, page + 1))}
+                    disabled={visiblePage === totalPages}
+                    aria-label="Go to next page"
+                  >
+                    <span>Next</span>
+                    <ChevronRight size={14} />
+                  </button>
+                </div>
+              </nav>
             )}
           </div>
         </div>
