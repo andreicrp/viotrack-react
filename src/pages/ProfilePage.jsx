@@ -208,8 +208,10 @@ export const ProfilePage = () => {
             lname: lastName,
             image: finalAvatarUrl
           };
-          if (phone) directUpdates.contact = phone;
-          if (user.role === 'teacher' && department) directUpdates.department = department;
+          if (user.role === 'teacher') {
+            if (phone) directUpdates.contact = phone;
+            if (department) directUpdates.department = department;
+          }
 
           await supabase.from(table).update(directUpdates).eq('id', user.id);
         } catch (dbErr) {

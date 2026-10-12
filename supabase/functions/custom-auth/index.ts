@@ -153,10 +153,10 @@ Deno.serve(async (request) => {
       const updates: Record<string, unknown> = {};
       if (typeof firstName === 'string' && firstName.trim()) updates.fname = firstName.trim();
       if (typeof lastName === 'string' && lastName.trim()) updates.lname = lastName.trim();
-      if (typeof phone === 'string') updates.contact = phone.trim();
       if (typeof avatarUrl === 'string') updates.image = avatarUrl.trim();
-      if (role === 'teacher' && typeof department === 'string' && department.trim()) {
-        updates.department = department.trim();
+      if (role === 'teacher') {
+        if (typeof phone === 'string') updates.contact = phone.trim();
+        if (typeof department === 'string' && department.trim()) updates.department = department.trim();
       }
 
       if (Object.keys(updates).length > 0) {
