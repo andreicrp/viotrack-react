@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
+import { Moon, Sun, Sparkles } from 'lucide-react';
 
 const ThemeContext = createContext({
   theme: 'light',
@@ -48,17 +49,20 @@ export const ThemeProvider = ({ children }) => {
     applyTheme(newTheme);
     setIsChangingTheme(true);
     setIsClosingThemeOverlay(false);
+
     window.clearTimeout(themeMessageTimer.current);
     window.clearTimeout(themeOverlayCloseTimer.current);
+
+    // Fast, responsive 750ms transition + 240ms exit fade
     themeMessageTimer.current = window.setTimeout(() => {
       setIsClosingThemeOverlay(true);
       themeOverlayCloseTimer.current = window.setTimeout(() => {
         setIsChangingTheme(false);
         setIsClosingThemeOverlay(false);
         themeOverlayCloseTimer.current = null;
-      }, 320);
+      }, 240);
       themeMessageTimer.current = null;
-    }, 3000);
+    }, 750);
   };
 
   useEffect(() => {
@@ -96,32 +100,38 @@ export const ThemeProvider = ({ children }) => {
           role="status"
           aria-live="polite"
         >
+          <div className="theme-change-backdrop" />
           <div className="theme-change-orbit theme-change-orbit-one" />
           <div className="theme-change-orbit theme-change-orbit-two" />
           <div className="theme-change-card">
-            <div className="theme-change-icon" aria-hidden="true">
+            <div className={`theme-change-badge ${isDark ? 'badge-dark' : 'badge-light'}`} aria-hidden="true">
+              <div className="theme-change-badge-glow" />
               {isDark ? (
-                <span className="theme-change-moon" />
+                <>
+                  <Moon className="theme-change-badge-icon icon-moon" size={28} />
+                  <Sparkles className="theme-change-badge-sparkle" size={14} />
+                </>
               ) : (
                 <>
-                  <span className="theme-change-sun-core" />
-                  <span className="theme-change-sun-ray theme-change-sun-ray-one" />
-                  <span className="theme-change-sun-ray theme-change-sun-ray-two" />
-                  <span className="theme-change-sun-ray theme-change-sun-ray-three" />
-                  <span className="theme-change-sun-ray theme-change-sun-ray-four" />
-                  <span className="theme-change-sun-ray theme-change-sun-ray-five" />
-                  <span className="theme-change-sun-ray theme-change-sun-ray-six" />
-                  <span className="theme-change-sun-ray theme-change-sun-ray-seven" />
-                  <span className="theme-change-sun-ray theme-change-sun-ray-eight" />
+                  <Sun className="theme-change-badge-icon icon-sun" size={30} />
+                  <Sparkles className="theme-change-badge-sparkle" size={14} />
                 </>
               )}
             </div>
             <div className="theme-change-copy">
-              <strong>Changing theme</strong>
-              <span>Preparing your workspace</span>
+              <div className="theme-change-tag">
+                <span className="theme-change-tag-dot" />
+                <span>{isDark ? 'Dark Mode' : 'Light Mode'}</span>
+              </div>
+              <strong className="theme-change-title">
+                {isDark ? 'Switching to Dark' : 'Switching to Light'}
+              </strong>
+              <span className="theme-change-desc">
+                {isDark ? 'Applying OLED contrast & comfort' : 'Brightening your workspace'}
+              </span>
             </div>
             <div className="theme-change-progress" aria-hidden="true">
-              <span />
+              <span className="theme-change-progress-bar" />
             </div>
           </div>
         </div>

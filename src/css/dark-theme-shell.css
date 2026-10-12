@@ -6,32 +6,44 @@
 .theme-change-overlay {
   position: fixed;
   inset: 0;
+  width: 100vw;
+  width: 100dvw;
+  height: 100vh;
+  height: 100dvh;
   z-index: 2147483647;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  animation: theme-change-overlay-in 260ms ease-out both;
+  padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+  box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  animation: theme-change-overlay-in 220ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
 .theme-change-overlay-closing {
-  animation: theme-change-overlay-out 320ms ease-in forwards;
+  animation: theme-change-overlay-out 240ms cubic-bezier(0.4, 0, 1, 1) forwards;
   pointer-events: none;
+}
+
+.theme-change-backdrop {
+  position: absolute;
+  inset: 0;
+  backdrop-filter: blur(24px) saturate(160%);
+  -webkit-backdrop-filter: blur(24px) saturate(160%);
 }
 
 .theme-change-overlay-dark {
   color: #f8fafc;
-  background:
-    radial-gradient(circle at 50% 42%, rgba(37, 99, 235, 0.16), transparent 34%),
-    #080808;
+  background: radial-gradient(circle at 50% 46%, rgba(30, 58, 138, 0.42) 0%, rgba(15, 23, 42, 0.88) 60%, rgba(5, 8, 15, 0.96) 100%);
 }
 
 .theme-change-overlay-light {
   color: #0f172a;
-  background:
-    radial-gradient(circle at 50% 42%, rgba(37, 99, 235, 0.12), transparent 34%),
-    #f8fafc;
+  background: radial-gradient(circle at 50% 46%, rgba(254, 243, 199, 0.6) 0%, rgba(241, 245, 249, 0.9) 60%, rgba(248, 250, 252, 0.98) 100%);
 }
 
 .theme-change-card {
@@ -40,175 +52,264 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  width: min(320px, calc(100vw - 40px));
-  padding: 30px 28px 26px;
-  border: 1px solid rgba(148, 163, 184, 0.2);
-  border-radius: 20px;
-  background: rgba(20, 22, 27, 0.94);
-  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.34);
-  backdrop-filter: blur(14px);
-  animation: theme-change-card-in 420ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  width: min(320px, calc(100vw - 36px));
+  padding: 28px 24px 22px;
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(15, 23, 42, 0.84);
+  box-shadow:
+    0 24px 60px -10px rgba(0, 0, 0, 0.55),
+    0 0 0 1px rgba(255, 255, 255, 0.06),
+    inset 0 1px 1px rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  animation: theme-change-card-in 340ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  transform-origin: center center;
 }
 
 .theme-change-overlay-light .theme-change-card {
-  border-color: rgba(148, 163, 184, 0.32);
-  background: rgba(255, 255, 255, 0.94);
-  box-shadow: 0 24px 80px rgba(15, 23, 42, 0.16);
-}
-
-.theme-change-icon {
-  position: relative;
-  width: 66px;
-  height: 66px;
-  margin-bottom: 20px;
-  border: 1px solid rgba(147, 197, 253, 0.48);
-  border-radius: 50%;
-  background: linear-gradient(145deg, #2563eb, #60a5fa);
+  border-color: rgba(226, 232, 240, 0.9);
+  background: rgba(255, 255, 255, 0.9);
   box-shadow:
-    0 0 0 7px rgba(96, 165, 250, 0.08),
-    0 12px 28px rgba(37, 99, 235, 0.28);
-  animation: theme-change-icon-float 2.8s ease-in-out infinite;
+    0 24px 60px -10px rgba(15, 23, 42, 0.14),
+    0 0 0 1px rgba(255, 255, 255, 0.9),
+    inset 0 1px 1px rgba(255, 255, 255, 1);
 }
 
-.theme-change-sun-core {
-  position: absolute;
-  top: 19px;
-  left: 19px;
-  width: 28px;
-  height: 28px;
+.theme-change-badge {
+  position: relative;
+  width: 62px;
+  height: 62px;
+  margin-bottom: 16px;
   border-radius: 50%;
-  background: #ffffff;
-  box-shadow: 0 0 22px rgba(255, 255, 255, 0.72);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: theme-change-badge-pulse 2s ease-in-out infinite;
 }
 
-.theme-change-sun-ray {
-  position: absolute;
-  top: 31px;
-  left: 31px;
-  width: 2px;
-  height: 8px;
-  border-radius: 2px;
-  background: #ffffff;
-  transform-origin: 1px 4px;
+.badge-dark {
+  background: linear-gradient(135deg, #1e1b4b 0%, #1e3a8a 50%, #0284c7 100%);
+  border: 1px solid rgba(56, 189, 248, 0.45);
+  box-shadow:
+    0 0 0 6px rgba(56, 189, 248, 0.1),
+    0 8px 24px rgba(2, 132, 199, 0.35);
 }
 
-.theme-change-sun-ray-one { transform: rotate(0deg) translateY(-23px); }
-.theme-change-sun-ray-two { transform: rotate(45deg) translateY(-23px); }
-.theme-change-sun-ray-three { transform: rotate(90deg) translateY(-23px); }
-.theme-change-sun-ray-four { transform: rotate(135deg) translateY(-23px); }
-.theme-change-sun-ray-five { transform: rotate(180deg) translateY(-23px); }
-.theme-change-sun-ray-six { transform: rotate(225deg) translateY(-23px); }
-.theme-change-sun-ray-seven { transform: rotate(270deg) translateY(-23px); }
-.theme-change-sun-ray-eight { transform: rotate(315deg) translateY(-23px); }
+.badge-light {
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 50%, #f59e0b 100%);
+  border: 1px solid rgba(245, 158, 11, 0.45);
+  box-shadow:
+    0 0 0 6px rgba(245, 158, 11, 0.12),
+    0 8px 24px rgba(245, 158, 11, 0.3);
+}
 
-.theme-change-moon {
+.theme-change-badge-glow {
   position: absolute;
-  top: 17px;
-  left: 17px;
-  width: 34px;
-  height: 34px;
+  inset: -10px;
   border-radius: 50%;
-  background: #ffffff;
-  box-shadow: 0 0 22px rgba(255, 255, 255, 0.62);
+  filter: blur(14px);
+  opacity: 0.65;
+  z-index: -1;
 }
 
-.theme-change-moon::after {
+.badge-dark .theme-change-badge-glow {
+  background: radial-gradient(circle, #38bdf8 0%, transparent 70%);
+}
+
+.badge-light .theme-change-badge-glow {
+  background: radial-gradient(circle, #fbbf24 0%, transparent 70%);
+}
+
+.theme-change-badge-icon {
+  position: relative;
+  z-index: 2;
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.25));
+}
+
+.icon-moon {
+  color: #f0f9ff;
+  transform: rotate(-10deg);
+  animation: theme-change-moon-wobble 2.4s ease-in-out infinite;
+}
+
+.icon-sun {
+  color: #ffffff;
+  animation: theme-change-sun-spin 12s linear infinite;
+}
+
+.theme-change-badge-sparkle {
   position: absolute;
-  top: -5px;
-  left: 10px;
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  background: #3f8df2;
-  content: "";
+  top: 5px;
+  right: 5px;
+  z-index: 3;
+  animation: theme-change-sparkle 1.6s ease-in-out infinite;
+}
+
+.badge-dark .theme-change-badge-sparkle {
+  color: #38bdf8;
+}
+
+.badge-light .theme-change-badge-sparkle {
+  color: #d97706;
 }
 
 .theme-change-copy {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 7px;
   text-align: center;
 }
 
-.theme-change-copy strong {
-  font-size: 20px;
+.theme-change-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  border-radius: 99px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.theme-change-overlay-dark .theme-change-tag {
+  background: rgba(56, 189, 248, 0.12);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.25);
+}
+
+.theme-change-overlay-light .theme-change-tag {
+  background: rgba(245, 158, 11, 0.12);
+  color: #b45309;
+  border: 1px solid rgba(245, 158, 11, 0.25);
+}
+
+.theme-change-tag-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 6px currentColor;
+}
+
+.theme-change-title {
+  font-size: 18.5px;
   font-weight: 700;
   letter-spacing: -0.025em;
+  line-height: 1.25;
+  color: inherit;
 }
 
-.theme-change-copy span {
-  color: #a8b4c4;
-  font-size: 13px;
-  letter-spacing: 0.01em;
-}
-
-.theme-change-overlay-light .theme-change-copy span {
-  color: #64748b;
+.theme-change-desc {
+  font-size: 12.5px;
+  font-weight: 500;
+  margin-top: 4px;
+  opacity: 0.72;
+  letter-spacing: -0.01em;
 }
 
 .theme-change-progress {
-  width: min(210px, 100%);
+  width: min(200px, 100%);
   height: 4px;
-  margin-top: 22px;
+  margin-top: 20px;
   overflow: hidden;
   border-radius: 99px;
-  background: rgba(148, 163, 184, 0.22);
+  background: rgba(148, 163, 184, 0.18);
+  position: relative;
 }
 
-.theme-change-progress span {
+.theme-change-overlay-light .theme-change-progress {
+  background: rgba(148, 163, 184, 0.24);
+}
+
+.theme-change-progress-bar {
   display: block;
   width: 100%;
   height: 100%;
   transform-origin: left center;
   border-radius: inherit;
-  background: #60a5fa;
-  animation: theme-change-progress 3s linear both;
+  animation: theme-change-progress 750ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.theme-change-overlay-dark .theme-change-progress-bar {
+  background: linear-gradient(90deg, #38bdf8, #818cf8, #c084fc);
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.6);
+}
+
+.theme-change-overlay-light .theme-change-progress-bar {
+  background: linear-gradient(90deg, #f59e0b, #fbbf24, #0284c7);
+  box-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
 }
 
 .theme-change-orbit {
   position: absolute;
-  width: min(54vw, 620px);
-  height: min(54vw, 620px);
-  min-width: 300px;
-  min-height: 300px;
-  border: 1px solid rgba(96, 165, 250, 0.1);
+  width: min(65vw, 520px);
+  height: min(65vw, 520px);
   border-radius: 50%;
-  animation: theme-change-orbit 14s linear infinite;
+  pointer-events: none;
+}
+
+.theme-change-overlay-dark .theme-change-orbit {
+  border: 1px solid rgba(56, 189, 248, 0.08);
+  box-shadow: 0 0 40px rgba(56, 189, 248, 0.03);
+}
+
+.theme-change-overlay-light .theme-change-orbit {
+  border: 1px solid rgba(245, 158, 11, 0.1);
+  box-shadow: 0 0 40px rgba(245, 158, 11, 0.03);
 }
 
 .theme-change-orbit-one {
-  transform: rotate(24deg) scaleY(0.38);
+  transform: rotate(25deg) scaleY(0.42);
+  animation: theme-change-orbit 18s linear infinite;
 }
 
 .theme-change-orbit-two {
-  transform: rotate(-52deg) scaleY(0.38);
-  animation-direction: reverse;
+  transform: rotate(-45deg) scaleY(0.42);
+  animation: theme-change-orbit 22s linear infinite reverse;
 }
 
 @keyframes theme-change-overlay-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from { opacity: 0; backdrop-filter: blur(0px); }
+  to { opacity: 1; backdrop-filter: blur(24px); }
 }
 
 @keyframes theme-change-overlay-out {
-  from { opacity: 1; }
-  to { opacity: 0; }
+  from { opacity: 1; transform: scale(1); }
+  to { opacity: 0; transform: scale(0.97); }
 }
 
 @keyframes theme-change-card-in {
-  from { opacity: 0; transform: translateY(14px) scale(0.96); }
+  from { opacity: 0; transform: translateY(12px) scale(0.95); }
   to { opacity: 1; transform: translateY(0) scale(1); }
 }
 
-@keyframes theme-change-icon-float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-4px); }
+@keyframes theme-change-badge-pulse {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-3px) scale(1.03); }
+}
+
+@keyframes theme-change-moon-wobble {
+  0%, 100% { transform: rotate(-10deg); }
+  50% { transform: rotate(-4deg); }
+}
+
+@keyframes theme-change-sun-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes theme-change-sparkle {
+  0%, 100% { opacity: 0.3; transform: scale(0.85); }
+  50% { opacity: 1; transform: scale(1.15); }
 }
 
 @keyframes theme-change-progress {
-  from { transform: scaleX(0); }
-  to { transform: scaleX(1); }
+  0% { transform: scaleX(0); }
+  60% { transform: scaleX(0.78); }
+  100% { transform: scaleX(1); }
 }
 
 @keyframes theme-change-orbit {
@@ -216,12 +317,41 @@
   to { rotate: 360deg; }
 }
 
+@media (max-width: 480px) {
+  .theme-change-card {
+    width: min(290px, calc(100vw - 32px));
+    padding: 24px 20px 20px;
+    border-radius: 20px;
+  }
+  .theme-change-badge {
+    width: 56px;
+    height: 56px;
+    margin-bottom: 14px;
+  }
+  .theme-change-title {
+    font-size: 16.5px;
+  }
+  .theme-change-desc {
+    font-size: 12px;
+  }
+  .theme-change-progress {
+    width: 170px;
+    margin-top: 16px;
+  }
+  .theme-change-orbit {
+    width: 80vw;
+    height: 80vw;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .theme-change-overlay,
   .theme-change-card,
-  .theme-change-icon,
+  .theme-change-badge,
+  .theme-change-badge-icon,
+  .theme-change-badge-sparkle,
   .theme-change-orbit,
-  .theme-change-progress span {
+  .theme-change-progress-bar {
     animation: none !important;
   }
 }
