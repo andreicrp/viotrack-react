@@ -119,10 +119,6 @@ export const ThemeProvider = ({ children }) => {
               )}
             </div>
             <div className="theme-change-copy">
-              <div className="theme-change-tag">
-                <span className="theme-change-tag-dot" />
-                <span>{isDark ? 'Dark Mode' : 'Light Mode'}</span>
-              </div>
               <strong className="theme-change-title">
                 {isDark ? 'Switching to Dark' : 'Switching to Light'}
               </strong>
