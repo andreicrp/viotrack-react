@@ -92,7 +92,6 @@ export const BulkImportModal = ({ isOpen, onClose, onImported, initialFormat = '
             const portraits = isFem ? FEMALE_PORTRAITS : MALE_PORTRAITS;
             return {
               ...s,
-              lrn: s.student_id,
               academicyear: '2025-2026',
               image: portraits[(i + Math.floor(Math.random() * 5)) % portraits.length]
             };
@@ -131,14 +130,14 @@ export const BulkImportModal = ({ isOpen, onClose, onImported, initialFormat = '
 
       const firstRow = rows[0];
       const hasHeader = firstRow.some(col =>
-        ['student id', 'student_id', 'id', 'lrn', 'first name', 'fname', 'name', 'student'].includes(col.toLowerCase().trim())
+        ['student id', 'student_id', 'id', 'first name', 'fname', 'name', 'student'].includes(col.toLowerCase().trim())
       );
       const dataRows = hasHeader ? rows.slice(1) : rows;
 
       return dataRows
         .filter(parts => parts.length >= 2 && parts.some(p => p.trim()))
         .map((parts, i) => {
-          const student_id = parts[0]?.trim() || `10928374${Math.floor(1000 + Math.random() * 9000)}`;
+          const student_id = parts[0]?.trim() || '';
           const fname = parts[1]?.trim() || 'Student';
           const mname = parts[2]?.trim() || '';
           const lname = parts[3]?.trim() || 'Roster';
@@ -156,7 +155,6 @@ export const BulkImportModal = ({ isOpen, onClose, onImported, initialFormat = '
 
           return {
             student_id,
-            lrn: student_id,
             fname,
             mname,
             lname,

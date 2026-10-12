@@ -184,6 +184,7 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
         for (const violation of chosenViolations) {
           const newRecord = await dataService.addRecord({
             student_id: Number(student.id),
+            student_id_value: student.student_id,
             violation_id: Number(violation.id),
             reported_by_name: user?.name || (isTeacher ? 'Faculty Teacher' : 'Authorized Administrator'),
             reported_by_type: isTeacher ? 'teacher' : (isApprovalMode ? 'teacher' : (user?.role || 'admin')),

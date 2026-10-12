@@ -1,6 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
-import { isSupabaseConfigured, supabase } from '../lib/supabase';
-import { sanitizeForLogging } from '../utils/security';
+import { customAuth } from '../lib/supabase';
 
 const AuthContext = createContext(null);
 
@@ -9,48 +8,9 @@ const AUTH_STORAGE_KEY = 'viotrack_auth_v3';
 const AUTH_ACTIVE_KEY = 'viotrack_active_v3';
 const AUTH_LOCKED_KEY = 'viotrack_locked_v3';
 
-// Helper to determine initial user from session or local storage with timeout check
-const getInitialUser = () => {
-  try {
-    // Purge legacy storage keys from previous builds to ensure no stale auto-logins survive
-    localStorage.removeItem('viotrack_auth_user');
-    localStorage.removeItem('viotrack_last_active');
-    sessionStorage.removeItem('viotrack_auth_user');
-    sessionStorage.removeItem('viotrack_last_active');
-
-    const sessionSaved = sessionStorage.getItem(AUTH_STORAGE_KEY);
-    const localSaved = localStorage.getItem(AUTH_STORAGE_KEY);
-    const saved = sessionSaved || localSaved;
-    if (!saved) return null;
-
-    const isSession = !!sessionSaved;
-    const lastActiveStr = isSession
-      ? sessionStorage.getItem(AUTH_ACTIVE_KEY)
-      : localStorage.getItem(AUTH_ACTIVE_KEY);
-
-    if (lastActiveStr) {
-      const lastActive = parseInt(lastActiveStr, 10);
-      if (lastActive > 0 && Date.now() - lastActive > INACTIVITY_TIMEOUT_MS) {
-        // Stale session expired due to inactivity
-        localStorage.removeItem(AUTH_STORAGE_KEY);
-        localStorage.removeItem(AUTH_ACTIVE_KEY);
-        localStorage.removeItem(AUTH_LOCKED_KEY);
-        sessionStorage.removeItem(AUTH_STORAGE_KEY);
-        sessionStorage.removeItem(AUTH_ACTIVE_KEY);
-        sessionStorage.removeItem(AUTH_LOCKED_KEY);
-        return null;
-      }
-    }
-
-    return JSON.parse(saved);
-  } catch (e) {
-    return null;
-  }
-};
-
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(getInitialUser);
-  const [session, setSession] = useState(null);
+  const [user, setUser] = useState(null);
+  const [session, setSession] = useState(true);
   const [loading, setLoading] = useState(true);
   const [isLocked, setIsLocked] = useState(() => {
     return sessionStorage.getItem(AUTH_LOCKED_KEY) === 'true';
@@ -59,29 +19,10 @@ export const AuthProvider = ({ children }) => {
   const hardTimeoutTimerRef = useRef(null);
   const lastActiveThrottleRef = useRef(0);
 
-  // Synchronize state changes to active storage
-  useEffect(() => {
-    if (user) {
-      try {
-        const sanitized = sanitizeForLogging(user);
-        const serialized = JSON.stringify(sanitized);
-        const isSessionStored = !!sessionStorage.getItem(AUTH_STORAGE_KEY);
-
-        if (isSessionStored) {
-          sessionStorage.setItem(AUTH_STORAGE_KEY, serialized);
-          sessionStorage.setItem(AUTH_ACTIVE_KEY, String(Date.now()));
-        } else {
-          localStorage.setItem(AUTH_STORAGE_KEY, serialized);
-          localStorage.setItem(AUTH_ACTIVE_KEY, String(Date.now()));
-        }
-      } catch (e) {
-        console.warn('Unable to persist session state to storage:', e);
-      }
-    }
-  }, [user]);
-
   // Lock state persistence
   useEffect(() => {
+    localStorage.removeItem(AUTH_STORAGE_KEY);
+    sessionStorage.removeItem(AUTH_STORAGE_KEY);
     if (isLocked) {
       sessionStorage.setItem(AUTH_LOCKED_KEY, 'true');
     } else {
@@ -89,74 +30,30 @@ export const AuthProvider = ({ children }) => {
     }
   }, [isLocked]);
 
-  // Sync with Supabase Auth listener if live client is active
+  // Persist current user to sessionStorage for data services
   useEffect(() => {
-    if (isSupabaseConfigured() && supabase) {
-      // 1. Get initial live session if available
-      supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
-        setSession(currentSession);
-        if (currentSession?.user) {
-          const role = currentSession.user.user_metadata?.role || 'admin';
-          const fullName = currentSession.user.user_metadata?.full_name || (role === 'admin' ? 'System Administrator' : 'Juan Dela Cruz');
-          const adviserSection = currentSession.user.user_metadata?.adviserSection || (role === 'teacher' ? { grade: 'Grade 10', section: 'Rizal' } : null);
-
-          setUser({
-            id: currentSession.user.id,
-            name: fullName,
-            email: currentSession.user.email,
-            role: role,
-            avatar: '/images/phcm-logo2.png',
-            adviserSection: adviserSection
-          });
-        }
-        setLoading(false);
-      }).catch((err) => {
-        console.warn('Supabase getSession error:', err);
-        setLoading(false);
-      });
-
-      // 2. Listen to real-time auth state changes
-      const { data: { subscription } } = supabase.auth.onAuthStateChange((event, newSession) => {
-        setSession(newSession);
-        if (event === 'SIGNED_OUT') {
-          if (session?.user) {
-            setUser(null);
-            setIsLocked(false);
-            localStorage.removeItem(AUTH_STORAGE_KEY);
-            localStorage.removeItem(AUTH_ACTIVE_KEY);
-            localStorage.removeItem(AUTH_LOCKED_KEY);
-            sessionStorage.removeItem(AUTH_STORAGE_KEY);
-            sessionStorage.removeItem(AUTH_ACTIVE_KEY);
-            sessionStorage.removeItem(AUTH_LOCKED_KEY);
-          }
-        } else if (newSession?.user) {
-          const role = newSession.user.user_metadata?.role || 'admin';
-          setUser({
-            id: newSession.user.id,
-            name: newSession.user.user_metadata?.full_name || 'VioTrack User',
-            email: newSession.user.email,
-            role: role,
-            avatar: '/images/phcm-logo2.png',
-            adviserSection: newSession.user.user_metadata?.adviserSection || null
-          });
-        }
-      });
-
-      return () => {
-        subscription?.unsubscribe();
-      };
+    if (user) {
+      sessionStorage.setItem('viotrack_active_user', JSON.stringify(user));
     } else {
-      setLoading(false);
+      sessionStorage.removeItem('viotrack_active_user');
     }
+  }, [user]);
+
+  // Restore the server-side custom-auth session from its HttpOnly cookie.
+  useEffect(() => {
+    customAuth({ action: 'session' })
+      .then(({ user: currentUser }) => {
+        if (currentUser) setUser(currentUser);
+      })
+      .catch(() => setUser(null))
+      .finally(() => setLoading(false));
   }, []);
 
   const logout = useCallback(async (reason = 'manual', scope = 'local') => {
     try {
-      if (isSupabaseConfigured() && supabase) {
-        await supabase.auth.signOut({ scope: scope === 'global' ? 'global' : 'local' });
-      }
+      await customAuth({ action: 'logout' });
     } catch (e) {
-      console.warn('Error signing out from Supabase Auth:', e);
+      console.warn('Error signing out from custom authentication:', e);
     } finally {
       if (inactivityTimerRef.current) {
         clearTimeout(inactivityTimerRef.current);
@@ -189,14 +86,20 @@ export const AuthProvider = ({ children }) => {
     }
   }, [user]);
 
-  const unlockScreen = useCallback((passwordOrPin = '') => {
+  const unlockScreen = useCallback(async (password = '') => {
+    if (!user || !password) {
+      return false;
+    }
+    try {
+      await customAuth({ action: 'login', email: user.email, password });
+    } catch {
+      return false;
+    }
     setIsLocked(false);
     sessionStorage.removeItem(AUTH_LOCKED_KEY);
-    const now = Date.now();
-    sessionStorage.setItem(AUTH_ACTIVE_KEY, String(now));
-    localStorage.setItem(AUTH_ACTIVE_KEY, String(now));
+    sessionStorage.setItem(AUTH_ACTIVE_KEY, String(Date.now()));
     return true;
-  }, []);
+  }, [session, user]);
 
   // Secure inactivity monitor: log out after 30 minutes without activity.
   const resetInactivityTimer = useCallback(() => {
@@ -212,11 +115,7 @@ export const AuthProvider = ({ children }) => {
       const now = Date.now();
       if (now - lastActiveThrottleRef.current > 15000) {
         lastActiveThrottleRef.current = now;
-        if (sessionStorage.getItem(AUTH_STORAGE_KEY)) {
-          sessionStorage.setItem(AUTH_ACTIVE_KEY, String(now));
-        } else if (localStorage.getItem(AUTH_STORAGE_KEY)) {
-          localStorage.setItem(AUTH_ACTIVE_KEY, String(now));
-        }
+        sessionStorage.setItem(AUTH_ACTIVE_KEY, String(now));
       }
 
       hardTimeoutTimerRef.current = setTimeout(() => {
@@ -249,54 +148,19 @@ export const AuthProvider = ({ children }) => {
     };
   }, [user, isLocked, resetInactivityTimer]);
 
-  const login = (roleOrUser = 'admin', remember = true) => {
+  const login = (roleOrUser, remember = true, authSession = null) => {
     let userObj;
 
-    if (typeof roleOrUser === 'string') {
-      if (roleOrUser === 'admin') {
-        userObj = {
-          id: 1,
-          name: 'System Admin',
-          email: 'admin@viotrack.edu',
-          role: 'admin',
-          avatar: '/images/phcm-logo2.png',
-          adviserSection: null
-        };
-      } else {
-        userObj = {
-          id: 2,
-          name: 'Juan Dela Cruz',
-          email: 'teacher@viotrack.edu',
-          role: 'teacher',
-          avatar: '/images/phcm-logo2.png',
-          adviserSection: { grade: 'Grade 10', section: 'Rizal' }
-        };
-      }
-    } else {
-      userObj = roleOrUser;
-    }
-
-    const sanitized = sanitizeForLogging(userObj);
-    const serialized = JSON.stringify(sanitized);
-    const now = String(Date.now());
-
-    if (remember) {
-      sessionStorage.removeItem(AUTH_STORAGE_KEY);
-      sessionStorage.removeItem(AUTH_ACTIVE_KEY);
-      localStorage.setItem(AUTH_STORAGE_KEY, serialized);
-      localStorage.setItem(AUTH_ACTIVE_KEY, now);
-    } else {
-      localStorage.removeItem(AUTH_STORAGE_KEY);
-      localStorage.removeItem(AUTH_ACTIVE_KEY);
-      sessionStorage.setItem(AUTH_STORAGE_KEY, serialized);
-      sessionStorage.setItem(AUTH_ACTIVE_KEY, now);
-    }
-
+    userObj = roleOrUser;
+    if (authSession) setSession(authSession);
+    localStorage.removeItem(AUTH_STORAGE_KEY);
+    sessionStorage.removeItem(AUTH_STORAGE_KEY);
+    sessionStorage.setItem(AUTH_ACTIVE_KEY, String(Date.now()));
     setUser(userObj);
   };
 
-  const switchRole = (newRole) => {
-    login(newRole, !sessionStorage.getItem(AUTH_STORAGE_KEY));
+  const switchRole = () => {
+    console.warn('Role switching is disabled; roles come from the server-authenticated account.');
   };
 
   // RBAC & IDOR Authorization Helpers

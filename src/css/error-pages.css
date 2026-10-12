@@ -398,3 +398,284 @@
     justify-content: center;
   }
 }
+
+  /* Dark mode keeps the error surface readable without losing the status colors. */
+  :root[data-theme="dark"] .error-page-container {
+    color: #e2e8f0;
+  }
+
+  :root[data-theme="dark"] .error-page-container.standalone {
+    background:
+      radial-gradient(circle at 50% 30%, rgba(38, 38, 38, 0.72) 0%, transparent 48%),
+      #000000;
+  }
+
+  :root[data-theme="dark"] .error-page-container.standalone::before {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.015) 100%);
+  }
+
+  :root[data-theme="dark"] .error-page-container.standalone::after {
+    background: linear-gradient(315deg, rgba(255, 255, 255, 0.07) 0%, rgba(255, 255, 255, 0.01) 100%);
+  }
+
+  :root[data-theme="dark"] .error-card {
+    background: #0d0d0d;
+    border-color: #2b2b2b;
+    box-shadow: 0 18px 42px rgba(0, 0, 0, 0.32), 0 2px 8px rgba(0, 0, 0, 0.2);
+  }
+
+  :root[data-theme="dark"] .error-preview-stage {
+    background: #0a0a0a !important;
+    border-color: #292929 !important;
+  }
+
+  :root[data-theme="dark"] .error-preview-stage > .error-preview-surface {
+    background: #000000 !important;
+  }
+
+  :root[data-theme="dark"] .error-preview-stage > div:first-child {
+    background: #111111 !important;
+    border-bottom-color: #2b2b2b !important;
+  }
+
+  :root[data-theme="dark"] .error-preview-stage > div:first-child span {
+    color: #f5f5f5 !important;
+  }
+
+  :root[data-theme="dark"] .error-preview-stage > div:first-child .error-preview-mode-badge {
+    background: #262626 !important;
+    color: #ffffff !important;
+  }
+
+  :root[data-theme="dark"] .error-test-page .error-test-card {
+    background: #0d0d0d !important;
+    border-color: #303030 !important;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.28) !important;
+  }
+
+  :root[data-theme="dark"] .error-test-page .error-test-card-404[style*="border: 2px"] {
+    background: #171717 !important;
+    border-color: #60a5fa !important;
+  }
+
+  :root[data-theme="dark"] .error-test-page .error-test-card-403[style*="border: 2px"] {
+    background: #1c1114 !important;
+    border-color: #fb7185 !important;
+  }
+
+  :root[data-theme="dark"] .error-test-page .error-test-card-500[style*="border: 2px"] {
+    background: #1c160b !important;
+    border-color: #fbbf24 !important;
+  }
+
+  :root[data-theme="dark"] .error-test-page .error-test-card-security[style*="border: 2px"] {
+    background: #0d1a15 !important;
+    border-color: #34d399 !important;
+  }
+
+  :root[data-theme="dark"] .error-test-page .error-test-card-crash {
+    background: #0d0d0d !important;
+  }
+
+  :root[data-theme="dark"] .error-test-page .error-test-card span[style*="#1e293b"],
+  :root[data-theme="dark"] .error-test-page .error-test-card span[style*="#065f46"] {
+    color: #f5f5f5 !important;
+  }
+
+  :root[data-theme="dark"] .error-test-page .error-test-card p[style*="#64748b"] {
+    color: #a3a3a3 !important;
+  }
+
+  :root[data-theme="dark"] .error-test-page .error-test-card-crash p[style*="#64748b"] {
+    color: #a3a3a3 !important;
+  }
+
+  :root[data-theme="dark"] .error-test-page .error-test-card-crash > div:first-child {
+    background: #171717 !important;
+    border-color: #303030 !important;
+  }
+
+  :root[data-theme="dark"] .error-test-page .error-test-sandbox,
+  :root[data-theme="dark"] .error-test-page .error-test-audit {
+    background: #0d0d0d !important;
+    border-color: #303030 !important;
+    color: #f5f5f5;
+  }
+
+  :root[data-theme="dark"] .error-test-page .error-test-status {
+    background: #171717 !important;
+    border-color: #303030 !important;
+  }
+
+  :root[data-theme="dark"] .error-test-page .error-test-sandbox span[style*="#0f172a"],
+  :root[data-theme="dark"] .error-test-page .error-test-audit h3,
+  :root[data-theme="dark"] .error-test-page .error-test-audit span[style*="#0f172a"] {
+    color: #f5f5f5 !important;
+  }
+
+  :root[data-theme="dark"] .error-test-page .error-test-sandbox p[style*="#64748b"],
+  :root[data-theme="dark"] .error-test-page .error-test-audit p[style*="#64748b"] {
+    color: #a3a3a3 !important;
+  }
+
+  :root[data-theme="dark"] .error-test-page .error-audit-check.is-passed {
+    background: #0d2118 !important;
+    border-color: #1f7a4d !important;
+  }
+
+  :root[data-theme="dark"] .error-test-page .error-audit-check.is-failed {
+    background: #291316 !important;
+    border-color: #9f3d49 !important;
+  }
+
+  :root[data-theme="dark"] .error-test-page .error-audit-check-number {
+    background: #000000 !important;
+    color: #86efac !important;
+  }
+
+  :root[data-theme="dark"] .error-test-page .error-audit-check.is-failed .error-audit-check-number {
+    color: #fca5a5 !important;
+  }
+
+  :root[data-theme="dark"] .error-test-page .error-audit-check-name {
+    color: #f5f5f5 !important;
+  }
+
+  :root[data-theme="dark"] .error-test-page .error-audit-check-description {
+    color: #cbd5e1 !important;
+  }
+
+  :root[data-theme="dark"] .error-test-page .error-audit-check-category {
+    color: #94a3b8 !important;
+  }
+
+  :root[data-theme="dark"] .error-test-page .error-audit-check-status {
+    color: #4ade80 !important;
+  }
+
+  :root[data-theme="dark"] .error-test-page .error-audit-check.is-failed .error-audit-check-status {
+    color: #f87171 !important;
+  }
+
+  :root[data-theme="dark"] .error-brand-logo span {
+    color: #f1f5f9;
+  }
+
+  :root[data-theme="dark"] .error-badge.badge-404 {
+    background: rgba(30, 64, 175, 0.22);
+    color: #bfdbfe;
+    border-color: rgba(96, 165, 250, 0.42);
+  }
+
+  :root[data-theme="dark"] .error-badge.badge-403 {
+    background: rgba(159, 18, 57, 0.22);
+    color: #fecdd3;
+    border-color: rgba(251, 113, 133, 0.42);
+  }
+
+  :root[data-theme="dark"] .error-badge.badge-500 {
+    background: rgba(146, 64, 14, 0.24);
+    color: #fde68a;
+    border-color: rgba(251, 191, 36, 0.42);
+  }
+
+  :root[data-theme="dark"] .error-icon-wrapper.icon-404 {
+    background: linear-gradient(135deg, rgba(30, 64, 175, 0.26), rgba(30, 58, 138, 0.48));
+    color: #93c5fd;
+    border-color: rgba(96, 165, 250, 0.42);
+  }
+
+  :root[data-theme="dark"] .error-icon-wrapper.icon-403 {
+    background: linear-gradient(135deg, rgba(159, 18, 57, 0.25), rgba(136, 19, 55, 0.48));
+    color: #fda4af;
+    border-color: rgba(251, 113, 133, 0.42);
+  }
+
+  :root[data-theme="dark"] .error-icon-wrapper.icon-500 {
+    background: linear-gradient(135deg, rgba(146, 64, 14, 0.25), rgba(120, 53, 15, 0.48));
+    color: #fcd34d;
+    border-color: rgba(251, 191, 36, 0.42);
+  }
+
+  :root[data-theme="dark"] .error-icon-badge {
+    background: #1a1a1a;
+    border-color: #3a3a3a;
+  }
+
+  :root[data-theme="dark"] .error-title {
+    color: #f8fafc;
+  }
+
+  :root[data-theme="dark"] .error-description {
+    color: #b6c5d3;
+  }
+
+  :root[data-theme="dark"] .error-description strong {
+    color: #f8fafc;
+  }
+
+  :root[data-theme="dark"] .error-btn-primary {
+    background: #ffffff;
+    color: #000000;
+    box-shadow: 0 5px 16px rgba(255, 255, 255, 0.14);
+  }
+
+  :root[data-theme="dark"] .error-btn-primary:hover {
+    background: #eeeeee;
+    color: #000000;
+    box-shadow: 0 6px 18px rgba(255, 255, 255, 0.2);
+  }
+
+  :root[data-theme="dark"] .error-btn-secondary {
+    background: #1a1a1a;
+    color: #dbeafe;
+    border-color: #454545;
+  }
+
+  :root[data-theme="dark"] .error-btn-secondary:hover {
+    background: #262626;
+    border-color: #707070;
+    color: #f8fafc;
+  }
+
+  :root[data-theme="dark"] .error-quick-links,
+  :root[data-theme="dark"] .error-tech-details {
+    border-color: #303030;
+  }
+
+  :root[data-theme="dark"] .error-quick-title,
+  :root[data-theme="dark"] .error-details-summary {
+    color: #9fb3c4;
+  }
+
+  :root[data-theme="dark"] .error-quick-links p[style] {
+    color: #b6c5d3 !important;
+  }
+
+  :root[data-theme="dark"] .error-details-summary:hover {
+    color: #7dd3fc;
+  }
+
+  :root[data-theme="dark"] .error-link-chip {
+    background: #171717;
+    border-color: #353535;
+    color: #dbeafe;
+  }
+
+  :root[data-theme="dark"] .error-link-chip:hover {
+    background: #242424;
+    border-color: #707070;
+    color: #f8fafc;
+  }
+
+  :root[data-theme="dark"] .error-stack-box {
+    background: #050505;
+    color: #dbeafe;
+    border: 1px solid #303030;
+  }
+
+  :root[data-theme="dark"] .error-page-container button:focus-visible,
+  :root[data-theme="dark"] .error-page-container a:focus-visible {
+    outline: 3px solid #67e8f9;
+    outline-offset: 3px;
+  }

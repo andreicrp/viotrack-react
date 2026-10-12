@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { customAuth } from '../lib/supabase';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useNotification } from '../context/NotificationContext';
@@ -24,7 +25,6 @@ import {
   Clock
 } from 'lucide-react';
 import { LegalModal } from '../components/legal/LegalModal';
-import { isSupabaseConfigured, supabase } from '../lib/supabase';
 import { evaluatePasswordStrength, validateUploadedFile } from '../utils/security';
 import '../css/profile.css';
 
@@ -105,39 +105,22 @@ export const ProfilePage = () => {
         return;
       }
 
-      // Update password via Supabase Auth if configured
-      if (isSupabaseConfigured() && supabase) {
-        try {
-          const { error: passErr } = await supabase.auth.updateUser({
-            password: newPassword
-          });
-          if (passErr) {
-            error('Failed to update password: ' + passErr.message);
-            setIsSaving(false);
-            return;
-          }
-        } catch (err) {
-          error('Error updating authentication credentials: ' + err.message);
-          setIsSaving(false);
-          return;
-        }
+      try {
+        await customAuth({
+          action: 'change-password',
+          currentPassword,
+          newPassword
+        });
+      } catch (err) {
+        error(err.message || 'Failed to update password.');
+        setIsSaving(false);
+        return;
       }
     }
 
     try {
       const fullName = `${firstName} ${middleName ? middleName + ' ' : ''}${lastName}`.trim();
       
-      // Also update user metadata on Supabase if connected
-      if (isSupabaseConfigured() && supabase) {
-        await supabase.auth.updateUser({
-          data: {
-            full_name: fullName,
-            phone: phone,
-            department: department
-          }
-        });
-      }
-
       setUser({
         ...user,
         name: fullName,

@@ -90,7 +90,7 @@ export const SearchableStudentSelect = ({
 
     return students.filter(s => {
       const name = `${s.fname || ''} ${s.lname || ''}`.toLowerCase();
-      const lrn = (s.lrn || '').toLowerCase();
+      const lrn = (s.student_id || '').toLowerCase();
       const grade = (s.grade || '').toLowerCase();
       const section = (s.section || '').toLowerCase();
 
@@ -319,7 +319,7 @@ export const SearchableStudentSelect = ({
                         {s.fname} {s.lname}
                       </div>
                       <div style={{ fontSize: '11.5px', color: 'var(--text-muted, #64748b)', marginTop: '2px' }}>
-                        ID {s.lrn} <span aria-hidden="true">·</span> Grade {s.grade}, {s.section}
+                        ID {s.student_id} <span aria-hidden="true">·</span> Grade {s.grade}, {s.section}
                       </div>
                     </div>
                   </div>

@@ -5,6 +5,16 @@
 -- Compatible with: MySQL 5.7 / 8.0+ & MariaDB 10.3+ (XAMPP, WAMP, Docker, phpMyAdmin)
 -- Character Set: utf8mb4 | Collation: utf8mb4_unicode_ci
 -- ==============================================================================
+-- DEFAULT LOGIN CREDENTIALS IN SEED DATA:
+-- System Admin : admin@viotrack.edu        | Password: viotrack@2026
+-- Head Admin   : admin@phcmanila.edu.ph    | Password: viotrack@2026
+-- Faculty      : juan.delacruz@viotrack.edu| Password: teacher123
+-- Faculty      : elena.reyes@viotrack.edu  | Password: teacher123
+-- Faculty      : roberto.aquino@viotrack.edu| Password: teacher123
+-- Faculty      : carmela.bautista@viotrack.edu | Password: teacher123
+-- Faculty      : fernando.perez@viotrack.edu   | Password: teacher123
+-- Passwords are encrypted with standard 12-round bcrypt hashes.
+-- ==============================================================================
 
 -- 1. DATABASE CREATION & INITIALIZATION
 CREATE DATABASE IF NOT EXISTS `viotrack_db` 
@@ -42,7 +52,6 @@ SET FOREIGN_KEY_CHECKS = 1;
 CREATE TABLE `students` (
     `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     `student_id` VARCHAR(50) NOT NULL,
-    `lrn` VARCHAR(50) GENERATED ALWAYS AS (`student_id`) VIRTUAL,
     `fname` VARCHAR(100) NOT NULL,
     `mname` VARCHAR(100) DEFAULT '',
     `lname` VARCHAR(100) NOT NULL,
@@ -55,7 +64,7 @@ CREATE TABLE `students` (
     `parent_name` VARCHAR(150) DEFAULT '',
     `parent_contact` VARCHAR(30) DEFAULT '',
     `address` TEXT,
-    `password` VARCHAR(255) DEFAULT 'Viotrack@2026!',
+    `password_hash` VARCHAR(255) DEFAULT '$2b$12$.wxGnXZjCUjIO7eai92HquBVsvP.5WB55tgD9nI6Qguaaf0uQoSua',
     `image` LONGTEXT,
     `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
     `updated_at` DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -75,7 +84,7 @@ CREATE TABLE `admins` (
     `mname` VARCHAR(100) DEFAULT '',
     `lname` VARCHAR(100) NOT NULL,
     `email` VARCHAR(150) NOT NULL,
-    `password` VARCHAR(255) NOT NULL,
+    `password_hash` VARCHAR(255) NOT NULL,
     `role` VARCHAR(50) DEFAULT 'Head Admin',
     `position` VARCHAR(100) DEFAULT 'Discipline Officer',
     `contact` VARCHAR(30) DEFAULT '',
@@ -96,7 +105,7 @@ CREATE TABLE `teachers` (
     `mname` VARCHAR(100) DEFAULT '',
     `lname` VARCHAR(100) NOT NULL,
     `email` VARCHAR(150) NOT NULL,
-    `password` VARCHAR(255) NOT NULL,
+    `password_hash` VARCHAR(255) NOT NULL,
     `position` VARCHAR(100) DEFAULT 'Master Teacher I',
     `department` VARCHAR(100) DEFAULT 'Junior High School',
     `contact` VARCHAR(30) DEFAULT '',
@@ -186,13 +195,14 @@ CREATE TABLE `student_locations` (
     `student_id` BIGINT UNSIGNED NOT NULL,
     `latitude` DECIMAL(10, 7) NOT NULL,
     `longitude` DECIMAL(10, 7) NOT NULL,
-    `location_name` VARCHAR(150) NOT NULL,
-    `status` VARCHAR(50) DEFAULT 'In Class',
-    `timestamp` DATETIME DEFAULT CURRENT_TIMESTAMP,
+    `accuracy_meters` INT DEFAULT 10,
+    `tracking_status` VARCHAR(50) DEFAULT 'Active',
+    `reported_by` VARCHAR(150) DEFAULT 'System',
+    `recorded_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
     `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
     KEY `idx_student_locations_student` (`student_id`),
-    KEY `idx_student_locations_timestamp` (`timestamp`),
+    KEY `idx_student_locations_recorded_at` (`recorded_at`),
     CONSTRAINT `fk_locations_student` FOREIGN KEY (`student_id`) 
         REFERENCES `students` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -202,15 +212,18 @@ CREATE TABLE `student_locations` (
 -- ------------------------------------------------------------------------------
 CREATE TABLE `school_events` (
     `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-    `title` VARCHAR(150) NOT NULL,
+    `title` VARCHAR(200) NOT NULL,
     `description` TEXT,
-    `event_date` DATE NOT NULL,
-    `event_time` TIME DEFAULT '08:00:00',
-    `venue` VARCHAR(150) DEFAULT 'Campus Quadrangle',
-    `event_type` VARCHAR(50) DEFAULT 'Academic',
+    `date` DATE NOT NULL,
+    `time` VARCHAR(100) DEFAULT '',
+    `location` VARCHAR(200) DEFAULT '',
+    `category` VARCHAR(50) DEFAULT 'academic',
+    `categoryLabel` VARCHAR(100) DEFAULT 'Academic',
+    `color` VARCHAR(20) DEFAULT '#07345f',
+    `attendees` VARCHAR(200) DEFAULT 'All Students',
     `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
-    KEY `idx_events_date` (`event_date`)
+    KEY `idx_events_date` (`date`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ------------------------------------------------------------------------------
@@ -222,11 +235,12 @@ CREATE TABLE `activity_logs` (
     `user_role` VARCHAR(50) NOT NULL,
     `action` VARCHAR(100) NOT NULL,
     `details` TEXT,
-    `ip_address` VARCHAR(50) DEFAULT '127.0.0.1',
-    `workstation` VARCHAR(100) DEFAULT 'Windows PC / Chrome Browser',
-    `audit_hash` VARCHAR(64) DEFAULT NULL,
+    `audit_id` VARCHAR(80) DEFAULT NULL,
+    `ip_address` VARCHAR(50) DEFAULT NULL,
+    `device_info` VARCHAR(255) DEFAULT NULL,
     `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`),
+    KEY `idx_activity_logs_audit_id` (`audit_id`),
     KEY `idx_activity_logs_created` (`created_at`),
     KEY `idx_activity_logs_action` (`action`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -280,19 +294,19 @@ CREATE TABLE `sms_logs` (
 -- 4. OFFICIAL INSTITUTIONAL SEED DATA
 -- ==============================================================================
 
--- 4.1 Sample Administrators
-INSERT INTO `admins` (`id`, `fname`, `mname`, `lname`, `email`, `password`, `role`, `position`) VALUES
-(1, 'Sheryl', 'B.', 'Gamboa', 'admin@phcmanila.edu.ph', 'Viotrack@2026!', 'Head Admin', 'Head of Student Affairs'),
-(2, 'System', '', 'Administrator', 'admin@viotrack.edu', 'admin123', 'System Admin', 'IT & Systems Security Lead'),
-(3, 'Maria', 'L.', 'Santos', 'maria.santos@viotrack.edu', 'admin123', 'Discipline Officer', 'Guidance & Conduct Officer');
+-- 4.1 Sample Administrators (Password: viotrack@2026)
+INSERT INTO `admins` (`id`, `fname`, `mname`, `lname`, `email`, `password_hash`, `role`, `position`) VALUES
+(1, 'Sheryl', 'B.', 'Gamboa', 'admin@phcmanila.edu.ph', '$2b$12$.wxGnXZjCUjIO7eai92HquBVsvP.5WB55tgD9nI6Qguaaf0uQoSua', 'Head Admin', 'Head of Student Affairs'),
+(2, 'System', '', 'Administrator', 'admin@viotrack.edu', '$2b$12$.wxGnXZjCUjIO7eai92HquBVsvP.5WB55tgD9nI6Qguaaf0uQoSua', 'System Admin', 'IT & Systems Security Lead'),
+(3, 'Maria', 'L.', 'Santos', 'maria.santos@viotrack.edu', '$2b$12$.wxGnXZjCUjIO7eai92HquBVsvP.5WB55tgD9nI6Qguaaf0uQoSua', 'Discipline Officer', 'Guidance & Conduct Officer');
 
--- 4.2 Sample Teachers
-INSERT INTO `teachers` (`id`, `fname`, `mname`, `lname`, `email`, `password`, `position`, `department`, `contact`, `gender`) VALUES
-(1, 'Juan', 'D.', 'Dela Cruz', 'juan.delacruz@viotrack.edu', 'teacher123', 'Master Teacher I', 'Science Department', '09171234567', 'Male'),
-(2, 'Elena', 'M.', 'Reyes', 'elena.reyes@viotrack.edu', 'teacher123', 'Teacher III', 'Mathematics Department', '09181234568', 'Female'),
-(3, 'Roberto', 'C.', 'Aquino', 'roberto.aquino@viotrack.edu', 'teacher123', 'Teacher II', 'English Department', '09191234569', 'Male'),
-(4, 'Carmela', 'S.', 'Bautista', 'carmela.bautista@viotrack.edu', 'teacher123', 'Teacher I', 'Social Studies Department', '09153334411', 'Female'),
-(5, 'Fernando', 'T.', 'Perez', 'fernando.perez@viotrack.edu', 'teacher123', 'Senior High Instructor', 'TVL Track', '09154445522', 'Male');
+-- 4.2 Sample Teachers (Password: teacher123)
+INSERT INTO `teachers` (`id`, `fname`, `mname`, `lname`, `email`, `password_hash`, `position`, `department`, `contact`, `gender`, `image`) VALUES
+(1, 'Juan', 'D.', 'Dela Cruz', 'juan.delacruz@viotrack.edu', '$2b$12$poYynWyaaqZZTBS5GwaA6erhh8y1swb0CBVdXnUOgmS81WaOIoGDi', 'Master Teacher I', 'Science Department', '09171234567', 'Male', 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80'),
+(2, 'Elena', 'M.', 'Reyes', 'elena.reyes@viotrack.edu', '$2b$12$poYynWyaaqZZTBS5GwaA6erhh8y1swb0CBVdXnUOgmS81WaOIoGDi', 'Teacher III', 'Mathematics Department', '09181234568', 'Female', 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&auto=format&fit=crop&q=80'),
+(3, 'Roberto', 'C.', 'Aquino', 'roberto.aquino@viotrack.edu', '$2b$12$poYynWyaaqZZTBS5GwaA6erhh8y1swb0CBVdXnUOgmS81WaOIoGDi', 'Teacher II', 'English Department', '09191234569', 'Male', 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&auto=format&fit=crop&q=80'),
+(4, 'Carmela', 'S.', 'Bautista', 'carmela.bautista@viotrack.edu', '$2b$12$poYynWyaaqZZTBS5GwaA6erhh8y1swb0CBVdXnUOgmS81WaOIoGDi', 'Teacher I', 'Social Studies Department', '09153334411', 'Female', 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&auto=format&fit=crop&q=80'),
+(5, 'Fernando', 'T.', 'Perez', 'fernando.perez@viotrack.edu', '$2b$12$poYynWyaaqZZTBS5GwaA6erhh8y1swb0CBVdXnUOgmS81WaOIoGDi', 'Senior High Instructor', 'TVL Track', '09154445522', 'Male', 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150&auto=format&fit=crop&q=80');
 
 -- 4.3 Sample Class Advisers
 INSERT INTO `advisers` (`id`, `teacher_id`, `grade_level`, `class_section`) VALUES
@@ -314,14 +328,14 @@ INSERT INTO `violations` (`id`, `title`, `description`, `type`, `severity`, `def
 (8, 'Cheating / Academic Dishonesty', 'Copying during examinations, unauthorized notes, or submitting plagiarized outputs', 'Major', 'Major', 'Zero Score & Formal Reprimand'),
 (9, 'Physical Altercation / Fighting', 'Engaging in violent fights, physical assaults, or instigating brawls', 'Major', 'Major', '5-Day Suspension & Corrective Action Plan');
 
--- 4.5 Sample Enrolled Students
-INSERT INTO `students` (`id`, `student_id`, `fname`, `mname`, `lname`, `grade`, `section`, `academicyear`, `gender`, `contact`, `parent_name`, `parent_contact`, `address`, `image`) VALUES
-(1, '109283746101', 'Alexander', 'Cruz', 'Mendoza', 'Grade 10', 'Rizal', '2025-2026', 'Male', '09151112233', 'Carlos Mendoza', '09151112234', '124 Rizal St, Sampaloc, Manila', 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150&auto=format&fit=crop&q=80'),
-(2, '109283746102', 'Sophia', 'Grace', 'Villanueva', 'Grade 10', 'Rizal', '2025-2026', 'Female', '09152223344', 'Lorena Villanueva', '09152223345', '45 Mabini Ave, Quezon City', 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&auto=format&fit=crop&q=80'),
-(3, '109283746103', 'Gabriel', 'Luis', 'Torres', 'Grade 10', 'Bonifacio', '2025-2026', 'Male', '09153334455', 'Ramon Torres', '09153334456', '88 Aurora Blvd, San Juan', 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80'),
-(4, '109283746104', 'Isabella', 'Marie', 'Ramos', 'Grade 11', 'STEM A', '2025-2026', 'Female', '09154445566', 'Patricia Ramos', '09154445567', '73 Commonwealth Ave, QC', 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80'),
-(5, '109283746105', 'Christian', 'Paul', 'Navarro', 'Grade 11', 'STEM A', '2025-2026', 'Male', '09155556677', 'Dennis Navarro', '09155556678', '19 Espana Blvd, Manila', 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80'),
-(6, '109283746106', 'Jasmine', 'Rose', 'Castillo', 'Grade 9', 'Diamond', '2025-2026', 'Female', '09156667788', 'Lita Castillo', '09156667789', '210 Taft Avenue, Pasay', 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80');
+-- 4.5 Sample Enrolled Students (Default Password: viotrack@2026)
+INSERT INTO `students` (`id`, `student_id`, `fname`, `mname`, `lname`, `grade`, `section`, `academicyear`, `gender`, `contact`, `parent_name`, `parent_contact`, `address`, `password_hash`, `image`) VALUES
+(1, '109283746101', 'Alexander', 'Cruz', 'Mendoza', 'Grade 10', 'Rizal', '2025-2026', 'Male', '09151112233', 'Carlos Mendoza', '09151112234', '124 Rizal St, Sampaloc, Manila', '$2b$12$.wxGnXZjCUjIO7eai92HquBVsvP.5WB55tgD9nI6Qguaaf0uQoSua', 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150&auto=format&fit=crop&q=80'),
+(2, '109283746102', 'Sophia', 'Grace', 'Villanueva', 'Grade 10', 'Rizal', '2025-2026', 'Female', '09152223344', 'Lorena Villanueva', '09152223345', '45 Mabini Ave, Quezon City', '$2b$12$.wxGnXZjCUjIO7eai92HquBVsvP.5WB55tgD9nI6Qguaaf0uQoSua', 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&auto=format&fit=crop&q=80'),
+(3, '109283746103', 'Gabriel', 'Luis', 'Torres', 'Grade 10', 'Bonifacio', '2025-2026', 'Male', '09153334455', 'Ramon Torres', '09153334456', '88 Aurora Blvd, San Juan', '$2b$12$.wxGnXZjCUjIO7eai92HquBVsvP.5WB55tgD9nI6Qguaaf0uQoSua', 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80'),
+(4, '109283746104', 'Isabella', 'Marie', 'Ramos', 'Grade 11', 'STEM A', '2025-2026', 'Female', '09154445566', 'Patricia Ramos', '09154445567', '73 Commonwealth Ave, QC', '$2b$12$.wxGnXZjCUjIO7eai92HquBVsvP.5WB55tgD9nI6Qguaaf0uQoSua', 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80'),
+(5, '109283746105', 'Christian', 'Paul', 'Navarro', 'Grade 11', 'STEM A', '2025-2026', 'Male', '09155556677', 'Dennis Navarro', '09155556678', '19 Espana Blvd, Manila', '$2b$12$.wxGnXZjCUjIO7eai92HquBVsvP.5WB55tgD9nI6Qguaaf0uQoSua', 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80'),
+(6, '109283746106', 'Jasmine', 'Rose', 'Castillo', 'Grade 9', 'Diamond', '2025-2026', 'Female', '09156667788', 'Lita Castillo', '09156667789', '210 Taft Avenue, Pasay', '$2b$12$.wxGnXZjCUjIO7eai92HquBVsvP.5WB55tgD9nI6Qguaaf0uQoSua', 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80');
 
 -- 4.6 Sample Disciplinary Incident Records
 INSERT INTO `records` (`id`, `student_id`, `violation_id`, `reported_by_type`, `reported_by_name`, `date_reported`, `status`, `approval_status`, `approved_by`, `approved_at`, `sanction`, `remarks`, `resolution_notes`, `sms_notified`) VALUES
@@ -333,24 +347,24 @@ INSERT INTO `records` (`id`, `student_id`, `violation_id`, `reported_by_type`, `
 (6, 2, 2, 'teacher', 'Elena Reyes', DATE_SUB(NOW(), INTERVAL 3 HOUR), 'Under Approval', 'Under Approval', NULL, NULL, 'Pending Admin Review', 'Repeated tardiness in morning homeroom period.', '', 0);
 
 -- 4.7 Sample Student Locations (Campus Map)
-INSERT INTO `student_locations` (`id`, `student_id`, `latitude`, `longitude`, `location_name`, `status`) VALUES
-(1, 1, 14.6042000, 120.9893000, 'Main Building - Room 204', 'In Class'),
-(2, 2, 14.6045000, 120.9897000, 'School Library - 3rd Floor', 'Study Period'),
-(3, 3, 14.6039000, 120.9889000, 'Discipline Office - Admin Bldg', 'Counseling Session'),
-(4, 4, 14.6048000, 120.9902000, 'Science Laboratory 2', 'Lab Activity'),
-(5, 5, 14.6035000, 120.9885000, 'Campus Gymnasium', 'PE Class');
+INSERT INTO `student_locations` (`id`, `student_id`, `latitude`, `longitude`, `accuracy_meters`, `tracking_status`, `reported_by`) VALUES
+(1, 1, 14.6042000, 120.9893000, 10, 'Active', 'GPS Telemetry'),
+(2, 2, 14.6045000, 120.9897000, 12, 'Historical', 'GPS Telemetry'),
+(3, 3, 14.6039000, 120.9889000, 8, 'Historical', 'GPS Telemetry'),
+(4, 4, 14.6048000, 120.9902000, 10, 'Historical', 'GPS Telemetry'),
+(5, 5, 14.6035000, 120.9885000, 15, 'Historical', 'GPS Telemetry');
 
 -- 4.8 Sample Institutional Activity & Audit Logs
-INSERT INTO `activity_logs` (`id`, `user_name`, `user_role`, `action`, `details`, `ip_address`, `workstation`, `audit_hash`) VALUES
-(1, 'System Admin', 'Head Admin', 'Login', 'Administrator logged into VioTrack secure portal', '192.168.1.10', 'Windows 11 / Chrome 124', '7f83b1657ff1fc53b92dc18148a1d65dfc2d4b1fa3d677284addd200126d9069'),
-(2, 'Juan Dela Cruz', 'Faculty Teacher', 'Add Violation', 'Reported Minor infraction for Alexander Mendoza (ID: 109283746101)', '192.168.1.45', 'Staff Workstation #04', 'b2c92e93b1b9e2815ff8e2a39281a65dfc2d4b1fa3d677284addd200126d9101'),
-(3, 'System Admin', 'Head Admin', 'Status Update', 'Marked incident record #1 as Resolved following compliance', '192.168.1.10', 'Windows 11 / Chrome 124', 'a89c2e93b1b9e2815ff8e2a39281a65dfc2d4b1fa3d677284addd200126d9202'),
-(4, 'Elena Reyes', 'Faculty Teacher', 'SMS Notification', 'Dispatched official summons SMS to parent Carlos Mendoza', '192.168.1.52', 'Staff Workstation #12', 'c91e2e93b1b9e2815ff8e2a39281a65dfc2d4b1fa3d677284addd200126d9303');
+INSERT INTO `activity_logs` (`id`, `audit_id`, `user_name`, `user_role`, `action`, `details`, `ip_address`, `device_info`) VALUES
+(1, 'AUD-000001', 'System Admin', 'Head Admin', 'Login', 'Administrator logged into VioTrack secure portal', '192.168.1.10', 'Windows 11 / Chrome 124'),
+(2, 'AUD-000002', 'Juan Dela Cruz', 'Faculty Teacher', 'Add Violation', 'Reported Minor infraction for Alexander Mendoza (ID: 109283746101)', '192.168.1.45', 'Staff Workstation #04'),
+(3, 'AUD-000003', 'System Admin', 'Head Admin', 'Status Update', 'Marked incident record #1 as Resolved following compliance', '192.168.1.10', 'Windows 11 / Chrome 124'),
+(4, 'AUD-000004', 'Elena Reyes', 'Faculty Teacher', 'SMS Notification', 'Dispatched official summons SMS to parent Carlos Mendoza', '192.168.1.52', 'Staff Workstation #12');
 
 -- 4.9 Sample School Calendar Events
-INSERT INTO `school_events` (`id`, `title`, `description`, `event_date`, `event_time`, `venue`, `event_type`) VALUES
-(1, 'General Faculty & Discipline Assembly', 'Mandatory orientation on DepEd Order 40 & campus welfare protocol', CURDATE() + INTERVAL 2 DAY, '08:30:00', 'University Auditorium', 'Institutional'),
-(2, 'Quarterly Parent-Teacher Disciplinary Review', 'Formal conference for students with multiple unresolved infraction points', CURDATE() + INTERVAL 5 DAY, '10:00:00', 'Prefect Conference Room 204', 'Guidance');
+INSERT INTO `school_events` (`id`, `title`, `description`, `date`, `time`, `location`, `category`, `categoryLabel`, `color`, `attendees`) VALUES
+(1, 'General Faculty & Discipline Assembly', 'Mandatory orientation on DepEd Order 40 & campus welfare protocol', CURDATE() + INTERVAL 2 DAY, '08:30', 'University Auditorium', 'institutional', 'Institutional', '#07345f', 'All Faculty'),
+(2, 'Quarterly Parent-Teacher Disciplinary Review', 'Formal conference for students with multiple unresolved infraction points', CURDATE() + INTERVAL 5 DAY, '10:00', 'Prefect Conference Room 204', 'guidance', 'Guidance', '#0ea5a0', 'Parents and Advisers');
 
 -- Enable Foreign Key checks
 SET FOREIGN_KEY_CHECKS = 1;

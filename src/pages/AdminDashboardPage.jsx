@@ -70,7 +70,7 @@ const formatWaitingAge = (ageMs) => {
 const getStudentLabel = (record, studentById) => {
   const relatedStudent = record.student || record.students;
   const nestedStudent = Array.isArray(relatedStudent) ? relatedStudent[0] : relatedStudent;
-  const studentId = record.student_id ?? nestedStudent?.id ?? nestedStudent?.student_id ?? nestedStudent?.lrn;
+  const studentId = record.student_id ?? nestedStudent?.id ?? nestedStudent?.student_id ?? nestedStudent?.student_id;
   const mappedStudent = studentId === null || studentId === undefined
     ? null
     : studentById.get(String(studentId));
@@ -181,7 +181,7 @@ export const AdminDashboardPage = () => {
     const pendingApprovals = data.records.filter(record => getApprovalStatus(record) === 'Under Approval');
     const studentById = new Map();
     data.students.forEach(student => {
-      [student.id, student.student_id, student.lrn].forEach(id => {
+      [student.id, student.student_id, student.student_id].forEach(id => {
         if (id !== null && id !== undefined && String(id).trim()) {
           studentById.set(String(id), student);
         }
@@ -260,7 +260,7 @@ export const AdminDashboardPage = () => {
     const missingStudentData = data.students.filter(student => (
       !String(student.fname || '').trim()
       || !String(student.lname || '').trim()
-      || !String(student.student_id || student.lrn || '').trim()
+      || !String(student.student_id || student.student_id || '').trim()
     ));
     const missingTeacherData = data.teachers.filter(teacher => (
       !String(teacher.fname || '').trim()

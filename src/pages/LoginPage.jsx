@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useNotification } from '../context/NotificationContext';
-import { isSupabaseConfigured, supabase } from '../lib/supabase';
-import { dataService } from '../services/dataService';
+import { customAuth } from '../lib/supabase';
 import { 
   Eye, 
   EyeOff, 
@@ -79,189 +78,14 @@ export const LoginPage = () => {
 
     setLoading(true);
     try {
-      // Step A: Attempt Supabase Auth (if live user exists in Supabase Auth)
-      if (isSupabaseConfigured() && supabase) {
-        try {
-          const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-            email: cleanInput,
-            password: cleanPassword
-          });
-
-          if (!authError && authData?.user) {
-            const authUser = authData.user;
-            const metadataRole = authUser.app_metadata?.role || authUser.user_metadata?.role;
-            const normalizedRole = String(metadataRole || '').toLowerCase();
-            const role = ['admin', 'teacher', 'adviser'].includes(normalizedRole)
-              ? normalizedRole
-              : userType;
-
-            login({
-              id: authUser.id,
-              name: authUser.user_metadata?.full_name || authUser.email || 'VioTrack User',
-              email: authUser.email || cleanInput,
-              role,
-              position: authUser.user_metadata?.position || (role === 'admin' ? 'Administrator' : 'Teacher'),
-              avatar: authUser.user_metadata?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
-              adviserSection: authUser.app_metadata?.adviserSection || authUser.user_metadata?.adviserSection || null
-            }, rememberMe);
-
-            success(`Welcome back! Signed in as ${role === 'admin' ? 'Administrator' : 'Faculty'}.`);
-            navigate(getSafeDestination(role, rawTargetDestination));
-            return;
-          }
-        } catch (supabaseAuthErr) {
-          // Continue to database registry check
-          console.info('Supabase Auth bypassed, verifying database credentials...');
-        }
-      }
-
-      // Step B: Authenticate against Supabase Database 'admins' table
-      const [admins, teachers, advisers] = await Promise.all([
-        dataService.getAdmins().catch(() => []),
-        dataService.getTeachers().catch(() => []),
-        dataService.getAdvisers().catch(() => [])
-      ]);
-
-      const matchedAdmin = admins.find(a => 
-        (a.email && a.email.toLowerCase() === cleanInput) ||
-        (cleanInput === 'admin' && (a.role === 'Head Admin' || a.role === 'Super Admin' || a.role === 'System Admin' || a.email === 'admin@viotrack.edu')) ||
-        (a.fname && a.lname && `${a.fname.toLowerCase()}.${a.lname.toLowerCase()}` === cleanInput)
-      );
-
-      if (matchedAdmin) {
-        let adminPassMatches = false;
-        if (matchedAdmin.password) {
-          adminPassMatches = (
-            matchedAdmin.password === cleanPassword ||
-            matchedAdmin.password.toLowerCase() === cleanPassword.toLowerCase() ||
-            ((matchedAdmin.email?.toLowerCase() === 'admin@viotrack.edu' || cleanInput === 'admin') &&
-              (cleanPassword === 'admin123' || cleanPassword === 'Viotrack@2026!'))
-          );
-        } else {
-          const isSeededAdmin = (matchedAdmin.email?.toLowerCase() === 'admin@viotrack.edu' || cleanInput === 'admin');
-          adminPassMatches = isSeededAdmin
-            ? (cleanPassword === 'admin123' || cleanPassword === 'Viotrack@2026!')
-            : (cleanPassword === 'Viotrack@2026!');
-        }
-
-        if (adminPassMatches) {
-          const fullName = `${matchedAdmin.fname || ''} ${matchedAdmin.lname || ''}`.trim() || 'Administrator';
-          const userObj = {
-            id: matchedAdmin.id,
-            name: fullName,
-            email: matchedAdmin.email || cleanInput,
-            role: 'admin',
-            position: matchedAdmin.role || 'Administrator',
-            avatar: matchedAdmin.image || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
-            adviserSection: null
-          };
-          login(userObj, rememberMe);
-          success(`Welcome back, ${fullName}! Signed in as Administrator.`);
-          navigate(getSafeDestination('admin', rawTargetDestination));
-          return;
-        } else {
-          throw new Error('Invalid institutional email or password. Please verify your credentials.');
-        }
-      }
-
-      // Step C: Authenticate against Supabase Database 'teachers' table
-      const matchedTeacher = teachers.find(t =>
-        (t.email && t.email.toLowerCase() === cleanInput) ||
-        (cleanInput === 'teacher' && t.id === 1) ||
-        (t.fname && t.lname && `${t.fname.toLowerCase()}.${t.lname.toLowerCase()}` === cleanInput)
-      );
-
-      if (matchedTeacher) {
-        let teacherPassMatches = false;
-        if (matchedTeacher.password) {
-          teacherPassMatches = (
-            matchedTeacher.password === cleanPassword ||
-            matchedTeacher.password.toLowerCase() === cleanPassword.toLowerCase() ||
-            ((matchedTeacher.email?.toLowerCase() === 'teacher@viotrack.edu' || cleanInput === 'teacher' || matchedTeacher.email?.toLowerCase() === 'juan.delacruz@viotrack.edu') &&
-              (cleanPassword === 'teacher123' || cleanPassword === 'Viotrack@2026!'))
-          );
-        } else {
-          const isSeededTeacher = (matchedTeacher.email?.toLowerCase() === 'teacher@viotrack.edu' || cleanInput === 'teacher' || matchedTeacher.email?.toLowerCase() === 'juan.delacruz@viotrack.edu');
-          teacherPassMatches = isSeededTeacher
-            ? (cleanPassword === 'teacher123' || cleanPassword === 'Viotrack@2026!')
-            : (cleanPassword === 'Viotrack@2026!');
-        }
-
-        if (teacherPassMatches) {
-          const fullName = `${matchedTeacher.fname || ''} ${matchedTeacher.lname || ''}`.trim() || 'Teacher';
-          const matchedAdv = advisers.find(a => Number(a.teacher_id) === Number(matchedTeacher.id));
-          const adviserSection = matchedAdv ? { grade: matchedAdv.grade_level, section: matchedAdv.class_section } : null;
-
-          const userObj = {
-            id: matchedTeacher.id,
-            name: fullName,
-            email: matchedTeacher.email || cleanInput,
-            role: 'teacher',
-            position: matchedTeacher.position || 'Teacher',
-            department: matchedTeacher.department || 'Faculty',
-            avatar: matchedTeacher.image || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',
-            adviserSection
-          };
-          login(userObj, rememberMe);
-          success(`Welcome back, ${fullName}! Signed in as Faculty.`);
-          navigate(getSafeDestination('teacher', rawTargetDestination));
-          return;
-        } else {
-          throw new Error('Invalid institutional email or password. Please verify your credentials.');
-        }
-      }
-
-      // Step D: Default Fallback Demo / Seeded Credentials (verified strictly against seeded passwords)
-      if (cleanInput === 'admin@viotrack.edu' || cleanInput === 'admin' || cleanInput === 'superadmin') {
-        const isDefaultAdminPass = (
-          cleanPassword === 'admin123' ||
-          cleanPassword === 'Viotrack@2026!'
-        );
-        if (isDefaultAdminPass) {
-          const userObj = {
-            id: 1,
-            name: 'System Admin',
-            email: 'admin@viotrack.edu',
-            role: 'admin',
-            position: 'Head Administrator',
-            avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
-            adviserSection: null
-          };
-          login(userObj, rememberMe);
-          success('Welcome back, System Admin! Signed in as Administrator.');
-          navigate(getSafeDestination('admin', rawTargetDestination));
-          return;
-        } else {
-          throw new Error('Invalid institutional email or password. Please verify your credentials.');
-        }
-      }
-
-      if (cleanInput === 'teacher@viotrack.edu' || cleanInput === 'teacher') {
-        const isDefaultTeacherPass = (
-          cleanPassword === 'teacher123' ||
-          cleanPassword === 'Viotrack@2026!'
-        );
-        if (isDefaultTeacherPass) {
-          const userObj = {
-            id: 1,
-            name: 'Juan Dela Cruz',
-            email: 'teacher@viotrack.edu',
-            role: 'teacher',
-            position: 'Master Teacher I',
-            department: 'Science Department',
-            avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&auto=format&fit=crop&q=80',
-            adviserSection: { grade: 'Grade 10', section: 'Rizal' }
-          };
-          login(userObj, rememberMe);
-          success('Welcome back, Juan Dela Cruz! Signed in as Faculty.');
-          navigate(getSafeDestination('teacher', rawTargetDestination));
-          return;
-        } else {
-          throw new Error('Invalid institutional email or password. Please verify your credentials.');
-        }
-      }
-
-      throw new Error('Invalid institutional email or password. Please verify your credentials.');
+      const { user: authenticatedUser } = await customAuth({
+        action: 'login',
+        email: cleanInput,
+        password: cleanPassword
+      });
+      login(authenticatedUser, rememberMe);
+      success(`Welcome back! Signed in as ${authenticatedUser.role === 'admin' ? 'Administrator' : 'Faculty'}.`);
+      navigate(getSafeDestination(authenticatedUser.role, rawTargetDestination));
     } catch (authIssue) {
       showError(authIssue.message || 'Authentication failed. Please verify your credentials.');
     } finally {
@@ -278,18 +102,13 @@ export const LoginPage = () => {
     const cleanEmail = sanitizeText(resetEmail).trim().toLowerCase();
 
     try {
-      if (isSupabaseConfigured() && supabase) {
-        await supabase.auth.resetPasswordForEmail(cleanEmail, {
-          redirectTo: `${window.location.origin}/profile`
-        });
-      }
       // Uniform generic response to prevent user enumeration
-      info('If this email is registered in VioTrack, a secure password reset link has been dispatched.');
+      info('Password resets are managed by an administrator. Contact the system administrator to reset this account.');
       setIsResetOpen(false);
       setResetEmail('');
     } catch (err) {
       // Even on error, do not reveal if the account exists or not
-      info('If this email is registered in VioTrack, a secure password reset link has been dispatched.');
+      info('Password resets are managed by an administrator. Contact the system administrator to reset this account.');
       setIsResetOpen(false);
     } finally {
       setResetLoading(false);
@@ -299,7 +118,7 @@ export const LoginPage = () => {
   const enterAdminAccount = () => {
     setUserType('admin');
     setEmail('admin@viotrack.edu');
-    setPassword('admin123');
+    setPassword('viotrack@2026');
     info('System Admin credentials filled in. Click SIGN IN to log in.');
   };
 

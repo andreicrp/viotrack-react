@@ -192,7 +192,7 @@ export const ForApprovalPage = () => {
       if (deferredSearch.trim()) {
         const query = deferredSearch.toLowerCase();
         const studentName = `${r.student?.fname || ''} ${r.student?.lname || ''}`.toLowerCase();
-        const lrn = (r.student?.student_id || r.student?.lrn || '').toLowerCase();
+        const lrn = (r.student?.student_id || r.student?.student_id || '').toLowerCase();
         const teacher = (r.reported_by_name || '').toLowerCase();
         const vTitle = (r.violation?.title || '').toLowerCase();
         const vDesc = (r.violation?.description || '').toLowerCase();
@@ -408,7 +408,7 @@ export const ForApprovalPage = () => {
     const headers = ['Student Name', 'Student ID', 'Grade', 'Section', 'Offense', 'Severity', 'Sanction', 'Reported By', 'Approval Status', 'Date Reported', 'Remarks'];
     const rows = filteredRecords.map(r => [
       `${r.student?.fname || ''} ${r.student?.lname || ''}`.trim(),
-      r.student?.student_id || r.student?.lrn || 'N/A',
+      r.student?.student_id || r.student?.student_id || 'N/A',
       r.student?.grade || 'N/A',
       r.student?.section || 'N/A',
       r.violation?.title || 'N/A',
@@ -959,7 +959,7 @@ export const ForApprovalPage = () => {
                                 {studentName}
                               </span>
                               <span style={{ fontSize: '11.5px', color: '#64748b' }}>
-                                {s.grade} • {s.section} {s.lrn ? `• Student ID: ${s.lrn}` : ''}
+                                {s.grade} • {s.section} {s.student_id ? `• Student ID: ${s.student_id}` : ''}
                               </span>
                             </div>
                           </div>
@@ -1389,7 +1389,7 @@ export const ForApprovalPage = () => {
                             </div>
                             <div className="approval-mobile-student-detail" style={{ fontSize: '11px', color: '#64748b' }}>
                               <span>{s.grade || 'Grade 10'} • {s.section || 'Section'}</span>
-                              {s.lrn && <span style={{ marginLeft: 4 }}>• Student ID: {s.lrn}</span>}
+                              {s.student_id && <span style={{ marginLeft: 4 }}>• Student ID: {s.student_id}</span>}
                             </div>
                           </div>
                         </div>
@@ -1788,7 +1788,7 @@ export const ForApprovalPage = () => {
                       </span>
 
                       <span style={{ fontSize: '11.5px', color: '#64748b' }}>
-                        Student ID: <strong style={{ color: '#334155' }}>{inspectRecord.student?.student_id || inspectRecord.student?.lrn || 'N/A'}</strong>
+                        Student ID: <strong style={{ color: '#334155' }}>{inspectRecord.student?.student_id || inspectRecord.student?.student_id || 'N/A'}</strong>
                       </span>
                     </div>
                   </div>

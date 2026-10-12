@@ -90,7 +90,7 @@ export const StudentViolationDetailPage = () => {
         dataService.getRecords()
       ]);
 
-      const found = allStudents.find(s => String(s.id) === String(id) || String(s.lrn) === String(id));
+      const found = allStudents.find(s => String(s.id) === String(id) || String(s.student_id) === String(id));
       if (found) {
         setStudent(found);
         const isApproved = (r) => {
@@ -193,7 +193,7 @@ export const StudentViolationDetailPage = () => {
       doc.setTextColor(71, 85, 105);
 
       const profileRows = [
-        ['Full Name:', `${student.fname} ${student.lname}`, 'Student ID (LRN):', student.lrn || 'N/A'],
+        ['Full Name:', `${student.fname} ${student.lname}`, 'Student ID :', student.student_id || 'N/A'],
         ['Grade & Section:', `${student.grade} - ${student.section}`, 'Gender:', student.gender || 'N/A'],
         ['Academic Year:', student.academicyear || '2025–2026', 'Guardian:', student.parent_name || 'N/A'],
         ['Contact No.:', student.parent_contact || 'N/A', 'Address:', student.address || 'N/A'],
@@ -344,13 +344,13 @@ export const StudentViolationDetailPage = () => {
         doc.setFont('helvetica', 'normal');
         doc.setTextColor(148, 163, 184);
         doc.text(
-          `VIOTRACK Disciplinary System  •  ${student.fname} ${student.lname} (${student.lrn})  •  Confidential`,
+          `VIOTRACK Disciplinary System  •  ${student.fname} ${student.lname} (${student.student_id})  •  Confidential`,
           margin, pageH - 5
         );
         doc.text(`Page ${p} of ${totalPages}`, pageW - margin, pageH - 5, { align: 'right' });
       }
 
-      doc.save(`VioTrack_Report_${student.lrn}_${now.toISOString().slice(0,10)}.pdf`);
+      doc.save(`VioTrack_Report_${student.student_id}_${now.toISOString().slice(0,10)}.pdf`);
       success(`Report generated: ${total} violation(s) included.`);
     } catch (err) {
       error('Failed to generate PDF report: ' + err.message);
@@ -584,7 +584,7 @@ export const StudentViolationDetailPage = () => {
                   letterSpacing: '0.02em'
                 }}
               >
-                Student ID: {student.lrn}
+                Student ID: {student.student_id}
               </span>
               <span
                 className={totalCount === 0 ? 'badge-minor' : totalCount <= 2 ? 'badge-serious' : 'badge-major'}
@@ -740,7 +740,7 @@ export const StudentViolationDetailPage = () => {
                 {student.fname} {student.lname}
               </div>
               <div style={{ fontSize: '13.5px', color: 'var(--text-secondary, #475569)', marginTop: '4px', fontWeight: 600 }}>
-                Student ID: <strong style={{ color: 'var(--text-primary, #0f172a)' }}>{student.lrn}</strong>
+                Student ID: <strong style={{ color: 'var(--text-primary, #0f172a)' }}>{student.student_id}</strong>
               </div>
               <div style={{ fontSize: '12px', marginTop: '8px', display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
                 <span style={{ background: 'var(--bg-input, #f1f5f9)', color: 'var(--text-primary, #1e293b)', border: '1px solid var(--border-subtle, #cbd5e1)', padding: '3.5px 10px', borderRadius: '20px', fontWeight: 700 }}>
@@ -916,7 +916,7 @@ export const StudentViolationDetailPage = () => {
               <div id="qrcode" style={{ width: '155px', height: '155px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#ffffff', padding: '6px', borderRadius: '10px' }}>
                 <img
                   src={qrUrl}
-                  alt={`QR Pass for ${student.lrn}`}
+                  alt={`QR Pass for ${student.student_id}`}
                   style={{
                     width: '143px',
                     height: '143px',
@@ -1347,7 +1347,7 @@ export const StudentViolationDetailPage = () => {
                               {student.fname} {student.lname}
                             </div>
                             <div style={{ fontSize: '11px', color: '#64748b' }}>
-                              ID: {student.lrn}
+                              ID: {student.student_id}
                             </div>
                           </div>
                         </div>
@@ -1862,7 +1862,7 @@ export const StudentViolationDetailPage = () => {
                         fontSize: '11.5px'
                       }}
                     >
-                      {student.lrn}
+                      {student.student_id}
                     </span>
                     <strong style={{ color: '#07345f' }}>({student.fname} {student.lname})</strong>
                   </div>
@@ -2126,7 +2126,7 @@ export const StudentViolationDetailPage = () => {
               >
                 <img
                   src={qrUrl}
-                  alt={`QR Pass for ${student.lrn}`}
+                  alt={`QR Pass for ${student.student_id}`}
                   style={{ width: '180px', height: '180px', display: 'block' }}
                 />
               </div>
@@ -2135,7 +2135,7 @@ export const StudentViolationDetailPage = () => {
                 className="qr-pass-student-id"
                 style={{ fontSize: '14px', fontWeight: 800, letterSpacing: '0.04em' }}
               >
-                Student ID: {student.lrn}
+                Student ID: {student.student_id}
               </div>
               <div style={{ fontSize: '11px', color: '#64748b', marginTop: '4px' }}>
                 Scan to instantly access disciplinary log & track location

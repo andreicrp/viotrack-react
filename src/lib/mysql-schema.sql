@@ -29,7 +29,7 @@ SET FOREIGN_KEY_CHECKS = 1;
 -- STUDENTS TABLE
 CREATE TABLE students (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    lrn VARCHAR(50) NOT NULL UNIQUE,
+    student_id VARCHAR(50) NOT NULL UNIQUE,
     fname VARCHAR(100) NOT NULL,
     mname VARCHAR(100) DEFAULT '',
     lname VARCHAR(100) NOT NULL,
@@ -222,7 +222,7 @@ INSERT INTO violations (title, description, type, default_sanction) VALUES
 ('Vandalism / Property Damage', 'Defacing school property, chairs, walls, or laboratory equipment', 'Major', 'Restitution Repair Cost & Parent Conference');
 
 -- Default Sample Students
-INSERT INTO students (lrn, fname, mname, lname, email, password, grade, section, academicyear, gender, contact, parent_name, parent_contact, address) VALUES
+INSERT INTO students (student_id, fname, mname, lname, email, password, grade, section, academicyear, gender, contact, parent_name, parent_contact, address) VALUES
 ('10101010101', 'Alexander', 'M.', 'Mendoza', 'alexander.mendoza@viotrack.edu', 'Viotrack@2026!', 'Grade 10', 'Rizal', '2025-2026', 'Male', '09171112233', 'Eduardo Mendoza', '09171112234', '124 San Marcelino St, Manila'),
 ('10101010102', 'Bea', 'S.', 'Alcantara', 'bea.alcantara@viotrack.edu', 'Viotrack@2026!', 'Grade 10', 'Bonifacio', '2025-2026', 'Female', '09182223344', 'Rowena Alcantara', '09182223345', '458 Pedro Gil St, Paco, Manila'),
 ('10101010103', 'Christian', 'D.', 'Valdez', 'christian.valdez@viotrack.edu', 'Viotrack@2026!', 'Grade 11', 'STEM A', '2025-2026', 'Male', '09193334455', 'Carlos Valdez', '09193334456', '891 Quirino Avenue, Malate, Manila');

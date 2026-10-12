@@ -24,6 +24,7 @@ export const ScreenLockModal = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isShaking, setIsShaking] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [failedAttempts, setFailedAttempts] = useState(0);
   const inputRef = useRef(null);
 
   useEffect(() => {
@@ -52,26 +53,25 @@ export const ScreenLockModal = () => {
     setIsSubmitting(true);
     setErrorMessage('');
 
-    // Verification check: accept standard demo passwords or PIN 1234 or non-empty for demo convenience
-    const trimmed = password.trim();
-    const isValid = trimmed === 'admin123' || trimmed === 'teacher123' || trimmed === '1234' || trimmed === 'password' || trimmed.length >= 4 || trimmed === '';
-
-    setTimeout(() => {
+    void (async () => {
+      const isValid = await unlockScreen(password);
       if (isValid) {
-        unlockScreen(password);
+        setFailedAttempts(0);
         success(`Welcome back, ${userName}! Workstation unlocked.`);
       } else {
+        const nextAttempts = failedAttempts + 1;
+        setFailedAttempts(nextAttempts);
         setIsShaking(true);
-        setErrorMessage('Incorrect password or PIN. Use 1234 or your account credentials.');
+        setErrorMessage(nextAttempts >= 5
+          ? 'Too many failed attempts. Signing you out for your protection.'
+          : 'Incorrect account password. Please try again.');
         setTimeout(() => setIsShaking(false), 500);
+        if (nextAttempts >= 5) {
+          setTimeout(() => logout('manual'), 700);
+        }
       }
       setIsSubmitting(false);
-    }, 200);
-  };
-
-  const handleQuickUnlock = () => {
-    unlockScreen();
-    success(`Welcome back, ${userName}! Workstation unlocked.`);
+    })();
   };
 
   const handleSignOut = () => {
@@ -169,7 +169,7 @@ export const ScreenLockModal = () => {
                 id="screen-lock-input"
                 ref={inputRef}
                 type={showPassword ? 'text' : 'password'}
-                placeholder="Enter password (PIN: 1234)"
+                placeholder="Enter your account password"
                 value={password}
                 onChange={(e) => {
                   setPassword(e.target.value);

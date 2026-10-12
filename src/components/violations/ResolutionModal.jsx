@@ -352,7 +352,7 @@ export const buildCertificateHtml = ({ record, status, sanction, resolutionNotes
         </tr>
         <tr>
           <th>Student ID / Grade &amp; Section:</th>
-          <td>${record?.student?.student_id || record?.student?.lrn || 'N/A'} &nbsp;|&nbsp; ${gradeSection}</td>
+          <td>${record?.student?.student_id || record?.student?.student_id || 'N/A'} &nbsp;|&nbsp; ${gradeSection}</td>
         </tr>
         <tr>
           <th>Case Incident Reference:</th>
@@ -878,7 +878,7 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
       head: [['Student Details & Case Record Information', '']],
       body: [
         ['Student Name:', studentFullName],
-        ['Student ID:', record.student?.student_id || record.student?.lrn || 'N/A'],
+        ['Student ID:', record.student?.student_id || record.student?.student_id || 'N/A'],
         ['Grade & Section:', `${record.student?.grade ? (record.student.grade.toString().toLowerCase().startsWith('grade') ? record.student.grade : `Grade ${record.student.grade}`) : 'Grade 10'} - ${record.student?.section || 'General'}`],
         ['Incident Reference:', `Incident #${record.id} (Date: ${incidentDateFormatted})`],
         ['Infraction / Violation:', `${record.violation?.title || record.offense || 'General Infraction'} (${record.violation?.type || record.severity || 'Minor'} Offense)`],
@@ -1071,7 +1071,7 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
               {studentName}
             </div>
             <div style={{ fontSize: '11px', color: 'var(--text-secondary, #64748b)' }}>
-              Student ID: <span style={{ fontFamily: 'monospace', fontWeight: 700, color: 'var(--text-primary, #0f172a)' }}>{record.student?.student_id || record.student?.lrn || 'N/A'}</span>
+              Student ID: <span style={{ fontFamily: 'monospace', fontWeight: 700, color: 'var(--text-primary, #0f172a)' }}>{record.student?.student_id || record.student?.student_id || 'N/A'}</span>
             </div>
           </div>
         </div>
@@ -1988,7 +1988,7 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
                         </tr>
                         <tr>
                           <td style={{ padding: '6px 10px', border: '1px solid #cbd5e1', fontWeight: 700, color: '#07345f' }}>Student ID / Level:</td>
-                          <td style={{ padding: '6px 10px', border: '1px solid #cbd5e1', color: '#0f172a' }}>{record.student?.student_id || record.student?.lrn || 'N/A'} &nbsp;|&nbsp; Grade {record.student?.grade || '10'} - {record.student?.section || 'General'}</td>
+                          <td style={{ padding: '6px 10px', border: '1px solid #cbd5e1', color: '#0f172a' }}>{record.student?.student_id || record.student?.student_id || 'N/A'} &nbsp;|&nbsp; Grade {record.student?.grade || '10'} - {record.student?.section || 'General'}</td>
                         </tr>
                         <tr style={{ background: '#f8fafc' }}>
                           <td style={{ padding: '6px 10px', border: '1px solid #cbd5e1', fontWeight: 700, color: '#07345f' }}>Incident Reference:</td>

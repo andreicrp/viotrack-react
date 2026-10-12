@@ -80,6 +80,7 @@ export const BulkViolationModal = ({ isOpen, onClose, onRecordsAdded }) => {
       for (const sid of selectedStudentIds) {
         const rec = await dataService.addRecord({
           student_id: sid,
+          student_id_value: students.find(student => Number(student.id) === Number(sid))?.student_id,
           violation_id: Number(selectedViolationId),
           reported_by_name: user?.name || 'System Admin',
           reported_by_type: user?.role || 'admin',
@@ -222,7 +223,7 @@ export const BulkViolationModal = ({ isOpen, onClose, onRecordsAdded }) => {
                           {student.lname}, {student.fname}
                         </span>
                         <span style={{ fontSize: '0.75rem', color: '#64748b' }}>
-                          {student.grade} - {student.section} | Student ID: {student.lrn}
+                          {student.grade} - {student.section} | Student ID: {student.student_id}
                         </span>
                       </div>
                     </div>

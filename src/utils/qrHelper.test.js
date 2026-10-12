@@ -13,7 +13,6 @@ describe('QR Cryptographic Helper & HMAC-SHA256 Suite', () => {
   const mockStudent = {
     id: '101',
     student_id: '2026-0042',
-    lrn: '109283746101',
     fname: 'Juan',
     lname: 'Dela Cruz',
     grade_level: '10',

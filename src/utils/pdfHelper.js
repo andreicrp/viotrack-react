@@ -194,7 +194,7 @@ export function parseStudentRosterFromPdfLines(rawLines) {
 
     // Skip table header rows
     if (
-      (joined.toLowerCase().includes('student id') || joined.toLowerCase().includes('lrn')) &&
+      (joined.toLowerCase().includes('student id') || joined.toLowerCase().includes('student_id')) &&
       joined.toLowerCase().includes('name')
     ) {
       continue;
@@ -213,7 +213,7 @@ export function parseStudentRosterFromPdfLines(rawLines) {
     let parentContact = '09151234568';
     let strand = '';
 
-    // 1. Detect ID/LRN
+    // 1. Detect ID/Student ID
     const idMatch = joined.match(ID_REGEX);
     if (idMatch) {
       studentId = idMatch[1];

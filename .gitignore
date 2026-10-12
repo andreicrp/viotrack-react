@@ -48,3 +48,6 @@ android/.gradle
 android/build
 capacitor-cordova-android-plugins
 
+# Supabase CLI
+supabase/.temp
+

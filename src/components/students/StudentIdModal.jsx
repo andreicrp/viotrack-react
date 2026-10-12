@@ -54,7 +54,7 @@ export const StudentIdModal = ({ isOpen, onClose, student }) => {
                     {student.grade} – {student.section}
                   </div>
                   <div className="id-lrn-row">
-                    Student ID: <span className="id-lrn-value">{student.lrn}</span>
+                    Student ID: <span className="id-lrn-value">{student.student_id}</span>
                   </div>
                 </div>
               </div>
@@ -77,7 +77,7 @@ export const StudentIdModal = ({ isOpen, onClose, student }) => {
                 <div className="id-qr-holder">
                   <img
                     src={qrDataUrl}
-                    alt={`QR Code for ${student.lrn}`}
+                    alt={`QR Code for ${student.student_id}`}
                     className="id-qr-img"
                   />
                   <div

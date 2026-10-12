@@ -127,7 +127,7 @@ const StepVisualPreview = ({ previewType }) => {
             <strong style={{ color: '#0f172a' }}>Grade 10 - Rizal</strong>
           </div>
           <div>
-            <span style={{ color: '#64748b', fontSize: '10px' }}>LRN: </span>
+            <span style={{ color: '#64748b', fontSize: '10px' }}>Student ID: </span>
             <strong style={{ color: '#0f172a' }}>109283748201</strong>
           </div>
         </div>
@@ -346,7 +346,7 @@ const StepVisualPreview = ({ previewType }) => {
         <div style={{ background: '#ffffff', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '10px 12px', textAlign: 'center', lineHeight: 1.4, boxShadow: '0 2px 6px rgba(0,0,0,0.03)' }}>
           <div style={{ fontSize: '10px', color: '#64748b' }}>This officially certifies that:</div>
           <div style={{ fontSize: '14px', fontWeight: 900, color: '#07345f', margin: '3px 0' }}>Gabriel Torres</div>
-          <div style={{ fontSize: '10px', color: '#475569' }}>Grade 10 - Section Bonifacio (LRN: 109283749102)</div>
+          <div style={{ fontSize: '10px', color: '#475569' }}>Grade 10 - Section Bonifacio (Student ID: 109283749102)</div>
           <div style={{ fontSize: '10px', color: '#059669', fontWeight: 800, marginTop: '5px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
             <CheckCircle2 size={12} /> All incident obligations cleared &amp; closed in good standing.
           </div>

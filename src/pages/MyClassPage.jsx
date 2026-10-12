@@ -150,7 +150,7 @@ export const MyClassPage = () => {
   const filteredStudents = useMemo(() => {
     return students.filter(s => {
       const fullName = `${s.fname} ${s.lname}`.toLowerCase();
-      const lrn = (s.lrn || '').toLowerCase();
+      const lrn = (s.student_id || '').toLowerCase();
       const email = (s.email || '').toLowerCase();
       const query = searchTerm.toLowerCase().trim();
 
@@ -174,7 +174,7 @@ export const MyClassPage = () => {
     const rows = filteredStudents.map(s => {
       const vCount = records.filter(r => r.student_id === s.id).length;
       return [
-        s.lrn,
+        s.student_id,
         s.lname,
         s.fname,
         s.mname || '',
@@ -203,7 +203,7 @@ export const MyClassPage = () => {
         const vCount = records.filter(r => r.student_id === s.id).length;
         return [
           idx + 1,
-          s.lrn,
+          s.student_id,
           `${s.lname}, ${s.fname}`,
           s.gender || 'N/A',
           s.contact || s.email || 'N/A',
@@ -740,7 +740,7 @@ export const MyClassPage = () => {
 
                       <div style={{ fontSize: '12px', color: 'var(--text-muted, #64748b)', marginTop: '3px', display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
                         <div>
-                          Student ID: <strong style={{ color: 'var(--text-primary, #0f172a)' }}>{student.lrn}</strong>
+                          Student ID: <strong style={{ color: 'var(--text-primary, #0f172a)' }}>{student.student_id}</strong>
                         </div>
                         <div>
                           Email: <span style={{ color: 'var(--text-secondary, #475569)' }}>{student.email || `${student.fname.toLowerCase()}@school.com`}</span>

@@ -64,7 +64,7 @@ export const buildParentSummonsHtml = ({
   const rawGrade = activeStudent?.grade || 'Grade 10';
   const formattedGrade = rawGrade.toString().toLowerCase().startsWith('grade') ? rawGrade : `Grade ${rawGrade}`;
   const gradeSection = `${formattedGrade} - ${activeStudent?.section || 'General'}`;
-  const studentId = activeStudent?.student_id || activeStudent?.lrn || 'N/A';
+  const studentId = activeStudent?.student_id || activeStudent?.student_id || 'N/A';
   const viosSummary = activeViolations.map(v => v.violation?.title || v.offense || 'Disciplinary Infraction').join(', ');
 
   const multiInfractionsTable = activeViolations.length > 1 ? `
@@ -912,7 +912,7 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
     doc.setFont('helvetica', 'normal');
     const rawPdfGrade = activeStudent.grade || 'Grade 10';
     const formattedPdfGrade = rawPdfGrade.toString().toLowerCase().startsWith('grade') ? rawPdfGrade : `Grade ${rawPdfGrade}`;
-    doc.text(`Grade & Section: ${formattedPdfGrade} - ${activeStudent.section || 'General'} | Student ID: ${activeStudent.student_id || activeStudent.lrn || 'N/A'}`, 14, 67);
+    doc.text(`Grade & Section: ${formattedPdfGrade} - ${activeStudent.section || 'General'} | Student ID: ${activeStudent.student_id || activeStudent.student_id || 'N/A'}`, 14, 67);
 
     // Body Text
     doc.setFontSize(9.5);
@@ -2281,7 +2281,7 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
                   <div className="psm-recipient-box">
                     <div><strong>TO:</strong> {parentName.toUpperCase()}</div>
                     <div><strong>Parent / Legal Guardian of:</strong> {studentFullName}</div>
-                    <div><strong>Grade &amp; Section:</strong> {activeStudent.grade || 'Grade 10'} - {activeStudent.section || 'General'} | <strong>Student ID:</strong> {activeStudent.student_id || activeStudent.lrn || 'N/A'}</div>
+                    <div><strong>Grade &amp; Section:</strong> {activeStudent.grade || 'Grade 10'} - {activeStudent.section || 'General'} | <strong>Student ID:</strong> {activeStudent.student_id || activeStudent.student_id || 'N/A'}</div>
                   </div>
 
                   {/* Letter Body: Dynamically handles 1 or multiple violations */}

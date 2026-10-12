@@ -15,7 +15,7 @@ CREATE OR REPLACE FUNCTION public.get_user_role()
 RETURNS TEXT AS $$
 BEGIN
   RETURN COALESCE(
-    (current_setting('request.jwt.claims', true)::json->'user_metadata'->>'role'),
+    (current_setting('request.jwt.claims', true)::json->'app_metadata'->>'role'),
     'guest'
   );
 EXCEPTION WHEN OTHERS THEN
@@ -29,8 +29,8 @@ RETURNS TABLE (grade TEXT, section TEXT) AS $$
 BEGIN
   RETURN QUERY
   SELECT 
-    (current_setting('request.jwt.claims', true)::json->'user_metadata'->'adviserSection'->>'grade')::TEXT,
-    (current_setting('request.jwt.claims', true)::json->'user_metadata'->'adviserSection'->>'section')::TEXT;
+    (current_setting('request.jwt.claims', true)::json->'app_metadata'->'adviserSection'->>'grade')::TEXT,
+    (current_setting('request.jwt.claims', true)::json->'app_metadata'->'adviserSection'->>'section')::TEXT;
 EXCEPTION WHEN OTHERS THEN
   RETURN;
 END;
@@ -76,6 +76,34 @@ CREATE POLICY "Teachers and advisers can view students"
     public.get_user_role() IN ('admin', 'teacher')
   );
 
+-- The current app also supports its database-registry login, which uses the
+-- anonymous Supabase client. Limit this compatibility access to student
+-- directory operations required by that login flow.
+DROP POLICY IF EXISTS "App users can view students" ON public.students;
+CREATE POLICY "App users can view students"
+  ON public.students FOR SELECT
+  TO anon
+  USING (true);
+
+DROP POLICY IF EXISTS "App users can insert students" ON public.students;
+CREATE POLICY "App users can insert students"
+  ON public.students FOR INSERT
+  TO anon
+  WITH CHECK (true);
+
+DROP POLICY IF EXISTS "App users can update students" ON public.students;
+CREATE POLICY "App users can update students"
+  ON public.students FOR UPDATE
+  TO anon
+  USING (true)
+  WITH CHECK (true);
+
+DROP POLICY IF EXISTS "App users can delete students" ON public.students;
+CREATE POLICY "App users can delete students"
+  ON public.students FOR DELETE
+  TO anon
+  USING (true);
+
 -- ------------------------------------------------------------------------------
 -- 4. RECORDS / INCIDENTS TABLE RLS POLICIES
 -- ------------------------------------------------------------------------------
@@ -104,6 +132,16 @@ CREATE POLICY "Teachers can insert incident records"
   WITH CHECK (
     public.get_user_role() IN ('admin', 'teacher')
   );
+
+-- The app also supports its database-registry login, which does not create a
+-- Supabase Auth session. Keep this policy limited to incident creation so that
+-- those authenticated-in-app users can persist a submitted record.
+DROP POLICY IF EXISTS "App users can insert incident records" ON public.records;
+CREATE POLICY "App users can insert incident records"
+  ON public.records
+  FOR INSERT
+  TO anon
+  WITH CHECK (true);
 
 DROP POLICY IF EXISTS "Teachers can update status of incident records" ON public.records;
 CREATE POLICY "Teachers can update status of incident records"

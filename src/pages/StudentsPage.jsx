@@ -101,7 +101,7 @@ export const StudentsPage = () => {
   const [gradeFilter, setGradeFilter] = useState('all');
   const [strandFilter, setStrandFilter] = useState('all');
 
-  // Sorting: 'grade' | 'strand' | 'name' | 'lrn' | 'section'
+  // Sorting: 'grade' | 'strand' | 'name' | 'student_id' | 'section'
   const [sortField, setSortField] = useState('grade');
   const [sortOrder, setSortOrder] = useState('asc'); // 'asc' | 'desc'
 
@@ -228,14 +228,14 @@ export const StudentsPage = () => {
       if (!query) return true;
 
       const fullName = `${s.fname || ''} ${s.mname || ''} ${s.lname || ''}`.toLowerCase();
-      const lrn = (s.lrn || '').toLowerCase();
+      const studentId = (s.student_id || '').toLowerCase();
       const section = (s.section || '').toLowerCase();
       const guardian = (s.parent_name || '').toLowerCase();
       const strand = studentStrand.toLowerCase();
 
       return (
         fullName.includes(query) ||
-        lrn.includes(query) ||
+        studentId.includes(query) ||
         sGrade.includes(query) ||
         section.includes(query) ||
         guardian.includes(query) ||
@@ -265,8 +265,8 @@ export const StudentsPage = () => {
         const nameA = `${a.lname || ''}, ${a.fname || ''}`.toLowerCase();
         const nameB = `${b.lname || ''}, ${b.fname || ''}`.toLowerCase();
         comparison = nameA.localeCompare(nameB);
-      } else if (sortField === 'lrn') {
-        comparison = (a.lrn || '').localeCompare(b.lrn || '');
+      } else if (sortField === 'student_id') {
+        comparison = (a.student_id || '').localeCompare(b.student_id || '');
       } else if (sortField === 'section') {
         comparison = (a.section || '').localeCompare(b.section || '');
       }
@@ -324,7 +324,7 @@ export const StudentsPage = () => {
   const handleOpenExportSaveAs = (defaultFormat = 'csv') => {
     const headers = ['Student ID', 'First Name', 'Middle Name', 'Last Name', 'Grade', 'Strand', 'Section', 'Gender', 'Contact', 'Parent Name', 'Parent Contact'];
     const rows = filteredAndSortedStudents.map(s => [
-      s.lrn,
+      s.student_id,
       s.fname,
       s.mname || '',
       s.lname,
@@ -349,7 +349,7 @@ export const StudentsPage = () => {
 
       const tableData = filteredAndSortedStudents.map((s, idx) => [
         idx + 1,
-        s.lrn,
+        s.student_id,
         `${s.lname}, ${s.fname}`,
         s.grade,
         getStudentStrand(s),
@@ -715,7 +715,7 @@ export const StudentsPage = () => {
                     { value: 'strand-desc', label: 'Strand (Z → A)' },
                     { value: 'name-asc', label: 'Name (A → Z)' },
                     { value: 'name-desc', label: 'Name (Z → A)' },
-                    { value: 'lrn-asc', label: 'Student ID' },
+                    { value: 'student_id-asc', label: 'Student ID' },
                     { value: 'section-asc', label: 'Section' }
                   ]}
                 />
@@ -1067,7 +1067,7 @@ export const StudentsPage = () => {
                               {s.fname} {s.mname ? s.mname[0] + '. ' : ''}{s.lname}
                             </div>
                             <div style={{ fontSize: '11px', color: 'var(--text-muted, #64748b)', marginTop: '1px' }}>
-                              Student ID: <strong style={{ color: 'var(--text-secondary, #334155)' }}>{s.lrn}</strong> • {s.gender || 'Male'}
+                              Student ID: <strong style={{ color: 'var(--text-secondary, #334155)' }}>{s.student_id}</strong> • {s.gender || 'Male'}
                             </div>
                           </div>
                         </div>
@@ -1319,7 +1319,7 @@ export const StudentsPage = () => {
                       {strand}
                     </div>
                     <div className="entity-grid-meta-tertiary" style={{ fontSize: '9.5px', color: '#94a3b8', marginTop: '2px' }}>
-                      Student ID: {s.lrn}
+                      Student ID: {s.student_id}
                     </div>
                   </div>
 
@@ -1411,7 +1411,7 @@ export const StudentsPage = () => {
                           {s.fname} {s.mname ? s.mname[0] + '. ' : ''}{s.lname}
                         </div>
                         <div className="student-mobile-list-id" style={{ fontSize: '11px', color: '#64748b' }}>
-                          Student ID: <strong style={{ color: '#334155' }}>{s.lrn}</strong> • {s.gender || 'Male'}
+                          Student ID: <strong style={{ color: '#334155' }}>{s.student_id}</strong> • {s.gender || 'Male'}
                         </div>
                       </div>
                     </div>
@@ -1665,10 +1665,10 @@ export const StudentsPage = () => {
         onSaved={(savedStudent) => {
           if (savedStudent) {
             setStudents(prev => {
-              const sid = String(savedStudent.student_id || savedStudent.lrn || '').trim();
-              const exists = prev.some(s => String(s.student_id || s.lrn || '').trim() === sid);
+              const sid = String(savedStudent.student_id || '').trim();
+              const exists = prev.some(s => String(s.student_id || '').trim() === sid);
               if (exists) {
-                return prev.map(s => String(s.student_id || s.lrn || '').trim() === sid ? { ...s, ...savedStudent } : s);
+                return prev.map(s => String(s.student_id || '').trim() === sid ? { ...s, ...savedStudent } : s);
               }
               return [savedStudent, ...prev];
             });

@@ -33,7 +33,7 @@ function LocalizedCrashTester() {
   const [hasCrashed, setHasCrashed] = useState(false);
 
   return (
-    <div style={{ background: '#ffffff', borderRadius: '12px', padding: '16px 18px', border: '1px solid #e2e8f0', boxShadow: '0 2px 6px rgba(0,0,0,0.02)' }}>
+    <div className="error-test-sandbox" style={{ background: '#ffffff', borderRadius: '12px', padding: '16px 18px', border: '1px solid #e2e8f0', boxShadow: '0 2px 6px rgba(0,0,0,0.02)' }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px', flexWrap: 'wrap', gap: '8px' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <Zap size={16} color="#dc2626" />
@@ -53,7 +53,7 @@ function LocalizedCrashTester() {
         {hasCrashed ? (
           <CrashingBugComponent />
         ) : (
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 16px', background: '#f8fafc', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
+          <div className="error-test-status" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 16px', background: '#f8fafc', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
               <span style={{ width: 10, height: 10, borderRadius: '50%', background: '#16a34a', display: 'inline-block' }} />
               <span style={{ fontSize: '12.5px', fontWeight: 700, color: '#15803d' }}>
@@ -112,7 +112,7 @@ function SecurityAuditTester() {
     : auditReport.results.filter(r => r.group === selectedGroup);
 
   return (
-    <div style={{ background: '#ffffff', borderRadius: '14px', padding: '20px', border: '1px solid #e2e8f0' }}>
+    <div className="error-test-audit" style={{ background: '#ffffff', borderRadius: '14px', padding: '20px', border: '1px solid #e2e8f0' }}>
       {/* Header Summary Card */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '12px', paddingBottom: '16px', borderBottom: '1px solid #f1f5f9' }}>
         <div>
@@ -191,6 +191,7 @@ function SecurityAuditTester() {
         {filteredResults.map(check => (
           <div
             key={check.id}
+            className={`error-audit-check ${check.passed ? 'is-passed' : 'is-failed'}`}
             style={{
               padding: '12px 14px',
               borderRadius: '10px',
@@ -203,21 +204,21 @@ function SecurityAuditTester() {
           >
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <span style={{ fontSize: '11px', fontWeight: 800, color: check.passed ? '#15803d' : '#b91c1c', background: '#ffffff', padding: '1px 6px', borderRadius: '4px', border: '1px solid currentColor' }}>
+                <span className="error-audit-check-number" style={{ fontSize: '11px', fontWeight: 800, color: check.passed ? '#15803d' : '#b91c1c', background: '#ffffff', padding: '1px 6px', borderRadius: '4px', border: '1px solid currentColor' }}>
                   #{check.id}
                 </span>
-                <span style={{ fontSize: '12.5px', fontWeight: 700, color: '#0f172a' }}>
+                <span className="error-audit-check-name" style={{ fontSize: '12.5px', fontWeight: 700, color: '#0f172a' }}>
                   {check.name}
                 </span>
               </div>
-              <span style={{ fontSize: '11px', fontWeight: 800, color: check.passed ? '#16a34a' : '#dc2626' }}>
+              <span className="error-audit-check-status" style={{ fontSize: '11px', fontWeight: 800, color: check.passed ? '#16a34a' : '#dc2626' }}>
                 {check.passed ? 'PASSED' : 'FAILED'}
               </span>
             </div>
-            <p style={{ margin: 0, fontSize: '11px', color: '#64748b', lineHeight: 1.4 }}>
+            <p className="error-audit-check-description" style={{ margin: 0, fontSize: '11px', color: '#64748b', lineHeight: 1.4 }}>
               {check.description}
             </p>
-            <span style={{ fontSize: '10px', fontWeight: 700, color: '#94a3b8', marginTop: '2px' }}>
+            <span className="error-audit-check-category" style={{ fontSize: '10px', fontWeight: 700, color: '#94a3b8', marginTop: '2px' }}>
               Category: {check.group}
             </span>
           </div>
@@ -238,7 +239,7 @@ export function ErrorTestPage() {
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+    <div className="error-test-page" style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
       {/* 1. Header Banner */}
       <div className="page-banner-header">
         <div className="page-banner-info">
@@ -258,6 +259,7 @@ export function ErrorTestPage() {
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '12px' }}>
         {/* Card 1: 404 Trigger */}
         <div
+          className="error-test-card error-test-card-404"
           onClick={() => { setActiveTab('404'); setIsStandalonePreview(false); }}
           style={{
             background: activeTab === '404' ? '#eff6ff' : '#ffffff',
@@ -300,6 +302,7 @@ export function ErrorTestPage() {
 
         {/* Card 2: 403 Forbidden */}
         <div
+          className="error-test-card error-test-card-403"
           onClick={() => { setActiveTab('403'); setIsStandalonePreview(false); }}
           style={{
             background: activeTab === '403' ? '#fff1f2' : '#ffffff',
@@ -342,6 +345,7 @@ export function ErrorTestPage() {
 
         {/* Card 3: 500 Server Error */}
         <div
+          className="error-test-card error-test-card-500"
           onClick={() => { setActiveTab('500'); setIsStandalonePreview(false); }}
           style={{
             background: activeTab === '500' ? '#fffbeb' : '#ffffff',
@@ -384,6 +388,7 @@ export function ErrorTestPage() {
 
         {/* Card 4: 43-Point Security Audit */}
         <div
+          className="error-test-card error-test-card-security"
           onClick={() => { setActiveTab('security'); setIsStandalonePreview(false); }}
           style={{
             background: activeTab === 'security' ? '#ecfdf5' : '#ffffff',
@@ -414,6 +419,7 @@ export function ErrorTestPage() {
 
         {/* Card 4: Global App Crash Trigger */}
         <div
+          className="error-test-card error-test-card-crash"
           style={{
             background: '#ffffff',
             border: '1.5px dashed #f87171',
@@ -463,6 +469,7 @@ export function ErrorTestPage() {
 
       {/* 4. Live Embedded Preview Stage */}
       <div
+        className="error-preview-stage"
         style={{
           background: '#ffffff',
           borderRadius: '14px',
@@ -490,6 +497,7 @@ export function ErrorTestPage() {
               Preview: {activeTab === '404' ? '404 Not Found' : activeTab === '403' ? '403 Forbidden' : activeTab === 'security' ? '43-Point Security & Compliance Suite' : '500 Internal Error'}
             </span>
             <span
+              className="error-preview-mode-badge"
               style={{
                 fontSize: '10.5px',
                 fontWeight: 700,
@@ -528,7 +536,10 @@ export function ErrorTestPage() {
         </div>
 
         {/* Render Active Component */}
-        <div style={{ padding: '16px 8px', background: isStandalonePreview ? 'radial-gradient(circle at 50% 35%, #ffffff 0%, #edf3f8 100%)' : '#f8fafc' }}>
+        <div
+          className="error-preview-surface"
+          style={{ padding: '16px 8px', background: isStandalonePreview ? 'radial-gradient(circle at 50% 35%, #ffffff 0%, #edf3f8 100%)' : '#f8fafc' }}
+        >
           {activeTab === 'security' && <SecurityAuditTester />}
           {activeTab === '404' && <NotFoundPage standalone={isStandalonePreview} />}
           {activeTab === '403' && <ForbiddenPage standalone={isStandalonePreview} />}

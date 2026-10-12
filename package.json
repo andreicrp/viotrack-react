@@ -22,6 +22,7 @@
     "@capacitor/share": "^8.0.3",
     "@capacitor/status-bar": "^8.0.3",
     "@supabase/supabase-js": "^2.117.1",
+    "bcryptjs": "^3.0.3",
     "canvas-confetti": "^1.9.4",
     "html5-qrcode": "^2.3.8",
     "jspdf": "^4.2.1",

@@ -274,7 +274,7 @@ export const CommandPalette = ({
     // 1. Search Students
     const matchedStudents = students.filter(s => {
       const name = `${s.fname || ''} ${s.mname || ''} ${s.lname || ''}`.toLowerCase();
-      const lrn = String(s.lrn || '').toLowerCase();
+      const lrn = String(s.student_id || '').toLowerCase();
       const sid = String(s.student_id || s.id || '').toLowerCase();
       const gradeSection = `${s.grade || ''} ${s.section || ''}`.toLowerCase();
       return name.includes(q) || lrn.includes(q) || sid.includes(q) || gradeSection.includes(q);
@@ -284,7 +284,7 @@ export const CommandPalette = ({
         id: `student_${s.id}`,
         category: 'Students',
         title: fullName,
-        subtitle: `Grade ${s.grade || 'N/A'} - ${s.section || 'N/A'} • LRN: ${s.lrn || 'N/A'}`,
+        subtitle: `Grade ${s.grade || 'N/A'} - ${s.section || 'N/A'} • Student ID: ${s.student_id || 'N/A'}`,
         icon: User,
         student: s,
         action: () => navigate(`/student-violation/${s.id}`)

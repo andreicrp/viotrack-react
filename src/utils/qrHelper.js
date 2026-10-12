@@ -205,7 +205,7 @@ export const computeQrChecksum = (str, salt = LEGACY_QR_SALT) => {
  */
 export const generateSignedStudentQr = (student, timestamp = 2026) => {
   if (!student) return '';
-  const studentId = String(student.student_id || student.id || student.lrn || '').trim();
+  const studentId = String(student.student_id || student.id || '').trim();
   if (!studentId) return '';
   const message = `${studentId}:${timestamp}`;
   const fullHmac = computeHmacSha256(message);
@@ -240,16 +240,16 @@ export const verifySignedStudentQrPayload = (payload) => {
     return { isValid: false, studentId: null, isHmac: true };
   }
 
-  // Legacy VT1 format: VT1:<lrn>:<checksum>
+  // Legacy VT1 format: VT1:<student_id>:<checksum>
   if (clean.startsWith('VT1:')) {
     const parts = clean.split(':');
     if (parts.length < 3) return { isValid: false, studentId: null, isHmac: false };
-    const lrn = parts[1].trim();
+    const student_id = parts[1].trim();
     const signature = parts[2].trim();
-    const expectedSignature = computeQrChecksum(lrn);
+    const expectedSignature = computeQrChecksum(student_id);
 
     if (signature.toLowerCase() === expectedSignature.toLowerCase()) {
-      return { isValid: true, studentId: lrn, isHmac: false };
+      return { isValid: true, studentId: student_id, isHmac: false };
     }
     return { isValid: false, studentId: null, isHmac: false };
   }
@@ -268,7 +268,7 @@ export const getStudentQrValue = (student, signed = true) => {
   if (signed) {
     return generateSignedStudentQr(student);
   }
-  return String(student.student_id || student.lrn || student.id || '').trim();
+  return String(student.student_id || student.id || '').trim();
 };
 
 /**
@@ -315,12 +315,12 @@ export const matchStudentFromScan = (rawInput, students = []) => {
     return null;
   }
 
-  // 0. Check for Cryptographically Signed Tamper-Proof Badges ("VT2:<student_id>:<timestamp>:<hmac>" or "VT1:<lrn>:<checksum>")
+  // 0. Check for Cryptographically Signed Tamper-Proof Badges ("VT2:<student_id>:<timestamp>:<hmac>" or "VT1:<student_id>:<checksum>")
   if (clean.startsWith('VT2:') || clean.startsWith('VT1:')) {
     const { isValid, studentId, isHmac } = verifySignedStudentQrPayload(clean);
     if (isValid && studentId) {
       const match = students.find(
-        s => String(s.student_id || s.lrn || '').trim() === studentId || String(s.id) === studentId
+        s => String(s.student_id || '').trim() === studentId || String(s.id) === studentId
       );
       if (match) {
         return {
@@ -345,7 +345,7 @@ export const matchStudentFromScan = (rawInput, students = []) => {
     const sid = (parts || '').split('?')[0].split('#')[0].trim();
     if (sid) {
       const match = students.find(
-        s => String(s.id) === sid || String(s.student_id || s.lrn).trim() === sid
+        s => String(s.id) === sid || String(s.student_id).trim() === sid
       );
       if (match) return match;
     }
@@ -359,29 +359,29 @@ export const matchStudentFromScan = (rawInput, students = []) => {
     const sid = (parts || '').split('?')[0].split('#')[0].trim();
     if (sid) {
       const match = students.find(
-        s => String(s.id) === sid || String(s.student_id || s.lrn).trim() === sid
+        s => String(s.id) === sid || String(s.student_id).trim() === sid
       );
       if (match) return match;
     }
   }
 
-  // 3. Query string parameters ?id= or ?student_id= or ?lrn= (Only if parameter is explicitly provided)
-  if (clean.includes('id=') || clean.includes('student_id=') || clean.includes('lrn=')) {
+  // 3. Query string parameters ?id= or ?student_id= (Only if parameter is explicitly provided)
+  if (clean.includes('id=') || clean.includes('student_id=')) {
     try {
       const queryString = clean.includes('?') ? clean.split('?')[1] : clean;
       const urlParams = new URLSearchParams(queryString);
       const sid = (urlParams.get('id') || urlParams.get('student_id') || '').trim();
-      const lrn = (urlParams.get('lrn') || '').trim();
+      const studentIdParam = (urlParams.get('student_id') || '').trim();
 
       if (sid) {
         const match = students.find(
-          s => String(s.id) === sid || String(s.student_id || s.lrn).trim() === sid
+          s => String(s.id) === sid || String(s.student_id).trim() === sid
         );
         if (match) return match;
       }
-      if (lrn) {
+      if (studentIdParam) {
         const match = students.find(
-          s => String(s.student_id || s.lrn).trim() === lrn
+          s => String(s.student_id).trim() === studentIdParam
         );
         if (match) return match;
       }
@@ -393,7 +393,7 @@ export const matchStudentFromScan = (rawInput, students = []) => {
     const stripped = clean.replace(/^.*VIOTRACK[^:]*:\s*/i, '').trim();
     if (stripped) {
       const match = students.find(
-        s => String(s.student_id || s.lrn).trim() === stripped || String(s.id) === stripped
+        s => String(s.student_id).trim() === stripped || String(s.id) === stripped
       );
       if (match) return match;
     }
@@ -403,12 +403,12 @@ export const matchStudentFromScan = (rawInput, students = []) => {
   if (clean.startsWith('{') && clean.endsWith('}')) {
     try {
       const parsed = JSON.parse(clean);
-      const lrnCandidate = String(parsed.student_id || parsed.lrn || parsed.LRN || parsed.uli || parsed.ULI || parsed.id || '').trim();
+      const studentIdCandidate = String(parsed.student_id || parsed['Student ID'] || parsed.uli || parsed.ULI || parsed.id || '').trim();
       const nameCandidate = String(parsed.name || parsed.Name || parsed.student_name || '').trim().toLowerCase();
 
-      if (lrnCandidate) {
+      if (studentIdCandidate) {
         const match = students.find(
-          s => String(s.student_id || s.lrn).trim() === lrnCandidate || String(s.id) === lrnCandidate
+          s => String(s.student_id).trim() === studentIdCandidate || String(s.id) === studentIdCandidate
         );
         if (match) return match;
       }
@@ -426,10 +426,10 @@ export const matchStudentFromScan = (rawInput, students = []) => {
     return null;
   }
 
-  // 6. Direct Exact Identification matching (LRN, Student ID, or Exact Name)
+  // 6. Direct Exact Identification matching (Student ID, Student ID, or Exact Name)
   // Strict exact match prevents arbitrary numbers/letters from matching
   const exactMatch = students.find(s => {
-    const sLrn = String(s.lrn || '').trim();
+    const sLrn = String(s.student_id || '').trim();
     const sStudentId = String(s.student_id || '').trim();
     const sId = String(s.id || '').trim();
     const sFullName = `${s.fname || ''} ${s.lname || ''}`.trim().toLowerCase();
@@ -446,4 +446,3 @@ export const matchStudentFromScan = (rawInput, students = []) => {
 
   return null;
 };
-

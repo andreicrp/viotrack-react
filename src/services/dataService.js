@@ -1,4 +1,5 @@
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
+import bcrypt from 'bcryptjs';
 import { smsService } from './smsService';
 import { broadcastRecordChange, startMutation, endMutation } from '../utils/dataIntegrity';
 
@@ -6,12 +7,12 @@ import { broadcastRecordChange, startMutation, endMutation } from '../utils/data
 import INITIAL_VIOLATIONS from '../data/violations.json';
 
 const INITIAL_STUDENTS = [
-  { id: 1, student_id: '109283746101', lrn: '109283746101', fname: 'Alexander', mname: 'Cruz', lname: 'Mendoza', grade: 'Grade 10', section: 'Rizal', academicyear: '2025-2026', gender: 'Male', contact: '09151112233', parent_name: 'Carlos Mendoza', parent_contact: '09151112234', address: '124 Rizal St, Sampaloc, Manila', image: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150&auto=format&fit=crop&q=80' },
-  { id: 2, student_id: '109283746102', lrn: '109283746102', fname: 'Sophia', mname: 'Grace', lname: 'Villanueva', grade: 'Grade 10', section: 'Rizal', academicyear: '2025-2026', gender: 'Female', contact: '09152223344', parent_name: 'Lorena Villanueva', parent_contact: '09152223345', address: '45 Mabini Ave, Quezon City', image: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&auto=format&fit=crop&q=80' },
-  { id: 3, student_id: '109283746103', lrn: '109283746103', fname: 'Gabriel', mname: 'Luis', lname: 'Torres', grade: 'Grade 10', section: 'Bonifacio', academicyear: '2025-2026', gender: 'Male', contact: '09153334455', parent_name: 'Ramon Torres', parent_contact: '09153334456', address: '88 Aurora Blvd, San Juan', image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80' },
-  { id: 4, student_id: '109283746104', lrn: '109283746104', fname: 'Isabella', mname: 'Marie', lname: 'Ramos', grade: 'Grade 11', section: 'STEM A', academicyear: '2025-2026', gender: 'Female', contact: '09154445566', parent_name: 'Patricia Ramos', parent_contact: '09154445567', address: '73 Commonwealth Ave, QC', image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80' },
-  { id: 5, student_id: '109283746105', lrn: '109283746105', fname: 'Christian', mname: 'Paul', lname: 'Navarro', grade: 'Grade 11', section: 'STEM A', academicyear: '2025-2026', gender: 'Male', contact: '09155556677', parent_name: 'Dennis Navarro', parent_contact: '09155556678', address: '19 Espana Blvd, Manila', image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80' },
-  { id: 6, student_id: '109283746106', lrn: '109283746106', fname: 'Jasmine', mname: 'Rose', lname: 'Castillo', grade: 'Grade 9', section: 'Diamond', academicyear: '2025-2026', gender: 'Female', contact: '09156667788', parent_name: 'Lita Castillo', parent_contact: '09156667789', address: '210 Taft Avenue, Pasay', image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80' }
+  { id: 1, student_id: '109283746101', fname: 'Alexander', mname: 'Cruz', lname: 'Mendoza', grade: 'Grade 10', section: 'Rizal', academicyear: '2025-2026', gender: 'Male', contact: '09151112233', parent_name: 'Carlos Mendoza', parent_contact: '09151112234', address: '124 Rizal St, Sampaloc, Manila', image: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150&auto=format&fit=crop&q=80' },
+  { id: 2, student_id: '109283746102', fname: 'Sophia', mname: 'Grace', lname: 'Villanueva', grade: 'Grade 10', section: 'Rizal', academicyear: '2025-2026', gender: 'Female', contact: '09152223344', parent_name: 'Lorena Villanueva', parent_contact: '09152223345', address: '45 Mabini Ave, Quezon City', image: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&auto=format&fit=crop&q=80' },
+  { id: 3, student_id: '109283746103', fname: 'Gabriel', mname: 'Luis', lname: 'Torres', grade: 'Grade 10', section: 'Bonifacio', academicyear: '2025-2026', gender: 'Male', contact: '09153334455', parent_name: 'Ramon Torres', parent_contact: '09153334456', address: '88 Aurora Blvd, San Juan', image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80' },
+  { id: 4, student_id: '109283746104', fname: 'Isabella', mname: 'Marie', lname: 'Ramos', grade: 'Grade 11', section: 'STEM A', academicyear: '2025-2026', gender: 'Female', contact: '09154445566', parent_name: 'Patricia Ramos', parent_contact: '09154445567', address: '73 Commonwealth Ave, QC', image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80' },
+  { id: 5, student_id: '109283746105', fname: 'Christian', mname: 'Paul', lname: 'Navarro', grade: 'Grade 11', section: 'STEM A', academicyear: '2025-2026', gender: 'Male', contact: '09155556677', parent_name: 'Dennis Navarro', parent_contact: '09155556678', address: '19 Espana Blvd, Manila', image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80' },
+  { id: 6, student_id: '109283746106', fname: 'Jasmine', mname: 'Rose', lname: 'Castillo', grade: 'Grade 9', section: 'Diamond', academicyear: '2025-2026', gender: 'Female', contact: '09156667788', parent_name: 'Lita Castillo', parent_contact: '09156667789', address: '210 Taft Avenue, Pasay', image: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80' }
 ];
 const INITIAL_TEACHERS = [
   {
@@ -286,14 +287,88 @@ const setStored = (key, val) => {
   }
 };
 
+const isMissingColumnError = (error) => (
+  error && ['42703', 'PGRST204'].includes(error.code)
+);
+
+const getMissingColumn = (error) => (
+  error?.message?.match(/['"]([a-zA-Z0-9_]+)['"]/i)?.[1]
+  || error?.message?.match(/(?:column|field)\s+([a-zA-Z0-9_]+)/i)?.[1]
+);
+
+const writeStudentsToSupabase = async (rows, { upsert = false } = {}) => {
+  let payload = rows.map(row => ({ ...row }));
+  let conflictColumn = 'student_id';
+
+  for (let attempt = 0; attempt < 4; attempt += 1) {
+    const request = upsert
+      ? supabase.from('students').upsert(payload, { onConflict: conflictColumn }).select()
+      : supabase.from('students').insert(payload).select();
+    const response = await request;
+
+    if (!response.error) return response;
+    if (!isMissingColumnError(response.error)) return response;
+
+    const missingColumn = getMissingColumn(response.error);
+    if (missingColumn && payload.some(row => Object.prototype.hasOwnProperty.call(row, missingColumn))) {
+      payload = payload.map(row => {
+        const copy = { ...row };
+        delete copy[missingColumn];
+        return copy;
+      });
+      if (missingColumn === conflictColumn) conflictColumn = 'student_id';
+      continue;
+    }
+    if (upsert && conflictColumn === 'student_id') {
+      conflictColumn = 'student_id';
+      continue;
+    }
+    return response;
+  }
+
+  return { data: null, error: new Error('Student database schema could not be resolved.') };
+};
+
+const updateStudentInSupabase = async (id, payload) => {
+  let updates = { ...payload };
+  let lookup = Number(id);
+  let useIdentifier = false;
+  let identifierColumn = 'student_id';
+
+  for (let attempt = 0; attempt < 5; attempt += 1) {
+    const response = useIdentifier
+      ? await supabase.from('students').update(updates).eq(identifierColumn, String(id)).select()
+      : await supabase.from('students').update(updates).eq('id', lookup).select();
+
+    if (!response.error && response.data?.[0]) return response;
+    if (!response.error && !response.data?.[0] && !useIdentifier) {
+      useIdentifier = true;
+      continue;
+    }
+    if (!isMissingColumnError(response.error)) return response;
+
+    const missingColumn = getMissingColumn(response.error);
+    if (useIdentifier && missingColumn === identifierColumn) {
+      identifierColumn = 'student_id';
+      continue;
+    }
+    if (!missingColumn || !Object.prototype.hasOwnProperty.call(updates, missingColumn)) {
+      return response;
+    }
+    delete updates[missingColumn];
+  }
+
+  return { data: null, error: new Error('Student update schema could not be resolved.') };
+};
+
 export const dataService = {
   // --- USER CONTEXT HELPER ---
   getCurrentUser() {
     try {
-      const saved = sessionStorage.getItem('viotrack_auth_v3') || localStorage.getItem('viotrack_auth_v3');
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        if (parsed?.name) return parsed;
+      const stored = typeof window !== 'undefined' ? sessionStorage.getItem('viotrack_active_user') : null;
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (parsed?.name && parsed?.role) return parsed;
       }
     } catch {}
     return { name: 'Faculty Member', role: 'teacher' };
@@ -323,25 +398,40 @@ export const dataService = {
       let remoteList = null;
       if (isSupabaseConfigured()) {
         try {
-          const { data, error } = await supabase.from('students').select('*').order('lname', { ascending: true });
-          if (!error && Array.isArray(data)) {
-            remoteList = data;
-          } else {
-            // Fallback if ordering by lname or column issue occurred
-            const fallback = await supabase.from('students').select('*');
-            if (!fallback.error && Array.isArray(fallback.data)) {
-              remoteList = fallback.data;
+          const fetchAllStudents = async (ordered) => {
+            const pageSize = 1000;
+            const allRows = [];
+            for (let offset = 0; ; offset += pageSize) {
+              let query = supabase.from('students').select('*');
+              if (ordered) query = query.order('lname', { ascending: true });
+              const page = await query.range(offset, offset + pageSize - 1);
+              if (page.error) throw page.error;
+              if (Array.isArray(page.data)) allRows.push(...page.data);
+              if (!Array.isArray(page.data) || page.data.length < pageSize) break;
+            }
+            return allRows;
+          };
+
+          try {
+            remoteList = await fetchAllStudents(true);
+          } catch (orderedError) {
+            // Fallback if ordering by lname or a schema-specific column fails.
+            try {
+              remoteList = await fetchAllStudents(false);
+            } catch (fallbackError) {
+              throw new Error(`Unable to load students from the database: ${fallbackError?.message || orderedError?.message || 'Unknown database error'}`);
             }
           }
         } catch (e) {
-          console.warn('Supabase getStudents notice:', e);
+          console.error('Supabase getStudents error:', e);
+          throw e;
         }
       }
 
       const stored = getStored('students', []);
       const storedMap = new Map();
       stored.forEach(s => {
-        const sid = String(s.student_id || s.lrn || '').trim();
+        const sid = String(s.student_id || '').trim();
         if (sid) storedMap.set(sid, s);
       });
 
@@ -349,23 +439,26 @@ export const dataService = {
       if (isSupabaseConfigured() && remoteList !== null) {
         const remoteIds = new Set();
         combinedList = remoteList.map(remoteItem => {
-          const sid = String(remoteItem.student_id || remoteItem.lrn || '').trim();
+          const sid = String(remoteItem.student_id || '').trim();
           if (sid) remoteIds.add(sid);
           const localItem = storedMap.get(sid) || {};
           return {
             ...localItem,
             ...remoteItem,
             student_id: sid,
-            lrn: sid,
             image: remoteItem.image || localItem.image || `https://ui-avatars.com/api/?name=${encodeURIComponent((remoteItem.fname || '') + ' ' + (remoteItem.lname || ''))}&background=07345f&color=fff&bold=true`
           };
         });
 
-        // Also preserve any newly added local students that haven't synced to remote yet
+        // Keep locally cached students visible if a previous database write
+        // failed. addRecord verifies the student exists remotely before saving
+        // an incident, so these entries cannot create invalid foreign keys.
         stored.forEach(localItem => {
-          const sid = String(localItem.student_id || localItem.lrn || '').trim();
-          if (sid && !remoteIds.has(sid)) {
-            combinedList.unshift(localItem);
+          const sid = String(localItem.student_id || localItem.student_id || '').trim();
+          const isLocalMutation = localItem._localOnly
+            || (localItem.created_at && Number(localItem.id) > 1000000000);
+          if (sid && !remoteIds.has(sid) && isLocalMutation) {
+            combinedList.unshift({ ...localItem, _localOnly: true });
           }
         });
       } else {
@@ -373,11 +466,10 @@ export const dataService = {
       }
 
       const processed = combinedList.map(s => {
-        const sid = String(s.student_id || s.lrn || '').trim();
+        const sid = String(s.student_id || '').trim();
         return {
           ...s,
-          student_id: sid,
-          lrn: sid,
+            student_id: sid,
           image: s.image || `https://ui-avatars.com/api/?name=${encodeURIComponent((s.fname || '') + ' ' + (s.lname || ''))}&background=07345f&color=fff&bold=true`
         };
       });
@@ -393,14 +485,13 @@ export const dataService = {
     startMutation();
     try {
       let result = null;
-      const studentIdVal = String(student.student_id || student.lrn || '').trim();
+      const studentIdVal = String(student.student_id || '').trim();
       if (!studentIdVal) {
         throw new Error('Student ID is required.');
       }
 
       const cleanStudent = {
-        student_id: studentIdVal,
-        lrn: studentIdVal,
+            student_id: studentIdVal,
         fname: String(student.fname || '').trim(),
         mname: String(student.mname || '').trim(),
         lname: String(student.lname || '').trim(),
@@ -437,33 +528,21 @@ export const dataService = {
             image: cleanStudent.image
           };
 
-          let toSend = { ...supabasePayload };
-          let res = await supabase.from('students').insert([toSend]).select();
-
-          // Resilient retry loop if any column doesn't exist in Supabase schema
-          while (res.error && res.error.code === 'PGRST204') {
-            const match = res.error.message?.match(/Could not find the '([^']+)' column/);
-            if (match && match[1] && match[1] in toSend) {
-              delete toSend[match[1]];
-              res = await supabase.from('students').insert([toSend]).select();
-            } else {
-              break;
-            }
-          }
+          const res = await writeStudentsToSupabase([supabasePayload]);
 
           if (res.error) {
             if (res.error.code === '23505' || res.error.message?.includes('duplicate key') || res.error.message?.includes('unique constraint')) {
-              throw new Error(`Student ID / LRN "${studentIdVal}" is already registered in the system.`);
+              throw new Error(`Student ID "${studentIdVal}" is already registered in the system.`);
             }
-            console.warn('Supabase addStudent notice:', res.error);
+            throw new Error(`Unable to save student to the database: ${res.error.message}`);
           } else if (res.data?.[0]) {
-            result = { ...cleanStudent, ...res.data[0], student_id: studentIdVal, lrn: studentIdVal };
+            result = { ...cleanStudent, ...res.data[0], student_id: studentIdVal };
           }
         } catch (err) {
           if (err.message && err.message.includes('already registered')) {
             throw err;
           }
-          console.warn('Supabase addStudent error:', err);
+          throw new Error(`Unable to save student to the database: ${err.message || String(err)}`);
         }
       }
 
@@ -472,14 +551,14 @@ export const dataService = {
       }
 
       const current = getStored('students', INITIAL_STUDENTS);
-      const filtered = current.filter(s => String(s.student_id || s.lrn || '').trim() !== studentIdVal);
+      const filtered = current.filter(s => String(s.student_id || '').trim() !== studentIdVal);
       const updated = [result, ...filtered];
       setStored('students', updated);
 
       invalidateCache('students');
       invalidateCache('records');
       if (_cache.data.students) {
-        _cache.data.students = [result, ..._cache.data.students.filter(s => String(s.student_id || s.lrn || '').trim() !== studentIdVal)];
+        _cache.data.students = [result, ..._cache.data.students.filter(s => String(s.student_id || '').trim() !== studentIdVal)];
       }
 
       await this.addActivityLog('Add Student', `Enrolled student ${cleanStudent.fname} ${cleanStudent.lname} (ID: ${studentIdVal || 'No Student ID'}, ${cleanStudent.grade || ''} ${cleanStudent.section || ''})`);
@@ -496,10 +575,9 @@ export const dataService = {
     try {
       const CHUNK_SIZE = 100;
       const cleanStudents = studentsList.map((student, idx) => {
-        const studentIdVal = String(student.student_id || student.lrn || `10928374${Math.floor(1000 + Math.random() * 9000)}`).trim();
+        const studentIdVal = String(student.student_id || '').trim();
         return {
-          student_id: studentIdVal,
-          lrn: studentIdVal,
+            student_id: studentIdVal,
           fname: String(student.fname || 'Student').trim(),
           mname: String(student.mname || '').trim(),
           lname: String(student.lname || 'Roster').trim(),
@@ -519,63 +597,68 @@ export const dataService = {
         };
       });
 
+      const invalidRows = cleanStudents
+        .map((student, index) => (!student.student_id || !student.fname || !student.lname ? index + 1 : null))
+        .filter(Boolean);
+      if (invalidRows.length > 0) {
+        throw new Error(`Rows ${invalidRows.slice(0, 20).join(', ')} are missing Student ID, first name, or last name.`);
+      }
+
+      const duplicateIds = cleanStudents
+        .map(student => student.student_id.toLowerCase())
+        .filter((studentId, index, ids) => ids.indexOf(studentId) !== index);
+      if (duplicateIds.length > 0) {
+        throw new Error(`Duplicate Student ID values found in the import: ${Array.from(new Set(duplicateIds)).slice(0, 20).join(', ')}`);
+      }
+
       let totalInserted = 0;
+      const errors = [];
       const total = cleanStudents.length;
 
       // 1. Supabase batch upsert in chunks
       if (isSupabaseConfigured()) {
-        try {
-          for (let i = 0; i < total; i += CHUNK_SIZE) {
-            const chunk = cleanStudents.slice(i, i + CHUNK_SIZE);
-            let payload = chunk.map(s => ({
-              student_id: s.student_id,
-              fname: s.fname,
-              mname: s.mname,
-              lname: s.lname,
-              grade: s.grade,
-              section: s.section,
-              academicyear: s.academicyear,
-              gender: s.gender,
-              contact: s.contact,
-              parent_name: s.parent_name,
-              parent_contact: s.parent_contact,
-              address: s.address,
-              image: s.image
-            }));
-            
-            let res = await supabase.from('students').insert(payload).select();
-            while (res.error && res.error.code === 'PGRST204') {
-              const match = res.error.message?.match(/Could not find the '([^']+)' column/);
-              if (match && match[1]) {
-                payload = payload.map(p => {
-                  const copy = { ...p };
-                  delete copy[match[1]];
-                  return copy;
-                });
-                res = await supabase.from('students').insert(payload).select();
-              } else {
-                break;
-              }
-            }
-
-            totalInserted += (res.data ? res.data.length : chunk.length);
-            if (onProgress) {
-              onProgress(Math.min(totalInserted, total), total);
-            }
-          }
-        } catch (err) {
-          console.warn('Supabase bulkAddStudents error:', err);
+        for (let i = 0; i < total; i += CHUNK_SIZE) {
+      const chunk = cleanStudents.slice(i, i + CHUNK_SIZE);
+      const payload = chunk.map(s => ({
+            student_id: s.student_id,
+        fname: s.fname,
+        mname: s.mname,
+        lname: s.lname,
+        email: s.email,
+        grade: s.grade,
+        section: s.section,
+        academicyear: s.academicyear,
+        gender: s.gender,
+        contact: s.contact,
+        parent_name: s.parent_name,
+        parent_contact: s.parent_contact,
+        address: s.address,
+        image: s.image
+      }));
+      const res = await writeStudentsToSupabase(payload, { upsert: true });
+      if (res.error) {
+        errors.push(`Rows ${i + 1}-${Math.min(i + chunk.length, total)}: ${res.error.message}`);
+      } else {
+        totalInserted += res.data?.length || chunk.length;
+      }
+      onProgress?.(Math.min(i + chunk.length, total), total);
         }
+      } else {
+        totalInserted = total;
+      }
+
+      if (errors.length > 0) {
+        throw new Error(`Import completed with ${errors.length} failed batch(es): ${errors.join(' | ')}`);
       }
 
       // 2. LocalStorage Sync
       const current = getStored('students', INITIAL_STUDENTS);
-      const existingIdMap = new Map(current.map(s => [String(s.student_id || s.lrn || '').toLowerCase(), s]));
+      const existingIdMap = new Map(current.map(s => [String(s.student_id || '').toLowerCase(), s]));
       const newItems = [];
       let nextId = Date.now();
 
       cleanStudents.forEach(cs => {
-        const key = String(cs.student_id || cs.lrn || '').toLowerCase();
+        const key = String(cs.student_id || cs.student_id || '').toLowerCase();
         if (existingIdMap.has(key)) {
           const old = existingIdMap.get(key);
           Object.assign(old, cs);
@@ -591,14 +674,14 @@ export const dataService = {
 
       invalidateCache('students');
       invalidateCache('records');
-      await this.addActivityLog('Bulk Import', `Bulk imported and enrolled ${total} student records`);
+      await this.addActivityLog('Bulk Import', `Bulk imported and enrolled ${totalInserted} student records`);
       broadcastRecordChange('create', 'students', { count: total });
 
       if (onProgress) {
         onProgress(total, total);
       }
 
-      return { insertedCount: total, errors: [] };
+      return { insertedCount: totalInserted, errors };
     } finally {
       endMutation();
     }
@@ -609,7 +692,7 @@ export const dataService = {
     try {
       let result = null;
       const cleanUpdates = {};
-      const allowed = ['student_id', 'lrn', 'fname', 'mname', 'lname', 'email', 'grade', 'track', 'strand', 'section', 'academicyear', 'gender', 'contact', 'parent_name', 'parent_contact', 'address', 'password', 'image'];
+      const allowed = ['student_id', 'fname', 'mname', 'lname', 'email', 'grade', 'track', 'strand', 'section', 'academicyear', 'gender', 'contact', 'parent_name', 'parent_contact', 'address', 'password', 'image'];
       for (const key of allowed) {
         if (updates[key] !== undefined) {
           if (key === 'password' && !String(updates[key]).trim()) {
@@ -618,8 +701,8 @@ export const dataService = {
           cleanUpdates[key] = updates[key];
         }
       }
-      if (updates.student_id && !updates.lrn) cleanUpdates.lrn = updates.student_id;
-      if (updates.lrn && !updates.student_id) cleanUpdates.student_id = updates.lrn;
+      if (updates.student_id && !updates.student_id) cleanUpdates.student_id = updates.student_id;
+      if (updates.student_id && !updates.student_id) cleanUpdates.student_id = updates.student_id;
 
       if (isSupabaseConfigured()) {
         try {
@@ -633,53 +716,35 @@ export const dataService = {
 
           const numericId = Number(id);
           const hasNumericId = !isNaN(numericId) && numericId > 0;
-
-          let res;
-          if (hasNumericId) {
-            res = await supabase.from('students').update(toSend).eq('id', numericId).select();
-          } else {
-            res = await supabase.from('students').update(toSend).eq('student_id', String(id)).select();
-          }
-
-          while (res.error && res.error.code === 'PGRST204') {
-            const match = res.error.message?.match(/Could not find the '([^']+)' column/);
-            if (match && match[1] && match[1] in toSend) {
-              delete toSend[match[1]];
-              if (hasNumericId) {
-                res = await supabase.from('students').update(toSend).eq('id', numericId).select();
-              } else {
-                res = await supabase.from('students').update(toSend).eq('student_id', String(id)).select();
-              }
-            } else {
-              break;
-            }
-          }
+          const res = hasNumericId
+            ? await updateStudentInSupabase(numericId, toSend)
+            : await updateStudentInSupabase(id, toSend);
 
           if (res.error) {
             if (res.error.code === '23505' || res.error.message?.includes('duplicate key') || res.error.message?.includes('unique constraint')) {
-              throw new Error(`Student ID / LRN "${cleanUpdates.student_id || id}" is already registered to another student.`);
+              throw new Error(`Student ID "${cleanUpdates.student_id || id}" is already registered to another student.`);
             }
-            console.warn('Supabase updateStudent notice:', res.error);
+            throw new Error(`Unable to update student in the database: ${res.error.message}`);
           } else if (res.data?.[0]) {
-            const sid = res.data[0].student_id || res.data[0].lrn || cleanUpdates.student_id || id;
-            result = { ...cleanUpdates, ...res.data[0], student_id: sid, lrn: sid };
+            const sid = res.data[0].student_id || cleanUpdates.student_id || id;
+            result = { ...cleanUpdates, ...res.data[0], student_id: sid };
           }
         } catch (err) {
           if (err.message && err.message.includes('already registered')) {
             throw err;
           }
-          console.warn('Supabase updateStudent error:', err);
+          throw new Error(`Unable to update student in the database: ${err.message || String(err)}`);
         }
       }
 
       const current = getStored('students', INITIAL_STUDENTS);
-      const targetLrn = updates.lrn || updates.student_id;
+      const targetStudentId = updates.student_id;
       const updated = current.map(s => {
         const isMatch =
           String(s.id) === String(id) ||
           String(s.student_id) === String(id) ||
-          String(s.lrn) === String(id) ||
-          (targetLrn && (String(s.lrn) === String(targetLrn) || String(s.student_id) === String(targetLrn)));
+          String(s.student_id) === String(id) ||
+          (targetStudentId && String(s.student_id) === String(targetStudentId));
         return isMatch ? { ...s, ...cleanUpdates, ...(result || {}) } : s;
       });
       setStored('students', updated);
@@ -688,8 +753,8 @@ export const dataService = {
         result = updated.find(s =>
           String(s.id) === String(id) ||
           String(s.student_id) === String(id) ||
-          String(s.lrn) === String(id) ||
-          (targetLrn && (String(s.lrn) === String(targetLrn) || String(s.student_id) === String(targetLrn)))
+          String(s.student_id) === String(id) ||
+          (targetStudentId && String(s.student_id) === String(targetStudentId))
         );
       }
 
@@ -711,21 +776,27 @@ export const dataService = {
         try {
           const numericId = Number(id);
           if (!isNaN(numericId) && numericId > 0) {
-            await supabase.from('students').delete().eq('id', numericId);
+            const { error } = await supabase.from('students').delete().eq('id', numericId);
+            if (error) {
+              throw new Error(`Unable to delete student from the database: ${error.message}`);
+            }
           } else {
             const r1 = await supabase.from('students').delete().eq('student_id', id);
             if (r1.error) {
-              await supabase.from('students').delete().eq('lrn', id);
+              const r2 = await supabase.from('students').delete().eq('student_id', id);
+              if (r2.error) {
+                throw new Error(`Unable to delete student from the database: ${r2.error.message}`);
+              }
             }
           }
         } catch (err) {
-          console.warn('Supabase deleteStudent error:', err);
+          throw new Error(err.message || `Unable to delete student from the database.`);
         }
       }
       const current = getStored('students', INITIAL_STUDENTS);
-      const target = current.find(s => String(s.id) === String(id) || String(s.student_id) === String(id) || String(s.lrn) === String(id));
+      const target = current.find(s => String(s.id) === String(id) || String(s.student_id) === String(id) || String(s.student_id) === String(id));
       const name = target ? `${target.fname} ${target.lname}` : `ID #${id}`;
-      const updated = current.filter(s => String(s.id) !== String(id) && String(s.student_id) !== String(id) && String(s.lrn) !== String(id));
+      const updated = current.filter(s => String(s.id) !== String(id) && String(s.student_id) !== String(id) && String(s.student_id) !== String(id));
       setStored('students', updated);
       invalidateCache('students');
       invalidateCache('records');
@@ -916,7 +987,7 @@ export const dataService = {
           studentMap.set(String(s.id), s);
         }
         if (s.student_id) studentMap.set(String(s.student_id).trim(), s);
-        if (s.lrn) studentMap.set(String(s.lrn).trim(), s);
+        if (s.student_id) studentMap.set(String(s.student_id).trim(), s);
       });
       students.forEach((s, idx) => {
         if (s.id) {
@@ -924,7 +995,7 @@ export const dataService = {
           studentMap.set(String(s.id), s);
         }
         if (s.student_id) studentMap.set(String(s.student_id).trim(), s);
-        if (s.lrn) studentMap.set(String(s.lrn).trim(), s);
+        if (s.student_id) studentMap.set(String(s.student_id).trim(), s);
         if (!studentMap.has(idx + 1)) {
           studentMap.set(idx + 1, s);
         }
@@ -1002,15 +1073,14 @@ export const dataService = {
             || INITIAL_STUDENTS[0];
         }
 
-        const sid = String(resolvedStudent.student_id || resolvedStudent.lrn || r.student_id || '109283746101').trim();
+        const sid = String(resolvedStudent.student_id || r.student_id || '109283746101').trim();
         const sImage = (resolvedStudent.image && resolvedStudent.image.trim() !== '')
           ? resolvedStudent.image
           : `https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150&auto=format&fit=crop&q=80`;
 
         resolvedStudent = {
           ...resolvedStudent,
-          student_id: sid,
-          lrn: sid,
+            student_id: sid,
           image: sImage
         };
 
@@ -1049,6 +1119,52 @@ export const dataService = {
     startMutation();
     try {
       let result = null;
+      let databaseStudentId = Number(record.student_id);
+
+      if (isSupabaseConfigured()) {
+        const studentLookupId = Number.isInteger(databaseStudentId) && databaseStudentId > 0
+          ? databaseStudentId
+          : null;
+        let studentQuery = null;
+
+        if (studentLookupId) {
+          const { data, error } = await supabase
+            .from('students')
+            .select('id')
+            .eq('id', studentLookupId)
+            .maybeSingle();
+          if (error) {
+            throw new Error(`Unable to verify the selected student: ${error.message}`);
+          }
+          studentQuery = data;
+        }
+
+        if (!studentQuery && record.student_id_value) {
+          let lookup = await supabase
+            .from('students')
+            .select('id')
+            .eq('student_id', String(record.student_id_value))
+            .maybeSingle();
+          if (lookup.error && ['42703', 'PGRST204'].includes(lookup.error.code)) {
+            lookup = await supabase
+              .from('students')
+              .select('id')
+              .eq('student_id', String(record.student_id_value))
+              .maybeSingle();
+          }
+          if (lookup.error) {
+            throw new Error(`Unable to verify the selected student: ${lookup.error.message}`);
+          }
+          studentQuery = lookup.data;
+        }
+
+        if (!studentQuery) {
+          throw new Error('The selected student does not exist in the database. Refresh the student list and try again.');
+        }
+
+        databaseStudentId = Number(studentQuery.id);
+      }
+
       let remarksText = record.remarks || '';
       if (record.lat && record.lng && !remarksText.includes('GPS:')) {
         const gpsNote = ` [GPS: ${Number(record.lat).toFixed(4)}, ${Number(record.lng).toFixed(4)}${record.accuracy ? ` (±${record.accuracy}m)` : ''}]`;
@@ -1059,7 +1175,7 @@ export const dataService = {
       const defaultApprovalStatus = record.approval_status || (isTeacherReport ? 'Under Approval' : 'Approved');
 
       const cleanRecord = {
-        student_id: Number(record.student_id),
+        student_id: databaseStudentId,
         violation_id: Number(record.violation_id),
         reported_by_name: record.reported_by_name || 'System Admin',
         reported_by_type: record.reported_by_type || 'admin',
@@ -1084,17 +1200,24 @@ export const dataService = {
             .from('records')
             .insert([cleanRecord])
             .select('*, students (*), violations (*)');
-          if (!error && data?.[0]) {
-            result = {
-              ...data[0],
-              student: data[0].students,
-              violation: data[0].violations
-            };
-          } else if (error) {
+          if (error) {
             console.error('Supabase addRecord insert error:', error);
+            throw new Error(`Unable to save the violation record to the database: ${error.message}`);
           }
+          if (!data?.[0]) {
+            throw new Error('Unable to save the violation record to the database: no record was returned.');
+          }
+          result = {
+            ...data[0],
+            student: data[0].students,
+            violation: data[0].violations
+          };
         } catch (err) {
-          console.warn('Supabase addRecord error:', err);
+          if (err instanceof Error && err.message.startsWith('Unable to save the violation record')) {
+            throw err;
+          }
+          console.error('Supabase addRecord error:', err);
+          throw new Error(`Unable to save the violation record to the database: ${err.message || String(err)}`);
         }
       }
 
@@ -1320,21 +1443,19 @@ export const dataService = {
       let remoteList = null;
       if (isSupabaseConfigured()) {
         try {
-          const { data, error } = await supabase.from('teachers').select('*').order('lname', { ascending: true });
-          if (!error && data && data.length > 0) remoteList = data;
+          const { data, error } = await supabase.from('teachers').select('id,fname,lname,email,role,position,department,image').order('lname', { ascending: true });
+          if (!error && data) remoteList = data;
         } catch (e) {
           console.warn('Supabase getTeachers notice:', e);
         }
       }
 
       const localList = getStored('teachers', INITIAL_TEACHERS);
-      const localMap = new Map(localList.map(t => [String(t.email || t.id).toLowerCase(), t]));
       const list = (isSupabaseConfigured() && remoteList !== null)
         ? remoteList.map(r => {
-            const local = localMap.get(String(r.email || r.id).toLowerCase());
             return {
               ...r,
-              password: r.password || local?.password || 'Viotrack@2026!'
+              password: undefined
             };
           })
         : localList;
@@ -1469,39 +1590,46 @@ export const dataService = {
     let result = null;
     const cleanTeacher = {
       fname: String(teacher.fname || '').trim(),
-      mname: String(teacher.mname || '').trim(),
       lname: String(teacher.lname || '').trim(),
       email: String(teacher.email || '').trim().toLowerCase(),
       position: String(teacher.position || 'Teacher').trim(),
       department: String(teacher.department || 'General').trim(),
       contact: String(teacher.contact || '').trim(),
-      password: String(teacher.password || 'Viotrack@2026!').trim(),
       image: String(teacher.image || '').trim()
     };
 
     if (isSupabaseConfigured()) {
       try {
+        // Hash password (defaults to 'teacher123' if not provided)
+        const rawPassword = String(teacher.password || 'teacher123').trim();
+        const passwordHash = await bcrypt.hash(rawPassword, 12);
         const supabasePayload = {
           fname: cleanTeacher.fname,
           lname: cleanTeacher.lname,
           email: cleanTeacher.email,
-          password: cleanTeacher.password,
           position: cleanTeacher.position,
           department: cleanTeacher.department,
           contact: cleanTeacher.contact,
-          image: cleanTeacher.image
+          image: cleanTeacher.image,
+          ...(passwordHash ? { password_hash: passwordHash } : {})
         };
         const { data, error } = await supabase.from('teachers').insert([supabasePayload]).select();
         if (!error && data?.[0]) {
           result = { ...cleanTeacher, ...data[0] };
         } else if (error) {
-          console.warn('Supabase addTeacher notice:', error.message || error);
+          if (error.code === '23505') {
+            throw new Error(`A teacher with email "${cleanTeacher.email}" already exists.`);
+          }
+          throw new Error(`Unable to save teacher to the database: ${error.message}`);
         }
       } catch (err) {
-        console.warn('Supabase addTeacher error:', err);
+        throw err;
       }
     }
     const current = getStored('teachers', INITIAL_TEACHERS);
+    if (!result && isSupabaseConfigured()) {
+      throw new Error('Unable to save teacher: the database returned no saved row.');
+    }
     if (!result) {
       result = { ...cleanTeacher, id: Date.now(), created_at: new Date().toISOString() };
     }
@@ -1516,24 +1644,29 @@ export const dataService = {
   async updateTeacher(id, updates) {
     let result = null;
     const cleanUpdates = {};
-    const allowed = ['fname', 'mname', 'lname', 'email', 'position', 'department', 'contact', 'password', 'image'];
+    // Note: 'mname' and 'password' are excluded — teachers table has no mname column;
+    // password changes go through bcrypt hashing below
+    const allowed = ['fname', 'lname', 'email', 'position', 'department', 'contact', 'image'];
     for (const key of allowed) {
       if (updates[key] !== undefined) {
-        if (key === 'password' && !String(updates[key]).trim()) {
-          // Skip empty password update to preserve existing password
-          continue;
-        }
-        cleanUpdates[key] = updates[key];
+        cleanUpdates[key] = String(updates[key]).trim();
       }
+    }
+
+    // Hash new password if provided
+    const rawPassword = String(updates.password || '').trim();
+    if (rawPassword) {
+      cleanUpdates.password_hash = await bcrypt.hash(rawPassword, 12);
     }
 
     if (isSupabaseConfigured()) {
       try {
         const { data, error } = await supabase.from('teachers').update(cleanUpdates).eq('id', Number(id)).select();
         if (!error && data?.[0]) result = data[0];
-        else if (error) console.error('Supabase updateTeacher error:', error);
+        else if (error) throw new Error(`Unable to update teacher in the database: ${error.message}`);
+        else throw new Error('Unable to update teacher: no matching database record was found.');
       } catch (err) {
-        console.warn('Supabase updateTeacher error:', err);
+        throw err;
       }
     }
     const current = getStored('teachers', INITIAL_TEACHERS);
@@ -1558,12 +1691,13 @@ export const dataService = {
             // Remove associated advisory assignments first to ensure foreign key integrity
             await supabase.from('advisers').delete().eq('teacher_id', numericId);
             const { error } = await supabase.from('teachers').delete().eq('id', numericId);
-            if (error) console.warn('Supabase deleteTeacher notice:', error);
+            if (error) throw new Error(`Unable to delete teacher from the database: ${error.message}`);
           } else {
-            await supabase.from('teachers').delete().eq('email', String(id));
+            const { error } = await supabase.from('teachers').delete().eq('email', String(id));
+            if (error) throw new Error(`Unable to delete teacher from the database: ${error.message}`);
           }
         } catch (err) {
-          console.warn('Supabase deleteTeacher error:', err);
+          throw err;
         }
       }
 
@@ -1711,21 +1845,19 @@ export const dataService = {
       let remoteList = null;
       if (isSupabaseConfigured()) {
         try {
-          const { data, error } = await supabase.from('admins').select('*');
-          if (!error && data && data.length > 0) remoteList = data;
+          const { data, error } = await supabase.from('admins').select('id,fname,lname,email,role,image');
+          if (!error && data) remoteList = data;
         } catch (e) {
           console.warn('Supabase getAdmins notice:', e);
         }
       }
 
       const localList = getStored('admins', INITIAL_ADMINS);
-      const localMap = new Map(localList.map(a => [String(a.email || a.id).toLowerCase(), a]));
       const list = (isSupabaseConfigured() && remoteList !== null)
         ? remoteList.map(r => {
-            const local = localMap.get(String(r.email || r.id).toLowerCase());
             return {
               ...r,
-              password: r.password || local?.password || 'Viotrack@2026!'
+              password: undefined
             };
           })
         : localList;
@@ -1747,7 +1879,6 @@ export const dataService = {
         email: String(admin.email || '').trim().toLowerCase(),
         role: String(admin.role || 'Head Admin').trim(),
         position: String(admin.position || 'Discipline Staff').trim(),
-        password: String(admin.password || 'Viotrack@2026!').trim(),
         image: String(admin.image || '').trim()
       };
 
@@ -1757,7 +1888,6 @@ export const dataService = {
             fname: cleanAdmin.fname,
             lname: cleanAdmin.lname,
             email: cleanAdmin.email,
-            password: cleanAdmin.password,
             role: cleanAdmin.role,
             image: cleanAdmin.image
           };
@@ -1778,13 +1908,19 @@ export const dataService = {
           if (!res.error && res.data?.[0]) {
             result = { ...cleanAdmin, ...res.data[0] };
           } else if (res.error) {
-            console.warn('Supabase addAdmin notice:', res.error);
+            if (res.error.code === '23505') {
+              throw new Error(`An administrator with email "${cleanAdmin.email}" already exists.`);
+            }
+            throw new Error(`Unable to save administrator to the database: ${res.error.message}`);
           }
         } catch (err) {
-          console.warn('Supabase addAdmin error:', err);
+          throw err;
         }
       }
 
+      if (!result && isSupabaseConfigured()) {
+        throw new Error('Unable to save administrator: the database returned no saved row.');
+      }
       if (!result) {
         result = { ...cleanAdmin, id: Date.now(), created_at: new Date().toISOString() };
       }
@@ -1809,19 +1945,16 @@ export const dataService = {
     try {
       let result = null;
       const cleanUpdates = {};
-      const allowed = ['fname', 'mname', 'lname', 'email', 'role', 'position', 'password', 'image'];
+      const allowed = ['fname', 'mname', 'lname', 'email', 'role', 'position', 'image'];
       for (const key of allowed) {
         if (updates[key] !== undefined) {
-          if (key === 'password' && !String(updates[key]).trim()) {
-            continue;
-          }
           cleanUpdates[key] = updates[key];
         }
       }
 
       if (isSupabaseConfigured()) {
         try {
-          const allowedSupabaseCols = ['fname', 'lname', 'email', 'role', 'image', 'password'];
+          const allowedSupabaseCols = ['fname', 'lname', 'email', 'role', 'image'];
           let toSend = {};
           for (const key of allowedSupabaseCols) {
             if (cleanUpdates[key] !== undefined) {
@@ -1856,10 +1989,13 @@ export const dataService = {
           if (!res.error && res.data?.[0]) {
             result = { ...cleanUpdates, ...res.data[0] };
           } else if (res.error) {
-            console.warn('Supabase updateAdmin notice:', res.error);
+            if (res.error.code === '23505') {
+              throw new Error(`An administrator with email "${cleanUpdates.email}" already exists.`);
+            }
+            throw new Error(`Unable to update administrator in the database: ${res.error.message}`);
           }
         } catch (err) {
-          console.warn('Supabase updateAdmin error:', err);
+          throw err;
         }
       }
 
@@ -1893,7 +2029,7 @@ export const dataService = {
           } else {
             res = await supabase.from('admins').delete().eq('email', String(id));
           }
-          if (res?.error) console.warn('Supabase deleteAdmin notice:', res.error);
+          if (res?.error) throw new Error(`Unable to delete administrator from the database: ${res.error.message}`);
         } catch (err) {
           console.warn('Supabase deleteAdmin error:', err);
         }
@@ -1978,10 +2114,27 @@ export const dataService = {
 
     if (isSupabaseConfigured()) {
       try {
-        const { error } = await supabase.from('activity_logs').insert([newLog]);
-        if (error) console.warn('Supabase activity log insert error:', error);
+        const supabaseLog = {
+          user_name: finalUserName,
+          user_role: finalUserRole,
+          action,
+          details,
+          audit_id: auditId,
+          device_info: extraMeta.device_info || null,
+          created_at: timestamp,
+        };
+        const { data, error } = await supabase
+          .from('activity_logs')
+          .insert([supabaseLog])
+          .select()
+          .single();
+        if (error) {
+          console.warn('Failed to save activity log to database:', error.message);
+        } else if (data) {
+          Object.assign(newLog, data);
+        }
       } catch (err) {
-        console.warn('Supabase activity log insert error:', err);
+        console.warn('Activity log error:', err);
       }
     }
     const current = getStored('activity_logs', INITIAL_LOGS);
@@ -2212,7 +2365,7 @@ export const dataService = {
       filtered = filtered.filter(s =>
         (s.fname && s.fname.toLowerCase().includes(query)) ||
         (s.lname && s.lname.toLowerCase().includes(query)) ||
-        (s.lrn && String(s.lrn).toLowerCase().includes(query)) ||
+        (s.student_id && String(s.student_id).toLowerCase().includes(query)) ||
         (s.email && s.email.toLowerCase().includes(query)) ||
         (s.section && s.section.toLowerCase().includes(query))
       );
@@ -2271,7 +2424,7 @@ export const dataService = {
         return (
           (s?.fname && s.fname.toLowerCase().includes(query)) ||
           (s?.lname && s.lname.toLowerCase().includes(query)) ||
-          (s?.lrn && String(s.lrn).toLowerCase().includes(query)) ||
+          (s?.student_id && String(s.student_id).toLowerCase().includes(query)) ||
           (v?.title && v.title.toLowerCase().includes(query)) ||
           (r.remarks && r.remarks.toLowerCase().includes(query))
         );

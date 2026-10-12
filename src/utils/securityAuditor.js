@@ -171,7 +171,7 @@ export const ALL_43_SECURITY_CHECKS = [
     name: 'Zero-PII Plain Numerical QR Encoding',
     description: 'Student QR passes encode only numeric institutional IDs, never exposing plain student names or URLs.',
     verify: () => {
-      const sampleStudent = { id: 42, lrn: '109283746101', fname: 'Juan', lname: 'Dela Cruz' };
+      const sampleStudent = { id: 42, student_id: '109283746101', fname: 'Juan', lname: 'Dela Cruz' };
       const qrVal = getStudentQrValue(sampleStudent);
       return qrVal === '109283746101' && !qrVal.includes('Juan') && !qrVal.includes('http');
     }
@@ -269,7 +269,7 @@ export const ALL_43_SECURITY_CHECKS = [
   {
     id: 21,
     group: 'Input Validation & Sanitization',
-    name: 'Student ID & LRN Format Validation',
+    name: 'Student ID & Student ID Format Validation',
     description: 'Verifies numeric formatting and character bounds for institutional student identifiers.',
     verify: () => {
       const validLrn = /^\d{10,12}$/.test('109283746101');

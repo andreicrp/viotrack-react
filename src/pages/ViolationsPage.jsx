@@ -204,7 +204,7 @@ export const ViolationsPage = () => {
       if (!query) return true;
 
       const sName = `${student.fname || ''} ${student.lname || ''}`.toLowerCase();
-      const sLrn = (student.student_id || student.lrn || '').toLowerCase();
+      const sLrn = (student.student_id || student.student_id || '').toLowerCase();
       const sSection = (student.section || '').toLowerCase();
       const vTitle = (r.violation?.title || '').toLowerCase();
 
@@ -361,7 +361,7 @@ export const ViolationsPage = () => {
     const headers = ['Record ID', 'Student ID', 'Student Name', 'Grade', 'Section', 'Offense', 'Severity', 'Reported By', 'Reporter Type', 'Date Reported', 'Sanction', 'Status', 'Remarks', 'Resolution Notes'];
     const rows = filteredAndSortedRecords.map(r => [
       r.id,
-      r.student?.lrn || '',
+      r.student?.student_id || '',
       r.student ? `${r.student.fname} ${r.student.lname}` : 'N/A',
       r.student?.grade || '',
       r.student?.section || '',
@@ -1171,7 +1171,7 @@ export const ViolationsPage = () => {
                               {rec.student ? `${rec.student.fname} ${rec.student.lname}` : 'Enrolled Student'}
                             </div>
                             <div style={{ fontSize: '11px', color: 'var(--text-muted, #64748b)', marginTop: '1px' }}>
-                              Student ID: <strong style={{ color: 'var(--text-secondary, #334155)' }}>{rec.student?.student_id || rec.student?.lrn || '109283746101'}</strong>
+                              Student ID: <strong style={{ color: 'var(--text-secondary, #334155)' }}>{rec.student?.student_id || rec.student?.student_id || '109283746101'}</strong>
                             </div>
                           </div>
                         </div>
@@ -1520,7 +1520,7 @@ export const ViolationsPage = () => {
                           {rec.student ? `${rec.student.fname} ${rec.student.lname}` : 'Enrolled Student'}
                         </div>
                         <div className="violation-list-mobile-id" style={{ fontSize: '11px', color: '#64748b' }}>
-                          Student ID: <strong style={{ color: '#334155' }}>{rec.student?.student_id || rec.student?.lrn || '109283746101'}</strong>
+                          Student ID: <strong style={{ color: '#334155' }}>{rec.student?.student_id || rec.student?.student_id || '109283746101'}</strong>
                         </div>
                       </div>
                     </div>

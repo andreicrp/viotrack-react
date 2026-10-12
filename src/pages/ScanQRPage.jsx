@@ -208,7 +208,7 @@ export const ScanQRPage = () => {
     let targetId = sId;
     if (!targetId && lrnVal) {
       const students = await dataService.getStudents();
-      const matched = students.find(s => s.lrn.trim() === lrnVal.trim());
+      const matched = students.find(s => s.student_id.trim() === lrnVal.trim());
       if (matched) targetId = matched.id;
     }
 
@@ -689,10 +689,10 @@ export const ScanQRPage = () => {
       if (matched) {
         // Anti-Passback Guard: Check if scanned within last 60 seconds
         const now = Date.now();
-        const isRecentScan = lastScannedCodeRef.current === String(matched.id || matched.lrn) && (now - lastScannedTimeRef.current < 60000);
+        const isRecentScan = lastScannedCodeRef.current === String(matched.id || matched.student_id) && (now - lastScannedTimeRef.current < 60000);
         const secondsAgo = isRecentScan ? Math.max(1, Math.round((now - lastScannedTimeRef.current) / 1000)) : null;
 
-        lastScannedCodeRef.current = String(matched.id || matched.lrn);
+        lastScannedCodeRef.current = String(matched.id || matched.student_id);
         lastScannedTimeRef.current = now;
 
         // Stage 2: Database matching successful
@@ -702,7 +702,7 @@ export const ScanQRPage = () => {
             ? '🛡️ Cryptographic Signature Verified (HMAC-SHA256)'
             : 'QR Code Verified! Locating student record...'
         );
-        setScanProcessingSubstep(`Student: ${matched.fname} ${matched.lname} (${matched.lrn || matched.id})`);
+        setScanProcessingSubstep(`Student: ${matched.fname} ${matched.lname} (${matched.student_id || matched.id})`);
 
         await new Promise(r => setTimeout(r, 450));
 
@@ -733,7 +733,7 @@ export const ScanQRPage = () => {
         if (isRecentScan) {
           info(`⚠️ Anti-Passback Alert: Student re-scanned (${secondsAgo}s ago)`);
         } else {
-          success(`Student Identified: ${matched.fname} ${matched.lname} (${matched.lrn || matched.id})`);
+          success(`Student Identified: ${matched.fname} ${matched.lname} (${matched.student_id || matched.id})`);
         }
       } else if (isSignedFormat) {
         // Explicit Forged / Tampered Cryptographic Signature Detection
@@ -1621,7 +1621,7 @@ export const ScanQRPage = () => {
                       </span>
                       <span className="verified-dot">•</span>
                       <span className="lrn-chip" title="Learner Reference Number">
-                        ID: {scannedStudent.lrn}
+                        ID: {scannedStudent.student_id}
                       </span>
                       {scannedStudent.academicyear && (
                         <>

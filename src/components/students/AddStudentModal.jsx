@@ -38,7 +38,7 @@ export const AddStudentModal = ({ isOpen, onClose, studentToEdit = null, onSaved
   const [isDragging, setIsDragging] = useState(false);
 
   const [formData, setFormData] = useState({
-    lrn: '',
+    student_id: '',
     fname: '',
     mname: '',
     lname: '',
@@ -72,7 +72,7 @@ export const AddStudentModal = ({ isOpen, onClose, studentToEdit = null, onSaved
       const g = studentToEdit.grade || 'Grade 10';
       const isJHS = isJHSGrade(g);
       setFormData({
-        lrn: String(studentToEdit.student_id || studentToEdit.lrn || ''),
+        student_id: String(studentToEdit.student_id || ''),
         fname: studentToEdit.fname || '',
         mname: studentToEdit.mname || '',
         lname: studentToEdit.lname || '',
@@ -90,7 +90,7 @@ export const AddStudentModal = ({ isOpen, onClose, studentToEdit = null, onSaved
       });
     } else {
       setFormData({
-        lrn: '',
+        student_id: '',
         fname: '',
         mname: '',
         lname: '',
@@ -192,19 +192,19 @@ export const AddStudentModal = ({ isOpen, onClose, studentToEdit = null, onSaved
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const trimmedLrn = String(formData.lrn || '').trim();
+    const trimmedStudentId = String(formData.student_id || '').trim();
     const trimmedFname = String(formData.fname || '').trim();
     const trimmedLname = String(formData.lname || '').trim();
 
-    if (!trimmedLrn || !trimmedFname || !trimmedLname) {
+    if (!trimmedStudentId || !trimmedFname || !trimmedLname) {
       error('Please complete all required fields (Student ID, First Name, Last Name).');
       return;
     }
 
     if (!studentToEdit) {
-      const isDuplicate = existingStudents.some(s => String(s.student_id || s.lrn || '').trim().toLowerCase() === trimmedLrn.toLowerCase());
+      const isDuplicate = existingStudents.some(s => String(s.student_id || '').trim().toLowerCase() === trimmedStudentId.toLowerCase());
       if (isDuplicate) {
-        error(`Student ID "${trimmedLrn}" is already registered in the system. Please use a unique Student ID.`);
+        error(`Student ID "${trimmedStudentId}" is already registered in the system. Please use a unique Student ID.`);
         return;
       }
     }
@@ -220,25 +220,26 @@ export const AddStudentModal = ({ isOpen, onClose, studentToEdit = null, onSaved
       }
 
       if (studentToEdit) {
-        const studentId = studentToEdit.id !== undefined && studentToEdit.id !== null
+        const studentId = !studentToEdit._localOnly && studentToEdit.id !== undefined && studentToEdit.id !== null
           ? studentToEdit.id
-          : (studentToEdit.student_id || studentToEdit.lrn);
+          : studentToEdit.student_id;
 
-        const updated = await dataService.updateStudent(studentId, {
+        const studentPayload = {
           ...formData,
-          student_id: trimmedLrn,
-          lrn: trimmedLrn,
+          student_id: trimmedStudentId,
           fname: trimmedFname,
           lname: trimmedLname,
           image: finalImageUrl
-        });
+        };
+        const updated = studentToEdit._localOnly
+          ? await dataService.addStudent(studentPayload)
+          : await dataService.updateStudent(studentId, studentPayload);
         success(`Student ${trimmedFname} ${trimmedLname} updated successfully!`);
         onSaved?.(updated);
       } else {
         const created = await dataService.addStudent({
           ...formData,
-          student_id: trimmedLrn,
-          lrn: trimmedLrn,
+          student_id: trimmedStudentId,
           fname: trimmedFname,
           lname: trimmedLname,
           image: finalImageUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(`${trimmedFname} ${trimmedLname}`)}&background=27367f&color=fff&size=100`
@@ -335,7 +336,7 @@ export const AddStudentModal = ({ isOpen, onClose, studentToEdit = null, onSaved
                   {formData.fname || formData.lname ? `${formData.fname} ${formData.mname ? formData.mname[0] + '. ' : ''}${formData.lname}` : 'Student Name Preview'}
                 </div>
                 <div style={{ fontSize: '12px', color: 'var(--text-muted, #64748b)', marginTop: '2px', display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
-                  <span>Student ID: <strong style={{ color: 'var(--brand-blue, #0f172a)' }}>{formData.lrn || 'Pending'}</strong></span>
+                  <span>Student ID: <strong style={{ color: 'var(--brand-blue, #0f172a)' }}>{formData.student_id || 'Pending'}</strong></span>
                   <span>•</span>
                   <span>{formData.grade} – {formData.section || 'Section'}</span>
                   <span>•</span>
@@ -411,8 +412,8 @@ export const AddStudentModal = ({ isOpen, onClose, studentToEdit = null, onSaved
                 <input
                   type="text"
                   className="form-control"
-                  value={formData.lrn}
-                  onChange={(e) => setFormData({ ...formData, lrn: e.target.value })}
+                  value={formData.student_id}
+                  onChange={(e) => setFormData({ ...formData, student_id: e.target.value })}
                   placeholder="e.g. 109283746101"
                   maxLength={16}
                   required
