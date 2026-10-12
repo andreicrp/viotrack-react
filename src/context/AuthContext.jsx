@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
-import { customAuth } from '../lib/supabase';
+import { customAuth, clearStoredToken } from '../lib/supabase';
 
 const AuthContext = createContext(null);
 
@@ -73,6 +73,7 @@ export const AuthProvider = ({ children }) => {
       sessionStorage.removeItem(AUTH_ACTIVE_KEY);
       sessionStorage.removeItem(AUTH_LOCKED_KEY);
       sessionStorage.clear();
+      clearStoredToken();
 
       if (reason === 'expired') {
         window.location.href = '/login?logged_out=expired';

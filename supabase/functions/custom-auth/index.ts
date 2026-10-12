@@ -2,12 +2,16 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import bcrypt from 'npm:bcryptjs@2.4.3';
 import { SignJWT, jwtVerify } from 'npm:jose@5.10.0';
 
-const getCorsHeaders = (request: Request) => ({
-  'Access-Control-Allow-Origin': Deno.env.get('APP_ORIGIN') || request.headers.get('origin') || '*',
-  'Access-Control-Allow-Credentials': 'true',
-  'Access-Control-Allow-Headers': 'authorization, content-type',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-});
+const getCorsHeaders = (request: Request) => {
+  const origin = request.headers.get('origin');
+  return {
+    'Access-Control-Allow-Origin': origin || '*',
+    'Access-Control-Allow-Credentials': 'true',
+    'Access-Control-Allow-Headers': 'authorization, content-type, apikey, x-client-info, x-viotrack-token',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Vary': 'Origin',
+  };
+};
 
 const json = (request: Request, body: unknown, status = 200, headers: HeadersInit = {}) =>
   new Response(JSON.stringify(body), {
@@ -19,6 +23,7 @@ const getSecret = () => {
   const value = Deno.env.get('CUSTOM_AUTH_SECRET');
   return value ? new TextEncoder().encode(value) : null;
 };
+
 const db = createClient(
   Deno.env.get('SUPABASE_URL')!,
   Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
@@ -26,7 +31,22 @@ const db = createClient(
 );
 
 const cookie = (value: string, maxAge: number) =>
-  `viotrack_session=${value}; Max-Age=${maxAge}; Path=/; HttpOnly; Secure; SameSite=Lax`;
+  `viotrack_session=${value}; Max-Age=${maxAge}; Path=/; HttpOnly; Secure; SameSite=None; Partitioned`;
+
+const extractToken = (request: Request, bodyToken?: unknown): string | null => {
+  if (typeof bodyToken === 'string' && bodyToken) return bodyToken;
+  const xToken = request.headers.get('x-viotrack-token');
+  if (xToken) return xToken;
+  const authHeader = request.headers.get('authorization');
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    const candidate = authHeader.replace(/^Bearer\s+/, '').trim();
+    if (candidate && candidate !== Deno.env.get('SUPABASE_ANON_KEY')) {
+      return candidate;
+    }
+  }
+  const cookieToken = request.headers.get('cookie')?.match(/(?:^|;\s*)viotrack_session=([^;]+)/)?.[1];
+  return cookieToken || null;
+};
 
 Deno.serve(async (request) => {
   if (request.method === 'OPTIONS') return new Response('ok', { headers: getCorsHeaders(request) });
@@ -36,18 +56,27 @@ Deno.serve(async (request) => {
   try {
     const signingSecret = getSecret();
     if (!signingSecret) return json(request, { error: 'Authentication is not configured' }, 503);
-    const { action = 'login', email, password, currentPassword, newPassword } = await request.json();
-    if (action === 'logout') return json(request, { ok: true }, 200, { 'Set-Cookie': cookie('', 0) });
+
+    const requestBody = await request.json().catch(() => ({}));
+    const { action = 'login', email, password, currentPassword, newPassword } = requestBody;
+
+    if (action === 'logout') {
+      return json(request, { ok: true }, 200, { 'Set-Cookie': cookie('', 0) });
+    }
 
     if (action === 'session') {
-      const token = request.headers.get('cookie')?.match(/(?:^|;\s*)viotrack_session=([^;]+)/)?.[1];
+      const token = extractToken(request, requestBody.token);
       if (!token) return json(request, { user: null }, 401);
-      const { payload } = await jwtVerify(token, signingSecret);
-      return json(request, { user: payload });
+      try {
+        const { payload } = await jwtVerify(token, signingSecret);
+        return json(request, { user: payload, token });
+      } catch {
+        return json(request, { user: null }, 401);
+      }
     }
 
     if (action === 'change-password') {
-      const token = request.headers.get('cookie')?.match(/(?:^|;\s*)viotrack_session=([^;]+)/)?.[1];
+      const token = extractToken(request, requestBody.token);
       if (!token) return json(request, { error: 'Authentication required' }, 401);
       const { payload } = await jwtVerify(token, signingSecret);
       const accountId = String(payload.id ?? '');
@@ -102,7 +131,7 @@ Deno.serve(async (request) => {
       .setIssuedAt()
       .setExpirationTime('8h')
       .sign(signingSecret);
-    return json(request, { user }, 200, { 'Set-Cookie': cookie(token, 8 * 60 * 60) });
+    return json(request, { user, token }, 200, { 'Set-Cookie': cookie(token, 8 * 60 * 60) });
   } catch (error) {
     console.error('custom-auth error', error);
     return json(request, { error: 'Authentication request failed' }, 500);
