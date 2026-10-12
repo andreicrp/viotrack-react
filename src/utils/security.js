@@ -145,6 +145,7 @@ export const evaluatePasswordStrength = (password = '') => {
 
   return {
     score: normalizedScore,
+    percentage: Math.min(100, Math.round((normalizedScore / 4) * 100)),
     level: levels[normalizedScore],
     color: colors[normalizedScore],
     valid: errors.length === 0,

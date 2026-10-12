@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { customAuth } from '../lib/supabase';
+import React, { useState, useEffect } from 'react';
+import { customAuth, supabase } from '../lib/supabase';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useNotification } from '../context/NotificationContext';
@@ -22,7 +22,8 @@ import {
   Upload,
   Fingerprint,
   FileText,
-  Clock
+  Clock,
+  Loader2
 } from 'lucide-react';
 import { LegalModal } from '../components/legal/LegalModal';
 import { evaluatePasswordStrength, validateUploadedFile } from '../utils/security';
@@ -34,7 +35,7 @@ export const ProfilePage = () => {
   const navigate = useNavigate();
 
   // Split name if single field
-  const nameParts = (user?.name || 'Sheryl Gamboa').split(' ');
+  const nameParts = (user?.name || 'Sheryl Gamboa').trim().split(/\s+/);
   const initialFirst = nameParts[0] || 'Sheryl';
   const initialLast = nameParts.length > 1 ? nameParts[nameParts.length - 1] : 'Gamboa';
   const initialMiddle = nameParts.length > 2 ? nameParts.slice(1, -1).join(' ') : 'B.';
@@ -46,13 +47,29 @@ export const ProfilePage = () => {
   const [middleName, setMiddleName] = useState(initialMiddle);
   const [lastName, setLastName] = useState(initialLast);
   const [email, setEmail] = useState(user?.email || 'admin@viotrack.edu');
-  const [phone, setPhone] = useState('09171234567');
-  const [department, setDepartment] = useState('Prefect of Discipline & Guidance');
-  const [employeeId] = useState('ADM-2025-001');
+  const [phone, setPhone] = useState(user?.phone || user?.contact || '09171234567');
+  const [department, setDepartment] = useState(user?.department || 'Prefect of Discipline & Guidance');
+  const [employeeId] = useState(user?.id ? `ADM-2025-00${user.id}` : 'ADM-2025-001');
   const [role] = useState(user?.role || 'Admin');
   const [avatar, setAvatar] = useState(user?.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&auto=format&fit=crop&q=80');
+  const [selectedFile, setSelectedFile] = useState(null);
   const [selectedFileName, setSelectedFileName] = useState('');
   const [isSaving, setIsSaving] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+
+  // Synchronize state whenever active user updates
+  useEffect(() => {
+    if (user) {
+      const parts = (user.name || '').trim().split(/\s+/);
+      if (parts.length > 0 && parts[0]) setFirstName(parts[0]);
+      if (parts.length > 1) setLastName(parts[parts.length - 1]);
+      if (parts.length > 2) setMiddleName(parts.slice(1, -1).join(' '));
+      if (user.email) setEmail(user.email);
+      if (user.avatar) setAvatar(user.avatar);
+      if (user.department) setDepartment(user.department);
+      if (user.phone || user.contact) setPhone(user.phone || user.contact);
+    }
+  }, [user]);
 
   // Security fields
   const [currentPassword, setCurrentPassword] = useState('');
@@ -78,6 +95,7 @@ export const ProfilePage = () => {
         error(val.error);
         return;
       }
+      setSelectedFile(file);
       setSelectedFileName(file.name);
       const reader = new FileReader();
       reader.onload = (event) => {
@@ -88,9 +106,10 @@ export const ProfilePage = () => {
   };
 
   const passwordEvaluation = evaluatePasswordStrength(newPassword);
+  const passwordStrength = passwordEvaluation.percentage || 0;
 
   const handleSave = async (e) => {
-    e.preventDefault();
+    if (e && e.preventDefault) e.preventDefault();
     setIsSaving(true);
 
     if (newPassword) {
@@ -119,34 +138,108 @@ export const ProfilePage = () => {
     }
 
     try {
-      const fullName = `${firstName} ${middleName ? middleName + ' ' : ''}${lastName}`.trim();
-      
-      setUser({
-        ...user,
-        name: fullName,
-        email,
-        avatar,
-        role
+      let finalAvatarUrl = avatar;
+
+      // 1. If an image file was selected from user disk, upload to Supabase Storage via Edge Function
+      if (selectedFile) {
+        setIsUploading(true);
+        try {
+          const fileBase64 = await new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = reject;
+            reader.readAsDataURL(selectedFile);
+          });
+
+          const uploadRes = await customAuth({
+            action: 'upload-avatar',
+            fileBase64,
+            fileName: selectedFile.name,
+            mimeType: selectedFile.type || 'image/png'
+          });
+
+          if (uploadRes?.url) {
+            finalAvatarUrl = uploadRes.url;
+            setAvatar(finalAvatarUrl);
+          }
+        } catch (uploadErr) {
+          console.warn('Storage upload error, retaining direct avatar representation:', uploadErr);
+          if (!finalAvatarUrl || !finalAvatarUrl.startsWith('http')) {
+            finalAvatarUrl = avatar;
+          }
+        } finally {
+          setIsUploading(false);
+        }
+      }
+
+      // 2. Persist profile info to database and refresh session token
+      const profileRes = await customAuth({
+        action: 'update-profile',
+        firstName,
+        lastName,
+        phone,
+        department,
+        avatarUrl: finalAvatarUrl
       });
 
-      success('Profile and security credentials updated successfully!');
+      if (profileRes?.user) {
+        setUser(profileRes.user);
+        sessionStorage.setItem('viotrack_active_user', JSON.stringify(profileRes.user));
+      } else {
+        const fullName = `${firstName} ${middleName ? middleName + ' ' : ''}${lastName}`.trim();
+        const updatedUser = {
+          ...user,
+          name: fullName,
+          email,
+          avatar: finalAvatarUrl,
+          department,
+          phone
+        };
+        setUser(updatedUser);
+        sessionStorage.setItem('viotrack_active_user', JSON.stringify(updatedUser));
+      }
+
+      // 3. Fallback direct update to Supabase tables
+      if (supabase && user?.id) {
+        try {
+          const table = user.role === 'admin' ? 'admins' : 'teachers';
+          const directUpdates = {
+            fname: firstName,
+            lname: lastName,
+            image: finalAvatarUrl
+          };
+          if (phone) directUpdates.contact = phone;
+          if (user.role === 'teacher' && department) directUpdates.department = department;
+
+          await supabase.from(table).update(directUpdates).eq('id', user.id);
+        } catch (dbErr) {
+          console.warn('Direct database sync notice:', dbErr);
+        }
+      }
+
+      setSelectedFile(null);
+      setSelectedFileName('');
+      success('Profile photo and account details updated successfully!');
       setNewPassword('');
       setConfirmPassword('');
       setCurrentPassword('');
     } catch (err) {
-      error('Failed to update profile: ' + err.message);
+      error('Failed to update profile: ' + (err.message || 'Unknown error'));
     } finally {
       setIsSaving(false);
+      setIsUploading(false);
     }
   };
 
   const handleReset = () => {
     if (window.confirm('Discard all unsaved changes and reset form?')) {
-      setFirstName(initialFirst);
-      setMiddleName(initialMiddle);
-      setLastName(initialLast);
+      const parts = (user?.name || 'System Administrator').trim().split(/\s+/);
+      setFirstName(parts[0] || initialFirst);
+      setLastName(parts.length > 1 ? parts[parts.length - 1] : initialLast);
+      setMiddleName(parts.length > 2 ? parts.slice(1, -1).join(' ') : initialMiddle);
       setEmail(user?.email || 'admin@viotrack.edu');
       setAvatar(user?.avatar || avatarPresets[0]);
+      setSelectedFile(null);
       setSelectedFileName('');
       setNewPassword('');
       setConfirmPassword('');
@@ -231,7 +324,16 @@ export const ProfilePage = () => {
               disabled={isSaving}
               className="profile-action-btn primary"
             >
-              <Save size={14} /> {isSaving ? 'Saving...' : 'Save Profile'}
+              {isSaving ? (
+                <>
+                  <Loader2 size={14} className="spin-animation" style={{ animation: 'spin 1s linear infinite' }} />
+                  {isUploading ? 'Uploading...' : 'Saving...'}
+                </>
+              ) : (
+                <>
+                  <Save size={14} /> Save Profile
+                </>
+              )}
             </button>
           </div>
         </div>
@@ -421,7 +523,11 @@ export const ProfilePage = () => {
                     return (
                       <div
                         key={index}
-                        onClick={() => { setAvatar(imgUrl); setSelectedFileName(''); }}
+                        onClick={() => {
+                          setAvatar(imgUrl);
+                          setSelectedFile(null);
+                          setSelectedFileName('');
+                        }}
                         className={`profile-preset-box ${isSelected ? 'selected' : ''}`}
                       >
                         <img src={imgUrl} alt="Preset" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -779,7 +885,16 @@ export const ProfilePage = () => {
               className="profile-action-btn primary"
               style={{ flex: 1.5 }}
             >
-              <Save size={15} /> {isSaving ? 'Saving...' : 'Save Changes'}
+              {isSaving ? (
+                <>
+                  <Loader2 size={15} style={{ animation: 'spin 1s linear infinite' }} />
+                  {isUploading ? 'Uploading...' : 'Saving...'}
+                </>
+              ) : (
+                <>
+                  <Save size={15} /> Save Changes
+                </>
+              )}
             </button>
           </div>
         </div>

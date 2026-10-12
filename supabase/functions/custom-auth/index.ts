@@ -95,6 +95,109 @@ Deno.serve(async (request) => {
       return json(request, { ok: true });
     }
 
+    if (action === 'upload-avatar') {
+      const token = extractToken(request, requestBody.token);
+      if (!token) return json(request, { error: 'Authentication required' }, 401);
+      const { payload } = await jwtVerify(token, signingSecret);
+      const accountId = String(payload.id ?? '');
+      const role = payload.role === 'admin' ? 'admin' : 'teacher';
+
+      const { fileBase64, fileName, mimeType = 'image/png' } = requestBody;
+      if (!fileBase64) {
+        return json(request, { error: 'No image data provided' }, 400);
+      }
+
+      const cleanBase64 = String(fileBase64).replace(/^data:image\/[a-zA-Z+]+;base64,/, '');
+      const binaryString = atob(cleanBase64);
+      const bytes = new Uint8Array(binaryString.length);
+      for (let i = 0; i < binaryString.length; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+      }
+
+      let ext = 'png';
+      if (mimeType.includes('jpeg') || mimeType.includes('jpg')) ext = 'jpg';
+      else if (mimeType.includes('webp')) ext = 'webp';
+      else if (mimeType.includes('gif')) ext = 'gif';
+      else if (fileName && typeof fileName === 'string' && fileName.includes('.')) {
+        ext = fileName.split('.').pop()?.toLowerCase() || 'png';
+      }
+
+      const storagePath = `avatars/${role}_${accountId}_${Date.now()}.${ext}`;
+
+      const { error: uploadError } = await db.storage
+        .from('viotrack-media')
+        .upload(storagePath, bytes, {
+          contentType: mimeType,
+          upsert: true,
+        });
+
+      if (uploadError) {
+        console.error('Storage upload error:', uploadError);
+        return json(request, { error: 'Failed to upload image: ' + uploadError.message }, 500);
+      }
+
+      const { data: urlData } = db.storage.from('viotrack-media').getPublicUrl(storagePath);
+      return json(request, { url: urlData.publicUrl, ok: true });
+    }
+
+    if (action === 'update-profile') {
+      const token = extractToken(request, requestBody.token);
+      if (!token) return json(request, { error: 'Authentication required' }, 401);
+      const { payload } = await jwtVerify(token, signingSecret);
+      const accountId = String(payload.id ?? '');
+      const role = payload.role === 'admin' ? 'admin' : 'teacher';
+      const table = role === 'admin' ? 'admins' : 'teachers';
+
+      const { firstName, lastName, phone, department, avatarUrl } = requestBody;
+
+      const updates: Record<string, unknown> = {};
+      if (typeof firstName === 'string' && firstName.trim()) updates.fname = firstName.trim();
+      if (typeof lastName === 'string' && lastName.trim()) updates.lname = lastName.trim();
+      if (typeof phone === 'string') updates.contact = phone.trim();
+      if (typeof avatarUrl === 'string') updates.image = avatarUrl.trim();
+      if (role === 'teacher' && typeof department === 'string' && department.trim()) {
+        updates.department = department.trim();
+      }
+
+      if (Object.keys(updates).length > 0) {
+        const { error: updateError } = await db.from(table).update(updates).eq('id', accountId);
+        if (updateError) {
+          console.error('Database update error:', updateError);
+          return json(request, { error: 'Failed to update profile: ' + updateError.message }, 500);
+        }
+      }
+
+      const { data: updatedAccount, error: fetchError } = await db
+        .from(table)
+        .select(role === 'admin' ? 'id,fname,lname,email,role,image' : 'id,fname,lname,email,position,department,image')
+        .eq('id', accountId)
+        .single();
+
+      if (fetchError || !updatedAccount) {
+        return json(request, { error: 'Failed to retrieve updated profile' }, 500);
+      }
+
+      const updatedUser = {
+        id: updatedAccount.id,
+        email: updatedAccount.email,
+        name: `${updatedAccount.fname ?? ''} ${updatedAccount.lname ?? ''}`.trim(),
+        role,
+        position: (updatedAccount as any).position ?? (role === 'admin' ? 'Administrator' : 'Teacher'),
+        department: (updatedAccount as any).department ?? 'Faculty',
+        avatar: updatedAccount.image || '/images/phcm-logo2.png',
+      };
+
+      const newToken = await new SignJWT(updatedUser)
+        .setProtectedHeader({ alg: 'HS256' })
+        .setIssuedAt()
+        .setExpirationTime('8h')
+        .sign(signingSecret);
+
+      return json(request, { user: updatedUser, token: newToken, ok: true }, 200, {
+        'Set-Cookie': cookie(newToken, 8 * 60 * 60),
+      });
+    }
+
     const normalizedEmail = String(email ?? '').trim().toLowerCase();
     const suppliedPassword = String(password ?? '');
     if (!normalizedEmail || !suppliedPassword || suppliedPassword.length > 256) {
