@@ -85,7 +85,7 @@ CREATE TABLE `admins` (
     `lname` VARCHAR(100) NOT NULL,
     `email` VARCHAR(150) NOT NULL,
     `password_hash` VARCHAR(255) NOT NULL,
-    `role` VARCHAR(50) DEFAULT 'Head Admin',
+    `role` VARCHAR(50) DEFAULT 'admin',
     `position` VARCHAR(100) DEFAULT 'Discipline Officer',
     `contact` VARCHAR(30) DEFAULT '',
     `image` LONGTEXT,
@@ -296,9 +296,9 @@ CREATE TABLE `sms_logs` (
 
 -- 4.1 Sample Administrators (Password: viotrack@2026)
 INSERT INTO `admins` (`id`, `fname`, `mname`, `lname`, `email`, `password_hash`, `role`, `position`) VALUES
-(1, 'Sheryl', 'B.', 'Gamboa', 'admin@phcmanila.edu.ph', '$2b$12$.wxGnXZjCUjIO7eai92HquBVsvP.5WB55tgD9nI6Qguaaf0uQoSua', 'Head Admin', 'Head of Student Affairs'),
-(2, 'System', '', 'Administrator', 'admin@viotrack.edu', '$2b$12$.wxGnXZjCUjIO7eai92HquBVsvP.5WB55tgD9nI6Qguaaf0uQoSua', 'System Admin', 'IT & Systems Security Lead'),
-(3, 'Maria', 'L.', 'Santos', 'maria.santos@viotrack.edu', '$2b$12$.wxGnXZjCUjIO7eai92HquBVsvP.5WB55tgD9nI6Qguaaf0uQoSua', 'Discipline Officer', 'Guidance & Conduct Officer');
+(1, 'Sheryl', 'B.', 'Gamboa', 'admin@phcmanila.edu.ph', '$2b$12$.wxGnXZjCUjIO7eai92HquBVsvP.5WB55tgD9nI6Qguaaf0uQoSua', 'admin', 'Head of Student Affairs'),
+(2, 'System', '', 'Administrator', 'admin@viotrack.edu', '$2b$12$.wxGnXZjCUjIO7eai92HquBVsvP.5WB55tgD9nI6Qguaaf0uQoSua', 'admin', 'IT & Systems Security Lead'),
+(3, 'Maria', 'L.', 'Santos', 'maria.santos@viotrack.edu', '$2b$12$.wxGnXZjCUjIO7eai92HquBVsvP.5WB55tgD9nI6Qguaaf0uQoSua', 'admin', 'Guidance & Conduct Officer');
 
 -- 4.2 Sample Teachers (Password: teacher123)
 INSERT INTO `teachers` (`id`, `fname`, `mname`, `lname`, `email`, `password_hash`, `position`, `department`, `contact`, `gender`, `image`) VALUES
