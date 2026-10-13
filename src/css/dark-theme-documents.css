@@ -1,6 +1,140 @@
 /* ==========================================================================
-   PARENT SUMMONS MODAL (PSM) - MONOCHROME DARK MODE (NO CYAN / NO BLUE)
+   SMS GUARDIAN NOTICE - BLACK SURFACE, WHITE ACTIONS
    ========================================================================== */
+.sms-guardian-backdrop {
+  background: rgba(0, 0, 0, 0.84) !important;
+}
+
+.sms-guardian-notice-modal {
+  background: #080808 !important;
+  border: 1px solid #383838 !important;
+  border-radius: 20px !important;
+  box-shadow: 0 22px 65px rgba(0, 0, 0, 0.72) !important;
+  color: #f5f5f5 !important;
+}
+
+.sms-guardian-notice-modal .sms-guardian-title {
+  color: #f5f5f5 !important;
+}
+
+.sms-guardian-notice-modal .sms-guardian-subtitle,
+.sms-guardian-notice-modal .sms-guardian-label {
+  color: #bdbdbd !important;
+}
+
+.sms-guardian-notice-modal > div:first-child {
+  border-bottom-color: #343434 !important;
+}
+
+.sms-guardian-notice-modal .sms-guardian-close-button {
+  background: #111111 !important;
+  border-color: #383838 !important;
+  color: #e8e8e8 !important;
+}
+
+.sms-guardian-notice-modal .sms-guardian-recipient-card {
+  background: #111111 !important;
+  border: 1px solid #383838 !important;
+  border-radius: 14px !important;
+}
+
+.sms-guardian-notice-modal .sms-guardian-recipient-card > div > span:first-child {
+  color: #bdbdbd !important;
+}
+
+.sms-guardian-notice-modal .sms-guardian-recipient-value {
+  color: #f1f1f1 !important;
+}
+
+.sms-guardian-notice-modal .sms-guardian-phone-chip {
+  background: #102d1d !important;
+  border-color: #1d7042 !important;
+  color: #69e89a !important;
+}
+
+.sms-guardian-notice-modal .sms-guardian-id-chip {
+  background: #242424 !important;
+  border-color: #454545 !important;
+  color: #ededed !important;
+}
+
+.sms-guardian-notice-modal .sms-guardian-category-button {
+  min-height: 38px;
+  background: #f5f5f5 !important;
+  border: 1px solid #ffffff !important;
+  border-radius: 10px !important;
+  color: #111111 !important;
+  box-shadow: 0 3px 12px rgba(255, 255, 255, 0.13) !important;
+  font-weight: 700 !important;
+}
+
+.sms-guardian-notice-modal .sms-guardian-category-button:hover {
+  background: #ffffff !important;
+}
+
+.sms-guardian-notice-modal .sms-guardian-selected-dot {
+  background: #111111 !important;
+}
+
+.sms-guardian-notice-modal .sms-guardian-reset-button {
+  color: #d1d1d1 !important;
+}
+
+.sms-guardian-notice-modal .sms-guardian-message {
+  background: #111111 !important;
+  border-color: #3b3b3b !important;
+  color: #eeeeee !important;
+}
+
+.sms-guardian-notice-modal .sms-guardian-message::placeholder {
+  color: #a6a6a6 !important;
+}
+
+.sms-guardian-notice-modal .sms-guardian-cancel-button {
+  background: #ffffff !important;
+  border-color: #ffffff !important;
+  color: #111111 !important;
+}
+
+.sms-guardian-notice-modal .sms-guardian-submit-button {
+  background: #ffffff !important;
+  border: 1px solid #ffffff !important;
+  color: #111111 !important;
+  box-shadow: 0 4px 16px rgba(255, 255, 255, 0.16) !important;
+}
+
+.sms-guardian-notice-modal .sms-guardian-submit-button:disabled {
+  opacity: 0.65;
+}
+
+.sms-guardian-notice-modal .sms-guardian-helper-text {
+  color: #b5b5b5 !important;
+}
+
+.sms-guardian-notice-modal button:focus-visible,
+.sms-guardian-notice-modal textarea:focus-visible {
+  outline: 2px solid #ffffff !important;
+  outline-offset: 2px;
+}
+
+@media (max-width: 560px) {
+  .sms-guardian-notice-modal {
+    padding: 22px 18px !important;
+    gap: 16px !important;
+  }
+
+  .sms-guardian-notice-modal .sms-guardian-recipient-card > div {
+    gap: 8px;
+    align-items: flex-start !important;
+  }
+
+  .sms-guardian-notice-modal .sms-guardian-recipient-card > div > div {
+    align-items: flex-end;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+}
+
 html[data-theme="dark"] body .admin-users-mobile-cards .admin-mobile-list-name,
 html[data-theme="dark"] body .admin-users-mobile-cards .admin-mobile-list-position,
 html[data-theme="dark"] body .admin-users-mobile-cards .entity-grid-name,

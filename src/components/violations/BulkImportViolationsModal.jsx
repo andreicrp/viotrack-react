@@ -12,7 +12,8 @@ import {
   FileType,
   AlertTriangle
 } from 'lucide-react';
-import { parseCsvString, readFileAsText, downloadSampleCsv } from '../../utils/csvHelper';
+import { readFileAsText, downloadSampleCsv } from '../../utils/csvHelper';
+import { parseEntityCsv } from '../../utils/entityCsv';
 import { extractTextFromPdf, parseViolationRosterFromPdfLines } from '../../utils/pdfHelper';
 
 const SAMPLE_VIOLATIONS_CSV = `Title,Type,Description,Default Sanction
@@ -89,30 +90,18 @@ export const BulkImportViolationsModal = ({ isOpen, onClose, onImported, initial
   const parsedCsvViolations = useMemo(() => {
     if (!csvText.trim()) return [];
     try {
-      const rows = parseCsvString(csvText);
-      if (rows.length === 0) return [];
-
-      const firstRow = rows[0];
-      const hasHeader = firstRow.some(col => 
-        ['title', 'type', 'severity', 'description', 'sanction', 'violation'].includes(col.toLowerCase().trim())
-      );
-      const dataRows = hasHeader ? rows.slice(1) : rows;
-
-      return dataRows
-        .filter(parts => parts.length >= 2 && parts.some(p => p.trim()))
-        .map(parts => {
-          const title = parts[0]?.trim() || 'General Infraction';
-          const type = (parts[1]?.trim()?.toLowerCase() === 'major' || parts[1]?.trim()?.toLowerCase() === 'critical') ? 'Major' : 'Minor';
-          const description = parts[2]?.trim() || `Infraction classified under ${type} violation policy.`;
-          const default_sanction = parts[3]?.trim() || (type === 'Major' ? 'Parent Summon & Written Reprimand' : 'Verbal Warning & Counseling');
-
-          return {
-            title,
-            type,
-            description,
-            default_sanction
-          };
-        });
+      return parseEntityCsv(csvText, {
+        title: ['title', 'violation', 'violation title', 'offense', 'offense title'],
+        type: ['type', 'severity', 'severity type', 'classification'],
+        description: ['description', 'details', 'policy scope'],
+        default_sanction: ['default sanction', 'default_sanction', 'sanction', 'consequence']
+      }, ['title', 'type', 'description', 'default_sanction'])
+        .map(violation => ({
+          ...violation,
+          type: ['major', 'critical'].includes((violation.type || '').toLowerCase())
+            ? 'Major'
+            : (violation.type || '').toLowerCase() === 'minor' ? 'Minor' : ''
+        }));
     } catch {
       return [];
     }
@@ -130,6 +119,12 @@ export const BulkImportViolationsModal = ({ isOpen, onClose, onImported, initial
 
     setLoading(true);
     try {
+      const invalidRows = activeCandidateList
+        .map((violation, index) => (!violation.title || !violation.type ? index + 1 : null))
+        .filter(Boolean);
+      if (invalidRows.length) {
+        throw new Error(`Rows ${invalidRows.slice(0, 20).join(', ')} need a title and severity of Minor or Major.`);
+      }
       let count = 0;
       for (const v of activeCandidateList) {
         await dataService.addViolationType(v);

@@ -25,6 +25,7 @@ import { useNotification } from '../../context/NotificationContext';
 import { lockBodyScroll, unlockBodyScroll } from '../../utils/scrollLock';
 import { CustomTimePicker } from './CustomTimePicker';
 import { CustomSelect } from './CustomSelect';
+import { normalizeBackupCollections } from '../../utils/databaseBackup';
 
 const BACKUP_HISTORY_PAGE_SIZE = 5;
 
@@ -110,13 +111,15 @@ export const BackupRestoreModal = ({ isOpen, onClose }) => {
       await loadHistoryAndSettings();
 
       // Download file to browser
-      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(snapshot, null, 2));
+      const backupBlob = new Blob([JSON.stringify(snapshot, null, 2)], { type: 'application/json' });
+      const downloadUrl = URL.createObjectURL(backupBlob);
       const downloadAnchor = document.createElement('a');
-      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("href", downloadUrl);
       downloadAnchor.setAttribute("download", `VioTrack_DB_Backup_${new Date().toISOString().split('T')[0]}_${snapshot.backup_id}.json`);
       document.body.appendChild(downloadAnchor);
       downloadAnchor.click();
       downloadAnchor.remove();
+      window.setTimeout(() => URL.revokeObjectURL(downloadUrl), 1000);
 
       success(`Database snapshot ${snapshot.backup_id} created and downloaded successfully!`);
     } catch (err) {
@@ -134,17 +137,22 @@ export const BackupRestoreModal = ({ isOpen, onClose }) => {
     const reader = new FileReader();
     reader.onload = (event) => {
       try {
-        const parsed = JSON.parse(event.target.result);
-        if (!parsed.data || (!parsed.data.records && !parsed.data.students)) {
-          throw new Error('Unrecognized database backup format.');
-        }
+        const parsed = JSON.parse(String(event.target.result || '').replace(/^\uFEFF/, ''));
+        normalizeBackupCollections(parsed);
         setUploadedFilePayload(parsed);
         setConfirmRestoreCheck(false);
         info(`Loaded backup snapshot: ${parsed.backup_id || file.name}`);
       } catch (err) {
         error('Invalid JSON backup file: ' + err.message);
         setUploadedFilePayload(null);
+      } finally {
+        if (fileInputRef.current) fileInputRef.current.value = '';
       }
+    };
+    reader.onerror = () => {
+      error('Unable to read the selected backup file.');
+      setUploadedFilePayload(null);
+      if (fileInputRef.current) fileInputRef.current.value = '';
     };
     reader.readAsText(file);
   };
@@ -155,7 +163,7 @@ export const BackupRestoreModal = ({ isOpen, onClose }) => {
     setLoading(true);
     try {
       await dataService.restoreDatabase(payloadToRestore);
-      success('Database successfully restored from snapshot! All records synchronized.');
+      success('Snapshot restored. The app is reloading the restored records.');
       setUploadedFilePayload(null);
       await loadHistoryAndSettings();
       setTimeout(() => {
@@ -298,7 +306,7 @@ export const BackupRestoreModal = ({ isOpen, onClose }) => {
                       Database Backup
                     </h4>
                     <p style={{ margin: 0, fontSize: '12px', color: 'var(--text-muted, #64748b)', lineHeight: 1.5, maxWidth: '520px' }}>
-                      Download a complete JSON file containing all students, violation records, faculty, and activity logs.
+                      Download a portable snapshot of students, incidents, staff profiles, violation types, adviser assignments, calendar entries, audit logs, and related records when available. Login credentials are never included.
                     </p>
                   </div>
 
@@ -372,7 +380,7 @@ export const BackupRestoreModal = ({ isOpen, onClose }) => {
                     Recent Local Snapshots ({history.length})
                   </h4>
                   <span style={{ fontSize: '11.5px', color: 'var(--text-muted, #64748b)' }}>
-                    Stored in secure browser storage
+                    Stored in this browser
                   </span>
                 </div>
 
@@ -673,26 +681,29 @@ export const BackupRestoreModal = ({ isOpen, onClose }) => {
                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                       <ShieldCheck size={22} color="#10b981" />
                       <strong style={{ fontSize: '15px', color: 'var(--text-primary, #0f172a)' }}>
-                        Snapshot Verified: {uploadedFilePayload.backup_id || 'Valid Backup'}
+                        Snapshot ready: {uploadedFilePayload.backup_id || 'Valid Backup'}
                       </strong>
                     </div>
                     <span className="badge-minor" style={{ fontSize: '11px', fontWeight: 700, color: '#15803d', background: '#f0fdf4', padding: '3px 9px', borderRadius: '12px', border: '1px solid #86efac' }}>
-                      Integrity Check Passed
+                      Format check passed
                     </span>
                   </div>
 
                   <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: '10px', fontSize: '12px', marginBottom: '18px' }}>
                     <div style={{ background: 'var(--bg-surface, #f8fafc)', padding: '10px 14px', borderRadius: '10px', border: '1px solid var(--border-subtle, #e2e8f0)' }}>
                       <span style={{ color: 'var(--text-muted, #64748b)', display: 'block', fontSize: '11px' }}>Students</span>
-                      <strong style={{ fontSize: '15px', color: 'var(--text-primary, #0f172a)' }}>{uploadedFilePayload.counts?.students || uploadedFilePayload.data?.students?.length || 0}</strong>
+                      <strong style={{ fontSize: '15px', color: 'var(--text-primary, #0f172a)' }}>{uploadedFilePayload.data?.students?.length ?? uploadedFilePayload.counts?.students ?? 0}</strong>
                     </div>
                     <div style={{ background: 'var(--bg-surface, #f8fafc)', padding: '10px 14px', borderRadius: '10px', border: '1px solid var(--border-subtle, #e2e8f0)' }}>
                       <span style={{ color: 'var(--text-muted, #64748b)', display: 'block', fontSize: '11px' }}>Incidents</span>
-                      <strong style={{ fontSize: '15px', color: 'var(--text-primary, #0f172a)' }}>{uploadedFilePayload.counts?.records || uploadedFilePayload.data?.records?.length || 0}</strong>
+                      <strong style={{ fontSize: '15px', color: 'var(--text-primary, #0f172a)' }}>{uploadedFilePayload.data?.records?.length ?? uploadedFilePayload.counts?.records ?? 0}</strong>
                     </div>
                     <div style={{ background: 'var(--bg-surface, #f8fafc)', padding: '10px 14px', borderRadius: '10px', border: '1px solid var(--border-subtle, #e2e8f0)' }}>
                       <span style={{ color: 'var(--text-muted, #64748b)', display: 'block', fontSize: '11px' }}>Staff Accounts</span>
-                      <strong style={{ fontSize: '15px', color: 'var(--text-primary, #0f172a)' }}>{(uploadedFilePayload.counts?.teachers || 0) + (uploadedFilePayload.counts?.admins || 0)}</strong>
+                      <strong style={{ fontSize: '15px', color: 'var(--text-primary, #0f172a)' }}>
+                        {(uploadedFilePayload.data?.teachers?.length ?? uploadedFilePayload.counts?.teachers ?? 0)
+                          + (uploadedFilePayload.data?.admins?.length ?? uploadedFilePayload.counts?.admins ?? 0)}
+                      </strong>
                     </div>
                     <div style={{ background: 'var(--bg-surface, #f8fafc)', padding: '10px 14px', borderRadius: '10px', border: '1px solid var(--border-subtle, #e2e8f0)' }}>
                       <span style={{ color: 'var(--text-muted, #64748b)', display: 'block', fontSize: '11px' }}>Created On</span>
@@ -723,8 +734,11 @@ export const BackupRestoreModal = ({ isOpen, onClose }) => {
                       onChange={(e) => setConfirmRestoreCheck(e.target.checked)}
                       style={{ cursor: 'pointer', accentColor: 'var(--brand-blue, #0f172a)', width: '16px', height: '16px' }}
                     />
-                    <span>I confirm and understand this will replace current database records with the selected snapshot.</span>
+                    <span>I understand this will replace backed-up data with the selected snapshot. Existing staff login credentials are retained.</span>
                   </label>
+                  <p style={{ margin: '-8px 0 18px', fontSize: '12px', color: 'var(--text-muted, #64748b)' }}>
+                    Staff profiles can only be restored to accounts that still exist. Passwords are not included in backup files.
+                  </p>
 
                   <button
                     type="button"
@@ -831,7 +845,7 @@ export const BackupRestoreModal = ({ isOpen, onClose }) => {
         {/* Modal Footer */}
         <div className="backup-modal-footer" style={{ background: 'var(--bg-surface, #ffffff)', borderTop: '1px solid var(--border-subtle, #f1f5f9)' }}>
           <span style={{ fontSize: '12px', color: 'var(--text-muted, #64748b)' }}>
-            Backups are stored locally and encrypted.
+            Snapshot history is stored in this browser. Downloaded files are not encrypted; store them securely.
           </span>
           <button
             type="button"

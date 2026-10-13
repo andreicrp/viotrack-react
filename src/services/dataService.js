@@ -2,6 +2,7 @@ import { supabase, isSupabaseConfigured } from '../lib/supabase';
 import bcrypt from 'bcryptjs';
 import { smsService } from './smsService';
 import { broadcastRecordChange, startMutation, endMutation } from '../utils/dataIntegrity';
+import { normalizeBackupCollections } from '../utils/databaseBackup';
 
 // Clean live data fallbacks
 import INITIAL_VIOLATIONS from '../data/violations.json';
@@ -518,6 +519,8 @@ export const dataService = {
             mname: cleanStudent.mname,
             lname: cleanStudent.lname,
             grade: cleanStudent.grade,
+            track: cleanStudent.track,
+            strand: cleanStudent.strand,
             section: cleanStudent.section,
             academicyear: cleanStudent.academicyear,
             gender: cleanStudent.gender,
@@ -574,18 +577,18 @@ export const dataService = {
     startMutation();
     try {
       const CHUNK_SIZE = 100;
-      const cleanStudents = studentsList.map((student, idx) => {
+      const cleanStudents = studentsList.map(student => {
         const studentIdVal = String(student.student_id || '').trim();
         return {
             student_id: studentIdVal,
-          fname: String(student.fname || 'Student').trim(),
+          fname: String(student.fname || '').trim(),
           mname: String(student.mname || '').trim(),
-          lname: String(student.lname || 'Roster').trim(),
+          lname: String(student.lname || '').trim(),
           email: String(student.email || '').trim().toLowerCase(),
-          grade: String(student.grade || 'Grade 10').trim(),
-          track: String(student.track || 'JHS').trim(),
-          strand: String(student.strand || 'JHS').trim(),
-          section: String(student.section || 'General').trim(),
+          grade: String(student.grade || '').trim(),
+          track: String(student.track || '').trim(),
+          strand: String(student.strand || student.course || '').trim(),
+          section: String(student.section || '').trim(),
           academicyear: String(student.academicyear || student.academic_year || '2025-2026').trim(),
           gender: String(student.gender || 'Male').trim(),
           contact: String(student.contact || '').trim(),
@@ -598,10 +601,10 @@ export const dataService = {
       });
 
       const invalidRows = cleanStudents
-        .map((student, index) => (!student.student_id || !student.fname || !student.lname ? index + 1 : null))
+        .map((student, index) => (!student.student_id || !student.fname || !student.lname || !student.grade || !student.section ? index + 1 : null))
         .filter(Boolean);
       if (invalidRows.length > 0) {
-        throw new Error(`Rows ${invalidRows.slice(0, 20).join(', ')} are missing Student ID, first name, or last name.`);
+        throw new Error(`Rows ${invalidRows.slice(0, 20).join(', ')} are missing Student ID, first name, last name, grade, or section.`);
       }
 
       const duplicateIds = cleanStudents
@@ -626,6 +629,8 @@ export const dataService = {
         lname: s.lname,
         email: s.email,
         grade: s.grade,
+        track: s.track,
+        strand: s.strand,
         section: s.section,
         academicyear: s.academicyear,
         gender: s.gender,
@@ -706,7 +711,7 @@ export const dataService = {
 
       if (isSupabaseConfigured()) {
         try {
-          const allowedSupabaseCols = ['student_id', 'fname', 'mname', 'lname', 'grade', 'section', 'academicyear', 'gender', 'contact', 'parent_name', 'parent_contact', 'address', 'image'];
+          const allowedSupabaseCols = ['student_id', 'fname', 'mname', 'lname', 'grade', 'track', 'strand', 'section', 'academicyear', 'gender', 'contact', 'parent_name', 'parent_contact', 'address', 'image'];
           let toSend = {};
           for (const key of allowedSupabaseCols) {
             if (cleanUpdates[key] !== undefined) {
@@ -827,7 +832,8 @@ export const dataService = {
       let result = null;
       if (isSupabaseConfigured()) {
         const { data, error } = await supabase.from('violations').select('*').order('type', { ascending: true });
-        if (!error && data && data.length > 0) result = data;
+        if (error) throw new Error(`Unable to load violation types from the database: ${error.message}`);
+        if (Array.isArray(data)) result = data;
       }
       if (!result) {
         const stored = getStored('violations', null);
@@ -878,16 +884,10 @@ export const dataService = {
 
     let result = null;
     if (isSupabaseConfigured()) {
-      try {
-        const { data, error } = await supabase.from('violations').insert([cleanViolation]).select();
-        if (!error && data?.[0]) {
-          result = data[0];
-        } else if (error) {
-          console.error('Supabase addViolationType error:', error);
-        }
-      } catch (err) {
-        console.warn('Supabase addViolationType error:', err);
-      }
+      const { data, error } = await supabase.from('violations').insert([cleanViolation]).select();
+      if (error) throw new Error(`Unable to save violation type to the database: ${error.message}`);
+      if (!data?.[0]) throw new Error('Unable to save violation type: the database returned no saved row.');
+      result = data[0];
     }
     const currentStored = getStored('violations', INITIAL_VIOLATIONS);
     if (!result) {
@@ -1443,7 +1443,7 @@ export const dataService = {
       let remoteList = null;
       if (isSupabaseConfigured()) {
         try {
-          const { data, error } = await supabase.from('teachers').select('id,fname,lname,email,role,position,department,image').order('lname', { ascending: true });
+          const { data, error } = await supabase.from('teachers').select('id,fname,mname,lname,email,position,department,specialization,contact,gender,image').order('lname', { ascending: true });
           if (!error && data) remoteList = data;
         } catch (e) {
           console.warn('Supabase getTeachers notice:', e);
@@ -1590,11 +1590,14 @@ export const dataService = {
     let result = null;
     const cleanTeacher = {
       fname: String(teacher.fname || '').trim(),
+      mname: String(teacher.mname || '').trim(),
       lname: String(teacher.lname || '').trim(),
       email: String(teacher.email || '').trim().toLowerCase(),
       position: String(teacher.position || 'Teacher').trim(),
       department: String(teacher.department || 'General').trim(),
+      specialization: String(teacher.specialization || '').trim(),
       contact: String(teacher.contact || '').trim(),
+      gender: String(teacher.gender || '').trim(),
       image: String(teacher.image || '').trim()
     };
 
@@ -1605,11 +1608,14 @@ export const dataService = {
         const passwordHash = await bcrypt.hash(rawPassword, 12);
         const supabasePayload = {
           fname: cleanTeacher.fname,
+          mname: cleanTeacher.mname,
           lname: cleanTeacher.lname,
           email: cleanTeacher.email,
           position: cleanTeacher.position,
           department: cleanTeacher.department,
+          specialization: cleanTeacher.specialization,
           contact: cleanTeacher.contact,
+          gender: cleanTeacher.gender,
           image: cleanTeacher.image,
           ...(passwordHash ? { password_hash: passwordHash } : {})
         };
@@ -1644,9 +1650,8 @@ export const dataService = {
   async updateTeacher(id, updates) {
     let result = null;
     const cleanUpdates = {};
-    // Note: 'mname' and 'password' are excluded — teachers table has no mname column;
-    // password changes go through bcrypt hashing below
-    const allowed = ['fname', 'lname', 'email', 'position', 'department', 'contact', 'image'];
+    // Password changes go through bcrypt hashing below.
+    const allowed = ['fname', 'mname', 'lname', 'email', 'position', 'department', 'specialization', 'contact', 'gender', 'image'];
     for (const key of allowed) {
       if (updates[key] !== undefined) {
         cleanUpdates[key] = String(updates[key]).trim();
@@ -1740,16 +1745,44 @@ export const dataService = {
 
     return executeWithDeduplication('advisers', async () => {
       if (isSupabaseConfigured()) {
-        const { data, error } = await supabase.from('advisers').select('*, teachers(*)');
-        if (!error && data) {
-          const mapped = data.map(a => ({
-            ...a,
-            teacher: a.teachers
-          }));
-          _cache.data.advisers = mapped;
-          _cache.timestamps.advisers = Date.now();
-          setStored('advisers', mapped);
-          return mapped;
+        try {
+          const { data, error } = await supabase
+            .from('advisers')
+            .select('*, teachers(id,fname,mname,lname,email,position,department,specialization,contact,gender,image)');
+          if (!error && data) {
+            const teachers = data.some(a => !a.teachers) ? await this.getTeachers(true) : [];
+            const teacherMap = new Map(teachers.map(t => [Number(t.id), t]));
+            const mapped = data.map(a => ({
+              ...a,
+              teacher: a.teachers || teacherMap.get(Number(a.teacher_id))
+            }));
+            _cache.data.advisers = mapped;
+            _cache.timestamps.advisers = Date.now();
+            setStored('advisers', mapped);
+            return mapped;
+          }
+
+          if (error) {
+            console.warn('Supabase getAdvisers relation query failed; retrying without the teacher join:', error.message);
+            const { data: adviserRows, error: adviserError } = await supabase.from('advisers').select('*');
+            if (!adviserError && adviserRows) {
+              const teachers = await this.getTeachers(true);
+              const teacherMap = new Map(teachers.map(t => [Number(t.id), t]));
+              const mapped = adviserRows.map(a => ({
+                ...a,
+                teacher: teacherMap.get(Number(a.teacher_id))
+              }));
+              _cache.data.advisers = mapped;
+              _cache.timestamps.advisers = Date.now();
+              setStored('advisers', mapped);
+              return mapped;
+            }
+            if (adviserError) {
+              console.warn('Supabase getAdvisers fallback query failed:', adviserError.message);
+            }
+          }
+        } catch (err) {
+          console.warn('Supabase getAdvisers notice:', err);
         }
       }
       const advisers = getStored('advisers', INITIAL_ADVISERS);
@@ -1845,7 +1878,7 @@ export const dataService = {
       let remoteList = null;
       if (isSupabaseConfigured()) {
         try {
-          const { data, error } = await supabase.from('admins').select('id,fname,lname,email,role,image');
+          const { data, error } = await supabase.from('admins').select('id,fname,mname,lname,email,role,position,contact,image');
           if (!error && data) remoteList = data;
         } catch (e) {
           console.warn('Supabase getAdmins notice:', e);
@@ -1879,6 +1912,7 @@ export const dataService = {
         email: String(admin.email || '').trim().toLowerCase(),
         role: String(admin.role || 'Head Admin').trim(),
         position: String(admin.position || 'Discipline Staff').trim(),
+        contact: String(admin.contact || '').trim(),
         image: String(admin.image || '').trim()
       };
 
@@ -1886,9 +1920,12 @@ export const dataService = {
         try {
           const supabasePayload = {
             fname: cleanAdmin.fname,
+            mname: cleanAdmin.mname,
             lname: cleanAdmin.lname,
             email: cleanAdmin.email,
             role: cleanAdmin.role,
+            position: cleanAdmin.position,
+            contact: cleanAdmin.contact,
             image: cleanAdmin.image
           };
 
@@ -1945,7 +1982,7 @@ export const dataService = {
     try {
       let result = null;
       const cleanUpdates = {};
-      const allowed = ['fname', 'mname', 'lname', 'email', 'role', 'position', 'image'];
+      const allowed = ['fname', 'mname', 'lname', 'email', 'role', 'position', 'contact', 'image'];
       for (const key of allowed) {
         if (updates[key] !== undefined) {
           cleanUpdates[key] = updates[key];
@@ -1954,7 +1991,7 @@ export const dataService = {
 
       if (isSupabaseConfigured()) {
         try {
-          const allowedSupabaseCols = ['fname', 'lname', 'email', 'role', 'image'];
+          const allowedSupabaseCols = ['fname', 'mname', 'lname', 'email', 'role', 'position', 'contact', 'image'];
           let toSend = {};
           for (const key of allowedSupabaseCols) {
             if (cleanUpdates[key] !== undefined) {
@@ -2065,10 +2102,22 @@ export const dataService = {
       let remoteList = null;
       if (isSupabaseConfigured()) {
         try {
-          const { data, error } = await supabase.from('activity_logs').select('*').order('id', { ascending: false }).limit(100);
-          if (!error && data) remoteList = data;
+          const allRows = [];
+          const pageSize = 1000;
+          for (let offset = 0; ; offset += pageSize) {
+            const { data, error } = await supabase
+              .from('activity_logs')
+              .select('*')
+              .order('id', { ascending: false })
+              .range(offset, offset + pageSize - 1);
+            if (error) throw error;
+            if (Array.isArray(data)) allRows.push(...data);
+            if (!Array.isArray(data) || data.length < pageSize) break;
+          }
+          remoteList = allRows;
         } catch (err) {
-          console.warn('Supabase getActivityLogs error:', err);
+          console.error('Supabase getActivityLogs error:', err);
+          throw new Error(`Unable to load activity logs from the database: ${err.message || String(err)}`);
         }
       }
       const localList = getStored('activity_logs', []);
@@ -2084,7 +2133,6 @@ export const dataService = {
             const dateB = new Date(b.created_at || b.date || 0).getTime();
             return dateB - dateA;
           })
-          .slice(0, 300)
         : localList;
       _cache.data.activity_logs = list;
       _cache.timestamps.activity_logs = Date.now();
@@ -2152,23 +2200,26 @@ export const dataService = {
 
   // --- STORAGE & PHOTO UPLOADS ---
   async uploadPhoto(file, folder = 'students') {
-    if (isSupabaseConfigured() && file) {
-      try {
-        const ext = file.name ? file.name.split('.').pop() : 'jpg';
-        const fileName = `${folder}/${Date.now()}_${Math.random().toString(36).substring(2, 8)}.${ext}`;
-        const { data, error } = await supabase.storage.from('student-photos').upload(fileName, file, {
-          cacheControl: '3600',
-          upsert: true
-        });
-        if (!error && data) {
-          const { data: publicUrlData } = supabase.storage.from('student-photos').getPublicUrl(fileName);
-          return publicUrlData?.publicUrl || null;
-        }
-      } catch (err) {
-        console.warn('Storage upload error:', err);
-      }
+    if (!file || !isSupabaseConfigured()) return null;
+
+    const ext = file.name?.split('.').pop()?.toLowerCase() || 'jpg';
+    const fileName = `${folder}/${Date.now()}_${Math.random().toString(36).substring(2, 8)}.${ext}`;
+    const { data, error } = await supabase.storage.from('student-photos').upload(fileName, file, {
+      cacheControl: '3600',
+      upsert: true
+    });
+    if (error) {
+      throw new Error(`Unable to upload profile photo: ${error.message}`);
     }
-    return null;
+    if (!data?.path) {
+      throw new Error('Unable to upload profile photo: storage returned no file path.');
+    }
+
+    const { data: publicUrlData } = supabase.storage.from('student-photos').getPublicUrl(data.path);
+    if (!publicUrlData?.publicUrl) {
+      throw new Error('Unable to get a public URL for the uploaded profile photo.');
+    }
+    return publicUrlData.publicUrl;
   },
 
   // --- SCHOOL CALENDAR & EVENTS ---
@@ -2451,34 +2502,45 @@ export const dataService = {
     const timestamp = new Date().toISOString();
     const backupId = `BKP-${Date.now()}`;
 
-    const [students, violations, records, teachers, advisers, admins, activity_logs, school_events] = await Promise.all([
-      this.getStudents(true),
-      this.getViolations(true),
-      this.getRecords(true),
-      this.getTeachers(true),
-      this.getAdvisers(true),
-      this.getAdmins(true),
-      this.getActivityLogs(true),
-      this.getSchoolEvents()
-    ]);
+    let collections;
+    if (isSupabaseConfigured()) {
+      const fetchAllRows = async (table, columnOptions = '*') => {
+        const selectors = Array.isArray(columnOptions) ? columnOptions : [columnOptions];
+        for (let selectorIndex = 0; selectorIndex < selectors.length; selectorIndex += 1) {
+          const pageSize = 1000;
+          const rows = [];
+          let retryWithFallback = false;
+          for (let offset = 0; ; offset += pageSize) {
+            const { data, error } = await supabase
+              .from(table)
+              .select(selectors[selectorIndex])
+              .range(offset, offset + pageSize - 1);
+            if (error) {
+              if (isMissingColumnError(error) && selectorIndex < selectors.length - 1) {
+                retryWithFallback = true;
+                break;
+              }
+              const backupError = new Error(`Unable to include ${table} in the backup: ${error.message}`);
+              backupError.code = error.code;
+              throw backupError;
+            }
+            if (Array.isArray(data)) rows.push(...data);
+            if (!Array.isArray(data) || data.length < pageSize) break;
+          }
+          if (!retryWithFallback) return rows;
+        }
+        throw new Error(`Unable to include ${table} in the backup: no compatible columns were found.`);
+      };
+      const fetchOptionalRows = async (table) => {
+        try {
+          return await fetchAllRows(table);
+        } catch (error) {
+          if (['PGRST205', '42P01'].includes(error.code)) return null;
+          throw error;
+        }
+      };
 
-    const snapshot = {
-      system: 'VioTrack Disciplinary System',
-      version: '2.4.0',
-      backup_id: backupId,
-      type: type, // 'manual' | 'scheduled_daily' | 'scheduled_weekly'
-      created_at: timestamp,
-      created_by: this.getCurrentUser().name || 'System Admin',
-      counts: {
-        students: students.length,
-        violations: violations.length,
-        records: records.length,
-        teachers: teachers.length,
-        advisers: advisers.length,
-        admins: admins.length,
-        activity_logs: activity_logs.length
-      },
-      data: {
+      const [
         students,
         violations,
         records,
@@ -2486,8 +2548,89 @@ export const dataService = {
         advisers,
         admins,
         activity_logs,
-        school_events
-      }
+        calendar_events,
+        school_events,
+        meetings,
+        sms_logs,
+        student_locations
+      ] = await Promise.all([
+        fetchAllRows('students'),
+        fetchAllRows('violations'),
+        fetchAllRows('records'),
+        fetchAllRows('teachers', [
+          'id,fname,mname,lname,email,position,department,specialization,contact,gender,image',
+          'id,fname,mname,lname,email,position,department,contact,image'
+        ]),
+        fetchAllRows('advisers'),
+        fetchAllRows('admins', 'id,fname,mname,lname,email,role,position,contact,image'),
+        fetchAllRows('activity_logs'),
+        fetchOptionalRows('calendar_events'),
+        fetchOptionalRows('school_events'),
+        fetchOptionalRows('meetings'),
+        fetchOptionalRows('sms_logs'),
+        fetchOptionalRows('student_locations')
+      ]);
+      collections = {
+        students,
+        violations,
+        records,
+        teachers: teachers.map(({ password: _password, ...profile }) => profile),
+        advisers,
+        admins: admins.map(({ password: _password, ...profile }) => profile),
+        activity_logs
+      };
+      const remoteSchoolEvents = calendar_events ?? school_events;
+      collections.school_events = remoteSchoolEvents ?? await this.getSchoolEvents(true);
+      if (meetings) collections.meetings = meetings;
+      if (sms_logs) collections.sms_logs = sms_logs;
+      if (student_locations) collections.student_locations = student_locations;
+    } else {
+      const [students, violations, records, teachers, advisers, admins, activity_logs, school_events] = await Promise.all([
+        this.getStudents(true),
+        this.getViolations(true),
+        this.getRecords(true),
+        this.getTeachers(true),
+        this.getAdvisers(true),
+        this.getAdmins(true),
+        this.getActivityLogs(true),
+        this.getSchoolEvents(true)
+      ]);
+      collections = {
+        students,
+        violations,
+        records,
+        teachers: teachers.map(({ password: _password, ...profile }) => profile),
+        advisers,
+        admins: admins.map(({ password: _password, ...profile }) => profile),
+        activity_logs,
+        school_events,
+        meetings: getStored('meetings', []),
+        sms_logs: getStored('sms_logs', []),
+        student_locations: students.flatMap(student => (
+          student.id ? getStored(`locations_${student.id}`, []) : []
+        ))
+      };
+    }
+
+    const data = normalizeBackupCollections({ data: collections });
+
+    const snapshot = {
+      system: 'VioTrack Disciplinary System',
+      version: '2.5.0',
+      backup_id: backupId,
+      type: type, // 'manual' | 'scheduled_daily' | 'scheduled_weekly'
+      created_at: timestamp,
+      created_by: this.getCurrentUser().name || 'System Admin',
+      counts: {
+        students: data.students.length,
+        violations: data.violations.length,
+        records: data.records.length,
+        teachers: data.teachers.length,
+        advisers: data.advisers.length,
+        admins: data.admins.length,
+        activity_logs: data.activity_logs.length
+      },
+      data
     };
 
     // Store in backup snapshots registry
@@ -2541,20 +2684,212 @@ export const dataService = {
   },
 
   async restoreDatabase(snapshotPayload) {
-    if (!snapshotPayload || !snapshotPayload.data) {
-      throw new Error('Invalid snapshot structure: Missing data payload.');
+    const data = normalizeBackupCollections(snapshotPayload);
+    const { backup_id, created_at } = snapshotPayload;
+    const oldLocalStudentIds = getStored('students', [])
+      .map(student => student.id)
+      .filter(id => id != null);
+
+    if (isSupabaseConfigured()) {
+      const batchSize = 500;
+      const failOnDatabaseError = (table, action, error) => {
+        if (error) {
+          const restoreError = new Error(`Unable to ${action} ${table} during restore: ${error.message}`);
+          restoreError.code = error.code;
+          throw restoreError;
+        }
+      };
+      const deleteRows = async (table) => {
+        const { error } = await supabase.from(table).delete().not('id', 'is', null);
+        failOnDatabaseError(table, 'clear', error);
+      };
+      const insertRows = async (table, rows) => {
+        for (let offset = 0; offset < rows.length; offset += batchSize) {
+          let batch = rows.slice(offset, offset + batchSize);
+          for (let attempt = 0; attempt < 20; attempt += 1) {
+            const { error } = await supabase.from(table).insert(batch);
+            if (!error) break;
+            if (!isMissingColumnError(error)) {
+              failOnDatabaseError(table, 'restore', error);
+            }
+            const missingColumn = getMissingColumn(error);
+            if (!missingColumn || !batch.some(row => Object.prototype.hasOwnProperty.call(row, missingColumn))) {
+              failOnDatabaseError(table, 'restore', error);
+            }
+            batch = batch.map(row => {
+              const copy = { ...row };
+              delete copy[missingColumn];
+              return copy;
+            });
+            if (attempt === 19) failOnDatabaseError(table, 'restore', error);
+          }
+        }
+      };
+      const restoreStaffProfiles = async (table, rows) => {
+        for (const { password: _password, ...profile } of rows) {
+          const { id, email, created_at: _createdAt, ...updates } = profile;
+          if (id == null && !email) {
+            throw new Error(`Cannot restore ${table} profile without an account ID or email address.`);
+          }
+          let fields = updates;
+          let updated = null;
+          for (let attempt = 0; attempt < 20; attempt += 1) {
+            let query = supabase.from(table).update(fields);
+            query = email ? query.eq('email', email) : query.eq('id', id);
+            const response = await query.select('id');
+            if (!response.error) {
+              updated = response.data;
+              break;
+            }
+            if (!isMissingColumnError(response.error)) {
+              failOnDatabaseError(table, 'restore profiles in', response.error);
+            }
+            const missingColumn = getMissingColumn(response.error);
+            if (!missingColumn || !Object.prototype.hasOwnProperty.call(fields, missingColumn)) {
+              failOnDatabaseError(table, 'restore profiles in', response.error);
+            }
+            fields = { ...fields };
+            delete fields[missingColumn];
+            if (attempt === 19) failOnDatabaseError(table, 'restore profiles in', response.error);
+          }
+          if (!updated?.length) {
+            throw new Error(`Cannot restore ${table} profile "${email || id}": the account no longer exists. Backups do not contain login credentials.`);
+          }
+        }
+      };
+      const readOptionalRows = async (table) => {
+        const rows = [];
+        const pageSize = 1000;
+        for (let offset = 0; ; offset += pageSize) {
+          const { data: page, error } = await supabase
+            .from(table)
+            .select('*')
+            .range(offset, offset + pageSize - 1);
+          if (error) {
+            if (['PGRST205', '42P01'].includes(error.code)) return null;
+            throw new Error(`Unable to preserve ${table} during restore: ${error.message}`);
+          }
+          if (Array.isArray(page)) rows.push(...page);
+          if (!Array.isArray(page) || page.length < pageSize) return rows;
+        }
+      };
+
+      // Restore non-destructive account profile fields before replacing dependent data.
+      if (data.teachers) await restoreStaffProfiles('teachers', data.teachers);
+      if (data.admins) await restoreStaffProfiles('admins', data.admins);
+
+      const preservedRelations = {};
+      for (const key of ['meetings', 'sms_logs', 'student_locations']) {
+        if (!Object.prototype.hasOwnProperty.call(data, key)) {
+          preservedRelations[key] = await readOptionalRows(key);
+        }
+      }
+
+      const relationRows = key => (
+        Object.prototype.hasOwnProperty.call(data, key) ? data[key] : preservedRelations[key]
+      );
+      const studentsToRestore = data.students;
+      const recordsToRestore = data.records;
+      const studentIds = new Set(studentsToRestore.map(student => String(student.id)));
+      const recordIds = new Set(recordsToRestore.map(record => String(record.id)));
+      const validRelatedRows = {
+        meetings: (relationRows('meetings') || []).filter(row => (
+          studentIds.has(String(row.student_id)) && recordIds.has(String(row.record_id))
+        )),
+        sms_logs: (relationRows('sms_logs') || []).filter(row => (
+          studentIds.has(String(row.student_id))
+          && (row.record_id == null || recordIds.has(String(row.record_id)))
+        )),
+        student_locations: (relationRows('student_locations') || []).filter(row => (
+          studentIds.has(String(row.student_id))
+        ))
+      };
+
+      for (const key of ['meetings', 'sms_logs', 'student_locations']) {
+        if (relationRows(key) !== null) await deleteRows(key);
+      }
+      if (data.records) await deleteRows('records');
+      if (data.advisers) await deleteRows('advisers');
+      if (data.activity_logs) await deleteRows('activity_logs');
+      if (data.students) await deleteRows('students');
+      if (data.violations) await deleteRows('violations');
+
+      if (data.students) await insertRows('students', data.students);
+      if (data.violations) await insertRows('violations', data.violations);
+      if (data.advisers) await insertRows('advisers', data.advisers);
+      if (data.records) await insertRows('records', data.records);
+      for (const key of ['meetings', 'sms_logs', 'student_locations']) {
+        if (relationRows(key) !== null) await insertRows(key, validRelatedRows[key]);
+      }
+      if (data.activity_logs) await insertRows('activity_logs', data.activity_logs);
+      let restoreSchoolEventsLocally = false;
+      if (data.school_events) {
+        try {
+          await deleteRows('calendar_events');
+          await insertRows('calendar_events', data.school_events);
+        } catch (error) {
+          if (!['PGRST205', '42P01'].includes(error.code)) throw error;
+          try {
+            await deleteRows('school_events');
+            await insertRows('school_events', data.school_events);
+          } catch (schoolEventsError) {
+            if (!['PGRST205', '42P01'].includes(schoolEventsError.code)) throw schoolEventsError;
+            restoreSchoolEventsLocally = true;
+          }
+        }
+      }
+
+      [
+        'students',
+        'violations',
+        'records',
+        'teachers',
+        'advisers',
+        'admins',
+        'activity_logs',
+        'school_events',
+        'meetings',
+        'sms_logs'
+      ].forEach(key => localStorage.removeItem(`viotrack_${key}`));
+      oldLocalStudentIds.forEach(studentId => {
+        localStorage.removeItem(`viotrack_locations_${studentId}`);
+      });
+      if (restoreSchoolEventsLocally) {
+        localStorage.setItem('viotrack_school_events', JSON.stringify(data.school_events));
+      }
+    } else {
+      const restoreLocalStaff = (key, rows) => {
+        if (!rows) return null;
+        const existing = getStored(key, []);
+        return rows.map(row => {
+          const current = existing.find(item => (
+            (row.id != null && String(item.id) === String(row.id))
+            || (row.email && String(item.email).toLowerCase() === String(row.email).toLowerCase())
+          ));
+          const password = row.password ?? current?.password;
+          return password === undefined ? row : { ...row, password };
+        });
+      };
+      if (data.teachers) data.teachers = restoreLocalStaff('teachers', data.teachers);
+      if (data.admins) data.admins = restoreLocalStaff('admins', data.admins);
+      const { student_locations, ...collectionsToStore } = data;
+      Object.entries(collectionsToStore).forEach(([key, rows]) => {
+        localStorage.setItem(`viotrack_${key}`, JSON.stringify(rows));
+      });
+      if (student_locations) {
+        oldLocalStudentIds.forEach(studentId => {
+          localStorage.removeItem(`viotrack_locations_${studentId}`);
+        });
+        const locationsByStudent = new Map();
+        student_locations.forEach(location => {
+          const key = String(location.student_id);
+          locationsByStudent.set(key, [...(locationsByStudent.get(key) || []), location]);
+        });
+        locationsByStudent.forEach((locations, studentId) => {
+          localStorage.setItem(`viotrack_locations_${studentId}`, JSON.stringify(locations));
+        });
+      }
     }
-
-    const { data, counts, backup_id, created_at } = snapshotPayload;
-
-    // Restore collections into localStorage
-    if (data.students) localStorage.setItem('viotrack_students', JSON.stringify(data.students));
-    if (data.violations) localStorage.setItem('viotrack_violations', JSON.stringify(data.violations));
-    if (data.records) localStorage.setItem('viotrack_records', JSON.stringify(data.records));
-    if (data.teachers) localStorage.setItem('viotrack_teachers', JSON.stringify(data.teachers));
-    if (data.advisers) localStorage.setItem('viotrack_advisers', JSON.stringify(data.advisers));
-    if (data.admins) localStorage.setItem('viotrack_admins', JSON.stringify(data.admins));
-    if (data.school_events) localStorage.setItem('viotrack_school_events', JSON.stringify(data.school_events));
 
     // Clear memory caches so fresh data is loaded
     invalidateCache();

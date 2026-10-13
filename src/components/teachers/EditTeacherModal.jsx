@@ -2,9 +2,14 @@ import React, { useState, useEffect, useRef } from 'react';
 import { GraduationCap, X, Save, Eye, EyeOff, User, Mail, Building, Upload, Camera, Trash2 } from 'lucide-react';
 import CustomSelect from '../common/CustomSelect';
 import { lockBodyScroll, unlockBodyScroll } from '../../utils/scrollLock';
+import { dataService } from '../../services/dataService';
+import { useNotification } from '../../context/NotificationContext';
 
 export const EditTeacherModal = ({ isOpen, onClose, teacher, onSaved }) => {
+  const { error } = useNotification();
   const fileInputRef = useRef(null);
+  const [photoFile, setPhotoFile] = useState(null);
+  const [saving, setSaving] = useState(false);
   const [formData, setFormData] = useState({
     fname: '',
     mname: '',
@@ -27,6 +32,7 @@ export const EditTeacherModal = ({ isOpen, onClose, teacher, onSaved }) => {
   }, [isOpen]);
 
   useEffect(() => {
+    setPhotoFile(null);
     if (teacher) {
       setFormData({
         fname: teacher.fname || '',
@@ -56,27 +62,51 @@ export const EditTeacherModal = ({ isOpen, onClose, teacher, onSaved }) => {
 
   const handleImageChange = (e) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        setFormData(prev => ({ ...prev, image: event.target.result }));
-      };
-      reader.readAsDataURL(file);
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      error('Choose an image file to use as the profile photo.');
+      e.target.value = '';
+      return;
     }
+    if (file.size > 5 * 1024 * 1024) {
+      error('Profile photos must be 5MB or smaller.');
+      e.target.value = '';
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      setPhotoFile(file);
+      setFormData(prev => ({ ...prev, image: String(reader.result || '') }));
+      e.target.value = '';
+    };
+    reader.onerror = () => error('Unable to read the selected profile photo.');
+    reader.readAsDataURL(file);
   };
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.fname.trim() || !formData.lname.trim() || !formData.email.trim()) {
       return;
     }
-    onSaved?.({
-      ...teacher,
-      ...formData,
-      image: formData.image || teacher?.image || ''
-    });
+    setSaving(true);
+    try {
+      let image = formData.image || '';
+      if (photoFile) {
+        image = await dataService.uploadPhoto(photoFile, 'teachers') || image;
+      }
+      await onSaved?.({
+        ...teacher,
+        ...formData,
+        image
+      });
+    } catch (err) {
+      error('Failed to upload or save the teacher profile photo: ' + err.message);
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -183,7 +213,7 @@ export const EditTeacherModal = ({ isOpen, onClose, teacher, onSaved }) => {
             <input
               type="file"
               ref={fileInputRef}
-              accept="image/*"
+              accept="image/png,image/jpeg,image/webp"
               onChange={handleImageChange}
               style={{ display: 'none' }}
             />
@@ -252,7 +282,11 @@ export const EditTeacherModal = ({ isOpen, onClose, teacher, onSaved }) => {
                 {formData.image && (
                   <button
                     type="button"
-                    onClick={() => setFormData(prev => ({ ...prev, image: '' }))}
+                    onClick={() => {
+                      setPhotoFile(null);
+                      setFormData(prev => ({ ...prev, image: '' }));
+                      if (fileInputRef.current) fileInputRef.current.value = '';
+                    }}
                     style={{
                       background: '#fef2f2',
                       color: '#dc2626',
@@ -487,6 +521,7 @@ export const EditTeacherModal = ({ isOpen, onClose, teacher, onSaved }) => {
               <button
                 type="submit"
                 className="teacher-modal-submit-btn"
+                disabled={saving}
                 style={{
                   padding: '9px 22px',
                   borderRadius: '9px',
@@ -495,7 +530,7 @@ export const EditTeacherModal = ({ isOpen, onClose, teacher, onSaved }) => {
                   border: '1px solid var(--brand-blue, #0f172a)',
                   fontWeight: 700,
                   fontSize: '13px',
-                  cursor: 'pointer',
+                  cursor: saving ? 'wait' : 'pointer',
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: '8px',
@@ -503,7 +538,7 @@ export const EditTeacherModal = ({ isOpen, onClose, teacher, onSaved }) => {
                 }}
               >
                 <Save size={16} />
-                <span>{teacher ? 'Save Changes' : 'Add Teacher'}</span>
+                <span>{saving ? 'Saving…' : (teacher ? 'Save Changes' : 'Add Teacher')}</span>
               </button>
             </div>
           </div>

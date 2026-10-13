@@ -319,12 +319,12 @@ export const ViolationTypesPage = () => {
 
   // Export via SaveAs
   const handleOpenExportSaveAs = (defaultFormat = 'csv') => {
-    const headers = ['Title', 'Severity Type', 'Default Sanction', 'Description'];
+    const headers = ['Title', 'Type', 'Description', 'Default Sanction'];
     const rows = filteredAndSorted.map(v => [
       v.title,
       v.type,
-      v.default_sanction || '',
-      v.description || ''
+      v.description || '',
+      v.default_sanction || ''
     ]);
 
     const generatePdfBlob = async () => {
@@ -664,6 +664,7 @@ export const ViolationTypesPage = () => {
         {/* Batch Selection Action Bar (Appears when items are selected) */}
         {selectedIds.length > 0 && (
           <div
+            className="bulk-selection-toolbar"
             style={{
               marginTop: '16px',
               padding: '10px 16px',
@@ -679,7 +680,7 @@ export const ViolationTypesPage = () => {
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', fontWeight: 700, color: '#1e293b' }}>
-              <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#2563eb' }} />
+              <span className="violation-types-selection-indicator" style={{ width: 8, height: 8, borderRadius: '50%', background: '#2563eb' }} />
               {selectedIds.length} offense category(ies) selected
             </div>
 
@@ -704,6 +705,7 @@ export const ViolationTypesPage = () => {
               </button>
 
               <button
+                className="bulk-selection-clear-btn"
                 onClick={() => setSelectedIds([])}
                 style={{
                   background: '#ffffff',

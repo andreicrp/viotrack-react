@@ -4809,6 +4809,13 @@
     box-sizing: border-box;
 }
 
+.dash-distribution-card > .dash-chart-empty-state,
+.dash-bottom-card > .dash-chart-empty-state,
+.dash-offenders-list > .dash-chart-empty-state {
+    flex: 1 1 auto;
+    min-height: 220px;
+}
+
 .dash-chart-empty-icon-wrap {
     width: 60px;
     height: 60px;

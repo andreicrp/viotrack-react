@@ -52,41 +52,59 @@ export const downloadSampleCsv = async (filename, content) => {
 };
 
 export const parseCsvString = (text) => {
-  if (!text || !text.trim()) return [];
+  if (!text || !String(text).trim()) return [];
 
-  const lines = text.trim().split(/\r?\n/);
-  const result = [];
-
-  for (const line of lines) {
-    if (!line.trim()) continue;
-    
-    // Parse line respecting quotes
-    const row = [];
-    let insideQuotes = false;
-    let currentField = '';
-
-    for (let i = 0; i < line.length; i++) {
-      const char = line[i];
-      const nextChar = line[i + 1];
-
-      if (char === '"') {
-        if (insideQuotes && nextChar === '"') {
-          currentField += '"';
-          i++; // skip next quote
-        } else {
-          insideQuotes = !insideQuotes;
-        }
-      } else if (char === ',' && !insideQuotes) {
-        row.push(sanitizeText(currentField.trim()));
-        currentField = '';
-      } else {
-        currentField += char;
-      }
+  const normalizedText = String(text).replace(/^\uFEFF/, '');
+  let commaCount = 0;
+  let tabCount = 0;
+  let insideQuotes = false;
+  for (let i = 0; i < normalizedText.length; i++) {
+    const char = normalizedText[i];
+    if (char === '"') {
+      if (insideQuotes && normalizedText[i + 1] === '"') i++;
+      else insideQuotes = !insideQuotes;
+    } else if (!insideQuotes && (char === '\r' || char === '\n')) {
+      break;
+    } else if (!insideQuotes && char === ',') {
+      commaCount++;
+    } else if (!insideQuotes && char === '\t') {
+      tabCount++;
     }
-    row.push(sanitizeText(currentField.trim()));
-    result.push(row);
+  }
+  const delimiter = tabCount > commaCount ? '\t' : ',';
+  const result = [];
+  let row = [];
+  let currentField = '';
+  insideQuotes = false;
+
+  for (let i = 0; i < normalizedText.length; i++) {
+    const char = normalizedText[i];
+    const nextChar = normalizedText[i + 1];
+    if (char === '"') {
+      if (insideQuotes && nextChar === '"') {
+        currentField += '"';
+        i++;
+      } else {
+        insideQuotes = !insideQuotes;
+      }
+    } else if (char === delimiter && !insideQuotes) {
+      row.push(sanitizeText(currentField.trim()));
+      currentField = '';
+    } else if ((char === '\r' || char === '\n') && !insideQuotes) {
+      if (char === '\r' && nextChar === '\n') i++;
+      row.push(sanitizeText(currentField.trim()));
+      if (row.some(field => field !== '')) result.push(row);
+      row = [];
+      currentField = '';
+    } else {
+      currentField += char;
+    }
   }
 
+  if (currentField || row.length) {
+    row.push(sanitizeText(currentField.trim()));
+    if (row.some(field => field !== '')) result.push(row);
+  }
   return result;
 };
 

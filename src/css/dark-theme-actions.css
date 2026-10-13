@@ -906,3 +906,61 @@ html[data-theme="dark"] body .adviser-btn-remove:hover svg {
   color: #000000 !important;
   stroke: #000000 !important;
 }
+
+html[data-theme="dark"] body .bulk-selection-toolbar,
+html[data-theme="dark"] body .approval-bulk-selection-toolbar {
+  background: #000000 !important;
+  background-color: #000000 !important;
+  border-color: #292929 !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.55) !important;
+  color: #f5f5f5 !important;
+}
+
+html[data-theme="dark"] body .bulk-selection-toolbar > div:first-child {
+  color: #f5f5f5 !important;
+  -webkit-text-fill-color: #f5f5f5 !important;
+}
+
+html[data-theme="dark"] body .bulk-selection-toolbar .admin-selection-toolbar-label {
+  color: #f5f5f5 !important;
+  -webkit-text-fill-color: #f5f5f5 !important;
+}
+
+html[data-theme="dark"] body .bulk-selection-toolbar .admin-selection-toolbar-indicator {
+  background: #60a5fa !important;
+}
+
+html[data-theme="dark"] body .bulk-selection-toolbar .violation-types-selection-indicator {
+  background: #ffffff !important;
+}
+
+html[data-theme="dark"] body .bulk-selection-toolbar .bulk-selection-clear-btn,
+html[data-theme="dark"] body .bulk-selection-toolbar .bulk-selection-clear-btn:hover,
+html[data-theme="dark"] body .bulk-selection-toolbar .bulk-selection-clear-btn:focus-visible,
+html[data-theme="dark"] body .approval-bulk-selection-toolbar .bulk-selection-clear-btn,
+html[data-theme="dark"] body .approval-bulk-selection-toolbar .bulk-selection-clear-btn:hover,
+html[data-theme="dark"] body .approval-bulk-selection-toolbar .bulk-selection-clear-btn:focus-visible {
+  background: #171717 !important;
+  background-color: #171717 !important;
+  border-color: #404040 !important;
+  color: #f5f5f5 !important;
+  -webkit-text-fill-color: #f5f5f5 !important;
+}
+
+html[data-theme="dark"] body .bulk-selection-toolbar .bulk-selection-clear-btn:hover,
+html[data-theme="dark"] body .approval-bulk-selection-toolbar .bulk-selection-clear-btn:hover {
+  background: #262626 !important;
+  background-color: #262626 !important;
+}
+
+html[data-theme="dark"] body .bulk-selection-toolbar .bulk-selection-clear-btn:focus-visible,
+html[data-theme="dark"] body .approval-bulk-selection-toolbar .bulk-selection-clear-btn:focus-visible {
+  outline: 2px solid #60a5fa !important;
+  outline-offset: 2px !important;
+}
+
+html[data-theme="dark"] body .approval-bulk-selection-toolbar > div,
+html[data-theme="dark"] body .approval-bulk-selection-toolbar > div > span:not(:first-child) {
+  color: #f5f5f5 !important;
+  -webkit-text-fill-color: #f5f5f5 !important;
+}

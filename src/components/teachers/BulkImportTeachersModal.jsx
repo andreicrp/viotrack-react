@@ -19,14 +19,15 @@ import {
   FileType,
   GraduationCap
 } from 'lucide-react';
-import { parseCsvString, readFileAsText, downloadSampleCsv } from '../../utils/csvHelper';
+import { readFileAsText, downloadSampleCsv } from '../../utils/csvHelper';
+import { parseEntityCsv } from '../../utils/entityCsv';
 import { extractTextFromPdf, parseTeacherRosterFromPdfLines } from '../../utils/pdfHelper';
 
-const SAMPLE_TEACHERS_CSV = `First Name,Middle Name,Last Name,Email,Contact,Department,Specialization,Gender
-Manuel,L.,Quezon,manuel.quezon@viotrack.edu,09181112233,Social Studies,Philippine History,Male
-Gabriela,S.,Silang,gabriela.silang@viotrack.edu,09182223344,English,Literature & Grammar,Female
-Melchora,A.,Aquino,melchora.aquino@viotrack.edu,09183334455,Science,Biology & Health,Female
-Apolinario,M.,Mabini,apolinario.mabini@viotrack.edu,09184445566,Mathematics,Algebra & Calculus,Male`;
+const SAMPLE_TEACHERS_CSV = `First Name,Middle Name,Last Name,Position,Department,Specialization,Email,Contact,Gender
+Manuel,L.,Quezon,Teacher I,Social Studies,Philippine History,manuel.quezon@viotrack.edu,09181112233,Male
+Gabriela,S.,Silang,Teacher I,English,Literature & Grammar,gabriela.silang@viotrack.edu,09182223344,Female
+Melchora,A.,Aquino,Teacher I,Science,Biology & Health,melchora.aquino@viotrack.edu,09183334455,Female
+Apolinario,M.,Mabini,Teacher I,Mathematics,Algebra & Calculus,apolinario.mabini@viotrack.edu,09184445566,Male`;
 
 const MALE_AVATARS = [
   'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
@@ -119,44 +120,23 @@ export const BulkImportTeachersModal = ({ isOpen, onClose, onImported, initialFo
   const parsedCsvTeachers = useMemo(() => {
     if (!csvText.trim()) return [];
     try {
-      const rows = parseCsvString(csvText);
-      if (rows.length === 0) return [];
-
-      const firstRow = rows[0];
-      const hasHeader = firstRow.some(col => 
-        ['first name', 'fname', 'name', 'email', 'teacher', 'faculty'].includes(col.toLowerCase().trim())
-      );
-      const dataRows = hasHeader ? rows.slice(1) : rows;
-
-      return dataRows
-        .filter(parts => parts.length >= 2 && parts.some(p => p.trim()))
-        .map((parts, i) => {
-          const fname = parts[0]?.trim() || 'Faculty';
-          const mname = parts[1]?.trim() || '';
-          const lname = parts[2]?.trim() || 'Educator';
-          const email = parts[3]?.trim() || `${fname.toLowerCase()}.${lname.toLowerCase()}@viotrack.edu`;
-          const contact = parts[4]?.trim() || '09181112233';
-          const department = parts[5]?.trim() || 'General Academics';
-          const specialization = parts[6]?.trim() || 'General Education';
-          const gender = parts[7]?.trim() || 'Male';
-
-          const isFem = gender.toLowerCase().startsWith('f');
-          const avatars = isFem ? FEMALE_AVATARS : MALE_AVATARS;
-          const assignedImage = avatars[(i + Math.floor(Math.random() * 4)) % avatars.length];
-
-          return {
-            fname,
-            mname,
-            lname,
-            email,
-            contact,
-            department,
-            position: 'Teacher I',
-            specialization,
-            gender: isFem ? 'Female' : 'Male',
-            image: assignedImage
-          };
-        });
+      return parseEntityCsv(csvText, {
+        fname: ['first name', 'fname', 'given name', 'name'],
+        mname: ['middle name', 'mname'],
+        lname: ['last name', 'lname', 'surname', 'family name'],
+        email: ['email', 'email address'],
+        contact: ['contact', 'contact number', 'phone', 'phone number', 'mobile'],
+        department: ['department', 'faculty', 'division'],
+        specialization: ['specialization', 'specialty', 'subject'],
+        position: ['position', 'title', 'rank'],
+        gender: ['gender', 'sex']
+      }, ['fname', 'mname', 'lname', 'email', 'contact', 'department', 'specialization', 'gender'])
+        .map((teacher, i) => ({
+          ...teacher,
+          image: (teacher.gender || '').toLowerCase().startsWith('f')
+            ? FEMALE_AVATARS[i % FEMALE_AVATARS.length]
+            : MALE_AVATARS[i % MALE_AVATARS.length]
+        }));
     } catch {
       return [];
     }
@@ -174,6 +154,12 @@ export const BulkImportTeachersModal = ({ isOpen, onClose, onImported, initialFo
 
     setLoading(true);
     try {
+      const invalidRows = activeCandidateList
+        .map((teacher, index) => (!teacher.fname || !teacher.lname || !teacher.email ? index + 1 : null))
+        .filter(Boolean);
+      if (invalidRows.length) {
+        throw new Error(`Rows ${invalidRows.slice(0, 20).join(', ')} need a first name, last name, and email.`);
+      }
       let count = 0;
       for (const t of activeCandidateList) {
         await dataService.addTeacher(t);

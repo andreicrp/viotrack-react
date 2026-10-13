@@ -160,6 +160,30 @@ export const AuthProvider = ({ children }) => {
     setUser(userObj);
   };
 
+  const syncAuthenticatedProfile = useCallback((profile, accountRole) => {
+    setUser(currentUser => {
+      if (
+        !currentUser ||
+        currentUser.role !== accountRole ||
+        String(currentUser.id) !== String(profile?.id) ||
+        String(currentUser.email || '').toLowerCase() !== String(profile?.email || '').toLowerCase()
+      ) {
+        return currentUser;
+      }
+
+      const name = `${profile.fname || ''} ${profile.lname || ''}`.trim();
+      const avatar = profile.image || '/images/phcm-logo2.png';
+      return {
+        ...currentUser,
+        name: name || currentUser.name,
+        position: profile.position || currentUser.position,
+        department: profile.department || currentUser.department,
+        image: profile.image || '',
+        avatar
+      };
+    });
+  }, []);
+
   const switchRole = () => {
     console.warn('Role switching is disabled; roles come from the server-authenticated account.');
   };
@@ -192,6 +216,7 @@ export const AuthProvider = ({ children }) => {
         session,
         loading,
         login,
+        syncAuthenticatedProfile,
         logout,
         switchRole,
         isLocked,

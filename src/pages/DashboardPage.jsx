@@ -33,6 +33,8 @@ import { SchoolCalendarModal } from '../components/common/SchoolCalendarModal';
 import { CustomDateRangeModal } from '../components/common/CustomDateRangeModal';
 import { PrintDataModal } from '../components/admin/PrintDataModal';
 import { LazyDashboardChart } from '../components/dashboard/LazyDashboardChart';
+import { StudentInitialsAvatar } from '../components/students/StudentInitialsAvatar';
+import { buildDashboardTrendData, filterDashboardRecords, getDashboardDateRange } from '../utils/dashboardDateRange';
 
 const DashboardTrendChart = React.lazy(() => import('../components/dashboard/DashboardTrendChart')
   .then(module => ({ default: module.DashboardTrendChart })));
@@ -161,54 +163,9 @@ export const DashboardPage = () => {
 
   // Dynamic Active Time Period Records Filtering
   const filteredApprovedRecords = useMemo(() => {
-    const nowDay = new Date();
-    
-    if (chartFilter === 'today') {
-      return approvedRecords.filter(r => {
-        const rawDate = r.date_reported || r.created_at;
-        if (!rawDate) return false;
-        const rDate = new Date(rawDate);
-        return (
-          rDate.getFullYear() === nowDay.getFullYear() &&
-          rDate.getMonth() === nowDay.getMonth() &&
-          rDate.getDate() === nowDay.getDate()
-        );
-      });
-    }
-
-    if (chartFilter === 'week') {
-      const sevenDaysAgo = new Date(Date.now() - 7 * 86400000);
-      return approvedRecords.filter(r => {
-        const rawDate = r.date_reported || r.created_at;
-        if (!rawDate) return false;
-        const rDate = new Date(rawDate);
-        return rDate >= sevenDaysAgo;
-      });
-    }
-
-    if (chartFilter === 'custom') {
-      const start = new Date(startDate);
-      start.setHours(0, 0, 0, 0);
-      const end = new Date(endDate);
-      end.setHours(23, 59, 59, 999);
-      return approvedRecords.filter(r => {
-        const rawDate = r.date_reported || r.created_at;
-        if (!rawDate) return false;
-        const rDate = new Date(rawDate);
-        return rDate >= start && rDate <= end;
-      });
-    }
-
-    // Default: 'month' (Active month)
-    const year = calendarMonth.getFullYear();
-    const month = calendarMonth.getMonth();
-    return approvedRecords.filter(r => {
-      const rawDate = r.date_reported || r.created_at;
-      if (!rawDate) return false;
-      const rDate = new Date(rawDate);
-      return rDate.getFullYear() === year && rDate.getMonth() === month;
-    });
-  }, [approvedRecords, chartFilter, startDate, endDate, calendarMonth]);
+    const dateRange = getDashboardDateRange(chartFilter, startDate, endDate, calendarMonth, now);
+    return filterDashboardRecords(approvedRecords, dateRange);
+  }, [approvedRecords, chartFilter, startDate, endDate, calendarMonth, now]);
 
   // Records used for breakdown widgets (strictly connected to the active time filter)
   const activeWidgetRecords = useMemo(() => {
@@ -252,143 +209,17 @@ export const DashboardPage = () => {
     };
   }, [filteredApprovedRecords, students, chartFilter]);
 
-  // 2. Real-Time Dynamic Trend Data Aggregation
-  const trendData = useMemo(() => {
-    const getSeverity = (rec) => {
-      const type = (rec.violation?.type || rec.type || rec.severity || '').toLowerCase();
-      if (type === 'minor' || type === 'serious' || type === 'major') return type;
-      return 'minor';
-    };
-
-    if (chartFilter === 'today') {
-      const intervals = [];
-      for (let h = 6; h <= 23; h++) {
-        let label = '';
-        if (h === 12) label = '12pm';
-        else if (h < 12) label = `${h}am`;
-        else label = `${h - 12}pm`;
-        intervals.push({ label, startH: h });
-      }
-
-      const nowDay = new Date();
-      const isRecordToday = (r) => {
-        if (!r.date_reported && !r.created_at) return false;
-        const rDate = new Date(r.date_reported || r.created_at);
-        return (
-          rDate.getFullYear() === nowDay.getFullYear() &&
-          rDate.getMonth() === nowDay.getMonth() &&
-          rDate.getDate() === nowDay.getDate()
-        );
-      };
-
-      const todayRecords = approvedRecords.filter(isRecordToday);
-
-      return intervals.map(int => {
-        let minor = 0, serious = 0, major = 0;
-        todayRecords.forEach(r => {
-          const recDate = new Date(r.date_reported || r.created_at || Date.now());
-          const h = recDate.getHours();
-          const matched =
-            (int.startH === 6 && h < 6) ||
-            (h === int.startH);
-          if (matched) {
-            const sev = getSeverity(r);
-            if (sev === 'minor') minor++;
-            else if (sev === 'serious') serious++;
-            else if (sev === 'major') major++;
-          }
-        });
-        return { time: int.label, minor, serious, major, total: minor + serious + major };
-      });
-    }
-
-    if (chartFilter === 'week') {
-      const days = [];
-      for (let i = 6; i >= 0; i--) {
-        const d = new Date(Date.now() - i * 86400000);
-        const dateStr = d.toISOString().split('T')[0];
-        const dayLabel = `${d.getMonth() + 1}/${d.getDate()}`;
-
-        let minor = 0, serious = 0, major = 0;
-        approvedRecords.forEach(r => {
-          const rDateStr = (r.date_reported || r.created_at || '').split('T')[0];
-          if (rDateStr === dateStr) {
-            const sev = getSeverity(r);
-            if (sev === 'minor') minor++;
-            else if (sev === 'serious') serious++;
-            else if (sev === 'major') major++;
-          }
-        });
-
-        days.push({ time: dayLabel, dateStr, minor, serious, major, total: minor + serious + major });
-      }
-      return days;
-    }
-
-    if (chartFilter === 'custom') {
-      const start = new Date(startDate);
-      const end = new Date(endDate);
-      const diffTime = Math.max(end.getTime() - start.getTime(), 86400000);
-      const step = diffTime / 5;
-
-      const intervals = [];
-      for (let i = 0; i < 5; i++) {
-        const curStart = new Date(start.getTime() + i * step);
-        const curEnd = new Date(start.getTime() + (i + 1) * step);
-        const label = `${curStart.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
-
-        let minor = 0, serious = 0, major = 0;
-        approvedRecords.forEach(r => {
-          const rDate = new Date(r.date_reported || r.created_at || Date.now());
-          if (rDate >= curStart && rDate <= curEnd) {
-            const sev = getSeverity(r);
-            if (sev === 'minor') minor++;
-            else if (sev === 'serious') serious++;
-            else if (sev === 'major') major++;
-          }
-        });
-
-        intervals.push({ time: label, minor, serious, major, total: minor + serious + major });
-      }
-      return intervals;
-    }
-
-    // Default: 'month' view (Daily breakdown for every day of the active month)
-    const year = calendarMonth.getFullYear();
-    const month = calendarMonth.getMonth();
-    const monthShort = calendarMonth.toLocaleDateString('en-US', { month: 'short' });
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-    const days = [];
-    for (let d = 1; d <= daysInMonth; d++) {
-      let minor = 0, serious = 0, major = 0;
-      approvedRecords.forEach(r => {
-        const rawDate = r.date_reported || r.created_at;
-        if (!rawDate) return;
-        const rDate = new Date(rawDate);
-        if (
-          rDate.getFullYear() === year &&
-          rDate.getMonth() === month &&
-          rDate.getDate() === d
-        ) {
-          const sev = getSeverity(r);
-          if (sev === 'minor') minor++;
-          else if (sev === 'serious') serious++;
-          else if (sev === 'major') major++;
-        }
-      });
-      days.push({
-        time: `${monthShort} ${d}`,
-        day: d,
-        minor,
-        serious,
-        major,
-        total: minor + serious + major
-      });
-    }
-
-    return days;
-  }, [chartFilter, approvedRecords, startDate, endDate, calendarMonth]);
+  // Keep chart points aligned with the selected records used by the KPI cards and breakdowns.
+  const trendData = useMemo(() => (
+    buildDashboardTrendData(
+      filteredApprovedRecords,
+      chartFilter,
+      startDate,
+      endDate,
+      calendarMonth,
+      now
+    )
+  ), [filteredApprovedRecords, chartFilter, startDate, endDate, calendarMonth, now]);
 
   // Last-week metrics for KPI trend arrows
   const lastWeekMetrics = useMemo(() => {
@@ -1074,13 +905,14 @@ export const DashboardPage = () => {
                     <span className={`dash-rank-badge rank-${st.rank}`}>
                       #{st.rank}
                     </span>
-                    <img
-                      src={st.image}
-                      alt={st.name}
-                      className="dash-offender-avatar"
-                      onError={(e) => {
-                        e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(st.name)}&background=0f172a&color=fff&size=50`;
+                    <StudentInitialsAvatar
+                      student={{
+                        fname: st.name.split(' ')[0],
+                        lname: st.name.split(' ').slice(1).join(' '),
+                        image: st.image
                       }}
+                      size={42}
+                      className="dash-offender-avatar"
                     />
                     <div className="dash-offender-meta">
                       <span className="dash-offender-name">{st.name}</span>

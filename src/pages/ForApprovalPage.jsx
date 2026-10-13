@@ -1589,6 +1589,7 @@ export const ForApprovalPage = () => {
       {/* Floating Batch Action Bar */}
       {selectedIds.length > 0 && (
         <div
+          className="approval-bulk-selection-toolbar"
           style={{
             position: 'fixed',
             bottom: '24px',
@@ -1676,6 +1677,7 @@ export const ForApprovalPage = () => {
             </button>
 
             <button
+              className="bulk-selection-clear-btn"
               type="button"
               onClick={() => setSelectedIds([])}
               style={{

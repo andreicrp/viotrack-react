@@ -36,6 +36,8 @@ CREATE TABLE students (
     email VARCHAR(150) DEFAULT '',
     password VARCHAR(255) DEFAULT 'Viotrack@2026!',
     grade VARCHAR(20) NOT NULL,
+    track VARCHAR(100) DEFAULT '',
+    strand VARCHAR(100) DEFAULT '',
     section VARCHAR(50) NOT NULL,
     academicyear VARCHAR(20) DEFAULT '2025-2026',
     gender VARCHAR(10) DEFAULT 'Male',
@@ -72,7 +74,9 @@ CREATE TABLE teachers (
     password VARCHAR(255) NOT NULL DEFAULT 'Viotrack@2026!',
     position VARCHAR(100) DEFAULT 'Teacher I',
     department VARCHAR(100) DEFAULT 'Junior High School',
+    specialization VARCHAR(150) DEFAULT '',
     contact VARCHAR(30) DEFAULT '',
+    gender VARCHAR(10) DEFAULT '',
     image TEXT,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -93,7 +97,7 @@ CREATE TABLE violations (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     title VARCHAR(150) NOT NULL,
     description TEXT,
-    type ENUM('Minor', 'Major') NOT NULL DEFAULT 'Minor',
+    type VARCHAR(30) NOT NULL DEFAULT 'Minor',
     default_sanction TEXT,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

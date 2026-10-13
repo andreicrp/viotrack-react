@@ -207,13 +207,17 @@ export const ActivityLogsPage = () => {
 
   // Save As Export Handler
   const handleOpenExportSaveAs = (defaultFormat = 'csv') => {
-    const headers = ['Timestamp', 'Actor / User', 'Role', 'Action Type', 'Event Details'];
+    const headers = ['Log ID', 'Audit ID', 'Timestamp', 'Actor / User', 'Role', 'Action Type', 'Event Details', 'IP Address', 'Device Info'];
     const rows = filteredAndSortedLogs.map(l => [
-      getLogTimestamp(l)?.toLocaleString() || 'Date unavailable',
-      l.user_name || 'System Admin',
-      l.user_role || 'Admin',
-      l.action || 'Action',
-      l.details || l.description || 'N/A'
+      l.id ?? '',
+      l.audit_id || '',
+      getLogTimestamp(l)?.toISOString() || '',
+      l.user_name || '',
+      l.user_role || '',
+      l.action || '',
+      l.details || l.description || '',
+      l.ip_address || '',
+      typeof l.device_info === 'string' ? l.device_info : JSON.stringify(l.device_info || '')
     ]);
 
     const generatePdfBlob = async () => {

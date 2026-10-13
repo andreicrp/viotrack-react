@@ -31,6 +31,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { dataService } from '../services/dataService';
+import { StudentInitialsAvatar } from '../components/students/StudentInitialsAvatar';
 import { AddViolationModal } from '../components/violations/AddViolationModal';
 import { useNotification } from '../context/NotificationContext';
 import { Html5Qrcode } from 'html5-qrcode';
@@ -1561,12 +1562,9 @@ export const ScanQRPage = () => {
               <div className="verified-header-card">
                 <div className="verified-hero-main">
                   <div className="verified-avatar-wrapper">
-                    <img
-                      src={
-                        scannedStudent.image ||
-                        `https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80`
-                      }
-                      alt={`${scannedStudent.fname} ${scannedStudent.lname}`}
+                    <StudentInitialsAvatar
+                      student={scannedStudent}
+                      size={72}
                       className="verified-avatar"
                     />
                     <div className="verified-avatar-badge" title="Identity Verified">

@@ -12,18 +12,14 @@ import {
   Bell,
   LogOut,
   ChevronDown,
-  X,
-  Sun,
-  Moon
+  X
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import { useTheme } from '../../context/ThemeContext';
 import { dataService } from '../../services/dataService';
 import { preloadRoute } from '../../utils/routePreloader';
 
 export const Sidebar = ({ isCollapsed, isMobileOpen, onCloseMobile }) => {
   const { user, logout } = useAuth();
-  const { isDark, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -313,34 +309,6 @@ export const Sidebar = ({ isCollapsed, isMobileOpen, onCloseMobile }) => {
                   </span>
                   <span className="nav-text">Profile</span>
                 </NavLink>
-              </li>
-              <li className="nav-item" data-title="Theme">
-                <button
-                  type="button"
-                  className="nav-link"
-                  style={{ width: '100%', background: 'none', border: 'none', textAlign: 'left', cursor: 'pointer', display: 'flex', alignItems: 'center' }}
-                  onClick={(e) => {
-                    toggleTheme(e);
-                    handleLinkClick();
-                  }}
-                >
-                  <span className="sidebar-icon">
-                    {isDark ? <Sun size={20} strokeWidth={2} color="#f59e0b" /> : <Moon size={20} strokeWidth={2} />}
-                  </span>
-                  <span className="nav-text" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
-                    <span>{isDark ? 'Light Mode' : 'Dark Mode'}</span>
-                    <span style={{
-                      fontSize: '10px',
-                      fontWeight: 700,
-                      padding: '2px 7px',
-                      borderRadius: '10px',
-                      background: isDark ? 'rgba(56, 189, 248, 0.15)' : 'rgba(2, 132, 199, 0.1)',
-                      color: isDark ? '#38bdf8' : '#0284c7'
-                    }}>
-                      {isDark ? 'DARK' : 'LIGHT'}
-                    </span>
-                  </span>
-                </button>
               </li>
               <li className="nav-item" data-title="Sign Out">
                 <a href="#logout" className="nav-link mobile-signout-link" onClick={handleSignOut}>

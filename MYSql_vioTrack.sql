@@ -141,7 +141,7 @@ CREATE TABLE `violations` (
     `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
     `title` VARCHAR(150) NOT NULL,
     `description` TEXT,
-    `type` ENUM('Minor', 'Major') NOT NULL DEFAULT 'Minor',
+    `type` VARCHAR(30) NOT NULL DEFAULT 'Minor',
     `severity` VARCHAR(30) DEFAULT 'Minor',
     `default_sanction` TEXT,
     `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,

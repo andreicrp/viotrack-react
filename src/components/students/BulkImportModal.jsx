@@ -18,14 +18,15 @@ import {
   File,
   FileType
 } from 'lucide-react';
-import { parseCsvString, readFileAsText, downloadSampleCsv } from '../../utils/csvHelper';
+import { readFileAsText, downloadSampleCsv } from '../../utils/csvHelper';
+import { parseStudentRosterCsv } from '../../utils/studentRoster';
 import { extractTextFromPdf, parseStudentRosterFromPdfLines } from '../../utils/pdfHelper';
 
-const SAMPLE_CSV = `Student ID,First Name,Middle Name,Last Name,Grade,Section,Gender,Contact,Parent Name,Parent Contact,Strand
-109283746201,Danilo,G.,Ramos,Grade 10,Rizal,Male,09151234567,Arturo Ramos,09151234568,Junior High School
-109283746202,Patricia,Mae,Garcia,Grade 10,Rizal,Female,09152345678,Carmen Garcia,09152345679,Junior High School
-109283746203,Kenneth,John,Bautista,Grade 11,STEM A,Male,09153456789,Lorna Bautista,09153456780,STEM
-109283746204,Camille,Rose,Santos,Grade 12,HUMSS B,Female,09154567890,Eduardo Santos,09154567891,HUMSS`;
+const SAMPLE_CSV = `Student ID,First Name,Middle Name,Last Name,Grade,Section,Course,Track,Gender,Contact,Parent Name,Parent Contact,Academic Year
+109283746201,Danilo,G.,Ramos,Grade 10,Rizal,JHS,JHS,Male,09151234567,Arturo Ramos,09151234568,2025-2026
+109283746202,Patricia,Mae,Garcia,Grade 10,Rizal,JHS,JHS,Female,09152345678,Carmen Garcia,09152345679,2025-2026
+109283746203,Kenneth,John,Bautista,Grade 11,STEM A,STEM,Academic Track,Male,09153456789,Lorna Bautista,09153456780,2025-2026
+109283746204,Camille,Rose,Santos,Grade 12,HUMSS B,HUMSS,Academic Track,Female,09154567890,Eduardo Santos,09154567891,2025-2026`;
 
 const MALE_PORTRAITS = [
   'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150&auto=format&fit=crop&q=80',
@@ -125,50 +126,18 @@ export const BulkImportModal = ({ isOpen, onClose, onImported, initialFormat = '
   const parsedCsvRoster = useMemo(() => {
     if (!csvText.trim()) return [];
     try {
-      const rows = parseCsvString(csvText);
-      if (rows.length === 0) return [];
-
-      const firstRow = rows[0];
-      const hasHeader = firstRow.some(col =>
-        ['student id', 'student_id', 'id', 'first name', 'fname', 'name', 'student'].includes(col.toLowerCase().trim())
-      );
-      const dataRows = hasHeader ? rows.slice(1) : rows;
-
-      return dataRows
-        .filter(parts => parts.length >= 2 && parts.some(p => p.trim()))
-        .map((parts, i) => {
-          const student_id = parts[0]?.trim() || '';
-          const fname = parts[1]?.trim() || 'Student';
-          const mname = parts[2]?.trim() || '';
-          const lname = parts[3]?.trim() || 'Roster';
-          const grade = parts[4]?.trim() || 'Grade 10';
-          const section = parts[5]?.trim() || 'Rizal';
-          const gender = parts[6]?.trim() || 'Male';
-          const contact = parts[7]?.trim() || '09151234567';
-          const parent_name = parts[8]?.trim() || 'Parent Guardian';
-          const parent_contact = parts[9]?.trim() || '09151234568';
-          const strand = parts[10]?.trim() || '';
-
-          const isFem = gender.toLowerCase().startsWith('f');
-          const portraits = isFem ? FEMALE_PORTRAITS : MALE_PORTRAITS;
-          const assignedImage = portraits[(i + Math.floor(Math.random() * 5)) % portraits.length];
-
-          return {
-            student_id,
-            fname,
-            mname,
-            lname,
-            grade,
-            section,
-            gender: isFem ? 'Female' : 'Male',
-            contact,
-            parent_name,
-            parent_contact,
-            strand,
-            academicyear: '2025-2026',
-            image: assignedImage
-          };
-        });
+      return parseStudentRosterCsv(csvText).map((student, i) => {
+        const isFem = (student.gender || '').toLowerCase().startsWith('f');
+        const portraits = isFem ? FEMALE_PORTRAITS : MALE_PORTRAITS;
+        return {
+          ...student,
+          gender: student.gender
+            ? (isFem ? 'Female' : 'Male')
+            : undefined,
+          academicyear: student.academicyear || '2025-2026',
+          image: portraits[i % portraits.length]
+        };
+      });
     } catch {
       return [];
     }
@@ -288,7 +257,7 @@ export const BulkImportModal = ({ isOpen, onClose, onImported, initialFormat = '
                 </div>
               ) : (
                 <code style={{ fontSize: '11px', color: 'var(--text-secondary, #475569)', background: 'var(--bg-input, #f1f5f9)', padding: '3px 8px', borderRadius: '6px', display: 'inline-block', marginTop: '4px', wordBreak: 'break-word', border: '1px solid var(--border-subtle, #e2e8f0)' }}>
-                  Student ID, First Name, Middle Name, Last Name, Grade, Section, Gender, Contact, Parent Name, Parent Contact, Strand
+                  Student ID, First Name, Middle Name, Last Name, Grade, Section, Course (or Strand), Track, Gender, Contact, Parent Name, Parent Contact, Academic Year
                 </code>
               )}
             </div>

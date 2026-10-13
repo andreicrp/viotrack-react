@@ -13,6 +13,14 @@ describe('CSV & Security Utilities', () => {
     expect(rows[2]).toEqual(['Jane Smith', '11', 'Bonifacio']);
   });
 
+  it('preserves quoted commas and line breaks in exported cell values', () => {
+    const rows = parseCsvString('"Title","Description"\r\n"Uniform","Line one, with a comma\r\nLine two"');
+    expect(rows).toEqual([
+      ['Title', 'Description'],
+      ['Uniform', 'Line one, with a comma\r\nLine two']
+    ]);
+  });
+
   it('escapes CSV formula injection patterns', () => {
     const maliciousFormula = '=SUM(1+1)';
     const sanitized = sanitizeCsvCell(maliciousFormula);

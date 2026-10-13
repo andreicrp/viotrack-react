@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useDeferredValue } from 'react';
+import React, { useState, useEffect, useMemo, useDeferredValue, useRef } from 'react';
 import { dataService } from '../services/dataService';
 import { CustomSelect } from '../components/common/CustomSelect';
 import { ViewModeToggle } from '../components/common/ViewModeToggle';
@@ -33,9 +33,12 @@ import {
 } from 'lucide-react';
 import { getJsPDF } from '../utils/pdfHelper';
 import { SaveAsModal } from '../components/common/SaveAsModal';
+import { useAuth } from '../context/AuthContext';
 
 export const AdminUsersPage = () => {
   const { success, error, info } = useNotification();
+  const { syncAuthenticatedProfile } = useAuth();
+  const photoInputRef = useRef(null);
   const [viewMode, setViewMode] = useState('list'); // 'list' | 'grid'
   const [saveAsModalOpen, setSaveAsModalOpen] = useState(false);
   const [saveAsConfig, setSaveAsConfig] = useState({
@@ -80,6 +83,8 @@ export const AdminUsersPage = () => {
     }
   ]);
   const [loading, setLoading] = useState(false);
+  const [photoFile, setPhotoFile] = useState(null);
+  const [saving, setSaving] = useState(false);
 
   // Search & Filter
   const [searchTerm, setSearchTerm] = useState('');
@@ -193,6 +198,7 @@ export const AdminUsersPage = () => {
 
   const handleOpenAdd = () => {
     setEditingAdmin(null);
+    setPhotoFile(null);
     setFormData({
       fname: '',
       mname: '',
@@ -209,6 +215,7 @@ export const AdminUsersPage = () => {
 
   const handleOpenEdit = (admin) => {
     setEditingAdmin(admin);
+    setPhotoFile(null);
     setFormData({
       fname: admin.fname || '',
       mname: admin.mname || '',
@@ -223,6 +230,30 @@ export const AdminUsersPage = () => {
     setIsModalOpen(true);
   };
 
+  const handlePhotoChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      error('Choose an image file to use as the profile photo.');
+      e.target.value = '';
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      error('Profile photos must be 5MB or smaller.');
+      e.target.value = '';
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      setPhotoFile(file);
+      setFormData(prev => ({ ...prev, image: String(reader.result || '') }));
+      e.target.value = '';
+    };
+    reader.onerror = () => error('Unable to read the selected profile photo.');
+    reader.readAsDataURL(file);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.fname.trim() || !formData.lname.trim() || !formData.email.trim()) {
@@ -230,23 +261,32 @@ export const AdminUsersPage = () => {
       return;
     }
 
+    setSaving(true);
     try {
+      let image = formData.image || '';
+      if (photoFile) {
+        image = await dataService.uploadPhoto(photoFile, 'admins') || image;
+      }
+      const payload = { ...formData, image };
       if (editingAdmin) {
-        const saved = await dataService.updateAdmin(editingAdmin.id, formData);
-        setAdminUsers(adminUsers.map(a => a.id === editingAdmin.id ? (saved || { ...a, ...formData }) : a));
-        success(`Updated details for ${formData.fname} ${formData.lname}`);
+        const saved = await dataService.updateAdmin(editingAdmin.id, payload);
+        const updatedAdmin = saved || { ...editingAdmin, ...payload };
+        setAdminUsers(adminUsers.map(a => a.id === editingAdmin.id ? updatedAdmin : a));
+        syncAuthenticatedProfile(updatedAdmin, 'admin');
+        success(`Updated details for ${payload.fname} ${payload.lname}`);
       } else {
         const newAdmin = await dataService.addAdmin({
-          ...formData,
-          image: formData.image || ''
+          ...payload
         });
         setAdminUsers([newAdmin, ...adminUsers]);
-        success(`Created administrator account for ${formData.fname} ${formData.lname}`);
+        success(`Created administrator account for ${payload.fname} ${payload.lname}`);
       }
       setIsModalOpen(false);
       loadAdmins();
     } catch (err) {
       error('Failed to save administrator record: ' + err.message);
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -258,9 +298,9 @@ export const AdminUsersPage = () => {
       a.mname || '',
       a.lname,
       a.email,
-      a.role || 'Staff',
-      a.position || 'Administrative Officer',
-      a.contact || 'N/A'
+      a.role || '',
+      a.position || '',
+      a.contact || ''
     ]);
 
     const generatePdfBlob = async () => {
@@ -598,6 +638,7 @@ export const AdminUsersPage = () => {
         {/* Batch Selection Action Bar */}
         {selectedIds.length > 0 && (
           <div
+            className="bulk-selection-toolbar admin-selection-toolbar"
             style={{
               marginTop: '16px',
               padding: '10px 16px',
@@ -611,8 +652,8 @@ export const AdminUsersPage = () => {
               gap: '10px'
             }}
           >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', fontWeight: 700, color: '#1e293b' }}>
-              <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#2563eb' }} />
+            <div className="admin-selection-toolbar-label" style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', fontWeight: 700, color: '#1e293b' }}>
+              <span className="admin-selection-toolbar-indicator" style={{ width: 8, height: 8, borderRadius: '50%', background: '#2563eb' }} />
               {selectedIds.length} administrator(s) selected
             </div>
 
@@ -637,6 +678,7 @@ export const AdminUsersPage = () => {
               </button>
 
               <button
+                className="bulk-selection-clear-btn admin-selection-clear-btn"
                 onClick={() => setSelectedIds([])}
                 style={{
                   background: '#ffffff',
@@ -1235,6 +1277,51 @@ export const AdminUsersPage = () => {
             {/* Modal Form */}
             <form onSubmit={handleSubmit}>
               <div style={{ padding: '22px 24px', display: 'flex', flexDirection: 'column', gap: '16px', maxHeight: '70vh', overflowY: 'auto' }}>
+                <input
+                  ref={photoInputRef}
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp"
+                  onChange={handlePhotoChange}
+                  style={{ display: 'none' }}
+                />
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '14px', padding: '12px 14px', border: '1px solid var(--border-subtle, #e2e8f0)', borderRadius: '12px', background: 'var(--bg-surface-elevated, #f8fafc)' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', minWidth: 0 }}>
+                    {formData.image ? (
+                      <img
+                        src={formData.image}
+                        alt="Administrator profile"
+                        style={{ width: 52, height: 52, borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }}
+                      />
+                    ) : (
+                      <div style={{ width: 52, height: 52, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#e8eef5', color: '#07345f', fontWeight: 800, flexShrink: 0 }}>
+                        {`${formData.fname[0] || 'A'}${formData.lname[0] || ''}`.toUpperCase()}
+                      </div>
+                    )}
+                    <div>
+                      <div style={{ fontSize: '13px', fontWeight: 700, color: 'var(--text-primary, #0f172a)' }}>Profile photo</div>
+                      <div style={{ fontSize: '11.5px', color: 'var(--text-muted, #64748b)' }}>PNG, JPG, or WEBP · up to 5MB</div>
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', gap: '7px', flexShrink: 0 }}>
+                    <button type="button" onClick={() => photoInputRef.current?.click()} className="btn btn-secondary">
+                      <Upload size={14} /> {formData.image ? 'Change' : 'Upload'}
+                    </button>
+                    {formData.image && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setPhotoFile(null);
+                          setFormData(prev => ({ ...prev, image: '' }));
+                          if (photoInputRef.current) photoInputRef.current.value = '';
+                        }}
+                        className="btn btn-secondary"
+                        aria-label="Remove profile photo"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    )}
+                  </div>
+                </div>
                 {/* Name Row */}
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                   <div>
@@ -1449,6 +1536,7 @@ export const AdminUsersPage = () => {
                   <button
                     type="submit"
                     className="admin-modal-submit-btn"
+                    disabled={saving}
                     style={{
                       padding: '9px 22px',
                       borderRadius: '9px',
@@ -1457,7 +1545,7 @@ export const AdminUsersPage = () => {
                       border: '1px solid var(--brand-blue, #0f172a)',
                       fontWeight: 700,
                       fontSize: '13px',
-                      cursor: 'pointer',
+                      cursor: saving ? 'wait' : 'pointer',
                       display: 'inline-flex',
                       alignItems: 'center',
                       gap: '8px',
@@ -1465,7 +1553,7 @@ export const AdminUsersPage = () => {
                     }}
                   >
                     <Save size={16} />
-                    <span>{editingAdmin ? 'Save Changes' : 'Create Admin'}</span>
+                    <span>{saving ? 'Saving…' : (editingAdmin ? 'Save Changes' : 'Create Admin')}</span>
                   </button>
                 </div>
               </div>

@@ -37,7 +37,7 @@ import {
 import { getJsPDF } from '../utils/pdfHelper';
 
 export const TeachersPage = () => {
-  const { user } = useAuth();
+  const { user, syncAuthenticatedProfile } = useAuth();
   const { success, error, info } = useNotification();
   const [teachers, setTeachers] = useState([]);
   const [advisers, setAdvisers] = useState([]);
@@ -129,6 +129,7 @@ export const TeachersPage = () => {
       if (teacherToEdit) {
         const saved = await dataService.updateTeacher(teacherToEdit.id, updatedTeacher);
         setTeachers(teachers.map(t => t.id === teacherToEdit.id ? saved : t));
+        syncAuthenticatedProfile(saved, 'teacher');
         success(`Updated details for ${updatedTeacher.fname} ${updatedTeacher.lname}`);
       } else {
         const newT = await dataService.addTeacher(updatedTeacher);
@@ -186,23 +187,18 @@ export const TeachersPage = () => {
 
   // Export via SaveAs
   const handleOpenExportSaveAs = (defaultFormat = 'csv') => {
-    const headers = ['First Name', 'Middle Name', 'Last Name', 'Position', 'Department', 'Specialization', 'Advisory', 'Email', 'Contact', 'Gender'];
-    const rows = filteredAndSorted.map(t => {
-      const adv = advisers.find(a => a.teacher_id === t.id);
-      const advText = adv ? `${adv.grade_level} - ${adv.class_section}` : 'None';
-      return [
-        t.fname,
-        t.mname || '',
-        t.lname,
-        t.position || 'Teacher',
-        t.department || 'Academic Faculty',
-        t.specialization || 'General Education',
-        advText,
-        t.email || '',
-        t.contact || '',
-        t.gender || 'Male'
-      ];
-    });
+    const headers = ['First Name', 'Middle Name', 'Last Name', 'Position', 'Department', 'Specialization', 'Email', 'Contact', 'Gender'];
+    const rows = filteredAndSorted.map(t => [
+      t.fname,
+      t.mname || '',
+      t.lname,
+      t.position || '',
+      t.department || '',
+      t.specialization || '',
+      t.email || '',
+      t.contact || '',
+      t.gender || ''
+    ]);
 
     const generatePdfBlob = async () => {
       const doc = await getJsPDF();
@@ -568,6 +564,7 @@ export const TeachersPage = () => {
         {/* Batch Selection Action Bar */}
         {selectedIds.length > 0 && (
           <div
+            className="bulk-selection-toolbar"
             style={{
               marginTop: '16px',
               padding: '10px 16px',
@@ -607,6 +604,7 @@ export const TeachersPage = () => {
               </button>
 
               <button
+                className="bulk-selection-clear-btn"
                 onClick={() => setSelectedIds([])}
                 style={{
                   background: '#ffffff',

@@ -38,6 +38,7 @@ import {
 import { getJsPDF } from '../utils/pdfHelper';
 import { exportToCsv } from '../utils/csvHelper';
 import { SaveAsModal } from '../components/common/SaveAsModal';
+import { StudentInitialsAvatar } from '../components/students/StudentInitialsAvatar';
 
 import { ViewModeToggle } from '../components/common/ViewModeToggle';
 import { SkeletonTable, SkeletonCardGrid } from '../components/common/SkeletonLoader';
@@ -322,15 +323,16 @@ export const StudentsPage = () => {
 
   // Save As Export Handler
   const handleOpenExportSaveAs = (defaultFormat = 'csv') => {
-    const headers = ['Student ID', 'First Name', 'Middle Name', 'Last Name', 'Grade', 'Strand', 'Section', 'Gender', 'Contact', 'Parent Name', 'Parent Contact'];
+    const headers = ['Student ID', 'First Name', 'Middle Name', 'Last Name', 'Grade', 'Section', 'Course', 'Track', 'Gender', 'Contact', 'Parent Name', 'Parent Contact'];
     const rows = filteredAndSortedStudents.map(s => [
       s.student_id,
       s.fname,
       s.mname || '',
       s.lname,
       s.grade,
-      getStudentStrand(s),
       s.section,
+      s.course || s.strand || getStudentStrand(s),
+      s.track || '',
       s.gender || 'N/A',
       s.contact || 'N/A',
       s.parent_name || 'N/A',
@@ -352,14 +354,15 @@ export const StudentsPage = () => {
         s.student_id,
         `${s.lname}, ${s.fname}`,
         s.grade,
-        getStudentStrand(s),
+        s.course || s.strand || getStudentStrand(s),
+        s.track || '',
         s.section,
         s.gender || 'N/A',
         s.parent_name || 'N/A'
       ]);
 
       doc.autoTable({
-        head: [['#', 'Student ID', 'Student Name', 'Grade', 'Strand / Track', 'Section', 'Gender', 'Guardian']],
+        head: [['#', 'Student ID', 'Student Name', 'Grade', 'Course / Strand', 'Track', 'Section', 'Gender', 'Guardian']],
         body: tableData,
         startY: 28,
         theme: 'striped',
@@ -1045,21 +1048,11 @@ export const StudentsPage = () => {
                       {/* Student Profile */}
                       <td style={{ padding: '14px 18px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                          <img
-                            src={
-                              s.image ||
-                              `https://ui-avatars.com/api/?name=${encodeURIComponent(s.fname + ' ' + s.lname)}&background=07345f&color=fff&size=40`
-                            }
-                            alt="Student Avatar"
-                            loading="lazy"
-                            decoding="async"
+                          <StudentInitialsAvatar
+                            student={s}
+                            size={40}
                             style={{
-                              width: 40,
-                              height: 40,
-                              borderRadius: '10px',
-                              objectFit: 'cover',
                               border: '1px solid #e2e8f0',
-                              flexShrink: 0
                             }}
                           />
                           <div>
@@ -1296,14 +1289,9 @@ export const StudentsPage = () => {
                   </div>
 
                   {/* Center Avatar & Info */}
-                  <img
-                    src={
-                      s.image ||
-                      `https://ui-avatars.com/api/?name=${encodeURIComponent(s.fname + ' ' + s.lname)}&background=07345f&color=fff&size=48`
-                    }
-                    alt="Student"
-                    loading="lazy"
-                    decoding="async"
+                  <StudentInitialsAvatar
+                    student={s}
+                    size={64}
                     className="entity-grid-avatar"
                   />
 
@@ -1389,21 +1377,11 @@ export const StudentsPage = () => {
                         onChange={() => toggleSelect(s.id)}
                         style={{ cursor: 'pointer', width: '16px', height: '16px', accentColor: '#07345f', flexShrink: 0 }}
                       />
-                      <img
-                        src={
-                          s.image ||
-                          `https://ui-avatars.com/api/?name=${encodeURIComponent(s.fname + ' ' + s.lname)}&background=07345f&color=fff&size=38`
-                        }
-                        alt="Student Avatar"
-                        loading="lazy"
-                        decoding="async"
+                      <StudentInitialsAvatar
+                        student={s}
+                        size={38}
                         style={{
-                          width: 38,
-                          height: 38,
-                          borderRadius: '8px',
-                          objectFit: 'cover',
                           border: '1px solid #e2e8f0',
-                          flexShrink: 0
                         }}
                       />
                       <div style={{ minWidth: 0, flex: 1 }}>
@@ -1658,6 +1636,7 @@ export const StudentsPage = () => {
       {/* Add / Edit Student Modal */}
       <AddStudentModal
         isOpen={isAddModalOpen}
+        studentToEdit={studentToEdit}
         onClose={() => {
           setIsAddModalOpen(false);
           setStudentToEdit(null);

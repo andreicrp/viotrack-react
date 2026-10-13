@@ -44,6 +44,7 @@ import {
 } from 'lucide-react';
 import { getJsPDF } from '../utils/pdfHelper';
 import { getStudentQrCodeUrl, getStudentQrValue } from '../utils/qrHelper';
+import { StudentInitialsAvatar } from '../components/students/StudentInitialsAvatar';
 
 export const StudentViolationDetailPage = () => {
   const { id } = useParams();
@@ -701,17 +702,10 @@ export const StudentViolationDetailPage = () => {
           {/* Column 1: Avatar + Identity (Enlarged & Prominent) */}
           <div className="student-profile-hero-identity">
             <div style={{ position: 'relative', flexShrink: 0 }}>
-              <img
-                src={
-                  student.image ||
-                  `https://ui-avatars.com/api/?name=${encodeURIComponent(student.fname + ' ' + student.lname)}&background=07345f&color=fff&size=160`
-                }
-                alt={student.fname}
+              <StudentInitialsAvatar
+                student={student}
+                size={104}
                 style={{
-                  width: 104,
-                  height: 104,
-                  borderRadius: '50%',
-                  objectFit: 'cover',
                   border: 'none',
                   boxShadow: 'none'
                 }}
@@ -1334,14 +1328,7 @@ export const StudentViolationDetailPage = () => {
 
                       <td style={{ padding: '12px 14px' }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                          <img
-                            src={
-                              student.image ||
-                              `https://ui-avatars.com/api/?name=${encodeURIComponent(student.fname + ' ' + student.lname)}&background=07345f&color=fff&size=50`
-                            }
-                            alt={student.fname}
-                            style={{ width: 34, height: 34, borderRadius: '50%', objectFit: 'cover' }}
-                          />
+                          <StudentInitialsAvatar student={student} size={34} alt={student.fname} />
                           <div>
                             <div style={{ fontWeight: 700, color: '#0f172a', fontSize: '13px' }}>
                               {student.fname} {student.lname}
@@ -1749,6 +1736,7 @@ export const StudentViolationDetailPage = () => {
       {/* 7. Send SMS Modal */}
       {isSmsModalOpen && (
         <div
+          className="sms-guardian-backdrop"
           style={{
             position: 'fixed',
             inset: 0,
@@ -1778,19 +1766,21 @@ export const StudentViolationDetailPage = () => {
               gap: '18px',
               animation: 'modalScaleUp 0.16s cubic-bezier(0.16, 1, 0.3, 1)'
             }}
+            className="sms-guardian-notice-modal"
           >
             {/* Header */}
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1.5px solid #f1f5f9', paddingBottom: '14px' }}>
               <div>
-                <h4 style={{ margin: 0, fontSize: '18px', fontWeight: 800, color: '#07345f', letterSpacing: '-0.01em' }}>
+                <h4 className="sms-guardian-title" style={{ margin: 0, fontSize: '18px', fontWeight: 800, color: '#07345f', letterSpacing: '-0.01em' }}>
                   Dispatch SMS Guardian Notice
                 </h4>
-                <p style={{ margin: '3px 0 0 0', fontSize: '12px', color: '#64748b' }}>
+                <p className="sms-guardian-subtitle" style={{ margin: '3px 0 0 0', fontSize: '12px', color: '#64748b' }}>
                   Instant SMS alert transmission to student's parent / guardian
                 </p>
               </div>
               <button
                 type="button"
+                className="sms-guardian-close-button"
                 onClick={() => setIsSmsModalOpen(false)}
                 style={{
                   width: 32,
@@ -1813,6 +1803,7 @@ export const StudentViolationDetailPage = () => {
             <form onSubmit={handleSendSmsTrigger} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               {/* Recipient Details Outline Card */}
               <div
+                className="sms-guardian-recipient-card"
                 style={{
                   background: 'linear-gradient(135deg, #f8fafc 0%, #f0f7ff 100%)',
                   padding: '14px 16px',
@@ -1826,13 +1817,14 @@ export const StudentViolationDetailPage = () => {
               >
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <span style={{ color: '#64748b', fontWeight: 600 }}>Guardian Name:</span>
-                  <strong style={{ color: '#07345f', fontWeight: 700 }}>
+                  <strong className="sms-guardian-recipient-value" style={{ color: '#07345f', fontWeight: 700 }}>
                     {student.parent_name || 'Lita Castillo (Guardian)'}
                   </strong>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <span style={{ color: '#64748b', fontWeight: 600 }}>Target Phone Number:</span>
                   <span
+                    className="sms-guardian-phone-chip"
                     style={{
                       fontFamily: 'monospace',
                       fontWeight: 700,
@@ -1851,6 +1843,7 @@ export const StudentViolationDetailPage = () => {
                   <span style={{ color: '#64748b', fontWeight: 600 }}>Student ID:</span>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                     <span
+                      className="sms-guardian-id-chip"
                       style={{
                         fontFamily: 'monospace',
                         fontWeight: 700,
@@ -1864,14 +1857,14 @@ export const StudentViolationDetailPage = () => {
                     >
                       {student.student_id}
                     </span>
-                    <strong style={{ color: '#07345f' }}>({student.fname} {student.lname})</strong>
+                    <strong className="sms-guardian-recipient-value">({student.fname} {student.lname})</strong>
                   </div>
                 </div>
               </div>
 
               {/* Notice Category Selector */}
               <div>
-                <label style={{ display: 'block', fontSize: '12px', fontWeight: 800, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '8px' }}>
+                <label className="sms-guardian-label" style={{ display: 'block', fontSize: '12px', fontWeight: 800, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.04em', marginBottom: '8px' }}>
                   Notice Category
                 </label>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
@@ -1881,6 +1874,7 @@ export const StudentViolationDetailPage = () => {
                       <button
                         type="button"
                         key={t}
+                        className={`sms-guardian-category-button${isSelected ? ' is-selected' : ''}`}
                         onClick={() => setSmsReportType(t)}
                         style={{
                           padding: '9px 12px',
@@ -1902,6 +1896,7 @@ export const StudentViolationDetailPage = () => {
                       >
                         {isSelected && (
                           <span
+                            className="sms-guardian-selected-dot"
                             style={{
                               width: 6,
                               height: 6,
@@ -1921,12 +1916,13 @@ export const StudentViolationDetailPage = () => {
               {/* Custom SMS text */}
               <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '6px' }}>
-                  <label style={{ fontSize: '12px', fontWeight: 800, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                  <label className="sms-guardian-label" style={{ fontSize: '12px', fontWeight: 800, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                     SMS Message Body
                   </label>
                   {smsCustomMessage && (
                     <button
                       type="button"
+                      className="sms-guardian-reset-button"
                       onClick={() => setSmsCustomMessage('')}
                       style={{
                         background: 'transparent',
@@ -1945,6 +1941,7 @@ export const StudentViolationDetailPage = () => {
                   )}
                 </div>
                 <textarea
+                  className="sms-guardian-message"
                   rows={4}
                   placeholder={`[VioTrack Notice] Dear ${student.parent_name || 'Guardian'}, please be informed that student ${student.fname} ${student.lname} has a recorded notice under category: ${smsReportType}. Please contact the Guidance Office.`}
                   value={smsCustomMessage}
@@ -1968,10 +1965,10 @@ export const StudentViolationDetailPage = () => {
                   onBlur={(e) => { e.target.style.borderColor = '#cbd5e1'; }}
                 />
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '4px' }}>
-                  <span style={{ fontSize: '11px', color: '#64748b' }}>
+                  <span className="sms-guardian-helper-text" style={{ fontSize: '11px', color: '#64748b' }}>
                     Standard carrier transmission rates apply
                   </span>
-                  <span style={{ fontSize: '11px', fontWeight: 600, color: '#64748b' }}>
+                  <span className="sms-guardian-helper-text" style={{ fontSize: '11px', fontWeight: 600, color: '#64748b' }}>
                     {(smsCustomMessage || `[VioTrack Notice] Dear ${student.parent_name || 'Guardian'}, please be informed that student ${student.fname} ${student.lname} has a recorded notice under category: ${smsReportType}. Please contact the Guidance Office.`).length} characters
                   </span>
                 </div>
@@ -1981,6 +1978,7 @@ export const StudentViolationDetailPage = () => {
               <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', marginTop: '6px' }}>
                 <button
                   type="button"
+                  className="sms-guardian-cancel-button"
                   onClick={() => setIsSmsModalOpen(false)}
                   style={{
                     background: '#ffffff',
@@ -2000,6 +1998,7 @@ export const StudentViolationDetailPage = () => {
                 </button>
                 <button
                   type="submit"
+                  className="sms-guardian-submit-button"
                   disabled={smsSending}
                   style={{
                     background: '#07345f',

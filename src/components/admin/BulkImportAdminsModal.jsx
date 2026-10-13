@@ -12,13 +12,14 @@ import {
   FileType,
   ShieldAlert
 } from 'lucide-react';
-import { parseCsvString, readFileAsText, downloadSampleCsv } from '../../utils/csvHelper';
+import { readFileAsText, downloadSampleCsv } from '../../utils/csvHelper';
+import { parseEntityCsv } from '../../utils/entityCsv';
 import { extractTextFromPdf, parseAdminRosterFromPdfLines } from '../../utils/pdfHelper';
 
-const SAMPLE_ADMINS_CSV = `First Name,Last Name,Email,Role,Contact,Status
-Andres,Bonifacio,andres.bonifacio@viotrack.edu,Super Admin,09171112233,Active
-Emilio,Jacinto,emilio.jacinto@viotrack.edu,Discipline Officer,09172223344,Active
-Teresa,Magbanua,teresa.magbanua@viotrack.edu,Admin Staff,09173334455,Active`;
+const SAMPLE_ADMINS_CSV = `First Name,Middle Name,Last Name,Email,Role,Position,Contact
+Andres,,Bonifacio,andres.bonifacio@viotrack.edu,Super Admin,Discipline Officer,09171112233
+Emilio,,Jacinto,emilio.jacinto@viotrack.edu,Discipline Officer,Guidance Officer,09172223344
+Teresa,,Magbanua,teresa.magbanua@viotrack.edu,Admin Staff,Administrative Staff,09173334455`;
 
 const ADMIN_AVATARS = [
   'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
@@ -99,35 +100,16 @@ export const BulkImportAdminsModal = ({ isOpen, onClose, onImported, initialForm
   const parsedCsvAdmins = useMemo(() => {
     if (!csvText.trim()) return [];
     try {
-      const rows = parseCsvString(csvText);
-      if (rows.length === 0) return [];
-
-      const firstRow = rows[0];
-      const hasHeader = firstRow.some(col => 
-        ['first name', 'fname', 'name', 'email', 'role', 'admin'].includes(col.toLowerCase().trim())
-      );
-      const dataRows = hasHeader ? rows.slice(1) : rows;
-
-      return dataRows
-        .filter(parts => parts.length >= 2 && parts.some(p => p.trim()))
-        .map((parts, i) => {
-          const fname = parts[0]?.trim() || 'Admin';
-          const lname = parts[1]?.trim() || 'User';
-          const email = parts[2]?.trim() || `${fname.toLowerCase()}.${lname.toLowerCase()}@viotrack.edu`;
-          const role = parts[3]?.trim() || 'Admin';
-          const contact = parts[4]?.trim() || '09171112233';
-          const status = parts[5]?.trim() || 'Active';
-
-          return {
-            fname,
-            lname,
-            email,
-            role,
-            contact,
-            status,
-            image: ADMIN_AVATARS[i % ADMIN_AVATARS.length]
-          };
-        });
+      return parseEntityCsv(csvText, {
+        fname: ['first name', 'fname', 'given name', 'name'],
+        mname: ['middle name', 'mname'],
+        lname: ['last name', 'lname', 'surname', 'family name'],
+        email: ['email', 'email address'],
+        role: ['role', 'access role', 'privilege level'],
+        position: ['position', 'job title', 'title'],
+        contact: ['contact', 'contact number', 'phone', 'phone number', 'mobile']
+      }, ['fname', 'lname', 'email', 'role', 'contact'])
+        .map((admin, i) => ({ ...admin, image: ADMIN_AVATARS[i % ADMIN_AVATARS.length] }));
     } catch {
       return [];
     }
@@ -145,6 +127,12 @@ export const BulkImportAdminsModal = ({ isOpen, onClose, onImported, initialForm
 
     setLoading(true);
     try {
+      const invalidRows = activeCandidateList
+        .map((admin, index) => (!admin.fname || !admin.lname || !admin.email ? index + 1 : null))
+        .filter(Boolean);
+      if (invalidRows.length) {
+        throw new Error(`Rows ${invalidRows.slice(0, 20).join(', ')} need a first name, last name, and email.`);
+      }
       let count = 0;
       for (const a of activeCandidateList) {
         await dataService.addAdmin(a);

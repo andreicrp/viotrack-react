@@ -358,7 +358,7 @@ export const ViolationsPage = () => {
   const handleOpenExportSaveAs = (defaultFormat = 'csv') => {
     const now = new Date();
     const dateStamp = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-    const headers = ['Record ID', 'Student ID', 'Student Name', 'Grade', 'Section', 'Offense', 'Severity', 'Reported By', 'Reporter Type', 'Date Reported', 'Sanction', 'Status', 'Remarks', 'Resolution Notes'];
+    const headers = ['Record ID', 'Student ID', 'Student Name', 'Grade', 'Section', 'Offense', 'Severity', 'Reported By ID', 'Reporter Type', 'Reported By', 'Date Reported', 'Status', 'Approval Status', 'Approved By', 'Approved At', 'Rejected By', 'Rejected At', 'Rejection Reason', 'Sanction', 'Remarks', 'Resolution Notes', 'Resolution Date', 'SMS Notified'];
     const rows = filteredAndSortedRecords.map(r => [
       r.id,
       r.student?.student_id || '',
@@ -366,14 +366,23 @@ export const ViolationsPage = () => {
       r.student?.grade || '',
       r.student?.section || '',
       r.violation?.title || 'N/A',
-      r.violation?.type || 'Minor',
-      r.reported_by_name || 'Admin',
-      r.reported_by_type || 'admin',
-      new Date(r.date_reported).toLocaleString(),
-      r.sanction || 'None',
-      r.status || 'Pending',
+      r.violation?.type || '',
+      r.reported_by_id ?? '',
+      r.reported_by_type || '',
+      r.reported_by_name || '',
+      r.date_reported || '',
+      r.status || '',
+      r.approval_status || '',
+      r.approved_by || '',
+      r.approved_at || '',
+      r.rejected_by || '',
+      r.rejected_at || '',
+      r.rejection_reason || '',
+      r.sanction || '',
       r.remarks || '',
-      r.resolution_notes || ''
+      r.resolution_notes || '',
+      r.resolution_date || '',
+      r.sms_notified ?? ''
     ]);
 
     const generatePdfBlob = async () => {
@@ -873,6 +882,7 @@ export const ViolationsPage = () => {
           {/* Bulk Actions Bar (if any selected) */}
           {selectedIds.length > 0 && (
             <div
+              className="bulk-selection-toolbar"
               style={{
                 background: '#f0f4f8',
                 border: '1px solid #cbd5e1',
