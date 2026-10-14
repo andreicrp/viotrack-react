@@ -211,7 +211,7 @@ export function App() {
                   <Route 
                     path="advisers" 
                     element={
-                      <ProtectedRoute requireAdmin>
+                      <ProtectedRoute>
                         <AdvisersPage />
                       </ProtectedRoute>
                     } 

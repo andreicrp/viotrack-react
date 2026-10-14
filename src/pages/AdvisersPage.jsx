@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useDeferredValue } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import { dataService } from '../services/dataService';
 import { CustomSelect } from '../components/common/CustomSelect';
 import { SectionSelect } from '../components/common/SectionSelect';
@@ -43,6 +43,8 @@ export const AdvisersPage = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { success, error, info } = useNotification();
+  const isAdmin = user?.role === 'admin';
+  const isTeacher = user?.role === 'teacher';
 
   const [advisers, setAdvisers] = useState([]);
   const [teachers, setTeachers] = useState([]);
@@ -83,9 +85,9 @@ export const AdvisersPage = () => {
     try {
       const [aList, tList, sList, rList] = await Promise.all([
         dataService.getAdvisers(true),
-        dataService.getTeachers(true),
-        dataService.getStudents(true),
-        dataService.getRecords(true)
+        isAdmin ? dataService.getTeachers(true) : Promise.resolve([]),
+        isAdmin ? dataService.getStudents(true) : Promise.resolve([]),
+        isAdmin ? dataService.getRecords(true) : Promise.resolve([])
       ]);
       setAdvisers(aList || []);
       setTeachers(tList || []);
@@ -163,7 +165,7 @@ export const AdvisersPage = () => {
 
   // Handle Remove
   const confirmRemoveAdviser = async () => {
-    if (!adviserToDelete) return;
+    if (!isAdmin || !adviserToDelete) return;
     try {
       await dataService.removeAdviser(adviserToDelete.id);
       setAdvisers(prev => prev.filter(a => a.id !== adviserToDelete.id));
@@ -195,6 +197,7 @@ export const AdvisersPage = () => {
   // Handle Appoint
   const handleAppointSubmit = async (e) => {
     e.preventDefault();
+    if (!isAdmin) return;
     if (!selectedTeacherId) {
       error('Please select a teacher to appoint.');
       return;
@@ -233,6 +236,7 @@ export const AdvisersPage = () => {
 
   // Export via SaveAs
   const handleOpenExportSaveAs = (defaultFormat = 'csv') => {
+    if (!isAdmin) return;
     const headers = ['Adviser Name', 'Grade Level', 'Section', 'Department', 'Email', 'Contact', 'Enrolled Students', 'Violations Recorded'];
     const rows = advisers.map(adv => {
       const teacher = teachers.find(t => t.id === adv.teacher_id);
@@ -296,6 +300,10 @@ export const AdvisersPage = () => {
     setSaveAsModalOpen(true);
   };
 
+  if (!isAdmin && !isTeacher) {
+    return <Navigate to="/forbidden" replace />;
+  }
+
   return (
     <div className="advisers-page-wrapper">
       {/* Top Banner & Action Header */}
@@ -304,10 +312,12 @@ export const AdvisersPage = () => {
           <Award size={26} strokeWidth={2.4} style={{ flexShrink: 0, color: 'var(--brand-blue, #07345f)' }} />
           <div>
             <h2 style={{ fontSize: '20px', fontWeight: 800, margin: 0, color: 'var(--text-primary, #0f172a)', letterSpacing: '-0.02em' }}>
-              Adviser Management
+              {isAdmin ? 'Adviser Management' : 'Class Advisers'}
             </h2>
             <p style={{ margin: '3px 0 0 0', fontSize: '13px', color: 'var(--text-muted, #64748b)' }}>
-              Assign, supervise, and inspect class advisers and student advisory section rosters.
+              {isAdmin
+                ? 'Assign, supervise, and inspect class advisers and student advisory section rosters.'
+                : 'Browse class adviser assignments by grade level and section.'}
             </p>
           </div>
         </div>
@@ -315,36 +325,42 @@ export const AdvisersPage = () => {
         {/* Header Action Buttons */}
         <div className="page-banner-actions">
           <div className="page-banner-secondary-group">
-            <button
-              onClick={() => navigate('/teachers')}
-              className="page-banner-btn-secondary"
-            >
-              <ArrowLeft size={14} /> Back to Faculty
-            </button>
+            {isAdmin && (
+              <>
+                <button
+                  onClick={() => navigate('/teachers')}
+                  className="page-banner-btn-secondary"
+                >
+                  <ArrowLeft size={14} /> Back to Faculty
+                </button>
 
-            <button
-              onClick={() => handleOpenExportSaveAs('pdf')}
-              className="page-banner-btn-secondary"
-              title="Save As formatted PDF directory"
-            >
-              <Upload size={14} strokeWidth={2.2} /> Export PDF
-            </button>
+                <button
+                  onClick={() => handleOpenExportSaveAs('pdf')}
+                  className="page-banner-btn-secondary"
+                  title="Save As formatted PDF directory"
+                >
+                  <Upload size={14} strokeWidth={2.2} /> Export PDF
+                </button>
 
-            <button
-              onClick={() => handleOpenExportSaveAs('csv')}
-              className="page-banner-btn-secondary"
-              title="Save As CSV / Excel spreadsheet"
-            >
-              <FileText size={14} strokeWidth={2.2} /> Export CSV
-            </button>
+                <button
+                  onClick={() => handleOpenExportSaveAs('csv')}
+                  className="page-banner-btn-secondary"
+                  title="Save As CSV / Excel spreadsheet"
+                >
+                  <FileText size={14} strokeWidth={2.2} /> Export CSV
+                </button>
+              </>
+            )}
           </div>
 
-          <button
-            onClick={() => setIsAppointModalOpen(true)}
-            className="page-banner-primary-btn"
-          >
-            <UserPlus size={15} strokeWidth={2.5} /> Appoint New Adviser
-          </button>
+          {isAdmin && (
+            <button
+              onClick={() => setIsAppointModalOpen(true)}
+              className="page-banner-primary-btn"
+            >
+              <UserPlus size={15} strokeWidth={2.5} /> Appoint New Adviser
+            </button>
+          )}
         </div>
       </div>
 
@@ -438,7 +454,7 @@ export const AdvisersPage = () => {
         </div>
 
         {/* Assigned Students */}
-        <div
+        {isAdmin && <div
           style={{
             background: 'var(--bg-surface, #ffffff)',
             border: '1.5px solid var(--border-subtle, #cbd5e1)',
@@ -461,7 +477,7 @@ export const AdvisersPage = () => {
             </div>
             <Users size={20} color="var(--brand-blue, #07345f)" strokeWidth={2} />
           </div>
-        </div>
+        </div>}
       </div>
 
       {/* Search & Filter Toolbar */}
@@ -621,16 +637,20 @@ export const AdvisersPage = () => {
               No advisers match your current search or filter
             </h4>
             <p style={{ fontSize: '12.5px', color: 'var(--text-secondary, #64748b)', margin: 0 }}>
-              Try adjusting your search criteria, or appoint a new teacher as section adviser.
+              {isAdmin
+                ? 'Try adjusting your search criteria, or appoint a new teacher as section adviser.'
+                : 'Try adjusting your search criteria to find a class adviser.'}
             </p>
           </div>
-          <button
-            onClick={() => setIsAppointModalOpen(true)}
-            className="advisers-btn-primary"
-            style={{ marginTop: '6px' }}
-          >
-            <Plus size={14} /> Appoint Adviser
-          </button>
+          {isAdmin && (
+            <button
+              onClick={() => setIsAppointModalOpen(true)}
+              className="advisers-btn-primary"
+              style={{ marginTop: '6px' }}
+            >
+              <Plus size={14} /> Appoint Adviser
+            </button>
+          )}
         </div>
       ) : (
         <div className="advisers-card-grid">
@@ -698,6 +718,8 @@ export const AdvisersPage = () => {
                   </div>
                 </div>
 
+                {isAdmin && (
+                  <>
                 {/* Section Metrics Overview */}
                 <div className="adviser-metrics-bar">
                   {/* Students count */}
@@ -803,6 +825,8 @@ export const AdvisersPage = () => {
                     <Trash2 size={15} /> Remove
                   </button>
                 </div>
+                  </>
+                )}
               </div>
             );
           })}
@@ -810,7 +834,7 @@ export const AdvisersPage = () => {
       )}
 
       {/* Appoint Adviser Modal */}
-      {isAppointModalOpen && (
+      {isAdmin && isAppointModalOpen && (
         <div
           style={{
             position: 'fixed',
@@ -1030,7 +1054,7 @@ export const AdvisersPage = () => {
       )}
 
       {/* Remove Confirmation Dialog */}
-      {adviserToDelete && (
+      {isAdmin && adviserToDelete && (
         <div
           style={{
             position: 'fixed',
@@ -1145,7 +1169,7 @@ export const AdvisersPage = () => {
 
       {/* Save As / Export Modal */}
       <SaveAsModal
-        isOpen={saveAsModalOpen}
+        isOpen={isAdmin && saveAsModalOpen}
         onClose={() => setSaveAsModalOpen(false)}
         defaultFilename={saveAsConfig.defaultFilename}
         defaultFormat={saveAsConfig.defaultFormat}

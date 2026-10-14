@@ -9,6 +9,7 @@ import {
   ArrowRight, 
   CheckCircle2, 
   ShieldAlert, 
+  AlertTriangle,
   KeyRound, 
   Lock, 
   Mail,
@@ -19,6 +20,7 @@ import {
   evaluatePasswordStrength,
   sanitizeText 
 } from '../utils/security';
+import { playErrorBuzz, triggerHapticFeedback } from '../utils/scannerFeedback';
 import '../css/login.css';
 
 export const LoginPage = () => {
@@ -49,6 +51,38 @@ export const LoginPage = () => {
   const [rememberMe, setRememberMe] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  // Progressive Brute-Force Rate Limiting State (persisted across reloads)
+  const [throttle, setThrottle] = useState(() => {
+    try {
+      const saved = localStorage.getItem('viotrack_login_throttle');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.lockoutUntil && parsed.lockoutUntil > Date.now()) {
+          return parsed;
+        }
+        return { failedAttempts: parsed.failedAttempts || 0, lockoutUntil: 0 };
+      }
+    } catch {}
+    return { failedAttempts: 0, lockoutUntil: 0 };
+  });
+
+  const [remainingSeconds, setRemainingSeconds] = useState(0);
+
+  // Countdown timer for lockout duration
+  useEffect(() => {
+    const checkLockout = () => {
+      const now = Date.now();
+      if (throttle.lockoutUntil && throttle.lockoutUntil > now) {
+        setRemainingSeconds(Math.ceil((throttle.lockoutUntil - now) / 1000));
+      } else {
+        setRemainingSeconds(0);
+      }
+    };
+    checkLockout();
+    const interval = setInterval(checkLockout, 1000);
+    return () => clearInterval(interval);
+  }, [throttle.lockoutUntil]);
+
   // If already authenticated and not explicitly redirected due to logout, go straight to targetDestination or dashboard
   useEffect(() => {
     if (isAuthenticated && !isLoggedOut && !isExpired) {
@@ -68,6 +102,15 @@ export const LoginPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (remainingSeconds > 0) {
+      showError(`Security lockout is active. Please wait ${remainingSeconds}s before retrying.`);
+      try {
+        playErrorBuzz(0.5);
+        triggerHapticFeedback('error');
+      } catch {}
+      return;
+    }
+
     const cleanInput = sanitizeText(email).trim().toLowerCase();
     const cleanPassword = password.trim();
 
@@ -83,11 +126,45 @@ export const LoginPage = () => {
         email: cleanInput,
         password: cleanPassword
       });
+
+      // Clear failed attempts upon successful authentication
+      try {
+        localStorage.removeItem('viotrack_login_throttle');
+      } catch {}
+      setThrottle({ failedAttempts: 0, lockoutUntil: 0 });
+
       login(authenticatedUser, rememberMe);
       success(`Welcome back! Signed in as ${authenticatedUser.role === 'admin' ? 'Administrator' : 'Faculty'}.`);
       navigate(getSafeDestination(authenticatedUser.role, rawTargetDestination));
     } catch (authIssue) {
-      showError(authIssue.message || 'Authentication failed. Please verify your credentials.');
+      const nextFailed = (throttle.failedAttempts || 0) + 1;
+      let nextLockout = 0;
+      let alertMsg = authIssue.message || 'Authentication failed. Please verify your credentials.';
+
+      if (nextFailed >= 5) {
+        // 5 consecutive failures = 5-minute lockout
+        nextLockout = Date.now() + 5 * 60 * 1000;
+        alertMsg = 'Security Lockout: 5 consecutive failed attempts. System access locked for 5 minutes.';
+      } else if (nextFailed >= 3) {
+        // 3 consecutive failures = 30-second lockout
+        nextLockout = Date.now() + 30 * 1000;
+        alertMsg = 'Security Lockout: 3 failed attempts. Please wait 30 seconds before retrying.';
+      } else {
+        alertMsg += ` (${nextFailed}/3 attempts before temporary lockout)`;
+      }
+
+      const updated = { failedAttempts: nextFailed, lockoutUntil: nextLockout };
+      setThrottle(updated);
+      try {
+        localStorage.setItem('viotrack_login_throttle', JSON.stringify(updated));
+      } catch {}
+
+      try {
+        playErrorBuzz(0.5);
+        triggerHapticFeedback('error');
+      } catch {}
+
+      showError(alertMsg);
     } finally {
       setLoading(false);
     }
@@ -249,6 +326,25 @@ export const LoginPage = () => {
         {/* Clean Login Card */}
         <div className="login-card-modern">
           <form onSubmit={handleSubmit} autoComplete="off" data-lpignore="true" data-form-type="other">
+            {/* Active Security Lockout Alert Banner */}
+            {remainingSeconds > 0 && (
+              <div className="login-security-lockout-banner" role="alert">
+                <ShieldAlert size={20} color="#dc2626" style={{ flexShrink: 0 }} />
+                <div>
+                  <strong>Security Lockout Active</strong>
+                  <span>Too many failed login attempts. Retry in {remainingSeconds}s.</span>
+                </div>
+              </div>
+            )}
+
+            {/* Warning Pill for 1 or 2 Failed Attempts */}
+            {throttle.failedAttempts > 0 && remainingSeconds === 0 && (
+              <div className="login-failed-attempts-pill" role="status">
+                <AlertTriangle size={13} />
+                <span>Security Notice: {throttle.failedAttempts}/3 attempts before temporary lockout</span>
+              </div>
+            )}
+
             {/* Email Identifier Input */}
             <div className="login-input-field-wrap">
               <input
@@ -261,7 +357,7 @@ export const LoginPage = () => {
                 required
                 autoComplete="off"
                 data-lpignore="true"
-                disabled={loading}
+                disabled={loading || remainingSeconds > 0}
               />
             </div>
 
@@ -277,13 +373,14 @@ export const LoginPage = () => {
                 required
                 autoComplete="new-password"
                 data-lpignore="true"
-                disabled={loading}
+                disabled={loading || remainingSeconds > 0}
               />
               <button
                 type="button"
                 className="login-eye-toggle-btn"
                 onClick={() => setShowPassword(!showPassword)}
                 title={showPassword ? 'Hide password' : 'Show password'}
+                disabled={loading || remainingSeconds > 0}
               >
                 {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
               </button>
@@ -296,6 +393,7 @@ export const LoginPage = () => {
                   type="checkbox"
                   checked={rememberMe}
                   onChange={(e) => setRememberMe(e.target.checked)}
+                  disabled={loading || remainingSeconds > 0}
                 />
                 <span>Remember session</span>
               </label>
@@ -308,6 +406,7 @@ export const LoginPage = () => {
                 }}
                 className="login-forgot-password-link"
                 style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}
+                disabled={loading || remainingSeconds > 0}
               >
                 Forgot password?
               </button>
@@ -316,11 +415,20 @@ export const LoginPage = () => {
             {/* SIGN IN Action Button */}
             <button
               type="submit"
-              className="login-submit-btn-primary"
-              disabled={loading}
+              className={`login-submit-btn-primary ${remainingSeconds > 0 ? 'is-locked' : ''}`}
+              disabled={loading || remainingSeconds > 0}
             >
-              <span>{loading ? 'Authenticating...' : 'SIGN IN'}</span>
-              {!loading && <ArrowRight size={16} />}
+              {remainingSeconds > 0 ? (
+                <>
+                  <Lock size={15} />
+                  <span>LOCKED ({remainingSeconds}s)</span>
+                </>
+              ) : (
+                <>
+                  <span>{loading ? 'Authenticating...' : 'SIGN IN'}</span>
+                  {!loading && <ArrowRight size={16} />}
+                </>
+              )}
             </button>
 
             {isQrProtected ? (

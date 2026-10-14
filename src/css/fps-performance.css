@@ -1,0 +1,104 @@
+/* ==========================================================================
+   60 FPS / 120 FPS High-Refresh Rate & GPU Compositor Optimization Layer
+   Bypasses main-thread CPU layout recalculations and delegates to GPU.
+   Guarantees 100% fluid mouse-wheel and touch scrolling on main page.
+   ========================================================================== */
+
+/* 1. Global High-Performance Text & Scrolling Engine (Guaranteed Mouse Wheel Scrolling) */
+html {
+  -webkit-text-size-adjust: 100%;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-y: auto !important;
+  overflow-x: hidden;
+}
+
+body {
+  overflow-y: auto !important;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* Ensure .main-content bubbles mouse-wheel events cleanly to window */
+.main-content {
+  overflow: visible !important;
+  overflow-y: visible !important;
+}
+
+/* 2. CSS Content Visibility (Virtualization for Large Card Lists & Feeds)
+   Applied strictly to block cards and logs (never to internal table rows which can break mouse wheel) */
+.students-grid .student-card,
+.violations-grid .violation-card,
+.activity-logs-list .log-item,
+.violation-timeline-item {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 70px;
+}
+
+/* 3. GPU Hardware Layer Promotion
+   Forces GPU composited layers on animated surfaces (modals, toasts, reticles, sidebars) */
+.modal-dialog,
+.student-scan-modal-dialog,
+.scanner-overlay-reticle,
+.laser-scan-line,
+.sidebar,
+.notification-toast,
+.command-palette-dialog {
+  will-change: transform, opacity;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+/* 4. Smooth Momentum Touch Scrolling strictly for dedicated scrollable sub-panels */
+.modal-body,
+.modal-content-wrapper,
+.table-responsive,
+.table-container,
+.custom-table-wrapper,
+.student-scan-modal-body,
+.scanner-grid-container {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* 5. Fast Touch Response & Click Delay Elimination */
+button,
+a,
+input,
+select,
+textarea,
+[role="button"] {
+  touch-action: manipulation;
+}
+
+/* 6. Avoid Expensive Full Layout Transitions
+   Restricts transitions strictly to GPU-accelerated properties (transform, opacity, color) */
+.stat-card,
+.action-buttons button,
+.btn,
+.scan-ctrl-btn,
+.nav-item,
+.table-row-clickable {
+  transition-property: transform, opacity, background-color, border-color, box-shadow;
+  transition-duration: 0.18s;
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* 7. Hardware Accelerated Reticle & Laser Sweep Animation */
+.laser-scan-line {
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+}
+
+/* 8. Reduced Motion Safety Override */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}

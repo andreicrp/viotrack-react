@@ -26,7 +26,7 @@ export const unlockBodyScroll = () => {
   if (typeof window === 'undefined' || typeof document === 'undefined') return;
   lockCount = Math.max(0, lockCount - 1);
   if (lockCount === 0) {
-    document.body.style.overflow = previousOverflow;
-    document.body.style.paddingRight = previousPaddingRight;
+    document.body.style.overflow = '';
+    document.body.style.paddingRight = '';
   }
 };

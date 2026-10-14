@@ -14,6 +14,8 @@
 @import './css/scan-qr.css';
 @import './css/school-calendar.css';
 @import './css/dark-theme.css';
+@import './css/bottom-sheet.css';
+@import './css/fps-performance.css';
 
 /* Local Sora Font Declarations (Guaranteed 100% Offline & Mobile Support) */
 @font-face {
@@ -154,7 +156,6 @@ button[type="submit"].btn-primary:hover,
 
 html, body {
   -webkit-text-size-adjust: 100%;
-  overscroll-behavior-y: none;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }

@@ -1,44 +1,76 @@
-import React, { useState, useEffect } from 'react';
-import { Modal } from '../common/Modal';
-import { SearchableViolationSelect } from '../common/SearchableViolationSelect';
-import { SearchableStudentSelect } from '../common/SearchableStudentSelect';
+import React, { useState, useEffect, useMemo } from 'react';
 import { UnderApprovalModal } from './UnderApprovalModal';
 import { dataService } from '../../services/dataService';
 import { useNotification } from '../../context/NotificationContext';
 import { useAuth } from '../../context/AuthContext';
+import { useTheme } from '../../context/ThemeContext';
 import { claimSubmissionLock, releaseSubmissionLock } from '../../utils/dataIntegrity';
+import { lockBodyScroll, unlockBodyScroll } from '../../utils/scrollLock';
 import {
   AlertTriangle,
-  MapPin,
+  User,
+  ShieldAlert,
+  ShieldCheck,
+  FileText,
+  Search,
   Check,
-  Users,
-  Layers,
+  Info,
+  Phone,
+  MessageSquare,
+  Edit,
   ArrowRight,
   ArrowLeft,
-  Send,
-  ShieldAlert,
-  Clock,
-  Sparkles
+  X,
+  AlertOctagon,
+  Lock
 } from 'lucide-react';
+import './AddViolationModal.css';
 
-export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedStudentId = null }) => {
+export const AddViolationModal = ({
+  isOpen,
+  onClose,
+  onRecordAdded,
+  preselectedStudentId = null
+}) => {
   const { user } = useAuth();
-  const { success, error, info } = useNotification();
+  const { isDark } = useTheme();
+  const { success, error } = useNotification();
 
-  const [step, setStep] = useState(1); // 1: Student, 2: Offense & Sanction, 3: Status & SMS
+  const [step, setStep] = useState(1); // 1: Student, 2: Offense, 3: Status & SMS
   const [students, setStudents] = useState([]);
   const [violations, setViolations] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // Multi-select state
+  // Selections
   const [selectedStudentIds, setSelectedStudentIds] = useState([]);
   const [selectedViolationIds, setSelectedViolationIds] = useState([]);
 
-  // Under Approval Popup State
+  // Step 1 Filtering
+  const [studentSearch, setStudentSearch] = useState('');
+  const [gradeFilter, setGradeFilter] = useState('');
+
+  // Step 2 Filtering
+  const [violationSearch, setViolationSearch] = useState('');
+  const [violationCategory, setViolationCategory] = useState('All'); // 'All', 'Minor', 'Serious', 'Major'
+
+  // Step 3 Form Details
+  const isTeacher = user?.role === 'teacher';
+  const [formData, setFormData] = useState({
+    sanction: '',
+    remarks: '',
+    status: isTeacher ? 'Under Approval' : 'Pending', // Teachers strictly locked to 'Under Approval'
+    sendSMS: false,
+    guardianContact: '',
+    smsTemplate: 'standard',
+    customMessage: ''
+  });
+
+  // Approval Popup for Teachers
   const [isApprovalPopupOpen, setIsApprovalPopupOpen] = useState(false);
   const [approvalPopupData, setApprovalPopupData] = useState(null);
   const [pendingRecords, setPendingRecords] = useState(null);
 
+  // Geolocation
   const [location, setLocation] = useState({
     lat: null,
     lng: null,
@@ -47,75 +79,173 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
     timestamp: null
   });
 
+  // Lock scroll on mount
   useEffect(() => {
     if (isOpen) {
-      loadDropdownData();
+      lockBodyScroll();
+      loadData();
+
       const geoTimer = setTimeout(() => {
-        if ("geolocation" in navigator) {
+        if ('geolocation' in navigator) {
           navigator.geolocation.getCurrentPosition(
             (pos) => {
-              const acc = Math.round(pos.coords.accuracy);
               setLocation({
                 lat: pos.coords.latitude,
                 lng: pos.coords.longitude,
-                accuracy: acc,
+                accuracy: Math.round(pos.coords.accuracy),
                 captured: true,
                 timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
               });
             },
             () => {
-              setLocation({
-                lat: null,
-                lng: null,
-                accuracy: null,
-                captured: false,
-                timestamp: null
-              });
+              setLocation({ lat: null, lng: null, accuracy: null, captured: false, timestamp: null });
             },
             { timeout: 6000, enableHighAccuracy: false }
           );
         }
       }, 200);
-      return () => clearTimeout(geoTimer);
-    }
-  }, [isOpen, preselectedStudentId]);
 
-  const loadDropdownData = async () => {
+      const handleKeyDown = (e) => {
+        if (e.key === 'Escape') onClose();
+      };
+      window.addEventListener('keydown', handleKeyDown);
+
+      return () => {
+        unlockBodyScroll();
+        clearTimeout(geoTimer);
+        window.removeEventListener('keydown', handleKeyDown);
+      };
+    }
+  }, [isOpen]);
+
+  const loadData = async () => {
     try {
       const [sData, vData] = await Promise.all([
         dataService.getStudents(),
         dataService.getViolations()
       ]);
-      setStudents(sData);
-      setViolations(vData);
+      setStudents(sData || []);
+      setViolations(vData || []);
 
       if (preselectedStudentId) {
-        setSelectedStudentIds([Number(preselectedStudentId)]);
+        const idNum = Number(preselectedStudentId);
+        setSelectedStudentIds([idNum]);
+        const found = (sData || []).find((s) => Number(s.id) === idNum);
+        if (found) {
+          setFormData((prev) => ({
+            ...prev,
+            guardianContact: found.parent_contact || found.contact || ''
+          }));
+        }
       } else {
         setSelectedStudentIds([]);
       }
+
       setStep(1);
       setSelectedViolationIds([]);
+      setStudentSearch('');
+      setGradeFilter('');
+      setViolationSearch('');
+      setViolationCategory('All');
+      setFormData((prev) => ({
+        ...prev,
+        status: isTeacher ? 'Under Approval' : 'Pending',
+        sendSMS: false
+      }));
     } catch (err) {
-      console.error('Error loading dropdown data:', err);
+      console.error('Error loading data in AddViolationModal:', err);
     }
   };
 
-  const handleViolationsChange = (newIds, selectedViolationObjects) => {
-    setSelectedViolationIds(newIds);
+  // Filtered Students (Step 1)
+  const filteredStudents = useMemo(() => {
+    return students.filter((s) => {
+      if (gradeFilter) {
+        const grade = String(s.grade || '').match(/\d+/)?.[0];
+        if (grade !== gradeFilter) return false;
+      }
+      // Search text
+      if (studentSearch.trim()) {
+        const q = studentSearch.toLowerCase();
+        const fullName = `${s.fname || ''} ${s.mname || ''} ${s.lname || ''}`.toLowerCase();
+        const idVal = String(s.student_id || s.id || '').toLowerCase();
+        const secVal = `${s.grade || ''} ${s.section || ''}`.toLowerCase();
+        if (!fullName.includes(q) && !idVal.includes(q) && !secVal.includes(q)) {
+          return false;
+        }
+      }
+      return true;
+    });
+  }, [students, gradeFilter, studentSearch]);
 
-    // Auto-suggest combined default sanctions
-    const sanctionsList = (selectedViolationObjects || [])
-      .map(v => v.default_sanction || v.sanction)
-      .filter(Boolean);
+  // Filtered Violations (Step 2)
+  const filteredViolations = useMemo(() => {
+    return violations.filter((v) => {
+      if (violationCategory !== 'All') {
+        const cat = (v.type || v.category || 'Minor').toLowerCase();
+        if (cat !== violationCategory.toLowerCase()) return false;
+      }
+      if (violationSearch.trim()) {
+        const q = violationSearch.toLowerCase();
+        const titleMatch = (v.title || '').toLowerCase().includes(q);
+        const descMatch = (v.description || '').toLowerCase().includes(q);
+        const typeMatch = (v.type || '').toLowerCase().includes(q);
+        if (!titleMatch && !descMatch && !typeMatch) return false;
+      }
+      return true;
+    });
+  }, [violations, violationCategory, violationSearch]);
 
-    if (sanctionsList.length > 0) {
-      const uniqueSanctions = Array.from(new Set(sanctionsList));
-      setFormData(prev => ({
-        ...prev,
-        sanction: uniqueSanctions.join(', ')
-      }));
+  // Use consistent icons and colors to make offense severity easy to scan.
+  const getOffenseVisual = (type = '') => {
+    const severity = type.toLowerCase();
+    if (severity === 'major') {
+      return { Icon: AlertOctagon, diskClass: 'disk-rose' };
     }
+    if (severity === 'serious') {
+      return { Icon: ShieldAlert, diskClass: 'disk-amber' };
+    }
+    return { Icon: ShieldCheck, diskClass: 'disk-green' };
+  };
+
+  // Toggle student selection
+  const toggleSelectStudent = (id) => {
+    const idNum = Number(id);
+    setSelectedStudentIds((prev) => {
+      const exists = prev.includes(idNum);
+      const next = exists ? prev.filter((item) => item !== idNum) : [...prev, idNum];
+
+      if (next.length === 1) {
+        const found = students.find((s) => Number(s.id) === next[0]);
+        if (found) {
+          setFormData((f) => ({
+            ...f,
+            guardianContact: found.parent_contact || found.contact || ''
+          }));
+        }
+      }
+      return next;
+    });
+  };
+
+  // Toggle violation selection
+  const toggleSelectViolation = (id) => {
+    const idNum = Number(id);
+    setSelectedViolationIds((prev) => {
+      const exists = prev.includes(idNum);
+      const next = exists ? prev.filter((item) => item !== idNum) : [...prev, idNum];
+
+      const chosen = violations.filter((v) => next.includes(Number(v.id)));
+      const sanctionsList = chosen
+        .map((v) => v.default_sanction || v.sanction)
+        .filter(Boolean);
+
+      if (sanctionsList.length > 0) {
+        const unique = Array.from(new Set(sanctionsList));
+        setFormData((f) => ({ ...f, sanction: unique.join(', ') }));
+      }
+      return next;
+    });
   };
 
   const handleNextToStep2 = () => {
@@ -134,25 +264,10 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
     setStep(3);
   };
 
-  const isTeacher = user?.role === 'teacher';
-
-  const [formData, setFormData] = useState({
-    sanction: '',
-    remarks: '',
-    notify_parent_sms: true,
-    status: isTeacher ? 'Under Approval' : 'Pending'
-  });
-
+  // Submit Handler
   const handleSubmit = async (e) => {
     if (e) e.preventDefault();
     if (loading) return;
-
-    // Guard: Never auto-record if not on the final review step
-    if (step !== 3) {
-      if (step === 1) handleNextToStep2();
-      else if (step === 2) handleNextToStep3();
-      return;
-    }
 
     if (selectedStudentIds.length === 0) {
       error('Please select at least one student.');
@@ -172,14 +287,13 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
     }
 
     const isApprovalMode = isTeacher || formData.status === 'Under Approval';
-
     setLoading(true);
+
     try {
       const createdRecords = [];
-      const chosenStudents = students.filter(s => selectedStudentIds.includes(Number(s.id)));
-      const chosenViolations = violations.filter(v => selectedViolationIds.includes(Number(v.id)));
+      const chosenStudents = students.filter((s) => selectedStudentIds.includes(Number(s.id)));
+      const chosenViolations = violations.filter((v) => selectedViolationIds.includes(Number(v.id)));
 
-      // Create a record for every student and violation combination
       for (const student of chosenStudents) {
         for (const violation of chosenViolations) {
           const newRecord = await dataService.addRecord({
@@ -187,12 +301,12 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
             student_id_value: student.student_id,
             violation_id: Number(violation.id),
             reported_by_name: user?.name || (isTeacher ? 'Faculty Teacher' : 'Authorized Administrator'),
-            reported_by_type: isTeacher ? 'teacher' : (isApprovalMode ? 'teacher' : (user?.role || 'admin')),
+            reported_by_type: isTeacher ? 'teacher' : isApprovalMode ? 'teacher' : (user?.role || 'admin'),
             sanction: formData.sanction || violation.default_sanction || 'Under Review',
             remarks: formData.remarks || 'Disciplinary incident report logged.',
             status: isApprovalMode ? 'Under Approval' : formData.status,
             approval_status: isApprovalMode ? 'Under Approval' : 'Approved',
-            sms_notified: formData.notify_parent_sms,
+            sms_notified: formData.sendSMS,
             lat: location.lat,
             lng: location.lng,
             accuracy: location.accuracy
@@ -200,53 +314,42 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
           createdRecords.push(newRecord);
         }
 
-        // Send consolidated SMS alert to guardian if enabled and admin approved
-        if (!isApprovalMode && formData.notify_parent_sms && student.parent_contact) {
-          const violationTitles = chosenViolations.map(v => v.title).join(', ');
+        const targetPhone = formData.guardianContact || student.parent_contact;
+        if (!isApprovalMode && formData.sendSMS && targetPhone) {
+          const violationTitles = chosenViolations.map((v) => v.title).join(', ');
+          const messageText = formData.customMessage
+            ? `${formData.customMessage} - [${violationTitles}]`
+            : violationTitles;
+
           await dataService.sendSMS(
-            student.parent_contact,
+            targetPhone,
             student.parent_name || 'Guardian',
             `${student.fname} ${student.lname}`,
-            violationTitles
+            messageText
           );
         }
       }
 
-      const totalCount = createdRecords.length;
-      const studentCount = chosenStudents.length;
-      const violationCount = chosenViolations.length;
-
       if (isApprovalMode) {
-        // Teacher / Approval Mode: Show Under Approval confirmation modal!
         setApprovalPopupData({
-          studentNames: chosenStudents.map(s => `${s.fname} ${s.lname}`),
-          violationTitles: chosenViolations.map(v => `[${v.type}] ${v.title}`),
+          studentNames: chosenStudents.map((s) => `${s.fname} ${s.lname}`),
+          violationTitles: chosenViolations.map((v) => `[${v.type || 'Minor'}] ${v.title}`),
           sanction: formData.sanction || 'Under Administrative Review',
           reportedBy: user?.name || (isTeacher ? 'Faculty Teacher' : 'Reporting Faculty')
         });
         setPendingRecords(createdRecords);
         setIsApprovalPopupOpen(true);
       } else {
-        // Admin Direct Mode: Direct success
-        if (studentCount === 1 && violationCount === 1) {
-          success(`Incident record for ${chosenStudents[0]?.fname || 'student'} added successfully!`);
+        if (chosenStudents.length === 1 && chosenViolations.length === 1) {
+          success(`Incident report for ${chosenStudents[0]?.fname || 'student'} added successfully!`);
         } else {
-          success(`Successfully recorded ${violationCount} violation(s) for ${studentCount} student(s) (${totalCount} total entries)!`);
+          success(
+            `Successfully recorded ${chosenViolations.length} offense(s) for ${chosenStudents.length} student(s) (${createdRecords.length} records)!`
+          );
         }
 
         onRecordAdded?.(createdRecords[0] || createdRecords);
         onClose();
-
-        // Reset Form State
-        setSelectedStudentIds([]);
-        setSelectedViolationIds([]);
-        setStep(1);
-        setFormData({
-          sanction: '',
-          remarks: '',
-          notify_parent_sms: true,
-          status: 'Pending'
-        });
       }
     } catch (err) {
       error('Failed to save violation records: ' + err.message);
@@ -263,528 +366,726 @@ export const AddViolationModal = ({ isOpen, onClose, onRecordAdded, preselectedS
       setPendingRecords(null);
     }
     onClose();
-
-    // Reset Form State
-    setSelectedStudentIds([]);
-    setSelectedViolationIds([]);
-    setStep(1);
-    setFormData({
-      sanction: '',
-      remarks: '',
-      notify_parent_sms: true,
-      status: 'Pending'
-    });
   };
 
-  const selectedStudents = students.filter(s => selectedStudentIds.includes(Number(s.id)));
-  const selectedViolations = violations.filter(v => selectedViolationIds.includes(Number(v.id)));
+  if (!isOpen) return null;
+
+  const chosenStudents = students.filter((s) => selectedStudentIds.includes(Number(s.id)));
+  const chosenViolations = violations.filter((v) => selectedViolationIds.includes(Number(v.id)));
 
   return (
     <>
-    <Modal
-      isOpen={isOpen}
-      onClose={onClose}
-      title="Log Student Violation"
-      icon={AlertTriangle}
-      maxWidth="680px"
-      dialogClassName="violation-entry-modal"
-    >
-      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, height: '100%', overflow: 'hidden' }}>
-        
-        {/* Step Progress Header */}
-        <div className="modal-stepper-header" style={{ padding: '10px 16px', background: 'var(--bg-surface-elevated, #f8fafc)', borderBottom: '1px solid var(--border-subtle, #e2e8f0)', flexShrink: 0 }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '6px' }}>
-            
-            {/* Step 1: Student */}
+      <div className="lvm-modal-backdrop" onClick={onClose} role="presentation">
+        <div
+          className="lvm-window"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Log Student Violation"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* Top Bar Header */}
+          <div className="lvm-topbar">
+            <div className="lvm-topbar-left">
+              <div className="lvm-topbar-icon">
+                <AlertTriangle size={24} strokeWidth={2.2} />
+              </div>
+              <h2 className="lvm-topbar-title">Log Student Violation</h2>
+            </div>
             <button
               type="button"
-              onClick={() => setStep(1)}
-              className={`violation-step-pill ${step === 1 ? 'active' : step > 1 ? 'completed' : ''}`}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '6px',
-                padding: '8px 6px',
-                borderRadius: '8px',
-                border: step === 1 ? '1.5px solid #2563eb' : step > 1 ? '1px solid #10b981' : '1px solid var(--border-subtle, #e2e8f0)',
-                background: step === 1 ? '#2563eb' : step > 1 ? 'rgba(16, 185, 129, 0.15)' : 'var(--bg-surface, #ffffff)',
-                color: step === 1 ? '#ffffff' : step > 1 ? '#34d399' : 'var(--text-muted, #475569)',
-                cursor: 'pointer',
-                transition: 'all 0.15s ease',
-                fontFamily: 'inherit'
-              }}
+              className="lvm-topbar-close"
+              onClick={onClose}
+              title="Close modal"
+              aria-label="Close modal"
             >
-              <div
-                className="violation-step-badge"
-                style={{
-                  width: 20,
-                  height: 20,
-                  borderRadius: '50%',
-                  background: step === 1 ? '#ffffff' : step > 1 ? '#10b981' : 'var(--bg-surface-hover, #f1f5f9)',
-                  color: step === 1 ? '#2563eb' : step > 1 ? '#ffffff' : 'var(--text-muted, #64748b)',
-                  fontSize: '11px',
-                  fontWeight: 800,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  flexShrink: 0
-                }}
-              >
+              <X size={20} />
+            </button>
+          </div>
+
+          {/* Mobile Horizontal Stepper Strip */}
+          <div className="lvm-mobile-stepper-strip">
+            <button
+              type="button"
+              className={`lvm-mobile-step-pill ${step === 1 ? 'active' : ''} ${step > 1 ? 'completed' : ''}`}
+              onClick={() => setStep(1)}
+            >
+              <div className="lvm-mobile-step-bubble">
                 {step > 1 ? <Check size={12} strokeWidth={3} /> : '1'}
               </div>
-              <span style={{ fontSize: '12px', fontWeight: 700, whiteSpace: 'nowrap' }}>
-                Student
-              </span>
+              <span>Student</span>
             </button>
 
-            {/* Step 2: Offense */}
             <button
               type="button"
-              onClick={() => { if (selectedStudentIds.length > 0) setStep(2); }}
-              disabled={selectedStudentIds.length === 0}
-              className={`violation-step-pill ${step === 2 ? 'active' : step > 2 ? 'completed' : ''}`}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '6px',
-                padding: '8px 6px',
-                borderRadius: '8px',
-                border: step === 2 ? '1.5px solid #2563eb' : step > 2 ? '1px solid #10b981' : '1px solid var(--border-subtle, #e2e8f0)',
-                background: step === 2 ? '#2563eb' : step > 2 ? 'rgba(16, 185, 129, 0.15)' : 'var(--bg-surface, #ffffff)',
-                color: step === 2 ? '#ffffff' : step > 2 ? '#34d399' : 'var(--text-muted, #475569)',
-                cursor: selectedStudentIds.length > 0 ? 'pointer' : 'not-allowed',
-                transition: 'all 0.15s ease',
-                fontFamily: 'inherit'
+              className={`lvm-mobile-step-pill ${step === 2 ? 'active' : ''} ${step > 2 ? 'completed' : ''}`}
+              onClick={() => {
+                if (selectedStudentIds.length > 0) setStep(2);
               }}
+              disabled={selectedStudentIds.length === 0}
             >
-              <div
-                className="violation-step-badge"
-                style={{
-                  width: 20,
-                  height: 20,
-                  borderRadius: '50%',
-                  background: step === 2 ? '#ffffff' : step > 2 ? '#10b981' : 'var(--bg-surface-hover, #f1f5f9)',
-                  color: step === 2 ? '#2563eb' : step > 2 ? '#ffffff' : 'var(--text-muted, #64748b)',
-                  fontSize: '11px',
-                  fontWeight: 800,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  flexShrink: 0
-                }}
-              >
+              <div className="lvm-mobile-step-bubble">
                 {step > 2 ? <Check size={12} strokeWidth={3} /> : '2'}
               </div>
-              <span style={{ fontSize: '12px', fontWeight: 700, whiteSpace: 'nowrap' }}>
-                Offense
-              </span>
+              <span>Offense</span>
             </button>
 
-            {/* Step 3: Status & SMS */}
             <button
               type="button"
-              onClick={() => { if (selectedStudentIds.length > 0 && selectedViolationIds.length > 0) setStep(3); }}
-              disabled={selectedStudentIds.length === 0 || selectedViolationIds.length === 0}
-              className={`violation-step-pill ${step === 3 ? 'active' : ''}`}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '6px',
-                padding: '8px 6px',
-                borderRadius: '8px',
-                border: step === 3 ? '1.5px solid #2563eb' : '1px solid var(--border-subtle, #e2e8f0)',
-                background: step === 3 ? '#2563eb' : 'var(--bg-surface, #ffffff)',
-                color: step === 3 ? '#ffffff' : 'var(--text-muted, #475569)',
-                cursor: (selectedStudentIds.length > 0 && selectedViolationIds.length > 0) ? 'pointer' : 'not-allowed',
-                transition: 'all 0.15s ease',
-                fontFamily: 'inherit'
+              className={`lvm-mobile-step-pill ${step === 3 ? 'active' : ''}`}
+              onClick={() => {
+                if (selectedStudentIds.length > 0 && selectedViolationIds.length > 0) setStep(3);
               }}
+              disabled={selectedStudentIds.length === 0 || selectedViolationIds.length === 0}
             >
-              <div
-                className="violation-step-badge"
-                style={{
-                  width: 20,
-                  height: 20,
-                  borderRadius: '50%',
-                  background: step === 3 ? '#ffffff' : 'var(--bg-surface-hover, #f1f5f9)',
-                  color: step === 3 ? '#2563eb' : 'var(--text-muted, #64748b)',
-                  fontSize: '11px',
-                  fontWeight: 800,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  flexShrink: 0
-                }}
-              >
-                3
-              </div>
-              <span style={{ fontSize: '12px', fontWeight: 700, whiteSpace: 'nowrap' }}>
-                Status &amp; SMS
-              </span>
+              <div className="lvm-mobile-step-bubble">3</div>
+              <span>Status &amp; SMS</span>
             </button>
+          </div>
 
+          {/* Main Container: Sidebar + Content */}
+          <div className="lvm-body-container">
+            {/* Desktop Left Sidebar */}
+            <div className="lvm-sidebar">
+              <div className="lvm-stepper-vertical">
+                {/* Step 1 */}
+                <button
+                  type="button"
+                  className={`lvm-step-btn ${step === 1 ? 'active' : ''} ${step > 1 ? 'completed' : ''}`}
+                  onClick={() => setStep(1)}
+                >
+                  <div className={`lvm-step-bubble ${step === 1 ? 'active' : ''} ${step > 1 ? 'completed' : ''}`}>
+                    {step > 1 ? <Check size={16} strokeWidth={3} /> : '1'}
+                  </div>
+                  <span className="lvm-step-name">Student</span>
+                </button>
+
+                {/* Step 2 */}
+                <button
+                  type="button"
+                  className={`lvm-step-btn ${step === 2 ? 'active' : ''} ${step > 2 ? 'completed' : ''}`}
+                  onClick={() => {
+                    if (selectedStudentIds.length > 0) setStep(2);
+                  }}
+                  disabled={selectedStudentIds.length === 0}
+                >
+                  <div className={`lvm-step-bubble ${step === 2 ? 'active' : ''} ${step > 2 ? 'completed' : ''}`}>
+                    {step > 2 ? <Check size={16} strokeWidth={3} /> : '2'}
+                  </div>
+                  <span className="lvm-step-name">Offense</span>
+                </button>
+
+                {/* Step 3 */}
+                <button
+                  type="button"
+                  className={`lvm-step-btn ${step === 3 ? 'active' : ''}`}
+                  onClick={() => {
+                    if (selectedStudentIds.length > 0 && selectedViolationIds.length > 0) setStep(3);
+                  }}
+                  disabled={selectedStudentIds.length === 0 || selectedViolationIds.length === 0}
+                >
+                  <div className={`lvm-step-bubble ${step === 3 ? 'active' : ''}`}>
+                    3
+                  </div>
+                  <span className="lvm-step-name">Status &amp; SMS</span>
+                </button>
+              </div>
+
+              {/* Sidebar Motto Badge */}
+              <div className="lvm-motto-wrap">
+                <img
+                  className="lvm-motto-logo"
+                  src={isDark ? '/images/violation-motto-dark.png' : '/images/violation-motto-light.png'}
+                  alt="Discipline Builds Character — Report, Guide, Support"
+                />
+              </div>
+            </div>
+
+            {/* Right Main Content */}
+            <div className="lvm-main-panel">
+              <div className="lvm-content-scroll">
+
+                {/* ================= STEP 1: STUDENT SELECTION (IMAGE 1 SPEC) ================= */}
+                {step === 1 && (
+                  <div className="lvm-card">
+                    {/* Header */}
+                    <div className="lvm-section-header">
+                      <div className="lvm-section-header-left">
+                        <div className="lvm-section-icon-badge">
+                          <User size={22} />
+                        </div>
+                        <div>
+                          <h3 className="lvm-section-title">
+                            Student Information <span className="req">*</span>
+                          </h3>
+                          <p className="lvm-section-subtitle">
+                            Search and select the student you want to log a violation for.
+                          </p>
+                        </div>
+                      </div>
+                      {selectedStudentIds.length > 0 && (
+                        <div className="lvm-counter-text">
+                          {selectedStudentIds.length} {selectedStudentIds.length === 1 ? 'student' : 'students'} selected
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Search Bar */}
+                    <div className="lvm-search-wrap">
+                      <Search className="lvm-search-icon" size={18} />
+                      <input
+                        type="text"
+                        className="lvm-search-input"
+                        placeholder="Search student by name, ID, or section..."
+                        value={studentSearch}
+                        onChange={(e) => setStudentSearch(e.target.value)}
+                      />
+                    </div>
+
+                    {/* Grade Filters */}
+                    <div className="lvm-filter-bar">
+                      <div className="lvm-filter-pills">
+                        {Array.from({ length: 6 }, (_, index) => String(index + 7)).map((grade) => (
+                          <button
+                            key={grade}
+                            type="button"
+                            className={`lvm-pill-btn ${gradeFilter === grade ? 'active' : ''}`}
+                            aria-pressed={gradeFilter === grade}
+                            onClick={() => setGradeFilter((current) => current === grade ? '' : grade)}
+                          >
+                            Grade {grade}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Students List */}
+                    <div className="lvm-student-items">
+                      {filteredStudents.length === 0 ? (
+                        <div style={{ textAlign: 'center', padding: '30px 0', color: '#94a3b8', fontSize: '13px' }}>
+                          No students found matching your search.
+                        </div>
+                      ) : (
+                        filteredStudents.map((s) => {
+                          const isSelected = selectedStudentIds.includes(Number(s.id));
+                          const genderClass = (s.gender || 'male').toLowerCase() === 'female' ? 'female' : 'male';
+                          const gradeSection = s.grade && s.section ? `${s.grade} - Section ${s.section}` : s.section || s.grade || 'General';
+
+                          return (
+                            <div
+                              key={s.id}
+                              className={`lvm-student-row ${isSelected ? 'selected' : ''}`}
+                              role="button"
+                              tabIndex={0}
+                              aria-pressed={isSelected}
+                              onClick={() => toggleSelectStudent(s.id)}
+                              onKeyDown={(event) => {
+                                if (event.key === 'Enter' || event.key === ' ') {
+                                  event.preventDefault();
+                                  toggleSelectStudent(s.id);
+                                }
+                              }}
+                            >
+                              {/* Left Avatar + Meta */}
+                              <div className="lvm-student-main">
+                                <div className="lvm-student-photo">
+                                  {s.image ? (
+                                    <img src={s.image} alt={s.fname} />
+                                  ) : (
+                                    <User size={22} />
+                                  )}
+                                </div>
+                                <div className="lvm-student-text">
+                                  <div className="lvm-student-name">
+                                    {s.fname} {s.mname ? `${s.mname} ` : ''}{s.lname}
+                                  </div>
+                                  <div className="lvm-student-subrow">
+                                    <span className="lvm-student-id-txt">{s.student_id || `ID #${s.id}`}</span>
+                                    <span className={`lvm-student-gender-badge ${genderClass}`}>
+                                      {s.gender || 'Male'}
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Middle Grade / Department */}
+                              <div className="lvm-student-grade-info">
+                                <div className="lvm-student-grade-line">{gradeSection}</div>
+                                <div className="lvm-student-dept-line">
+                                  {s.track || s.strand || 'Senior High School'}
+                                </div>
+                              </div>
+
+                            </div>
+                          );
+                        })
+                      )}
+                    </div>
+
+                    {/* Can't find student notice */}
+                    <div className="lvm-info-callout">
+                      <Info className="lvm-info-callout-icon" size={18} />
+                      <div>
+                        <div className="lvm-info-callout-heading">Can't find the student?</div>
+                        <div className="lvm-info-callout-body">
+                          Make sure the name, ID, or section is correct. You can also try a different filter.
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* ================= STEP 2: VIOLATION OFFENSE (IMAGE 2 SPEC) ================= */}
+                {step === 2 && (
+                  <div className="lvm-card">
+                    {/* Header */}
+                    <div className="lvm-section-header">
+                      <div className="lvm-section-header-left">
+                        <div className="lvm-section-icon-badge">
+                          <ShieldAlert size={22} />
+                        </div>
+                        <div>
+                          <h3 className="lvm-section-title">
+                            Violation Offense Category <span className="req">*</span>
+                          </h3>
+                        </div>
+                      </div>
+                      <div className="lvm-counter-text">
+                        {selectedViolationIds.length} Selected
+                      </div>
+                    </div>
+
+                    {/* Search Bar */}
+                    <div className="lvm-search-wrap">
+                      <Search className="lvm-search-icon" size={18} />
+                      <input
+                        type="text"
+                        className="lvm-search-input"
+                        placeholder="Search infractions by keyword..."
+                        value={violationSearch}
+                        onChange={(e) => setViolationSearch(e.target.value)}
+                      />
+                    </div>
+
+                    {/* Filter Pills */}
+                    <div className="lvm-filter-bar">
+                      <div className="lvm-filter-pills">
+                        <button
+                          type="button"
+                          className={`lvm-pill-btn ${violationCategory === 'All' ? 'active' : ''}`}
+                          onClick={() => setViolationCategory('All')}
+                        >
+                          All
+                        </button>
+                        <button
+                          type="button"
+                          className={`lvm-pill-btn minor ${violationCategory === 'Minor' ? 'active' : ''}`}
+                          aria-pressed={violationCategory === 'Minor'}
+                          onClick={() => setViolationCategory('Minor')}
+                        >
+                          <Info size={14} aria-hidden="true" />
+                          Minor
+                        </button>
+                        <button
+                          type="button"
+                          className={`lvm-pill-btn serious ${violationCategory === 'Serious' ? 'active' : ''}`}
+                          aria-pressed={violationCategory === 'Serious'}
+                          onClick={() => setViolationCategory('Serious')}
+                        >
+                          <AlertTriangle size={14} aria-hidden="true" />
+                          Serious
+                        </button>
+                        <button
+                          type="button"
+                          className={`lvm-pill-btn major ${violationCategory === 'Major' ? 'active' : ''}`}
+                          aria-pressed={violationCategory === 'Major'}
+                          onClick={() => setViolationCategory('Major')}
+                        >
+                          <AlertOctagon size={14} aria-hidden="true" />
+                          Major
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* 2-Column Offense Grid with Circular Icons */}
+                    <div className="lvm-offense-grid">
+                      {filteredViolations.length === 0 ? (
+                        <div style={{ textAlign: 'center', padding: '30px 0', color: '#94a3b8', fontSize: '13px', gridColumn: 'span 2' }}>
+                          No infractions found matching your search.
+                        </div>
+                      ) : (
+                        filteredViolations.map((v) => {
+                          const isSelected = selectedViolationIds.includes(Number(v.id));
+                          const catType = (v.type || v.category || 'Minor').toLowerCase();
+                          const { Icon: OffenseIcon, diskClass } = getOffenseVisual(v.type || v.category);
+
+                          return (
+                            <div
+                              key={v.id}
+                              className={`lvm-offense-tile ${isSelected ? 'selected' : ''}`}
+                              onClick={() => toggleSelectViolation(v.id)}
+                            >
+                              <div className="lvm-offense-tile-left">
+                                <div className={`lvm-icon-disk ${diskClass}`}>
+                                  <OffenseIcon size={20} strokeWidth={2.2} />
+                                </div>
+                                <div className="lvm-offense-tile-meta">
+                                  <div className="lvm-offense-tile-title" title={v.title}>
+                                    {v.title}
+                                  </div>
+                                  <div className="lvm-offense-tile-sanction">
+                                    Sanction: {v.default_sanction || v.sanction || '1hr Offense | Written Reprimand'}
+                                  </div>
+                                </div>
+                              </div>
+
+                              <span className={`lvm-category-tag ${catType}`}>
+                                {v.type || 'Minor'}
+                              </span>
+                            </div>
+                          );
+                        })
+                      )}
+                    </div>
+
+                    {/* Prescribed Sanction Field */}
+                    <div className="lvm-form-block">
+                      <label className="lvm-form-label">
+                        Prescribed Sanction / Corrective Measure
+                      </label>
+                      <input
+                        type="text"
+                        className="lvm-text-field"
+                        placeholder="e.g., 1hr Offense: Written Reprimand, Community Service..."
+                        value={formData.sanction}
+                        onChange={(e) => setFormData({ ...formData, sanction: e.target.value })}
+                      />
+                    </div>
+
+                    {/* Incident Details & Remarks */}
+                    <div className="lvm-form-block">
+                      <label className="lvm-form-label">
+                        Incident Details &amp; Faculty Remarks
+                        <span className="lvm-form-label-opt">(Optional)</span>
+                      </label>
+                      <textarea
+                        className="lvm-text-area"
+                        placeholder="Specify location, witnesses, circumstances, or confiscated items..."
+                        value={formData.remarks}
+                        onChange={(e) => setFormData({ ...formData, remarks: e.target.value })}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {/* ================= STEP 3: STATUS, SMS & SUMMARY (IMAGE 3 SPEC) ================= */}
+                {step === 3 && (
+                  <div className="lvm-card">
+                    {/* Header */}
+                    <div className="lvm-section-header">
+                      <div className="lvm-section-header-left">
+                        <div className="lvm-section-icon-badge">
+                          <FileText size={22} />
+                        </div>
+                        <div>
+                          <h3 className="lvm-section-title">
+                            Violation Status &amp; SMS <span className="req">*</span>
+                          </h3>
+                          <p className="lvm-section-subtitle">
+                            Set the current status of the violation and notify the guardian (optional).
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Teacher Role Security Warning Banner */}
+                    {isTeacher && (
+                      <div className="lvm-teacher-warning-box">
+                        <div className="lvm-teacher-warning-icon">
+                          <AlertTriangle size={20} strokeWidth={2.4} />
+                        </div>
+                        <div className="lvm-teacher-warning-content">
+                          <div className="lvm-teacher-warning-title">
+                            Faculty Submission Policy: Under Administrative Approval Only
+                          </div>
+                          <div className="lvm-teacher-warning-desc">
+                            Teachers are authorized to file violation reports exclusively under <strong>For Approval</strong> status. Direct case resolution and parent SMS dispatch are restricted to Prefect of Discipline and Authorized Administrators once the incident is verified.
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Status Options Grid */}
+                    <div className="lvm-form-block">
+                      <label className="lvm-form-label">
+                        Violation Status <span style={{ color: '#ef4444' }}>*</span>
+                        {isTeacher && (
+                          <span style={{ fontSize: '11px', fontWeight: 600, color: '#f59e0b', marginLeft: '6px', display: 'inline-flex', alignItems: 'center', gap: '3px' }}>
+                            <Lock size={12} /> Locked for Faculty
+                          </span>
+                        )}
+                      </label>
+                      <div className={`lvm-status-quad ${isTeacher ? 'teacher-mode' : ''}`}>
+                        {[
+                          { id: 'Under Approval', label: 'For Approval', sub: 'Awaiting admin review', teacherAllowed: true },
+                          { id: 'Pending', label: 'Pending', sub: 'Under review', teacherAllowed: false },
+                          { id: 'Resolved', label: 'Resolved', sub: 'Already dealt with', teacherAllowed: false },
+                          { id: 'Escalated', label: 'Escalated', sub: 'Referred to admin', teacherAllowed: false },
+                          { id: 'Dismissed', label: 'Dismissed', sub: 'No violation found', teacherAllowed: false }
+                        ].map((st) => {
+                          const isLockedForTeacher = isTeacher && !st.teacherAllowed;
+                          const isActive = formData.status === st.id;
+                          return (
+                            <div
+                              key={st.id}
+                              className={`lvm-status-card-opt ${isActive ? 'active' : ''} ${isLockedForTeacher ? 'disabled-status' : ''}`}
+                              onClick={() => {
+                                if (isLockedForTeacher) return;
+                                setFormData({ ...formData, status: st.id });
+                              }}
+                              style={isLockedForTeacher ? { opacity: 0.45, cursor: 'not-allowed', filter: 'grayscale(0.6)' } : {}}
+                              title={isLockedForTeacher ? 'Faculty accounts can only submit reports Under Approval' : ''}
+                            >
+                              <div className="lvm-radio-ring">
+                                <div className="lvm-radio-dot" />
+                              </div>
+                              <div className="lvm-status-meta">
+                                <span className="lvm-status-h" style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                  {st.label}
+                                  {isLockedForTeacher && <Lock size={11} color="#94a3b8" />}
+                                </span>
+                                <span className="lvm-status-subh">{st.sub}</span>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* SMS Box */}
+                    <div className={`lvm-sms-box ${isTeacher ? 'disabled-for-teacher' : ''}`}>
+                      <div className="lvm-sms-topline">
+                        <div className="lvm-sms-topline-left">
+                          <div className="lvm-sms-icon-disk" style={isTeacher ? { opacity: 0.6 } : {}}>
+                            <MessageSquare size={18} />
+                          </div>
+                          <div>
+                            <div className="lvm-sms-h">
+                              Send SMS to Guardian <span>(Optional)</span>
+                              {isTeacher && (
+                                <span style={{ color: '#ef4444', fontWeight: 600, fontSize: '11px', marginLeft: '6px' }}>
+                                  (Disabled for Teachers)
+                                </span>
+                              )}
+                            </div>
+                            <div className="lvm-sms-p">
+                              {isTeacher
+                                ? 'SMS dispatch is restricted to Admin approval to ensure institutional compliance.'
+                                : "Notify the student's guardian about the violation."}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Toggle switch */}
+                        <div
+                          className="lvm-toggle-row"
+                          onClick={() => {
+                            if (isTeacher) return;
+                            setFormData({ ...formData, sendSMS: !formData.sendSMS });
+                          }}
+                          style={isTeacher ? { opacity: 0.5, cursor: 'not-allowed' } : {}}
+                          title={isTeacher ? 'SMS dispatch requires administrative clearance' : ''}
+                        >
+                          <div className={`lvm-switch-rail ${(!isTeacher && formData.sendSMS) ? 'active' : ''}`} style={isTeacher ? { background: '#cbd5e1' } : {}}>
+                            <div className="lvm-switch-circle" />
+                          </div>
+                          <span className="lvm-switch-txt" style={isTeacher ? { color: '#94a3b8' } : {}}>Send SMS</span>
+                        </div>
+                      </div>
+
+                      {/* 3 Inputs Grid (Disabled for teacher) */}
+                      <div className="lvm-sms-grid-3" style={isTeacher ? { opacity: 0.45, pointerEvents: 'none' } : {}}>
+                        <div className="lvm-form-block">
+                          <label className="lvm-form-label">Guardian Contact Number</label>
+                          <div className="lvm-input-icon-wrap">
+                            <Phone className="lvm-input-icon-left" size={16} />
+                            <input
+                              type="text"
+                              className="lvm-iconic-input"
+                              placeholder="e.g. 09xx xxx xxxx"
+                              disabled={isTeacher}
+                              value={formData.guardianContact}
+                              onChange={(e) => setFormData({ ...formData, guardianContact: e.target.value })}
+                            />
+                          </div>
+                        </div>
+
+                        <div className="lvm-form-block">
+                          <label className="lvm-form-label">SMS Template</label>
+                          <div className="lvm-input-icon-wrap">
+                            <FileText className="lvm-input-icon-left" size={16} />
+                            <select
+                              className="lvm-iconic-select"
+                              disabled={isTeacher}
+                              value={formData.smsTemplate}
+                              onChange={(e) => setFormData({ ...formData, smsTemplate: e.target.value })}
+                            >
+                              <option value="standard">Select template</option>
+                              <option value="notice">Standard Disciplinary Notice</option>
+                              <option value="urgent">Urgent Guardian Conference</option>
+                              <option value="attendance">Tardiness / Truancy Notice</option>
+                            </select>
+                          </div>
+                        </div>
+
+                        <div className="lvm-form-block">
+                          <label className="lvm-form-label">
+                            Custom Message <span className="lvm-form-label-opt">(Optional)</span>
+                          </label>
+                          <div className="lvm-sms-custom-block">
+                            <MessageSquare className="lvm-sms-custom-icon" size={15} />
+                            <textarea
+                              className="lvm-sms-memo"
+                              placeholder="Add a custom message..."
+                              maxLength={160}
+                              disabled={isTeacher}
+                              value={formData.customMessage}
+                              onChange={(e) => setFormData({ ...formData, customMessage: e.target.value })}
+                            />
+                            <span className="lvm-sms-counter">
+                              {formData.customMessage.length}/160
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Info Notice */}
+                      <div className="lvm-info-callout" style={{ background: '#f8fafc', borderColor: '#e2e8f0', marginTop: 0 }}>
+                        <Info className="lvm-info-callout-icon" size={16} />
+                        <div className="lvm-info-callout-body" style={{ fontSize: '11.5px' }}>
+                          The SMS will be sent to the guardian's registered contact number. Make sure the number is correct to avoid delivery issues.
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Incident Summary Card */}
+                    <div className="lvm-summary-card">
+                      <div className="lvm-summary-bar">
+                        <div className="lvm-summary-bar-left">
+                          <div className="lvm-summary-disk">
+                            <FileText size={16} />
+                          </div>
+                          <span className="lvm-summary-h">Incident Summary</span>
+                        </div>
+                        <button
+                          type="button"
+                          className="lvm-summary-pencil-btn"
+                          onClick={() => setStep(1)}
+                        >
+                          <Edit size={13} />
+                          <span>Edit</span>
+                        </button>
+                      </div>
+
+                      <div className="lvm-summary-body">
+                        <div className="lvm-summary-entry">
+                          <strong>Student:</strong>
+                          <span>
+                            {chosenStudents.map((s) => `${s.fname} ${s.lname} (${s.student_id || `ST-${s.id}`})`).join(', ') || 'None selected'}
+                          </span>
+                        </div>
+                        <div className="lvm-summary-entry">
+                          <strong>Offense:</strong>
+                          <span>
+                            {chosenViolations.map((v) => v.title).join(', ') || 'None selected'}
+                          </span>
+                        </div>
+                        <div className="lvm-summary-entry">
+                          <strong>Status:</strong>
+                          <span>{formData.status === 'Under Approval' ? 'For Approval' : formData.status}</span>
+                        </div>
+                        <div className="lvm-summary-entry">
+                          <strong>Notified:</strong>
+                          <span>{formData.sendSMS ? `Yes (${formData.guardianContact || 'Guardian Contact'})` : 'No'}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+              </div>
+
+              {/* Bottom Sticky Action Footer */}
+              <div className="lvm-bottom-bar">
+                {step === 1 ? (
+                  <button
+                    type="button"
+                    className="lvm-ghost-btn"
+                    onClick={onClose}
+                  >
+                    Cancel
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    className="lvm-ghost-btn"
+                    onClick={() => setStep((prev) => Math.max(1, prev - 1))}
+                  >
+                    <ArrowLeft size={16} />
+                    <span>Back</span>
+                  </button>
+                )}
+
+                {step === 1 ? (
+                  <button
+                    type="button"
+                    className="lvm-cta-btn"
+                    onClick={handleNextToStep2}
+                    disabled={selectedStudentIds.length === 0}
+                  >
+                    <span>Next: Offense</span>
+                    <ArrowRight size={16} />
+                  </button>
+                ) : step === 2 ? (
+                  <button
+                    type="button"
+                    className="lvm-cta-btn"
+                    onClick={handleNextToStep3}
+                    disabled={selectedViolationIds.length === 0}
+                  >
+                    <span>Next: Status &amp; SMS</span>
+                    <ArrowRight size={16} />
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    className="lvm-cta-btn"
+                    onClick={handleSubmit}
+                    disabled={loading}
+                  >
+                    <span>
+                      {loading
+                        ? 'Processing...'
+                        : isTeacher
+                        ? 'Submit For Approval'
+                        : 'Next: SMS & Complete'}
+                    </span>
+                    <ArrowRight size={16} />
+                  </button>
+                )}
+              </div>
+            </div>
           </div>
         </div>
+      </div>
 
-        {/* Modal Step Content Body */}
-        <div className="modal-body" style={{ display: 'flex', flexDirection: 'column', gap: '14px', padding: '16px', flex: 1, minHeight: 0, overflowY: 'auto', WebkitOverflowScrolling: 'touch' }}>
-          
-          {/* ================= STEP 1: STUDENT SELECTION ================= */}
-          {step === 1 && (
-            <div className="violation-student-step" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              <div>
-                <label style={{ fontSize: '14px', fontWeight: 700, color: 'var(--text-primary, #0f172a)', marginBottom: '8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                    <Users size={14} color="var(--brand-blue, #0f172a)" />
-                    Select Student(s) <span style={{ color: '#ef4444' }}>*</span>
-                  </span>
-                  <span className="student-selection-count" style={{ fontSize: '12px', color: selectedStudentIds.length > 0 ? 'var(--brand-blue, #0f172a)' : 'var(--text-muted, #64748b)', fontWeight: 700 }}>
-                    {selectedStudentIds.length} {selectedStudentIds.length === 1 ? 'student' : 'students'} selected
-                  </span>
-                </label>
-                <SearchableStudentSelect
-                  students={students}
-                  value={selectedStudentIds}
-                  onChange={(newIds) => setSelectedStudentIds(newIds)}
-                  isMulti={true}
-                  inline={true}
-                  maxListHeight="min(28vh, 220px)"
-                  placeholder="Search student by name, Student ID, or section..."
-                />
-              </div>
-
-              {selectedStudents.length > 0 && (
-                <div className="violation-selected-students" style={{ background: 'var(--bg-surface-elevated, #f8fafc)', border: '1px solid var(--border-subtle, #e2e8f0)', borderRadius: '10px', padding: '10px 12px' }}>
-                  <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-muted, #64748b)', marginBottom: '7px' }}>
-                    Ready to log for
-                  </div>
-                  <div className="violation-selected-students-list" style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', maxHeight: '72px', overflowY: 'auto' }}>
-                    {selectedStudents.map(s => (
-                      <div key={s.id} style={{ display: 'inline-flex', alignItems: 'center', gap: '5px', background: 'var(--bg-surface, #ffffff)', border: '1px solid var(--border-subtle, #cbd5e1)', borderRadius: '6px', padding: '4px 8px' }}>
-                        <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-primary, #0f172a)' }}>
-                          {s.fname} {s.lname}
-                        </span>
-                        <span style={{ fontSize: '10px', color: 'var(--text-muted, #64748b)' }}>
-                          ({s.grade}-{s.section})
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* ================= STEP 2: OFFENSE & SANCTION ================= */}
-          {step === 2 && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <div>
-                <label style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-primary, #0f172a)', marginBottom: '6px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                  <span style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                    <Layers size={14} color="var(--brand-blue, #07345f)" />
-                    Violation Offense Category <span style={{ color: '#ef4444' }}>*</span>
-                  </span>
-                  <span style={{ fontSize: '11px', color: selectedViolationIds.length > 0 ? 'var(--brand-blue, #07345f)' : 'var(--text-muted, #64748b)', fontWeight: 600 }}>
-                    {selectedViolationIds.length} Selected
-                  </span>
-                </label>
-                <SearchableViolationSelect
-                  violations={violations}
-                  value={selectedViolationIds}
-                  onChange={handleViolationsChange}
-                  isMulti={true}
-                  inline={true}
-                  maxListHeight="min(26vh, 200px)"
-                  placeholder="Search and choose infraction(s)..."
-                />
-              </div>
-
-              <div>
-                <label style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-primary, #0f172a)', marginBottom: '4px', display: 'block' }}>
-                  Prescribed Sanction / Corrective Measure
-                </label>
-                <input
-                  type="text"
-                  value={formData.sanction}
-                  onChange={(e) => setFormData({ ...formData, sanction: e.target.value })}
-                  placeholder="e.g. 1st Offense: Written Reprimand, Community Service"
-                  style={{
-                    width: '100%',
-                    boxSizing: 'border-box',
-                    height: '38px',
-                    padding: '8px 12px',
-                    borderRadius: '8px',
-                    border: '1px solid var(--border-subtle, #cbd5e1)',
-                    fontSize: '12.5px',
-                    color: 'var(--text-primary, #0f172a)',
-                    background: 'var(--bg-input, #ffffff)',
-                    outline: 'none',
-                    fontFamily: 'inherit'
-                  }}
-                />
-              </div>
-
-              <div>
-                <label style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-primary, #0f172a)', marginBottom: '4px', display: 'block' }}>
-                  Incident Details &amp; Faculty Remarks <span style={{ fontSize: '11px', fontWeight: 500, color: 'var(--text-muted, #94a3b8)' }}>(Optional)</span>
-                </label>
-                <textarea
-                  rows={2}
-                  value={formData.remarks}
-                  onChange={(e) => setFormData({ ...formData, remarks: e.target.value })}
-                  placeholder="Specify location, witnesses, circumstances, or confiscated items..."
-                  style={{
-                    width: '100%',
-                    boxSizing: 'border-box',
-                    borderRadius: '8px',
-                    border: '1px solid var(--border-subtle, #cbd5e1)',
-                    fontSize: '12px',
-                    padding: '8px 10px',
-                    color: 'var(--text-primary, #0f172a)',
-                    background: 'var(--bg-input, #ffffff)',
-                    outline: 'none',
-                    resize: 'none',
-                    fontFamily: 'inherit',
-                    lineHeight: '1.4'
-                  }}
-                />
-              </div>
-            </div>
-          )}
-
-          {/* ================= STEP 3: STATUS & SMS DISPATCH ================= */}
-          {step === 3 && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              {/* Initial Case Status */}
-              <div>
-                <label style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-primary, #0f172a)', marginBottom: '6px', display: 'block' }}>
-                  Initial Case Status
-                </label>
-                <div className="violation-status-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '6px' }}>
-                  {[
-                    { id: 'Under Approval', label: '⏳ Under Approval', color: '#d97706' },
-                    { id: 'Pending', label: 'Pending Action', color: '#ef4444' },
-                    { id: 'Investigation', label: 'In Review', color: '#f59e0b' },
-                    { id: 'Resolved', label: 'Resolved Now', color: '#10b981' }
-                  ].map((st) => (
-                    <button
-                      type="button"
-                      key={st.id}
-                      onClick={() => setFormData(prev => ({ ...prev, status: st.id }))}
-                      style={{
-                        padding: '8px 4px',
-                        borderRadius: '8px',
-                        fontSize: '11px',
-                        fontWeight: 700,
-                        border: formData.status === st.id ? `1.5px solid ${st.color}` : '1px solid var(--border-subtle, #e2e8f0)',
-                        background: formData.status === st.id ? `${st.color}25` : 'var(--bg-surface, #ffffff)',
-                        color: formData.status === st.id ? st.color : 'var(--text-muted, #64748b)',
-                        cursor: 'pointer',
-                        transition: 'all 0.15s',
-                        textAlign: 'center',
-                        fontFamily: 'inherit'
-                      }}
-                    >
-                      {st.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* SMS Notification Toggle */}
-              <div
-                style={{
-                  background: 'var(--bg-surface-elevated, #f8fafc)',
-                  border: '1px solid var(--border-subtle, #e2e8f0)',
-                  borderRadius: '10px',
-                  padding: '10px 12px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '10px'
-                }}
-              >
-                <input
-                  type="checkbox"
-                  id="notify_sms_check"
-                  checked={formData.notify_parent_sms}
-                  onChange={(e) => setFormData({ ...formData, notify_parent_sms: e.target.checked })}
-                  style={{ width: 16, height: 16, cursor: 'pointer', accentColor: 'var(--brand-blue, #07345f)', flexShrink: 0 }}
-                />
-                <label htmlFor="notify_sms_check" style={{ fontSize: '12px', color: 'var(--text-primary, #0f172a)', cursor: 'pointer', margin: 0, fontFamily: 'inherit', lineHeight: 1.3 }}>
-                  <strong style={{ display: 'block' }}>Dispatch SMS Alert to Guardian(s)</strong>
-                  <span style={{ fontSize: '11px', color: 'var(--text-muted, #64748b)' }}>
-                    {selectedStudents.length > 0
-                      ? `Sends instant notification to ${selectedStudents.length} guardian contact(s).`
-                      : 'Sends instant notification to guardian on file.'}
-                  </span>
-                </label>
-              </div>
-
-              {/* Quick Summary Card */}
-              <div style={{ background: 'var(--bg-surface-elevated, #eff6ff)', border: '1px solid var(--border-subtle, #bfdbfe)', borderRadius: '10px', padding: '10px 12px' }}>
-                <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--brand-blue, #1e40af)', textTransform: 'uppercase', marginBottom: '4px' }}>
-                  Incident Summary
-                </div>
-                <div style={{ fontSize: '12px', color: 'var(--text-primary, #1e293b)', lineHeight: 1.4 }}>
-                  <strong>Student:</strong> {selectedStudents.map(s => `${s.fname} ${s.lname}`).join(', ') || 'None selected'}
-                </div>
-                <div style={{ fontSize: '12px', color: 'var(--text-primary, #1e293b)', lineHeight: 1.4, marginTop: '2px' }}>
-                  <strong>Offense:</strong> {selectedViolations.map(v => v.title).join(', ') || 'None selected'}
-                </div>
-              </div>
-            </div>
-          )}
-
-        </div>
-
-        {/* Wizard Footer Navigation */}
-        <div
-          className="modal-footer"
-          style={{
-            padding: '12px 16px',
-            borderTop: '1px solid var(--border-subtle, #e2e8f0)',
-            background: 'var(--bg-surface-elevated, #f8fafc)',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            gap: '8px',
-            flexShrink: 0
-          }}
-        >
-          {/* Left Back / Cancel */}
-          {step === 1 ? (
-            <button
-              type="button"
-              className="btn btn-secondary"
-              onClick={onClose}
-              style={{
-                borderRadius: '8px',
-                padding: '8px 14px',
-                fontWeight: 600,
-                fontSize: '12.5px',
-                background: 'var(--bg-surface, #ffffff)',
-                border: '1px solid var(--border-subtle, #cbd5e1)',
-                color: 'var(--text-primary, #0f172a)',
-                cursor: 'pointer',
-                fontFamily: 'inherit'
-              }}
-            >
-              Cancel
-            </button>
-          ) : (
-            <button
-              type="button"
-              onClick={() => setStep(prev => Math.max(1, prev - 1))}
-              style={{
-                borderRadius: '8px',
-                padding: '8px 14px',
-                fontWeight: 600,
-                fontSize: '12.5px',
-                background: 'var(--bg-surface, #ffffff)',
-                border: '1px solid var(--border-subtle, #cbd5e1)',
-                color: 'var(--text-primary, #0f172a)',
-                cursor: 'pointer',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '5px',
-                fontFamily: 'inherit'
-              }}
-            >
-              <ArrowLeft size={14} /> Back
-            </button>
-          )}
-
-          {/* Right Next / Save */}
-          {step === 1 ? (
-            <button
-              type="button"
-              onClick={handleNextToStep2}
-              disabled={selectedStudentIds.length === 0}
-              style={{
-                background: selectedStudentIds.length === 0 ? 'var(--text-dim, #94a3b8)' : 'var(--brand-blue, #0f172a)',
-                borderRadius: '8px',
-                padding: '8px 16px',
-                fontWeight: 700,
-                fontSize: '12.5px',
-                color: '#ffffff',
-                border: 'none',
-                cursor: selectedStudentIds.length === 0 ? 'not-allowed' : 'pointer',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '6px',
-                fontFamily: 'inherit'
-              }}
-            >
-              <span>Next: Offense</span>
-              <ArrowRight size={14} />
-            </button>
-          ) : step === 2 ? (
-            <button
-              type="button"
-              onClick={handleNextToStep3}
-              disabled={selectedViolationIds.length === 0}
-              style={{
-                background: selectedViolationIds.length === 0 ? 'var(--text-dim, #94a3b8)' : 'var(--brand-blue, #0f172a)',
-                borderRadius: '8px',
-                padding: '8px 16px',
-                fontWeight: 700,
-                fontSize: '12.5px',
-                color: '#ffffff',
-                border: 'none',
-                cursor: selectedViolationIds.length === 0 ? 'not-allowed' : 'pointer',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '6px',
-                fontFamily: 'inherit'
-              }}
-            >
-              <span>Next: Status &amp; SMS</span>
-              <ArrowRight size={14} />
-            </button>
-          ) : (
-            <button
-              type="button"
-              onClick={handleSubmit}
-              className="btn btn-primary btn-save-violation-action"
-              disabled={loading}
-              style={{
-                background: 'var(--brand-blue, #0f172a)',
-                borderRadius: '8px',
-                padding: '8px 18px',
-                fontWeight: 700,
-                fontSize: '12.5px',
-                color: '#ffffff',
-                border: 'none',
-                cursor: loading ? 'not-allowed' : 'pointer',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '6px',
-                fontFamily: 'inherit'
-              }}
-            >
-              <Check size={14} />
-              {loading
-                ? 'Recording...'
-                : selectedStudentIds.length > 1 || selectedViolationIds.length > 1
-                ? `Save (${selectedStudentIds.length * selectedViolationIds.length})`
-                : 'Save & Record'}
-            </button>
-          )}
-        </div>
-      </form>
-    </Modal>
-
-    {/* Dedicated Popup for Teacher Submission Under Approval */}
-    <UnderApprovalModal
-      isOpen={isApprovalPopupOpen}
-      onClose={handleCloseApprovalPopup}
-      recordData={approvalPopupData}
-      students={students}
-      violations={violations}
-    />
+      {/* Teacher Under Approval Modal */}
+      <UnderApprovalModal
+        isOpen={isApprovalPopupOpen}
+        onClose={handleCloseApprovalPopup}
+        recordData={approvalPopupData}
+        students={students}
+        violations={violations}
+      />
     </>
   );
 };

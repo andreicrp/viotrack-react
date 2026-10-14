@@ -1,0 +1,167 @@
+/* ==========================================================================
+   Mobile Bottom Sheet Ergonomics Layer (Android & Mobile Viewports)
+   Transforms centered desktop modals into native thumb-friendly Bottom Sheets
+   ========================================================================== */
+
+/* Drag Handle Component (Visible only on mobile/tablets) */
+.modal-drag-handle-wrap {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 0 2px 0;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.modal-drag-handle-wrap:active {
+  cursor: grabbing;
+}
+
+.modal-drag-handle {
+  width: 38px;
+  height: 4.5px;
+  background: var(--border-medium, #cbd5e1);
+  border-radius: 999px;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.modal-drag-handle-wrap:hover .modal-drag-handle,
+.modal-drag-handle-wrap:active .modal-drag-handle {
+  background: var(--brand-blue, #2563eb);
+  transform: scaleY(1.15);
+}
+
+:root[data-theme="dark"] .modal-drag-handle {
+  background: #475569;
+}
+
+@media (min-width: 769px) {
+  .modal-drag-handle-wrap {
+    display: none !important;
+  }
+}
+
+/* ==========================================================================
+   Mobile Bottom Sheet Transforms (Viewports <= 768px)
+   ========================================================================== */
+@media (max-width: 768px) {
+  /* 1. Modal Overlays align to bottom edge */
+  .modal-overlay,
+  .violation-modal-overlay,
+  .status-modal-overlay,
+  .addrecord-modal-overlay,
+  .summons-modal-overlay,
+  .student-scan-modal-overlay,
+  .save-as-modal-overlay {
+    align-items: flex-end !important;
+    justify-content: center !important;
+    padding: 0 !important;
+    background: rgba(15, 23, 42, 0.6) !important;
+    backdrop-filter: blur(4px) !important;
+    -webkit-backdrop-filter: blur(4px) !important;
+  }
+
+  /* 2. Dialog Containers become rounded bottom sheets */
+  .modal-dialog,
+  .violation-modal,
+  .status-modal,
+  .addrecord-modal,
+  .summons-modal,
+  .student-scan-modal-dialog,
+  .save-as-modal-dialog {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    border-top-left-radius: 24px !important;
+    border-top-right-radius: 24px !important;
+    border-bottom-left-radius: 0 !important;
+    border-bottom-right-radius: 0 !important;
+    max-height: calc(90dvh - env(safe-area-inset-top, 0px)) !important;
+    max-height: calc(90vh - 20px) !important;
+    box-shadow: 0 -12px 36px rgba(15, 23, 42, 0.22) !important;
+    animation: bottomSheetSlideIn 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+    will-change: transform;
+    overflow: hidden !important;
+    display: flex !important;
+    flex-direction: column !important;
+  }
+
+  /* 3. Modal Header Polish on Mobile */
+  .modal-header,
+  .violation-modal-header,
+  .status-modal-header,
+  .addrecord-modal-header,
+  .summons-modal-header,
+  .student-scan-modal-header {
+    padding: 10px 18px 14px 18px !important;
+    border-bottom: 1px solid var(--border-subtle, #f1f5f9) !important;
+    flex-shrink: 0 !important;
+  }
+
+  /* 4. Modal Body Scrollable with safe bounds */
+  .modal-body,
+  .modal-content-wrapper,
+  .violation-modal-body,
+  .status-modal-body,
+  .addrecord-modal-body,
+  .student-scan-modal-body {
+    -webkit-overflow-scrolling: touch !important;
+    overscroll-behavior-y: contain !important;
+    min-height: 0 !important;
+    flex: 1 1 auto !important;
+  }
+
+  /* 5. Sticky Thumb-Friendly Action Footers */
+  .modal-footer,
+  .modal-actions,
+  .violation-modal-footer,
+  .status-modal-footer,
+  .addrecord-modal-footer,
+  .student-scan-modal-footer,
+  .summons-modal-footer {
+    position: sticky !important;
+    bottom: 0 !important;
+    background: var(--bg-surface-elevated, #ffffff) !important;
+    border-top: 1px solid var(--border-subtle, #e2e8f0) !important;
+    padding: 12px 16px max(14px, env(safe-area-inset-bottom, 0px)) 16px !important;
+    z-index: 10 !important;
+    box-shadow: 0 -4px 14px rgba(15, 23, 42, 0.04) !important;
+  }
+
+  /* 6. Ensure buttons are at least 44px for thumb tap ergonomics */
+  .modal-footer button,
+  .modal-actions button,
+  .student-scan-modal-footer button,
+  .violation-modal-footer button {
+    min-height: 44px !important;
+    font-size: 14px !important;
+  }
+}
+
+/* Smooth Slide-up Entrance Animation */
+@keyframes bottomSheetSlideIn {
+  from {
+    transform: translate3d(0, 100%, 0);
+    opacity: 0.85;
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+    opacity: 1;
+  }
+}
+
+/* Reduced Motion Optimization */
+@media (prefers-reduced-motion: reduce) {
+  .modal-dialog,
+  .violation-modal,
+  .status-modal,
+  .addrecord-modal,
+  .summons-modal,
+  .student-scan-modal-dialog,
+  .save-as-modal-dialog {
+    animation: none !important;
+  }
+}

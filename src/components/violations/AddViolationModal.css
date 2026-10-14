@@ -1,0 +1,1865 @@
+/* ==========================================================================
+   VIOTRACK LOG STUDENT VIOLATION MODAL - ACCURATE RECREATION
+   Direct match for:
+     1. Log Student Violation STUDENT 1.png (Desktop)
+     2. Log Student Violation VIOLATIONS 2.png (Desktop)
+     3. Log Student Violation SUMMARY 3.png (Desktop)
+     4. Log Student Violation mobile version.png (Mobile)
+   ========================================================================== */
+
+/* Outer full-screen overlay */
+.lvm-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(15, 23, 42, 0.45);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  box-sizing: border-box;
+}
+
+/* Modal window container */
+.lvm-window {
+  background: #ffffff;
+  color: #1e293b;
+  width: 100%;
+  max-width: 1140px;
+  height: 90vh;
+  max-height: 860px;
+  border-radius: 20px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 25px 60px -15px rgba(15, 23, 42, 0.2), 0 0 0 1px rgba(226, 232, 240, 0.8);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-sizing: border-box;
+  font-family: inherit;
+}
+
+.lvm-window *,
+.lvm-window *::before,
+.lvm-window *::after {
+  box-sizing: border-box;
+}
+
+/* ==========================================================================
+   TOP BAR (MODAL HEADER)
+   ========================================================================== */
+.lvm-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 28px 18px 28px;
+  border-bottom: 1px solid #f1f5f9;
+  background: #ffffff;
+  flex-shrink: 0;
+}
+
+.lvm-topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.lvm-topbar-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #0b192c;
+}
+
+.lvm-topbar-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+  letter-spacing: -0.015em;
+}
+
+.lvm-topbar-close {
+  background: transparent;
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.lvm-topbar-close:hover {
+  background: #f1f5f9;
+  color: #0f172a;
+}
+
+/* ==========================================================================
+   DESKTOP STEPPER HEADER (ON MOBILE) & SIDEBAR (ON DESKTOP)
+   ========================================================================== */
+.lvm-body-container {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  background: #ffffff;
+}
+
+/* Desktop Left Sidebar */
+.lvm-sidebar {
+  width: 220px;
+  flex-shrink: 0;
+  background: #f8fafc;
+  border-right: 1px solid #f1f5f9;
+  padding: 28px 16px 20px 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.lvm-stepper-vertical {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  position: relative;
+}
+
+/* Vertical guide line */
+.lvm-stepper-vertical::before {
+  content: '';
+  position: absolute;
+  top: 24px;
+  bottom: 24px;
+  left: 28px;
+  width: 2px;
+  background: #e2e8f0;
+  z-index: 1;
+}
+
+.lvm-step-btn {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  background: transparent;
+  border: none;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: inherit;
+}
+
+.lvm-step-btn:hover:not(:disabled) {
+  background: #e2e8f0;
+  color: #0b192c;
+}
+
+.lvm-step-btn:hover:not(:disabled) .lvm-step-name {
+  color: #0b192c;
+}
+
+.lvm-step-btn.active {
+  background: #0b192c;
+  color: #ffffff;
+}
+
+.lvm-step-btn.active:hover:not(:disabled) {
+  background: #142b47;
+  color: #ffffff;
+}
+
+.lvm-step-btn.active:hover:not(:disabled) .lvm-step-name {
+  color: #ffffff;
+}
+
+.lvm-step-bubble {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  flex-shrink: 0;
+  background: #ffffff;
+  color: #64748b;
+  border: 1.5px solid #cbd5e1;
+  transition: all 0.2s ease;
+}
+
+.lvm-step-bubble.active {
+  background: #0b192c;
+  color: #ffffff;
+  border-color: #0b192c;
+  box-shadow: 0 4px 12px rgba(11, 25, 44, 0.25);
+}
+
+.lvm-step-bubble.completed {
+  background: #10b981;
+  color: #ffffff;
+  border-color: #10b981;
+}
+
+.lvm-step-name {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #64748b;
+  letter-spacing: -0.01em;
+}
+
+.lvm-step-btn.active .lvm-step-name {
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.lvm-step-btn.completed .lvm-step-name {
+  color: #0f172a;
+}
+
+/* Sidebar Motto Badge */
+.lvm-motto-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px 6px;
+}
+
+.lvm-motto-logo {
+  display: block;
+  width: 100%;
+  max-width: 190px;
+  height: auto;
+  object-fit: contain;
+}
+
+/* Mobile Horizontal Stepper Strip (Shown only <= 768px) */
+.lvm-mobile-stepper-strip {
+  display: none;
+  padding: 10px 16px;
+  background: #f8fafc;
+  border-bottom: 1px solid #f1f5f9;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.lvm-mobile-step-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: none;
+  padding: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #64748b;
+  cursor: pointer;
+}
+
+.lvm-mobile-step-pill.active {
+  color: #0b192c;
+  font-weight: 700;
+}
+
+.lvm-mobile-step-pill:hover:not(:disabled) {
+  color: #0b192c;
+  background: #e2e8f0;
+}
+
+.lvm-mobile-step-pill.active:hover:not(:disabled) {
+  color: #0b192c;
+}
+
+.lvm-mobile-step-bubble {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  background: #e2e8f0;
+  color: #475569;
+}
+
+.lvm-mobile-step-pill.active .lvm-mobile-step-bubble {
+  background: #0b192c;
+  color: #ffffff;
+}
+
+.lvm-mobile-step-pill.completed .lvm-mobile-step-bubble {
+  background: #10b981;
+  color: #ffffff;
+}
+
+/* ==========================================================================
+   RIGHT MAIN CONTENT & CARD CONTAINERS
+   ========================================================================== */
+.lvm-main-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  min-width: 0;
+  background: #ffffff;
+}
+
+.lvm-content-scroll {
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  overflow-y: auto;
+  padding: 24px 28px 12px 28px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Outer Bordered Card Container (Matching White Rounded Card in Mockups) */
+.lvm-card {
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 24px;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+}
+
+/* Step Card Header */
+.lvm-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.lvm-section-header-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.lvm-section-icon-badge {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #f1f5f9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #0b192c;
+  flex-shrink: 0;
+}
+
+.lvm-section-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 2px 0;
+}
+
+.lvm-section-title .req {
+  color: #ef4444;
+  margin-left: 2px;
+}
+
+.lvm-section-subtitle {
+  font-size: 12.5px;
+  color: #64748b;
+  margin: 0;
+}
+
+.lvm-counter-text {
+  font-size: 13px;
+  font-weight: 600;
+  color: #64748b;
+}
+
+/* Search Bar (Rounded pill search input) */
+.lvm-search-wrap {
+  position: relative;
+  width: 100%;
+}
+
+.lvm-search-icon {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+  pointer-events: none;
+}
+
+.lvm-search-input {
+  width: 100%;
+  height: 44px;
+  padding: 0 16px 0 46px;
+  border-radius: 24px;
+  border: 1.5px solid #e2e8f0;
+  background: #ffffff;
+  color: #0f172a;
+  font-size: 13.5px;
+  outline: none;
+  transition: all 0.15s ease;
+  font-family: inherit;
+}
+
+.lvm-search-input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+}
+
+.lvm-search-input::placeholder {
+  color: #94a3b8;
+}
+
+/* Filter Row: Pills + Section Dropdown */
+.lvm-filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.lvm-filter-pills {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.lvm-pill-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 22px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  border: 1.5px solid #e2e8f0;
+  background: #ffffff;
+  color: #334155;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: inherit;
+}
+
+.lvm-pill-btn.minor:not(.active) svg {
+  color: #059669;
+}
+
+.lvm-pill-btn.serious:not(.active) svg {
+  color: #d97706;
+}
+
+.lvm-pill-btn.major:not(.active) svg {
+  color: #dc2626;
+}
+
+.lvm-pill-btn:hover {
+  background: #f1f5f9;
+  border-color: #0b192c;
+  color: #0b192c;
+}
+
+.lvm-pill-btn.active {
+  background: #0b192c;
+  border-color: #0b192c;
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(11, 25, 44, 0.22);
+}
+
+/* ==========================================================================
+   STEP 1: STUDENTS LIST & CARDS (IMAGE 1 SPEC)
+   ========================================================================== */
+.lvm-student-items {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 290px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.lvm-student-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: center;
+  gap: 16px;
+  padding: 12px 18px;
+  border-radius: 12px;
+  border: 1.5px solid #e2e8f0;
+  background: #ffffff;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.lvm-student-row:hover {
+  border-color: #cbd5e1;
+  background: #fbfcfe;
+}
+
+.lvm-student-row:focus-visible {
+  outline: 3px solid #93c5fd;
+  outline-offset: 2px;
+}
+
+.lvm-student-row.selected {
+  border-color: #86efac;
+  background: #f0fdf4;
+}
+
+.lvm-student-main {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+
+.lvm-student-photo {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #eff6ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #2563eb;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.lvm-student-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.lvm-student-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.lvm-student-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: #0f172a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lvm-student-subrow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.lvm-student-id-txt {
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.lvm-student-gender-badge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 1px 8px;
+  border-radius: 10px;
+}
+
+.lvm-student-gender-badge.male {
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.lvm-student-gender-badge.female {
+  background: #fdf2f8;
+  color: #db2777;
+}
+
+.lvm-student-grade-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.lvm-student-grade-line {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.lvm-student-dept-line {
+  font-size: 11.5px;
+  color: #94a3b8;
+}
+
+/* Informational Notice Box */
+.lvm-info-callout {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  padding: 12px 16px;
+  margin-top: 4px;
+}
+
+.lvm-info-callout-icon {
+  color: #0b192c;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.lvm-info-callout-heading {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #0b192c;
+  margin-bottom: 2px;
+}
+
+.lvm-info-callout-body {
+  font-size: 12px;
+  color: #475569;
+  line-height: 1.4;
+}
+
+/* ==========================================================================
+   STEP 2: VIOLATIONS 2-COLUMN GRID (IMAGE 2 SPEC)
+   ========================================================================== */
+.lvm-offense-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  max-height: 250px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.lvm-offense-tile {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-radius: 14px;
+  border: 1.5px solid #e2e8f0;
+  background: #ffffff;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  min-width: 0;
+}
+
+.lvm-offense-tile:hover {
+  border-color: #0b192c;
+  background: #f8fafc;
+}
+
+.lvm-offense-tile.selected {
+  border-color: #0b192c;
+  background: #f1f5f9;
+  box-shadow: 0 2px 8px rgba(11, 25, 44, 0.12);
+}
+
+.lvm-offense-tile.selected:hover {
+  background: #e2e8f0;
+}
+
+.lvm-offense-tile-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+}
+
+.lvm-icon-disk {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+}
+
+.lvm-icon-disk.disk-blue {
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.lvm-icon-disk.disk-purple {
+  background: #f5f3ff;
+  color: #7c3aed;
+}
+
+.lvm-icon-disk.disk-indigo {
+  background: #eef2ff;
+  color: #4f46e5;
+}
+
+.lvm-icon-disk.disk-green {
+  background: #ecfdf5;
+  color: #059669;
+}
+
+.lvm-icon-disk.disk-amber {
+  background: #fffbeb;
+  color: #d97706;
+}
+
+.lvm-icon-disk.disk-rose {
+  background: #fff1f2;
+  color: #e11d48;
+}
+
+.lvm-offense-tile-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1;
+  min-width: 0;
+}
+
+.lvm-offense-tile-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1e293b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.3;
+}
+
+.lvm-offense-tile-sanction {
+  font-size: 11px;
+  color: #64748b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lvm-category-tag {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 14px;
+  text-transform: capitalize;
+  flex-shrink: 0;
+  margin-left: 8px;
+}
+
+.lvm-category-tag.minor {
+  background: #ecfdf5;
+  color: #059669;
+}
+
+.lvm-category-tag.serious {
+  background: #fffbeb;
+  color: #d97706;
+}
+
+.lvm-category-tag.major {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+/* Inputs for Sanctions and Remarks */
+.lvm-form-block {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.lvm-form-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1e293b;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.lvm-form-label-opt {
+  font-size: 12px;
+  font-weight: 500;
+  color: #94a3b8;
+}
+
+.lvm-text-field {
+  width: 100%;
+  height: 42px;
+  padding: 0 16px;
+  border-radius: 8px;
+  border: 1.5px solid #e2e8f0;
+  background: #ffffff;
+  color: #1e293b;
+  font-size: 13px;
+  outline: none;
+  transition: all 0.15s ease;
+  font-family: inherit;
+}
+
+.lvm-text-field:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+}
+
+.lvm-text-area {
+  width: 100%;
+  min-height: 80px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: 1.5px solid #e2e8f0;
+  background: #ffffff;
+  color: #1e293b;
+  font-size: 13px;
+  outline: none;
+  resize: vertical;
+  transition: all 0.15s ease;
+  line-height: 1.45;
+  font-family: inherit;
+}
+
+.lvm-text-area:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+}
+
+/* Teacher Security Policy Alert Box */
+.lvm-teacher-warning-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  background: #fffbeb;
+  border: 1.5px solid #fde68a;
+  border-radius: 14px;
+  padding: 14px 18px;
+  margin-bottom: 6px;
+  box-shadow: 0 1px 3px rgba(245, 158, 11, 0.08);
+}
+
+.lvm-teacher-warning-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: #fef3c7;
+  color: #b45309;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.lvm-teacher-warning-content {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.lvm-teacher-warning-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #92400e;
+}
+
+.lvm-teacher-warning-desc {
+  font-size: 12px;
+  color: #78350f;
+  line-height: 1.45;
+}
+
+.lvm-teacher-warning-desc strong {
+  color: #92400e;
+  font-weight: 700;
+}
+
+/* ==========================================================================
+   STEP 3: STATUS, SMS & SUMMARY (IMAGE 3 SPEC)
+   ========================================================================== */
+.lvm-status-quad {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.lvm-status-card-opt.disabled-status {
+  opacity: 0.45 !important;
+  cursor: not-allowed !important;
+  pointer-events: none !important;
+  border-style: dashed !important;
+}
+
+.lvm-sms-box.disabled-for-teacher {
+  background: #fbfcfe;
+  border-color: #e2e8f0;
+}
+
+.lvm-status-card-opt {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  min-width: 0;
+  padding: 12px 10px;
+  border-radius: 12px;
+  border: 1.5px solid #e2e8f0;
+  background: #ffffff;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-align: left;
+}
+
+.lvm-status-card-opt:hover {
+  border-color: #0b192c;
+  background: #f8fafc;
+}
+
+.lvm-status-card-opt.active:hover {
+  background: #142b47;
+  border-color: #142b47;
+}
+
+.lvm-status-card-opt.active {
+  background: #0b192c;
+  border-color: #0b192c;
+  box-shadow: 0 4px 12px rgba(11, 25, 44, 0.22);
+}
+
+.lvm-radio-ring {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid #cbd5e1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.lvm-radio-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: transparent;
+}
+
+.lvm-status-card-opt.active .lvm-radio-ring {
+  border-color: #ffffff;
+}
+
+.lvm-status-card-opt.active .lvm-radio-dot {
+  background: #ffffff;
+}
+
+.lvm-status-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.lvm-status-h {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.lvm-status-subh {
+  font-size: 11px;
+  color: #64748b;
+}
+
+.lvm-status-card-opt.active .lvm-status-h,
+.lvm-status-card-opt.active .lvm-status-subh {
+  color: #ffffff;
+}
+
+/* SMS Section Card */
+.lvm-sms-box {
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  background: #ffffff;
+}
+
+.lvm-sms-topline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.lvm-sms-topline-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.lvm-sms-icon-disk {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #f1f5f9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #0b192c;
+}
+
+.lvm-sms-h {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.lvm-sms-h span {
+  font-weight: 500;
+  color: #64748b;
+  font-size: 12px;
+}
+
+.lvm-sms-p {
+  font-size: 12px;
+  color: #64748b;
+}
+
+/* iOS Toggle Switch */
+.lvm-toggle-row {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.lvm-switch-rail {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  background: #cbd5e1;
+  border-radius: 20px;
+  transition: background 0.2s ease;
+  display: flex;
+  align-items: center;
+  padding: 2px;
+}
+
+.lvm-switch-rail.active {
+  background: #2563eb;
+}
+
+.lvm-switch-circle {
+  width: 20px;
+  height: 20px;
+  background: #ffffff;
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s ease;
+}
+
+.lvm-switch-rail.active .lvm-switch-circle {
+  transform: translateX(20px);
+}
+
+.lvm-switch-txt {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: #475569;
+}
+
+/* SMS 3 Columns Grid */
+.lvm-sms-grid-3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1.3fr;
+  gap: 14px;
+  align-items: flex-start;
+}
+
+.lvm-input-icon-wrap {
+  position: relative;
+}
+
+.lvm-input-icon-left {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+  pointer-events: none;
+}
+
+.lvm-iconic-input {
+  width: 100%;
+  height: 40px;
+  padding: 0 14px 0 38px;
+  border-radius: 8px;
+  border: 1.5px solid #e2e8f0;
+  background: #ffffff;
+  color: #1e293b;
+  font-size: 12.5px;
+  outline: none;
+  transition: all 0.15s ease;
+  font-family: inherit;
+}
+
+.lvm-iconic-input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.12);
+}
+
+.lvm-iconic-select {
+  width: 100%;
+  height: 40px;
+  padding: 0 14px 0 38px;
+  border-radius: 8px;
+  border: 1.5px solid #e2e8f0;
+  background: #ffffff;
+  color: #1e293b;
+  font-size: 12.5px;
+  outline: none;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+  font-family: inherit;
+}
+
+.lvm-sms-custom-block {
+  position: relative;
+}
+
+.lvm-sms-custom-icon {
+  position: absolute;
+  left: 12px;
+  top: 12px;
+  color: #94a3b8;
+}
+
+.lvm-sms-memo {
+  width: 100%;
+  min-height: 72px;
+  padding: 10px 14px 20px 38px;
+  border-radius: 8px;
+  border: 1.5px solid #e2e8f0;
+  background: #ffffff;
+  color: #1e293b;
+  font-size: 12px;
+  outline: none;
+  resize: none;
+  line-height: 1.4;
+  font-family: inherit;
+}
+
+.lvm-sms-counter {
+  position: absolute;
+  right: 10px;
+  bottom: 6px;
+  font-size: 10.5px;
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+/* Incident Summary Card */
+.lvm-summary-card {
+  border: 1px solid #e2e8f0;
+  border-radius: 14px;
+  padding: 16px 18px;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.lvm-summary-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.lvm-summary-bar-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.lvm-summary-disk {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #f1f5f9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #0b192c;
+}
+
+.lvm-summary-h {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.lvm-summary-pencil-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  color: #0b192c;
+  padding: 5px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: inherit;
+}
+
+.lvm-summary-pencil-btn:hover {
+  background: #0b192c;
+  border-color: #0b192c;
+  color: #ffffff;
+}
+
+.lvm-summary-pencil-btn:focus-visible {
+  outline: 2px solid #0b192c;
+  outline-offset: 2px;
+}
+
+.lvm-summary-body {
+  background: #f8fafc;
+  border: 1px solid #edf2f7;
+  border-radius: 10px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 12.5px;
+}
+
+.lvm-summary-entry {
+  display: flex;
+  gap: 6px;
+  color: #64748b;
+  line-height: 1.4;
+}
+
+.lvm-summary-entry strong {
+  color: #1e293b;
+  font-weight: 600;
+  min-width: 65px;
+}
+
+/* ==========================================================================
+   BOTTOM ACTION FOOTER (DESKTOP & MOBILE)
+   ========================================================================== */
+.lvm-bottom-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 28px;
+  background: #ffffff;
+  border-top: 1px solid #f1f5f9;
+  flex-shrink: 0;
+}
+
+.lvm-ghost-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 20px;
+  border-radius: 24px;
+  font-size: 13px;
+  font-weight: 600;
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  color: #334155;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: inherit;
+}
+
+.lvm-ghost-btn:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+.lvm-cta-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 24px;
+  border-radius: 24px;
+  font-size: 13px;
+  font-weight: 700;
+  background: #0b192c;
+  border: none;
+  color: #ffffff;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: inherit;
+  box-shadow: 0 4px 12px rgba(11, 25, 44, 0.22);
+}
+
+.lvm-cta-btn:hover:not(:disabled) {
+  background: #142b47;
+}
+
+.lvm-cta-btn:disabled {
+  background: #0b192c;
+  color: #ffffff;
+  cursor: not-allowed;
+  box-shadow: none;
+  opacity: 0.6;
+}
+
+/* ==========================================================================
+   TABLET & COMPACT DESKTOP
+   ========================================================================== */
+@media (max-width: 1024px) {
+  .lvm-modal-backdrop {
+    padding: 16px;
+  }
+
+  .lvm-window {
+    width: 100%;
+    height: min(92vh, 860px);
+    max-height: calc(100vh - 32px);
+  }
+
+  .lvm-sidebar {
+    width: 184px;
+    padding: 22px 12px 18px;
+  }
+
+  .lvm-step-btn {
+    gap: 10px;
+    padding: 8px;
+  }
+
+  .lvm-content-scroll {
+    padding: 20px 18px 12px;
+  }
+
+  .lvm-card {
+    padding: 20px 18px;
+  }
+
+  .lvm-status-quad {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .lvm-status-card-opt {
+    padding: 11px 10px;
+  }
+
+  .lvm-bottom-bar {
+    padding: 14px 18px;
+  }
+}
+
+/* ==========================================================================
+   MOBILE RESPONSIVENESS (MATCHING 'Log Student Violation mobile version.png')
+   ========================================================================== */
+@media (max-width: 768px) {
+  .lvm-modal-backdrop {
+    padding: 0;
+    align-items: flex-end;
+  }
+
+  .lvm-window {
+    width: 100vw;
+    max-width: 100vw;
+    height: 94vh;
+    height: 94dvh;
+    max-height: 100vh;
+    max-height: 100dvh;
+    border-radius: 24px 24px 0 0;
+    border: none;
+  }
+
+  .lvm-topbar {
+    padding: 14px 16px;
+  }
+
+  .lvm-topbar-title {
+    font-size: 18px;
+  }
+
+  /* Hide Desktop Sidebar */
+  .lvm-sidebar {
+    display: none;
+  }
+
+  /* Show Mobile Horizontal Stepper Strip */
+  .lvm-mobile-stepper-strip {
+    display: flex;
+    gap: 6px;
+    padding: 10px 12px;
+  }
+
+  .lvm-content-scroll {
+    padding: 14px 12px;
+  }
+
+  .lvm-card {
+    padding: 16px 12px;
+    border-radius: 14px;
+  }
+
+  .lvm-section-header {
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .lvm-section-header-left {
+    gap: 10px;
+    min-width: 0;
+  }
+
+  .lvm-section-icon-badge {
+    width: 38px;
+    height: 38px;
+  }
+
+  .lvm-section-title {
+    font-size: 15px;
+  }
+
+  .lvm-section-subtitle {
+    line-height: 1.4;
+  }
+
+  .lvm-counter-text {
+    flex-shrink: 0;
+    font-size: 11px;
+  }
+
+  .lvm-filter-pills {
+    width: 100%;
+  }
+
+  .lvm-pill-btn {
+    padding: 8px 12px;
+  }
+
+  /* Mobile Step 1 Student Rows stack compactly */
+  .lvm-student-row {
+    grid-template-columns: 1fr;
+    gap: 8px;
+    padding: 12px;
+  }
+
+  .lvm-student-grade-info {
+    display: flex;
+    padding-left: 58px;
+  }
+
+  /* Mobile Step 2 Offenses switch to single column stacked cards */
+  .lvm-offense-grid {
+    grid-template-columns: 1fr;
+    max-height: min(36vh, 300px);
+  }
+
+  /* Mobile Step 3 Status cards use a compact 2-column layout */
+  .lvm-status-quad {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .lvm-status-card-opt {
+    gap: 7px;
+    padding: 10px 8px;
+  }
+
+  .lvm-status-h {
+    font-size: 12px;
+  }
+
+  .lvm-status-subh {
+    font-size: 10.5px;
+    line-height: 1.3;
+  }
+
+  .lvm-sms-grid-3 {
+    grid-template-columns: 1fr;
+  }
+
+  .lvm-bottom-bar {
+    gap: 10px;
+    padding: 12px 12px calc(12px + env(safe-area-inset-bottom));
+  }
+
+  .lvm-ghost-btn,
+  .lvm-cta-btn {
+    min-width: 0;
+    justify-content: center;
+    padding: 10px 12px;
+    font-size: 12px;
+  }
+
+  .lvm-cta-btn {
+    flex: 1;
+  }
+
+  .lvm-summary-entry {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .lvm-summary-entry span {
+    min-width: 0;
+  }
+}
+
+@media (max-width: 540px) {
+  .lvm-modal-backdrop {
+    padding: 0;
+  }
+
+  .lvm-window {
+    border-radius: 18px 18px 0 0;
+  }
+
+  .lvm-mobile-step-pill {
+    gap: 4px;
+    font-size: 11px;
+  }
+
+  .lvm-mobile-step-bubble {
+    width: 20px;
+    height: 20px;
+  }
+
+  .lvm-offense-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .lvm-offense-tile {
+    gap: 8px;
+    padding: 10px;
+  }
+
+  .lvm-offense-tile-left {
+    gap: 9px;
+  }
+
+  .lvm-icon-disk {
+    width: 38px;
+    height: 38px;
+  }
+
+  .lvm-category-tag {
+    margin-left: 0;
+    padding: 3px 7px;
+  }
+
+  .lvm-sms-box,
+  .lvm-summary-card {
+    padding: 12px;
+  }
+}
+
+@media (max-width: 360px) {
+  .lvm-status-quad {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .lvm-status-card-opt {
+    padding: 10px 12px;
+  }
+
+  .lvm-mobile-stepper-strip {
+    justify-content: space-around;
+    padding-inline: 8px;
+  }
+
+  .lvm-mobile-step-pill {
+    font-size: 10px;
+  }
+
+  .lvm-ghost-btn,
+  .lvm-cta-btn {
+    padding-inline: 9px;
+  }
+}
+
+[data-theme="dark"] .lvm-modal-backdrop {
+    background: rgba(0, 0, 0, 0.82);
+  }
+
+  [data-theme="dark"] .lvm-window,
+  [data-theme="dark"] .lvm-topbar,
+  [data-theme="dark"] .lvm-body-container,
+  [data-theme="dark"] .lvm-main-panel,
+  [data-theme="dark"] .lvm-content-scroll,
+  [data-theme="dark"] .lvm-bottom-bar {
+    background: #000000;
+    color: #f8fafc;
+  }
+
+  [data-theme="dark"] .lvm-window {
+    border-color: #242424;
+    box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.9);
+  }
+
+  [data-theme="dark"] .lvm-topbar,
+  [data-theme="dark"] .lvm-bottom-bar {
+    border-color: #202020;
+  }
+
+  [data-theme="dark"] .lvm-topbar-title,
+  [data-theme="dark"] .lvm-section-title,
+  [data-theme="dark"] .lvm-summary-h,
+  [data-theme="dark"] .lvm-sms-h,
+  [data-theme="dark"] .lvm-form-label,
+  [data-theme="dark"] .lvm-student-name,
+  [data-theme="dark"] .lvm-student-grade-line,
+  [data-theme="dark"] .lvm-offense-tile-title,
+  [data-theme="dark"] .lvm-status-h {
+    color: #f8fafc;
+  }
+
+  [data-theme="dark"] .lvm-sidebar,
+  [data-theme="dark"] .lvm-mobile-stepper-strip {
+    background: #050505;
+    border-color: #202020;
+  }
+
+  [data-theme="dark"] .lvm-stepper-vertical::before {
+    background: #242424;
+  }
+
+  [data-theme="dark"] .lvm-topbar-icon,
+  [data-theme="dark"] .lvm-section-icon-badge,
+  [data-theme="dark"] .lvm-sms-icon-disk,
+  [data-theme="dark"] .lvm-summary-disk {
+    background: #111111;
+    color: #ffffff;
+    box-shadow: none;
+  }
+
+  [data-theme="dark"] .lvm-topbar-close,
+  [data-theme="dark"] .lvm-step-name,
+  [data-theme="dark"] .lvm-step-btn.completed .lvm-step-name,
+  [data-theme="dark"] .lvm-mobile-step-pill,
+  [data-theme="dark"] .lvm-section-subtitle,
+  [data-theme="dark"] .lvm-counter-text,
+  [data-theme="dark"] .lvm-student-id-txt,
+  [data-theme="dark"] .lvm-student-dept-line,
+  [data-theme="dark"] .lvm-offense-tile-sanction,
+  [data-theme="dark"] .lvm-status-subh,
+  [data-theme="dark"] .lvm-sms-h span,
+  [data-theme="dark"] .lvm-sms-p,
+  [data-theme="dark"] .lvm-switch-txt,
+  [data-theme="dark"] .lvm-summary-entry,
+  [data-theme="dark"] .lvm-summary-entry strong,
+  [data-theme="dark"] .lvm-info-callout-body {
+    color: #a3a3a3;
+  }
+
+  [data-theme="dark"] .lvm-mobile-step-pill.active {
+    color: #ffffff;
+  }
+
+  [data-theme="dark"] .lvm-student-gender-badge.male,
+  [data-theme="dark"] .lvm-student-gender-badge.female {
+    background: #1a1a1a;
+    border: 1px solid #333333;
+    color: #d4d4d4;
+  }
+
+  [data-theme="dark"] .lvm-step-bubble,
+  [data-theme="dark"] .lvm-mobile-step-bubble {
+    background: #111111;
+    border-color: #333333;
+    color: #d4d4d4;
+  }
+
+  [data-theme="dark"] .lvm-step-btn:hover:not(:disabled),
+  [data-theme="dark"] .lvm-mobile-step-pill:hover:not(:disabled) {
+    background: #161616;
+    color: #ffffff;
+  }
+
+  [data-theme="dark"] .lvm-step-btn:hover:not(:disabled) .lvm-step-name,
+  [data-theme="dark"] .lvm-mobile-step-pill:hover:not(:disabled) {
+    color: #ffffff;
+  }
+
+  [data-theme="dark"] .lvm-step-btn.active,
+  [data-theme="dark"] .lvm-mobile-step-pill.active .lvm-mobile-step-bubble,
+  [data-theme="dark"] .lvm-pill-btn.active,
+  [data-theme="dark"] .lvm-status-card-opt.active,
+  [data-theme="dark"] .lvm-cta-btn {
+    background: #000000;
+    border-color: #444444;
+    color: #ffffff;
+  }
+
+  [data-theme="dark"] .lvm-cta-btn {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.65);
+  }
+
+  [data-theme="dark"] .lvm-step-btn:focus-visible,
+  [data-theme="dark"] .lvm-mobile-step-pill:focus-visible,
+  [data-theme="dark"] .lvm-pill-btn:focus-visible,
+  [data-theme="dark"] .lvm-student-row:focus-visible,
+  [data-theme="dark"] .lvm-status-card-opt:focus-visible,
+  [data-theme="dark"] .lvm-summary-pencil-btn:focus-visible,
+  [data-theme="dark"] .lvm-ghost-btn:focus-visible,
+  [data-theme="dark"] .lvm-cta-btn:focus-visible {
+    outline: 2px solid #a3a3a3;
+    outline-offset: 2px;
+  }
+
+  [data-theme="dark"] .lvm-step-btn.active:hover:not(:disabled),
+  [data-theme="dark"] .lvm-status-card-opt.active:hover,
+  [data-theme="dark"] .lvm-cta-btn:hover:not(:disabled),
+  [data-theme="dark"] .lvm-summary-pencil-btn:hover {
+    background: #1a1a1a;
+    border-color: #555555;
+    color: #ffffff;
+  }
+
+  [data-theme="dark"] .lvm-step-bubble.active {
+    background: #000000;
+    border-color: #555555;
+    color: #ffffff;
+    box-shadow: none;
+  }
+
+  [data-theme="dark"] .lvm-card,
+  [data-theme="dark"] .lvm-sms-box,
+  [data-theme="dark"] .lvm-summary-card {
+    background: #080808;
+    border-color: #242424;
+    box-shadow: none;
+  }
+
+  [data-theme="dark"] .lvm-search-input,
+  [data-theme="dark"] .lvm-text-field,
+  [data-theme="dark"] .lvm-text-area,
+  [data-theme="dark"] .lvm-iconic-input,
+  [data-theme="dark"] .lvm-iconic-select,
+  [data-theme="dark"] .lvm-sms-memo {
+    background-color: #050505;
+    border-color: #303030;
+    color: #f8fafc;
+    color-scheme: dark;
+  }
+
+  [data-theme="dark"] .lvm-search-input:focus,
+  [data-theme="dark"] .lvm-text-field:focus,
+  [data-theme="dark"] .lvm-text-area:focus,
+  [data-theme="dark"] .lvm-iconic-input:focus {
+    border-color: #777777;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.12);
+  }
+
+  [data-theme="dark"] .lvm-search-input::placeholder,
+  [data-theme="dark"] .lvm-text-field::placeholder,
+  [data-theme="dark"] .lvm-text-area::placeholder,
+  [data-theme="dark"] .lvm-iconic-input::placeholder,
+  [data-theme="dark"] .lvm-sms-memo::placeholder {
+    color: #737373;
+  }
+
+  [data-theme="dark"] .lvm-pill-btn,
+  [data-theme="dark"] .lvm-student-row,
+  [data-theme="dark"] .lvm-offense-tile,
+  [data-theme="dark"] .lvm-status-card-opt,
+  [data-theme="dark"] .lvm-summary-pencil-btn {
+    background: #080808;
+    border-color: #292929;
+    color: #e5e5e5;
+  }
+
+  [data-theme="dark"] .lvm-pill-btn:hover,
+  [data-theme="dark"] .lvm-student-row:hover,
+  [data-theme="dark"] .lvm-offense-tile:hover,
+  [data-theme="dark"] .lvm-status-card-opt:hover,
+  [data-theme="dark"] .lvm-summary-pencil-btn:hover {
+    background: #141414;
+    border-color: #555555;
+    color: #ffffff;
+  }
+
+  [data-theme="dark"] .lvm-student-row.selected {
+    background: #000000;
+    border-color: #555555;
+    box-shadow: inset 0 0 0 1px #222222;
+  }
+
+  [data-theme="dark"] .lvm-offense-tile.selected,
+  [data-theme="dark"] .lvm-offense-tile.selected:hover {
+    background: #000000;
+    border-color: #555555;
+    box-shadow: inset 0 0 0 1px #222222;
+  }
+
+  [data-theme="dark"] .lvm-info-callout {
+    background: #080808 !important;
+    border-color: #292929 !important;
+  }
+
+  [data-theme="dark"] .lvm-info-callout-icon,
+  [data-theme="dark"] .lvm-info-callout-heading {
+    color: #ffffff;
+  }
+
+  [data-theme="dark"] .lvm-summary-body {
+    background: #050505;
+    border-color: #242424;
+  }
+
+  [data-theme="dark"] .lvm-ghost-btn {
+    background: #080808;
+    border-color: #333333;
+    color: #e5e5e5;
+  }
+
+  [data-theme="dark"] .lvm-ghost-btn:hover {
+    background: #141414;
+    border-color: #555555;
+    color: #ffffff;
+  }
+
+  [data-theme="dark"] .lvm-cta-btn:disabled {
+    background: #262626;
+    border-color: #262626;
+    color: #737373;
+  }
+
+  [data-theme="dark"] .lvm-switch-rail {
+    background: #404040;
+  }
+
+[data-theme="dark"] .lvm-switch-rail.active {
+  background: #000000;
+  box-shadow: inset 0 0 0 1px #555555;
+}
