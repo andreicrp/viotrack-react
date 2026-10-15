@@ -513,7 +513,6 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
 
   // Touch Handlers (Mobile)
   const handleTouchStart = (e) => {
-    if (isMobile) return;
     if (e.target.closest('button, input, textarea, select, a, [role="button"]')) return;
 
     if (e.touches.length === 2) {
@@ -566,8 +565,8 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
   };
 
   const handleTouchMove = (e) => {
-    if (isMobile) return;
     if (e.touches.length === 2 && pinchDistanceRef.current && isPinchingRef.current) {
+      if (e.cancelable) e.preventDefault();
       const currentDist = Math.hypot(
         e.touches[0].clientX - e.touches[1].clientX,
         e.touches[0].clientY - e.touches[1].clientY
@@ -581,6 +580,7 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
         applyLiveTransform(panRef.current.x, panRef.current.y, currentScale);
       }
     } else if (e.touches.length === 1 && isDragging && !isPinchingRef.current) {
+      if (e.cancelable) e.preventDefault();
       const touch = e.touches[0];
       const deltaX = touch.clientX - dragStartRef.current.x;
       const deltaY = touch.clientY - dragStartRef.current.y;
@@ -592,10 +592,6 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
   };
 
   const handleTouchEnd = (e) => {
-    if (isMobile) {
-      setIsDragging(false);
-      return;
-    }
     if (e.touches.length < 2) {
       if (isPinchingRef.current) {
         setZoom(zoomRef.current);
@@ -1991,6 +1987,31 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
             overflow-y: auto;
             flex: 1;
           }
+          .psm-drawer-header h4 {
+            font-size: 13px !important;
+          }
+          .psm-drawer-header button {
+            font-size: 11px !important;
+          }
+          .psm-drawer-body .psm-form-content label,
+          .psm-drawer-body .psm-form-content span,
+          .psm-drawer-body .psm-form-content button {
+            font-size: 10.5px !important;
+          }
+          .psm-drawer-body .psm-form-content .psm-form-section-heading > span,
+          .psm-drawer-body .psm-form-content .psm-violation-title {
+            font-size: 10px !important;
+          }
+          .psm-drawer-body .psm-form-content .psm-violation-date,
+          .psm-drawer-body .psm-form-content .psm-severity-badge,
+          .psm-drawer-body .psm-form-content .psm-signatory-status {
+            font-size: 9px !important;
+          }
+          .psm-drawer-body .psm-form-content input:not([type="checkbox"]),
+          .psm-drawer-body .psm-form-content textarea,
+          .psm-drawer-body .psm-form-content select {
+            font-size: 13px !important;
+          }
         }
       `}</style>
 
@@ -2519,9 +2540,9 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
                 type="button"
                 onClick={() => setIsMobileDrawerOpen(false)}
                 style={{
-                  background: '#0f172a',
-                  color: '#ffffff',
-                  border: 'none',
+                  background: '#ffffff',
+                  color: '#0f172a',
+                  border: '1px solid #cbd5e1',
                   borderRadius: '8px',
                   padding: '6px 14px',
                   fontSize: '12px',

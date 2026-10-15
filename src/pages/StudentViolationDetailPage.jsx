@@ -1710,6 +1710,7 @@ export const StudentViolationDetailPage = () => {
         isOpen={isAddViolationOpen}
         onClose={() => setIsAddViolationOpen(false)}
         preselectedStudentId={student.id}
+        requireAccurateLocation={searchParams.get('from_qr') === '1'}
         onRecordAdded={() => {
           loadStudentAndRecords();
         }}

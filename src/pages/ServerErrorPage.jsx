@@ -39,7 +39,7 @@ export function ServerErrorPage({ error, errorInfo, resetError, standalone = fal
         {/* Status Badge */}
         <div className="error-badge badge-500">
           <AlertTriangle size={13} />
-          <span>System Notice</span>
+          <span>Error 500 • Server Error</span>
         </div>
 
         {/* Icon Graphic */}

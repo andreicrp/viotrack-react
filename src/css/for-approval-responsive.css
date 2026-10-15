@@ -1,0 +1,123 @@
+.for-approval-page {
+  min-width: 0;
+  width: 100%;
+}
+
+@media (max-width: 1024px) {
+  .for-approval-page .responsive-table-desktop {
+    display: none !important;
+  }
+
+  .for-approval-page .responsive-cards-mobile {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+    padding: 8px 0 !important;
+    min-width: 0;
+  }
+
+  .for-approval-page .responsive-cards-mobile.grid-view {
+    display: grid !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+  }
+
+  .for-approval-page .approval-mobile-record-card {
+    width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    padding: 14px !important;
+    gap: 10px !important;
+    border-radius: 12px !important;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08) !important;
+  }
+
+  .for-approval-page .approval-mobile-record-card > div {
+    min-width: 0;
+  }
+
+  .for-approval-page .approval-mobile-student-name,
+  .for-approval-page .approval-mobile-offense-title,
+  .for-approval-page .approval-mobile-reporter {
+    overflow-wrap: anywhere;
+  }
+
+  .for-approval-page .approval-mobile-offense-panel {
+    padding: 9px 11px !important;
+  }
+
+  .for-approval-page .approval-mobile-card-actions {
+    gap: 7px !important;
+  }
+
+  .for-approval-page .approval-mobile-card-actions button {
+    min-height: 40px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .for-approval-page .approval-mobile-record-card {
+    padding: 12px !important;
+  }
+
+  .for-approval-page .approval-mobile-student-detail {
+    line-height: 1.45;
+    overflow-wrap: anywhere;
+  }
+
+  .for-approval-page .approval-mobile-card-actions button {
+    min-height: 42px !important;
+    padding-inline: 6px !important;
+  }
+
+  .for-approval-page .approval-mobile-action-label {
+    display: inline;
+  }
+}
+
+[data-theme="dark"] .for-approval-page .approval-mobile-record-card {
+  background: #080808 !important;
+  border-color: #303030 !important;
+  color: #e5e5e5 !important;
+  box-shadow: none !important;
+}
+
+[data-theme="dark"] .for-approval-page .approval-mobile-record-card.is-selected {
+  background: #101010 !important;
+  border-color: #737373 !important;
+}
+
+[data-theme="dark"] .for-approval-page .approval-mobile-offense-panel {
+  background: #111111 !important;
+  border-color: #303030 !important;
+  color: #e5e5e5 !important;
+}
+
+[data-theme="dark"] .for-approval-page .approval-mobile-offense-label {
+  color: #a3a3a3 !important;
+}
+
+[data-theme="dark"] .for-approval-page .approval-mobile-offense-title {
+  color: #f5f5f5 !important;
+}
+
+[data-theme="dark"] .for-approval-page .approval-mobile-offense-remarks {
+  color: #c4c4c4 !important;
+}
+
+[data-theme="dark"] .for-approval-page .approval-mobile-status-badge.is-pending {
+  background: #332609 !important;
+  border-color: #8a650c !important;
+  color: #fcd34d !important;
+}
+
+[data-theme="dark"] .for-approval-page .approval-mobile-status-badge.is-approved {
+  background: #0d281b !important;
+  border-color: #1f6b42 !important;
+  color: #86efac !important;
+}
+
+[data-theme="dark"] .for-approval-page .approval-mobile-status-badge.is-rejected {
+  background: #301416 !important;
+  border-color: #81343a !important;
+  color: #fca5a5 !important;
+}

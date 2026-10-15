@@ -184,7 +184,7 @@
 }
 
 .error-big-code.code-404 {
-  background: linear-gradient(135deg, #07345f 0%, #1e40af 100%);
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -597,6 +597,39 @@
     border-color: rgba(251, 191, 36, 0.42);
   }
 
+  :root[data-theme="dark"] .error-big-code.code-404 {
+    background: linear-gradient(135deg, #bfdbfe 0%, #60a5fa 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  :root[data-theme="dark"] .error-big-code.code-403 {
+    background: linear-gradient(135deg, #fecdd3 0%, #fb7185 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  :root[data-theme="dark"] .error-big-code.code-500 {
+    background: linear-gradient(135deg, #fde68a 0%, #fbbf24 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  :root[data-theme="dark"] .error-icon-wrapper.icon-404 .error-icon-badge svg {
+    color: #60a5fa !important;
+  }
+
+  :root[data-theme="dark"] .error-icon-wrapper.icon-403 .error-icon-badge svg {
+    color: #fb7185 !important;
+  }
+
+  :root[data-theme="dark"] .error-icon-wrapper.icon-500 .error-icon-badge svg {
+    color: #fbbf24 !important;
+  }
+
   :root[data-theme="dark"] .error-icon-badge {
     background: #1a1a1a;
     border-color: #3a3a3a;
@@ -679,3 +712,21 @@
     outline: 3px solid #67e8f9;
     outline-offset: 3px;
   }
+
+@media (prefers-reduced-motion: reduce) {
+  .error-page-container,
+  .error-icon-wrapper,
+  .error-btn-primary,
+  .error-btn-secondary,
+  .error-link-chip {
+    animation: none;
+    transition: none;
+  }
+
+  .error-icon-wrapper:hover,
+  .error-btn-primary:hover,
+  .error-btn-secondary:hover,
+  .error-link-chip:hover {
+    transform: none;
+  }
+}

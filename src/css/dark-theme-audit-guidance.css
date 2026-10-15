@@ -839,8 +839,12 @@ html[data-theme="dark"] body .screen-lock-idle-badge * {
 
 html[data-theme="dark"] body .dash-distribution-item[aria-pressed="true"] {
   background: #111111 !important;
-  border-color: var(--dist-color, #737373) !important;
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--dist-color, #737373) 24%, transparent) !important;
+  border-color: #ffffff !important;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.24) !important;
+}
+
+html[data-theme="dark"] body .dash-distribution-item:focus-visible {
+  outline-color: #ffffff !important;
 }
 
 html[data-theme="dark"] body .student-violation-detail-page .responsive-table-desktop td .student-record-status-trigger,

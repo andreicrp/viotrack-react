@@ -408,6 +408,42 @@ html.dark body,
   color: #e2e8f0 !important;
 }
 
+[data-theme="dark"] .track-location-container .leaflet-popup-content-wrapper,
+[data-theme="dark"] .track-location-container .leaflet-popup-tip {
+  background: #080808 !important;
+  color: #f1f5f9 !important;
+}
+
+[data-theme="dark"] .track-location-container .track-popup-student-name,
+[data-theme="dark"] .track-location-container .track-popup-details {
+  color: #f1f5f9 !important;
+}
+
+[data-theme="dark"] .track-location-container .track-popup-student-grade {
+  color: #aebed3 !important;
+}
+
+[data-theme="dark"] .track-location-container .track-popup-details {
+  background: #111111 !important;
+}
+
+[data-theme="dark"] .track-location-container .track-popup-status {
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .track-location-container .track-popup-details strong {
+  color: #f1f5f9 !important;
+}
+
+[data-theme="dark"] .track-location-container .track-history-popup {
+  color: #f1f5f9 !important;
+}
+
+[data-theme="dark"] .track-location-container .track-history-popup-details {
+  background: #111111 !important;
+  color: #cbd5e1 !important;
+}
+
 [data-theme="dark"] .track-location-container .track-tabs-container {
   background: #000000 !important;
 }
@@ -432,6 +468,50 @@ html.dark body,
 [data-theme="dark"] .track-location-container .track-sidebar-card [style*="background: #f1f5f9"] {
   background: #111111 !important;
   border-color: #242424 !important;
+}
+
+[data-theme="dark"] .track-location-container .track-location-history-item.is-latest {
+  background: #10251a !important;
+  border-color: #166534 !important;
+}
+
+[data-theme="dark"] .track-location-container .track-location-history-item:not(.is-latest) {
+  background: #111111 !important;
+  border-color: #303030 !important;
+}
+
+[data-theme="dark"] .track-location-container .track-location-history-item:hover {
+  border-color: #38bdf8 !important;
+}
+
+[data-theme="dark"] .track-location-container .track-location-history-item:focus-visible {
+  outline-color: #38bdf8;
+}
+
+[data-theme="dark"] .track-location-container .track-location-history-heading {
+  color: #f1f5f9 !important;
+}
+
+[data-theme="dark"] .track-location-container .track-location-history-time,
+[data-theme="dark"] .track-location-container .track-location-history-coordinates {
+  color: #aebed3 !important;
+}
+
+[data-theme="dark"] .track-location-container .track-location-incident-item {
+  background: #1c1010 !important;
+  border-color: #4a2525 !important;
+}
+
+[data-theme="dark"] .track-location-container .track-location-incident-title {
+  color: #fca5a5 !important;
+}
+
+[data-theme="dark"] .track-location-container .track-location-incident-meta {
+  color: #aebed3 !important;
+}
+
+[data-theme="dark"] .track-location-container .track-location-incident-status {
+  color: #f1f5f9 !important;
 }
 
 [data-theme="dark"] .track-location-container .track-mode-metric,

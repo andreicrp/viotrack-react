@@ -44,6 +44,7 @@ import { SaveAsModal } from '../components/common/SaveAsModal';
 import { ViewModeToggle } from '../components/common/ViewModeToggle';
 import { CustomSelect } from '../components/common/CustomSelect';
 import { Modal } from '../components/common/Modal';
+import '../css/for-approval-responsive.css';
 
 export const ForApprovalPage = () => {
   const { user } = useAuth();
@@ -493,7 +494,7 @@ export const ForApprovalPage = () => {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+    <div className="for-approval-page" style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
       {/* 1. Page Banner Header */}
       <div className="page-banner-header">
         <div className="page-banner-info">
@@ -1440,6 +1441,7 @@ export const ForApprovalPage = () => {
                         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '2px' }}>
                           <span style={{ fontWeight: 600 }}>Status:</span>
                           <span
+                            className={`approval-mobile-status-badge ${isPending ? 'is-pending' : isApproved ? 'is-approved' : 'is-rejected'}`}
                             style={{
                               fontSize: '11px',
                               fontWeight: 800,

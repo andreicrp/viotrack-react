@@ -35,22 +35,6 @@ import {
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
 
-const SANCTION_PRESETS = [
-  'Verbal Warning & Reprimand',
-  'Written Acknowledgment & Reflection',
-  'Parent / Guardian Conference',
-  '1-Hour Campus Service',
-  'Guidance Counseling Session',
-  'Behavior Undertaking Contract'
-];
-
-const NOTE_SNIPPETS = [
-  'Student acknowledged the infraction and committed to standard compliance.',
-  'Parent/guardian was formally notified and attended conference.',
-  'Student has completed assigned campus remediation duties in full.',
-  'First offense counseling conducted; case considered closed.'
-];
-
 const STATUS_CONFIG = {
   'Resolved': {
     label: 'Resolved & Cleared',
@@ -71,17 +55,17 @@ const STATUS_CONFIG = {
   'Pending': {
     label: 'Pending (Open)',
     sublabel: 'Awaiting student or adviser response',
-    color: '#64748b',
-    bg: '#f8fafc',
-    border: '#cbd5e1',
+    color: '#ef4444',
+    bg: '#fef2f2',
+    border: '#fecaca',
     icon: Clock
   },
   'Escalated': {
     label: 'Escalated to Guidance',
     sublabel: 'Forwarded for formal intervention',
-    color: '#ef4444',
-    bg: '#fef2f2',
-    border: '#fecaca',
+    color: '#8b5cf6',
+    bg: '#f5f3ff',
+    border: '#ddd6fe',
     icon: AlertTriangle
   }
 };
@@ -90,6 +74,7 @@ const STATUS_CONFIG = {
  * Builds the complete, authentic Philippine Institutional Clearance Certificate HTML for direct printing
  */
 export const buildCertificateHtml = ({ record, status, sanction, resolutionNotes, officerName, officerTitle }) => {
+  const statusColor = STATUS_CONFIG[status]?.color || '#64748b';
   const studentFullName = `${record?.student?.fname || ''} ${record?.student?.mname ? record.student.mname + ' ' : ''}${record?.student?.lname || ''}`.trim().toUpperCase() || 'STUDENT RECORD';
   const resolutionDate = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
   const incidentDate = record?.date_reported 
@@ -335,7 +320,7 @@ export const buildCertificateHtml = ({ record, status, sanction, resolutionNotes
       <div class="meta-bar">
         <span>CONTROL NUMBER: <span class="meta-code">${controlNumber}</span></span>
         <span>DATE OF ISSUANCE: <span class="meta-code">${resolutionDate}</span></span>
-        <span>STATUS: <span class="meta-code" style="color: ${status === 'Resolved' ? '#15803d' : '#07345f'}; text-transform: uppercase;">${status}</span></span>
+        <span>STATUS: <span class="meta-code" style="color: ${statusColor}; text-transform: uppercase;">${status}</span></span>
       </div>
 
       <!-- Certificate Title -->
@@ -364,7 +349,7 @@ export const buildCertificateHtml = ({ record, status, sanction, resolutionNotes
         </tr>
         <tr>
           <th>Final Case Disposition:</th>
-          <td><strong style="color: ${status === 'Resolved' ? '#15803d' : '#07345f'}; text-transform: uppercase;">${status}</strong></td>
+          <td><strong style="color: ${statusColor}; text-transform: uppercase;">${status}</strong></td>
         </tr>
       </table>
 
@@ -638,7 +623,6 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
 
   // Touch Handlers (Mobile)
   const handleTouchStart = (e) => {
-    if (isMobile) return;
     if (e.target.closest('button, input, textarea, select, a, [role="button"]')) return;
 
     if (e.touches.length === 2) {
@@ -691,8 +675,8 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
   };
 
   const handleTouchMove = (e) => {
-    if (isMobile) return;
     if (e.touches.length === 2 && pinchDistanceRef.current && isPinchingRef.current) {
+      if (e.cancelable) e.preventDefault();
       const currentDist = Math.hypot(
         e.touches[0].clientX - e.touches[1].clientX,
         e.touches[0].clientY - e.touches[1].clientY
@@ -706,6 +690,7 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
         applyLiveTransform(panRef.current.x, panRef.current.y, currentScale);
       }
     } else if (e.touches.length === 1 && isDragging && !isPinchingRef.current) {
+      if (e.cancelable) e.preventDefault();
       const touch = e.touches[0];
       const deltaX = touch.clientX - dragStartRef.current.x;
       const deltaY = touch.clientY - dragStartRef.current.y;
@@ -717,10 +702,6 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
   };
 
   const handleTouchEnd = (e) => {
-    if (isMobile) {
-      setIsDragging(false);
-      return;
-    }
     if (e.touches.length < 2) {
       if (isPinchingRef.current) {
         setZoom(zoomRef.current);
@@ -801,17 +782,6 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleApplyPreset = (presetText) => {
-    setSanction(presetText);
-  };
-
-  const handleAppendSnippet = (snippetText) => {
-    setResolutionNotes((prev) => {
-      if (!prev || !prev.trim()) return snippetText;
-      return `${prev.trim()} ${snippetText}`;
-    });
   };
 
   // High Quality Client-Side PDF Generation
@@ -1158,11 +1128,10 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
 
       {/* 2. Sanction / Remediation Completed */}
       <div>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+        <div style={{ marginBottom: '4px' }}>
           <label style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '11.5px', fontWeight: 800, color: 'var(--text-primary, #0f172a)', textTransform: 'uppercase', letterSpacing: '0.04em', margin: 0 }}>
             <Award size={12} color="currentColor" /> Fulfilled Sanction
           </label>
-          <span style={{ fontSize: '10px', color: 'var(--text-secondary, #64748b)' }}>Click presets</span>
         </div>
         <input
           type="text"
@@ -1182,30 +1151,6 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
             color: 'var(--text-primary, #0f172a)'
           }}
         />
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
-          {SANCTION_PRESETS.map((p, idx) => (
-            <button
-              key={idx}
-              type="button"
-              className={`res-preset-button${sanction === p ? ' is-selected' : ''}`}
-              onClick={() => handleApplyPreset(p)}
-              style={{
-                background: sanction === p ? 'var(--brand-blue, #0f172a)' : 'var(--bg-surface, #ffffff)',
-                color: sanction === p ? '#ffffff' : 'var(--text-secondary, #475569)',
-                border: '1px solid',
-                borderColor: sanction === p ? 'var(--brand-blue, #0f172a)' : 'var(--border-medium, #cbd5e1)',
-                borderRadius: '5px',
-                padding: '3px 7px',
-                fontSize: '10px',
-                fontWeight: 600,
-                cursor: 'pointer',
-                transition: 'all 0.12s ease'
-              }}
-            >
-              + {p}
-            </button>
-          ))}
-        </div>
       </div>
 
       {/* 3. Resolution Notes / Outcomes */}
@@ -1237,30 +1182,6 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
             color: 'var(--text-primary, #0f172a)'
           }}
         />
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
-          {NOTE_SNIPPETS.map((snip, idx) => (
-            <button
-              key={idx}
-              type="button"
-              className="res-note-snippet"
-              onClick={() => handleAppendSnippet(snip)}
-              style={{
-                background: 'var(--bg-surface, #ffffff)',
-                color: 'var(--text-secondary, #475569)',
-                border: '1px dashed var(--border-medium, #cbd5e1)',
-                borderRadius: '5px',
-                padding: '3px 6px',
-                fontSize: '10px',
-                fontWeight: 500,
-                cursor: 'pointer',
-                transition: 'all 0.12s ease',
-                textAlign: 'left'
-              }}
-            >
-              + {snip.length > 32 ? snip.substring(0, 32) + '...' : snip}
-            </button>
-          ))}
-        </div>
       </div>
 
       {/* 4. Presiding Officer Signatory */}
@@ -1316,14 +1237,14 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
           fontSize: '13px',
           fontWeight: 800,
           border: 'none',
-          background: status === 'Resolved' ? '#10b981' : 'var(--brand-blue, #0f172a)',
+          background: STATUS_CONFIG[status]?.color || 'var(--brand-blue, #0f172a)',
           color: '#ffffff',
           cursor: 'pointer',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
           gap: '6px',
-          boxShadow: status === 'Resolved' ? '0 4px 12px rgba(16, 185, 129, 0.3)' : '0 4px 12px rgba(15, 23, 42, 0.25)'
+          boxShadow: 'none'
         }}
       >
         <Check size={15} strokeWidth={2.5} color="currentColor" />
@@ -1398,6 +1319,8 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
           transform: translate3d(0, 0, 0);
           contain: layout paint;
           user-select: none;
+          touch-action: none;
+          caret-color: #0f172a !important;
         }
         .res-letterhead {
           display: flex;
@@ -1689,6 +1612,11 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
             overflow-y: auto;
             flex: 1;
           }
+          .res-mobile-drawer-content input,
+          .res-mobile-drawer-content select,
+          .res-mobile-drawer-content textarea {
+            font-size: 12px !important;
+          }
         }
       `}</style>
       <div
@@ -1971,7 +1899,7 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '11px', color: '#64748b', marginBottom: '12px', fontFamily: 'inherit', borderBottom: '1px dotted #cbd5e1', paddingBottom: '4px', flexWrap: 'wrap', gap: '4px' }}>
                     <span>Control No: <strong style={{ color: '#0f172a', fontFamily: 'monospace' }}>{controlNumber}</strong></span>
                     <span>Date Issued: <strong style={{ color: '#0f172a' }}>{currentDateFormatted}</strong></span>
-                    <span>Status: <strong className={`res-preview-status${status === 'Resolved' ? ' is-resolved' : ''}`} style={{ color: status === 'Resolved' ? '#15803d' : '#07345f', textTransform: 'uppercase' }}>{status}</strong></span>
+                    <span>Status: <strong className={`res-preview-status${status === 'Resolved' ? ' is-resolved' : ''}`} style={{ color: STATUS_CONFIG[status]?.color || '#64748b', textTransform: 'uppercase' }}>{status}</strong></span>
                   </div>
 
                   {/* Document Certificate Title */}
@@ -1985,8 +1913,8 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
                   </div>
 
                   {/* Student & Case Information Table */}
-                  <div style={{ width: '100%', overflowX: 'auto' }}>
-                    <table style={{ width: '100%', borderCollapse: 'collapse', margin: '10px 0 14px', fontSize: '11.5px', border: '1px solid #cbd5e1' }}>
+                  <div style={{ width: '100%', overflowX: 'hidden' }}>
+                    <table style={{ width: '100%', tableLayout: 'fixed', borderCollapse: 'collapse', margin: '10px 0 14px', fontSize: '11.5px', border: '1px solid #cbd5e1' }}>
                       <tbody>
                         <tr style={{ background: '#f8fafc' }}>
                           <td style={{ padding: '6px 10px', border: '1px solid #cbd5e1', width: '32%', fontWeight: 700, color: '#07345f' }}>Student Full Name:</td>
@@ -2006,7 +1934,7 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
                         </tr>
                         <tr style={{ background: '#f8fafc' }}>
                           <td style={{ padding: '6px 10px', border: '1px solid #cbd5e1', fontWeight: 700, color: '#07345f' }}>Final Disposition:</td>
-                          <td className={`res-preview-status${status === 'Resolved' ? ' is-resolved' : ''}`} style={{ padding: '6px 10px', border: '1px solid #cbd5e1', fontWeight: 800, color: status === 'Resolved' ? '#15803d' : '#07345f', textTransform: 'uppercase' }}>{status}</td>
+                          <td className={`res-preview-status${status === 'Resolved' ? ' is-resolved' : ''}`} style={{ padding: '6px 10px', border: '1px solid #cbd5e1', fontWeight: 800, color: STATUS_CONFIG[status]?.color || '#64748b', textTransform: 'uppercase' }}>{status}</td>
                         </tr>
                       </tbody>
                     </table>
@@ -2122,9 +2050,9 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
               disabled={loading}
               style={{
                 border: 'none',
-                background: status === 'Resolved' ? '#10b981' : '#18181b',
+                background: STATUS_CONFIG[status]?.color || '#18181b',
                 color: '#ffffff',
-                boxShadow: status === 'Resolved' ? '0 4px 12px rgba(16, 185, 129, 0.3)' : '0 4px 12px rgba(0, 0, 0, 0.25)'
+                boxShadow: 'none'
               }}
             >
               <Check size={14} strokeWidth={2.4} color="currentColor" />

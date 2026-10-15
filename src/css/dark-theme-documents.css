@@ -756,29 +756,29 @@ html[data-theme="dark"] body .approve-incident-dialog .approve-incident-severity
 }
 
 [data-theme="dark"] .resolution-modal-backdrop .res-status-option.status-pending.is-selected {
-  border-color: #ffffff !important;
-  box-shadow: 0 0 0 1px #ffffff !important;
-}
-[data-theme="dark"] .resolution-modal-backdrop .res-status-option.status-pending.is-selected .res-status-btn-text,
-[data-theme="dark"] .resolution-modal-backdrop .res-status-option.status-pending.is-selected span {
-  color: #ffffff !important;
-}
-[data-theme="dark"] .resolution-modal-backdrop .res-status-option.status-pending.is-selected svg {
-  color: #ffffff !important;
-  stroke: #ffffff !important;
-}
-
-[data-theme="dark"] .resolution-modal-backdrop .res-status-option.status-escalated.is-selected {
   border-color: #ef4444 !important;
   box-shadow: 0 0 0 1px #ef4444 !important;
 }
-[data-theme="dark"] .resolution-modal-backdrop .res-status-option.status-escalated.is-selected .res-status-btn-text,
-[data-theme="dark"] .resolution-modal-backdrop .res-status-option.status-escalated.is-selected span {
+[data-theme="dark"] .resolution-modal-backdrop .res-status-option.status-pending.is-selected .res-status-btn-text,
+[data-theme="dark"] .resolution-modal-backdrop .res-status-option.status-pending.is-selected span {
   color: #f87171 !important;
 }
-[data-theme="dark"] .resolution-modal-backdrop .res-status-option.status-escalated.is-selected svg {
+[data-theme="dark"] .resolution-modal-backdrop .res-status-option.status-pending.is-selected svg {
   color: #f87171 !important;
   stroke: #f87171 !important;
+}
+
+[data-theme="dark"] .resolution-modal-backdrop .res-status-option.status-escalated.is-selected {
+  border-color: #8b5cf6 !important;
+  box-shadow: 0 0 0 1px #8b5cf6 !important;
+}
+[data-theme="dark"] .resolution-modal-backdrop .res-status-option.status-escalated.is-selected .res-status-btn-text,
+[data-theme="dark"] .resolution-modal-backdrop .res-status-option.status-escalated.is-selected span {
+  color: #a78bfa !important;
+}
+[data-theme="dark"] .resolution-modal-backdrop .res-status-option.status-escalated.is-selected svg {
+  color: #a78bfa !important;
+  stroke: #a78bfa !important;
 }
 
 /* Sanction Presets & Note Snippets */

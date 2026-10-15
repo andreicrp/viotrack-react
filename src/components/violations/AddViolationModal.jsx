@@ -30,7 +30,8 @@ export const AddViolationModal = ({
   isOpen,
   onClose,
   onRecordAdded,
-  preselectedStudentId = null
+  preselectedStudentId = null,
+  requireAccurateLocation = false
 }) => {
   const { user } = useAuth();
   const { isDark } = useTheme();
@@ -290,11 +291,50 @@ export const AddViolationModal = ({
     setLoading(true);
 
     try {
+      let submitLocation = location;
+      if (requireAccurateLocation) {
+        if (!('geolocation' in navigator)) {
+          throw new Error('This device does not support GPS location. Enable location services to record a scanned violation.');
+        }
+
+        const position = await new Promise((resolve, reject) => {
+          navigator.geolocation.getCurrentPosition(resolve, reject, {
+            enableHighAccuracy: true,
+            maximumAge: 0,
+            timeout: 20000
+          });
+        }).catch((geoError) => {
+          const reason = geoError?.code === 1
+            ? 'Location permission was denied.'
+            : geoError?.code === 2
+              ? 'The device could not determine its location.'
+              : 'GPS location timed out.';
+          throw new Error(`${reason} Allow location access and try again.`);
+        });
+
+        submitLocation = {
+          lat: position.coords.latitude,
+          lng: position.coords.longitude,
+          accuracy: Math.round(position.coords.accuracy),
+          captured: true,
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        };
+        setLocation(submitLocation);
+      }
+
       const createdRecords = [];
       const chosenStudents = students.filter((s) => selectedStudentIds.includes(Number(s.id)));
       const chosenViolations = violations.filter((v) => selectedViolationIds.includes(Number(v.id)));
 
       for (const student of chosenStudents) {
+        if (requireAccurateLocation) {
+          await dataService.saveStudentLocation(student.id, {
+            latitude: submitLocation.lat,
+            longitude: submitLocation.lng,
+            accuracy_meters: submitLocation.accuracy
+          });
+        }
+
         for (const violation of chosenViolations) {
           const newRecord = await dataService.addRecord({
             student_id: Number(student.id),
@@ -307,9 +347,9 @@ export const AddViolationModal = ({
             status: isApprovalMode ? 'Under Approval' : formData.status,
             approval_status: isApprovalMode ? 'Under Approval' : 'Approved',
             sms_notified: formData.sendSMS,
-            lat: location.lat,
-            lng: location.lng,
-            accuracy: location.accuracy
+            lat: submitLocation.lat,
+            lng: submitLocation.lng,
+            accuracy: submitLocation.accuracy
           });
           createdRecords.push(newRecord);
         }
@@ -352,7 +392,9 @@ export const AddViolationModal = ({
         onClose();
       }
     } catch (err) {
-      error('Failed to save violation records: ' + err.message);
+      error(requireAccurateLocation
+        ? `Failed to save scanned violation: ${err.message}`
+        : 'Failed to save violation records: ' + err.message);
     } finally {
       releaseSubmissionLock(lockKey);
       setLoading(false);

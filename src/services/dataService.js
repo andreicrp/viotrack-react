@@ -1166,8 +1166,8 @@ export const dataService = {
       }
 
       let remarksText = record.remarks || '';
-      if (record.lat && record.lng && !remarksText.includes('GPS:')) {
-        const gpsNote = ` [GPS: ${Number(record.lat).toFixed(4)}, ${Number(record.lng).toFixed(4)}${record.accuracy ? ` (±${record.accuracy}m)` : ''}]`;
+      if (record.lat != null && record.lng != null && !remarksText.includes('GPS:')) {
+        const gpsNote = ` [GPS: ${Number(record.lat).toFixed(6)}, ${Number(record.lng).toFixed(6)}${record.accuracy != null ? ` (±${record.accuracy}m)` : ''}]`;
         remarksText = remarksText ? `${remarksText}${gpsNote}` : gpsNote.trim();
       }
 
@@ -1487,19 +1487,7 @@ export const dataService = {
     const storedHistory = getStored(`locations_${studentId}`, []);
     if (storedHistory.length > 0) return storedHistory[0];
 
-    // Fallback seed based on student ID
-    const seed = Number(studentId) || 1;
-    const latOffset = ((seed * 17) % 70 - 35) * 0.0018;
-    const lngOffset = ((seed * 23) % 70 - 35) * 0.0022;
-    return {
-      student_id: Number(studentId),
-      latitude: 14.642 + latOffset,
-      longitude: 120.985 + lngOffset,
-      accuracy_meters: 8 + (seed % 12),
-      recorded_at: new Date(Date.now() - (seed % 15) * 60000).toISOString(),
-      tracking_status: 'Active',
-      reported_by: 'GPS Telemetry'
-    };
+    return null;
   },
 
   async getStudentLocationHistory(studentId, limit = 15) {
@@ -1522,22 +1510,7 @@ export const dataService = {
     const stored = getStored(`locations_${studentId}`, []);
     if (stored.length > 0) return stored.slice(0, limit);
 
-    // Initial mock breadcrumbs
-    const latest = await this.getStudentLatestLocation(studentId);
-    const crumbs = [];
-    for (let i = 0; i < 5; i++) {
-      crumbs.push({
-        id: `crumb_${i}`,
-        student_id: Number(studentId),
-        latitude: latest.latitude + (i * 0.0004 * (i % 2 === 0 ? 1 : -1)),
-        longitude: latest.longitude + (i * 0.0005 * (i % 2 === 0 ? -1 : 1)),
-        accuracy_meters: Math.max(5, (latest.accuracy_meters || 10) + i * 2),
-        recorded_at: new Date(Date.now() - i * 180000).toISOString(),
-        tracking_status: i === 0 ? 'Active' : 'Historical',
-        reported_by: 'Device GPS'
-      });
-    }
-    return crumbs;
+    return [];
   },
 
   async saveStudentLocation(studentId, { latitude, longitude, accuracy_meters, tracking_status = 'Active' }) {
@@ -1545,12 +1518,12 @@ export const dataService = {
 
     const lat = Number(latitude);
     const lng = Number(longitude);
-    const acc = Number(accuracy_meters) || 10;
+    const acc = accuracy_meters == null ? 10 : Number(accuracy_meters);
 
     // Strict Coordinate Validation
     if (isNaN(lat) || lat < -90 || lat > 90) throw new Error('Invalid latitude coordinates');
     if (isNaN(lng) || lng < -180 || lng > 180) throw new Error('Invalid longitude coordinates');
-    if (acc < 0) throw new Error('Invalid accuracy range');
+    if (!Number.isFinite(acc) || acc < 0) throw new Error('Invalid accuracy range');
 
     const currentUser = this.getCurrentUser();
     const payload = {
@@ -1564,12 +1537,19 @@ export const dataService = {
     };
 
     let savedResult = null;
+    let remoteSaveError = null;
     if (isSupabaseConfigured()) {
       try {
         const { data, error } = await supabase.from('student_locations').insert([payload]).select();
-        if (!error && data?.[0]) savedResult = data[0];
+        if (error) {
+          remoteSaveError = error;
+        } else if (!data?.[0]) {
+          remoteSaveError = new Error('No location record was returned by the database.');
+        } else {
+          savedResult = data[0];
+        }
       } catch (err) {
-        console.warn('Supabase saveStudentLocation error:', err);
+        remoteSaveError = err;
       }
     }
 
@@ -1582,6 +1562,11 @@ export const dataService = {
     try {
       window.dispatchEvent(new CustomEvent('viotrack_location_updated', { detail: payload }));
     } catch {}
+
+    if (remoteSaveError) {
+      console.error('Supabase saveStudentLocation error:', remoteSaveError);
+      throw new Error(`GPS was saved on this device but could not be saved to shared location history: ${remoteSaveError.message || String(remoteSaveError)}`);
+    }
 
     return savedResult || payload;
   },

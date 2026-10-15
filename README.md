@@ -41,10 +41,22 @@ A modern, responsive, full-featured **Student Violation Tracking and Monitoring 
 ### ⚠️ Violation Records & Case Management
 - Filterable violation registry (Student name, Student ID, offense category, status, severity, grade, date).
 - Dual view modes: **Table View** and **Grid/Card View** with responsive mobile layout.
+- Teacher-submitted reports are reviewed in a responsive approval queue, with readable cards on tablet and mobile screens.
+- Approval cards and badges use theme-aware colors for pending, approved, and rejected states.
 - **Action Undo Toast Notifications**: 5-second countdown with `↶ Undo` button before permanently committing record updates or deletions.
 - Official Parent Summons form generator with scheduled conference details.
 - Case resolution modal with clearance notes and celebration confetti.
 - CSV and PDF incident report exports with formula injection protection.
+
+### 📍 Incident Location Tracking
+- QR-scanned violation reports require a fresh, high-accuracy GPS fix when submitted. If location access is unavailable or denied, the report is not saved without coordinates.
+- Captured coordinates are saved to the student location history and included with the violation record.
+- Select a location-history entry to focus the map on that recorded point and view its coordinates, accuracy, and recorded time.
+- Missing location data is shown as unavailable; the tracker does not substitute fabricated coordinates.
+
+### 🧭 Responsive Error and Access Pages
+- Dedicated 404 (page not found), 403 (access restricted), and 500 (unexpected error) screens.
+- Error pages use distinct, theme-aware status colors and responsive layouts, with reduced-motion support.
 
 ### 🎓 Student Directory & ID Card Generation
 - Searchable student roster with photo avatars, parent/guardian contacts, and emergency info.
@@ -167,7 +179,7 @@ src/
 │   ├── students/       # AddStudentModal, StudentIdModal, BulkImportModal
 │   └── violations/     # AddViolationModal, StatusModal, ResolutionModal, ParentSummonsModal
 ├── context/            # AuthContext (Inactivity Lock), NotificationContext (Undo Toasts)
-├── css/                # Responsive stylesheets (dashboard, scan-qr, violations, print)
+├── css/                # Responsive stylesheets (dashboard, scan-qr, violations, approval queue, errors, print)
 ├── hooks/              # useKeyboardShortcuts
 ├── lib/                # Supabase client, schema & supabase-rls-policies.sql
 ├── pages/              # Route-level pages (Dashboard, ScanQR, Violations, Students, Teachers, Advisers, ActivityLogs, VerifyStudentPage)
@@ -180,4 +192,3 @@ src/
 ## 📄 License
 
 This project is proprietary software developed for educational institutions. All rights reserved.
-

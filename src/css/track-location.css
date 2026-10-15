@@ -191,9 +191,9 @@
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: #07345f;
-  border: 2.5px solid #38bdf8;
-  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.35), 0 0 0 2px rgba(255, 255, 255, 0.9);
+  background: transparent;
+  border: none;
+  box-shadow: 0 3px 8px rgba(15, 23, 42, 0.35);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -223,7 +223,6 @@
 
 .pin-outer:hover {
   transform: scale(1.18);
-  border-color: #f59e0b;
   z-index: 9999 !important;
 }
 
@@ -239,6 +238,24 @@
   padding: 4px;
   min-width: 190px;
   font-family: inherit;
+  color: #000000;
+}
+
+.track-popup-student-name {
+  color: #0f172a !important;
+}
+
+.track-popup-student-grade {
+  color: #64748b !important;
+}
+
+.track-popup-details {
+  background: #f8fafc !important;
+  color: #334155 !important;
+}
+
+.track-popup-status {
+  color: #000000 !important;
 }
 
 /* Telemetry Sidebar Cards & Navigation Tabs */
@@ -301,6 +318,50 @@
   background: #0f172a;
   color: #ffffff;
   box-shadow: 0 2px 6px rgba(15, 23, 42, 0.22);
+}
+
+.track-location-history-item {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 8px 10px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  background: #f8fafc;
+  color: inherit;
+  font: inherit;
+  font-size: 11.5px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.track-location-history-item.is-latest {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+}
+
+.track-location-history-item:hover {
+  border-color: #0284c7;
+}
+
+.track-location-history-item:focus-visible {
+  outline: 2px solid #0284c7;
+  outline-offset: 2px;
+}
+
+.track-history-popup {
+  min-width: 190px;
+  color: #0f172a;
+}
+
+.track-history-popup-details {
+  margin-top: 5px;
+  padding: 6px 8px;
+  border-radius: 6px;
+  background: #f8fafc;
+  color: #334155;
+  font-size: 11px;
+  line-height: 1.5;
 }
 
 @media (max-width: 480px) {
