@@ -581,8 +581,8 @@ export const ProfilePage = () => {
               </div>
 
               {/* Info Banner */}
-              <div style={{ background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: '10px', padding: '10px 12px', fontSize: '12px', color: '#1e40af', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <AlertCircle size={16} color="#2563eb" style={{ flexShrink: 0 }} />
+              <div className="profile-password-guidance">
+                <AlertCircle size={16} aria-hidden="true" />
                 <span>Password should be at least 6 characters long.</span>
               </div>
 
@@ -676,7 +676,7 @@ export const ProfilePage = () => {
             </div>
 
             {/* Workstation Inactivity Auto-Lock Settings Card */}
-            <div className="profile-card">
+            <div className="profile-card profile-inactivity-card">
               <div className="profile-card-header">
                 <div className="profile-card-icon">
                   <Clock size={18} />
@@ -688,51 +688,35 @@ export const ProfilePage = () => {
                   <p className="profile-card-subtitle">
                     Prevent unauthorized student access on unattended faculty workstations
                   </p>
+                </div>
               </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                <div style={{ fontSize: '12.5px', color: 'var(--text-secondary, #475569)', lineHeight: 1.45 }}>
+              <div className="profile-inactivity-content">
+                <p className="profile-inactivity-description">
                   Automatically signs out after 30 minutes without keyboard, mouse, or touch activity. This protects student records on unattended devices.
-                </div>
+                </p>
 
-                <div>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--bg-surface-elevated, #f8fafc)', border: '1px solid var(--border-subtle, #e2e8f0)', padding: '10px 14px', borderRadius: '10px', marginTop: '4px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                      <Shield size={16} color="var(--brand-blue, #07345f)" />
-                      <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-primary, #0f172a)' }}>
-                        Current Policy: Automatic sign-out after 30 minutes idle
-                      </span>
-                    </div>
-                    <CheckCircle2 size={16} color="#16a34a" aria-label="Enabled" />
+                <div className="profile-inactivity-policy">
+                  <div className="profile-inactivity-policy-copy">
+                    <Shield size={16} />
+                    <span>Current policy: automatic sign-out after 30 minutes idle</span>
                   </div>
-                </div>
+                  <CheckCircle2 className="profile-inactivity-enabled" size={16} aria-label="Enabled" />
                 </div>
 
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--bg-surface-elevated, #f8fafc)', border: '1px solid var(--border-subtle, #e2e8f0)', padding: '10px 14px', borderRadius: '10px', marginTop: '4px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <Shield size={16} color="var(--brand-blue, #07345f)" />
-                    <span style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-primary, #0f172a)' }}>
+                <div className="profile-inactivity-lock">
+                  <div className="profile-inactivity-lock-copy">
+                    <Shield size={16} />
+                    <span>
                       Manual screen lock is also available
                     </span>
                   </div>
                   <button
                     type="button"
+                    className="profile-lock-now"
                     onClick={() => {
                       success('Workstation manually locked.');
                       lockScreen();
-                    }}
-                    style={{
-                      background: 'var(--brand-blue, #07345f)',
-                      color: '#ffffff',
-                      border: 'none',
-                      padding: '6px 12px',
-                      borderRadius: '7px',
-                      fontSize: '11.5px',
-                      fontWeight: 700,
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '5px'
                     }}
                   >
                     <Lock size={12} /> Lock Now
@@ -742,7 +726,7 @@ export const ProfilePage = () => {
             </div>
 
             {/* Session & Account Security Overview Card */}
-            <div className="profile-card">
+            <div className="profile-card profile-security-card">
               <div className="profile-card-header">
                 <div className="profile-card-icon">
                   <Fingerprint size={18} />
@@ -757,54 +741,43 @@ export const ProfilePage = () => {
                 </div>
               </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '9px 12px', background: 'var(--bg-surface-elevated, #f8fafc)', borderRadius: '10px', border: '1px solid var(--border-subtle, #e2e8f0)', fontSize: '12px' }}>
-                  <span style={{ color: 'var(--text-muted, #64748b)' }}>Last Login Timestamp:</span>
-                  <strong style={{ color: 'var(--text-primary, #0f172a)' }}>{new Date().toLocaleDateString()}</strong>
+              <div className="profile-security-rows">
+                <div className="profile-security-row">
+                  <span className="profile-security-label">Last Login Timestamp</span>
+                  <strong className="profile-security-value">{new Date().toLocaleDateString()}</strong>
                 </div>
 
-                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '9px 12px', background: 'var(--bg-surface-elevated, #f8fafc)', borderRadius: '10px', border: '1px solid var(--border-subtle, #e2e8f0)', fontSize: '12px' }}>
-                  <span style={{ color: 'var(--text-muted, #64748b)' }}>Campus Subnet:</span>
-                  <strong style={{ color: 'var(--text-primary, #0f172a)' }}>192.168.1.104</strong>
+                <div className="profile-security-row">
+                  <span className="profile-security-label">Campus Subnet</span>
+                  <strong className="profile-security-value">192.168.1.104</strong>
                 </div>
 
-                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '9px 12px', background: 'var(--bg-surface-elevated, #f8fafc)', borderRadius: '10px', border: '1px solid var(--border-subtle, #e2e8f0)', fontSize: '12px' }}>
-                  <span style={{ color: 'var(--text-muted, #64748b)' }}>Two-Factor Status:</span>
-                  <span style={{ color: '#34d399', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                <div className="profile-security-row">
+                  <span className="profile-security-label">Two-Factor Status</span>
+                  <span className="profile-security-value profile-security-status">
                     <CheckCircle2 size={13} /> Active
                   </span>
                 </div>
 
-                <div style={{ display: 'flex', justifyContent: 'space-between', padding: '9px 12px', background: 'var(--bg-surface-elevated, #f8fafc)', borderRadius: '10px', border: '1px solid var(--border-subtle, #e2e8f0)', fontSize: '12px' }}>
-                  <span style={{ color: 'var(--text-muted, #64748b)' }}>Token Status:</span>
-                  <strong style={{ color: 'var(--brand-blue, #07345f)' }}>Valid (8 Hours)</strong>
+                <div className="profile-security-row">
+                  <span className="profile-security-label">Token Status</span>
+                  <strong className="profile-security-value profile-token-status">Valid (8 hours)</strong>
                 </div>
               </div>
 
-              <div style={{ borderTop: '1px solid var(--border-subtle, #f1f5f9)', paddingTop: '10px' }}>
-                <div style={{ fontSize: '12px', color: 'var(--text-muted, #64748b)' }}>
-                  Need to log out from all other campus devices?
+              <div className="profile-security-actions">
+                <div className="profile-security-prompt">
+                  Sign out of this account on your other campus devices.
                 </div>
                 <button
                   type="button"
+                  className="profile-terminate-sessions"
                   onClick={async () => {
                     await logout('manual', 'global');
                     navigate('/login?logged_out=1');
                   }}
-                  style={{
-                    marginTop: '8px',
-                    width: '100%',
-                    background: 'rgba(239, 68, 68, 0.15)',
-                    color: '#f87171',
-                    border: '1px solid rgba(239, 68, 68, 0.3)',
-                    padding: '8px 12px',
-                    borderRadius: '8px',
-                    fontSize: '12px',
-                    fontWeight: 700,
-                    cursor: 'pointer'
-                  }}
                 >
-                  Terminate All Active Sessions & Log Out
+                  Sign out all other sessions
                 </button>
               </div>
             </div>
@@ -906,6 +879,7 @@ export const ProfilePage = () => {
       <div style={{ textAlign: 'center', color: '#94a3b8', fontSize: '12px', marginTop: '8px', paddingBottom: '6px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px' }}>
         <button
           type="button"
+          className="profile-legal-link"
           onClick={() => setIsPrivacyModalOpen(true)}
           style={{
             background: 'none',

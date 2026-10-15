@@ -2,13 +2,16 @@ import React from 'react';
 import { Modal } from '../common/Modal';
 import { Printer } from 'lucide-react';
 import { getStudentQrCodeUrl } from '../../utils/qrHelper';
+import { useNotification } from '../../context/NotificationContext';
 import '../../css/student-id-card.css';
 
 export const StudentIdModal = ({ isOpen, onClose, student }) => {
+  const { info } = useNotification();
+
   if (!student) return null;
 
   const handlePrint = () => {
-    window.print();
+    info('Feature to be added');
   };
 
   // QR points to secure public ID verification pass if public domain is set, or clean Student LRN/ID (no localhost)

@@ -2290,8 +2290,8 @@ html[data-theme="dark"] body .login-body-bg input:not([type="checkbox"]):not([ty
 
 html[data-theme="dark"] body .login-body-bg input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]):not([type="file"]):focus {
   background-color: #090b0d !important;
-  border-color: #38bdf8 !important;
-  box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2) !important;
+  border-color: #ffffff !important;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.18) !important;
 }
 
 html[data-theme="dark"] body .login-body-bg input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]):not([type="file"])::placeholder {
@@ -2431,7 +2431,7 @@ html[data-theme="dark"] body .login-reset-password-card .login-reset-password-su
 }
 
 [data-theme="dark"] .profile-card-icon:not(.red) {
-  background: #161616 !important;
+  background: transparent !important;
   color: #ffffff !important;
 }
 

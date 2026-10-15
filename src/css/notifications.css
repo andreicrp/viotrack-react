@@ -1070,12 +1070,36 @@
   }
 
   .notif-pagination {
-    align-items: stretch;
+    align-items: center;
     flex-direction: column;
   }
 
   .notif-pagination-controls {
+    display: flex;
+    align-items: center;
     justify-content: space-between;
+    width: 100%;
+    min-width: 0;
+    gap: 4px;
+  }
+
+  .notif-pagination-btn {
+    flex: 0 0 auto;
+    width: auto !important;
+    min-width: 0;
+    padding: 0 8px;
+    white-space: nowrap;
+  }
+
+  .notif-pagination-page {
+    flex: 0 0 auto;
+    justify-content: center;
+    padding: 0 4px;
+    white-space: nowrap;
+  }
+
+  .notif-pagination-summary {
+    text-align: center;
   }
 
   .notif-unread-toggle-label {
@@ -1093,4 +1117,232 @@
   .notif-time-tag {
     font-size: 10px;
   }
+}
+
+/* OLED notification surfaces use neutral contrast; status colors stay semantic. */
+[data-theme="dark"] .notifications-page-root {
+  color: #f5f5f5;
+}
+
+[data-theme="dark"] .notifications-page-root .notif-greeting-header .dash-greeting-title,
+[data-theme="dark"] .notifications-page-root .notif-greeting-header .dash-refresh-indicator,
+[data-theme="dark"] .notifications-page-root .notif-side-title,
+[data-theme="dark"] .notifications-page-root .notif-sync-live-text,
+[data-theme="dark"] .notifications-page-root .notif-card-title,
+[data-theme="dark"] .notifications-page-root .notif-empty-title {
+  color: #f5f5f5 !important;
+}
+
+[data-theme="dark"] .notifications-page-root .notif-greeting-header .dash-greeting-subtitle,
+[data-theme="dark"] .notifications-page-root .notif-sync-live-desc,
+[data-theme="dark"] .notifications-page-root .notif-empty-desc {
+  color: #a3a3a3 !important;
+}
+
+[data-theme="dark"] .notifications-page-root .notif-metric-card,
+[data-theme="dark"] .notifications-page-root .notif-controls-bar,
+[data-theme="dark"] .notifications-page-root .notif-side-card,
+[data-theme="dark"] .notifications-page-root .notif-empty-state {
+  background: #000000 !important;
+  border-color: #242424 !important;
+  box-shadow: none !important;
+}
+
+[data-theme="dark"] .notifications-page-root .notif-metric-card:hover,
+[data-theme="dark"] .notifications-page-root .notif-shortcut-btn:hover {
+  background: #0d0d0d !important;
+  border-color: #444444 !important;
+}
+
+[data-theme="dark"] .notifications-page-root .notif-metric-icon-wrap,
+[data-theme="dark"] .notifications-page-root .notif-type-icon,
+[data-theme="dark"] .notifications-page-root .notif-card-avatar-box,
+[data-theme="dark"] .notifications-page-root .notif-empty-icon-wrap {
+  background: #111111 !important;
+  color: #d4d4d4 !important;
+}
+
+[data-theme="dark"] .notifications-page-root .notif-metric-label,
+[data-theme="dark"] .notifications-page-root .notif-breakdown-name {
+  color: #a3a3a3 !important;
+}
+
+[data-theme="dark"] .notifications-page-root .notif-metric-num {
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .notifications-page-root .notif-breakdown-row,
+[data-theme="dark"] .notifications-page-root .notif-shortcut-btn {
+  background: #080808 !important;
+  border-color: #242424 !important;
+  color: #e5e5e5 !important;
+}
+
+[data-theme="dark"] .notifications-page-root .notif-breakdown-row:hover {
+  background: #111111 !important;
+  border-color: #444444 !important;
+}
+
+[data-theme="dark"] .notifications-page-root .notif-breakdown-badge.amber {
+  background: rgba(245, 158, 11, 0.12) !important;
+  color: #fbbf24 !important;
+}
+
+[data-theme="dark"] .notifications-page-root .notif-breakdown-badge.red {
+  background: rgba(239, 68, 68, 0.12) !important;
+  color: #f87171 !important;
+}
+
+[data-theme="dark"] .notifications-page-root .notif-breakdown-badge.blue {
+  background: rgba(56, 189, 248, 0.12) !important;
+  color: #7dd3fc !important;
+}
+
+[data-theme="dark"] .notifications-page-root .notif-breakdown-badge.slate {
+  background: #171717 !important;
+  color: #cbd5e1 !important;
+}
+
+[data-theme="dark"] .notifications-page-root .notif-tab-btn {
+  background: #080808 !important;
+  border-color: #292929 !important;
+  color: #a3a3a3 !important;
+}
+
+[data-theme="dark"] .notifications-page-root .notif-tab-btn:hover {
+  background: #141414 !important;
+  border-color: #555555 !important;
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .notifications-page-root .notif-tab-btn.active {
+  background: #f5f5f5 !important;
+  border-color: #f5f5f5 !important;
+  color: #000000 !important;
+}
+
+[data-theme="dark"] .notifications-page-root .notif-tab-btn.active .notif-tab-badge {
+  background: #dedede !important;
+  color: #000000 !important;
+}
+
+[data-theme="dark"] .notifications-page-root .notif-tab-badge {
+  background: #1c1c1c !important;
+  color: #d4d4d4 !important;
+}
+
+[data-theme="dark"] .notifications-page-root .notif-search-input {
+  background: #000000 !important;
+  border-color: #303030 !important;
+  color: #f5f5f5 !important;
+}
+
+[data-theme="dark"] .notifications-page-root .notif-search-input::placeholder {
+  color: #737373 !important;
+}
+
+[data-theme="dark"] .notifications-page-root .notif-search-input:focus {
+  border-color: #a3a3a3 !important;
+}
+
+[data-theme="dark"] .notifications-page-root .notif-search-icon,
+[data-theme="dark"] .notifications-page-root .notif-search-clear {
+  color: #a3a3a3 !important;
+}
+
+[data-theme="dark"] .notifications-page-root .notif-unread-toggle-label {
+  color: #d4d4d4 !important;
+}
+
+[data-theme="dark"] .notifications-page-root .notif-card-item,
+[data-theme="dark"] .notifications-page-root .notif-card-item.read,
+[data-theme="dark"] .notifications-page-root .notif-card-item.unread {
+  background: #000000 !important;
+  border: 1px solid #242424 !important;
+  box-shadow: none !important;
+}
+
+[data-theme="dark"] .notifications-page-root .notif-card-item:hover,
+[data-theme="dark"] .notifications-page-root .notif-card-item.unread:hover {
+  background: #0c0c0c !important;
+  border-color: #444444 !important;
+}
+
+[data-theme="dark"] .notifications-page-root .notif-card-item.unread {
+  border-left: 2px solid #e5e5e5 !important;
+}
+
+[data-theme="dark"] .notifications-page-root .notif-description-text,
+[data-theme="dark"] .notifications-page-root .notif-card-message {
+  color: #c4c4c4 !important;
+}
+
+[data-theme="dark"] .notifications-page-root .notif-time-tag,
+[data-theme="dark"] .notifications-page-root .notif-pagination-summary {
+  color: #888888 !important;
+}
+
+[data-theme="dark"] .notifications-page-root .notif-pill.grade {
+  background: #151515 !important;
+  border-color: #333333 !important;
+  color: #e5e5e5 !important;
+}
+
+[data-theme="dark"] .notifications-page-root .notif-action-btn.primary {
+  background: #f5f5f5 !important;
+  border-color: #f5f5f5 !important;
+  color: #000000 !important;
+  box-shadow: none !important;
+}
+
+[data-theme="dark"] .notifications-page-root .notif-action-btn.primary:hover {
+  background: #d4d4d4 !important;
+  border-color: #d4d4d4 !important;
+}
+
+[data-theme="dark"] .notifications-page-root .notif-action-btn.secondary,
+[data-theme="dark"] .notifications-page-root .notif-icon-btn.check,
+[data-theme="dark"] .notifications-page-root .notif-icon-btn.dismiss,
+[data-theme="dark"] .notifications-page-root .notif-empty-reset-btn {
+  background: #0a0a0a !important;
+  border-color: #303030 !important;
+  color: #d4d4d4 !important;
+  box-shadow: none !important;
+}
+
+[data-theme="dark"] .notifications-page-root .notif-icon-btn.check {
+  color: #4ade80 !important;
+}
+
+[data-theme="dark"] .notifications-page-root .notif-icon-btn.dismiss {
+  color: #f87171 !important;
+}
+
+[data-theme="dark"] .notifications-page-root .notif-pagination {
+  border-top-color: #242424 !important;
+}
+
+[data-theme="dark"] .notifications-page-root .notif-pagination-btn {
+  background: #080808 !important;
+  border-color: #303030 !important;
+  color: #e5e5e5 !important;
+}
+
+[data-theme="dark"] .notifications-page-root .notif-pagination-btn:hover:not(:disabled) {
+  background: #171717 !important;
+  border-color: #555555 !important;
+}
+
+[data-theme="dark"] .notifications-page-root .notif-pagination-btn:disabled {
+  background: #080808 !important;
+  color: #5c5c5c !important;
+}
+
+[data-theme="dark"] .notifications-page-root .notif-pagination-page {
+  color: #f5f5f5 !important;
+}
+
+[data-theme="dark"] .notifications-page-root :focus-visible {
+  outline: 2px solid #a3a3a3 !important;
+  outline-offset: 2px !important;
 }

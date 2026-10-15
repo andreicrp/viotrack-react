@@ -422,8 +422,9 @@ html.dark body,
 }
 
 [data-theme="dark"] .track-location-container .track-tab-btn.active {
-  background: #38bdf8 !important;
-  color: #07111f !important;
+  background: #111111 !important;
+  color: #ffffff !important;
+  border: 1px solid #3a3a3a !important;
   box-shadow: none !important;
 }
 
@@ -433,11 +434,39 @@ html.dark body,
   border-color: #242424 !important;
 }
 
+[data-theme="dark"] .track-location-container .track-mode-metric,
+[data-theme="dark"] .track-location-container .track-precision-metric,
+[data-theme="dark"] .track-location-container .track-coordinate-details,
+[data-theme="dark"] .track-location-container .track-incident-source-details {
+  background: #111111 !important;
+  border-color: #303030 !important;
+  color: #f1f5f9 !important;
+}
+
+[data-theme="dark"] .track-location-container .track-mode-value,
+[data-theme="dark"] .track-location-container .track-coordinate-value {
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .track-location-container .track-precision-value {
+  color: var(--track-precision-dark-color) !important;
+}
+
+[data-theme="dark"] .track-location-container .track-coordinate-label,
+[data-theme="dark"] .track-location-container .track-mode-metric > div:first-child,
+[data-theme="dark"] .track-location-container .track-precision-metric > div:first-child {
+  color: #aebed3 !important;
+}
+
 [data-theme="dark"] .track-location-container .track-sidebar-card h3,
 [data-theme="dark"] .track-location-container .track-sidebar-card strong,
 [data-theme="dark"] .track-location-container .track-sidebar-card [style*="color: #0f172a"],
 [data-theme="dark"] .track-location-container .track-sidebar-card [style*="color: #475569"] {
   color: #f1f5f9 !important;
+}
+
+[data-theme="dark"] .track-location-container .track-student-grade-section {
+  color: #ffffff !important;
 }
 
 [data-theme="dark"] .track-location-container .track-sidebar-card p,

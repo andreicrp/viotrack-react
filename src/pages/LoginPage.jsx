@@ -302,6 +302,7 @@ export const LoginPage = () => {
 
         {isLoggedOut && (
           <div
+            className="login-logout-notice"
             style={{
               background: '#f0fdf4',
               color: '#16a34a',
@@ -351,7 +352,7 @@ export const LoginPage = () => {
                 id="login-email"
                 type="text"
                 className="login-text-input-clean"
-                placeholder="Institutional Email"
+                placeholder="Email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required

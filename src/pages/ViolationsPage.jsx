@@ -862,6 +862,7 @@ export const ViolationsPage = () => {
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <CustomSelect
                     value={entriesPerPage}
+                    className="violation-page-size-select"
                     onChange={(e) => {
                       setEntriesPerPage(Number(e.target.value));
                       setCurrentPage(1);
@@ -1519,10 +1520,11 @@ export const ViolationsPage = () => {
                         style={{
                           width: 36,
                           height: 36,
-                          borderRadius: '8px',
+                          borderRadius: '50%',
                           objectFit: 'cover',
                           border: '1px solid #e2e8f0',
-                          flexShrink: 0
+                          flexShrink: 0,
+                          overflow: 'hidden'
                         }}
                       />
                       <div style={{ minWidth: 0, flex: 1 }}>
@@ -1555,15 +1557,15 @@ export const ViolationsPage = () => {
                   </div>
 
                   {/* Footer: Date & Status & Action Buttons */}
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px', paddingTop: '6px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '8px', paddingTop: '6px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center' }}>
                       <span style={{ fontSize: '11.5px', color: '#64748b' }}>
                         {new Date(rec.date_reported).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' })}
                       </span>
-                      {renderStatusBadge(rec.status)}
                     </div>
 
-                    <div className="violation-list-mobile-actions" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                    <div className="violation-list-mobile-actions" style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '6px' }}>
+                      {renderStatusBadge(rec.status)}
                       {isAdmin && (
                         <button
                           type="button"

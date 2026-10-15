@@ -615,6 +615,11 @@ export const AddViolationModal = ({
                                 </div>
                               </div>
 
+                              {isSelected && (
+                                <span className="lvm-selection-check" aria-hidden="true">
+                                  <Check size={14} strokeWidth={3} />
+                                </span>
+                              )}
                             </div>
                           );
                         })
@@ -741,6 +746,11 @@ export const AddViolationModal = ({
                               <span className={`lvm-category-tag ${catType}`}>
                                 {v.type || 'Minor'}
                               </span>
+                              {isSelected && (
+                                <span className="lvm-selection-check" aria-hidden="true">
+                                  <Check size={14} strokeWidth={3} />
+                                </span>
+                              )}
                             </div>
                           );
                         })

@@ -121,6 +121,15 @@ export const DashboardPage = () => {
     }
   }, []);
 
+  const refreshDashboard = useCallback(async () => {
+    setIsRefreshing(true);
+    try {
+      await loadData();
+    } finally {
+      setIsRefreshing(false);
+    }
+  }, [loadData]);
+
   useEffect(() => {
     loadData();
     const handleUpdate = () => loadData();
@@ -136,18 +145,14 @@ export const DashboardPage = () => {
     window.addEventListener('viotrack_events_updated', handleEventsUpdate);
 
     // Auto-refresh every 45 seconds
-    const autoRefreshTimer = setInterval(async () => {
-      setIsRefreshing(true);
-      await loadData();
-      setIsRefreshing(false);
-    }, 45000);
+    const autoRefreshTimer = setInterval(refreshDashboard, 45000);
 
     return () => {
       window.removeEventListener('viotrack_data_updated', handleUpdate);
       window.removeEventListener('viotrack_events_updated', handleEventsUpdate);
       clearInterval(autoRefreshTimer);
     };
-  }, [loadData]);
+  }, [loadData, refreshDashboard]);
 
   // Helper: check if a record is officially approved (exclude under approval / rejected)
   const isApproved = (r) => {
@@ -585,13 +590,17 @@ export const DashboardPage = () => {
               <h1 className="dash-greeting-title">
                 Hi, {user?.name || 'System Admin'}
               </h1>
-              {/* Auto-refresh indicator */}
-              <span
+              {/* Refresh dashboard data */}
+              <button
+                type="button"
                 className={`dash-refresh-indicator ${isRefreshing ? 'spinning' : ''}`}
-                title="Dashboard auto-refreshes every 45 seconds"
+                onClick={refreshDashboard}
+                disabled={isRefreshing}
+                title={isRefreshing ? 'Refreshing dashboard…' : 'Refresh dashboard'}
+                aria-label={isRefreshing ? 'Refreshing dashboard' : 'Refresh dashboard'}
               >
-                <RefreshCw size={13} strokeWidth={2.4} />
-              </span>
+                <RefreshCw size={13} strokeWidth={2.4} aria-hidden="true" />
+              </button>
             </div>
             {/* At-a-glance summary sentence */}
             <p className="dash-greeting-subtitle">

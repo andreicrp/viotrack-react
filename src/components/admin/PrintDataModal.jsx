@@ -4,6 +4,13 @@ import { useNotification } from '../../context/NotificationContext';
 import { lockBodyScroll, unlockBodyScroll } from '../../utils/scrollLock';
 import { printOrShareDocument, shareOrSaveNativeFile, downloadBlobFile } from '../../utils/mobilePrintHelper';
 import { getJsPDF, loadPublicImageAsBase64 } from '../../utils/pdfHelper';
+import {
+  buildPrintGradeBreakdown,
+  buildPrintMetrics,
+  buildPrintTrendPoints,
+  buildPrintViolationDistribution,
+  filterPrintRecords
+} from '../../utils/printReportData';
 import { CustomDatePicker } from '../common/CustomDatePicker';
 import {
   Printer,
@@ -50,6 +57,13 @@ const PIE_COLORS = [
   '#c084fc',
   '#9333ea'
 ];
+
+const toLocalDateInputValue = (date) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+};
 
 /**
  * Builds standalone institutional multi-page HTML for printing without excessive gaps or signatories
@@ -834,10 +848,10 @@ export const PrintDataModal = ({ isOpen, onClose, records = [], students = [], t
   // Date Filter & Customization Parameters
   const [periodPreset, setPeriodPreset] = useState('month'); // 'today' | 'week' | 'month' | 'all' | 'custom'
   const [customStartDate, setCustomStartDate] = useState(
-    new Date(Date.now() - 30 * 86400000).toISOString().split('T')[0]
+    () => toLocalDateInputValue(new Date(Date.now() - 30 * 86400000))
   );
   const [customEndDate, setCustomEndDate] = useState(
-    new Date().toISOString().split('T')[0]
+    () => toLocalDateInputValue(new Date())
   );
 
   // Additional Filter Options
@@ -928,200 +942,42 @@ export const PrintDataModal = ({ isOpen, onClose, records = [], students = [], t
 
   // Compute Filtered Records
   const filteredRecords = useMemo(() => {
-    if (!records || records.length === 0) return [];
-
-    const now = new Date();
-    let startBoundary = null;
-    let endBoundary = null;
-
-    if (periodPreset === 'today') {
-      const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
-      const todayEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
-      startBoundary = todayStart;
-      endBoundary = todayEnd;
-    } else if (periodPreset === 'week') {
-      const weekStart = new Date(now.getTime() - 7 * 86400000);
-      startBoundary = weekStart;
-      endBoundary = now;
-    } else if (periodPreset === 'month') {
-      const monthStart = new Date(now.getFullYear(), now.getMonth(), 1, 0, 0, 0);
-      startBoundary = monthStart;
-      endBoundary = now;
-    } else if (periodPreset === 'custom') {
-      startBoundary = new Date(`${customStartDate}T00:00:00`);
-      endBoundary = new Date(`${customEndDate}T23:59:59`);
-    }
-
-    return records.filter((r) => {
-      // Date filter
-      if (startBoundary && endBoundary) {
-        const recordDate = new Date(r.date_reported || r.created_at || r.date);
-        if (recordDate < startBoundary || recordDate > endBoundary) return false;
-      }
-
-      // Severity Filter
-      if (selectedSeverity !== 'all') {
-        const sev = (r.violation?.type || r.type || r.severity || '').toLowerCase();
-        if (sev !== selectedSeverity.toLowerCase()) return false;
-      }
-
-      // Status Filter
-      if (selectedStatus !== 'all') {
-        const stat = (r.status || '').toLowerCase();
-        if (selectedStatus === 'resolved' && stat !== 'resolved') return false;
-        if (selectedStatus === 'pending' && stat === 'resolved') return false;
-      }
-
-      // Grade Filter
-      if (selectedGrade !== 'all') {
-        const g = (r.student?.grade || '').replace(/\D/g, '');
-        if (selectedGrade === 'jhs') {
-          if (!['7', '8', '9', '10'].includes(g)) return false;
-        } else if (selectedGrade === 'shs') {
-          if (!['11', '12'].includes(g)) return false;
-        } else {
-          if (g !== selectedGrade) return false;
-        }
-      }
-
-      return true;
+    return filterPrintRecords(records, {
+      periodPreset,
+      customStartDate,
+      customEndDate,
+      selectedSeverity,
+      selectedStatus,
+      selectedGrade
     });
   }, [records, periodPreset, customStartDate, customEndDate, selectedSeverity, selectedStatus, selectedGrade]);
 
   // Aggregated Metrics
-  const metrics = useMemo(() => {
-    let minor = 0;
-    let serious = 0;
-    let major = 0;
-    let resolved = 0;
-    let pending = 0;
-    const studentIds = new Set();
-
-    filteredRecords.forEach((r) => {
-      const type = (r.violation?.type || r.type || r.severity || '').toLowerCase();
-      if (type === 'minor') minor++;
-      else if (type === 'serious') serious++;
-      else if (type === 'major') major++;
-
-      const stat = (r.status || '').toLowerCase();
-      if (stat === 'resolved') resolved++;
-      else pending++;
-
-      if (r.student_id || r.student?.id) {
-        studentIds.add(r.student_id || r.student?.id);
-      }
-    });
-
-    const total = filteredRecords.length;
-    const resolvedRate = total > 0 ? Math.round((resolved / total) * 100) : 100;
-
-    return {
-      total,
-      minor,
-      serious,
-      major,
-      resolved,
-      pending,
-      resolvedRate,
-      uniqueStudents: studentIds.size
-    };
-  }, [filteredRecords]);
+  const metrics = useMemo(() => buildPrintMetrics(filteredRecords), [filteredRecords]);
 
   // Date Range Display Label
   const dateRangeLabel = useMemo(() => {
     if (periodPreset === 'today') return 'Today (' + new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) + ')';
     if (periodPreset === 'week') return 'Last 7 Days';
     if (periodPreset === 'month') return 'Current Month (' + new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) + ')';
-    if (periodPreset === 'all') return 'Academic Year (All-Time)';
-    return `${new Date(customStartDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} to ${new Date(customEndDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
+    if (periodPreset === 'all') return 'All Time';
+    return `${new Date(`${customStartDate}T00:00:00`).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} to ${new Date(`${customEndDate}T00:00:00`).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
   }, [periodPreset, customStartDate, customEndDate]);
 
   // Grade Breakdown
-  const gradeBreakdown = useMemo(() => {
-    const grades = ['Grade 7', 'Grade 8', 'Grade 9', 'Grade 10', 'Grade 11', 'Grade 12'];
-    return grades.map((gName) => {
-      const gNum = gName.replace(/\D/g, '');
-      const recs = filteredRecords.filter((r) => (r.student?.grade || '').includes(gNum));
-      const res = recs.filter((r) => (r.status || '').toLowerCase() === 'resolved').length;
-      return {
-        label: gName,
-        count: recs.length,
-        resolved: res,
-        pending: recs.length - res
-      };
-    });
-  }, [filteredRecords]);
+  const gradeBreakdown = useMemo(() => buildPrintGradeBreakdown(filteredRecords), [filteredRecords]);
 
   // Most Common Violations Distribution (Donut Data)
-  const violationDistribution = useMemo(() => {
-    if (!filteredRecords || filteredRecords.length === 0) return [];
-    const counts = {};
-    filteredRecords.forEach((r) => {
-      const title = (r.violation?.title || r.offense || 'Other Infraction').trim();
-      const sev = (r.violation?.type || r.severity || 'Minor').trim();
-      if (!counts[title]) {
-        counts[title] = { name: title, value: 0, severity: sev };
-      }
-      counts[title].value += 1;
-    });
-
-    const sorted = Object.values(counts).sort((a, b) => b.value - a.value);
-    return sorted.map((item, idx) => ({
-      ...item,
-      color: PIE_COLORS[idx % PIE_COLORS.length]
-    }));
-  }, [filteredRecords]);
+  const violationDistribution = useMemo(
+    () => buildPrintViolationDistribution(filteredRecords, PIE_COLORS),
+    [filteredRecords]
+  );
 
   // Multi-Series Violation Trends Curve Points
-  const trendPoints = useMemo(() => {
-    const now = new Date();
-    let buckets = [];
-
-    if (periodPreset === 'today') {
-      const hours = [8, 10, 12, 14, 16, 18];
-      buckets = hours.map((hr) => ({
-        label: `${hr % 12 || 12}${hr < 12 ? 'AM' : 'PM'}`,
-        minor: 0,
-        serious: 0,
-        major: 0,
-        total: 0
-      }));
-    } else if (periodPreset === 'week') {
-      for (let i = 6; i >= 0; i--) {
-        const d = new Date(now.getTime() - i * 86400000);
-        buckets.push({
-          label: d.toLocaleDateString('en-US', { weekday: 'short' }),
-          dateObj: d,
-          minor: 0,
-          serious: 0,
-          major: 0,
-          total: 0
-        });
-      }
-    } else {
-      // Month / Custom
-      const days = [1, 6, 11, 16, 21, 26];
-      const mName = now.toLocaleDateString('en-US', { month: 'short' });
-      buckets = days.map((d) => ({
-        label: `${mName} ${d}`,
-        minor: 0,
-        serious: 0,
-        major: 0,
-        total: 0
-      }));
-    }
-
-    filteredRecords.forEach((r, idx) => {
-      const bIdx = idx % buckets.length;
-      const sev = (r.violation?.type || r.severity || 'Minor').toLowerCase();
-      if (sev === 'minor') buckets[bIdx].minor += 1;
-      else if (sev === 'serious') buckets[bIdx].serious += 1;
-      else if (sev === 'major') buckets[bIdx].major += 1;
-      buckets[bIdx].total += 1;
-    });
-
-    return buckets;
-  }, [filteredRecords, periodPreset]);
+  const trendPoints = useMemo(
+    () => buildPrintTrendPoints(filteredRecords, periodPreset, customStartDate, customEndDate),
+    [filteredRecords, periodPreset, customStartDate, customEndDate]
+  );
 
   // Multi-Page Chunking for Records (fits up to 30 rows on Letter/A4/Legal)
   const RECORDS_PER_PAGE = 30;
@@ -1215,6 +1071,7 @@ export const PrintDataModal = ({ isOpen, onClose, records = [], students = [], t
 
   // Touch Handlers (Mobile)
   const handleTouchStart = (e) => {
+    if (isMobile) return;
     if (e.target.closest('button, input, textarea, select, a, [role="button"]')) return;
 
     if (e.touches.length === 2) {
@@ -1267,6 +1124,7 @@ export const PrintDataModal = ({ isOpen, onClose, records = [], students = [], t
   };
 
   const handleTouchMove = (e) => {
+    if (isMobile) return;
     if (e.touches.length === 2 && pinchDistanceRef.current && isPinchingRef.current) {
       const currentDist = Math.hypot(
         e.touches[0].clientX - e.touches[1].clientX,
@@ -1292,6 +1150,10 @@ export const PrintDataModal = ({ isOpen, onClose, records = [], students = [], t
   };
 
   const handleTouchEnd = (e) => {
+    if (isMobile) {
+      setIsDragging(false);
+      return;
+    }
     if (e.touches.length < 2) {
       if (isPinchingRef.current) {
         setZoom(zoomRef.current);
@@ -2674,7 +2536,7 @@ export const PrintDataModal = ({ isOpen, onClose, records = [], students = [], t
             position: fixed;
             inset: 0;
             z-index: 1050;
-            background: rgba(15, 23, 42, 0.6);
+            background: rgba(0, 0, 0, 0.72);
             backdrop-filter: blur(4px);
             opacity: 0;
             pointer-events: none;

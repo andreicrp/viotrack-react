@@ -638,6 +638,7 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
 
   // Touch Handlers (Mobile)
   const handleTouchStart = (e) => {
+    if (isMobile) return;
     if (e.target.closest('button, input, textarea, select, a, [role="button"]')) return;
 
     if (e.touches.length === 2) {
@@ -690,6 +691,7 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
   };
 
   const handleTouchMove = (e) => {
+    if (isMobile) return;
     if (e.touches.length === 2 && pinchDistanceRef.current && isPinchingRef.current) {
       const currentDist = Math.hypot(
         e.touches[0].clientX - e.touches[1].clientX,
@@ -715,6 +717,10 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
   };
 
   const handleTouchEnd = (e) => {
+    if (isMobile) {
+      setIsDragging(false);
+      return;
+    }
     if (e.touches.length < 2) {
       if (isPinchingRef.current) {
         setZoom(zoomRef.current);
@@ -1558,7 +1564,7 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
             flex: 1 !important;
             display: flex !important;
             align-items: flex-start !important;
-            touch-action: pan-x pan-y pinch-zoom !important;
+            touch-action: pan-y !important;
           }
 
           .res-canvas-toolbar {
@@ -1644,7 +1650,7 @@ export const ResolutionModal = ({ isOpen, onClose, record, onUpdated }) => {
             position: fixed;
             inset: 0;
             z-index: 1050;
-            background: rgba(15, 23, 42, 0.6);
+            background: rgba(0, 0, 0, 0.72);
             backdrop-filter: blur(4px);
             opacity: 0;
             pointer-events: none;

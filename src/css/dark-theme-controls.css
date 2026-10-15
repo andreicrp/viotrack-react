@@ -239,6 +239,21 @@
   color: #f8fafc !important;
 }
 
+[data-theme="dark"] .profile-lock-now {
+  background: #ffffff !important;
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+}
+
+[data-theme="dark"] .profile-lock-now:hover {
+  background: #e5e5e5 !important;
+}
+
+[data-theme="dark"] .profile-legal-link {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
 [data-theme="dark"] .profile-hero-card,
 [data-theme="dark"] .profile-card,
 [data-theme="dark"] .profile-bottom-actions-bar {
@@ -294,13 +309,23 @@
 }
 
 [data-theme="dark"] .profile-card-icon {
-  background: #161616 !important;
-  color: #38bdf8 !important;
+  background: transparent !important;
+  color: #ffffff !important;
 }
 
 [data-theme="dark"] .profile-card-icon.red {
-  background: rgba(239, 68, 68, 0.15) !important;
-  color: #f87171 !important;
+  background: transparent !important;
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .profile-password-guidance {
+  background: #111111 !important;
+  border-color: #303030 !important;
+  color: #d1d5db !important;
+}
+
+[data-theme="dark"] .profile-password-guidance svg {
+  color: #ffffff !important;
 }
 
 [data-theme="dark"] .profile-card-title {
@@ -1240,4 +1265,3 @@ html[data-theme="dark"] body .advisers-empty-state p {
 [data-theme="dark"] .student-violation-detail-page .responsive-table-desktop td {
   border-color: #202020 !important;
 }
-

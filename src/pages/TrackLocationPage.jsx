@@ -266,12 +266,12 @@ export const TrackLocationPage = () => {
   const getAccuracyBadge = (accuracy) => {
     const acc = Number(accuracy) || 10;
     if (acc <= 15) {
-      return { text: `±${acc}m (High Precision)`, color: '#10b981', bg: '#ecfdf5', border: '#a7f3d0' };
+      return { text: `±${acc}m (High Precision)`, color: '#10b981', darkColor: '#6ee7b7', bg: '#ecfdf5', border: '#a7f3d0' };
     }
     if (acc <= 50) {
-      return { text: `±${acc}m (Standard Precision)`, color: '#d97706', bg: '#fffbeb', border: '#fde68a' };
+      return { text: `±${acc}m (Standard Precision)`, color: '#d97706', darkColor: '#fbbf24', bg: '#fffbeb', border: '#fde68a' };
     }
-    return { text: `±${acc}m (Approximate)`, color: '#dc2626', bg: '#fef2f2', border: '#fecaca' };
+    return { text: `±${acc}m (Approximate)`, color: '#dc2626', darkColor: '#fca5a5', bg: '#fef2f2', border: '#fecaca' };
   };
 
   const accuracyInfo = getAccuracyBadge(currentLocation?.accuracy_meters);
@@ -360,7 +360,7 @@ export const TrackLocationPage = () => {
                   <div style={{ fontSize: '12px', color: '#64748b', marginTop: '2px' }}>
                     Student ID: <strong style={{ color: '#0f172a' }}>{activeStudent.student_id || 'N/A'}</strong>
                   </div>
-                  <div style={{ fontSize: '11px', color: '#0284c7', fontWeight: 700, marginTop: '2px' }}>
+                  <div className="track-student-grade-section" style={{ fontSize: '11px', fontWeight: 700, marginTop: '2px' }}>
                     {activeStudent.grade} • Section {activeStudent.section}
                   </div>
                 </div>
@@ -369,6 +369,7 @@ export const TrackLocationPage = () => {
               {/* Status / Accuracy Pills */}
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '12px' }}>
                 <div
+                  className="track-mode-metric"
                   style={{
                     background: '#f8fafc',
                     border: '1px solid #e2e8f0',
@@ -377,12 +378,13 @@ export const TrackLocationPage = () => {
                   }}
                 >
                   <div style={{ fontSize: '10.5px', color: '#64748b', fontWeight: 600 }}>Tracking Mode</div>
-                  <div style={{ fontSize: '12px', fontWeight: 800, color: '#475569', marginTop: '2px' }}>
+                  <div className="track-mode-value" style={{ fontSize: '12px', fontWeight: 800, marginTop: '2px' }}>
                     📍 Recorded Infraction Site
                   </div>
                 </div>
 
                 <div
+                  className="track-precision-metric"
                   style={{
                     background: accuracyInfo.bg,
                     border: `1px solid ${accuracyInfo.border}`,
@@ -391,21 +393,21 @@ export const TrackLocationPage = () => {
                   }}
                 >
                   <div style={{ fontSize: '10.5px', color: '#64748b', fontWeight: 600 }}>Precision Metric</div>
-                  <div style={{ fontSize: '12px', fontWeight: 800, color: accuracyInfo.color, marginTop: '2px' }}>
+                  <div className="track-precision-value" style={{ fontSize: '12px', fontWeight: 800, color: accuracyInfo.color, '--track-precision-dark-color': accuracyInfo.darkColor, marginTop: '2px' }}>
                     {accuracyInfo.text}
                   </div>
                 </div>
               </div>
 
               {/* Coordinate & Time Details */}
-              <div style={{ background: '#f8fafc', padding: '10px 12px', borderRadius: '8px', fontSize: '12px', color: '#334155' }}>
+              <div className="track-coordinate-details" style={{ background: '#f8fafc', padding: '10px 12px', borderRadius: '8px', fontSize: '12px', color: '#334155' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
-                  <span style={{ color: '#64748b' }}>Latitude / Longitude:</span>
-                  <strong>{currentLocation ? `${Number(currentLocation.latitude).toFixed(5)}, ${Number(currentLocation.longitude).toFixed(5)}` : 'N/A'}</strong>
+                  <span className="track-coordinate-label" style={{ color: '#64748b' }}>Latitude / Longitude:</span>
+                  <strong className="track-coordinate-value">{currentLocation ? `${Number(currentLocation.latitude).toFixed(5)}, ${Number(currentLocation.longitude).toFixed(5)}` : 'N/A'}</strong>
                 </div>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span style={{ color: '#64748b' }}>Recorded At:</span>
-                  <strong>{formatTime(lastRefreshedAt)}</strong>
+                  <span className="track-coordinate-label" style={{ color: '#64748b' }}>Recorded At:</span>
+                  <strong className="track-coordinate-value">{formatTime(lastRefreshedAt)}</strong>
                 </div>
               </div>
 
@@ -470,7 +472,7 @@ export const TrackLocationPage = () => {
                 <p style={{ margin: '0 0 8px 0', fontSize: '11.5px', color: '#64748b' }}>
                   Incident coordinates are timestamped when infractions are reported, compliant with Philippine Data Privacy Act standards (RA 10173).
                 </p>
-                <div style={{ background: '#f8fafc', padding: '8px 10px', borderRadius: '6px', fontSize: '11px' }}>
+                <div className="track-incident-source-details" style={{ background: '#f8fafc', padding: '8px 10px', borderRadius: '6px', fontSize: '11px' }}>
                   <div><strong>Reported By:</strong> {currentLocation?.reported_by || 'Discipline Officer'}</div>
                   <div><strong>Tracking Source:</strong> Logged Violation Report</div>
                   <div><strong>Vicinity:</strong> Main Campus Grounds</div>

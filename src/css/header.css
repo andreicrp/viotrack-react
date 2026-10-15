@@ -1204,6 +1204,39 @@ body {
         max-width: 300px;
         margin-left: auto;
     }
+
+    .header-user-dropdown .user-dropdown-header {
+        gap: 9px;
+        padding: 9px 10px;
+    }
+
+    .header-user-dropdown .user-dropdown-avatar {
+        width: 34px;
+        height: 34px;
+    }
+
+    .header-user-dropdown .user-dropdown-name {
+        font-size: 12.5px;
+    }
+
+    .header-user-dropdown .user-dropdown-role-chip {
+        font-size: 10px;
+    }
+
+    .header-user-dropdown .user-dropdown-btn {
+        gap: 9px;
+        padding: 7px 9px;
+        font-size: 12px;
+    }
+
+    .header-user-dropdown .user-dropdown-icon {
+        width: 15px;
+        height: 15px;
+    }
+
+    .header-user-dropdown .user-dropdown-beta-badge {
+        font-size: 9px !important;
+    }
 }
 
 /* Small Mobile Styles */

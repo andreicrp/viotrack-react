@@ -252,6 +252,10 @@
   width: 100%;
 }
 
+.track-student-grade-section {
+  color: #000000;
+}
+
 .track-tabs-container {
   display: flex;
   background: #f1f5f9;
@@ -305,4 +309,3 @@
     font-size: 11px;
   }
 }
-

@@ -293,6 +293,12 @@
   .mobile-filter-item-utility .view-mode-toggle {
     flex-shrink: 0 !important;
   }
+
+  .mobile-filter-item-utility .violation-page-size-select .custom-select-trigger {
+    gap: 4px;
+    padding: 6px 8px;
+    font-size: 12px;
+  }
 }
 
 /* ==========================================================================
