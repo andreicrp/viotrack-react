@@ -7,6 +7,7 @@
 import { Capacitor } from '@capacitor/core';
 import { Share } from '@capacitor/share';
 import { Filesystem, Directory } from '@capacitor/filesystem';
+import { Printer } from '@capgo/capacitor-printer';
 
 export const isNativeApp = () => {
   return typeof Capacitor !== 'undefined' && Capacitor.isNativePlatform && Capacitor.isNativePlatform();
@@ -165,7 +166,7 @@ export async function shareOrSaveNativeFile({
 }
 
 /**
- * Universal document print or native share dispatcher
+ * Universal document print dispatcher
  */
 export async function printOrShareDocument({
   title = 'Viotrack Document',
@@ -177,14 +178,15 @@ export async function printOrShareDocument({
   const isNative = isNativeApp();
   const isMobile = isMobileDevice();
 
-  // 1. Native Capacitor Android APK Flow (Share & Print Intent via Plugins)
-  if (isNative) {
-    if (typeof generatePdfBlob === 'function') {
-      try {
+  // Native apps and mobile browsers use the platform print dialog instead of
+  // navigating to a blob URL or opening the share sheet.
+  if ((isNative || isMobile) && (typeof generatePdfBlob === 'function' || htmlContent)) {
+    try {
+      if (typeof generatePdfBlob === 'function') {
         onStatus?.({ type: 'info', message: 'Generating document...' });
         const pdfOutput = await generatePdfBlob();
-        
         let blob;
+
         if (pdfOutput instanceof Blob) {
           blob = pdfOutput;
         } else if (pdfOutput && typeof pdfOutput.output === 'function') {
@@ -193,79 +195,25 @@ export async function printOrShareDocument({
           blob = new Blob([pdfOutput], { type: 'application/pdf' });
         }
 
-        if (blob) {
-          const success = await shareOrSaveNativeFile({
-            filename: filename.endsWith('.pdf') ? filename : `${filename}.pdf`,
-            blob: blob,
-            title: title,
-            mimeType: 'application/pdf'
-          });
-
-          if (success) {
-            onStatus?.({ type: 'success', message: 'Document sent to system print / share.' });
-            return;
-          }
+        if (!blob) {
+          throw new Error('PDF generation did not return a printable document.');
         }
-      } catch (err) {
-        if (err?.name === 'AbortError') return;
-        console.warn('Native APK PDF print/share error:', err);
-      }
-    } else if (htmlContent) {
-      try {
-        const htmlBlob = new Blob([htmlContent], { type: 'text/html;charset=utf-8' });
-        await shareOrSaveNativeFile({
-          filename: filename.endsWith('.html') ? filename : `${filename}.html`,
-          blob: htmlBlob,
-          title: title,
-          mimeType: 'text/html'
+
+        await Printer.printBase64({
+          name: title,
+          data: await blobToBase64(blob),
+          mimeType: 'application/pdf'
         });
-        onStatus?.({ type: 'success', message: 'Document ready to print / share.' });
-        return;
-      } catch (err) {
-        console.warn('Native APK HTML print fallback failed:', err);
-      }
-    }
-  }
-
-  // 2. Mobile Web Browser Flow (Mobile Chrome / Safari / Firefox)
-  // On mobile browsers, raw HTML print causes viewport scaling & blank page overflow.
-  // Generating and opening/sharing the exact vector PDF solves all mobile print spooler slicing bugs!
-  if (isMobile && typeof generatePdfBlob === 'function') {
-    try {
-      onStatus?.({ type: 'info', message: 'Generating document...' });
-      const pdfOutput = await generatePdfBlob();
-      
-      let blob;
-      if (pdfOutput instanceof Blob) {
-        blob = pdfOutput;
-      } else if (pdfOutput && typeof pdfOutput.output === 'function') {
-        blob = pdfOutput.output('blob');
-      } else if (pdfOutput instanceof ArrayBuffer) {
-        blob = new Blob([pdfOutput], { type: 'application/pdf' });
+      } else {
+        await Printer.printHtml({ name: title, html: htmlContent });
       }
 
-      if (blob) {
-        const pdfBlob = new Blob([blob], { type: 'application/pdf' });
-        const blobUrl = URL.createObjectURL(pdfBlob);
-        const win = window.open(blobUrl, '_blank');
-        
-        if (win) {
-          onStatus?.({ type: 'success', message: 'Document opened in mobile viewer.' });
-          return;
-        } else {
-          // If popup is blocked by mobile browser, download directly
-          await shareOrSaveNativeFile({
-            filename: filename.endsWith('.pdf') ? filename : `${filename}.pdf`,
-            blob: pdfBlob,
-            title: title,
-            mimeType: 'application/pdf'
-          });
-          onStatus?.({ type: 'success', message: 'Document downloaded successfully.' });
-          return;
-        }
-      }
+      onStatus?.({ type: 'success', message: 'Print preview opened.' });
+      return;
     } catch (err) {
-      console.warn('Mobile PDF generation fallback to HTML print:', err);
+      if (err?.name === 'AbortError') return;
+      console.error('Mobile print preview failed:', err);
+      throw err;
     }
   }
 
