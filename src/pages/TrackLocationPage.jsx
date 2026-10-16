@@ -333,7 +333,7 @@ export const TrackLocationPage = () => {
   }, [records, activeStudent]);
 
   return (
-    <div className="track-location-container">
+    <div className="track-location-container compact-mobile-actions">
       {/* Page Banner Header */}
       <div className="page-banner-header track-page-banner">
         <div className="page-banner-info">

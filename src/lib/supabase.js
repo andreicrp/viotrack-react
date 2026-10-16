@@ -82,7 +82,12 @@ export const customAuth = async (payload) => {
   });
 
   const body = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(body.error || 'Authentication request failed.');
+  if (!response.ok) {
+    if (payload.action === 'session' && (response.status === 401 || response.status === 403)) {
+      return { user: null };
+    }
+    throw new Error(body.error || 'Authentication request failed.');
+  }
 
   if (body.token) {
     setStoredToken(body.token, payload.rememberMe !== false);

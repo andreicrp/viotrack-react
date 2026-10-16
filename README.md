@@ -46,6 +46,7 @@ A modern, responsive, full-featured **Student Violation Tracking and Monitoring 
 - **Action Undo Toast Notifications**: 5-second countdown with `↶ Undo` button before permanently committing record updates or deletions.
 - Official Parent Summons form generator with scheduled conference details.
 - Case resolution modal with clearance notes and celebration confetti.
+- English (US) grammar and spelling suggestions for Summons notes and resolution summaries via an optional self-hosted LanguageTool server.
 - CSV and PDF incident report exports with formula injection protection.
 
 ### 📍 Incident Location Tracking
@@ -74,6 +75,7 @@ A modern, responsive, full-featured **Student Violation Tracking and Monitoring 
 - **Inactivity Workstation Lock**: Automatic screen lock after idle periods with PIN/password re-authentication.
 - **In-App Privacy & Data-Retention Notice**: Full compliance with the Philippine Data Privacy Act of 2012 (RA 10173) and DepEd Child Protection Policy (DO 40, s. 2012).
 - **Public Student ID Verification**: Secure `VerifyStudentPage` confirming enrollment status without leaking confidential disciplinary history.
+- **Zero-Downtime Deployment Resilience**: Auto-recovery from stale chunk hashes via `lazyRetry`, `vite:preloadError` handling, Vercel edge `Cache-Control` (`no-cache` for HTML, `immutable` for assets), and isolated SPA asset routing.
 
 ---
 
@@ -82,7 +84,7 @@ A modern, responsive, full-featured **Student Violation Tracking and Monitoring 
 | Layer | Technology |
 |---|---|
 | **Frontend** | React 19, React Router 7, Recharts |
-| **Build Tool** | Vite 8, Route-level code splitting via `React.lazy` |
+| **Build Tool** | Vite 8, Resilient code splitting via `lazyRetry`, Edge Cache-Control headers |
 | **Styling** | Vanilla CSS (Zero Tailwind), Lucide React icons |
 | **Backend & Auth** | Supabase (PostgreSQL + RLS + Realtime) with SWR memory cache |
 | **Audio & Haptics** | Web Audio API Synthesizer + HTML5 Audio + Navigator Vibration API |
@@ -123,9 +125,37 @@ VITE_QR_HMAC_SECRET=your-secure-institutional-hmac-secret
 VITE_IPROGSMS_API_TOKEN=your-iprogsms-api-token
 VITE_IPROGSMS_ENDPOINT=https://sms.iprogtech.com/api/v1/sms_messages
 VITE_IPROGSMS_SENDER_NAME=PHCM VioTrack
+
+# Optional: local or trusted self-hosted LanguageTool endpoint (must allow the app origin via CORS)
+VITE_LANGUAGETOOL_API_URL=http://localhost:8010/v2/check
 ```
 
 > ⚠️ **Security Notice**: `.env` and `*.keystore` files are strictly excluded in `.gitignore`. Never commit API tokens, passwords, or release keystores to source control.
+> LanguageTool grammar checks are disabled unless this endpoint is configured. The checker is fixed to English (US). Use a server you control; only text entered in the Summons notes or resolution summary is sent to it. Do not send student or case information to a public LanguageTool service.
+
+#### Optional: Run LanguageTool locally on Windows
+
+Local grammar checking requires Java 8 or later and the LanguageTool standalone server distribution. The extracted server folder is kept in the project root as `LanguageTool/` and is excluded from Git. If you need to download it again, get the ZIP from the [official LanguageTool download page](https://languagetool.org/download/) and extract it. Open a PowerShell terminal in the VioTrack project root and run:
+
+```powershell
+cd .\LanguageTool
+```
+
+Confirm this folder contains `languagetool-server.jar`, then start the server:
+
+```powershell
+java -Xms256m -Xmx1g -cp languagetool-server.jar org.languagetool.server.HTTPServer --port 8010 --allow-origin 'http://localhost:5173'
+```
+
+Keep the LanguageTool terminal open while using grammar checking. In the VioTrack project’s `.env` file, set:
+
+```env
+VITE_LANGUAGETOOL_API_URL=http://localhost:8010/v2/check
+```
+
+Open a second terminal in the VioTrack project folder and run `npm run dev`. If Vite is already running, stop and restart it so it loads the `.env` setting. The grammar checker uses **English (US)** (`en-US`) for Summons notes and resolution summaries. If VioTrack uses a different host or port, update `--allow-origin` to match the app’s exact origin. Stop the LanguageTool server with <kbd>Ctrl</kbd>+<kbd>C</kbd>.
+
+This local server is only reachable from the same computer. For deployed VioTrack instances, host LanguageTool on a trusted HTTPS server and configure its CORS allow-origin for the deployed app. Keep student and case text on infrastructure controlled by your institution.
 
 ### 3. Start the Development Server
 ```bash
@@ -184,7 +214,7 @@ src/
 ├── lib/                # Supabase client, schema & supabase-rls-policies.sql
 ├── pages/              # Route-level pages (Dashboard, ScanQR, Violations, Students, Teachers, Advisers, ActivityLogs, VerifyStudentPage)
 ├── services/           # DataService, SMSService, offlineSyncQueue, caching & backup routines
-└── utils/              # qrHelper (HMAC-SHA256), mobilePrintHelper, scannerFeedback, pdfHelper, csvHelper, security
+└── utils/              # lazyRetry, qrHelper (HMAC-SHA256), mobilePrintHelper, scannerFeedback, pdfHelper, csvHelper, security
 ```
 
 ---

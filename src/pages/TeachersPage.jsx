@@ -317,7 +317,7 @@ export const TeachersPage = () => {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+    <div className="compact-mobile-layout" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
       {/* 1. Top Banner & Primary Actions */}
       <div className="page-banner-header">
         <div className="page-banner-info">
@@ -540,7 +540,7 @@ export const TeachersPage = () => {
             )}
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: '0' }}>
+          <div className="selection-action-utility" style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: '0' }}>
             <div style={{ minWidth: '120px', flex: '1' }}>
               <CustomSelect
                 value={entriesPerPage}
@@ -558,74 +558,24 @@ export const TeachersPage = () => {
 
             {/* List / Grid View Toggle */}
             <ViewModeToggle viewMode={viewMode} onChange={setViewMode} />
+            {selectedIds.length > 0 && (
+              <button
+                type="button"
+                className="selection-toolbar-delete-button"
+                onClick={handleDeleteSelected}
+                aria-label={`Delete ${selectedIds.length} selected teacher${selectedIds.length === 1 ? '' : 's'}`}
+                title="Delete Selected"
+              >
+                <Trash2 size={15} />
+                <span>Delete Selected</span>
+              </button>
+            )}
           </div>
         </div>
 
-        {/* Batch Selection Action Bar */}
-        {selectedIds.length > 0 && (
-          <div
-            className="bulk-selection-toolbar"
-            style={{
-              marginTop: '16px',
-              padding: '10px 16px',
-              background: '#f8fafc',
-              border: '1.5px solid #cbd5e1',
-              borderRadius: '10px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              flexWrap: 'wrap',
-              gap: '10px'
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', fontWeight: 700, color: '#1e293b' }}>
-              <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#2563eb' }} />
-              {selectedIds.length} faculty member(s) selected
-            </div>
-
-            <div style={{ display: 'flex', gap: '8px' }}>
-              <button
-                onClick={handleDeleteSelected}
-                style={{
-                  background: '#ef4444',
-                  color: '#fff',
-                  border: 'none',
-                  padding: '6px 14px',
-                  borderRadius: '7px',
-                  fontSize: '12.5px',
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '6px'
-                }}
-              >
-                <Trash2 size={14} /> Delete Selected
-              </button>
-
-              <button
-                className="bulk-selection-clear-btn"
-                onClick={() => setSelectedIds([])}
-                style={{
-                  background: '#ffffff',
-                  color: '#475569',
-                  border: '1px solid #cbd5e1',
-                  padding: '6px 12px',
-                  borderRadius: '7px',
-                  fontSize: '12.5px',
-                  fontWeight: 600,
-                  cursor: 'pointer'
-                }}
-              >
-                Deselect All
-              </button>
-            </div>
-          </div>
-        )}
-
         {/* 4. Table (Desktop View) */}
-        <div className={`responsive-table-desktop teacher-table-container ${viewMode === 'grid' ? 'force-hidden' : ''}`} style={{ marginTop: '16px', border: '1px solid #e2e8f0', borderRadius: '12px', overflow: 'hidden' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+        <div className={`responsive-table-desktop teacher-table-container ${viewMode === 'grid' ? 'force-hidden' : ''}`} style={{ marginTop: '16px', border: '1px solid #e2e8f0', borderRadius: '12px', overflowX: 'auto', overflowY: 'hidden' }}>
+          <table style={{ width: '100%', minWidth: '1050px', borderCollapse: 'collapse', textAlign: 'left' }}>
             <thead>
               <tr style={{ background: '#f8fafc', borderBottom: '1.5px solid #e2e8f0' }}>
                 <th style={{ width: 44, textAlign: 'center', padding: '14px 10px' }}>
@@ -719,7 +669,16 @@ export const TeachersPage = () => {
                             <img
                               src={teacher.image}
                               alt={fullName}
-                              style={{ width: 40, height: 40, borderRadius: '50%', objectFit: 'cover', border: '1.5px solid #e2e8f0' }}
+                              style={{
+                                width: 40,
+                                height: 40,
+                                minWidth: 40,
+                                flexShrink: 0,
+                                aspectRatio: '1',
+                                borderRadius: '50%',
+                                objectFit: 'cover',
+                                border: '1.5px solid #e2e8f0'
+                              }}
                             />
                           ) : (
                             <div
@@ -775,6 +734,7 @@ export const TeachersPage = () => {
                               borderRadius: '20px',
                               fontSize: '11.5px',
                               fontWeight: 750,
+                              whiteSpace: 'nowrap',
                               background: '#f0fdf4',
                               color: '#15803d',
                               border: '1px solid #86efac'
@@ -882,7 +842,7 @@ export const TeachersPage = () => {
         </div>
 
         {/* Faculty Cards (Mobile View) */}
-        <div className={`responsive-cards-mobile ${viewMode === 'grid' ? 'grid-view' : 'list-view'}`} style={{ marginTop: '16px' }}>
+        <div className={`responsive-cards-mobile teacher-records-mobile-cards ${viewMode === 'grid' ? 'grid-view' : 'list-view'}`} style={{ marginTop: '16px' }}>
           {loading ? (
             <div style={{ textAlign: 'center', padding: '30px 16px', color: '#94a3b8', gridColumn: '1 / -1' }}>
               Loading faculty directory...
@@ -976,7 +936,12 @@ export const TeachersPage = () => {
                       {teacher.position || 'Teacher I'}
                     </div>
                     <div className="entity-grid-meta-secondary" style={{ color: '#64748b', fontSize: '9.5px', marginTop: '1px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      <span className="mobile-card-detail-label">Department: </span>
                       {teacher.department || 'Faculty Dept'}
+                    </div>
+                    <div className="teacher-grid-email">
+                      <span className="mobile-card-detail-label">Email: </span>
+                      <span>{teacher.email || 'No email available'}</span>
                     </div>
                   </div>
 
@@ -1117,12 +1082,13 @@ export const TeachersPage = () => {
 
                   {/* Middle Row: Department & Contact */}
                   <div className="teacher-mobile-list-details" style={{ display: 'flex', flexDirection: 'column', gap: '4px', background: '#f8fafc', padding: '8px 10px', borderRadius: '8px', fontSize: '12px', color: '#475569' }}>
-                    <div style={{ fontWeight: 600, color: '#334155' }}>
+                    <div>
+                      <span className="mobile-card-detail-label">Department: </span>
                       {teacher.department || 'Faculty Department'}
                     </div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                      <Mail size={12} color="#94a3b8" />
-                      <span style={{ wordBreak: 'break-all' }}>{teacher.email}</span>
+                      <span className="mobile-card-detail-label">Email:</span>
+                      <span style={{ wordBreak: 'break-all', minWidth: 0 }}>{teacher.email}</span>
                     </div>
                   </div>
 

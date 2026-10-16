@@ -421,7 +421,7 @@ export const AdminUsersPage = () => {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+    <div className="compact-mobile-layout" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
       {/* 1. Top Banner & Primary Actions */}
       <div className="page-banner-header">
         <div className="page-banner-info">
@@ -586,6 +586,7 @@ export const AdminUsersPage = () => {
           <div style={{ position: 'relative', minWidth: '280px', flex: '1', maxWidth: '420px' }}>
             <Search size={16} color="#94a3b8" style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)' }} />
             <input
+              className="admin-users-search-input"
               type="text"
               placeholder="Search by admin name, email, or role..."
               value={searchTerm}
@@ -614,7 +615,7 @@ export const AdminUsersPage = () => {
             )}
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: '0' }}>
+          <div className="selection-action-utility" style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: '0' }}>
             <div style={{ minWidth: '120px', flex: '1' }}>
               <CustomSelect
                 value={entriesPerPage}
@@ -632,70 +633,20 @@ export const AdminUsersPage = () => {
 
             {/* List / Grid View Toggle */}
             <ViewModeToggle viewMode={viewMode} onChange={setViewMode} />
+            {selectedIds.length > 0 && (
+              <button
+                type="button"
+                className="selection-toolbar-delete-button"
+                onClick={handleDeleteSelected}
+                aria-label={`Delete ${selectedIds.length} selected administrator${selectedIds.length === 1 ? '' : 's'}`}
+                title="Delete Selected"
+              >
+                <Trash2 size={15} />
+                <span>Delete Selected</span>
+              </button>
+            )}
           </div>
         </div>
-
-        {/* Batch Selection Action Bar */}
-        {selectedIds.length > 0 && (
-          <div
-            className="bulk-selection-toolbar admin-selection-toolbar"
-            style={{
-              marginTop: '16px',
-              padding: '10px 16px',
-              background: '#f8fafc',
-              border: '1.5px solid #cbd5e1',
-              borderRadius: '10px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              flexWrap: 'wrap',
-              gap: '10px'
-            }}
-          >
-            <div className="admin-selection-toolbar-label" style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px', fontWeight: 700, color: '#1e293b' }}>
-              <span className="admin-selection-toolbar-indicator" style={{ width: 8, height: 8, borderRadius: '50%', background: '#2563eb' }} />
-              {selectedIds.length} administrator(s) selected
-            </div>
-
-            <div style={{ display: 'flex', gap: '8px' }}>
-              <button
-                onClick={handleDeleteSelected}
-                style={{
-                  background: '#ef4444',
-                  color: '#fff',
-                  border: 'none',
-                  padding: '6px 14px',
-                  borderRadius: '7px',
-                  fontSize: '12.5px',
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '6px'
-                }}
-              >
-                <Trash2 size={14} /> Delete Selected
-              </button>
-
-              <button
-                className="bulk-selection-clear-btn admin-selection-clear-btn"
-                onClick={() => setSelectedIds([])}
-                style={{
-                  background: '#ffffff',
-                  color: '#475569',
-                  border: '1px solid #cbd5e1',
-                  padding: '6px 12px',
-                  borderRadius: '7px',
-                  fontSize: '12.5px',
-                  fontWeight: 600,
-                  cursor: 'pointer'
-                }}
-              >
-                Deselect All
-              </button>
-            </div>
-          </div>
-        )}
 
         {/* 4. Table (Desktop View) */}
         <div className={`responsive-table-desktop admin-users-table-container ${viewMode === 'grid' ? 'force-hidden' : ''}`} style={{ marginTop: '16px', border: '1px solid #e2e8f0', borderRadius: '12px', overflow: 'hidden' }}>
@@ -824,6 +775,7 @@ export const AdminUsersPage = () => {
                       {/* Role Badge */}
                       <td style={{ padding: '14px 16px' }}>
                         <span
+                          className={`admin-mobile-role-badge${isSuper ? ' is-super-admin' : ''}`}
                           style={{
                             display: 'inline-flex',
                             alignItems: 'center',
@@ -979,6 +931,7 @@ export const AdminUsersPage = () => {
                       {admin.position || 'Admin Staff'}
                     </div>
                     <div className="entity-grid-meta-secondary" style={{ color: '#64748b', fontSize: '9.5px', marginTop: '1px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      <span className="mobile-card-detail-label">Email: </span>
                       {admin.email}
                     </div>
                   </div>
@@ -1089,8 +1042,8 @@ export const AdminUsersPage = () => {
                   </div>
 
                   {/* Middle Row: Email */}
-                  <div className="admin-mobile-list-email" style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '12px', color: '#475569', background: '#f8fafc', padding: '6px 10px', borderRadius: '8px' }}>
-                    <Mail size={13} color="#94a3b8" />
+                  <div className="admin-mobile-list-email" style={{ display: 'flex', alignItems: 'flex-start', flexWrap: 'wrap', gap: '6px', fontSize: '12px', color: '#475569', background: '#f8fafc', padding: '8px 10px', borderRadius: '8px', textAlign: 'left' }}>
+                    <span className="mobile-card-detail-label">Email:</span>
                     <span style={{ wordBreak: 'break-all' }}>{admin.email}</span>
                   </div>
 

@@ -244,7 +244,7 @@ export const MyClassPage = () => {
   const sectionLabel = adviser?.class_section || 'Rizal';
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+    <div className="compact-mobile-actions" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
       {/* 1. Hero Adviser Profile & Advisory Banner */}
       {/* 1. Hero Adviser Profile & Advisory Banner */}
       <div className="page-banner-header">

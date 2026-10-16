@@ -873,6 +873,12 @@ html[data-theme="dark"] body .header-cmd-search-btn:active,
   box-shadow: 0 0 8px rgba(255, 255, 255, 0.4) !important;
 }
 
+[data-theme="dark"] .sidebar .sidebar-count-badge {
+  background: #161616 !important;
+  color: #f8fafc !important;
+  border: 1px solid #383838 !important;
+}
+
 /* Mobile Drawer Header */
 [data-theme="dark"] .mobile-drawer-header {
   background: #000000 !important;

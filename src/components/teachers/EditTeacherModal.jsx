@@ -151,6 +151,7 @@ export const EditTeacherModal = ({ isOpen, onClose, teacher, onSaved }) => {
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
             <div
+              className="edit-teacher-modal-icon"
               style={{
                 width: 40,
                 height: 40,

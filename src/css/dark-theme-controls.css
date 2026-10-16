@@ -1,10 +1,14 @@
 /* ==========================================================================
    BUTTONS, TABS, PILLS
    ========================================================================== */
-[data-theme="dark"] .dash-segmented-pills,
-[data-theme="dark"] .dash-trends-controls-right {
+[data-theme="dark"] .dash-segmented-pills {
   background: #050505 !important;
   border-color: #202020 !important;
+}
+
+[data-theme="dark"] .dash-trends-controls-right {
+  background: transparent !important;
+  border-color: transparent !important;
 }
 
 [data-theme="dark"] .dash-segment-btn,

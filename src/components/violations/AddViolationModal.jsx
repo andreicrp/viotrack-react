@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { UnderApprovalModal } from './UnderApprovalModal';
 import { dataService } from '../../services/dataService';
 import { useNotification } from '../../context/NotificationContext';
 import { useAuth } from '../../context/AuthContext';
@@ -65,11 +64,6 @@ export const AddViolationModal = ({
     smsTemplate: 'standard',
     customMessage: ''
   });
-
-  // Approval Popup for Teachers
-  const [isApprovalPopupOpen, setIsApprovalPopupOpen] = useState(false);
-  const [approvalPopupData, setApprovalPopupData] = useState(null);
-  const [pendingRecords, setPendingRecords] = useState(null);
 
   // Geolocation
   const [location, setLocation] = useState({
@@ -370,27 +364,12 @@ export const AddViolationModal = ({
         }
       }
 
-      if (isApprovalMode) {
-        setApprovalPopupData({
-          studentNames: chosenStudents.map((s) => `${s.fname} ${s.lname}`),
-          violationTitles: chosenViolations.map((v) => `[${v.type || 'Minor'}] ${v.title}`),
-          sanction: formData.sanction || 'Under Administrative Review',
-          reportedBy: user?.name || (isTeacher ? 'Faculty Teacher' : 'Reporting Faculty')
-        });
-        setPendingRecords(createdRecords);
-        setIsApprovalPopupOpen(true);
-      } else {
-        if (chosenStudents.length === 1 && chosenViolations.length === 1) {
-          success(`Incident report for ${chosenStudents[0]?.fname || 'student'} added successfully!`);
-        } else {
-          success(
-            `Successfully recorded ${chosenViolations.length} offense(s) for ${chosenStudents.length} student(s) (${createdRecords.length} records)!`
-          );
-        }
-
-        onRecordAdded?.(createdRecords[0] || createdRecords);
-        onClose();
-      }
+      const recordLabel = createdRecords.length === 1 ? 'violation record' : 'violation records';
+      success(isTeacher
+        ? `${createdRecords.length} ${recordLabel} recorded and sent for administrator review.`
+        : `${createdRecords.length} ${recordLabel} recorded successfully.`);
+      onRecordAdded?.(createdRecords[0] || createdRecords);
+      onClose();
     } catch (err) {
       error(requireAccurateLocation
         ? `Failed to save scanned violation: ${err.message}`
@@ -399,15 +378,6 @@ export const AddViolationModal = ({
       releaseSubmissionLock(lockKey);
       setLoading(false);
     }
-  };
-
-  const handleCloseApprovalPopup = () => {
-    setIsApprovalPopupOpen(false);
-    if (pendingRecords) {
-      onRecordAdded?.(pendingRecords[0] || pendingRecords);
-      setPendingRecords(null);
-    }
-    onClose();
   };
 
   if (!isOpen) return null;
@@ -683,7 +653,7 @@ export const AddViolationModal = ({
 
                 {/* ================= STEP 2: VIOLATION OFFENSE (IMAGE 2 SPEC) ================= */}
                 {step === 2 && (
-                  <div className="lvm-card">
+                  <div className="lvm-card lvm-offense-card">
                     {/* Header */}
                     <div className="lvm-section-header">
                       <div className="lvm-section-header-left">
@@ -785,14 +755,16 @@ export const AddViolationModal = ({
                                 </div>
                               </div>
 
-                              <span className={`lvm-category-tag ${catType}`}>
-                                {v.type || 'Minor'}
-                              </span>
-                              {isSelected && (
-                                <span className="lvm-selection-check" aria-hidden="true">
-                                  <Check size={14} strokeWidth={3} />
+                              <div className="lvm-offense-tile-right">
+                                <span className={`lvm-category-tag ${catType}`}>
+                                  {v.type || 'Minor'}
                                 </span>
-                              )}
+                                {isSelected && (
+                                  <span className="lvm-selection-check" aria-hidden="true">
+                                    <Check size={14} strokeWidth={3} />
+                                  </span>
+                                )}
+                              </div>
                             </div>
                           );
                         })
@@ -1129,15 +1101,6 @@ export const AddViolationModal = ({
           </div>
         </div>
       </div>
-
-      {/* Teacher Under Approval Modal */}
-      <UnderApprovalModal
-        isOpen={isApprovalPopupOpen}
-        onClose={handleCloseApprovalPopup}
-        recordData={approvalPopupData}
-        students={students}
-        violations={violations}
-      />
     </>
   );
 };

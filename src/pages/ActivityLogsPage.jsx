@@ -332,7 +332,7 @@ export const ActivityLogsPage = () => {
   };
 
   return (
-    <div className="activity-logs-page" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+    <div className="activity-logs-page compact-mobile-actions" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
       {/* Top Banner & Quick Actions */}
       <div className="page-banner-header">
         <div className="page-banner-info">
@@ -835,7 +835,7 @@ export const ActivityLogsPage = () => {
                         )}
                       </div>
 
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                      <div className="audit-log-entry-actions" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                         <div style={{ fontSize: '12px', color: 'var(--text-muted, #64748b)', display: 'flex', alignItems: 'center', gap: '5px' }}>
                           <Clock size={12} color="var(--brand-blue, #94a3b8)" />
                           <span>
@@ -917,7 +917,7 @@ export const ActivityLogsPage = () => {
                         {log.user_role || 'Admin'}
                       </td>
                       <td style={{ padding: '14px 18px' }}>
-                        <span className={badge.className} style={{ fontSize: '11px', fontWeight: 700, padding: '3px 10px', borderRadius: '20px', background: badge.bg, color: badge.color, border: `1px solid ${badge.border}` }}>
+                        <span className={`activity-log-action-badge ${badge.className}`} style={{ fontSize: '11px', fontWeight: 700, padding: '3px 10px', borderRadius: '20px', background: badge.bg, color: badge.color, border: `1px solid ${badge.border}` }}>
                           {badge.label}
                         </span>
                       </td>

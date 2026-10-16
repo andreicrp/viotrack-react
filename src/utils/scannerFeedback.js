@@ -82,6 +82,9 @@ export const playSuccessChime = (customVolume) => {
     const AudioCtx = window.AudioContext || window.webkitAudioContext;
     if (AudioCtx) {
       const audioCtx = new AudioCtx();
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume().catch(() => {});
+      }
       const now = audioCtx.currentTime;
 
       // Note 1: E6 (1318.51 Hz) -> Note 2: B6 (1975.53 Hz)
@@ -141,6 +144,9 @@ export const playErrorBuzz = (customVolume) => {
     const AudioCtx = window.AudioContext || window.webkitAudioContext;
     if (AudioCtx) {
       const audioCtx = new AudioCtx();
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume().catch(() => {});
+      }
       const now = audioCtx.currentTime;
 
       // Pulse 1: Low sawtooth buzz (220 Hz)

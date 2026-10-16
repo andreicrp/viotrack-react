@@ -1,11 +1,14 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { dataService } from '../services/dataService';
+import { isSupabaseConfigured, supabase } from '../lib/supabase';
+import { subscribeCrossTabSync } from '../utils/dataIntegrity';
 import { AddViolationModal } from '../components/violations/AddViolationModal';
 import { StatusModal } from '../components/violations/StatusModal';
 import { ResolutionModal } from '../components/violations/ResolutionModal';
 import { ParentSummonsModal } from '../components/violations/ParentSummonsModal';
 import { CustomSelect } from '../components/common/CustomSelect';
+import { BrandedQrCode } from '../components/common/BrandedQrCode';
 import { useNotification } from '../context/NotificationContext';
 import { useAuth } from '../context/AuthContext';
 import {
@@ -46,6 +49,15 @@ import { getJsPDF } from '../utils/pdfHelper';
 import { getStudentQrCodeUrl, getStudentQrValue } from '../utils/qrHelper';
 import { StudentInitialsAvatar } from '../components/students/StudentInitialsAvatar';
 
+const isApprovedRecord = (record) => (
+  record &&
+  record.approval_status !== 'Under Approval' &&
+  record.status !== 'Under Approval' &&
+  record.approval_status !== 'Rejected' &&
+  record.status !== 'Rejected' &&
+  record.approval_status === 'Approved'
+);
+
 export const StudentViolationDetailPage = () => {
   const { id } = useParams();
   const [searchParams] = useSearchParams();
@@ -79,32 +91,21 @@ export const StudentViolationDetailPage = () => {
 
   const isAdmin = user?.role === 'admin';
 
-  useEffect(() => {
-    loadStudentAndRecords();
-  }, [id]);
-
-  const loadStudentAndRecords = async () => {
-    setLoading(true);
+  const loadStudentAndRecords = useCallback(async (forceRefresh = false, showLoading = true) => {
+    if (showLoading) setLoading(true);
     try {
       const [allStudents, allRecords] = await Promise.all([
         dataService.getStudents(),
-        dataService.getRecords()
+        dataService.getRecords(forceRefresh)
       ]);
 
       const found = allStudents.find(s => String(s.id) === String(id) || String(s.student_id) === String(id));
       if (found) {
         setStudent(found);
-        const isApproved = (r) => {
-          if (!r) return false;
-          if (r.approval_status === 'Under Approval' || r.status === 'Under Approval') return false;
-          if (r.approval_status === 'Rejected' || r.status === 'Rejected') return false;
-          // Must be explicitly approved by an administrator
-          return r.approval_status === 'Approved';
-        };
         // For display: only approved records
         const studentHistory = (allRecords || [])
           .filter(r => String(r.student_id) === String(found.id))
-          .filter(isApproved);
+          .filter(isApprovedRecord);
         setRecords(studentHistory);
 
         // For the report: ALL violations (all approval/status states)
@@ -120,7 +121,79 @@ export const StudentViolationDetailPage = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id, error]);
+
+  useEffect(() => {
+    loadStudentAndRecords(false, false);
+  }, [loadStudentAndRecords]);
+
+  useEffect(() => {
+    if (!student?.id) return undefined;
+
+    let active = true;
+    const refreshRecords = async () => {
+      try {
+        const allRecords = await dataService.getRecords(true);
+        if (!active) return;
+        const studentHistory = (allRecords || [])
+          .filter(record => String(record.student_id) === String(student.id));
+        setRecords(studentHistory.filter(isApprovedRecord));
+        setAllStudentRecords(studentHistory.sort(
+          (a, b) => new Date(b.date_reported) - new Date(a.date_reported)
+        ));
+      } catch (err) {
+        error('Failed to refresh live student records: ' + err.message);
+      }
+    };
+
+    const handleRecordChange = (change) => {
+      if (change?.entityType !== 'record') return;
+      if (change.action === 'update' && change.entityData?.id != null) {
+        const updated = change.entityData;
+        if (String(updated.student_id) !== String(student.id)) return;
+        setRecords(current => current.map(record => (
+          String(record.id) === String(updated.id) ? { ...record, ...updated } : record
+        )));
+        setAllStudentRecords(current => current.map(record => (
+          String(record.id) === String(updated.id) ? { ...record, ...updated } : record
+        )));
+        return;
+      }
+      refreshRecords();
+    };
+
+    const handleLocalRecordChange = (event) => handleRecordChange(event.detail);
+    window.addEventListener('viotrack_data_updated', handleLocalRecordChange);
+    const unsubscribe = subscribeCrossTabSync(handleRecordChange);
+
+    let channel;
+    if (isSupabaseConfigured() && supabase) {
+      channel = supabase
+        .channel(`student-records-${student.id}`)
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'records',
+            filter: `student_id=eq.${student.id}`
+          },
+          refreshRecords
+        )
+        .subscribe((status) => {
+          if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+            console.error(`Student record realtime subscription failed: ${status}`);
+          }
+        });
+    }
+
+    return () => {
+      active = false;
+      window.removeEventListener('viotrack_data_updated', handleLocalRecordChange);
+      unsubscribe();
+      if (channel && supabase) void supabase.removeChannel(channel);
+    };
+  }, [student?.id, error]);
 
   const handleRemoveRecord = async (recId) => {
     if (window.confirm(`Are you sure you want to remove violation record #${recId}?`)) {
@@ -137,7 +210,11 @@ export const StudentViolationDetailPage = () => {
   const handleStatusUpdated = async (recordId, newStatus) => {
     try {
       await dataService.updateRecordStatus(recordId, { status: newStatus });
-      setRecords(records.map(r => r.id === recordId ? { ...r, status: newStatus } : r));
+      const updateStatus = current => current.map(record => (
+        String(record.id) === String(recordId) ? { ...record, status: newStatus } : record
+      ));
+      setRecords(updateStatus);
+      setAllStudentRecords(updateStatus);
       success(`Status updated successfully to "${newStatus}"!`);
     } catch (err) {
       error('Failed to update status: ' + err.message);
@@ -285,13 +362,13 @@ export const StudentViolationDetailPage = () => {
         r.violation?.title || 'Unspecified Infraction',
         (r.violation?.type || 'Minor'),
         r.sanction || 'None',
-        r.reported_by || r.teacher_name || 'N/A',
+        r.reported_by_name || r.reported_by || r.teacher_name || 'N/A',
         r.approval_status || r.status || 'N/A',
         r.status || 'N/A',
       ]);
 
       doc.autoTable({
-        head: [['#', 'Date', 'Violation', 'Severity', 'Sanction', 'Reported By', 'Approval', 'Status']],
+        head: [['#', 'Date', 'Violation', 'Severity', 'Sanction', 'Recorded By', 'Approval', 'Status']],
         body: tableData,
         startY: y,
         theme: 'striped',
@@ -396,7 +473,7 @@ export const StudentViolationDetailPage = () => {
 
   // QR Code data & URL (clean student identifier or public verification URL, avoiding localhost)
   const qrData = student ? getStudentQrValue(student) : '';
-  const qrUrl = student ? getStudentQrCodeUrl(student, 240, 1) : '';
+  const qrUrl = student ? getStudentQrCodeUrl(student, 240, 2) : '';
 
   // Metrics
   const totalCount = records.length;
@@ -490,6 +567,33 @@ export const StudentViolationDetailPage = () => {
   // Status Badge UI
   const renderStatusBadge = (st) => {
     const s = (st || '').toLowerCase();
+    const conferenceStatusStyles = {
+      '1st conference': { color: '#0369a1', background: '#e0f2fe', border: '#7dd3fc' },
+      '2nd conference': { color: '#b45309', background: '#fef3c7', border: '#fcd34d' },
+      '3rd conference': { color: '#b91c1c', background: '#fee2e2', border: '#fca5a5' }
+    };
+    const conferenceStyle = conferenceStatusStyles[s];
+    if (conferenceStyle) {
+      return (
+        <span
+          className={`record-status-pill record-status-pill--conference-${s[0]}`}
+          style={{
+            background: conferenceStyle.background,
+            color: conferenceStyle.color,
+            border: `1px solid ${conferenceStyle.border}`,
+            padding: '3.5px 10px',
+            borderRadius: '20px',
+            fontSize: '11.5px',
+            fontWeight: 700,
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '5px'
+          }}
+        >
+          <Users size={12} strokeWidth={2.4} /> {st}
+        </span>
+      );
+    }
     if (s === 'resolved') {
       return (
         <span className="badge-minor record-status-pill record-status-pill--resolved" style={{ background: '#ecfdf5', color: '#065f46', border: '1px solid #a7f3d0', padding: '3.5px 10px', borderRadius: '20px', fontSize: '11.5px', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
@@ -506,7 +610,7 @@ export const StudentViolationDetailPage = () => {
     }
     return (
       <span className="badge-major record-status-pill record-status-pill--pending" style={{ background: '#fef2f2', color: '#991b1b', border: '1px solid #fecaca', padding: '3.5px 10px', borderRadius: '20px', fontSize: '11.5px', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
-        <Clock size={12} color="#dc2626" strokeWidth={2.4} /> Pending
+        <Clock size={12} color="#dc2626" strokeWidth={2.4} /> {st || 'Pending'}
       </span>
     );
   };
@@ -515,21 +619,21 @@ export const StudentViolationDetailPage = () => {
     const t = (ty || '').toLowerCase();
     if (t === 'major') {
       return (
-        <span className="badge-major" style={{ color: '#991b1b', fontWeight: 800, fontSize: '11.5px', display: 'inline-flex', alignItems: 'center', gap: '4px', background: '#fef2f2', border: '1px solid #fecaca', padding: '3.5px 10px', borderRadius: '20px' }}>
-          <ShieldAlert size={12} color="#dc2626" strokeWidth={2.2} /> Major
+        <span className="badge-major" style={{ color: '#991b1b', fontWeight: 800, fontSize: '11.5px', display: 'inline-block', background: '#fee2e2', border: '1px solid #fca5a5', padding: '3.5px 10px', borderRadius: '20px' }}>
+          Major
         </span>
       );
     }
     if (t === 'serious') {
       return (
-        <span className="badge-serious" style={{ color: '#9a3412', fontWeight: 800, fontSize: '11.5px', display: 'inline-flex', alignItems: 'center', gap: '4px', background: '#fff7ed', border: '1px solid #fed7aa', padding: '3.5px 10px', borderRadius: '20px' }}>
-          <AlertTriangle size={12} color="#ea580c" strokeWidth={2.2} /> Serious
+        <span className="badge-serious" style={{ color: '#9a3412', fontWeight: 800, fontSize: '11.5px', display: 'inline-block', background: '#ffedd5', border: '1px solid #fdba74', padding: '3.5px 10px', borderRadius: '20px' }}>
+          Serious
         </span>
       );
     }
     return (
-      <span className="badge-minor" style={{ color: '#065f46', fontWeight: 800, fontSize: '11.5px', background: '#ecfdf5', border: '1px solid #a7f3d0', padding: '3.5px 10px', borderRadius: '20px', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-        <CheckCircle2 size={12} color="#059669" strokeWidth={2.2} /> Minor
+      <span className="badge-minor" style={{ color: '#065f46', fontWeight: 800, fontSize: '11.5px', background: '#d1fae5', border: '1px solid #6ee7b7', padding: '3.5px 10px', borderRadius: '20px', display: 'inline-block' }}>
+        Minor
       </span>
     );
   };
@@ -561,7 +665,7 @@ export const StudentViolationDetailPage = () => {
   }
 
   return (
-    <div className="student-violation-detail-page" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+    <div className="student-violation-detail-page compact-mobile-actions" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
       
       {/* Top Banner Header with Actions */}
       <div className="page-banner-header">
@@ -908,17 +1012,11 @@ export const StudentViolationDetailPage = () => {
               title="Click to view & print Student QR ID Pass"
             >
               <div id="qrcode" style={{ width: '155px', height: '155px', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#ffffff', padding: '6px', borderRadius: '10px' }}>
-                <img
+                <BrandedQrCode
                   src={qrUrl}
                   alt={`QR Pass for ${student.student_id}`}
-                  style={{
-                    width: '143px',
-                    height: '143px',
-                    maxWidth: '143px',
-                    maxHeight: '143px',
-                    borderRadius: '6px',
-                    display: 'block'
-                  }}
+                  size="143px"
+                  style={{ borderRadius: '6px' }}
                 />
               </div>
               <span className="student-profile-qr-label" style={{ fontSize: '12px', fontWeight: 800, color: 'var(--text-primary, #0f172a)', marginTop: '10px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
@@ -1262,6 +1360,7 @@ export const StudentViolationDetailPage = () => {
                 <th style={{ padding: '12px 14px' }}>YEAR</th>
                 <th style={{ padding: '12px 14px' }}>VIOLATION</th>
                 <th style={{ padding: '12px 14px' }}>DATE REPORTED</th>
+                <th style={{ padding: '12px 14px' }}>RECORDED BY</th>
                 <th style={{ padding: '12px 14px' }}>VIOLATION TYPE</th>
                 <th style={{ padding: '12px 14px' }}>STATUS</th>
                 <th style={{ padding: '12px 14px', textAlign: 'right' }}>ACTION</th>
@@ -1270,7 +1369,7 @@ export const StudentViolationDetailPage = () => {
             <tbody>
               {paginated.length === 0 ? (
                 <tr>
-                  <td colSpan={8} style={{ padding: '48px 20px', textAlign: 'center' }}>
+                  <td colSpan={9} style={{ padding: '48px 20px', textAlign: 'center' }}>
                     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
                       <div style={{ width: 48, height: 48, borderRadius: '50%', background: '#ecfdf5', color: '#10b981', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         <CheckCircle2 size={26} />
@@ -1369,6 +1468,10 @@ export const StudentViolationDetailPage = () => {
                         <span style={{ fontSize: '11px', color: '#94a3b8' }}>
                           {new Date(r.date_reported).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                         </span>
+                      </td>
+
+                      <td style={{ padding: '12px 14px', color: '#475569', fontSize: '12.5px' }}>
+                        {r.reported_by_name || r.reported_by || r.teacher_name || 'N/A'}
                       </td>
 
                       <td style={{ padding: '12px 14px' }}>
@@ -1532,6 +1635,9 @@ export const StudentViolationDetailPage = () => {
                         Sanction: <span style={{ fontStyle: 'italic', fontWeight: 500 }}>None recorded</span>
                       </div>
                     )}
+                    <div style={{ color: 'var(--text-secondary, #475569)', marginTop: '4px' }}>
+                      Recorded by: <strong style={{ color: 'var(--text-primary, #0f172a)', fontWeight: 700 }}>{r.reported_by_name || r.reported_by || r.teacher_name || 'N/A'}</strong>
+                    </div>
                   </div>
 
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: '6px', borderTop: '1px dashed var(--border-subtle, #e2e8f0)' }}>
@@ -1649,58 +1755,95 @@ export const StudentViolationDetailPage = () => {
               {Math.min(currentPage * entriesPerPage, filtered.length)} of {filtered.length} entries
             </div>
 
-            {totalPages > 1 && (
-              <div className="pagination-btn-group" style={{ display: 'flex', gap: '4px' }}>
-                <button
-                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                  disabled={currentPage === 1}
-                  style={{
-                    padding: '4px 10px',
-                    border: '1px solid #cbd5e1',
-                    background: '#fff',
-                    borderRadius: '6px',
-                    fontSize: '12px',
-                    cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
-                    color: currentPage === 1 ? '#cbd5e1' : '#334155'
-                  }}
-                >
-                  « Prev
-                </button>
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
-                  <button
-                    key={page}
-                    onClick={() => setCurrentPage(page)}
-                    style={{
-                      padding: '4px 10px',
-                      border: '1px solid #cbd5e1',
-                      background: currentPage === page ? '#07345f' : '#fff',
-                      color: currentPage === page ? '#fff' : '#334155',
-                      borderRadius: '6px',
-                      fontSize: '12px',
-                      fontWeight: currentPage === page ? 700 : 500,
-                      cursor: 'pointer'
-                    }}
-                  >
-                    {page}
-                  </button>
+            <div className="pagination-btn-group" style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+              <button
+                aria-label="First page"
+                title="First page"
+                onClick={() => setCurrentPage(1)}
+                disabled={currentPage === 1}
+                style={{
+                  padding: '6px 10px',
+                  border: '1px solid #cbd5e1',
+                  background: '#fff',
+                  borderRadius: '6px',
+                  fontSize: '12px',
+                  cursor: currentPage === 1 ? 'not-allowed' : 'pointer'
+                }}
+              >
+                «
+              </button>
+              <button
+                aria-label="Previous page"
+                title="Previous page"
+                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+                style={{
+                  padding: '6px 10px',
+                  border: '1px solid #cbd5e1',
+                  background: '#fff',
+                  borderRadius: '6px',
+                  fontSize: '12px',
+                  cursor: currentPage === 1 ? 'not-allowed' : 'pointer'
+                }}
+              >
+                ‹
+              </button>
+              {Array.from({ length: totalPages }, (_, i) => i + 1)
+                .filter(page => page === 1 || page === totalPages || Math.abs(page - currentPage) <= 1)
+                .map((page, index, pages) => (
+                  <React.Fragment key={page}>
+                    {index > 0 && page - pages[index - 1] > 1 && <span style={{ padding: '0 4px' }}>...</span>}
+                    <button
+                      onClick={() => setCurrentPage(page)}
+                      aria-current={currentPage === page ? 'page' : undefined}
+                      style={{
+                        padding: '6px 12px',
+                        border: '1px solid #cbd5e1',
+                        background: currentPage === page ? '#07345f' : '#fff',
+                        color: currentPage === page ? '#fff' : '#334155',
+                        borderRadius: '6px',
+                        fontSize: '12px',
+                        fontWeight: currentPage === page ? 700 : 500,
+                        cursor: 'pointer'
+                      }}
+                    >
+                      {page}
+                    </button>
+                  </React.Fragment>
                 ))}
-                <button
-                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                  disabled={currentPage === totalPages}
-                  style={{
-                    padding: '4px 10px',
-                    border: '1px solid #cbd5e1',
-                    background: '#fff',
-                    borderRadius: '6px',
-                    fontSize: '12px',
-                    cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
-                    color: currentPage === totalPages ? '#cbd5e1' : '#334155'
-                  }}
-                >
-                  Next »
-                </button>
-              </div>
-            )}
+              <button
+                aria-label="Next page"
+                title="Next page"
+                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                disabled={currentPage === totalPages}
+                style={{
+                  padding: '6px 10px',
+                  border: '1px solid #cbd5e1',
+                  background: '#fff',
+                  borderRadius: '6px',
+                  fontSize: '12px',
+                  cursor: currentPage === totalPages ? 'not-allowed' : 'pointer'
+                }}
+              >
+                ›
+              </button>
+              <button
+                aria-label="Last page"
+                title="Last page"
+                onClick={() => setCurrentPage(totalPages)}
+                disabled={currentPage === totalPages}
+                style={{
+                  padding: '6px 10px',
+                  border: '1px solid #cbd5e1',
+                  background: '#fff',
+                  borderRadius: '6px',
+                  fontSize: '12px',
+                  cursor: currentPage === totalPages ? 'not-allowed' : 'pointer'
+                }}
+              >
+                »
+              </button>
+            </div>
           </div>
         )}
       </div>
@@ -2124,10 +2267,10 @@ export const StudentViolationDetailPage = () => {
                   boxShadow: '0 2px 8px rgba(0, 0, 0, 0.03)'
                 }}
               >
-                <img
+                <BrandedQrCode
                   src={qrUrl}
                   alt={`QR Pass for ${student.student_id}`}
-                  style={{ width: '180px', height: '180px', display: 'block' }}
+                  size="180px"
                 />
               </div>
 

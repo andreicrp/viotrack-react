@@ -38,13 +38,17 @@ export const preloadRoute = (path) => {
   if (loader) {
     preloadedSet.add(cleanPath);
     // Execute on idle time or microtask so it never blocks active frame rendering
+    const handlePrefetchError = () => {
+      preloadedSet.delete(cleanPath);
+    };
+
     if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
       window.requestIdleCallback(() => {
-        loader().catch(() => {});
+        loader().catch(handlePrefetchError);
       });
     } else {
       setTimeout(() => {
-        loader().catch(() => {});
+        loader().catch(handlePrefetchError);
       }, 0);
     }
   }

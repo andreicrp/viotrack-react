@@ -5,6 +5,7 @@ import {
   computeQrChecksum,
   generateSignedStudentQr,
   verifySignedStudentQrPayload,
+  getStudentQrCodeUrl,
   getStudentQrValue,
   matchStudentFromScan
 } from './qrHelper';
@@ -59,6 +60,13 @@ describe('QR Cryptographic Helper & HMAC-SHA256 Suite', () => {
     expect(matched.fname).toBe('Juan');
     expect(matched._isSignedBadge).toBe(true);
     expect(matched._badgeVerified).toBe(true);
+  });
+
+  it('generates high-correction QR image URLs with a readable quiet zone for logo overlays', () => {
+    const url = getStudentQrCodeUrl(mockStudent, 300, 2);
+    expect(url).toContain('margin=2');
+    expect(url).toContain('ecc=H');
+    expect(url).toContain(encodeURIComponent(getStudentQrValue(mockStudent)));
   });
 
   it('rejects foreign, invalid, or arbitrary QR payloads', () => {

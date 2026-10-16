@@ -87,6 +87,8 @@ export const ScreenLockModal = () => {
         inset: 0,
         zIndex: 99999,
         background: 'rgba(15, 23, 42, 0.75)',
+        backdropFilter: 'blur(16px)',
+        WebkitBackdropFilter: 'blur(16px)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',

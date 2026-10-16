@@ -84,9 +84,28 @@
 
 ---
 
+## 🚀 7. Deployment Resilience & Zero-Downtime Chunk Recovery (Vercel & Vite SPA)
+* **Root Cause Diagnostics**:
+  * **Stale Chunk Hash Misses**: Following Vercel production deployments, clients with active sessions or cached `index.html` requested previous build chunks (e.g. `DashboardPage-[oldHash].js` and `index-[oldHash].css`) that no longer existed on the edge CDN.
+  * **SPA Wildcard Rewrite MIME Rejection**: Vercel's catch-all SPA rewrite (`/(.*) -> /index.html`) returned HTML for missing asset requests. Because `X-Content-Type-Options: nosniff` is enforced, the browser rejected the HTML payload (`Expected JavaScript-or-Wasm module script but the server responded with MIME type text/html`), causing unhandled dynamic import rejections.
+  * **500 Server Error Masking**: React `Suspense` and `ErrorBoundary` caught the module load rejection and defaulted to displaying `ServerErrorPage` (500 Error screen).
+  * **Console 401 Session Checks**: Initial unauthenticated page visits called the custom-auth session endpoint, which returned HTTP 401 instead of a clean empty session.
+* **Multi-Layer Zero-Downtime Resolution**:
+  * **Resilient Dynamic Import Wrapper (`lazyRetry.js`)**: Wrapped all route-level dynamic imports with an automatic reload mechanism. On module fetch or MIME type failures, it transparently hard-reloads the page once to retrieve fresh build assets without user friction.
+  * **Global Vite Preload Listener (`main.jsx`)**: Installed a `vite:preloadError` event handler throttled to 10 seconds to auto-refresh whenever preloading chunks mismatch post-deployment.
+  * **Intelligent Error Boundary Recovery (`ErrorBoundary.jsx` & `ServerErrorPage.jsx`)**: Added `isChunkLoadError` detection. Stale chunk errors trigger an immediate auto-refresh; if a network outage prevents refresh, the UI displays a clean **"Application Updated • New Version"** modal with an **"Update & Reload App"** CTA rather than a fatal 500 server crash.
+  * **Edge Cache-Control & Asset Rewrite Isolation (`vercel.json`)**:
+    * Enforced `Cache-Control: no-cache, no-store, must-revalidate` for `index.html`, `/`, and `sw.js` so browsers never retain stale entrypoints.
+    * Assigned 1-year immutable caching (`public, max-age=31536000, immutable`) to hashed chunks under `/assets/(.*)`.
+    * Isolated SPA rewrites with negative lookahead (`/((?!assets/).*) -> /index.html`) so missing asset paths 404 cleanly instead of returning misleading HTML.
+  * **Non-Blocking Session Check (`custom-auth/index.ts` & `supabase.js`)**: Returned HTTP 200 `{ user: null }` for unauthenticated session probes, eliminating spurious red 401 warnings in DevTools.
+
+---
+
 ## 📅 Key Git Commits
 | Hash | Date | Scope | Commit Message |
 | :--- | :--- | :--- | :--- |
+| `HEAD` | Oct 16 | **deploy** | Implement zero-downtime chunk recovery, lazyRetry, edge Cache-Control, and fix 500/MIME/401 errors |
 | `01a1be2` | Oct 08 | **fix** | Resolve ReferenceError user is not defined across pages and add auth fallback in SaveAsModal |
 | `5d84f2c` | Oct 08 | **ui** | Remove page count suffix from Print button |
 | `344da6d` | Oct 08 | **export** | Auto-download on web/desktop and show Save As explorer modal on mobile/APK |

@@ -781,6 +781,24 @@
 }
 
 @media (max-width: 900px) {
+  .admin-dashboard-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .admin-dashboard-header-actions {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    width: 100%;
+    gap: 8px;
+  }
+
+  .admin-dashboard-button {
+    min-width: 0;
+    padding-inline: 10px;
+    white-space: nowrap;
+  }
+
   .admin-dashboard-metrics {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
@@ -818,14 +836,17 @@
   }
 
   .admin-dashboard-header-actions {
-    width: 100%;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .admin-dashboard-button {
-    flex: 1;
     min-height: 40px;
     padding: 0 10px;
     font-size: 13px;
+  }
+
+  .admin-dashboard-header-actions .admin-dashboard-button:last-child {
+    grid-column: 1 / -1;
   }
 
   .admin-dashboard-metrics {

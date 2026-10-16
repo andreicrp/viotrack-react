@@ -44,6 +44,18 @@
   stroke: #000000 !important;
 }
 
+html[data-theme="dark"] body .student-violation-detail-page .student-record-status-trigger .record-status-pill--conference-1 svg,
+html[data-theme="dark"] body .student-violation-detail-page .student-record-status-trigger .record-status-pill--conference-2 svg,
+html[data-theme="dark"] body .student-violation-detail-page .student-record-status-trigger .record-status-pill--conference-3 svg {
+  color: inherit !important;
+  stroke: currentColor !important;
+}
+
+html[data-theme="dark"] body .student-violation-detail-page .student-record-status-trigger .record-status-pill--investigation svg {
+  color: #fbbf24 !important;
+  stroke: #fbbf24 !important;
+}
+
 [data-theme="dark"] table tbody td button:hover,
 [data-theme="dark"] .table tbody td button:hover,
 [data-theme="dark"] .responsive-table-desktop td button:hover,
@@ -907,11 +919,10 @@ html[data-theme="dark"] body .adviser-btn-remove:hover svg {
   stroke: #000000 !important;
 }
 
-html[data-theme="dark"] body .bulk-selection-toolbar,
-html[data-theme="dark"] body .approval-bulk-selection-toolbar {
+html[data-theme="dark"] body .bulk-selection-toolbar {
   background: #000000 !important;
   background-color: #000000 !important;
-  border-color: #292929 !important;
+  border: 1px solid #4a4a4a !important;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.55) !important;
   color: #f5f5f5 !important;
 }
@@ -919,6 +930,12 @@ html[data-theme="dark"] body .approval-bulk-selection-toolbar {
 html[data-theme="dark"] body .bulk-selection-toolbar > div:first-child {
   color: #f5f5f5 !important;
   -webkit-text-fill-color: #f5f5f5 !important;
+}
+
+html[data-theme="dark"] body .violations-page .pagination-btn-group .violation-pagination-arrow svg {
+  color: #ffffff !important;
+  stroke: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
 }
 
 html[data-theme="dark"] body .bulk-selection-toolbar .admin-selection-toolbar-label {
@@ -936,10 +953,7 @@ html[data-theme="dark"] body .bulk-selection-toolbar .violation-types-selection-
 
 html[data-theme="dark"] body .bulk-selection-toolbar .bulk-selection-clear-btn,
 html[data-theme="dark"] body .bulk-selection-toolbar .bulk-selection-clear-btn:hover,
-html[data-theme="dark"] body .bulk-selection-toolbar .bulk-selection-clear-btn:focus-visible,
-html[data-theme="dark"] body .approval-bulk-selection-toolbar .bulk-selection-clear-btn,
-html[data-theme="dark"] body .approval-bulk-selection-toolbar .bulk-selection-clear-btn:hover,
-html[data-theme="dark"] body .approval-bulk-selection-toolbar .bulk-selection-clear-btn:focus-visible {
+html[data-theme="dark"] body .bulk-selection-toolbar .bulk-selection-clear-btn:focus-visible {
   background: #171717 !important;
   background-color: #171717 !important;
   border-color: #404040 !important;
@@ -947,20 +961,290 @@ html[data-theme="dark"] body .approval-bulk-selection-toolbar .bulk-selection-cl
   -webkit-text-fill-color: #f5f5f5 !important;
 }
 
-html[data-theme="dark"] body .bulk-selection-toolbar .bulk-selection-clear-btn:hover,
-html[data-theme="dark"] body .approval-bulk-selection-toolbar .bulk-selection-clear-btn:hover {
+html[data-theme="dark"] body .bulk-selection-toolbar .bulk-selection-clear-btn:hover {
   background: #262626 !important;
   background-color: #262626 !important;
 }
 
-html[data-theme="dark"] body .bulk-selection-toolbar .bulk-selection-clear-btn:focus-visible,
-html[data-theme="dark"] body .approval-bulk-selection-toolbar .bulk-selection-clear-btn:focus-visible {
+html[data-theme="dark"] body .bulk-selection-toolbar .bulk-selection-clear-btn:focus-visible {
   outline: 2px solid #60a5fa !important;
   outline-offset: 2px !important;
 }
 
-html[data-theme="dark"] body .approval-bulk-selection-toolbar > div,
-html[data-theme="dark"] body .approval-bulk-selection-toolbar > div > span:not(:first-child) {
+html[data-theme="dark"] body .student-selection-count {
   color: #f5f5f5 !important;
   -webkit-text-fill-color: #f5f5f5 !important;
+}
+
+html[data-theme="dark"] body .admin-users-search-input {
+  background: #080808 !important;
+  border-color: #4a4a4a !important;
+  color: #f5f5f5 !important;
+  -webkit-text-fill-color: #f5f5f5 !important;
+  caret-color: #f5f5f5 !important;
+}
+
+html[data-theme="dark"] body .admin-users-search-input::placeholder {
+  color: #8a8a8a !important;
+  -webkit-text-fill-color: #8a8a8a !important;
+  opacity: 1;
+}
+
+html[data-theme="dark"] body .for-approval-page .approval-grid-offense-panel {
+  background: #111111 !important;
+  border-color: #383838 !important;
+}
+
+html[data-theme="dark"] body .for-approval-page .approval-grid-offense-label {
+  color: #a3a3a3 !important;
+  -webkit-text-fill-color: #a3a3a3 !important;
+}
+
+html[data-theme="dark"] body .for-approval-page .approval-grid-offense-title {
+  color: #f5f5f5 !important;
+  -webkit-text-fill-color: #f5f5f5 !important;
+}
+
+html[data-theme="dark"] body .student-selection-toolbar {
+  background: #1a1a1a !important;
+  border-color: #4a4a4a !important;
+}
+
+html[data-theme="dark"] body .student-selection-delete-button {
+  background: #b91c1c !important;
+  border: 1px solid #ef4444 !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+html[data-theme="dark"] body .selection-toolbar-delete-button {
+  background: #b91c1c !important;
+  border: 1px solid #ef4444 !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+html[data-theme="dark"] body .student-selection-delete-button:hover {
+  background: #991b1b !important;
+  border-color: #f87171 !important;
+}
+
+html[data-theme="dark"] body .selection-toolbar-delete-button:hover {
+  background: #991b1b !important;
+  border-color: #f87171 !important;
+}
+
+html[data-theme="dark"] body .student-selection-delete-button:focus-visible {
+  outline: 2px solid #d4d4d4 !important;
+  outline-offset: 2px !important;
+}
+
+html[data-theme="dark"] body .selection-toolbar-delete-button:focus-visible {
+  outline: 2px solid #d4d4d4 !important;
+  outline-offset: 2px !important;
+}
+
+html[data-theme="dark"] body .student-mobile-list-card,
+html[data-theme="dark"] body .teacher-mobile-list-card,
+html[data-theme="dark"] body .admin-mobile-list-card,
+html[data-theme="dark"] body .entity-grid-card {
+  background: #080808 !important;
+  border-color: #292929 !important;
+  color: #e5e5e5 !important;
+  box-shadow: none !important;
+}
+
+html[data-theme="dark"] body .student-mobile-list-card.is-selected,
+html[data-theme="dark"] body .teacher-mobile-list-card.is-selected,
+html[data-theme="dark"] body .admin-mobile-list-card.is-selected,
+html[data-theme="dark"] body .entity-grid-card.is-selected {
+  background: #101010 !important;
+  border-color: #737373 !important;
+}
+
+html[data-theme="dark"] body .student-mobile-list-name,
+html[data-theme="dark"] body .teacher-mobile-list-name,
+html[data-theme="dark"] body .admin-mobile-list-name,
+html[data-theme="dark"] body .entity-grid-name,
+html[data-theme="dark"] body .entity-grid-meta-primary,
+html[data-theme="dark"] body .teacher-mobile-list-details > div:first-child {
+  color: #f5f5f5 !important;
+}
+
+html[data-theme="dark"] body .student-mobile-list-id,
+html[data-theme="dark"] body .teacher-mobile-list-id,
+html[data-theme="dark"] body .admin-mobile-list-position,
+html[data-theme="dark"] body .entity-grid-meta-secondary {
+  color: #a3a3a3 !important;
+}
+
+html[data-theme="dark"] body .student-mobile-list-id strong {
+  color: #e5e5e5 !important;
+  -webkit-text-fill-color: #e5e5e5 !important;
+}
+
+html[data-theme="dark"] body .student-mobile-list-details,
+html[data-theme="dark"] body .teacher-mobile-list-details,
+html[data-theme="dark"] body .admin-mobile-list-email,
+html[data-theme="dark"] body .entity-grid-meta {
+  background: #111111 !important;
+  border-color: #292929 !important;
+  color: #b3b3b3 !important;
+}
+
+html[data-theme="dark"] body .student-mobile-list-details span,
+html[data-theme="dark"] body .teacher-mobile-list-details span,
+html[data-theme="dark"] body .admin-mobile-list-email span,
+html[data-theme="dark"] body .entity-grid-meta-tertiary {
+  color: #a3a3a3 !important;
+}
+
+html[data-theme="dark"] body .student-mobile-list-details strong,
+html[data-theme="dark"] body .student-mobile-list-details > div > span:last-child,
+html[data-theme="dark"] body .teacher-mobile-list-details > div > span:last-child:not(.mobile-card-detail-label) {
+  color: #e5e5e5 !important;
+}
+
+html[data-theme="dark"] body .student-mobile-list-details > div:last-child,
+html[data-theme="dark"] body .teacher-mobile-list-details > div + div,
+html[data-theme="dark"] body .admin-mobile-list-actions,
+html[data-theme="dark"] body .student-mobile-list-actions,
+html[data-theme="dark"] body .teacher-mobile-list-actions {
+  border-color: #292929 !important;
+}
+
+html[data-theme="dark"] body .teacher-mobile-list-details svg,
+html[data-theme="dark"] body .admin-mobile-list-email svg {
+  color: #a3a3a3 !important;
+  stroke: #a3a3a3 !important;
+}
+
+html[data-theme="dark"] body .teacher-grid-email {
+  color: #b3b3b3 !important;
+}
+
+html[data-theme="dark"] body .teacher-grid-email svg {
+  color: #a3a3a3 !important;
+  stroke: #a3a3a3 !important;
+}
+
+html[data-theme="dark"] body .admin-mobile-role-badge {
+  background: #102a3a !important;
+  border: 1px solid #164e63 !important;
+  color: #7dd3fc !important;
+  -webkit-text-fill-color: #7dd3fc !important;
+}
+
+html[data-theme="dark"] body .admin-mobile-role-badge.is-super-admin {
+  background: #241333 !important;
+  border-color: #6b21a8 !important;
+  color: #d8b4fe !important;
+  -webkit-text-fill-color: #d8b4fe !important;
+}
+
+.mobile-card-detail-label {
+  color: #64748b;
+  font-weight: 600;
+}
+
+html[data-theme="dark"] body .teacher-mobile-list-details .mobile-card-detail-label,
+html[data-theme="dark"] body .admin-mobile-list-email .mobile-card-detail-label,
+html[data-theme="dark"] body .entity-grid-meta .mobile-card-detail-label {
+  color: #a3a3a3 !important;
+}
+
+[data-theme="dark"] .admin-mobile-list-email > span:not(.mobile-card-detail-label),
+[data-theme="dark"] .teacher-mobile-list-details > div > span:not(.mobile-card-detail-label),
+[data-theme="dark"] .entity-grid-meta .teacher-grid-email > span:last-child {
+  color: #ffffff !important;
+}
+
+.violations-page .violation-list-mobile-card,
+.violations-page .grid-view .entity-grid-card,
+.student-records-mobile-cards .student-mobile-list-card,
+.student-records-mobile-cards.grid-view .entity-grid-card,
+.teacher-records-mobile-cards .teacher-mobile-list-card,
+.teacher-records-mobile-cards.grid-view .entity-grid-card,
+.admin-users-mobile-cards .admin-mobile-list-card,
+.admin-users-mobile-cards.grid-view .entity-grid-card {
+  border: 1px solid #4a4a4a !important;
+}
+
+.violation-types-page .responsive-cards-mobile .violation-catalog-list-card,
+.violation-types-page .responsive-cards-mobile .violation-catalog-list-card.is-selected,
+.violation-types-page .responsive-cards-mobile .entity-grid-card,
+.violation-types-page .responsive-cards-mobile .entity-grid-card.is-selected {
+  border: 1px solid #4a4a4a !important;
+}
+
+html[data-theme="dark"] body .violations-page .violation-list-mobile-card,
+html[data-theme="dark"] body .violations-page .violation-list-mobile-card:not(.is-selected) {
+  border-color: #4a4a4a !important;
+}
+
+html body .violations-page .violation-list-mobile-card.is-selected {
+  border: 1.5px solid #07345f !important;
+}
+
+html[data-theme="dark"] body .violations-page .violation-list-mobile-card.is-selected {
+  background: #202020 !important;
+  border-color: #858585 !important;
+  color: #f8fafc !important;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08) !important;
+}
+
+html[data-theme="dark"] body .violations-page .violation-list-mobile-card.is-selected .violation-list-offense-panel {
+  background: #292929 !important;
+  border-color: #424242 !important;
+  color: #e2e8f0 !important;
+}
+
+html[data-theme="dark"] body .violations-page .violation-list-mobile-card.is-selected .violation-list-offense-title,
+html[data-theme="dark"] body .violations-page .violation-list-mobile-card.is-selected .violation-list-offense-grade-value,
+html[data-theme="dark"] body .violations-page .violation-list-mobile-card.is-selected .violation-sanction-value {
+  color: #f8fafc !important;
+}
+
+html[data-theme="dark"] body .violations-page .grid-view .entity-grid-card,
+html[data-theme="dark"] body .violations-page .grid-view .entity-grid-card.is-selected {
+  border: 1px solid #4a4a4a !important;
+}
+
+html[data-theme="dark"] body .student-records-mobile-cards .student-mobile-list-card,
+html[data-theme="dark"] body .student-records-mobile-cards .student-mobile-list-card.is-selected {
+  border-color: #4a4a4a !important;
+}
+
+html[data-theme="dark"] body .student-records-mobile-cards.grid-view .entity-grid-card,
+html[data-theme="dark"] body .student-records-mobile-cards.grid-view .entity-grid-card.is-selected,
+html[data-theme="dark"] body .teacher-records-mobile-cards.grid-view .entity-grid-card,
+html[data-theme="dark"] body .teacher-records-mobile-cards.grid-view .entity-grid-card.is-selected,
+html[data-theme="dark"] body .admin-users-mobile-cards.grid-view .entity-grid-card,
+html[data-theme="dark"] body .admin-users-mobile-cards.grid-view .entity-grid-card.is-selected {
+  border: 1px solid #4a4a4a !important;
+}
+
+html[data-theme="dark"] body .teacher-records-mobile-cards .teacher-mobile-list-card,
+html[data-theme="dark"] body .teacher-records-mobile-cards .teacher-mobile-list-card.is-selected {
+  border-color: #4a4a4a !important;
+}
+
+html[data-theme="dark"] body .admin-users-mobile-cards .admin-mobile-list-card,
+html[data-theme="dark"] body .admin-users-mobile-cards .admin-mobile-list-card.is-selected {
+  border-color: #4a4a4a !important;
+}
+
+html[data-theme="dark"] body .violations-page .violation-list-mobile-name {
+  color: #ffffff !important;
+  font-size: 14px !important;
+}
+
+html[data-theme="dark"] body .violations-page .violation-list-mobile-id {
+  color: #c4c4c4 !important;
+  font-size: 12px !important;
+}
+
+html[data-theme="dark"] body .violations-page .violation-list-mobile-id strong {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
 }

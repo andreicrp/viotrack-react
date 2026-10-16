@@ -844,6 +844,7 @@ export const PrintDataModal = ({ isOpen, onClose, records = [], students = [], t
   const printRef = useRef(null);
   const page1Ref = useRef(null);
   const page2Ref = useRef(null);
+  const previewViewportRef = useRef(null);
 
   // Date Filter & Customization Parameters
   const [periodPreset, setPeriodPreset] = useState('month'); // 'today' | 'week' | 'month' | 'all' | 'custom'
@@ -877,6 +878,7 @@ export const PrintDataModal = ({ isOpen, onClose, records = [], students = [], t
 
   // Viewport and Paper Measurements for Perfect Mobile Scaling
   const [viewportWidth, setViewportWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1000);
+  const [previewViewportWidth, setPreviewViewportWidth] = useState(680);
   const [paperHeight, setPaperHeight] = useState(1100);
 
   // Canvas Pan & Zoom states
@@ -895,15 +897,34 @@ export const PrintDataModal = ({ isOpen, onClose, records = [], students = [], t
   }, [isOpen]);
 
   useEffect(() => {
+    if (!isOpen) return;
+
     const handleResize = () => {
       setViewportWidth(window.innerWidth);
+      if (previewViewportRef.current) {
+        const previewStyles = window.getComputedStyle(previewViewportRef.current);
+        const horizontalPadding = parseFloat(previewStyles.paddingLeft) + parseFloat(previewStyles.paddingRight);
+        setPreviewViewportWidth(Math.max(0, previewViewportRef.current.clientWidth - horizontalPadding));
+      }
       if (printRef.current) {
         setPaperHeight(printRef.current.offsetHeight || 1100);
       }
     };
+
+    handleResize();
     window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+    const previewObserver = previewViewportRef.current && typeof ResizeObserver !== 'undefined'
+      ? new ResizeObserver((entries) => {
+        const previewWidth = entries[0]?.contentRect.width;
+        if (previewWidth !== undefined) setPreviewViewportWidth(previewWidth);
+      })
+      : null;
+    if (previewViewportRef.current) previewObserver?.observe(previewViewportRef.current);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      previewObserver?.disconnect();
+    };
+  }, [isOpen]);
 
   // Reset zoom, pan, and drawer state ONLY when modal is newly opened
   useEffect(() => {
@@ -1004,7 +1025,7 @@ export const PrintDataModal = ({ isOpen, onClose, records = [], students = [], t
   const securityHash = `SHA256:8F2B9D${String(metrics.total).padStart(4, '0')}E01AC89`;
 
   const isMobile = viewportWidth <= 768;
-  const baseScale = isMobile ? Math.min(1, Math.max(0.38, (viewportWidth - 24) / 680)) : 1;
+  const baseScale = Math.min(1, Math.max(0.2, previewViewportWidth / 680));
   const effectiveScale = Number((baseScale * zoom).toFixed(3));
 
   // Live Zoom & Pan State Refs to prevent stutter & eliminate React re-render bottlenecks during dragging
@@ -2737,6 +2758,7 @@ export const PrintDataModal = ({ isOpen, onClose, records = [], students = [], t
           {/* Right Column: Live Printable Sheet Canvas */}
           <div
             className="pdm-right smooth-scroll-container"
+            ref={previewViewportRef}
             onMouseDown={handleMouseDown}
             onTouchStart={handleTouchStart}
             onMouseMove={handleMouseMove}
@@ -2799,6 +2821,7 @@ export const PrintDataModal = ({ isOpen, onClose, records = [], students = [], t
             <div
               style={{
                 width: '100%',
+                minWidth: 0,
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center'
@@ -2813,7 +2836,7 @@ export const PrintDataModal = ({ isOpen, onClose, records = [], students = [], t
                   transform: `scale(${effectiveScale}) translate3d(${pan.x}px, ${pan.y}px, 0)`,
                   transformOrigin: 'top center',
                   transition: isDragging || isPinchingRef.current ? 'none' : 'transform 0.12s cubic-bezier(0.2, 0, 0, 1)',
-                  marginBottom: isMobile && paperHeight ? `-${paperHeight * (1 - effectiveScale)}px` : '0px'
+                  marginBottom: paperHeight ? `-${paperHeight * (1 - effectiveScale)}px` : '0px'
                 }}
               >
                 {/* ================= LIVE PREVIEW PAGE 1 ================= */}

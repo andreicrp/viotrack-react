@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useDeferredValue, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useDeferredValue, useCallback, useRef } from 'react';
 import { dataService } from '../services/dataService';
 import { AddViolationModal } from '../components/violations/AddViolationModal';
 import { BulkViolationModal } from '../components/violations/BulkViolationModal';
@@ -28,8 +28,6 @@ import {
   ArrowUp,
   ArrowDown,
   X,
-  ChevronLeft,
-  ChevronRight,
   Users,
   AlertCircle,
   Upload,
@@ -44,6 +42,7 @@ export const ViolationsPage = () => {
   const { user } = useAuth();
   const { success, error, undo } = useNotification();
   const [records, setRecords] = useState([]);
+  const statusUpdateVersionsRef = useRef(new Map());
   const [loading, setLoading] = useState(true);
   const [viewMode, setViewMode] = useState('list'); // 'list' | 'grid'
   const [saveAsModalOpen, setSaveAsModalOpen] = useState(false);
@@ -327,31 +326,51 @@ export const ViolationsPage = () => {
     }, 5200);
   };
 
-  const handleStatusUpdated = (recordId, newStatus) => {
-    const prevRecord = records.find(r => r.id === recordId);
+  const handleStatusUpdated = async (recordId, newStatus) => {
+    const recordKey = String(recordId);
+    const prevRecord = records.find(r => String(r.id) === recordKey);
+    if (!prevRecord) return;
+
     const oldStatus = prevRecord?.status || 'Pending';
     if (oldStatus === newStatus) return;
 
-    setRecords(prev => prev.map(r => r.id === recordId ? { ...r, status: newStatus } : r));
+    const version = (statusUpdateVersionsRef.current.get(recordKey) || 0) + 1;
+    statusUpdateVersionsRef.current.set(recordKey, version);
+    setRecords(prev => prev.map(r => String(r.id) === recordKey ? { ...r, status: newStatus } : r));
 
-    let isUndone = false;
-    undo(`Status updated to "${newStatus}".`, () => {
-      isUndone = true;
-      setRecords(prev => prev.map(r => r.id === recordId ? { ...r, status: oldStatus } : r));
-      dataService.updateRecordStatus(recordId, { status: oldStatus });
-      success(`Reverted status back to "${oldStatus}".`);
-    }, 5000);
-
-    setTimeout(async () => {
-      if (!isUndone) {
-        try {
-          await dataService.updateRecordStatus(recordId, { status: newStatus });
-        } catch (err) {
-          error('Failed to sync status update: ' + err.message);
-          loadRecords(true);
-        }
+    try {
+      await dataService.updateRecordStatus(recordId, { status: newStatus });
+    } catch (err) {
+      if (statusUpdateVersionsRef.current.get(recordKey) === version) {
+        statusUpdateVersionsRef.current.set(recordKey, version + 1);
+        setRecords(prev => prev.map(r => (
+          String(r.id) === recordKey && r.status === newStatus
+            ? { ...r, status: oldStatus }
+            : r
+        )));
       }
-    }, 5200);
+      error('Failed to sync status update: ' + err.message);
+      loadRecords(true);
+      return;
+    }
+
+    undo(`Status updated to "${newStatus}".`, async () => {
+      if (statusUpdateVersionsRef.current.get(recordKey) !== version) return;
+
+      statusUpdateVersionsRef.current.set(recordKey, version + 1);
+      setRecords(prev => prev.map(r => (
+        String(r.id) === recordKey && r.status === newStatus
+          ? { ...r, status: oldStatus }
+          : r
+      )));
+      try {
+        await dataService.updateRecordStatus(recordId, { status: oldStatus });
+        success(`Reverted status back to "${oldStatus}".`);
+      } catch (err) {
+        error('Failed to revert status update: ' + err.message);
+        loadRecords(true);
+      }
+    }, 5000);
   };
 
   // Open Save As Modal for Export
@@ -447,6 +466,56 @@ export const ViolationsPage = () => {
   // Badges UI Helpers
   const renderStatusBadge = (st) => {
     const s = (st || '').toLowerCase();
+    const conferenceStatus = {
+      '1st conference': {
+        label: '1st Conference',
+        className: 'record-status-pill--conference-1',
+        color: '#0369a1',
+        background: '#f0f9ff',
+        border: '#bae6fd',
+        Icon: Users
+      },
+      '2nd conference': {
+        label: '2nd Conference',
+        className: 'record-status-pill--conference-2',
+        color: '#b45309',
+        background: '#fffbeb',
+        border: '#fde68a',
+        Icon: FileText
+      },
+      '3rd conference': {
+        label: '3rd Conference',
+        className: 'record-status-pill--conference-3',
+        color: '#b91c1c',
+        background: '#fef2f2',
+        border: '#fecaca',
+        Icon: ShieldAlert
+      }
+    }[s];
+
+    if (conferenceStatus) {
+      const { label, className, color, background, border, Icon } = conferenceStatus;
+      return (
+        <span
+          className={`record-status-pill ${className}`}
+          style={{
+            background,
+            color,
+            border: `1px solid ${border}`,
+            padding: '3.5px 10px',
+            borderRadius: '20px',
+            fontSize: '11px',
+            fontWeight: 700,
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '4px'
+          }}
+        >
+          <Icon size={12} color={color} strokeWidth={2.4} /> {label}
+        </span>
+      );
+    }
+
     if (s === 'resolved') {
       return (
         <span className="record-status-pill record-status-pill--resolved" style={{ background: '#ecfdf5', color: '#065f46', border: '1px solid #a7f3d0', padding: '3.5px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
@@ -479,27 +548,27 @@ export const ViolationsPage = () => {
     const t = (ty || '').toLowerCase();
     if (t === 'major') {
       return (
-        <span className="badge-major" style={{ background: '#fee2e2', color: '#dc2626', border: '1px solid #fecaca', padding: '3.5px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-          <ShieldAlert size={12} color="#dc2626" strokeWidth={2.2} /> Major
+        <span className="badge-major" style={{ background: '#fee2e2', color: '#991b1b', border: '1px solid #fca5a5', padding: '3.5px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: 800, display: 'inline-block' }}>
+          Major
         </span>
       );
     }
     if (t === 'serious') {
       return (
-        <span className="badge-serious" style={{ background: '#fef9c3', color: '#a16207', border: '1px solid #fde047', padding: '3.5px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-          <AlertTriangle size={12} color="#d97706" strokeWidth={2.2} /> Serious
+        <span className="badge-serious" style={{ background: '#ffedd5', color: '#9a3412', border: '1px solid #fdba74', padding: '3.5px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: 800, display: 'inline-block' }}>
+          Serious
         </span>
       );
     }
     return (
-      <span className="badge-minor" style={{ background: '#dcfce7', color: '#15803d', border: '1px solid #bbf7d0', padding: '3.5px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: 800, textTransform: 'uppercase', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-        <CheckCircle2 size={12} color="#16a34a" strokeWidth={2.2} /> Minor
+      <span className="badge-minor" style={{ background: '#d1fae5', color: '#065f46', border: '1px solid #6ee7b7', padding: '3.5px 10px', borderRadius: '20px', fontSize: '11px', fontWeight: 800, display: 'inline-block' }}>
+        Minor
       </span>
     );
   };
 
   return (
-    <div className="violations-page" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+    <div className="violations-page compact-mobile-layout" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
       {/* Top Banner Header & Quick Actions */}
       <div className="page-banner-header">
         <div className="page-banner-info">
@@ -1554,18 +1623,18 @@ export const ViolationsPage = () => {
                         Sanction: <strong className="violation-sanction-value" style={{ color: '#07345f' }}>{rec.sanction}</strong>
                       </div>
                     )}
+                    <div className="violation-list-offense-status" style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '6px', fontSize: '11.5px', color: '#64748b' }}>
+                      <span>Status:</span>
+                      {renderStatusBadge(rec.status)}
+                    </div>
+                    <div className="violation-list-offense-date" style={{ fontSize: '11.5px', color: '#64748b', marginTop: '4px' }}>
+                      Date: {new Date(rec.date_reported).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' })}
+                    </div>
                   </div>
 
                   {/* Footer: Date & Status & Action Buttons */}
-                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '8px', paddingTop: '6px' }}>
-                    <div style={{ display: 'flex', alignItems: 'center' }}>
-                      <span style={{ fontSize: '11.5px', color: '#64748b' }}>
-                        {new Date(rec.date_reported).toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' })}
-                      </span>
-                    </div>
-
-                    <div className="violation-list-mobile-actions" style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '6px' }}>
-                      {renderStatusBadge(rec.status)}
+                  <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px', paddingTop: '6px' }}>
+                    <div className="violation-list-mobile-actions" style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', flexWrap: 'wrap', gap: '6px', width: '100%' }}>
                       {isAdmin && (
                         <button
                           type="button"
@@ -1697,10 +1766,30 @@ export const ViolationsPage = () => {
 
           <div className="pagination-btn-group" style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
             <button
+              aria-label="First page"
+              title="First page"
+              onClick={() => setCurrentPage(1)}
+              disabled={currentPage === 1}
+              style={{
+                padding: '6px 10px',
+                border: '1px solid #cbd5e1',
+                borderRadius: '6px',
+                background: '#ffffff',
+                color: currentPage === 1 ? '#94a3b8' : '#334155',
+                cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                fontSize: '12px'
+              }}
+            >
+              «
+            </button>
+            <button
+              className="violation-pagination-arrow"
+              aria-label="Previous page"
+              title="Previous page"
               onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
               disabled={currentPage === 1}
               style={{
-                padding: '6px 12px',
+                padding: '6px 10px',
                 border: '1px solid #cbd5e1',
                 borderRadius: '6px',
                 background: '#ffffff',
@@ -1710,10 +1799,10 @@ export const ViolationsPage = () => {
                 fontWeight: 600,
                 display: 'flex',
                 alignItems: 'center',
-                gap: '4px'
+                justifyContent: 'center'
               }}
             >
-              <ChevronLeft size={14} /> Prev
+              ‹
             </button>
 
             {Array.from({ length: totalPages }, (_, i) => i + 1)
@@ -1728,7 +1817,7 @@ export const ViolationsPage = () => {
                       onClick={() => setCurrentPage(p)}
                       aria-current={p === currentPage ? 'page' : undefined}
                       style={{
-                        padding: '6px 12px',
+                        padding: '6px 10px',
                         border: p === currentPage ? 'none' : '1px solid #cbd5e1',
                         borderRadius: '6px',
                         background: p === currentPage ? '#0f172a' : '#ffffff',
@@ -1745,6 +1834,9 @@ export const ViolationsPage = () => {
               })}
 
             <button
+              className="violation-pagination-arrow"
+              aria-label="Next page"
+              title="Next page"
               onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
               disabled={currentPage === totalPages}
               style={{
@@ -1761,7 +1853,24 @@ export const ViolationsPage = () => {
                 gap: '4px'
               }}
             >
-              Next <ChevronRight size={14} />
+              ›
+            </button>
+            <button
+              aria-label="Last page"
+              title="Last page"
+              onClick={() => setCurrentPage(totalPages)}
+              disabled={currentPage === totalPages}
+              style={{
+                padding: '6px 10px',
+                border: '1px solid #cbd5e1',
+                borderRadius: '6px',
+                background: '#ffffff',
+                color: currentPage === totalPages ? '#94a3b8' : '#334155',
+                cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                fontSize: '12px'
+              }}
+            >
+              »
             </button>
           </div>
         </div>

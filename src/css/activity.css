@@ -966,6 +966,11 @@
     font-size: 12px;
 }
 
+.activity-logs-page .activity-log-page-size .custom-select-menu {
+    top: auto;
+    bottom: calc(100% + 5px);
+}
+
 .activity-logs-page .activity-log-empty-state {
     min-height: 180px;
     padding: 28px 20px;
@@ -1015,8 +1020,20 @@
     box-shadow: none !important;
 }
 
+.activity-logs-page .audit-log-entry-actions {
+    max-width: 100%;
+    margin-left: auto;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+}
+
 .activity-logs-page .audit-log-main-card table {
     min-width: 900px;
+}
+
+.activity-logs-page .activity-log-action-badge {
+    display: inline-block;
+    white-space: nowrap;
 }
 
 .activity-logs-page .audit-log-main-card th {

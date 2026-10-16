@@ -103,7 +103,7 @@ CREATE TABLE records (
     reported_by_type VARCHAR(20) DEFAULT 'admin', -- 'admin' or 'teacher'
     reported_by_name VARCHAR(150),
     date_reported TIMESTAMPTZ DEFAULT NOW(),
-    status VARCHAR(30) DEFAULT 'Pending' CHECK (status IN ('Pending', 'Investigation', 'Resolved', 'Dismissed', 'Under Approval', 'Rejected')),
+    status VARCHAR(30) DEFAULT 'Pending' CHECK (status IN ('Pending', 'Investigation', 'Resolved', 'Dismissed', 'Under Approval', 'Rejected', '1st Conference', '2nd Conference', '3rd Conference')),
     approval_status VARCHAR(30) DEFAULT 'Approved' CHECK (approval_status IN ('Under Approval', 'Approved', 'Rejected')),
     approved_by VARCHAR(150),
     approved_at TIMESTAMPTZ,

@@ -178,9 +178,8 @@ export async function printOrShareDocument({
   const isNative = isNativeApp();
   const isMobile = isMobileDevice();
 
-  // Native apps and mobile browsers use the platform print dialog instead of
-  // navigating to a blob URL or opening the share sheet.
-  if ((isNative || isMobile) && (typeof generatePdfBlob === 'function' || htmlContent)) {
+  // Native Capacitor APK apps use the platform print dialog via Capacitor Printer
+  if (isNative && (typeof generatePdfBlob === 'function' || htmlContent)) {
     try {
       if (typeof generatePdfBlob === 'function') {
         onStatus?.({ type: 'info', message: 'Generating document...' });
@@ -212,8 +211,7 @@ export async function printOrShareDocument({
       return;
     } catch (err) {
       if (err?.name === 'AbortError') return;
-      console.error('Mobile print preview failed:', err);
-      throw err;
+      console.warn('Native mobile print preview failed, trying fallback:', err);
     }
   }
 

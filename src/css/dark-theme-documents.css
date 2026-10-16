@@ -2051,6 +2051,26 @@ html[data-theme="dark"] body .approve-incident-dialog .approve-incident-severity
   color: #b3b3b3 !important;
 }
 
+[data-theme="dark"] .violations-page .violation-list-offense-grade {
+  color: #d4d4d4 !important;
+  font-size: 12.5px !important;
+  line-height: 1.5;
+}
+
+[data-theme="dark"] .violations-page .violation-list-offense-grade-value {
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .violations-page .violation-sanction-detail {
+  color: #e5e5e5 !important;
+  font-size: 12.5px !important;
+  line-height: 1.5;
+}
+
+[data-theme="dark"] .violations-page .violation-sanction-value {
+  color: #ffffff !important;
+}
+
 [data-theme="dark"] .responsive-cards-mobile .violation-list-offense-panel,
 [data-theme="dark"] .violation-types-page .violation-catalog-meta,
 [data-theme="dark"] .violation-types-page .violation-catalog-mobile-sanction {

@@ -677,11 +677,21 @@
   padding-right: 4px;
 }
 
+.lvm-offense-card {
+  padding: 16px;
+  gap: 12px;
+}
+
+.lvm-offense-card .lvm-offense-grid {
+  gap: 8px;
+  max-height: 190px;
+}
+
 .lvm-offense-tile {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 16px;
+  padding: 10px 12px;
   border-radius: 14px;
   border: 1.5px solid #e2e8f0;
   background: #ffffff;
@@ -788,6 +798,17 @@
   text-transform: capitalize;
   flex-shrink: 0;
   margin-left: 8px;
+}
+
+.lvm-offense-tile-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+}
+
+.lvm-offense-tile-right .lvm-category-tag {
+  margin-left: 0;
 }
 
 .lvm-category-tag.minor {
@@ -1586,6 +1607,10 @@
     max-height: min(36vh, 300px);
   }
 
+  .lvm-offense-card .lvm-offense-grid {
+    max-height: min(28vh, 220px);
+  }
+
   /* Mobile Step 3 Status cards use a compact 2-column layout */
   .lvm-status-quad {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1815,11 +1840,16 @@
   [data-theme="dark"] .lvm-step-btn.active,
   [data-theme="dark"] .lvm-mobile-step-pill.active .lvm-mobile-step-bubble,
   [data-theme="dark"] .lvm-pill-btn.active,
-  [data-theme="dark"] .lvm-status-card-opt.active,
-  [data-theme="dark"] .lvm-cta-btn {
+  [data-theme="dark"] .lvm-status-card-opt.active {
     background: #000000;
     border-color: #444444;
     color: #ffffff;
+  }
+
+  [data-theme="dark"] .lvm-cta-btn {
+    background: #ffffff;
+    border-color: #ffffff;
+    color: #000000;
   }
 
   [data-theme="dark"] .lvm-cta-btn {
@@ -1840,11 +1870,16 @@
 
   [data-theme="dark"] .lvm-step-btn.active:hover:not(:disabled),
   [data-theme="dark"] .lvm-status-card-opt.active:hover,
-  [data-theme="dark"] .lvm-cta-btn:hover:not(:disabled),
   [data-theme="dark"] .lvm-summary-pencil-btn:hover {
     background: #1a1a1a;
     border-color: #555555;
     color: #ffffff;
+  }
+
+  [data-theme="dark"] .lvm-cta-btn:hover:not(:disabled) {
+    background: #e5e5e5;
+    border-color: #e5e5e5;
+    color: #000000;
   }
 
   [data-theme="dark"] .lvm-step-bubble.active {

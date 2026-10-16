@@ -279,10 +279,10 @@ export const getStudentQrValue = (student, signed = true) => {
  * @param {boolean} signed
  * @returns {string}
  */
-export const getStudentQrCodeUrl = (student, size = 300, margin = 1, signed = true) => {
+export const getStudentQrCodeUrl = (student, size = 300, margin = 2, signed = true) => {
   const data = getStudentQrValue(student, signed);
   if (!data) return '';
-  return `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(data)}&margin=${margin}`;
+  return `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(data)}&margin=${margin}&ecc=H`;
 };
 
 /**

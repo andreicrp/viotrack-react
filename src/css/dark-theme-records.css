@@ -640,6 +640,12 @@
   color: #c084fc !important;
 }
 
+[data-theme="dark"] .adviser-section-badge .adviser-badge-grade,
+[data-theme="dark"] .adviser-section-badge .adviser-badge-section {
+  color: #ffffff !important;
+  opacity: 1;
+}
+
 [data-theme="dark"] .adviser-metrics-bar {
   background: #050505 !important;
   border-bottom: 1px solid #202020 !important;
@@ -975,6 +981,25 @@ html[data-theme="dark"] body .adviser-btn-remove:hover path {
 
 [data-theme="dark"] .header-notif-reporter {
   color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .header-notif-severity-badge.severity-minor {
+  background: #052e16 !important;
+  border-color: #166534 !important;
+  color: #86efac !important;
+}
+
+[data-theme="dark"] .header-notif-severity-badge.severity-serious {
+  background: #422006 !important;
+  border-color: #92400e !important;
+  color: #fcd34d !important;
+}
+
+[data-theme="dark"] .header-notif-severity-badge.severity-major,
+[data-theme="dark"] .header-notif-severity-badge.severity-severe {
+  background: #450a0a !important;
+  border-color: #991b1b !important;
+  color: #fca5a5 !important;
 }
 
 [data-theme="dark"] .header-notif-arrow {
@@ -1353,4 +1378,3 @@ html[data-theme="dark"] body .modal-btn-secondary:hover:not(:disabled) {
   color: #38bdf8 !important;
   border-color: #38bdf8 !important;
 }
-

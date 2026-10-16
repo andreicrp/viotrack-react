@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo, useDeferredValue, useCallback } from 'react';
 import { dataService } from '../services/dataService';
 import { AddStudentModal } from '../components/students/AddStudentModal';
-import { StudentIdModal } from '../components/students/StudentIdModal';
+import { StudentQrModal } from '../components/students/StudentQrModal';
 import { BulkImportModal } from '../components/students/BulkImportModal';
 import { ViewStudentModal } from '../components/students/ViewStudentModal';
 import { CustomSelect } from '../components/common/CustomSelect';
@@ -20,7 +20,7 @@ import {
   Trash2,
   Edit3,
   Eye,
-  IdCard,
+  QrCode,
   ArrowUpDown,
   ArrowUp,
   ArrowDown,
@@ -30,8 +30,6 @@ import {
   BookOpen,
   Filter,
   CheckCircle2,
-  ChevronLeft,
-  ChevronRight,
   ShieldAlert,
   Sparkles
 } from 'lucide-react';
@@ -88,7 +86,7 @@ export const StudentsPage = () => {
     onEscape: () => {
       setIsAddModalOpen(false);
       setIsBulkImportOpen(false);
-      setStudentForId(null);
+      setStudentForQr(null);
       setViewStudentData(null);
       setEditStudentData(null);
     }
@@ -114,7 +112,7 @@ export const StudentsPage = () => {
   // Modals
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [studentToEdit, setStudentToEdit] = useState(null);
-  const [studentForIdCard, setStudentForIdCard] = useState(null);
+  const [studentForQr, setStudentForQr] = useState(null);
   const [studentForViewModal, setStudentForViewModal] = useState(null);
   const [isBulkImportOpen, setIsBulkImportOpen] = useState(false);
   const [bulkImportFormat, setBulkImportFormat] = useState('all'); // 'all' | 'pdf' | 'csv'
@@ -401,7 +399,7 @@ export const StudentsPage = () => {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+    <div className="compact-mobile-layout" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
       {/* Top Banner & Primary Actions */}
       <div className="page-banner-header">
         <div className="page-banner-info">
@@ -418,28 +416,6 @@ export const StudentsPage = () => {
 
         {/* Header Action Buttons */}
         <div className="page-banner-actions">
-          {selectedIds.length > 0 && isAdmin && (
-            <button
-              onClick={handleDeleteSelected}
-              style={{
-                background: '#dc2626',
-                color: '#ffffff',
-                border: 'none',
-                padding: '8px 14px',
-                borderRadius: '8px',
-                fontWeight: 600,
-                fontSize: '13px',
-                cursor: 'pointer',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '6px',
-                boxShadow: '0 2px 6px rgba(220, 38, 38, 0.3)'
-              }}
-            >
-              <Trash2 size={15} /> Delete Selected ({selectedIds.length})
-            </button>
-          )}
-
           <div className="page-banner-secondary-group">
             <button
               onClick={() => handleOpenExportSaveAs('pdf')}
@@ -777,7 +753,7 @@ export const StudentsPage = () => {
               </div>
 
               {/* Entries per page & List / Grid View Toggle combined */}
-              <div className="mobile-filter-item mobile-filter-item-utility">
+              <div className="mobile-filter-item mobile-filter-item-utility student-controls-utility">
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <CustomSelect
                     value={entriesPerPage}
@@ -794,6 +770,18 @@ export const StudentsPage = () => {
                   />
                 </div>
                 <ViewModeToggle viewMode={viewMode} onChange={setViewMode} />
+                {selectedIds.length > 0 && isAdmin && (
+                  <button
+                    type="button"
+                    className="student-selection-delete-button"
+                    onClick={handleDeleteSelected}
+                    aria-label={`Delete ${selectedIds.length} selected student${selectedIds.length === 1 ? '' : 's'}`}
+                    title="Delete Selected"
+                  >
+                    <Trash2 size={15} />
+                    <span>Delete Selected</span>
+                  </button>
+                )}
               </div>
             </div>
           </div>
@@ -1078,7 +1066,8 @@ export const StudentsPage = () => {
                             borderRadius: '20px',
                             fontSize: '11.5px',
                             fontWeight: 700,
-                            display: 'inline-block'
+                            display: 'inline-block',
+                            whiteSpace: 'nowrap'
                           }}
                         >
                           {s.grade}
@@ -1099,7 +1088,8 @@ export const StudentsPage = () => {
                             fontWeight: 700,
                             display: 'inline-flex',
                             alignItems: 'center',
-                            gap: '4px'
+                            gap: '4px',
+                            whiteSpace: 'nowrap'
                           }}
                         >
                           <Layers size={11} /> {strand}
@@ -1148,10 +1138,10 @@ export const StudentsPage = () => {
                             <Eye size={14} color="var(--brand-blue, #07345f)" strokeWidth={2.2} /> View
                           </button>
 
-                          {/* ID Card */}
+                          {/* Student QR code */}
                           <button
                             type="button"
-                            onClick={() => setStudentForIdCard(s)}
+                            onClick={() => setStudentForQr(s)}
                             className="student-row-action-btn"
                             style={{
                               background: 'var(--bg-surface-elevated, #ffffff)',
@@ -1168,9 +1158,9 @@ export const StudentsPage = () => {
                               transition: 'all 0.15s',
                               boxShadow: '0 1px 2px rgba(0,0,0,0.03)'
                             }}
-                            title="Generate Official Student ID"
+                            title="QR"
                           >
-                            <IdCard size={14} color="var(--text-muted, #475569)" strokeWidth={2.2} /> ID Card
+                            <QrCode size={14} color="var(--text-muted, #475569)" strokeWidth={2.2} /> QR
                           </button>
 
                           {/* Edit */}
@@ -1240,7 +1230,7 @@ export const StudentsPage = () => {
         </div>
 
         {/* Student Cards (Mobile View) */}
-        <div className={`responsive-cards-mobile ${viewMode === 'grid' ? 'grid-view' : 'list-view'}`}>
+        <div className={`responsive-cards-mobile student-records-mobile-cards ${viewMode === 'grid' ? 'grid-view' : 'list-view'}`}>
           {loading ? (
             <div style={{ gridColumn: '1 / -1', width: '100%' }}>
               <SkeletonCardGrid cards={6} />
@@ -1323,11 +1313,11 @@ export const StudentsPage = () => {
                     </button>
                     <button
                       type="button"
-                      onClick={() => setStudentForIdCard(s)}
-                      className="entity-grid-btn"
-                      title="Generate ID Card"
+                      onClick={() => setStudentForQr(s)}
+                      className="entity-grid-btn entity-grid-btn-qr"
+                      title="QR"
                     >
-                      <IdCard size={12} strokeWidth={2.4} /> ID
+                      <QrCode size={12} strokeWidth={2.4} /> QR
                     </button>
                     {isAdmin && (
                       <button
@@ -1412,18 +1402,18 @@ export const StudentsPage = () => {
 
                   {/* Academic details box */}
                   <div className="student-mobile-list-details" style={{ background: '#f8fafc', padding: '10px 12px', borderRadius: '8px', border: '1px solid #f1f5f9', fontSize: '12px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', gap: '6px', marginBottom: '4px', textAlign: 'left' }}>
                       <span style={{ color: '#64748b' }}>Section & SY:</span>
                       <strong style={{ color: '#1e293b' }}>{s.section} ({s.academicyear || '2025-2026'})</strong>
                     </div>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'center', gap: '6px', marginBottom: '4px', textAlign: 'left' }}>
                       <span style={{ color: '#64748b' }}>Strand:</span>
                       <strong className="student-mobile-list-strand" style={{ color: isSHS ? '#047857' : '#475569' }}>{strand}</strong>
                     </div>
                     {s.parent_name && (
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '4px', paddingTop: '4px', borderTop: '1px dashed #e2e8f0' }}>
+                      <div style={{ display: 'flex', justifyContent: 'flex-start', alignItems: 'flex-start', gap: '6px', marginTop: '4px', paddingTop: '4px', borderTop: '1px dashed #e2e8f0', textAlign: 'left' }}>
                         <span style={{ color: '#64748b' }}>Guardian:</span>
-                        <span style={{ color: '#334155', fontWeight: 600 }}>{s.parent_name} {s.parent_contact ? `(${s.parent_contact})` : ''}</span>
+                        <span style={{ color: '#334155', fontWeight: 600, minWidth: 0, overflowWrap: 'anywhere' }}>{s.parent_name} {s.parent_contact ? `(${s.parent_contact})` : ''}</span>
                       </div>
                     )}
                   </div>
@@ -1453,7 +1443,7 @@ export const StudentsPage = () => {
 
                     <button
                       type="button"
-                      onClick={() => setStudentForIdCard(s)}
+                      onClick={() => setStudentForQr(s)}
                       style={{
                         background: '#ffffff',
                         border: '1px solid #cbd5e1',
@@ -1469,7 +1459,7 @@ export const StudentsPage = () => {
                         boxShadow: '0 1px 2px rgba(0,0,0,0.03)'
                       }}
                     >
-                      <IdCard size={14} color="#475569" strokeWidth={2.2} /> ID Card
+                      <QrCode size={14} color="#475569" strokeWidth={2.2} /> QR
                     </button>
 
                     {isAdmin && (
@@ -1529,7 +1519,7 @@ export const StudentsPage = () => {
 
         {/* Pagination & Status Footer */}
         <div
-          className="pagination-footer-responsive table-footer"
+          className="pagination-footer-responsive table-footer students-mobile-pagination"
           style={{
             padding: '16px 24px',
             borderTop: '1px solid #f1f5f9',
@@ -1556,6 +1546,25 @@ export const StudentsPage = () => {
 
           <div className="pagination-btn-group" style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
             <button
+              aria-label="First page"
+              title="First page"
+              disabled={currentPage === 1}
+              onClick={() => setCurrentPage(1)}
+              style={{
+                padding: '6px 10px',
+                border: '1px solid var(--border-subtle, #cbd5e1)',
+                borderRadius: '6px',
+                background: 'var(--bg-surface-elevated, #ffffff)',
+                color: currentPage === 1 ? 'var(--text-muted, #94a3b8)' : 'var(--text-secondary, #334155)',
+                cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
+                fontSize: '12px'
+              }}
+            >
+              «
+            </button>
+            <button
+              aria-label="Previous page"
+              title="Previous page"
               onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
               disabled={currentPage === 1}
               style={{
@@ -1572,7 +1581,7 @@ export const StudentsPage = () => {
                 gap: '4px'
               }}
             >
-              <ChevronLeft size={14} /> Prev
+              ‹
             </button>
 
             {Array.from({ length: totalPages }, (_, i) => i + 1)
@@ -1604,6 +1613,8 @@ export const StudentsPage = () => {
               })}
 
             <button
+              aria-label="Next page"
+              title="Next page"
               onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
               disabled={currentPage === totalPages}
               style={{
@@ -1620,7 +1631,24 @@ export const StudentsPage = () => {
                 gap: '4px'
               }}
             >
-              Next <ChevronRight size={14} />
+              ›
+            </button>
+            <button
+              aria-label="Last page"
+              title="Last page"
+              onClick={() => setCurrentPage(totalPages)}
+              disabled={currentPage === totalPages}
+              style={{
+                padding: '6px 10px',
+                border: '1px solid var(--border-subtle, #cbd5e1)',
+                borderRadius: '6px',
+                background: 'var(--bg-surface-elevated, #ffffff)',
+                color: currentPage === totalPages ? 'var(--text-muted, #94a3b8)' : 'var(--text-secondary, #334155)',
+                cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
+                fontSize: '12px'
+              }}
+            >
+              »
             </button>
           </div>
         </div>
@@ -1659,12 +1687,12 @@ export const StudentsPage = () => {
         }}
       />
 
-      {/* ID Badge Modal with QR code */}
-      {studentForIdCard && (
-        <StudentIdModal
-          isOpen={!!studentForIdCard}
-          onClose={() => setStudentForIdCard(null)}
-          student={studentForIdCard}
+      {/* Student QR code modal */}
+      {studentForQr && (
+        <StudentQrModal
+          isOpen={!!studentForQr}
+          onClose={() => setStudentForQr(null)}
+          student={studentForQr}
         />
       )}
 

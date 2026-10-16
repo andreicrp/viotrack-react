@@ -78,7 +78,10 @@ export const ScanQRPage = () => {
     try {
       const allRecords = await dataService.getRecords(true);
       const studentHistory = (allRecords || []).filter(
-        r => Number(r.student?.id || r.student_id) === Number(studentId)
+        r =>
+          Number(r.student?.id || r.student_id) === Number(studentId) &&
+          r.status !== 'Rejected' &&
+          r.approval_status !== 'Rejected'
       );
       setStudentRecords(studentHistory);
     } catch (e) {

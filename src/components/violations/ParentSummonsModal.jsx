@@ -30,7 +30,8 @@ import {
   ChevronLeft,
   SlidersHorizontal,
   Check,
-  Maximize2
+  Maximize2,
+  Upload
 } from 'lucide-react';
 import { useNotification } from '../../context/NotificationContext';
 import { useAuth } from '../../context/AuthContext';
@@ -40,6 +41,7 @@ import { printOrShareDocument, shareOrSaveNativeFile, downloadBlobFile } from '.
 import { getJsPDF, loadPublicImageAsBase64 } from '../../utils/pdfHelper';
 import { CustomDatePicker } from '../common/CustomDatePicker';
 import { CustomTimePicker } from '../common/CustomTimePicker';
+import { LanguageToolTextarea } from '../common/LanguageToolTextarea';
 
 /**
  * Builds the complete, authentic Philippine Institutional Parent Summons Notice HTML for direct printing
@@ -59,7 +61,8 @@ export const buildParentSummonsHtml = ({
   signatory1Title,
   includeSignatory2,
   signatory2Name,
-  signatory2Title
+  signatory2Title,
+  signatureImages = {}
 }) => {
   const rawGrade = activeStudent?.grade || 'Grade 10';
   const formattedGrade = rawGrade.toString().toLowerCase().startsWith('grade') ? rawGrade : `Grade ${rawGrade}`;
@@ -68,24 +71,31 @@ export const buildParentSummonsHtml = ({
   const viosSummary = activeViolations.map(v => v.violation?.title || v.offense || 'Disciplinary Infraction').join(', ');
 
   const multiInfractionsTable = activeViolations.length > 1 ? `
-    <table style="width: 100%; border-collapse: collapse; margin: 12px 0 14px; font-size: 10pt; border: 1px solid #cbd5e1;">
+    <table style="width: 100%; max-width: 100%; table-layout: fixed; overflow-wrap: anywhere; border-collapse: collapse; margin: 12px 0 14px; font-size: 9pt; border: 1px solid #cbd5e1;">
+      <colgroup>
+        <col style="width: 5%;" />
+        <col style="width: 40%;" />
+        <col style="width: 18%;" />
+        <col style="width: 20%;" />
+        <col style="width: 17%;" />
+      </colgroup>
       <thead>
         <tr style="background: #f1f5f9;">
-          <th style="padding: 7px 6px; border: 1px solid #cbd5e1; width: 32px; text-align: center; color: #0f172a; font-weight: 800; font-size: 9.5pt; text-transform: uppercase;">#</th>
-          <th style="padding: 7px 10px; border: 1px solid #cbd5e1; text-align: left; color: #0f172a; font-weight: 800; font-size: 9.5pt; text-transform: uppercase;">Infraction / Violation Description</th>
-          <th style="padding: 7px 8px; border: 1px solid #cbd5e1; width: 95px; text-align: center; color: #0f172a; font-weight: 800; font-size: 9.5pt; text-transform: uppercase;">Offense Level</th>
-          <th style="padding: 7px 8px; border: 1px solid #cbd5e1; width: 95px; text-align: center; color: #0f172a; font-weight: 800; font-size: 9.5pt; text-transform: uppercase;">Date Reported</th>
-          <th style="padding: 7px 8px; border: 1px solid #cbd5e1; width: 80px; text-align: center; color: #0f172a; font-weight: 800; font-size: 9.5pt; text-transform: uppercase;">Status</th>
+          <th style="padding: 5px 3px; border: 1px solid #cbd5e1; text-align: center; color: #0f172a; font-weight: 800; font-size: 8pt; text-transform: uppercase;">#</th>
+          <th style="padding: 5px 6px; border: 1px solid #cbd5e1; text-align: left; color: #0f172a; font-weight: 800; font-size: 8pt; text-transform: uppercase;">Infraction / Violation Description</th>
+          <th style="padding: 5px 4px; border: 1px solid #cbd5e1; text-align: center; color: #0f172a; font-weight: 800; font-size: 8pt; text-transform: uppercase;">Offense Level</th>
+          <th style="padding: 5px 4px; border: 1px solid #cbd5e1; text-align: center; color: #0f172a; font-weight: 800; font-size: 8pt; text-transform: uppercase;">Date Reported</th>
+          <th style="padding: 5px 4px; border: 1px solid #cbd5e1; text-align: center; color: #0f172a; font-weight: 800; font-size: 8pt; text-transform: uppercase;">Status</th>
         </tr>
       </thead>
       <tbody>
         ${activeViolations.map((v, idx) => `
           <tr style="background: ${idx % 2 === 0 ? '#ffffff' : '#f8fafc'};">
-            <td style="padding: 6px 6px; border: 1px solid #e2e8f0; text-align: center; font-weight: 700; color: #0f172a;">${idx + 1}</td>
-            <td style="padding: 6px 10px; border: 1px solid #e2e8f0; font-weight: 600; color: #0f172a;">${v.violation?.title || v.offense || 'Infraction'}</td>
-            <td style="padding: 6px 8px; border: 1px solid #e2e8f0; text-align: center; font-weight: 700; color: #0f172a;">${v.violation?.type || v.severity || 'Minor'}</td>
-            <td style="padding: 6px 8px; border: 1px solid #e2e8f0; text-align: center; color: #475569;">${v.date_reported ? new Date(v.date_reported).toLocaleDateString() : 'Recorded'}</td>
-            <td style="padding: 6px 8px; border: 1px solid #e2e8f0; text-align: center; color: #0f172a; font-weight: 600;">${v.status || 'Pending'}</td>
+            <td style="padding: 5px 3px; border: 1px solid #e2e8f0; text-align: center; font-weight: 700; color: #0f172a;">${idx + 1}</td>
+            <td style="padding: 5px 6px; border: 1px solid #e2e8f0; font-weight: 600; color: #0f172a;">${v.violation?.title || v.offense || 'Infraction'}</td>
+            <td style="padding: 5px 4px; border: 1px solid #e2e8f0; text-align: center; font-weight: 700; color: #0f172a;">${v.violation?.type || v.severity || 'Minor'}</td>
+            <td style="padding: 5px 4px; border: 1px solid #e2e8f0; text-align: center; color: #475569;">${v.date_reported ? new Date(v.date_reported).toLocaleDateString() : 'Recorded'}</td>
+            <td style="padding: 5px 4px; border: 1px solid #e2e8f0; text-align: center; color: #0f172a; font-weight: 600;">${v.status || 'Pending'}</td>
           </tr>
         `).join('')}
       </tbody>
@@ -107,6 +117,7 @@ export const buildParentSummonsHtml = ({
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Official Parent Conference Notice - ${studentFullName}</title>
   <style>
     @page {
@@ -279,13 +290,21 @@ export const buildParentSummonsHtml = ({
       border-top: 1.5px solid #0f172a;
       width: 210px;
       padding-top: 4px;
-      margin-top: 28px;
+      margin-top: 8px;
     }
     .sig-line-right {
       border-top: 1.5px solid #0f172a;
       width: 210px;
       padding-top: 4px;
-      margin-top: 28px;
+      margin-top: 8px;
+    }
+    .sig-image {
+      display: block;
+      width: 100%;
+      max-width: 220px;
+      height: 50px;
+      object-fit: contain;
+      margin: 20px 0 2px;
     }
     .sig-name {
       font-size: 10.5pt;
@@ -321,6 +340,59 @@ export const buildParentSummonsHtml = ({
       justify-content: space-between;
       margin-top: 14px;
       font-size: 9.5pt;
+    }
+    @media screen and (max-width: 680px) {
+      body {
+        padding: 12px;
+      }
+      .psm-page-container {
+        min-height: 0;
+        gap: 20px;
+        padding: 18px;
+        border: 1px solid #cbd5e1;
+        border-radius: 8px;
+      }
+      .header-bar {
+        gap: 8px;
+      }
+      .univ-logo {
+        width: 36px;
+        height: 36px;
+      }
+      .univ-title {
+        font-size: 10pt;
+      }
+      .univ-sub {
+        font-size: 7.5pt;
+      }
+      .univ-tag {
+        font-size: 6.5pt;
+      }
+      .meta-row {
+        flex-wrap: wrap;
+        gap: 6px 12px;
+      }
+      .conf-grid {
+        grid-template-columns: minmax(0, 1fr);
+        row-gap: 2px;
+      }
+      .conf-val {
+        margin-bottom: 6px;
+      }
+      .signatures-row,
+      .slip-sign-row {
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+      .sig-col,
+      .sig-col-right {
+        min-width: 0;
+        flex: 1 1 180px;
+      }
+      .sig-line,
+      .sig-line-right {
+        max-width: 100%;
+      }
     }
   </style>
 </head>
@@ -393,6 +465,7 @@ export const buildParentSummonsHtml = ({
       <!-- Signatures -->
       <div class="signatures-row">
         <div class="sig-col">
+          ${signatureImages.signatory1 ? `<img class="sig-image" src="${signatureImages.signatory1}" alt="Presiding officer digital signature" />` : '<div style="height:72px"></div>'}
           <div class="sig-line">
             <span class="sig-name">${signatory1Name}</span>
             <span class="sig-title">${signatory1Title}</span>
@@ -400,6 +473,7 @@ export const buildParentSummonsHtml = ({
         </div>
         ${includeSignatory2 ? `
         <div class="sig-col-right">
+          ${signatureImages.signatory2 ? `<img class="sig-image" src="${signatureImages.signatory2}" alt="Adviser digital signature" />` : '<div style="height:72px"></div>'}
           <div class="sig-line-right">
             <span class="sig-name">${signatory2Name}</span>
             <span class="sig-title">${signatory2Title}</span>
@@ -428,12 +502,14 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
   const { user } = useAuth();
   const { success, error, info } = useNotification();
   const printRef = useRef(null);
+  const previewViewportRef = useRef(null);
 
   // Mobile Drawer Toggle
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
 
   // Viewport and Paper Measurements for Perfect Mobile Scaling
   const [viewportWidth, setViewportWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1000);
+  const [previewViewportWidth, setPreviewViewportWidth] = useState(680);
   const [paperHeight, setPaperHeight] = useState(920);
 
   // Canvas Pan & Zoom states (Interactive layout)
@@ -446,7 +522,7 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
   const lastTapTimeRef = useRef(0);
 
   const isMobile = viewportWidth <= 768;
-  const baseScale = isMobile ? Math.min(1, Math.max(0.38, (viewportWidth - 24) / 680)) : 1;
+  const baseScale = Math.min(1, Math.max(0.2, previewViewportWidth / 680));
   const effectiveScale = Number((baseScale * zoom).toFixed(3));
 
   // Live Zoom & Pan State Refs to prevent stutter & eliminate React re-render bottlenecks during dragging
@@ -671,6 +747,8 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
   // Signatory 1 (Left - Prefect / Discipline Officer)
   const [signatory1Name, setSignatory1Name] = useState('Sheryl Gamboa');
   const [signatory1Title, setSignatory1Title] = useState('Prefect of Discipline / Disciplinary Committee');
+  const [signatureImages, setSignatureImages] = useState({ signatory1: '', signatory2: '' });
+  const signatureInputRefs = useRef({});
 
   // Signatory 2 (Right - Class Adviser / Department Head)
   const [includeSignatory2, setIncludeSignatory2] = useState(true);
@@ -688,6 +766,11 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
 
     const measureLayout = () => {
       setViewportWidth(window.innerWidth);
+      if (previewViewportRef.current) {
+        const previewStyles = window.getComputedStyle(previewViewportRef.current);
+        const horizontalPadding = parseFloat(previewStyles.paddingLeft) + parseFloat(previewStyles.paddingRight);
+        setPreviewViewportWidth(Math.max(0, previewViewportRef.current.clientWidth - horizontalPadding));
+      }
       if (printRef.current) {
         setPaperHeight(printRef.current.offsetHeight || printRef.current.scrollHeight || 920);
       }
@@ -695,10 +778,18 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
 
     measureLayout();
     window.addEventListener('resize', measureLayout);
+    const previewObserver = previewViewportRef.current && typeof ResizeObserver !== 'undefined'
+      ? new ResizeObserver((entries) => {
+        const previewWidth = entries[0]?.contentRect.width;
+        if (previewWidth !== undefined) setPreviewViewportWidth(previewWidth);
+      })
+      : null;
+    if (previewViewportRef.current) previewObserver?.observe(previewViewportRef.current);
     const timer = setTimeout(measureLayout, 120);
 
     return () => {
       window.removeEventListener('resize', measureLayout);
+      previewObserver?.disconnect();
       clearTimeout(timer);
     };
   }, [
@@ -710,6 +801,7 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
     signatory1Name,
     signatory2Name,
     includeSignatory2,
+    signatureImages,
     customRemarks,
     selectedViolationIds.length,
     zoom
@@ -721,8 +813,90 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
       setZoom(1);
       setPan({ x: 0, y: 0 });
       setIsMobileDrawerOpen(false);
+      setSignatureImages({ signatory1: '', signatory2: '' });
     }
   }, [isOpen]);
+
+  const handleSignatureFileChange = (key, event) => {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+    if (!file) return;
+
+    if (!['image/png', 'image/jpeg'].includes(file.type)) {
+      error('Choose a PNG or JPEG signature image.');
+      return;
+    }
+
+    if (file.size > 2 * 1024 * 1024) {
+      error('Signature images must be 2 MB or smaller.');
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result !== 'string') {
+        error('Unable to read the selected signature image.');
+        return;
+      }
+      setSignatureImages((current) => ({ ...current, [key]: reader.result }));
+    };
+    reader.onerror = () => error('Unable to read the selected signature image.');
+    reader.readAsDataURL(file);
+  };
+
+  const renderSignatureUpload = (key, label) => (
+    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', marginTop: '6px' }}>
+      <input
+        ref={(element) => { signatureInputRefs.current[key] = element; }}
+        type="file"
+        accept="image/png,image/jpeg"
+        aria-label={`Upload ${label} digital signature`}
+        onChange={(event) => handleSignatureFileChange(key, event)}
+        style={{ display: 'none' }}
+      />
+      <button
+        type="button"
+        onClick={() => signatureInputRefs.current[key]?.click()}
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '5px',
+          padding: '5px 8px',
+          borderRadius: '6px',
+          border: '1px solid var(--border-medium, #cbd5e1)',
+          background: 'var(--bg-surface-elevated, #f8fafc)',
+          color: 'var(--text-primary, #0f172a)',
+          fontSize: '10px',
+          fontWeight: 700,
+          cursor: 'pointer'
+        }}
+      >
+        <Upload size={12} />
+        {signatureImages[key] ? 'Replace digital signature' : 'Insert digital signature'}
+      </button>
+      {signatureImages[key] && (
+        <>
+          <img src={signatureImages[key]} alt={`${label} signature preview`} style={{ width: '136px', height: '36px', objectFit: 'contain' }} />
+          <button
+            type="button"
+            onClick={() => setSignatureImages((current) => ({ ...current, [key]: '' }))}
+            aria-label={`Remove ${label} digital signature`}
+            style={{
+              padding: '4px 7px',
+              borderRadius: '6px',
+              border: '1px solid var(--border-medium, #cbd5e1)',
+              background: 'var(--bg-surface, #ffffff)',
+              color: 'var(--text-secondary, #64748b)',
+              fontSize: '10px',
+              cursor: 'pointer'
+            }}
+          >
+            Remove
+          </button>
+        </>
+      )}
+    </div>
+  );
 
   // Load all student violations & advisers
   useEffect(() => {
@@ -1018,23 +1192,27 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
     currentY += 16;
 
     // Signatures
-    doc.setFont('helvetica', 'bold');
-    doc.text(signatory1Name, 14, currentY);
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(8.5);
-    doc.text(signatory1Title, 14, currentY + 4);
-
-    if (includeSignatory2) {
+    const signatureColumns = [
+      { x: 14, name: signatory1Name, title: signatory1Title, signature: signatureImages.signatory1 },
+      includeSignatory2 && { x: 116, name: signatory2Name, title: signatory2Title, signature: signatureImages.signatory2 }
+    ].filter(Boolean);
+    signatureColumns.forEach(({ x, name, title, signature }) => {
+      if (signature) {
+        const format = signature.startsWith('data:image/jpeg') ? 'JPEG' : 'PNG';
+        doc.addImage(signature, format, x + 3, currentY - 20, 74, 16);
+      }
+      doc.setDrawColor(15, 23, 42);
+      doc.line(x, currentY - 2, x + 80, currentY - 2);
       doc.setFont('helvetica', 'bold');
       doc.setFontSize(9);
-      doc.text(signatory2Name, 130, currentY);
+      doc.text(name, x, currentY + 3, { maxWidth: 80 });
       doc.setFont('helvetica', 'normal');
       doc.setFontSize(8.5);
-      doc.text(signatory2Title, 130, currentY + 4);
-    }
+      doc.text(title, x, currentY + 7, { maxWidth: 80 });
+    });
 
     // Tear-off slip
-    const tearOffY = Math.max(currentY + 22, 230);
+    const tearOffY = Math.max(currentY + 30, 230);
     doc.setLineDashPattern([2, 2], 0);
     doc.setDrawColor(148, 163, 184);
     doc.line(14, tearOffY, 196, tearOffY);
@@ -1073,7 +1251,8 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
         signatory1Title,
         includeSignatory2,
         signatory2Name,
-        signatory2Title
+        signatory2Title,
+        signatureImages
       });
 
       await printOrShareDocument({
@@ -1351,6 +1530,7 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
                 boxSizing: 'border-box'
               }}
             />
+            {renderSignatureUpload('signatory1', 'presiding officer')}
           </div>
         </div>
 
@@ -1418,6 +1598,7 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
                   boxSizing: 'border-box'
                 }}
               />
+              {renderSignatureUpload('signatory2', 'adviser')}
             </div>
           ) : (
             <span style={{ fontSize: '11px', color: 'var(--text-secondary, #64748b)', fontStyle: 'italic', padding: '4px 0' }}>
@@ -1432,10 +1613,11 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
         <label style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '12px', fontWeight: 700, color: 'var(--text-primary, #334155)', marginBottom: '4px' }}>
           <MessageSquare size={13} color="currentColor" /> Meeting Agenda &amp; Notes
         </label>
-        <textarea
+        <LanguageToolTextarea
           rows={2}
           value={customRemarks}
-          onChange={(e) => setCustomRemarks(e.target.value)}
+          onChange={setCustomRemarks}
+          placeholder="Add meeting agenda or notes..."
           style={{
             width: '100%',
             padding: '7px 11px',
@@ -1731,6 +1913,7 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
           border-top: 1.5px solid #0f172a !important;
           width: 210px !important;
           padding-top: 4px !important;
+          margin-top: 8px !important;
         }
         .psm-return-slip {
           margin-top: auto !important;
@@ -2179,6 +2362,7 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
           {/* Right Column: Printable Letter Document Preview */}
           <div
             className="psm-right smooth-scroll-container"
+            ref={previewViewportRef}
             onMouseDown={handleMouseDown}
             onTouchStart={handleTouchStart}
             onMouseMove={handleMouseMove}
@@ -2234,6 +2418,7 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
             <div
               style={{
                 width: '100%',
+                minWidth: 0,
                 display: 'flex',
                 justifyContent: 'center',
                 alignItems: 'flex-start'
@@ -2248,7 +2433,7 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
                   transform: `scale(${effectiveScale}) translate3d(${pan.x}px, ${pan.y}px, 0)`,
                   transformOrigin: 'top center',
                   transition: isDragging ? 'none' : 'transform 0.12s cubic-bezier(0.2, 0, 0, 1)',
-                  marginBottom: isMobile && paperHeight ? `-${paperHeight * (1 - effectiveScale)}px` : '0px'
+                  marginBottom: paperHeight ? `-${paperHeight * (1 - effectiveScale)}px` : '0px'
                 }}
               >
                 <div
@@ -2326,15 +2511,22 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
                         </p>
 
                         {/* Multi-Infractions Table */}
-                        <div style={{ width: '100%', overflowX: 'auto' }}>
-                          <table style={{ width: '100%', borderCollapse: 'collapse', margin: '12px 0 14px', fontSize: '11.5px', border: '1px solid #cbd5e1' }}>
+                        <div style={{ width: '100%', minWidth: 0, overflowX: 'hidden' }}>
+                          <table style={{ width: '100%', maxWidth: '100%', tableLayout: 'fixed', overflowWrap: 'anywhere', borderCollapse: 'collapse', margin: '12px 0 14px', fontSize: '10px', border: '1px solid #cbd5e1' }}>
+                            <colgroup>
+                              <col style={{ width: '5%' }} />
+                              <col style={{ width: '40%' }} />
+                              <col style={{ width: '18%' }} />
+                              <col style={{ width: '20%' }} />
+                              <col style={{ width: '17%' }} />
+                            </colgroup>
                             <thead>
                               <tr style={{ background: '#f1f5f9' }}>
-                                <th style={{ padding: '8px 6px', border: '1px solid #cbd5e1', width: '32px', textAlign: 'center', background: '#f1f5f9', color: '#0f172a', fontWeight: 800, fontSize: '11px', textTransform: 'uppercase' }}>#</th>
-                                <th style={{ padding: '8px 10px', border: '1px solid #cbd5e1', textAlign: 'left', background: '#f1f5f9', color: '#0f172a', fontWeight: 800, fontSize: '11px', textTransform: 'uppercase' }}>Infraction / Violation Description</th>
-                                <th style={{ padding: '8px 8px', border: '1px solid #cbd5e1', width: '100px', textAlign: 'center', background: '#f1f5f9', color: '#0f172a', fontWeight: 800, fontSize: '11px', textTransform: 'uppercase' }}>Offense Level</th>
-                                <th style={{ padding: '8px 8px', border: '1px solid #cbd5e1', width: '95px', textAlign: 'center', background: '#f1f5f9', color: '#0f172a', fontWeight: 800, fontSize: '11px', textTransform: 'uppercase' }}>Date Reported</th>
-                                <th style={{ padding: '8px 8px', border: '1px solid #cbd5e1', width: '80px', textAlign: 'center', background: '#f1f5f9', color: '#0f172a', fontWeight: 800, fontSize: '11px', textTransform: 'uppercase' }}>Status</th>
+                                <th style={{ padding: '5px 3px', border: '1px solid #cbd5e1', textAlign: 'center', background: '#f1f5f9', color: '#0f172a', fontWeight: 800, fontSize: '8px', textTransform: 'uppercase' }}>#</th>
+                                <th style={{ padding: '5px 6px', border: '1px solid #cbd5e1', textAlign: 'left', background: '#f1f5f9', color: '#0f172a', fontWeight: 800, fontSize: '8px', textTransform: 'uppercase' }}>Infraction / Violation Description</th>
+                                <th style={{ padding: '5px 4px', border: '1px solid #cbd5e1', textAlign: 'center', background: '#f1f5f9', color: '#0f172a', fontWeight: 800, fontSize: '8px', textTransform: 'uppercase' }}>Offense Level</th>
+                                <th style={{ padding: '5px 4px', border: '1px solid #cbd5e1', textAlign: 'center', background: '#f1f5f9', color: '#0f172a', fontWeight: 800, fontSize: '8px', textTransform: 'uppercase' }}>Date Reported</th>
+                                <th style={{ padding: '5px 4px', border: '1px solid #cbd5e1', textAlign: 'center', background: '#f1f5f9', color: '#0f172a', fontWeight: 800, fontSize: '8px', textTransform: 'uppercase' }}>Status</th>
                               </tr>
                             </thead>
                             <tbody>
@@ -2346,11 +2538,11 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
 
                                 return (
                                   <tr key={v.id || idx} style={{ background: idx % 2 === 0 ? '#ffffff' : '#f8fafc' }}>
-                                    <td style={{ padding: '7px 6px', border: '1px solid #e2e8f0', textAlign: 'center', fontWeight: 700, color: '#0f172a' }}>{idx + 1}</td>
-                                    <td style={{ padding: '7px 10px', border: '1px solid #e2e8f0', fontWeight: 600, color: '#0f172a' }}>{vTitle}</td>
-                                    <td style={{ padding: '7px 8px', border: '1px solid #e2e8f0', textAlign: 'center', fontWeight: 700, color: '#0f172a' }}>{vSev}</td>
-                                    <td style={{ padding: '7px 8px', border: '1px solid #e2e8f0', textAlign: 'center', color: '#475569' }}>{vDate}</td>
-                                    <td style={{ padding: '7px 8px', border: '1px solid #e2e8f0', textAlign: 'center', color: '#0f172a', fontWeight: 600 }}>{vStatus}</td>
+                                    <td style={{ padding: '5px 3px', border: '1px solid #e2e8f0', textAlign: 'center', fontWeight: 700, color: '#0f172a' }}>{idx + 1}</td>
+                                    <td style={{ padding: '5px 6px', border: '1px solid #e2e8f0', fontWeight: 600, color: '#0f172a' }}>{vTitle}</td>
+                                    <td style={{ padding: '5px 4px', border: '1px solid #e2e8f0', textAlign: 'center', fontWeight: 700, color: '#0f172a' }}>{vSev}</td>
+                                    <td style={{ padding: '5px 4px', border: '1px solid #e2e8f0', textAlign: 'center', color: '#475569' }}>{vDate}</td>
+                                    <td style={{ padding: '5px 4px', border: '1px solid #e2e8f0', textAlign: 'center', color: '#0f172a', fontWeight: 600 }}>{vStatus}</td>
                                   </tr>
                                 );
                               })}
@@ -2398,7 +2590,9 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
                   {/* Signatures */}
                   <div className="psm-signatures-row">
                     <div>
-                      <div style={{ height: '24px' }} />
+                      <div style={{ height: '50px', display: 'flex', justifyContent: 'center', alignItems: 'flex-end' }}>
+                        {signatureImages.signatory1 && <img src={signatureImages.signatory1} alt="Presiding officer digital signature" style={{ maxWidth: '100%', maxHeight: '50px', objectFit: 'contain' }} />}
+                      </div>
                       <div className="psm-sig-line">
                         <strong style={{ fontSize: '12px', display: 'block', color: '#0f172a' }}>{signatory1Name}</strong>
                         <span style={{ fontSize: '10.5px', color: '#64748b', display: 'block' }}>{signatory1Title}</span>
@@ -2407,7 +2601,9 @@ export const ParentSummonsModal = ({ isOpen, onClose, record, student, records }
 
                     {includeSignatory2 && (
                       <div>
-                        <div style={{ height: '24px' }} />
+                        <div style={{ height: '50px', display: 'flex', justifyContent: 'center', alignItems: 'flex-end' }}>
+                          {signatureImages.signatory2 && <img src={signatureImages.signatory2} alt="Adviser digital signature" style={{ maxWidth: '100%', maxHeight: '50px', objectFit: 'contain' }} />}
+                        </div>
                         <div className="psm-sig-line">
                           <strong style={{ fontSize: '12px', display: 'block', color: '#0f172a' }}>{signatory2Name}</strong>
                           <span style={{ fontSize: '10.5px', color: '#64748b', display: 'block' }}>{signatory2Title}</span>

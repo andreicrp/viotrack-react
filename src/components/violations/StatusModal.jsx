@@ -12,8 +12,7 @@ import {
   X,
   Shield,
   Layers,
-  ArrowRight,
-  Sparkles
+  ArrowRight
 } from 'lucide-react';
 
 export const StatusModal = ({ isOpen, onClose, record, onUpdated }) => {
@@ -420,20 +419,25 @@ export const StatusModal = ({ isOpen, onClose, record, onUpdated }) => {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'space-between',
+          gap: '12px',
           background: '#f8fafc'
         }}
       >
-        <div style={{ fontSize: '12px', color: '#64748b' }}>
+        <div className="incident-status-footer-message" style={{ fontSize: '12px', color: '#64748b', minWidth: 0 }}>
           {isChanged ? (
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', color: '#07345f', fontWeight: 600 }}>
-              <Sparkles size={13} color="#f59e0b" /> Changing from <strong>{currentStatus}</strong> → <strong>{selectedStatus}</strong>
+            <span
+              className="incident-status-change-summary"
+              title={`Changing from ${currentStatus} to ${selectedStatus}`}
+              aria-label={`Changing from ${currentStatus} to ${selectedStatus}`}
+            >
+              <span>{currentStatus} → {selectedStatus}</span>
             </span>
           ) : (
-            <span>Select a new status to apply</span>
+            <span className="incident-status-change-summary">Select a new status to apply</span>
           )}
         </div>
 
-        <div style={{ display: 'flex', gap: '10px' }}>
+        <div className="incident-status-footer-actions" style={{ display: 'flex', gap: '10px', flexShrink: 0 }}>
           <button
             type="button"
             className="btn btn-secondary"
@@ -457,7 +461,7 @@ export const StatusModal = ({ isOpen, onClose, record, onUpdated }) => {
             onClick={handleUpdate}
             disabled={loading || !isChanged}
             style={{
-              background: isChanged ? '#07345f' : '#94a3b8',
+              background: '#ffffff',
               borderRadius: '9px',
               padding: '8px 20px',
               fontWeight: 700,
@@ -465,14 +469,14 @@ export const StatusModal = ({ isOpen, onClose, record, onUpdated }) => {
               display: 'flex',
               alignItems: 'center',
               gap: '6px',
-              color: '#ffffff',
+              color: '#000000',
               border: 'none',
-              boxShadow: isChanged ? '0 4px 12px rgba(7, 52, 95, 0.25)' : 'none',
+              boxShadow: '0 2px 8px rgba(0, 0, 0, 0.18)',
               cursor: isChanged ? 'pointer' : 'not-allowed',
               transition: 'all 0.18s ease'
             }}
           >
-            <Check size={15} strokeWidth={2.5} />
+            <Check size={15} strokeWidth={2.5} color="#000000" />
             {loading ? 'Updating...' : 'Save New Status'}
           </button>
         </div>

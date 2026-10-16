@@ -25,8 +25,6 @@ import {
   ArrowUpDown,
   ArrowUp,
   ArrowDown,
-  ChevronLeft,
-  ChevronRight,
   Filter,
   AlertCircle,
   MessageSquare,
@@ -494,7 +492,7 @@ export const ForApprovalPage = () => {
   };
 
   return (
-    <div className="for-approval-page" style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+    <div className="for-approval-page compact-mobile-actions" style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
       {/* 1. Page Banner Header */}
       <div className="page-banner-header">
         <div className="page-banner-info">
@@ -529,27 +527,6 @@ export const ForApprovalPage = () => {
             </button>
           </div>
 
-          {selectedIds.length > 0 && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-              <button
-                onClick={handleBatchApprove}
-                disabled={actionLoading}
-                className="page-banner-primary-btn"
-                style={{ background: '#10b981', borderColor: '#059669', cursor: actionLoading ? 'not-allowed' : 'pointer' }}
-              >
-                <CheckCircle2 size={16} strokeWidth={2.5} /> Approve ({selectedIds.length})
-              </button>
-
-              <button
-                onClick={handleBatchReject}
-                disabled={actionLoading}
-                className="page-banner-primary-btn"
-                style={{ background: '#ef4444', borderColor: '#dc2626', cursor: actionLoading ? 'not-allowed' : 'pointer' }}
-              >
-                <X size={16} strokeWidth={2.5} /> Reject ({selectedIds.length})
-              </button>
-            </div>
-          )}
         </div>
       </div>
 
@@ -819,7 +796,33 @@ export const ForApprovalPage = () => {
               </button>
             )}
 
-            <ViewModeToggle viewMode={viewMode} setViewMode={setViewMode} />
+            <div className="approval-selection-utility">
+              <ViewModeToggle viewMode={viewMode} onChange={setViewMode} />
+              {selectedIds.length > 0 && (
+                <>
+                  <button
+                    type="button"
+                    className="approval-selection-action approval-selection-action-approve"
+                    onClick={handleBatchApprove}
+                    disabled={actionLoading}
+                    aria-label={`Approve ${selectedIds.length} selected reports`}
+                  >
+                    <CheckCircle2 size={14} />
+                    <span>Approve ({selectedIds.length})</span>
+                  </button>
+                  <button
+                    type="button"
+                    className="approval-selection-action approval-selection-action-reject"
+                    onClick={handleBatchReject}
+                    disabled={actionLoading}
+                    aria-label={`Reject ${selectedIds.length} selected reports`}
+                  >
+                    <X size={14} />
+                    <span>Reject ({selectedIds.length})</span>
+                  </button>
+                </>
+              )}
+            </div>
           </div>
         </div>
 
@@ -1224,17 +1227,15 @@ export const ForApprovalPage = () => {
                       </div>
 
                       {/* Offense Card Box */}
-                      <div style={{ background: '#f8fafc', padding: '10px 12px', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
-                        <div style={{ fontSize: '11px', color: '#64748b', fontWeight: 700, marginBottom: '2px' }}>
-                          REPORTED OFFENSE
-                        </div>
-                        <div style={{ fontWeight: 800, fontSize: '13px', color: '#1e293b' }}>
-                          {v.title || v.name || 'Violation Incident'}
-                        </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginTop: '4px' }}>
+                      <div className="approval-grid-offense-panel" style={{ background: '#f8fafc', padding: '10px 12px', borderRadius: '10px', border: '1px solid #e2e8f0' }}>
+                        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '8px', marginBottom: '4px' }}>
+                          <div className="approval-grid-offense-label" style={{ fontSize: '11px', color: '#64748b', fontWeight: 700 }}>
+                            REPORTED OFFENSE
+                          </div>
                           <span
                             className={sevBadge.className}
                             style={{
+                              flex: '0 0 auto',
                               fontSize: '10px',
                               fontWeight: 700,
                               padding: '2px 8px',
@@ -1246,6 +1247,9 @@ export const ForApprovalPage = () => {
                           >
                             {sevBadge.label}
                           </span>
+                        </div>
+                        <div className="approval-grid-offense-title" style={{ fontWeight: 800, fontSize: '13px', color: '#1e293b' }}>
+                          {v.title || v.name || 'Violation Incident'}
                         </div>
                       </div>
 
@@ -1336,11 +1340,9 @@ export const ForApprovalPage = () => {
                   const isChecked = selectedIds.includes(r.id);
                   const s = r.student || {};
                   const v = r.violation || {};
-                  const sevBadge = getSeverityBadge(v.type);
                   const aStat = getApprovalStatus(r);
                   const isPending = aStat === 'Under Approval';
                   const isApproved = aStat === 'Approved';
-                  const isRejected = aStat === 'Rejected';
                   const studentName = (s.fname && s.lname) ? `${s.fname} ${s.lname}` : (s.name || s.full_name || r.student_name || 'Student');
                   const studentAvatar = s.image || s.avatar || s.photo_url || s.photo || `https://ui-avatars.com/api/?name=${encodeURIComponent(studentName)}&background=07345f&color=fff&size=40&bold=true`;
 
@@ -1402,12 +1404,13 @@ export const ForApprovalPage = () => {
                               fontWeight: 800,
                               padding: '2.5px 8px',
                               borderRadius: '6px',
-                              background: sevBadge.bg,
-                              color: sevBadge.color,
+                              background: isPending ? '#fffbeb' : isApproved ? '#f0fdf4' : '#fef2f2',
+                              color: isPending ? '#b45309' : isApproved ? '#15803d' : '#b91c1c',
+                              border: `1px solid ${isPending ? '#fde68a' : isApproved ? '#bbf7d0' : '#fecaca'}`,
                               display: 'inline-block'
                             }}
                           >
-                            {sevBadge.label}
+                            {aStat}
                           </span>
                         </div>
                       </div>
@@ -1438,11 +1441,14 @@ export const ForApprovalPage = () => {
                             {new Date(r.date_reported || r.created_at || Date.now()).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                           </span>
                         </div>
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '2px' }}>
-                          <span style={{ fontWeight: 600 }}>Status:</span>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-start', gap: '8px', marginTop: '2px' }}>
+                          <span style={{ fontWeight: 600, flexShrink: 0 }}>Status:</span>
                           <span
                             className={`approval-mobile-status-badge ${isPending ? 'is-pending' : isApproved ? 'is-approved' : 'is-rejected'}`}
                             style={{
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              whiteSpace: 'nowrap',
                               fontSize: '11px',
                               fontWeight: 800,
                               padding: '2px 8px',
@@ -1543,163 +1549,77 @@ export const ForApprovalPage = () => {
         )}
 
         {/* 5. Pagination Footer */}
-        <div className="approval-pagination-footer" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '18px', paddingTop: '14px', borderTop: '1px solid #f1f5f9', flexWrap: 'wrap', gap: '10px' }}>
+        <div className="approval-pagination-footer pagination-footer-responsive table-footer" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '18px', paddingTop: '14px', borderTop: '1px solid #f1f5f9', flexWrap: 'wrap', gap: '10px' }}>
           <span className="approval-pagination-count" style={{ fontSize: '13px', color: '#64748b' }}>
             Showing {filteredRecords.length === 0 ? 0 : (currentPage - 1) * entriesPerPage + 1} to{' '}
             {Math.min(currentPage * entriesPerPage, filteredRecords.length)} of {filteredRecords.length} records
           </span>
 
-          {totalPages > 1 && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-              <button
-                disabled={currentPage === 1}
-                onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                style={{
-                  padding: '5px 9px',
-                  borderRadius: '6px',
-                  border: '1px solid #e2e8f0',
-                  background: '#ffffff',
-                  cursor: currentPage === 1 ? 'not-allowed' : 'pointer',
-                  opacity: currentPage === 1 ? 0.5 : 1
-                }}
-              >
-                <ChevronLeft size={15} />
-              </button>
-              <span style={{ fontSize: '13px', fontWeight: 700, color: '#0f172a', padding: '0 6px' }}>
-                Page {currentPage} of {totalPages}
-              </span>
-              <button
-                disabled={currentPage === totalPages}
-                onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                style={{
-                  padding: '5px 9px',
-                  borderRadius: '6px',
-                  border: '1px solid #e2e8f0',
-                  background: '#ffffff',
-                  cursor: currentPage === totalPages ? 'not-allowed' : 'pointer',
-                  opacity: currentPage === totalPages ? 0.5 : 1
-                }}
-              >
-                <ChevronRight size={15} />
-              </button>
+          <div className="pagination-btn-group" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <button
+              aria-label="First page"
+              title="First page"
+              disabled={currentPage === 1}
+              onClick={() => setCurrentPage(1)}
+              style={{ padding: '6px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', background: '#fff', cursor: currentPage > 1 ? 'pointer' : 'default', fontSize: '12px' }}
+            >
+              «
+            </button>
+            <button
+              aria-label="Previous page"
+              title="Previous page"
+              disabled={currentPage === 1}
+              onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+              style={{ padding: '6px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', background: '#fff', cursor: currentPage > 1 ? 'pointer' : 'default', fontSize: '12px' }}
+            >
+              ‹
+            </button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1)
+              .filter(page => page === 1 || page === totalPages || Math.abs(page - currentPage) <= 1)
+              .map((page, index, pages) => (
+                <React.Fragment key={page}>
+                  {index > 0 && page - pages[index - 1] > 1 && <span style={{ padding: '0 4px' }}>...</span>}
+                  <button
+                    onClick={() => setCurrentPage(page)}
+                    aria-current={page === currentPage ? 'page' : undefined}
+                    style={{
+                      width: 32,
+                      height: 32,
+                      borderRadius: '6px',
+                      border: '1px solid #cbd5e1',
+                      background: page === currentPage ? '#0f172a' : '#ffffff',
+                      color: page === currentPage ? '#ffffff' : '#334155',
+                      fontWeight: 700,
+                      fontSize: '12px',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    {page}
+                  </button>
+                </React.Fragment>
+              ))}
+            <button
+              aria-label="Next page"
+              title="Next page"
+              disabled={currentPage === totalPages}
+              onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+              style={{ padding: '6px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', background: '#fff', cursor: currentPage < totalPages ? 'pointer' : 'default', fontSize: '12px' }}
+            >
+              ›
+            </button>
+            <button
+              aria-label="Last page"
+              title="Last page"
+              disabled={currentPage === totalPages}
+              onClick={() => setCurrentPage(totalPages)}
+              style={{ padding: '6px 10px', borderRadius: '6px', border: '1px solid #cbd5e1', background: '#fff', cursor: currentPage < totalPages ? 'pointer' : 'default', fontSize: '12px' }}
+            >
+              »
+            </button>
             </div>
-          )}
         </div>
 
       </div>
-
-      {/* Floating Batch Action Bar */}
-      {selectedIds.length > 0 && (
-        <div
-          className="approval-bulk-selection-toolbar"
-          style={{
-            position: 'fixed',
-            bottom: '24px',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            zIndex: 9999,
-            background: '#0f172a',
-            color: '#ffffff',
-            padding: '12px 20px',
-            borderRadius: '16px',
-            boxShadow: '0 20px 40px -10px rgba(15, 23, 42, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.15)',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '16px',
-            animation: 'fadeIn 0.2s ease-out',
-            maxWidth: '92vw',
-            flexWrap: 'wrap'
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-            <span
-              style={{
-                background: '#38bdf8',
-                color: '#0f172a',
-                fontWeight: 800,
-                fontSize: '12px',
-                padding: '3px 9px',
-                borderRadius: '20px'
-              }}
-            >
-              {selectedIds.length} Selected
-            </span>
-            <span style={{ fontSize: '13px', fontWeight: 600, color: '#e2e8f0' }}>
-              Pending Minor/Verified Reports
-            </span>
-          </div>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <button
-              type="button"
-              onClick={handleBatchApprove}
-              disabled={actionLoading}
-              style={{
-                padding: '8px 16px',
-                borderRadius: '10px',
-                background: '#10b981',
-                color: '#ffffff',
-                border: 'none',
-                fontSize: '12.5px',
-                fontWeight: 700,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-                boxShadow: '0 2px 8px rgba(16, 185, 129, 0.35)',
-                transition: 'all 0.15s'
-              }}
-            >
-              <Check size={15} strokeWidth={2.5} />
-              <span>{actionLoading ? 'Approving...' : `Approve All (${selectedIds.length})`}</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={handleBatchReject}
-              disabled={actionLoading}
-              style={{
-                padding: '8px 14px',
-                borderRadius: '10px',
-                background: '#dc2626',
-                color: '#ffffff',
-                border: 'none',
-                fontSize: '12.5px',
-                fontWeight: 700,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px',
-                boxShadow: '0 2px 8px rgba(220, 38, 38, 0.35)',
-                transition: 'all 0.15s'
-              }}
-            >
-              <X size={15} strokeWidth={2.5} />
-              <span>Reject All</span>
-            </button>
-
-            <button
-              className="bulk-selection-clear-btn"
-              type="button"
-              onClick={() => setSelectedIds([])}
-              style={{
-                padding: '8px',
-                borderRadius: '8px',
-                background: 'rgba(255, 255, 255, 0.1)',
-                color: '#cbd5e1',
-                border: 'none',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}
-              title="Deselect all"
-            >
-              <X size={16} />
-            </button>
-          </div>
-        </div>
-      )}
 
       {/* 6. Comprehensive Case Inspection Modal */}
       {inspectRecord && (() => {
@@ -1801,7 +1721,7 @@ export const ForApprovalPage = () => {
                 {/* Status Badge */}
                 <div>
                   <span
-                    className={`approve-incident-severity-badge ${sevBadge.className}`}
+                    className="approve-incident-severity-badge"
                     style={{
                       fontSize: '11.5px',
                       fontWeight: 600,

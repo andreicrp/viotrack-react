@@ -305,7 +305,7 @@ export const AdvisersPage = () => {
   }
 
   return (
-    <div className="advisers-page-wrapper">
+    <div className="advisers-page-wrapper compact-mobile-actions">
       {/* Top Banner & Action Header */}
       <div className="page-banner-header">
         <div className="page-banner-info">

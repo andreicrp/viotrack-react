@@ -3,55 +3,106 @@
   width: 100%;
 }
 
-@media (max-width: 1024px) {
-  .for-approval-page .responsive-table-desktop {
-    display: none !important;
-  }
+.for-approval-page .responsive-cards-mobile {
+  gap: 10px !important;
+  padding: 8px 0 !important;
+}
 
-  .for-approval-page .responsive-cards-mobile {
-    display: flex !important;
-    flex-direction: column !important;
-    gap: 10px !important;
-    padding: 8px 0 !important;
-    min-width: 0;
-  }
+.for-approval-page .responsive-cards-mobile.grid-view {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)) !important;
+}
 
-  .for-approval-page .responsive-cards-mobile.grid-view {
-    display: grid !important;
-    grid-template-columns: minmax(0, 1fr) !important;
-  }
+.for-approval-page .approval-mobile-record-card {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 14px !important;
+  gap: 10px !important;
+  border-radius: 12px !important;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08) !important;
+}
 
-  .for-approval-page .approval-mobile-record-card {
-    width: 100%;
-    min-width: 0;
-    box-sizing: border-box;
-    padding: 14px !important;
-    gap: 10px !important;
-    border-radius: 12px !important;
-    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08) !important;
-  }
+.for-approval-page .approval-mobile-record-card > div {
+  min-width: 0;
+}
 
-  .for-approval-page .approval-mobile-record-card > div {
-    min-width: 0;
-  }
+.for-approval-page .approval-mobile-student-name,
+.for-approval-page .approval-mobile-offense-title,
+.for-approval-page .approval-mobile-reporter {
+  overflow-wrap: anywhere;
+}
 
-  .for-approval-page .approval-mobile-student-name,
-  .for-approval-page .approval-mobile-offense-title,
-  .for-approval-page .approval-mobile-reporter {
-    overflow-wrap: anywhere;
-  }
+.for-approval-page .approval-mobile-offense-panel {
+  padding: 9px 11px !important;
+}
 
-  .for-approval-page .approval-mobile-offense-panel {
-    padding: 9px 11px !important;
-  }
+.for-approval-page .approval-mobile-card-actions {
+  gap: 7px !important;
+}
 
-  .for-approval-page .approval-mobile-card-actions {
-    gap: 7px !important;
-  }
+.for-approval-page .approval-mobile-card-actions button {
+  min-height: 40px !important;
+}
 
-  .for-approval-page .approval-mobile-card-actions button {
-    min-height: 40px !important;
-  }
+.approval-selection-utility {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: 0 0 auto;
+  min-width: 0;
+}
+
+.approval-selection-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-height: 34px;
+  padding: 5px 8px;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.approval-selection-action-approve {
+  background: #059669;
+  border-color: #047857;
+}
+
+.approval-selection-action-reject {
+  background: #dc2626;
+  border-color: #b91c1c;
+}
+
+.approval-selection-action:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.approval-selection-action:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 2px;
+}
+
+[data-theme="dark"] .for-approval-page .approval-selection-action-approve {
+  background: #047857 !important;
+  border-color: #34d399 !important;
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .for-approval-page .approval-selection-action-reject {
+  background: #b91c1c !important;
+  border-color: #f87171 !important;
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .for-approval-page .approval-selection-action:focus-visible {
+  outline-color: #d4d4d4;
 }
 
 @media (max-width: 480px) {
@@ -71,6 +122,30 @@
 
   .for-approval-page .approval-mobile-action-label {
     display: inline;
+  }
+}
+
+@media (max-width: 480px) {
+  .approval-selection-utility {
+    gap: 4px;
+  }
+
+  .approval-selection-action {
+    gap: 4px;
+    padding-inline: 6px;
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 360px) {
+  .approval-selection-action {
+    width: 34px;
+    min-height: 34px;
+    padding: 0;
+  }
+
+  .approval-selection-action > span {
+    display: none;
   }
 }
 

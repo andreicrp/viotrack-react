@@ -1096,6 +1096,8 @@ export const SaveAsModal = ({
       {/* Full-Screen "Saving: [filename]... Working on it..." Light Modal Overlay */}
       {isSaving && (
         <div
+          role="status"
+          aria-live="polite"
           style={{
             position: 'absolute',
             inset: 0,
@@ -1108,7 +1110,6 @@ export const SaveAsModal = ({
             justifyContent: 'center',
             padding: '24px'
           }}
-          aria-current={selectedFormat === fmt ? 'true' : undefined}
         >
           <div
             style={{

@@ -66,12 +66,12 @@ Deno.serve(async (request) => {
 
     if (action === 'session') {
       const token = extractToken(request, requestBody.token);
-      if (!token) return json(request, { user: null }, 401);
+      if (!token) return json(request, { user: null }, 200);
       try {
         const { payload } = await jwtVerify(token, signingSecret);
         return json(request, { user: payload, token });
       } catch {
-        return json(request, { user: null }, 401);
+        return json(request, { user: null }, 200);
       }
     }
 

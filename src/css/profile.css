@@ -623,16 +623,18 @@
 }
 
 /* =========================================
-   MOBILE RESPONSIVENESS (< 768px)
+   RESPONSIVE LAYOUT (< 900px)
    ========================================= */
-@media (max-width: 768px) {
+@media (max-width: 900px) {
   .profile-page-container {
     gap: 16px;
     padding-bottom: 0px !important; /* main-content already clears mobile bottom nav */
+    min-width: 0;
   }
 
   .profile-hero-card {
     border-radius: 16px;
+    min-width: 0;
   }
 
   .profile-hero-banner {
@@ -654,6 +656,7 @@
     flex-direction: column;
     align-items: center;
     text-align: center;
+    min-width: 0;
     padding: 0 16px 18px;
     margin-top: -45px;
     gap: 14px;
@@ -663,6 +666,8 @@
     flex-direction: column;
     align-items: center;
     gap: 12px;
+    min-width: 0;
+    max-width: 100%;
   }
 
   .profile-avatar-img {
@@ -672,6 +677,7 @@
 
   .profile-identity-title-row {
     justify-content: center;
+    min-width: 0;
   }
 
   .profile-name-text {
@@ -694,6 +700,7 @@
     grid-template-columns: 1fr 1fr;
     gap: 8px;
     padding-bottom: 0;
+    min-width: 0;
   }
 
   .profile-hero-actions .profile-action-btn {
@@ -704,15 +711,19 @@
 
   /* Responsive Tabs on Mobile */
   .profile-tabs-bar {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     padding: 0 8px;
-    justify-content: space-around;
+    overflow: hidden;
   }
 
   .profile-tab-item {
-    flex: 1;
-    padding: 12px 6px;
-    font-size: 12px;
-    gap: 5px;
+    min-width: 0;
+    flex-direction: column;
+    padding: 10px 4px;
+    font-size: 11px;
+    gap: 4px;
+    white-space: normal;
   }
 
   .profile-tab-label-desktop {
@@ -727,6 +738,16 @@
   .profile-cards-grid {
     grid-template-columns: 1fr;
     gap: 14px;
+    min-width: 0;
+  }
+
+  .profile-page-container > form {
+    min-width: 0;
+  }
+
+  .profile-form-row-2col {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
   }
 
   .profile-card {

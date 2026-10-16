@@ -547,14 +547,20 @@ html[data-theme="dark"] body .dash-insight-text {
   height: 30px !important;
   border-radius: 8px !important;
   background: #111111 !important;
-  border-color: #303030 !important;
-  color: #cbd5e1 !important;
+  border-color: #ffffff !important;
+  color: #ffffff !important;
 }
 
 [data-theme="dark"] .dash-cal-nav-btn:hover {
   background: #161616 !important;
-  border-color: #38bdf8 !important;
-  color: #7dd3fc !important;
+  border-color: #ffffff !important;
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .dash-cal-nav-btn:active {
+  background: #161616 !important;
+  border-color: #ffffff !important;
+  color: #ffffff !important;
 }
 
 [data-theme="dark"] .dash-calendar-grid-clean {

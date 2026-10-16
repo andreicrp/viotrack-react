@@ -386,7 +386,7 @@ export const ViolationTypesPage = () => {
   };
 
   return (
-    <div className="violation-types-page" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+    <div className="violation-types-page compact-mobile-layout" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
       {/* 1. Top Banner & Primary Actions */}
       <div className="page-banner-header">
         <div className="page-banner-info">

@@ -1269,31 +1269,30 @@ export const dataService = {
       const isResolved = status === 'Resolved';
       const payload = {
         status,
-        resolution_notes: resolution_notes || '',
-        sanction: sanction || '',
         resolution_date: isResolved ? new Date().toISOString() : null
       };
+      if (resolution_notes !== undefined) payload.resolution_notes = resolution_notes || '';
+      if (sanction !== undefined) payload.sanction = sanction || '';
 
       let result = null;
       if (isSupabaseConfigured()) {
-        try {
-          const { data, error } = await supabase
-            .from('records')
-            .update(payload)
-            .eq('id', Number(id))
-            .select('*, students (*), violations (*)');
-          if (!error && data?.[0]) {
-            result = {
-              ...data[0],
-              student: data[0].students,
-              violation: data[0].violations
-            };
-          } else if (error) {
-            console.error('Supabase updateRecordStatus error:', error);
-          }
-        } catch (err) {
-          console.warn('Supabase updateRecordStatus error:', err);
+        const { data, error } = await supabase
+          .from('records')
+          .update(payload)
+          .eq('id', Number(id))
+          .select('*, students (*), violations (*)');
+        if (error) {
+          console.error('Supabase updateRecordStatus error:', error);
+          throw new Error(`Unable to save the incident status: ${error.message}`);
         }
+        if (!data?.[0]) {
+          throw new Error(`Unable to save the incident status: record #${id} was not updated.`);
+        }
+        result = {
+          ...data[0],
+          student: data[0].students,
+          violation: data[0].violations
+        };
       }
       const current = getStored('records', INITIAL_RECORDS);
       const updated = current.map(r => (Number(r.id) === Number(id) ? { ...r, ...payload } : r));
